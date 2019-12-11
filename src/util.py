@@ -1,7 +1,6 @@
 import logging
 import inspect
 import json
-import requests
 import traceback
 import unittest
 import datetime

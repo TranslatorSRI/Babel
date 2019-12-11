@@ -1,2 +1,4 @@
 jsonlines
 flask
+flask-restful
+flasgger
