@@ -1,8 +1,3 @@
-from src.util import LoggingUtil, Text
-from src.LabeledID import LabeledID
-from babel.chemical_mesh_unii import refresh_mesh_pubchem
-from babel.babel_utils import glom, pull_via_ftp, pull_and_decompress, dump_cache
-#import greent.annotators.util.async_client as async_client
 from gzip import decompress, GzipFile
 from functools import partial
 import logging
@@ -10,16 +5,19 @@ import os
 import pickle
 import requests
 import asyncio
-#from greent.annotators.chemical_annotator import ChemicalAnnotator
-#from crawler.chebi import pull_chebi, chebi_sdf_entry_to_dict
-#from crawler.pullers import pull_uniprot
-#from crawler.pullers import pull_iuphar
 import ftplib
-#import pandas
-import urllib
+import pandas
 import gzip
-#from crawler.big_gz_sort import batch_sort
 from collections import defaultdict
+
+from src.util import LoggingUtil, Text
+from src.LabeledID import LabeledID
+
+from babel.chemical_mesh_unii import refresh_mesh_pubchem
+from babel.babel_utils import glom, pull_via_ftp, dump_cache,pull_via_urllib
+from babel.chemistry_pulls import pull_chebi, chebi_sdf_entry_to_dict, pull_uniprot, pull_iuphar, pull_kegg_sequences
+from babel.big_gz_sort import batch_sort
+
 
 logger = LoggingUtil.init_logging("chemicals", logging.DEBUG, format='medium', logFilePath=f'{os.path.dirname(os.path.abspath(__file__))}/logs/')
 
@@ -116,10 +114,10 @@ def pull_uniprot_chebi():
 #  8. Use wikidata to get links between CHEBI and UniProt_PRO
 #  9. glom across sequence and chemical stuff
 # 10. Drop PRO only sequences.
-def load_chemicals(rosetta, refresh=True):
+def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=False,refresh_chembl=False):
     # Build if need be
-    if refresh:
-        refresh_mesh_pubchem(rosetta)
+    if refresh_mesh:
+        refresh_mesh_pubchem()
     #Get all the simple stuff
     # 1. Handle all the stuff that has an InchiKey using unichem
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
@@ -148,10 +146,10 @@ def load_chemicals(rosetta, refresh=True):
     glom(concord, pubchem_chebi_pairs)
     glom(concord, kegg_chebi_pairs)
     # 4. Go to KEGG, and get sequences for peptides.
-    sequence_concord = rosetta.core.kegg.pull_sequences()
+    sequence_concord = pull_kegg_sequences()
     # 5. Pull UniProt (swissprot) XML.
     # Calculate sequences for the sub-sequences (Uniprot_PRO)
-    sequence_to_uniprot = pull_uniprot(refresh)
+    sequence_to_uniprot = pull_uniprot(refresh_uniprot)
     # 6. Use the sequences to merge UniProt with KEGG
     for s,v in sequence_to_uniprot.items():
         sequence_concord[s].update(v)
@@ -181,25 +179,22 @@ def load_chemicals(rosetta, refresh=True):
     #Add labels to CHEBIs, CHEMBLs, MESHes
     print('LABEL')
     label_chebis(concord)
-    label_chembls(concord, refresh= refresh)
+    label_chembls(concord, refresh_chembl = refresh_chembl )
     label_meshes(concord)
-    label_pubchem(concord, refresh= refresh)
+    label_pubchem(concord, refresh_pubchem = refresh_pubchem)
     print('dumping')
     #Dump
     with open('chemconc.txt','w') as outf:
-        dump_cache(concord,rosetta,outf)
-    #dump_cache(concord,rosetta)
+        dump_cache(concord,outf)
     print('done')
 
 def get_chebi_label(ident):
     res = requests.get(f'https://uberonto.renci.org/label/{ident}/').json()
     return res['label']
 
-
 def get_chembl_label(ident):
     res = requests.get(f'https://www.ebi.ac.uk/chembl/api/data/molecule/{Text.un_curie(ident)}.json').json()
     return res['pref_name']
-
 
 def get_dict_label(ident, labels):
     try:
@@ -207,13 +202,11 @@ def get_dict_label(ident, labels):
     except KeyError:
         return None
 
-
 def get_mesh_label(ident, labels):
     try:
         return labels[Text.un_curie(ident)]
     except KeyError:
         return ""
-
 
 ###
 
@@ -255,11 +248,11 @@ def process_chunk(lines, label_dict):
         label_dict[chemblid] = label
 
 
-def label_chembls(concord, refresh = False):
+def label_chembls(concord, refresh_chembl = False):
     print('READ CHEMBL')
     fname = 'chembl_25.0_molecule.ttl.gz'
     # uncomment if you need a new one
-    if refresh:
+    if refresh_chembl:
         data=pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chembl/ChEMBL-RDF/25.0/',fname)
         with open(fname,'wb') as outf:
             outf.write(data)
@@ -287,9 +280,9 @@ def label_meshes(concord):
         mesh_labels = pickle.load(inf)
     label_compounds(concord, 'MESH', partial(get_mesh_label, labels=mesh_labels))
 
-def label_pubchem(concord, refresh = False):
+def label_pubchem(concord, refresh_pubchem = False):
     f_name =  'CID-IUPAC.gz'
-    if refresh:        
+    if refresh_pubchem:
         data = pull_via_ftp('ftp://ftp.ncbi.nlm.nih.gov','/pubchem/Compound/Extras/', f_name)
         with open(f_name, 'wb') as outf:
             outf.write(data)
@@ -369,23 +362,6 @@ def uni_glom(unichem_data, prefix1, prefix2, chemdict):
     glom(chemdict, curiepairs)
 
 
-def load_unichem_deprecated():
-    chemcord = {}
-    prefixes = {1: 'CHEMBL', 2: 'DRUGBANK', 4: 'GTOPDB', 6: 'KEGG.COMPOUND', 7: 'CHEBI', 14: 'UNII', 18: 'HMDB', 22: 'PUBCHEM'}
-    #
-    keys = list(prefixes.keys())
-    keys.sort()
-    for i in range(len(keys)):
-        for j in range(i + 1, len(keys)):
-            ki = keys[i]
-            kj = keys[j]
-            prefix_i = prefixes[ki]
-            prefix_j = prefixes[kj]
-            dr = f'pub/databases/chembl/UniChem/data/wholeSourceMapping/src_id{ki}'
-            fl = f'src{ki}src{kj}.txt.gz'
-            pairs = pull_and_decompress('ftp.ebi.ac.uk', dr, fl)
-            uni_glom(pairs,prefix_i,prefix_j,chemcord)
-    return chemcord
 
 def uci_key(row):
     #print(row)
@@ -433,8 +409,8 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
             logger.info(f'Target unichem FTP URL: {target_uc_url}')
 
             # get the files
-            xref_file = download_uc_file(target_uc_url, 'UC_XREF.txt.gz', working_dir, decompress=False)
-            struct_file = download_uc_file(target_uc_url, 'UC_STRUCTURE.txt.gz', working_dir)
+            xref_file = pull_via_urllib(target_uc_url, 'UC_XREF.txt.gz', working_dir, decompress=False)
+            struct_file = pull_via_urllib(target_uc_url, 'UC_STRUCTURE.txt.gz', working_dir)
 
         logger.info(f'Using decompressed UniChem XREF file: {xref_file} and STRUCTURE file: {struct_file}')
         logger.info(f'Start of data pre-processing.')
@@ -536,55 +512,6 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
 
     # return the resultant list set to the caller
     return synonyms
-
-
-#########################
-# download_file - gets the latest UniChem file and decompresses it
-
-# url: str - the unichem url with the correct version attached
-# in_file_name: str - the name of the target file to work
-# working_dir: str - the place where files are going to be stored
-# returns: str - the output file name
-#########################
-def download_uc_file(url: str, in_file_name: str, working_dir: str, decompress = True) -> str:
-    # get the output file name, derived from the input file name
-    out_file_name = working_dir + in_file_name
-
-    logger.debug(f'Downloading: {url}{in_file_name}, compressed file: {in_file_name}')
-
-    # get a handle to the ftp file
-    handle = urllib.request.urlopen(url + in_file_name)
-
-    # create the compressed file
-    with open(working_dir + in_file_name, 'wb') as compressed_file:
-        # while there is data
-        while True:
-            # read a block of data
-            data = handle.read(1024)
-
-            # fif nothing read about
-            if len(data) == 0:
-                break
-
-            # write out the data to the output file
-            compressed_file.write(data)
-
-    if decompress:
-        out_file_name = out_file_name[:-3]
-        logger.debug(f'Compressed file downloaded, decompressing into {out_file_name}.')
-
-        # create the output text file
-        with open(out_file_name, 'w') as output_file:
-            # open the compressed file
-            with gzip.open(working_dir + in_file_name, 'rt') as compressed_file:
-                for line in compressed_file:
-                    # write the data to the output file
-                    output_file.write(line)
-
-        logger.debug(f'Decompression complete.')
-
-    # return the filename to the caller
-    return out_file_name
 
 #########################
 # get_latest_unichem_url() - gets the latest UniChem data directory url
@@ -761,21 +688,9 @@ def load_annotations_chemicals(rosetta):
     annotate_from_chebi(rosetta)
     annotate_from_chembl(rosetta)
 
-#if __name__ == '__main__':
-#    load_chemicals()
-
 #######
 # Main - Stand alone entry point for testing
 #######
 if __name__ == '__main__':
-    load_unichem(working_dir='.',xref_file='UC_XREF.txt.gz',struct_file='UC_STRUCTURE.txt')
-    # load_unichem_deprecated()
-#   import sys
-#     the_list = load_unichem('c:\\temp\\')
-#     #the_list = load_unichem('', sys.argv[1], sys.argv[2])
-#
-#     with open('./output.txt', 'w') as f:
-#         for k, v in the_list.items():
-#             f.write(str(k) + ' >>> ' + str(v) + '\n')
-#
-#     logger.info('Done.')
+    load_chemicals(refresh_mesh=False,refresh_uniprot=True,refresh_pubchem=True,refresh_chembl=True)
+    #load_unichem(working_dir='.',xref_file='UC_XREF.txt.gz',struct_file='UC_STRUCTURE.txt')

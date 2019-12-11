@@ -1,15 +1,13 @@
 import itertools
 import logging
-import requests
 import os
 import pickle
 
 from src.util import LoggingUtil
-from babel.babel_utils import pull_via_ftp, dump_dict
+from babel.babel_utils import pull_via_ftp, dump_dict, ThrottledRequester
 
 logger = LoggingUtil.init_logging(__name__, level=logging.DEBUG)
 
-#Used
 def parse_mesh(data):
     """THERE are two kinds of mesh identifiers that correspond to chemicals.
     1. Anything in the D tree
@@ -90,6 +88,10 @@ def lookup_by_mesh(meshes,apikey):
     term_to_pubs = {}
     if apikey is None:
         print('Warning: not using API KEY for eutils, resulting in 3x slowdown')
+        delta = 0.4
+    else:
+        delta = 0.12
+    requester = ThrottledRequester(delta)
     chunksize=10
     backandforth={'C': '67', '67': 'C', 'D': '68', '68': 'D'}
     for terms in chunked(meshes,chunksize):
@@ -104,7 +106,7 @@ def lookup_by_mesh(meshes,apikey):
                 continue
             url+=f'&id={newterm}'
         try:
-            result = requests.get(url).json()
+            result = requester.get(url)
         except Exception as e:
             print(url)
             print(result)
@@ -133,13 +135,17 @@ def lookup_by_cas(term_to_cas,apikey):
     term_to_pubs = {}
     if apikey is None:
         print('Warning: not using API KEY for eutils, resulting in 3x slowdown')
+        delta = 0.4
+    else:
+        delta = 0.12
+    requester = ThrottledRequester(delta)
     for term in term_to_cas:
         cas = term_to_cas[term]
         url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pccompound&term={cas}&retmode=json'
         if apikey is not None:
             url+=f'&apikey={apikey}'
         try:
-            response = requests.get(url).json()
+            response = requester.get(url)
         except Exception as e:
             print(e)
             print(url)
@@ -227,7 +233,7 @@ def refresh_mesh_pubchem(deep_refresh = True):
     dump_dict(term_to_pubchem,'mesh_to_pubchem.txt')
 
 def get_api_key():
-    return None
+    return os.environ.get('EUTILS_API_KEY',default=None)
 
 if __name__ == '__main__':
-    refresh_mesh_pubchem(deep_refresh = True)
+    refresh_mesh_pubchem(deep_refresh = False)

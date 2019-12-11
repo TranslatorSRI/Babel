@@ -1,14 +1,9 @@
 from json import loads
-from gzip import decompress
-import os
 import logging
 
-import jsonlines
-
-from babel.node import create_node
-from babel.babel_utils import pull_via_ftp
 from src.LabeledID import LabeledID
 from src.util import LoggingUtil
+from babel.babel_utils import pull_via_ftp,write_compendium
 
 logger = LoggingUtil.init_logging(__name__, level=logging.DEBUG)
 
@@ -54,11 +49,7 @@ def load_genes():
     Include names from sources as well...
     """
     synonyms = synonymize_genes()
-    cdir = os.path.dirname(os.path.abspath(__file__))
-    with jsonlines.open(os.path.join(cdir,'compendia','geneout.txt'),'w') as outf:
-        for gene in synonyms:
-            outf.write( create_node(identifiers=gene, node_type='gene') )
-    logger.debug(f'Added {len(synonyms)} gene symbols to the cache')
+    write_compendium(synonyms,'gene_compendium.txt','gene')
 
 def synonymize_genes():
     """
