@@ -1,5 +1,3 @@
-from ftplib import FTP
-from io import BytesIO
 from json import loads
 from gzip import decompress
 import os
@@ -8,31 +6,22 @@ import logging
 import jsonlines
 
 from babel.node import create_node
+from babel.babel_utils import pull_via_ftp
 from src.LabeledID import LabeledID
 from src.util import LoggingUtil
 
 logger = LoggingUtil.init_logging(__name__, level=logging.DEBUG)
 
-def pull_via_ftp(ftpsite, ftpdir, ftpfile):
-    ftp = FTP(ftpsite)
-    ftp.login()
-    ftp.cwd(ftpdir)
-    with BytesIO() as data:
-        ftp.retrbinary(f'RETR {ftpfile}', data.write)
-        binary = data.getvalue()
-    ftp.quit()
-    return binary
-
 def pull_hgnc_json():
     """Get the HGNC json file & convert to python"""
     data = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/genenames/new/json', 'hgnc_complete_set.json')
-    hgnc_json = loads( data.decode() )
+    hgnc_json = loads( data )
     return hgnc_json
 
-def pull_uniprot_kb():
-    data = pull_via_ftp('ftp.ebi.ac.uk','/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/', 'HUMAN_9606_idmapping.dat.gz')
-    tabs = decompress(data).decode()
-    return tabs
+#def pull_uniprot_kb():
+#    data = pull_via_ftp('ftp.ebi.ac.uk','/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/', 'HUMAN_9606_idmapping.dat.gz')
+#    tabs = decompress(data).decode()
+#    return tabs
 
 def json_2_identifiers(gene_dict):
     symbol = gene_dict['symbol']
@@ -40,34 +29,33 @@ def json_2_identifiers(gene_dict):
     hgnc_symbol = LabeledID(identifier=f"HGNC.SYMBOL:{symbol}", label=symbol)
     idset = set([hgnc_id, hgnc_symbol])
     if 'entrez_id' in gene_dict:
-        idset.add( LabeledID(identifier=f"NCBIGENE:{gene_dict['entrez_id']}", label=symbol))
+        idset.add( LabeledID(identifier=f"NCBIGENE:{gene_dict['entrez_id']}"))
     #There's a strong debate to be had about whether UniProtKB id's belong with genes
     # or with proteins.  In SwissProt, an identifier is meant to be 1:1 with a gene.
     # In my mind, that makes it a gene.  So we will continue to group UniProtKB with them
     #For individual protein sequences, or peptide sequences, we will make them gene_products.
     #Also generate a PR identifier for each from the uniprot id (PR uses uniprot ids for uniprot things)
     if 'uniprot_ids' in gene_dict:
-        idset.update([LabeledID(identifier=f"UniProtKB:{uniprotkbid}", label=symbol) for uniprotkbid in gene_dict['uniprot_ids']])
-        idset.update([LabeledID(identifier=f"PR:{uniprotkbid}", label=symbol) for uniprotkbid in gene_dict['uniprot_ids']])
+        idset.update([LabeledID(identifier=f"UniProtKB:{uniprotkbid}") for uniprotkbid in gene_dict['uniprot_ids']])
+        idset.update([LabeledID(identifier=f"PR:{uniprotkbid}") for uniprotkbid in gene_dict['uniprot_ids']])
     if 'ensembl_gene_id' in gene_dict:
-        idset.add( LabeledID(identifier=f"ENSEMBL:{gene_dict['ensembl_gene_id']}", label=symbol))
+        idset.add( LabeledID(identifier=f"ENSEMBL:{gene_dict['ensembl_gene_id']}"))
     if 'iuphar' in gene_dict:
         if gene_dict['iuphar'].startswith('objectId'):
             gid = gene_dict['iuphar'].split(':')[1]
-            idset.add( LabeledID(identifier=f'IUPHAR:{gid}', label=symbol) )
-    #1. Enzymes aren't really genes
-    #2. Even if they were, the mapping in this file is kind of crappy
-    #if 'enzyme_id' in gene_dict:
-    #    for eid in gene_dict['enzyme_id']:
-    #        idset.add( LabeledID(identifier=f'EC:{eid}',label=symbol ) )
+            idset.add( LabeledID(identifier=f'IUPHAR:{gid}') )
     return idset
 
 def load_genes():
     """
+    Pull information about genes, create a compendium, and save it out.
+    Currently, we use only HGNC mappings.  This has the main problem that it limits us to human genes.
+    Next step: Instead of HGNC as the mapping of record, move to either uniprot or NCBI.
+    Include names from sources as well...
     """
     synonyms = synonymize_genes()
     cdir = os.path.dirname(os.path.abspath(__file__))
-    with jsonlines.open(os.path.join(cdir,'geneout.txt'),'w') as outf:
+    with jsonlines.open(os.path.join(cdir,'compendia','geneout.txt'),'w') as outf:
         for gene in synonyms:
             outf.write( create_node(identifiers=gene, node_type='gene') )
     logger.debug(f'Added {len(synonyms)} gene symbols to the cache')
@@ -81,10 +69,10 @@ def synonymize_genes():
     logger.debug(f' Found {len(hgnc_genes)} genes in HGNC')
     hgnc_identifiers = [ json_2_identifiers(gene) for gene in hgnc_genes ]
     return hgnc_identifiers
-    #for idset in hgnc_identifiers:
-    #    for lid in idset:
-    #        ids_to_synonyms[lid.identifier] = idset
-    #return ids_to_synonyms
+
+if __name__ == '__main__':
+    load_genes()
+
 
     #This might get pushed into gene_product?
     #tabs = pull_uniprot_kb()
@@ -159,5 +147,3 @@ def synonymize_genes():
 #        rosetta.cache.set(key, annotations)
 #    logger.debug(f"There were {len(ensembl_annotations)} Ensembl Annotations")
 
-if __name__ == '__main__':
-    load_genes()
