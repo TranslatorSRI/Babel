@@ -14,7 +14,7 @@ from src.util import LoggingUtil, Text
 from src.LabeledID import LabeledID
 
 from babel.chemical_mesh_unii import refresh_mesh_pubchem
-from babel.babel_utils import glom, pull_via_ftp, dump_cache,pull_via_urllib
+from babel.babel_utils import glom, pull_via_ftp, dump_dict,pull_via_urllib
 from babel.chemistry_pulls import pull_chebi, chebi_sdf_entry_to_dict, pull_uniprot, pull_iuphar, pull_kegg_sequences
 from babel.big_gz_sort import batch_sort
 
@@ -185,7 +185,7 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     print('dumping')
     #Dump
     with open('chemconc.txt','w') as outf:
-        dump_cache(concord,outf)
+        dump_dict(concord,outf)
     print('done')
 
 def get_chebi_label(ident):
@@ -409,8 +409,8 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
             logger.info(f'Target unichem FTP URL: {target_uc_url}')
 
             # get the files
-            xref_file = pull_via_urllib(target_uc_url, 'UC_XREF.txt.gz', working_dir, decompress=False)
-            struct_file = pull_via_urllib(target_uc_url, 'UC_STRUCTURE.txt.gz', working_dir)
+            xref_file = pull_via_urllib(target_uc_url, 'UC_XREF.txt.gz', decompress=False)
+            struct_file = pull_via_urllib(target_uc_url, 'UC_STRUCTURE.txt.gz' )
 
         logger.info(f'Using decompressed UniChem XREF file: {xref_file} and STRUCTURE file: {struct_file}')
         logger.info(f'Start of data pre-processing.')
