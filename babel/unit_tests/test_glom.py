@@ -44,26 +44,3 @@ def test_bigger_sets():
     glom(d,eqs)
     assert d['1']==d['2']==d['3']==d['4']==d['5']==d['6']==d['7']=={'1','2','3','4','5','6','7'}
 
-def test_load_diseases_and_phenotypes(rosetta):
-    """Test grouping MONDO identifiers.  Mondo groups shouldn't be combined"""
-    mondo_sets = build_sets(rosetta.core.mondo,['MONDO:0004979','MONDO:0004784','MONDO:0004765'])
-    #hpo_sets = build_sets(rosetta.core.hpo,['HP:0002099'])
-    dicts = {}
-    glom(dicts,mondo_sets)
-    print("*",dicts['MONDO:0004979'])
-    print("*",dicts['MONDO:0004784'])
-    print("*",dicts['MONDO:0004765'])
-    assert dicts['MONDO:0004979'] != dicts['MONDO:0004784'] != dicts['MONDO:0004765']
-
-
-def build_sets(o,mids):
-    sets=[]
-    for mid in mids:
-        xr = o.get_xrefs(mid)
-        print( xr )
-        dbx = set([x for x in xr if not x.startswith('ICD')])
-        print('-----:',dbx)
-        dbx.add(mid)
-        sets.append(dbx)
-    return sets
-

@@ -42,18 +42,21 @@ def dump_dict(outdict,outfname):
 class ThrottledRequester:
     """Make sure that the time from the last call to the current call is greater than or equal to
     a configurable delta.   Wait before making request to ensure this. Used to make sure eutils
-    doesn't get angry."""
+    doesn't get angry.  Returns the json, as well as a flag whether this call waited or not."""
     def __init__(self,delta_ms):
-        self.last_time = dt.now()
+        self.last_time = None
         self.delta = timedelta(milliseconds = delta_ms)
     def get(self,url):
         now = dt.now()
-        cdelta = now - self.last_time
-        if cdelta < self.delta:
-            waittime = self.delta - cdelta
-            time.sleep(waittime.microseconds * 1e6)
+        throttled=False
+        if self.last_time is not None:
+            cdelta = now - self.last_time
+            if cdelta < self.delta:
+                waittime = self.delta - cdelta
+                time.sleep(waittime.microseconds / 1e6)
+                throttled = True
         self.last_time = dt.now()
-        return requests.get(url).json()
+        return requests.get(url).json(), throttled
 
 
 def pull_via_urllib(url: str, in_file_name: str, decompress = True):

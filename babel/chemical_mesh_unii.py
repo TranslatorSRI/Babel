@@ -236,4 +236,4 @@ def get_api_key():
     return os.environ.get('EUTILS_API_KEY',default=None)
 
 if __name__ == '__main__':
-    refresh_mesh_pubchem(deep_refresh = False)
+    refresh_mesh_pubchem(deep_refresh = True)
