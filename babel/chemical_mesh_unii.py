@@ -85,15 +85,18 @@ def chunked(it, size):
         yield p
 
 def lookup_by_mesh(meshes,apikey):
+    print("Looking up by mesh")
     term_to_pubs = {}
     if apikey is None:
         print('Warning: not using API KEY for eutils, resulting in 3x slowdown')
-        delta = 0.4
+        delta = 0.35
     else:
         delta = 0.12
     requester = ThrottledRequester(delta)
     chunksize=10
     backandforth={'C': '67', '67': 'C', 'D': '68', '68': 'D'}
+    num = len(meshes)
+    done = 0
     for terms in chunked(meshes,chunksize):
         url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?&dbfrom=mesh&db=pccompound&retmode=json'
         if apikey is not None:
@@ -106,7 +109,8 @@ def lookup_by_mesh(meshes,apikey):
                 continue
             url+=f'&id={newterm}'
         try:
-            result = requester.get(url)
+            #returns a throttled flag also, but we don't need it
+            result,_ = requester.get(url)
         except Exception as e:
             print(url)
             print(result)
@@ -128,10 +132,14 @@ def lookup_by_mesh(meshes,apikey):
                 if len(cids) <5:
                     # 5 or more is probably a group, not a compound
                     term_to_pubs[remesh] = cids
+        done += chunksize
+        if done % 1000 == 0:
+            print(f' completed {done} / {num}')
     print(f'mesh found {len(term_to_pubs)}')
     return term_to_pubs
 
 def lookup_by_cas(term_to_cas,apikey):
+    print("Looking up by cas")
     term_to_pubs = {}
     if apikey is None:
         print('Warning: not using API KEY for eutils, resulting in 3x slowdown')
@@ -139,6 +147,8 @@ def lookup_by_cas(term_to_cas,apikey):
     else:
         delta = 0.12
     requester = ThrottledRequester(delta)
+    num = len(term_to_cas)
+    done = 0
     for term in term_to_cas:
         cas = term_to_cas[term]
         url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pccompound&term={cas}&retmode=json'
@@ -159,6 +169,9 @@ def lookup_by_cas(term_to_cas,apikey):
             term_to_pubs[term] = response['esearchresult']['idlist']
         except:
             continue
+        done += 1
+        if done % 1000 == 0:
+            print(f' completed {done} / {num}')
     print(f'cas found {len(term_to_pubs)}')
     return term_to_pubs
 
