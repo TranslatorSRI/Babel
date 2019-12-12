@@ -10,8 +10,8 @@ def test_throttling():
     a 1/2 second throttle will be invoked."""
     tr = ThrottledRequester(500)
     now = dt.now()
-    json,throttle1 = tr.get('http://www.mocky.io/v2/5df243b23100007f009a31b0')
-    json,throttle2 = tr.get('http://www.mocky.io/v2/5df243b23100007f009a31b0')
+    response,throttle1 = tr.get('http://www.mocky.io/v2/5df243b23100007f009a31b0')
+    response,throttle2 = tr.get('http://www.mocky.io/v2/5df243b23100007f009a31b0')
     later = dt.now()
     runtime = later - now
     half_sec = timedelta(milliseconds = 500)
@@ -27,8 +27,8 @@ def test_no_throttling():
     not wait the second time through.  The mocky service lets us specify a delay time. """
     tr = ThrottledRequester(500)
     now = dt.now()
-    json,throttle1 = tr.get('http://www.mocky.io/v2/5df243b23100007f009a31b0?mocky-delay=600ms')
-    json,throttle2 = tr.get('http://www.mocky.io/v2/5df243b23100007f009a31b0')
+    response,throttle1 = tr.get('http://www.mocky.io/v2/5df243b23100007f009a31b0?mocky-delay=600ms')
+    response,throttle2 = tr.get('http://www.mocky.io/v2/5df243b23100007f009a31b0')
     later = dt.now()
     runtime = later - now
     lower_bound = timedelta(milliseconds = 600)

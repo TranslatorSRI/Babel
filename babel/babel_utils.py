@@ -56,7 +56,8 @@ class ThrottledRequester:
                 time.sleep(waittime.microseconds / 1e6)
                 throttled = True
         self.last_time = dt.now()
-        return requests.get(url).json(), throttled
+        response = requests.get(url)
+        return response, throttled
 
 
 def pull_via_urllib(url: str, in_file_name: str, decompress = True):

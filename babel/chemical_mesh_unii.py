@@ -89,9 +89,9 @@ def lookup_by_mesh(meshes,apikey):
     term_to_pubs = {}
     if apikey is None:
         print('Warning: not using API KEY for eutils, resulting in 3x slowdown')
-        delta = 0.35
+        delta = 350 #milleseconds
     else:
-        delta = 0.12
+        delta = 110 #milliseconds
     requester = ThrottledRequester(delta)
     chunksize=10
     backandforth={'C': '67', '67': 'C', 'D': '68', '68': 'D'}
@@ -100,7 +100,7 @@ def lookup_by_mesh(meshes,apikey):
     for terms in chunked(meshes,chunksize):
         url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?&dbfrom=mesh&db=pccompound&retmode=json'
         if apikey is not None:
-            url+=f'&apikey={apikey}'
+            url+=f'&api_key={apikey}'
         for term in terms:
             try:
                 newterm = f'{backandforth[term[0]]}{term[1:]}'
@@ -110,7 +110,8 @@ def lookup_by_mesh(meshes,apikey):
             url+=f'&id={newterm}'
         try:
             #returns a throttled flag also, but we don't need it
-            result,_ = requester.get(url)
+            response,_ = requester.get(url)
+            result = response.json()
         except Exception as e:
             print(url)
             print(result)
@@ -143,9 +144,9 @@ def lookup_by_cas(term_to_cas,apikey):
     term_to_pubs = {}
     if apikey is None:
         print('Warning: not using API KEY for eutils, resulting in 3x slowdown')
-        delta = 0.4
+        delta = 400 #ms
     else:
-        delta = 0.12
+        delta = 110 #ms
     requester = ThrottledRequester(delta)
     num = len(term_to_cas)
     done = 0
@@ -153,22 +154,24 @@ def lookup_by_cas(term_to_cas,apikey):
         cas = term_to_cas[term]
         url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pccompound&term={cas}&retmode=json'
         if apikey is not None:
-            url+=f'&apikey={apikey}'
+            url+=f'&api_key={apikey}'
         try:
-            response = requester.get(url)
+            response,_ = requester.get(url)
+            result = response.json()
         except Exception as e:
             print(e)
             print(url)
             continue
         try:
-            r = response['esearchresult']
+            r = result['esearchresult']
             if 'errorlist' in r:
                 if 'phrasesnotfound' in r['errorlist']:
                     if cas in r['errorlist']['phrasesnotfound']:
                         continue
-            term_to_pubs[term] = response['esearchresult']['idlist']
-        except:
-            continue
+            term_to_pubs[term] = result['esearchresult']['idlist']
+        except Exception as e:
+            print(e)
+            break
         done += 1
         if done % 1000 == 0:
             print(f' completed {done} / {num}')
@@ -240,8 +243,8 @@ def refresh_mesh_pubchem(deep_refresh = True):
     dump_dict(term_to_EC,'mesh_to_EC.txt')
     #mesh_to_pubchem is one of the files that chemicals.py is looking for.
     api_key = get_api_key()
-    term_to_pubchem_by_mesh = lookup_by_mesh(unmapped_mesh,api_key)
     term_to_pubchem_by_cas = lookup_by_cas(term_to_cas,api_key)
+    term_to_pubchem_by_mesh = lookup_by_mesh(unmapped_mesh,api_key)
     term_to_pubchem = {**term_to_pubchem_by_cas, **term_to_pubchem_by_mesh}
     dump_dict(term_to_pubchem,'mesh_to_pubchem.txt')
 
@@ -249,4 +252,4 @@ def get_api_key():
     return os.environ.get('EUTILS_API_KEY',default=None)
 
 if __name__ == '__main__':
-    refresh_mesh_pubchem(deep_refresh = True)
+    refresh_mesh_pubchem(deep_refresh = False)
