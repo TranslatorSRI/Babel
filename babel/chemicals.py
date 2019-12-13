@@ -363,20 +363,34 @@ def uni_glom(unichem_data, prefix1, prefix2, chemdict):
 
 
 
+#Note that sometime between September and December 2019, the UCI moved in UNICHEM's files
+#Which by the way, don't have a header in the file itself, but which are given an a readme :(
+#So there's no computer only way to figure this out :( :( :(
 def uci_key(row):
-    #print(row)
-    return int(row.split(b'\t')[0])
+    try:
+        return int(row.split(b'\t')[9])
+    except Exception as e:
+        print(row)
+        exit()
 
 #########################
 # load_unichem() - Loads a dict object with targeted chemical substance curies for synonymization
 #
+# TODO: get the column header from the readme.  Unfortunately means that we need the readme not to change...
+#
 # The XREF file format from unichem
 # ftp.ebi.ac.uk/pub/databases/chembl/UniChem/data/oracleDumps/UDRI<the latest>/UC_XREF.txt.gz
+# September 2019:
 # cols: uci   src_id    src_compound_id   assignment   last_release_u_when_current   created   lastupdated   userstamp   aux_src
+# December 2019:
+# cols: uci_old , src_id , src_compound_id , assignment , last_release_u_when_current , created , lastupdated , userstamp , aux_src , uci
 #
 # The STRUCTURE file format from unichem
 # ftp.ebi.ac.uk/pub/databases/chembl/UniChem/data/oracleDumps/UDRI<the latest>/UC_STRUCTURE.txt.gz
+# September 2019:
 # cols: uci   standardinchi   standardinchikey   created   username   fikhb
+# December 2019:
+# cols: uci_old , standardinchi , standardinchikey , created , username , fikhb , uci , parent_smiles
 #
 # working_dir: str - the working directory for the downloaded files
 # xref_file: str - optional location of already downloaded and decompressed unichem XREF file
@@ -409,14 +423,16 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
             logger.info(f'Target unichem FTP URL: {target_uc_url}')
 
             # get the files
-            xref_file = pull_via_urllib(target_uc_url, 'UC_XREF.txt.gz', decompress=False)
-            struct_file = pull_via_urllib(target_uc_url, 'UC_STRUCTURE.txt.gz' )
+            #xref_file = pull_via_urllib(target_uc_url, 'UC_XREF.txt.gz', decompress=False)
+            #struct_file = pull_via_urllib(target_uc_url, 'UC_STRUCTURE.txt.gz' )
+            xref_file = make_local_name('UC_XREF.txt.gz')
+            struct_file = make_local_name('UC_STRUCTURE.txt')
 
         logger.info(f'Using decompressed UniChem XREF file: {xref_file} and STRUCTURE file: {struct_file}')
         logger.info(f'Start of data pre-processing.')
 
         logger.debug('filter xrefs by srcid')
-        srcfiltered_xref_file='UC_XREF.srcfiltered.txt'
+        srcfiltered_xref_file=make_local_name('UC_XREF.srcfiltered.txt')
         srclist = [ str(k) for k in data_sources.keys()]
         with gzip.open(xref_file,'rt') as inf, open(srcfiltered_xref_file,'w') as outf:
             for line in inf:
@@ -424,14 +440,14 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
                 if x[1] in srclist and x[3] == '1':
                     outf.write(line)
 
-        sorted_xref_file='UC_XREF.sorted.txt'
+        sorted_xref_file=make_local_name('UC_XREF.sorted.txt')
         logger.debug(f'sort xrefs {xref_file}=>{sorted_xref_file}')
         with open(srcfiltered_xref_file,'rb',64*1024) as inf, open(sorted_xref_file,'wb') as outf:
             batch_sort(inf,outf,key=uci_key,tempdirs='.')
         logger.debug('.. done ..')
 
         logger.debug('remove singletons')
-        filtered_xref_file='UC_XREF.filtered.txt'
+        filtered_xref_file=make_local_name('UC_XREF.filtered.txt')
         srclist = [ str(k) for k in data_sources.keys()]
         #There's a particular problem with UNII (src id 14). Because they can't
         #seem to generate inchikeys nicely, there are sometimes 2 UNIIs per key
@@ -459,7 +475,8 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
         logger.debug('.. done ..')
 
         logger.debug('read filtered')
-        df_filtered_xrefs = pandas.read_csv(filtered_xref_file, dtype={"uci": int, "src_id": int, "src_compound_id": str}, sep='\t', header=None, usecols=[0, 1, 2], names=['uci', 'src_id', 'src_compound_id'])
+        #column 9 seems like a good place for the PK
+        df_filtered_xrefs = pandas.read_csv(filtered_xref_file, dtype={"uci": int, "src_id": int, "src_compound_id": str}, sep='\t', header=None, usecols=[9, 1, 2], names=['uci', 'src_id', 'src_compound_id'])
         logger.debug('..done..')
 
         # note: this is an alternate way to add a curie column to each record in one shot. takes about 10 minutes.
@@ -468,7 +485,7 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
 
         # get an iterator to loop through the xref data
         structure_iter = pandas.read_csv(struct_file, dtype={"uci": int, "standardinchikey": str},
-                                         sep='\t', header=None, usecols=[0, 2], names=['uci', 'standardinchikey'], iterator=True, chunksize=100000)
+                                         sep='\t', header=None, usecols=[6, 2], names=['uci', 'standardinchikey'], iterator=True, chunksize=100000)
         logger.debug(f'STRUCTURE iterator created. Loading structure data frame, filtering by targeted XREF unichem ids...')
 
         # load it into a data frame
@@ -506,12 +523,16 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
         logger.error(f'Exception caught. Exception: {e}')
 
     logger.info(f'Load complete. Processed a total of {chem_counter} unichem chemicals.')
-    upname = os.path.join(os.path.dirname(__file__), 'unichem.pickle')
+    #upname = os.path.join(os.path.dirname(__file__), 'unichem.pickle')
+    upname = make_local_name('unichem.pickle')
     with open(upname,'wb') as up:
         pickle.dump(synonyms,up)
 
     # return the resultant list set to the caller
     return synonyms
+
+def make_local_name(fname):
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)),'downloads',fname)
 
 #########################
 # get_latest_unichem_url() - gets the latest UniChem data directory url
