@@ -425,6 +425,7 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
             # get the files
             #xref_file = pull_via_urllib(target_uc_url, 'UC_XREF.txt.gz', decompress=False)
             #struct_file = pull_via_urllib(target_uc_url, 'UC_STRUCTURE.txt.gz' )
+            #shortcut to local files.
             xref_file = make_local_name('UC_XREF.txt.gz')
             struct_file = make_local_name('UC_STRUCTURE.txt')
 
@@ -476,7 +477,9 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
 
         logger.debug('read filtered')
         #column 9 seems like a good place for the PK
-        df_filtered_xrefs = pandas.read_csv(filtered_xref_file, dtype={"uci": int, "src_id": int, "src_compound_id": str}, sep='\t', header=None, usecols=[9, 1, 2], names=['uci', 'src_id', 'src_compound_id'])
+        df_filtered_xrefs = pandas.read_csv(filtered_xref_file, dtype={"uci": int, "src_id": int, "src_compound_id": str},
+                                            sep='\t', header=None, usecols=['uci','src_id','src_compound_id'],
+                                            names=['uci_old','src_id','src_compound_id','assignment','last_release_u_when_current','created ','lastupdated','userstamp','aux_src','uci'])
         logger.debug('..done..')
 
         # note: this is an alternate way to add a curie column to each record in one shot. takes about 10 minutes.
@@ -485,7 +488,9 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
 
         # get an iterator to loop through the xref data
         structure_iter = pandas.read_csv(struct_file, dtype={"uci": int, "standardinchikey": str},
-                                         sep='\t', header=None, usecols=[6, 2], names=['uci', 'standardinchikey'], iterator=True, chunksize=100000)
+                                         sep='\t', header=None, usecols=['uci', 'standardinchikey'],
+                                         names=['uci_old','standardinchi','standardinchikey','created','username','fikhb','uci','parent_smiles'],
+                                         iterator=True, chunksize=100000)
         logger.debug(f'STRUCTURE iterator created. Loading structure data frame, filtering by targeted XREF unichem ids...')
 
         # load it into a data frame
@@ -523,7 +528,6 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
         logger.error(f'Exception caught. Exception: {e}')
 
     logger.info(f'Load complete. Processed a total of {chem_counter} unichem chemicals.')
-    #upname = os.path.join(os.path.dirname(__file__), 'unichem.pickle')
     upname = make_local_name('unichem.pickle')
     with open(upname,'wb') as up:
         pickle.dump(synonyms,up)
