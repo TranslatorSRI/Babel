@@ -126,12 +126,12 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     #DO MESH/UNII
     print('MESH/UNII')
-    mesh_unii_file = os.path.join(os.path.dirname(__file__), 'mesh_to_unii.txt')
+    mesh_unii_file = make_local_name( 'mesh_to_unii.txt')
     mesh_unii_pairs = load_pairs(mesh_unii_file, 'UNII')
     glom(concord, mesh_unii_pairs)
     # DO MESH/PUBCHEM
     print('MESH/PUBCHEM')
-    mesh_pc_file = os.path.join(os.path.dirname(__file__), 'mesh_to_pubchem.txt')
+    mesh_pc_file = make_local_name('mesh_to_pubchem.txt')
     mesh_pc_pairs = load_pairs(mesh_pc_file, 'PUBCHEM')
     glom(concord, mesh_pc_pairs)
     # DO MESH/CHEBI, but don't combine any chebi's into a set with it
@@ -212,7 +212,7 @@ def get_mesh_label(ident, labels):
 
 def label_chebis(concord):
     print('READ CHEBI')
-    chebiobo = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chebi/ontology', 'chebi_lite.obo').decode()
+    chebiobo = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chebi/ontology', 'chebi_lite.obo')
     lines = chebiobo.split('\n')
     chebi_labels = {}
     for line in lines:
@@ -399,10 +399,10 @@ def uci_key(row):
 #########################
 def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str = None) -> dict:
     #FOR TESTING
-    #upname = os.path.join(os.path.dirname(__file__), 'unichem.pickle')
-    #with open(upname,'rb') as up:
-    #    synonyms=pickle.load(up)
-    #return synonyms
+    upname = make_local_name('unichem.pickle')
+    with open(upname,'rb') as up:
+        synonyms=pickle.load(up)
+    return synonyms
     #DONE TESTING
     logger.info(f'Start of Unichem loading. Working directory: {working_dir}')
 

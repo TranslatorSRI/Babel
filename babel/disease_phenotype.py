@@ -37,7 +37,7 @@ def filter_out_non_unique_ids(old_list):
             )), old_list))
     return new_list        
 
-def load_diseases_and_phenotypes(rosetta):
+def load_diseases_and_phenotypes():
     print('disease/phenotype')
     print('get and write mondo sets')
     mondo_sets = build_exact_sets(rosetta.core.mondo,rosetta.core.uberongraph)
