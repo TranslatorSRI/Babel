@@ -18,19 +18,25 @@ def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=No
     ftp = FTP(ftpsite)
     ftp.login()
     ftp.cwd(ftpdir)
+    print('   getting data')
     with BytesIO() as data:
         ftp.retrbinary(f'RETR {ftpfile}', data.write)
         binary = data.getvalue()
     ftp.quit()
+    print('   .done.')
     if decompress_data:
+        print('   decompressing')
         value = gzip.decompress(binary).decode()
+        print('   .done.')
     else:
         value = binary.decode()
     if outfilename is None:
         return value
     ofilename = os.path.join(os.path.dirname(os.path.abspath(__file__)),'downloads',outfilename)
+    print(f'  writing data to {ofilename}')
     with open(ofilename,'w') as ofile:
         ofile.write(value)
+    print('  .done.')
     return ofilename
 
 def dump_dict(outdict,outfname):

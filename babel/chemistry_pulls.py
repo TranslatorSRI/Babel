@@ -111,6 +111,8 @@ def chebi_sdf_entry_to_dict(sdf_chunk, interesting_keys = {}):
 def pull_uniprot(repull=False):
     if repull:
         xmlname = pull_via_ftp('ftp.uniprot.org','/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/' ,'uniprot_sprot_human.dat.gz',decompress_data=True,outfilename='uniprot_sprot_human.dat')
+    else:
+        xmlname = os.path.join(os.path.dirname(os.path.abspath(__file__)),'downloads','uniprot_sprot_human.dat')
     seq_to_idlist = defaultdict(set)
     #I only want the PRO sequences.  One day, I could get the -1 -2 sequences as well if
     # there were a reason.
@@ -147,7 +149,6 @@ def pull_iuphar_by_hand():
             y = line.strip().split(',')
             #x = set(y)
             conc.append(tuple(y))
-    print(conc)
     return conc
 
 def pull_iuphar_by_structure():
@@ -221,9 +222,7 @@ def get_sequence(compound_id):
     #phosphoGlutamate?  This matches for
     aamap['Glp'] = 'Q'
     url = f'http://rest.kegg.jp/get/cpd:{compound_id}'
-    print(url)
     raw_results = requests.get(url)#.json()
-    print(raw_results)
     results = raw_results.text.split('\n')
     mode = 'looking'
     for line in results:

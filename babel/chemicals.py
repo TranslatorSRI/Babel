@@ -1,4 +1,3 @@
-from gzip import decompress, GzipFile
 from functools import partial
 import logging
 import os
@@ -14,7 +13,7 @@ from src.util import LoggingUtil, Text
 from src.LabeledID import LabeledID
 
 from babel.chemical_mesh_unii import refresh_mesh_pubchem
-from babel.babel_utils import glom, pull_via_ftp, dump_dict,pull_via_urllib
+from babel.babel_utils import glom, pull_via_ftp, write_compendium,pull_via_urllib
 from babel.chemistry_pulls import pull_chebi, chebi_sdf_entry_to_dict, pull_uniprot, pull_iuphar, pull_kegg_sequences
 from babel.big_gz_sort import batch_sort
 
@@ -43,7 +42,8 @@ def pull_mesh_chebi():
     for m,clist in m2c.items():
         if len(clist) == 1:
             fpairs.append( (m,clist[0]) )
-    with open('mesh_chebi.txt', 'w') as outf:
+    mcname = make_local_name('mesh_chebi.txt')
+    with open(mcname, 'w') as outf:
         for m, c in fpairs:
             outf.write(f'{m}\t{c}\n')
     return fpairs
@@ -114,6 +114,8 @@ def pull_uniprot_chebi():
 #  8. Use wikidata to get links between CHEBI and UniProt_PRO
 #  9. glom across sequence and chemical stuff
 # 10. Drop PRO only sequences.
+#
+# It would be good to completely redo this so that it was make-like.
 def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=False,refresh_chembl=False):
     # Build if need be
     if refresh_mesh:
@@ -142,19 +144,23 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     #glom(concord, mesh_chebi,['INCHI'])
     glom(concord, mesh_chebi)
     # 3. Pull from chebi the sdf and db files, use them to link to things (KEGG) in the no inchi/no smiles cases
+    print('chebi')
     pubchem_chebi_pairs, kegg_chebi_pairs = pull_chebi()
     glom(concord, pubchem_chebi_pairs)
     glom(concord, kegg_chebi_pairs)
     # 4. Go to KEGG, and get sequences for peptides.
+    print('kegg')
     sequence_concord = pull_kegg_sequences()
     # 5. Pull UniProt (swissprot) XML.
     # Calculate sequences for the sub-sequences (Uniprot_PRO)
+    print('uniprot')
     sequence_to_uniprot = pull_uniprot(refresh_uniprot)
     # 6. Use the sequences to merge UniProt with KEGG
     for s,v in sequence_to_uniprot.items():
         sequence_concord[s].update(v)
     # 7. Read IUPHAR, discard things with INCHI, use things with sequence to match UniProt_PRO/KEGG
     #     Use the hand-curated version of IUPHAR to match the un-sequenced stuff left over
+    print('iuphar')
     sequence_to_iuphar, iuphar_glom = pull_iuphar()
     for s,v in sequence_to_iuphar.items():
         sequence_concord[s].update(v)
@@ -184,8 +190,7 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     label_pubchem(concord, refresh_pubchem = refresh_pubchem)
     print('dumping')
     #Dump
-    with open('chemconc.txt','w') as outf:
-        dump_dict(concord,outf)
+    write_compendium(concord,'chemconc.txt','chemical_substance')
     print('done')
 
 def get_chebi_label(ident):
@@ -251,16 +256,15 @@ def process_chunk(lines, label_dict):
 def label_chembls(concord, refresh_chembl = False):
     print('READ CHEMBL')
     fname = 'chembl_25.0_molecule.ttl.gz'
+    localfile = make_local_name(fname[:-3])
     # uncomment if you need a new one
     if refresh_chembl:
-        data=pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chembl/ChEMBL-RDF/25.0/',fname)
-        with open(fname,'wb') as outf:
-            outf.write(data)
+        data=pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chembl/ChEMBL-RDF/25.0/',fname,decompress_data=True,outfilename=fname[:-3])
     chembl_labels = {}
     chunk = []
-    with GzipFile(fname, 'r') as inf:
+    with open(localfile, 'r') as inf:
         for line in inf:
-            l = line.decode().strip()
+            l = line.strip()
             if len(l) == 0:
                 process_chunk(chunk, chembl_labels)
                 chunk = []
@@ -275,7 +279,8 @@ def label_chembls(concord, refresh_chembl = False):
 
 def label_meshes(concord):
     print('LABEL MESH')
-    labelname = os.path.join(os.path.dirname(__file__), 'meshlabels.pickle')
+    #labelname = os.path.join(os.path.dirname(__file__), 'meshlabels.pickle')
+    labelname = make_local_name('meshlabels.pickle')
     with open(labelname, 'rb') as inf:
         mesh_labels = pickle.load(inf)
     label_compounds(concord, 'MESH', partial(get_mesh_label, labels=mesh_labels))
@@ -283,14 +288,14 @@ def label_meshes(concord):
 def label_pubchem(concord, refresh_pubchem = False):
     f_name =  'CID-IUPAC.gz'
     if refresh_pubchem:
-        data = pull_via_ftp('ftp://ftp.ncbi.nlm.nih.gov','/pubchem/Compound/Extras/', f_name)
-        with open(f_name, 'wb') as outf:
-            outf.write(data)
+        outfname = pull_via_ftp('ftp.ncbi.nlm.nih.gov','/pubchem/Compound/Extras/', f_name, decompress_data=True, outfilename=f_name[:-3])
+    else:
+        outfname = make_local_name(f_name[:-3])
     labels = {}
-    with GzipFile(f_name, 'r') as in_file:
+    with open(outfname, 'r') as in_file:
         for line in in_file:
             # since the synonyms are weighted already will just pick the first one.
-            l = line.decode().strip()
+            l = line.strip()
             cid, label = l.split('\t')
             if f'PUBCHEM:{cid}' in labels:
                 continue
@@ -717,5 +722,5 @@ def load_annotations_chemicals(rosetta):
 # Main - Stand alone entry point for testing
 #######
 if __name__ == '__main__':
-    load_chemicals(refresh_mesh=False,refresh_uniprot=True,refresh_pubchem=True,refresh_chembl=True)
+    load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=True,refresh_chembl=False)
     #load_unichem(working_dir='.',xref_file='UC_XREF.txt.gz',struct_file='UC_STRUCTURE.txt')
