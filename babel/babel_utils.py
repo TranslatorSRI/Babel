@@ -19,24 +19,28 @@ def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=No
     ftp.login()
     ftp.cwd(ftpdir)
     print('   getting data')
-    with BytesIO() as data:
-        ftp.retrbinary(f'RETR {ftpfile}', data.write)
-        binary = data.getvalue()
-    ftp.quit()
-    print('   .done.')
-    if decompress_data:
-        print('   decompressing')
-        value = gzip.decompress(binary).decode()
-        print('   .done.')
-    else:
-        value = binary.decode()
     if outfilename is None:
-        return value
+        with BytesIO() as data:
+            ftp.retrbinary(f'RETR {ftpfile}', data.write)
+            ftp.quit()
+            binary = data.getvalue()
+            if decompress_data:
+                return gzip.decompress(binary).decode()
+            else:
+                return binary.decode()
     ofilename = os.path.join(os.path.dirname(os.path.abspath(__file__)),'downloads',outfilename)
     print(f'  writing data to {ofilename}')
-    with open(ofilename,'w') as ofile:
-        ofile.write(value)
-    print('  .done.')
+    if not decompress_data:
+        with open(ofilename,'wb') as ofile:
+            ftp.retrbinary(f'RETR {ftpfile}', ofile.write)
+            ftp.quit()
+    else:
+        with BytesIO() as data:
+            ftp.retrbinary(f'RETR {ftpfile}', data.write)
+            ftp.quit()
+            value = gzip.decompress(data.getvalue()).decode()
+        with open(ofilename,'w') as ofile:
+            ofile.write(value)
     return ofilename
 
 def dump_dict(outdict,outfname):
@@ -124,7 +128,10 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHI']):
     in the dictionary that points to the set.
     newgroups is an iterable that of new equivalence groups (expressed as sets,tuples,or lists)
     with which we want to update conc_set."""
+    n = 0
     for group in newgroups:
+        n+=1
+        print(f'{n}/{len(newgroups)}')
         #Find all the equivalence sets that already correspond to any of the identifiers in the new set.
         existing_sets = [ conc_set[x] for x in group if x in conc_set ]
         #All of these sets are now going to be combined through the equivalence of our new set.
