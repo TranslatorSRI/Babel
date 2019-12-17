@@ -1,4 +1,5 @@
 from babel.babel_utils import glom, write_compendium
+from babel.onto import Onto
 from src.LabeledID import LabeledID
 from src.util import Text
 import os
@@ -40,10 +41,10 @@ def filter_out_non_unique_ids(old_list):
 def load_diseases_and_phenotypes():
     print('disease/phenotype')
     print('get and write mondo sets')
-    mondo_sets = build_exact_sets(rosetta.core.mondo,rosetta.core.uberongraph)
+    mondo_sets = build_exact_sets('MONDO')
     write_sets(mondo_sets,'mondo_sets.txt')
     print('get and write hp sets')
-    hpo_sets = build_sets(rosetta.core.hpo, ignore_list = ['ICD','NCIT'])
+    hpo_sets = build_sets('HPO', ignore_list = ['ICD','NCIT'])
     hpo_sets = filter_out_non_unique_ids(hpo_sets)
     write_sets(hpo_sets,'hpo_sets.txt')
     print('get and write umls sets')
@@ -58,13 +59,12 @@ def load_diseases_and_phenotypes():
     glom(dicts,meddra_umls)
     write_dicts(dicts,'mondo_hpo_meddra_dicts.txt')
     print('dump it')
-    with open('disease.txt','w') as outf:
-        write_compendium(dicts,rosetta,outf)
+    write_compendium(set([frozenset(x) for x in dicts.values()]),'disease_phenotype.txt','disease_or_phenotypic_feature')
 
-def build_exact_sets(o,u):
+def build_exact_sets(ontoname):
+    onto = Onto()
     sets = []
-    mids = o.get_ids()
-    print(len(mids))
+    mids = onto.get_ids(ontoname)
     n = 0
     now = dt.now()
     for mid in mids:
@@ -77,12 +77,9 @@ def build_exact_sets(o,u):
         #FWIW, ICD codes tend to be mapped to multiple MONDO identifiers, leading to mass confusion. So we
         #just excise them here.  It's possible that we'll want to revisit this decision in the future.  If so,
         #then we probably will want to set a 'glommable' and 'not glommable' set.
-        print(mid)
-        dbx = [ Text.upper_curie(x) for x in o.get_exact_matches(mid) ]
-        print(dbx)
+        dbx = [ Text.upper_curie(x) for x in onto.get_exact_matches(mid) ]
         dbx = set( filter( lambda x: not x.startswith('ICD'), dbx ) )
-        label = u.get_label(mid)
-        print(label)
+        label = onto.get_label(mid)
         mid = Text.upper_curie(mid)
         dbx.add(LabeledID(mid,label))
         sets.append(dbx)
@@ -97,16 +94,17 @@ def norm(curie):
         return f'SNOMEDCT:{Text.un_curie(curie)}'
     return curie
 
-def build_sets(o, ignore_list = ['ICD']):
+def build_sets(ontology_name, ignore_list = ['ICD']):
+    onto = Onto()
     sets = []
-    mids = o.get_ids()
+    mids = onto.get_ids(ontology_name)
     for mid in mids:
         #FWIW, ICD codes tend to be mapped to multiple MONDO identifiers, leading to mass confusion. So we
         #just excise them here.  It's possible that we'll want to revisit this decision in the future.  If so,
         #then we probably will want to set a 'glommable' and 'not glommable' set.
-        dbx = set([Text.upper_curie(x) for x in o.get_xrefs(mid) if not reduce(lambda accumlator, ignore_prefix: accumlator or x.startswith(ignore_prefix) , ignore_list, False)])
+        dbx = set([Text.upper_curie(x) for x in onto.get_xrefs(mid) if not reduce(lambda accumlator, ignore_prefix: accumlator or x.startswith(ignore_prefix) , ignore_list, False)])
         dbx = set([norm(x) for x in dbx])
-        label = o.get_label(mid)
+        label = onto.get_label(mid)
         mid = Text.upper_curie(mid)
         dbx.add(LabeledID(mid,label))
         sets.append(dbx)
@@ -117,7 +115,7 @@ def build_sets(o, ignore_list = ['ICD']):
 # It's possible we could rebuild using the services, but no doubt very slowly
 def read_meddra():
     pairs = []
-    mrcon = os.path.join(os.path.dirname(__file__), 'MRCONSO.RRF')
+    mrcon = os.path.join(os.path.dirname(__file__),'input_data', 'MRCONSO.RRF')
     with open(mrcon,'r') as inf:
         for line in inf:
             x = line.strip().split('|')
@@ -125,3 +123,6 @@ def read_meddra():
                 continue
             pairs.append( (f'UMLS:{x[0]}',f'MEDDRA:{x[13]}'))
     return pairs
+
+if __name__ == '__main__':
+    load_diseases_and_phenotypes()
