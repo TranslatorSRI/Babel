@@ -187,10 +187,10 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     label_chebis(concord)
     label_chembls(concord, refresh_chembl = refresh_chembl )
     label_meshes(concord)
-    label_pubchem(concord, refresh_pubchem = refresh_pubchem)
+#    label_pubchem(concord, refresh_pubchem = refresh_pubchem)
     print('dumping')
     #Dump
-    write_compendium(concord,'chemconc.txt','chemical_substance')
+    write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc.txt','chemical_substance')
     print('done')
 
 def get_chebi_label(ident):
@@ -286,13 +286,14 @@ def label_meshes(concord):
     label_compounds(concord, 'MESH', partial(get_mesh_label, labels=mesh_labels))
 
 def label_pubchem(concord, refresh_pubchem = False):
+    print('LABEL PUBCHEM')
     f_name =  'CID-IUPAC.gz'
     if refresh_pubchem:
-        outfname = pull_via_ftp('ftp.ncbi.nlm.nih.gov','/pubchem/Compound/Extras/', f_name, decompress_data=True, outfilename=f_name[:-3])
+        outfname = pull_via_ftp('ftp.ncbi.nlm.nih.gov','/pubchem/Compound/Extras/', f_name, outfilename=f_name)
     else:
-        outfname = make_local_name(f_name[:-3])
+        outfname = make_local_name(f_name)
     labels = {}
-    with open(outfname, 'r') as in_file:
+    with gzip.open(outfname, 'rt') as in_file:
         for line in in_file:
             # since the synonyms are weighted already will just pick the first one.
             l = line.strip()
