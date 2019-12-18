@@ -67,8 +67,12 @@ class Onto():
         """ Get exact matches.  Seems to be mostly a MONDO thing """
         obj = self.get(f"{self.url}/exactMatch/{identifier}")
         result = []
-        if 'exact matches' in obj:
-            result.extend(obj['exact matches'])
+        try:
+            if 'exact matches' in obj:
+                result.extend(obj['exact matches'])
+        except e:
+            print(identifier)
+            exit()
         return result
 
     def get_synonyms(self,identifier,curie_pattern=None):

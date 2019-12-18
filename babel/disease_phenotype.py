@@ -59,7 +59,58 @@ def load_diseases_and_phenotypes():
     glom(dicts,meddra_umls)
     write_dicts(dicts,'mondo_hpo_meddra_dicts.txt')
     print('dump it')
-    write_compendium(set([frozenset(x) for x in dicts.values()]),'disease_phenotype.txt','disease_or_phenotypic_feature')
+    diseases,phenotypes = create_typed_sets(set([frozenset(x) for x in dicts.values()]))
+    write_compendium(diseases,'disease.txt','disease')
+    write_compendium(phenotypes,'phenotypes.txt','phenotypic_feature')
+
+def get_prefixes(idlist):
+    prefs = set()
+    for ident in idlist:
+        if isinstance(ident,LabeledID):
+            prefs.add(Text.get_curie(ident.identifier))
+        else:
+            prefs.add(Text.get_curie(ident))
+    return prefs
+
+def create_typed_sets(eqsets):
+    """Given a set of sets of equivalent identifiers, we want to type each one into
+    being either a disease or a phenotypic feature.  Or something else, that we may want to
+    chuck out here.
+    Current rules: If it has a mondo, it's a disease, no matter what else it is
+    If it doesn't have a mondo, but it does have an HP, then it's a phenotype
+    Otherwise, consult the UMLS to see what it might be
+    """
+    umls_types = read_umls_types()
+    diseases = set()
+    phenotypic_features = set()
+    for equivalent_ids in eqsets:
+        #prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
+        prefixes = get_prefixes(equivalent_ids)
+        if 'MONDO' in prefixes:
+            diseases.add(equivalent_ids)
+        elif 'HP' in prefixes:
+            phenotypic_features.add(equivalent_ids)
+        elif 'UMLS' in prefixes:
+            umls_ids = [ Text.un_curie(x) for x in equivalent_ids if Text.get_curie(x) == 'UMLS']
+            if len(umls_ids) > 1:
+                print(umls_ids)
+            try:
+                semtype = umls_types[umls_ids[0]]
+                if semtype in ['Disease or Syndrome','Neoplastic Process','Injury or Poisoning',
+                               'Mental or Behavioral Dysfunction','Congenital Abnormality',
+                               'Anatomical Abnormality']:
+                    diseases.add(equivalent_ids)
+                elif semtype in ['Finding', 'Pathologic Function', 'Sign or Symptom', 'Acquired Abnormality']:
+                    phenotypic_features.add(equivalent_ids)
+                else:
+                    #Therapeutic or Preventive Procedure, Laboratory Procedure,Laboratory or Test Result
+                    #Diagnostic Procedure
+                    #print(semtype,umls_ids[0])
+                    pass
+            except Exception as e:
+                print(f'Missing UMLS: {umls_ids[0]}')
+                print(equivalent_ids)
+    return diseases, phenotypic_features
 
 def build_exact_sets(ontoname):
     onto = Onto()
@@ -77,7 +128,14 @@ def build_exact_sets(ontoname):
         #FWIW, ICD codes tend to be mapped to multiple MONDO identifiers, leading to mass confusion. So we
         #just excise them here.  It's possible that we'll want to revisit this decision in the future.  If so,
         #then we probably will want to set a 'glommable' and 'not glommable' set.
-        dbx = [ Text.upper_curie(x) for x in onto.get_exact_matches(mid) ]
+        ems = onto.get_exact_matches(mid)
+        eq_cures = []
+        for em in ems:
+            if em.startswith('http://'):
+                eq_cures.append(Text.obo_to_curie(em))
+            else:
+                eq_cures.append(em)
+        dbx = [ Text.upper_curie(x) for x in eq_cures ]
         dbx = set( filter( lambda x: not x.startswith('ICD'), dbx ) )
         label = onto.get_label(mid)
         mid = Text.upper_curie(mid)
@@ -123,6 +181,15 @@ def read_meddra():
                 continue
             pairs.append( (f'UMLS:{x[0]}',f'MEDDRA:{x[13]}'))
     return pairs
+
+def read_umls_types():
+    types = {}
+    mrsty = os.path.join(os.path.dirname(__file__),'input_data','MRSTY.RRF')
+    with open(mrsty,'r') as inf:
+        for line in inf:
+            x = line.split('|')
+            types[x[0]] = x[3]
+    return types
 
 if __name__ == '__main__':
     load_diseases_and_phenotypes()
