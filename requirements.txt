@@ -6,3 +6,4 @@ requests
 pandas
 biopython
 pytest
+sparqlwrapper

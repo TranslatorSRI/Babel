@@ -70,7 +70,7 @@ class Onto():
         try:
             if 'exact matches' in obj:
                 result.extend(obj['exact matches'])
-        except e:
+        except Exception as e:
             print(identifier)
             exit()
         return result

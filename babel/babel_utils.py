@@ -49,6 +49,18 @@ def dump_dict(outdict,outfname):
         for k,v in outdict.items():
             outf.write(f'{k}\t{v}\n')
 
+def dump_dicts(dicts,fname):
+    oname = os.path.join(os.path.dirname(__file__),'downloads', fname)
+    with open(oname,'w') as outf:
+        for k in dicts:
+            outf.write(f'{k}\t{dicts[k]}\n')
+
+def dump_sets(sets,fname):
+    oname = os.path.join(os.path.dirname(__file__),'downloads', fname)
+    with open(oname,'w') as outf:
+        for s in sets:
+            outf.write(f'{s}\n')
+
 class ThrottledRequester:
     """Make sure that the time from the last call to the current call is greater than or equal to
     a configurable delta.   Wait before making request to ensure this. Used to make sure eutils

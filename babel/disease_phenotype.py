@@ -1,20 +1,16 @@
-from babel.babel_utils import glom, write_compendium
+from babel.babel_utils import glom, write_compendium,dump_sets,dump_dicts
 from babel.onto import Onto
+from babel.ubergraph import UberGraph
 from src.LabeledID import LabeledID
 from src.util import Text
 import os
 from datetime import datetime as dt
 from functools import reduce
 
-def write_sets(sets,fname):
-    with open(fname,'w') as outf:
-        for s in sets:
-            outf.write(f'{s}\n')
-
-def write_dicts(dicts,fname):
-    with open(fname,'w') as outf:
-        for k in dicts:
-            outf.write(f'{k}\t{dicts[k]}\n')
+#def write_dicts(dicts,fname):
+#    with open(fname,'w') as outf:
+#        for k in dicts:
+#            outf.write(f'{k}\t{dicts[k]}\n')
 
 def filter_out_non_unique_ids(old_list):
     """
@@ -40,24 +36,24 @@ def filter_out_non_unique_ids(old_list):
 
 def load_diseases_and_phenotypes():
     print('disease/phenotype')
-    print('get and write mondo sets')
-    mondo_sets = build_exact_sets('MONDO')
-    write_sets(mondo_sets,'mondo_sets.txt')
     print('get and write hp sets')
-    hpo_sets = build_sets('HPO', ignore_list = ['ICD','NCIT'])
+    hpo_sets = build_sets('HP:0000118', ignore_list = ['ICD','NCIT'])
     hpo_sets = filter_out_non_unique_ids(hpo_sets)
-    write_sets(hpo_sets,'hpo_sets.txt')
+    dump_sets(hpo_sets,'hpo_sets.txt')
+    print('get and write mondo sets')
+    mondo_sets = build_exact_sets('MONDO:0000001')
+    dump_sets(mondo_sets,'mondo_sets.txt')
     print('get and write umls sets')
     meddra_umls = read_meddra()
-    write_sets(hpo_sets,'meddra_umls_sets.txt')
+    dump_sets(hpo_sets,'meddra_umls_sets.txt')
     dicts = {}
     print('put it all together')
     glom(dicts,mondo_sets)
-    write_dicts(dicts,'mondo_dicts.txt')
+    dump_dicts(dicts,'mondo_dicts.txt')
     glom(dicts,hpo_sets)
-    write_dicts(dicts,'mondo_hpo_dicts.txt')
+    dump_dicts(dicts,'mondo_hpo_dicts.txt')
     glom(dicts,meddra_umls)
-    write_dicts(dicts,'mondo_hpo_meddra_dicts.txt')
+    dump_dicts(dicts,'mondo_hpo_meddra_dicts.txt')
     print('dump it')
     diseases,phenotypes = create_typed_sets(set([frozenset(x) for x in dicts.values()]))
     write_compendium(diseases,'disease.txt','disease')
@@ -112,7 +108,19 @@ def create_typed_sets(eqsets):
                 print(equivalent_ids)
     return diseases, phenotypic_features
 
-def build_exact_sets(ontoname):
+def build_exact_sets(iri):
+    uber = UberGraph()
+    uberres = uber.get_subclasses_and_exacts(iri)
+    results = []
+    for k,v in uberres.items():
+        if k[1] is not None and k[1].startswith('obsolete'):
+            continue
+        dbx = set([ norm(x) for x in v  ])
+        dbx.add(LabeledID(identifier=k[0],label=k[1]))
+        results.append(dbx)
+    return results
+
+def xbuild_exact_sets(ontoname):
     onto = Onto()
     sets = []
     mids = onto.get_ids(ontoname)
@@ -146,13 +154,28 @@ def build_exact_sets(ontoname):
 
 
 def norm(curie):
+    curie = f'{Text.get_curie(curie).upper()}:{Text.un_curie(curie)}'
     if Text.get_curie(curie) == 'MSH':
         return f'MESH:{Text.un_curie(curie)}'
     if Text.get_curie(curie) == 'SNOMEDCT_US':
         return f'SNOMEDCT:{Text.un_curie(curie)}'
     return curie
 
-def build_sets(ontology_name, ignore_list = ['ICD']):
+def build_sets(iri, ignore_list = ['ICD']):
+    """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
+    is a set for each subclass of the input iri"""
+    uber = UberGraph()
+    uberres = uber.get_subclasses_and_xrefs(iri)
+    results = []
+    for k,v in uberres.items():
+        if k[1] is not None and k[1].startswith('obsolete'):
+            continue
+        dbx = set([ norm(x) for x in v if not Text.get_curie(x) in ignore_list ])
+        dbx.add(LabeledID(identifier=k[0],label=k[1]))
+        results.append(dbx)
+    return results
+
+def xbuild_sets(ontology_name, ignore_list = ['ICD']):
     onto = Onto()
     sets = []
     mids = onto.get_ids(ontology_name)
