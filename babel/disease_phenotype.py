@@ -1,4 +1,4 @@
-from babel.babel_utils import glom, write_compendium,dump_sets,dump_dicts
+from babel.babel_utils import glom, write_compendium,dump_sets,dump_dicts,get_prefixes
 from babel.onto import Onto
 from babel.ubergraph import UberGraph
 from src.LabeledID import LabeledID
@@ -38,7 +38,9 @@ def load_diseases_and_phenotypes():
     print('disease/phenotype')
     print('get and write hp sets')
     hpo_sets = build_sets('HP:0000118', ignore_list = ['ICD','NCIT'])
+    print('filter')
     hpo_sets = filter_out_non_unique_ids(hpo_sets)
+    print('ok')
     dump_sets(hpo_sets,'hpo_sets.txt')
     print('get and write mondo sets')
     mondo_sets = build_exact_sets('MONDO:0000001')
@@ -59,14 +61,6 @@ def load_diseases_and_phenotypes():
     write_compendium(diseases,'disease.txt','disease')
     write_compendium(phenotypes,'phenotypes.txt','phenotypic_feature')
 
-def get_prefixes(idlist):
-    prefs = set()
-    for ident in idlist:
-        if isinstance(ident,LabeledID):
-            prefs.add(Text.get_curie(ident.identifier))
-        else:
-            prefs.add(Text.get_curie(ident))
-    return prefs
 
 def create_typed_sets(eqsets):
     """Given a set of sets of equivalent identifiers, we want to type each one into

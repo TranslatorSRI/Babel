@@ -9,6 +9,8 @@ import os
 import urllib
 import jsonlines
 from babel.node import create_node
+from src.util import Text
+from src.LabeledID import LabeledID
 
 def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=None):
     """Retrieve data via ftp.
@@ -163,4 +165,13 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHI']):
         #Now make all the elements point to this new set:
         for element in newset:
             conc_set[element] = newset
+
+def get_prefixes(idlist):
+    prefs = set()
+    for ident in idlist:
+        if isinstance(ident,LabeledID):
+            prefs.add(Text.get_curie(ident.identifier))
+        else:
+            prefs.add(Text.get_curie(ident))
+    return prefs
 
