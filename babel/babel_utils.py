@@ -8,7 +8,7 @@ import requests
 import os
 import urllib
 import jsonlines
-from babel.node import create_node
+from babel.node import NodeFactory
 from src.util import Text
 from src.LabeledID import LabeledID
 
@@ -131,9 +131,10 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True):
 
 def write_compendium(synonym_list,ofname,node_type):
     cdir = os.path.dirname(os.path.abspath(__file__))
+    node_factory = NodeFactory()
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf:
         for slist in synonym_list:
-            outf.write( create_node(identifiers=slist, node_type=node_type) )
+            outf.write( node_factory.create_node(identifiers=slist, node_type=node_type) )
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHI']):
     """We want to construct sets containing equivalent identifiers.
