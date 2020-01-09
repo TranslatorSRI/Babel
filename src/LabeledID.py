@@ -1,14 +1,8 @@
 # standard modules
-import logging
 from typing import NamedTuple
 
-from api.setup import swagger
-from src.util import LoggingUtil, Text
+#logger = LoggingUtil.init_logging(__name__, logging.DEBUG)
 
-logger = LoggingUtil.init_logging(__name__, logging.DEBUG)
-
-
-@swagger.definition('LabeledID')
 class LabeledID(NamedTuple):
     """
     Labeled Thing Object

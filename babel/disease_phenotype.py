@@ -1,4 +1,4 @@
-from babel.babel_utils import glom, write_compendium,dump_sets,dump_dicts,get_prefixes
+from babel.babel_utils import glom, write_compendium, dump_sets, dump_dicts, get_prefixes, filter_out_non_unique_ids
 from babel.onto import Onto
 from babel.ubergraph import UberGraph
 from src.LabeledID import LabeledID
@@ -11,28 +11,6 @@ from functools import reduce
 #    with open(fname,'w') as outf:
 #        for k in dicts:
 #            outf.write(f'{k}\t{dicts[k]}\n')
-
-def filter_out_non_unique_ids(old_list):
-    """
-    filters out elements that exist accross rows 
-    eg input [{'z', 'x', 'y'}, {'z', 'n', 'm'}] 
-    output [{'x', 'y'}, {'m', 'n'}]    
-    """
-    bad_ids = []
-    for index, terms in enumerate(old_list):                
-        for other_terms in old_list[index +1:]:
-            for term in terms:                
-                if term not in bad_ids and term in other_terms:
-                    bad_ids.append(term)
-                    continue
-    new_list = list(map(
-        lambda term_list : \
-        set(
-            filter(
-                lambda term: term not in bad_ids, 
-                term_list                
-            )), old_list))
-    return new_list        
 
 def load_diseases_and_phenotypes():
     print('disease/phenotype')
@@ -150,9 +128,9 @@ def xbuild_exact_sets(ontoname):
 def norm(curie):
     curie = f'{Text.get_curie(curie).upper()}:{Text.un_curie(curie)}'
     if Text.get_curie(curie) == 'MSH':
-        return f'MESH:{Text.un_curie(curie)}'
-    if Text.get_curie(curie) == 'SNOMEDCT_US':
-        return f'SNOMEDCT:{Text.un_curie(curie)}'
+        return Text.recurie(curie,'MESH')
+    if Text.get_curie(curie) in ['SNOMEDCT_US','SCTID']:
+        return Text.recurie(curie,'SNOMEDCT')
     return curie
 
 def build_sets(iri, ignore_list = ['ICD']):

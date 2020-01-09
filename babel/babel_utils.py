@@ -11,6 +11,8 @@ import jsonlines
 from babel.node import NodeFactory
 from src.util import Text
 from src.LabeledID import LabeledID
+from json import load
+from collections import defaultdict
 
 def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=None):
     """Retrieve data via ftp.
@@ -21,6 +23,7 @@ def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=No
     ftp.login()
     ftp.cwd(ftpdir)
     print('   getting data')
+    config = get_config()
     if outfilename is None:
         with BytesIO() as data:
             ftp.retrbinary(f'RETR {ftpfile}', data.write)
@@ -30,7 +33,7 @@ def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=No
                 return gzip.decompress(binary).decode()
             else:
                 return binary.decode()
-    ofilename = os.path.join(os.path.dirname(os.path.abspath(__file__)),'downloads',outfilename)
+    ofilename = os.path.join(os.path.dirname(os.path.abspath(__file__)),config['download_directory'],outfilename)
     print(f'  writing data to {ofilename}')
     if not decompress_data:
         with open(ofilename,'wb') as ofile:
@@ -46,19 +49,22 @@ def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=No
     return ofilename
 
 def dump_dict(outdict,outfname):
-    oname = os.path.join(os.path.dirname(__file__),'downloads', outfname)
+    config = get_config()
+    oname = os.path.join(os.path.dirname(__file__),config['download_directory'], outfname)
     with open(oname,'w') as outf:
         for k,v in outdict.items():
             outf.write(f'{k}\t{v}\n')
 
 def dump_dicts(dicts,fname):
-    oname = os.path.join(os.path.dirname(__file__),'downloads', fname)
+    config = get_config()
+    oname = os.path.join(os.path.dirname(__file__),config['download_directory'], fname)
     with open(oname,'w') as outf:
         for k in dicts:
             outf.write(f'{k}\t{dicts[k]}\n')
 
 def dump_sets(sets,fname):
-    oname = os.path.join(os.path.dirname(__file__),'downloads', fname)
+    config = get_config()
+    oname = os.path.join(os.path.dirname(__file__),config['download_directory'], fname)
     with open(oname,'w') as outf:
         for s in sets:
             outf.write(f'{s}\n')
@@ -92,9 +98,11 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True):
     returns: str - the output file name
     """
     #Everything goes in downloads
-    working_dir = 'downloads'
+    download_dir = get_config()['download_directory']
+    working_dir = download_dir
+
     # get the (local) download file name, derived from the input file name
-    dl_file_name = os.path.join(os.path.dirname(os.path.abspath(__file__)),'downloads',in_file_name)
+    dl_file_name = os.path.join(os.path.dirname(os.path.abspath(__file__)),download_dir,in_file_name)
 
     # get a handle to the ftp file
     handle = urllib.request.urlopen(url + in_file_name)
@@ -134,7 +142,7 @@ def write_compendium(synonym_list,ofname,node_type):
     node_factory = NodeFactory()
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf:
         for slist in synonym_list:
-            outf.write( node_factory.create_node(identifiers=slist, node_type=node_type) )
+            outf.write( node_factory.create_node(input_identifiers=slist, node_type=node_type) )
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHI']):
     """We want to construct sets containing equivalent identifiers.
@@ -176,3 +184,29 @@ def get_prefixes(idlist):
             prefs.add(Text.get_curie(ident))
     return prefs
 
+def get_config():
+    cname = os.path.join(os.path.dirname(__file__),'..', 'config.json')
+    with open(cname,'r') as json_file:
+        data = load(json_file)
+    return data
+
+
+def filter_out_non_unique_ids(old_list):
+    """
+    filters out elements that exist accross rows
+    eg input [{'z', 'x', 'y'}, {'z', 'n', 'm'}]
+    output [{'x', 'y'}, {'m', 'n'}]
+    """
+    idcounts = defaultdict(int)
+    for terms in old_list:
+        for term in terms:
+            idcounts[term] += 1
+    bad_ids = set( [k for k,v in idcounts.items() if v > 1])
+    new_list = list(map(
+        lambda term_list : \
+        set(
+            filter(
+                lambda term: term not in bad_ids,
+                term_list
+            )), old_list))
+    return new_list

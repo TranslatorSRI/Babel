@@ -13,7 +13,7 @@ from src.util import LoggingUtil, Text
 from src.LabeledID import LabeledID
 
 from babel.chemical_mesh_unii import refresh_mesh_pubchem
-from babel.babel_utils import glom, pull_via_ftp, write_compendium,pull_via_urllib
+from babel.babel_utils import glom, pull_via_ftp, write_compendium,pull_via_urllib,get_config
 from babel.chemistry_pulls import pull_chebi, chebi_sdf_entry_to_dict, pull_uniprot, pull_iuphar, pull_kegg_sequences
 from babel.big_gz_sort import batch_sort
 
@@ -239,7 +239,7 @@ def process_chunk(lines, label_dict):
         return
     if not lines[0].startswith('chembl_molecule'):
         return
-    chemblid = f"CHEMBL:{lines[0].split()[0].split(':')[1]}"
+    chemblid = f"CHEMBL.COMPOUND:{lines[0].split()[0].split(':')[1]}"
     label = None
     for line in lines[1:]:
         s = line.strip()
@@ -273,7 +273,7 @@ def label_chembls(concord, refresh_chembl = False):
             else:
                 chunk.append(l)
     print('LABEL CHEMBL', len(chembl_labels))
-    label_compounds(concord, 'CHEMBL', partial(get_dict_label, labels=chembl_labels))
+    label_compounds(concord, 'CHEMBL.COMPOUND', partial(get_dict_label, labels=chembl_labels))
     # label_compounds(concord,'CHEMBL',get_chembl_label)
 
 
@@ -420,7 +420,7 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
 
     try:
         # declare the unichem ids for the target data
-        data_sources: dict = {1: 'CHEMBL', 2: 'DRUGBANK', 4: 'GTOPDB', 6: 'KEGG.COMPOUND', 7: 'CHEBI', 14: 'UNII', 18: 'HMDB', 22: 'PUBCHEM'}
+        data_sources: dict = {1: 'CHEMBL.COMPOUND', 2: 'DRUGBANK', 4: 'GTOPDB', 6: 'KEGG.COMPOUND', 7: 'CHEBI', 14: 'UNII', 18: 'HMDB', 22: 'PUBCHEM'}
 
         # get the newest UniChem data directory name
         if xref_file is None or struct_file is None:
@@ -542,7 +542,8 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
     return synonyms
 
 def make_local_name(fname):
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)),'downloads',fname)
+    config = get_config()
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)),config['download_directory'],fname)
 
 #########################
 # get_latest_unichem_url() - gets the latest UniChem data directory url
@@ -709,7 +710,7 @@ def extract_chebml_data_add_to_cache(result, annotator, rosetta):
     """
     molecules = result['molecules']
     for molecule in molecules:
-        extract = annotator.extract_chembl_data(molecule, annotator.get_prefix_config('CHEMBL')['keys'])
+        extract = annotator.extract_chembl_data(molecule, annotator.get_prefix_config('CHEMBL.COMPOUND')['keys'])
         logger.debug(extract)
         chembl_id = molecule['molecule_chembl_id']
         rosetta.cache.set(f"annotation({Text.upper_curie(chembl_id)})", extract)

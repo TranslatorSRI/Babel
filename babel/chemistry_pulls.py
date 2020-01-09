@@ -3,7 +3,7 @@ import requests
 import re
 from collections import defaultdict
 from Bio import SwissProt
-from babel.babel_utils import pull_via_ftp
+from babel.babel_utils import pull_via_ftp,get_config
 
 ###
 # CHEBI
@@ -112,7 +112,7 @@ def pull_uniprot(repull=False):
     if repull:
         xmlname = pull_via_ftp('ftp.uniprot.org','/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/' ,'uniprot_sprot_human.dat.gz',decompress_data=True,outfilename='uniprot_sprot_human.dat')
     else:
-        xmlname = os.path.join(os.path.dirname(os.path.abspath(__file__)),'downloads','uniprot_sprot_human.dat')
+        xmlname = os.path.join(os.path.dirname(os.path.abspath(__file__)),get_config()['download_directory'],'uniprot_sprot_human.dat')
     seq_to_idlist = defaultdict(set)
     #I only want the PRO sequences.  One day, I could get the -1 -2 sequences as well if
     # there were a reason.

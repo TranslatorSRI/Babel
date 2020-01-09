@@ -1,7 +1,4 @@
 jsonlines
-flask
-flask-restful
-flasgger
 requests
 pandas
 biopython
