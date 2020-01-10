@@ -142,7 +142,9 @@ def write_compendium(synonym_list,ofname,node_type):
     node_factory = NodeFactory()
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf:
         for slist in synonym_list:
-            outf.write( node_factory.create_node(input_identifiers=slist, node_type=node_type) )
+            node = node_factory.create_node(input_identifiers=slist, node_type=node_type)
+            if node is not None:
+                outf.write( node )
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHI']):
     """We want to construct sets containing equivalent identifiers.
@@ -154,7 +156,7 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHI']):
     n = 0
     for group in newgroups:
         n+=1
-        print(f'{n}/{len(newgroups)}')
+        #print(f'{n}/{len(newgroups)}')
         #Find all the equivalence sets that already correspond to any of the identifiers in the new set.
         existing_sets = [ conc_set[x] for x in group if x in conc_set ]
         #All of these sets are now going to be combined through the equivalence of our new set.
@@ -169,6 +171,14 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHI']):
             if len([1 for e in idents if e.startswith(up)]) > 1:
                 setok = False
                 break
+        #debugging
+        #debug_idents = [e if type(e)==str else e.identifier for e in newset]
+        #for di in debug_idents:
+        #    if di.startswith('CHEMBL:'):
+        #        print('caught you dummy')
+        #        print(debug_idents)
+        #        exit()
+        #done debugging
         if not setok:
             continue
         #Now make all the elements point to this new set:

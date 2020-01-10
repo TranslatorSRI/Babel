@@ -125,6 +125,14 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     print('UNICHEM')
     concord = load_unichem()
+    #debugging
+    #for c in concord:
+    #    if c.startswith('CHEMBL:'):
+    #       print('alert!')
+    #       print(c)
+    #       exit()
+    #print('no chembls yet')
+    #
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     #DO MESH/UNII
     print('MESH/UNII')
@@ -186,7 +194,7 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     print('LABEL')
     label_chebis(concord)
     label_chembls(concord, refresh_chembl = refresh_chembl )
-    label_meshes(concord)
+    #label_meshes(concord)
 #    label_pubchem(concord, refresh_pubchem = refresh_pubchem)
     print('dumping')
     #Dump

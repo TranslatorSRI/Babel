@@ -28,24 +28,43 @@ class NodeFactory:
         self.prefix_map[input_type] = prefs
         return prefs
 
+    def make_json_id(self,input):
+        if isinstance(input,LabeledID):
+            if input.label is not None and input.label != '':
+                return {'identifier': input.identifier, 'label': input.label}
+            return {'identifier': input.identifier}
+        return {'identifier': input}
+
     def create_node(self,input_identifiers,node_type):
         #This is where we will normalize, i.e. choose the best id, and add types in accord with BL.
         #we should also include provenance and version information for the node set build.
         ancestors = self.get_ancestors(node_type)
         prefixes = self.get_prefixes(node_type)
-        idmap = { Text.get_curie(i).upper(): i for i in list(input_identifiers) }
+        try:
+            idmap = { Text.get_curie(i).upper(): i for i in list(input_identifiers) }
+        except AttributeError:
+            print('something very bad')
+            print(input_identifiers)
+            for i in list(input_identifiers):
+                print(i)
+                print(Text.get_curie(i))
+                print(Text.get_curie(i).upper())
+            exit()
         identifiers = []
         accepted_ids = set()
         for p in prefixes:
             pupper = p.upper()
             if pupper in idmap:
-                identifiers.append(Text.recurie(idmap[pupper],p))
+                newid = Text.recurie(idmap[pupper],p)
+                identifiers.append(self.make_json_id(newid))
                 accepted_ids.add(idmap[pupper])
         #Warn if we have prefixes that we're ignoring
         for k,v in idmap.items():
             if v not in accepted_ids and (k,node_type) not in self.ignored_prefixes:
                 print(f'Ignoring prefix {k} for type {node_type}, identifier {v}')
                 self.ignored_prefixes.add( (k,node_type) )
+        if len(identifiers) == 0:
+            return None
         best_id = identifiers[0]
         if isinstance(best_id, LabeledID):
             best_id = best_id.identifier

@@ -29,29 +29,6 @@ def load():
     load_one('GO:0008150','biological_process')
     load_one('GO:0003674','molecular_activity')
 
-def create_typed_sets(eqsets):
-    """Given a set of sets of equivalent identifiers, we want to type each one into
-    being either a disease or a phenotypic feature.  Or something else, that we may want to
-    chuck out here.
-    Current rules: If it has a mondo, it's a disease, no matter what else it is
-    If it doesn't have a mondo, but it does have an HP, then it's a phenotype
-    Otherwise, consult the UMLS to see what it might be
-    """
-    anatomies = set()
-    cells = set()
-    components=set()
-    for equivalent_ids in eqsets:
-        #prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
-        prefixes = get_prefixes(equivalent_ids)
-        if 'GO' in prefixes:
-            components.add(equivalent_ids)
-        elif 'CL' in prefixes:
-            cells.add(equivalent_ids)
-        elif 'UBERON' in prefixes:
-            anatomies.add(equivalent_ids)
-        else:
-            print(equivalent_ids)
-    return anatomies,cells,components
 
 def relabel_entities(sets):
     curie_to_labeledID = {}

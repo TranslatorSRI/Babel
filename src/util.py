@@ -111,6 +111,14 @@ class Text:
         if text.startswith('http://identifiers.org/'):
             p = text.split("/")
             return f'{p[-2].upper()}:{p[-1]}'
+        if text.startswith('http://en.wikipedia.org/wiki'):
+            return f'wikipedia.en:{text.split("/")[-1]}'
+        if text.startswith('http://www.snomedbrowser.com/'):
+            return f'SNOMEDCT:{text.split("/")[-1]}'
+        if text.startswith('KEGG_PATHWAY'):
+            return Text.recurie(text,'KEGG.PATHWAY')
+        if text.startswith('KEGG_REACTION'):
+            return Text.recurie(text,'KEGG.REACTION')
         return text
 
     @staticmethod

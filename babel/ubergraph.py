@@ -76,6 +76,10 @@ class UberGraph:
             if row['xref'] is None:
                 results[(Text.opt_to_curie(row['descendent']),row['descendentLabel'])]=[]
             else:
+                #Sometimes we're getting back just strings that aren't curies, skip those (but complain)
+                if ':' not in row['xref']:
+                    print(f'Bad XREF from {row["descendent"]} to {row["xref"]}')
+                    continue
                 results[ (Text.opt_to_curie(row['descendent']),row['descendentLabel'])].\
                     append( (Text.opt_to_curie(row['xref']) ))
         return results
