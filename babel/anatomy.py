@@ -41,9 +41,8 @@ def create_typed_sets(eqsets):
     """Given a set of sets of equivalent identifiers, we want to type each one into
     being either a disease or a phenotypic feature.  Or something else, that we may want to
     chuck out here.
-    Current rules: If it has a mondo, it's a disease, no matter what else it is
-    If it doesn't have a mondo, but it does have an HP, then it's a phenotype
-    Otherwise, consult the UMLS to see what it might be
+    Current rules: If it has an UBERON, it's an anatomy, if it has a CL it's a cell, and if it has GO it's a cellular
+    component.  There are things that have none of the above, but it's not clear to me if we want them or not.
     """
     anatomies = set()
     cells = set()
