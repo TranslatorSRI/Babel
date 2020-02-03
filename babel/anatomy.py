@@ -19,6 +19,7 @@ def build_sets(iri, ignore_list = ['PMID']):
 
 def load_anatomy():
     anatomy_sets = build_sets('UBERON:0001062')
+    cellular_component_sets = build_sets('GO:0005575')
     #There can be some nastiness where we need to glom together different entities that came back
     # from this call, so we need to run a glom.
     #There's actually a special problem that happens in this case.  Because A) the subclass crosses
@@ -29,9 +30,11 @@ def load_anatomy():
     # Actually, I think we should probably just keep labels separate until output, but that's
     # a change for the future.
     relabel_entities(anatomy_sets)
+    relabel_entities(cellular_component_sets)
     dicts = {}
     print('put it all together')
     glom(dicts, anatomy_sets)
+    glom(dicts, cellular_component_sets)
     anat_sets, cell_sets, cc_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]))
     write_compendium(anat_sets,'anatomy.txt','anatomical_entity')
     write_compendium(cell_sets,'cell.txt','cell')
@@ -54,7 +57,7 @@ def create_typed_sets(eqsets):
             components.add(equivalent_ids)
         elif 'CL' in prefixes:
             cells.add(equivalent_ids)
-        elif 'UBERON' in prefixes:
+        elif 'UBERON' in prefixes or 'BSPO' in prefixes:
             anatomies.add(equivalent_ids)
         else:
             print(equivalent_ids)

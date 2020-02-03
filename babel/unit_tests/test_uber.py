@@ -50,3 +50,37 @@ def test_get_subclasses_exact():
         print(k)
         print(v)
 
+def test_missing():
+    """GO:0052859 is not getting normalized.  Is it coming back from our sbuclass check?"""
+    target='GO:0005289'
+    ubergraph = UberGraph()
+    iri = 'GO:0003674'
+    #
+    subs = ubergraph.get_subclasses_of(iri)
+    gos = [x['descendent'] for x in subs]
+    assert target in gos
+    #
+    subs_w_xrefs = ubergraph.get_subclasses_and_xrefs(iri)
+    gos = [x[0] for x in subs_w_xrefs.keys()]
+    assert target in gos
+    #
+    assert len(subs_w_xrefs) == len(subs)
+    #Yeah, it's coming back.  So what gives?
+
+def test_missing_cc():
+    """GO:1990333 is not getting normalized.  Is it coming back from our sbuclass check?"""
+    #target='GO:1990333'
+    target='GO:0005575'
+    ubergraph = UberGraph()
+    iri = 'UBERON:0001062'
+    #
+    subs = ubergraph.get_subclasses_of(iri)
+    gos = [x['descendent'] for x in subs]
+    assert target in gos
+    #
+    subs_w_xrefs = ubergraph.get_subclasses_and_xrefs(iri)
+    gos = [x[0] for x in subs_w_xrefs.keys()]
+    assert target in gos
+    #
+    assert len(subs_w_xrefs) == len(subs)
+    #Yeah, it's coming back.  So what gives?
