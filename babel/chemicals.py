@@ -13,7 +13,7 @@ from src.util import LoggingUtil, Text
 from src.LabeledID import LabeledID
 
 from babel.chemical_mesh_unii import refresh_mesh_pubchem
-from babel.babel_utils import glom, pull_via_ftp, write_compendium,pull_via_urllib,get_config
+from babel.babel_utils import glom, pull_via_ftp, write_compendium,pull_via_urllib,make_local_name
 from babel.chemistry_pulls import pull_chebi, chebi_sdf_entry_to_dict, pull_uniprot, pull_iuphar, pull_kegg_sequences
 from babel.big_gz_sort import batch_sort
 
@@ -57,6 +57,26 @@ def pull_uniprot_chebi():
     #    for m,c in pairs:
     #        outf.write(f'{m}\t{c}\n')
     return pairs
+
+def filter_mesh_chebi(mesh_chebi,concord):
+    """MESH/CHEBI is a real mess though.  wikidata has no principled way to connect identifiers.  It's just whatever
+     somebody said.  We really should use as a last resort.  If we don't know much about it, then sure.  But if
+     we've already got a chebi or a unii, then we should ignore this wiki stuff."""
+    fmc = []
+    for m,c in mesh_chebi:
+        if m not in concord:
+            fmc.append( (m,c) )
+        else:
+            equivs = concord[m]
+            prefs = [ Text.get_curie(e) for e in equivs ]
+            if ('CHEBI') in prefs:
+                continue
+            if ('UNII') in prefs:
+                continue
+            if ('INCHIKEY') in prefs:
+                continue
+            fmc.append( (m,c) )
+    return fmc
 
 ##
 # Here's a pointless rant about chemical synonymization.
@@ -138,24 +158,30 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     print('MESH/UNII')
     mesh_unii_file = make_local_name( 'mesh_to_unii.txt')
     mesh_unii_pairs = load_pairs(mesh_unii_file, 'UNII')
-    glom(concord, mesh_unii_pairs)
+    glom(concord, mesh_unii_pairs,pref='MESH')
     # DO MESH/PUBCHEM
     print('MESH/PUBCHEM')
     mesh_pc_file = make_local_name('mesh_to_pubchem.txt')
     mesh_pc_pairs = load_pairs(mesh_pc_file, 'PUBCHEM')
-    glom(concord, mesh_pc_pairs)
+    glom(concord, mesh_pc_pairs,pref='MESH')
     # DO MESH/CHEBI, but don't combine any chebi's into a set with it
     print('MESH/CHEBI')
     mesh_chebi = pull_mesh_chebi()
     #Merging CHEBIS can be ok because of primary/secondary chebis.  Really we 
     # don't want to merge INCHIs
-    #glom(concord, mesh_chebi,['INCHI'])
-    glom(concord, mesh_chebi)
+    #MESH/CHEBI is a real mess though.  wikidata has no principled way to connect identifiers.  It's just whatever
+    # somebody said.  We really should use as a last resort.  If we don't know much about it, then sure.  But if
+    # we've already got a chebi or a unii, then we should ignore this wiki stuff.
+    mesh_chebi_filter = filter_mesh_chebi(mesh_chebi,concord)
+    print(f"Started with {len(mesh_chebi)} m/c pairs")
+    print(f"filtered to {len(mesh_chebi_filter)} m/c pairs")
+    glom(concord, mesh_chebi_filter,pref='MESH')
     # 3. Pull from chebi the sdf and db files, use them to link to things (KEGG) in the no inchi/no smiles cases
     print('chebi')
-    pubchem_chebi_pairs, kegg_chebi_pairs = pull_chebi()
-    glom(concord, pubchem_chebi_pairs)
-    glom(concord, kegg_chebi_pairs)
+    pubchem_chebi_pairs, kegg_chebi_pairs, chebi_unmapped = pull_chebi()
+    glom(concord, pubchem_chebi_pairs,pref= 'CHEBI')
+    glom(concord, kegg_chebi_pairs,pref='CHEBI')
+    glom(concord, chebi_unmapped, pref='CHEBI')
     # 4. Go to KEGG, and get sequences for peptides.
     print('kegg')
     sequence_concord = pull_kegg_sequences()
@@ -172,7 +198,7 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     sequence_to_iuphar, iuphar_glom = pull_iuphar()
     for s,v in sequence_to_iuphar.items():
         sequence_concord[s].update(v)
-    glom(concord,iuphar_glom)
+    glom(concord,iuphar_glom,pref='GTOPDB')
     #  8. Use wikidata to get links between CHEBI and UniProt_PRO
     unichebi = pull_uniprot_chebi()
     glom(concord, unichebi)
@@ -548,10 +574,6 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
 
     # return the resultant list set to the caller
     return synonyms
-
-def make_local_name(fname):
-    config = get_config()
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)),config['download_directory'],fname)
 
 #########################
 # get_latest_unichem_url() - gets the latest UniChem data directory url

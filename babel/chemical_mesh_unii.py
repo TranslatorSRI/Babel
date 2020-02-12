@@ -2,9 +2,11 @@ import itertools
 import logging
 import os
 import pickle
+import Levenshtein
+from ast import literal_eval
 
 from src.util import LoggingUtil
-from babel.babel_utils import pull_via_ftp, dump_dict, ThrottledRequester
+from babel.babel_utils import pull_via_ftp, dump_dict, ThrottledRequester, make_local_name, StateDB
 
 logger = LoggingUtil.init_logging(__name__, level=logging.DEBUG)
 
@@ -84,9 +86,17 @@ def chunked(it, size):
             break
         yield p
 
-def lookup_by_mesh(meshes,apikey):
+def lookup_by_mesh(meshes,apikey,mesh_labels):
     print("Looking up by mesh")
+    db = StateDB('meshbymesh')
     term_to_pubs = {}
+    moremeshes = []
+    for mesh in meshes:
+        v = db.get(mesh)
+        if v is None:
+            moremeshes.append(mesh)
+        else:
+            term_to_pubs[mesh] = literal_eval(v)
     if apikey is None:
         print('Warning: not using API KEY for eutils, resulting in 3x slowdown')
         delta = 350 #milleseconds
@@ -97,7 +107,7 @@ def lookup_by_mesh(meshes,apikey):
     backandforth={'C': '67', '67': 'C', 'D': '68', '68': 'D'}
     num = len(meshes)
     done = 0
-    for terms in chunked(meshes,chunksize):
+    for terms in chunked(moremeshes,chunksize):
         url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?&dbfrom=mesh&db=pccompound&retmode=json'
         if apikey is not None:
             url+=f'&api_key={apikey}'
@@ -110,13 +120,13 @@ def lookup_by_mesh(meshes,apikey):
             url+=f'&id={newterm}'
         try:
             #returns a throttled flag also, but we don't need it
-            response,_ = requester.get(url)
-            result = response.json()
+            result = requester.get_json(url)
+            #result = response.json()
         except Exception as e:
+            print('E1')
             print(url)
             print(result)
             print(e)
-            exit()
         if 'linksets' not in result:
             continue
         linksets = result['linksets']
@@ -128,19 +138,69 @@ def lookup_by_mesh(meshes,apikey):
                     if lsdb['linkname'] == 'mesh_pccompound':
                         cids = lsdb['links']
             if cids is not None:
+                # 5 or more is probably a group, not a compound
+                if len(cids) >= 5:
+                    continue
                 smesh = str(mesh)
                 remesh = f'{backandforth[smesh[0:2]]}{smesh[2:]}'
-                if len(cids) <5:
-                    # 5 or more is probably a group, not a compound
+                if len(cids) == 1:
+                    #There's no ambiguity
                     term_to_pubs[remesh] = cids
+                    continue
+                #originally, we're keeping all the pubchems, but that leads to a mess, because they have
+                # different inchis.  We should choose 1.  Mesh is conceptual, though.  Which should we choose?
+                # Lets choose the one with the most similar label.
+                #if none of them are good, then this just (effectively) picks one randomly
+                mesh_label = mesh_labels[remesh]
+                best_pubchem = get_best_pubchem(cids,requester,mesh_label)
+                if best_pubchem is not None:
+                    term_to_pubs[remesh] = [ best_pubchem ]
+                #else, we didn't get any labels back...
         done += chunksize
         if done % 1000 == 0:
             print(f' completed {done} / {num}')
     print(f'mesh found {len(term_to_pubs)}')
     return term_to_pubs
 
-def lookup_by_cas(term_to_cas,apikey):
-    print("Looking up by cas")
+
+def get_best_pubchem(cids, requester,mesh_label):
+    pubchem_labels = get_pubchem_labels(cids, requester)
+    mind = 9999999
+    best = ''
+    for label in pubchem_labels:
+        d = Levenshtein.distance(mesh_label, label)
+        if d < mind:
+            mind = d
+            best = label
+    if best != '':
+        #print(f'best match to {mesh_label}: {best} {mind}')
+        return pubchem_labels[best]
+    return None
+
+def get_pubchem_labels(cids,requester):
+    labels = {}
+    cidstring = ','.join(cids)
+    url=f'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cidstring}/description/JSON'
+    #response,_ = requester.get(url)
+    #result = response.json()
+    result = requester.get_json(url)
+    # result = response.json()
+    if 'InformationList' in result:
+        if 'Information' in result['InformationList']:
+            info = result['InformationList']['Information']
+            for entity in info:
+                if 'Title' in entity:
+                    label = entity['Title']
+                    cid = entity['CID']
+                    labels[label] = cid
+    if len(labels)==0:
+        print(url)
+        exit()
+    return labels
+
+
+def lookup_by_cas(term_to_cas,apikey,mesh_labels):
+    db = StateDB('meshbycas')
     term_to_pubs = {}
     if apikey is None:
         print('Warning: not using API KEY for eutils, resulting in 3x slowdown')
@@ -151,16 +211,28 @@ def lookup_by_cas(term_to_cas,apikey):
     num = len(term_to_cas)
     done = 0
     for term in term_to_cas:
+        cached_value = db.get(term)
+        if cached_value is not None:
+            term_to_pubs[term] = literal_eval(cached_value)
+            continue
         cas = term_to_cas[term]
+        if cas.startswith('EC'):
+            continue
         url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pccompound&term={cas}&retmode=json'
         if apikey is not None:
             url+=f'&api_key={apikey}'
         try:
-            response,_ = requester.get(url)
-            result = response.json()
+            result = requester.get_json(url)
         except Exception as e:
+            print('E2')
             print(e)
             print(url)
+            continue
+        mesh_label = mesh_labels[term]
+        #Getting rid of EC means that these shouldn't happen any more...
+        if 'protein' in mesh_label:
+            continue
+        if 'OBSOLETE' in mesh_label:
             continue
         try:
             r = result['esearchresult']
@@ -168,8 +240,16 @@ def lookup_by_cas(term_to_cas,apikey):
                 if 'phrasesnotfound' in r['errorlist']:
                     if cas in r['errorlist']['phrasesnotfound']:
                         continue
-            term_to_pubs[term] = result['esearchresult']['idlist']
+            cids = result['esearchresult']['idlist']
+            if len(cids) > 1:
+                best_pubchem = get_best_pubchem(cids, requester, mesh_label)
+                if best_pubchem is not None:
+                    term_to_pubs[term] = [best_pubchem]
+            elif len(cids) == 1:
+                term_to_pubs[term] = cids
+                db.put(term,str(cids))
         except Exception as e:
+            print("EXCEPTION 3")
             print(e)
             break
         done += 1
@@ -210,11 +290,11 @@ def refresh_mesh_pubchem(deep_refresh = True):
        CAS:  60880
        0:    190966"""
     #This is just a way to cache some slow work so you can come back to it dig around without re-running things.
-    umfname = os.path.join(os.path.dirname (__file__),'downloads', 'unmapped.pickle')
-    mcfname = os.path.join(os.path.dirname (__file__),'downloads', 'meshcas.pickle')
-    mufname = os.path.join(os.path.dirname (__file__),'downloads', 'meshunii.pickle')
-    ecfname = os.path.join(os.path.dirname (__file__),'downloads', 'meschec.pickle')
-    labelname = os.path.join(os.path.dirname(__file__),'downloads', 'meshlabels.pickle')
+    umfname = make_local_name('unmapped.pickle')
+    mcfname = make_local_name('meshcas.pickle')
+    mufname = make_local_name('meshunii.pickle')
+    ecfname = make_local_name('meschec.pickle')
+    labelname = make_local_name('meshlabels.pickle')
     if deep_refresh:
         unmapped_mesh, term_to_cas, term_to_unii, term_to_EC, labels = \
             parse_mesh(pull_via_ftp('ftp.nlm.nih.gov','/online/mesh/rdf', 'mesh.nt.gz',decompress_data=True))
@@ -237,14 +317,19 @@ def refresh_mesh_pubchem(deep_refresh = True):
             term_to_unii=pickle.load(mu)
         with open(ecfname,'rb') as mec:
             term_to_EC=pickle.load(mec)
+        with open(labelname,'rb') as lf:
+            labels=pickle.load(lf)
 
     #mesh_to_unii is one of the files read by chemicals.py
     dump_dict(term_to_unii,'mesh_to_unii.txt')
     dump_dict(term_to_EC,'mesh_to_EC.txt')
     #mesh_to_pubchem is one of the files that chemicals.py is looking for.
     api_key = get_api_key()
-    term_to_pubchem_by_cas = lookup_by_cas(term_to_cas,api_key)
-    term_to_pubchem_by_mesh = lookup_by_mesh(unmapped_mesh,api_key)
+    print("CAS")
+    term_to_pubchem_by_cas = lookup_by_cas(term_to_cas,api_key,labels)
+    print("PUBCHEM")
+    term_to_pubchem_by_mesh = lookup_by_mesh(unmapped_mesh,api_key,labels)
+    print("WRITE")
     term_to_pubchem = {**term_to_pubchem_by_cas, **term_to_pubchem_by_mesh}
     dump_dict(term_to_pubchem,'mesh_to_pubchem.txt')
 

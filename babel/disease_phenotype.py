@@ -1,4 +1,4 @@
-from babel.babel_utils import glom, write_compendium, dump_sets, dump_dicts, get_prefixes, filter_out_non_unique_ids
+from babel.babel_utils import glom, write_compendium, dump_sets, dump_dicts, get_prefixes, filter_out_non_unique_ids, clean_sets
 from babel.onto import Onto
 from babel.ubergraph import UberGraph
 from src.LabeledID import LabeledID
@@ -6,33 +6,74 @@ from src.util import Text
 import os
 from datetime import datetime as dt
 from functools import reduce
+from ast import literal_eval
+from collections import defaultdict
 
 #def write_dicts(dicts,fname):
 #    with open(fname,'w') as outf:
 #        for k in dicts:
 #            outf.write(f'{k}\t{dicts[k]}\n')
 
+def read_bad_hp_mappings():
+    fn = os.path.join(os.path.dirname(os.path.abspath(__file__)),'input_data','hpo_errors.txt')
+    drops = defaultdict(set)
+    with open(fn,'r') as infile:
+        for line in infile:
+            if line.startswith('-'):
+                continue
+            x = line.strip().split('\t')
+            hps = x[0]
+            commaindex = hps.index(',')
+            curie = hps[1:commaindex]
+            name = hps[commaindex+1:-1]
+            badset = literal_eval(x[1])
+            drops[LabeledID(identifier = curie, label = name)].update(badset)
+    return drops
+
+def filter_umls(umls_pairs,sets_with_umls):
+    # We've got a bunch of umls pairs, but we really only want to use them if they're not 
+    # already attached to a hp or mondo.
+    used = set()
+    #It's ok to mush stuff together, because only the umls will hit
+    for s in sets_with_umls:
+        used.update(s)
+    ok_pairs = []
+    for pair in umls_pairs:
+        ok = True
+        for item in pair:
+            if item in used:
+                ok = False
+        if ok:
+            ok_pairs.append(pair)
+    return ok_pairs
+
 def load_diseases_and_phenotypes():
     print('disease/phenotype')
     print('get and write hp sets')
-    hpo_sets = build_sets('HP:0000118', ignore_list = ['ICD','NCIT'])
+    bad_mappings = read_bad_hp_mappings()
+    hpo_sets = build_sets('HP:0000118', ignore_list = ['ICD','NCIT'], bad_mappings = bad_mappings)
     print('filter')
     hpo_sets = filter_out_non_unique_ids(hpo_sets)
     print('ok')
     dump_sets(hpo_sets,'hpo_sets.txt')
     print('get and write mondo sets')
     mondo_sets = build_exact_sets('MONDO:0000001')
+    mondo_sets = filter_out_non_unique_ids(mondo_sets)
     dump_sets(mondo_sets,'mondo_sets.txt')
     print('get and write umls sets')
     meddra_umls = read_meddra()
+    meddra_umls = filter_umls(meddra_umls,mondo_sets+hpo_sets)
     dump_sets(hpo_sets,'meddra_umls_sets.txt')
     dicts = {}
     print('put it all together')
-    glom(dicts,mondo_sets)
+    print('mondo')
+    glom(dicts,mondo_sets,unique_prefixes=['MONDO'])
     dump_dicts(dicts,'mondo_dicts.txt')
-    glom(dicts,hpo_sets)
+    print('hpo')
+    glom(dicts,hpo_sets,unique_prefixes=['MONDO'],pref='HP')
     dump_dicts(dicts,'mondo_hpo_dicts.txt')
-    glom(dicts,meddra_umls)
+    print('umls')
+    glom(dicts,meddra_umls,unique_prefixes=['MONDO'],pref='UMLS')
     dump_dicts(dicts,'mondo_hpo_meddra_dicts.txt')
     print('dump it')
     diseases,phenotypes = create_typed_sets(set([frozenset(x) for x in dicts.values()]))
@@ -60,8 +101,8 @@ def create_typed_sets(eqsets):
             phenotypic_features.add(equivalent_ids)
         elif 'UMLS' in prefixes:
             umls_ids = [ Text.un_curie(x) for x in equivalent_ids if Text.get_curie(x) == 'UMLS']
-            if len(umls_ids) > 1:
-                print(umls_ids)
+            #if len(umls_ids) > 1:
+            #    print(umls_ids)
             try:
                 semtype = umls_types[umls_ids[0]]
                 if semtype in ['Disease or Syndrome','Neoplastic Process','Injury or Poisoning',
@@ -133,7 +174,7 @@ def norm(curie):
         return Text.recurie(curie,'SNOMEDCT')
     return curie
 
-def build_sets(iri, ignore_list = ['ICD']):
+def build_sets(iri, ignore_list = ['ICD'], bad_mappings = {}):
     """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
     is a set for each subclass of the input iri"""
     uber = UberGraph()
@@ -143,7 +184,10 @@ def build_sets(iri, ignore_list = ['ICD']):
         if k[1] is not None and k[1].startswith('obsolete'):
             continue
         dbx = set([ norm(x) for x in v if not Text.get_curie(x) in ignore_list ])
-        dbx.add(LabeledID(identifier=k[0],label=k[1]))
+        head = LabeledID(identifier=k[0],label=k[1])
+        dbx.add(head)
+        bad_guys = bad_mappings[head]
+        dbx.difference_update(bad_guys)
         results.append(dbx)
     return results
 
@@ -174,7 +218,26 @@ def read_meddra():
             x = line.strip().split('|')
             if x[1] != 'ENG':
                 continue
-            pairs.append( (f'UMLS:{x[0]}',f'MEDDRA:{x[13]}'))
+            oid = x[10]
+            if oid == '':
+                oid = x[9]
+            source = x[11]
+            if source == 'HPO':
+                otherid = oid
+            elif source == 'MDR':
+                otherid = f'MEDDRA:{oid}'
+            elif source == 'NCI':
+                otherid = f'NCIT:{oid}'
+            elif source == 'SNOMEDCT_US':
+                otherid = f'SNOMEDCT:{oid}'
+            elif source == 'MSH':
+                otherid = f'MESH:{oid}'
+            elif source in ['LNC','SRC']:
+                continue
+            else:
+                print(source)
+                exit()
+            pairs.append( {f'UMLS:{x[0]}',otherid})
     return pairs
 
 def read_umls_types():
