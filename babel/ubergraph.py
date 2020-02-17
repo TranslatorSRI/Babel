@@ -96,38 +96,40 @@ class UberGraph:
         PREFIX EXACT_MATCH: <http://www.w3.org/2004/02/skos/core#exactMatch>
         PREFIX EQUIVALENT_CLASS: <http://www.w3.org/2002/07/owl#equivalentClass>
         PREFIX ID: <http://www.geneontology.org/formats/oboInOwl#id>
-        SELECT DISTINCT ?descendent ?descendentLabel ?match ?match_id
+        SELECT DISTINCT ?descendent ?descendentLabel ?match
         FROM <http://reasoner.renci.org/ontology>
         WHERE {{
             graph <http://reasoner.renci.org/ontology/closure> {{
                 ?descendent rdfs:subClassOf $identifier .
             }}
-            ?descendent {predicate} ?match.      
             OPTIONAL {{
-                ?match ID: ?match_id.
+                ?descendent {predicate} ?match.      
             }} 
             OPTIONAL {{
                 ?descendent rdfs:label ?descendentLabel
             }}
-            FILTER (!isBlank(?match)) #This sometimes returns blank nodes         
         }}
         """
         resultmap = self.triplestore.query_template(
                template_text=text('EXACT_MATCH:'),
                inputs={
                    'identifier': iri
-               }, outputs=[ 'descendent', 'descendentLabel', 'match', 'match_id' ] )
+               }, outputs=[ 'descendent', 'descendentLabel', 'match' ] )
         resultmap += self.triplestore.query_template(
                 template_text=text('EQUIVALENT_CLASS:'),
                 inputs={
                     'identifier': iri
-                }, outputs=[ 'descendent', 'descendentLabel', 'match', 'match_id' ] )
+                }, outputs=[ 'descendent', 'descendentLabel', 'match'] )
         results = defaultdict(list)
         for row in resultmap:
             if row['match'] is None:
-                results[(Text.opt_to_curie(row['descendent']),row['descendentLabel'])]=[]
+                results[(Text.opt_to_curie(row['descendent']),row['descendentLabel'])] += []
             else:
                 results[ (Text.opt_to_curie(row['descendent']),row['descendentLabel'])].\
                     append( (Text.opt_to_curie(row['match']) ))
+        #Sometimes, if there are no exact_matches, we'll get some kind of blank node id
+        # like 't19830198'. Want to filter those out.
+        for k,v in results.items():
+            results[k] = list(filter(lambda x: ':' in x, v))
         return results
 

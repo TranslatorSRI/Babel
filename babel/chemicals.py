@@ -14,7 +14,7 @@ from src.LabeledID import LabeledID
 
 from babel.chemical_mesh_unii import refresh_mesh_pubchem
 from babel.babel_utils import glom, pull_via_ftp, write_compendium,pull_via_urllib,make_local_name
-from babel.chemistry_pulls import pull_chebi, chebi_sdf_entry_to_dict, pull_uniprot, pull_iuphar, pull_kegg_sequences
+from babel.chemistry_pulls import pull_chebi, chebi_sdf_entry_to_dict, pull_uniprot, pull_iuphar, pull_kegg_sequences, pull_kegg_compounds
 from babel.big_gz_sort import batch_sort
 
 
@@ -179,11 +179,16 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     # 3. Pull from chebi the sdf and db files, use them to link to things (KEGG) in the no inchi/no smiles cases
     print('chebi')
     pubchem_chebi_pairs, kegg_chebi_pairs, chebi_unmapped = pull_chebi()
+    all_chebis = get_all_chebis()
     glom(concord, pubchem_chebi_pairs,pref= 'CHEBI')
     glom(concord, kegg_chebi_pairs,pref='CHEBI')
     glom(concord, chebi_unmapped, pref='CHEBI')
-    # 4. Go to KEGG, and get sequences for peptides.
+    glom(concord, all_chebis, pref = 'CHEBI')
+    # 3a. pull in all KEGG labels and compounds.  This is mostly to pick up keggs that don't map to anything else
     print('kegg')
+    keggs = pull_kegg_compounds()
+    glom(concord,keggs,pref='KEGG.COMPOUND')
+    # 4. Go to KEGG, and get sequences for peptides.
     sequence_concord = pull_kegg_sequences()
     # 5. Pull UniProt (swissprot) XML.
     # Calculate sequences for the sub-sequences (Uniprot_PRO)
@@ -218,7 +223,7 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
         concord.remove(eids)
     #Add labels to CHEBIs, CHEMBLs, MESHes
     print('LABEL')
-    label_chebis(concord)
+    #label_chebis(concord)
     label_chembls(concord, refresh_chembl = refresh_chembl )
     #label_meshes(concord)
 #    label_pubchem(concord, refresh_pubchem = refresh_pubchem)
@@ -249,11 +254,11 @@ def get_mesh_label(ident, labels):
 
 ###
 
-def label_chebis(concord):
+def get_all_chebis():
     print('READ CHEBI')
     chebiobo = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chebi/ontology', 'chebi_lite.obo')
     lines = chebiobo.split('\n')
-    chebi_labels = {}
+    chebis = []
     for line in lines:
         if line.startswith('[Term]'):
             tid = None
@@ -262,9 +267,13 @@ def label_chebis(concord):
             tid = line[3:].strip()
         elif line.startswith('name:'):
             label = line[5:].strip()
-            chebi_labels[tid] = label
-    print('LABEL CHEBI')
-    label_compounds(concord, 'CHEBI', partial(get_dict_label, labels=chebi_labels))
+            #There's some stuff in here like "has_part, has part"
+            if tid.startswith('CHEBI:'):
+                lid = LabeledID(identifier=tid, label=label)
+                chebis.append( (lid, ) )
+    return chebis
+    #print('LABEL CHEBI')
+    #label_compounds(concord, 'CHEBI', partial(get_dict_label, labels=chebi_labels))
     # label_compounds(concord,'CHEBI',get_chebi_label)
 
 
@@ -634,44 +643,44 @@ def merge_roles_and_annotations(chebi_role_data, chebi_annotation_data):
         yield (chebi_id, chebi_annotation_data[chebi_id])
 
 
-def annotate_from_chebi(rosetta):
-    chebisdf = pull_and_decompress('ftp.ebi.ac.uk', '/pub/databases/chebi/SDF/', 'ChEBI_complete_3star.sdf.gz')
-    chunk = []
-    logger.debug('caching chebi annotations')
-    # grab a bunch of them to make use of concurrent execution for fetching roles from Uberon
-    result_buffer = {}
-    num_request_per_round = 500
-    loop = asyncio.new_event_loop()
-    chemical_annotator = ChemicalAnnotator(rosetta)
-    interesting_keys = chemical_annotator.config['CHEBI']['keys']
-    lines = chebisdf.split('\n')
-    count = 0
-    for line in lines:
-        if '$$$$' in line:
-            chebi_set = chebi_sdf_entry_to_dict(chunk, interesting_keys=interesting_keys)
-            chunk = []
-            result_buffer[chebi_set[0]] = chebi_set[1]
-            if len(result_buffer) == num_request_per_round:
-                chebi_role_data = loop.run_until_complete(make_uberon_role_queries(result_buffer.keys(), chemical_annotator))
-                for entry in merge_roles_and_annotations(chebi_role_data, result_buffer):
-                    # entry[0] is the chebi id
-                    rosetta.cache.set(f'annotation({Text.upper_curie(entry[0])})', entry[1])
-                    # clear buffer
-                    count += 1
-                result_buffer = {}
-                logger.debug(f'cached {count} entries... ')
-        else:
-            if line != '\n':
-                line = line.strip('\n')
-                chunk += [line]
-        
-    if len(result_buffer) != 0 :
-        #deal with the last pieces left in the buffer
-        chebi_role_data = loop.run_until_complete(make_uberon_role_queries(result_buffer.keys(),chemical_annotator))
-        for entry in merge_roles_and_annotations(chebi_role_data, result_buffer):
-            rosetta.cache.set(f'annotation({Text.upper_curie(entry[0])})', entry[1])
-    logger.debug('done caching chebi annotations...')
-    loop.close()
+#def annotate_from_chebi(rosetta):
+#    chebisdf = pull_and_decompress('ftp.ebi.ac.uk', '/pub/databases/chebi/SDF/', 'ChEBI_complete_3star.sdf.gz')
+#    chunk = []
+#    logger.debug('caching chebi annotations')
+#    # grab a bunch of them to make use of concurrent execution for fetching roles from Uberon
+#    result_buffer = {}
+#    num_request_per_round = 500
+#    loop = asyncio.new_event_loop()
+#    chemical_annotator = ChemicalAnnotator(rosetta)
+#    interesting_keys = chemical_annotator.config['CHEBI']['keys']
+#    lines = chebisdf.split('\n')
+#    count = 0
+#    for line in lines:
+#        if '$$$$' in line:
+#            chebi_set = chebi_sdf_entry_to_dict(chunk, interesting_keys=interesting_keys)
+#            chunk = []
+#            result_buffer[chebi_set[0]] = chebi_set[1]
+#            if len(result_buffer) == num_request_per_round:
+#                chebi_role_data = loop.run_until_complete(make_uberon_role_queries(result_buffer.keys(), chemical_annotator))
+#                for entry in merge_roles_and_annotations(chebi_role_data, result_buffer):
+#                    # entry[0] is the chebi id
+#                    rosetta.cache.set(f'annotation({Text.upper_curie(entry[0])})', entry[1])
+#                    # clear buffer
+#                    count += 1
+#                result_buffer = {}
+#                logger.debug(f'cached {count} entries... ')
+#        else:
+#            if line != '\n':
+#                line = line.strip('\n')
+#                chunk += [line]
+#
+#    if len(result_buffer) != 0 :
+#        #deal with the last pieces left in the buffer
+#        chebi_role_data = loop.run_until_complete(make_uberon_role_queries(result_buffer.keys(),chemical_annotator))
+#        for entry in merge_roles_and_annotations(chebi_role_data, result_buffer):
+#            rosetta.cache.set(f'annotation({Text.upper_curie(entry[0])})', entry[1])
+#    logger.debug('done caching chebi annotations...')
+#    loop.close()
 
 def chebi_sdf_entry_to_dict(sdf_chunk, interesting_keys={}):
     """
@@ -695,43 +704,43 @@ def chebi_sdf_entry_to_dict(sdf_chunk, interesting_keys={}):
     return (chebi_id, final_dict)
 
 
-async def make_multiple_chembl_requests(num_requests=100, start=0):
-    """
-    Fetches 1000 records per request beginning from 'start' till 'num_requests' * 1000
-    """
-    tasks = []
-    for i in range(0, num_requests):
-        offset = i * 1000 + start  # chebml api returns 1000 records max
-        url = f"https://www.ebi.ac.uk/chembl/api/data/molecule?format=json&limit=0&offset={offset}"
-        tasks.append(async_client.async_get_json(url, {}))
-    results = await asyncio.gather(*tasks)
-    return results
-
-
-def annotate_from_chembl(rosetta):
-    """
-    Gets and caches chembl annotations.
-    """
-    j = 100  # assume first that we can finish the whole thing with 100 rounds of 100 request for each round
-    all_results = []
-    logger.debug('annotating chembl data')
-    annotator = ChemicalAnnotator(rosetta)
-    for i in range(0, j):
-        # open the loop
-        loop = asyncio.new_event_loop()
-        num_requests = 100
-        start = (num_requests * 1000) * i
-        results = loop.run_until_complete(make_multiple_chembl_requests(num_requests=num_requests, start=start))
-        loop.close()
-        if i == 0:
-            # determine the actual number of records to not just guess when we should stop
-            total_count = results[0]['page_meta']['total_count']
-            j = round(total_count / (1000 * num_requests))
-        for result in results:
-            extract_chebml_data_add_to_cache(result, annotator, rosetta)
-        logger.debug(f'done annotating {(i / j) * 100} % of chembl')
-
-    logger.debug('caching chebml stuff done...')
+#async def make_multiple_chembl_requests(num_requests=100, start=0):
+#    """
+#    Fetches 1000 records per request beginning from 'start' till 'num_requests' * 1000
+#    """
+#    tasks = []
+#    for i in range(0, num_requests):
+#        offset = i * 1000 + start  # chebml api returns 1000 records max
+#        url = f"https://www.ebi.ac.uk/chembl/api/data/molecule?format=json&limit=0&offset={offset}"
+#        tasks.append(async_client.async_get_json(url, {}))
+#    results = await asyncio.gather(*tasks)
+#    return results
+#
+#
+#def annotate_from_chembl(rosetta):
+#    """
+#    Gets and caches chembl annotations.
+#    """
+#    j = 100  # assume first that we can finish the whole thing with 100 rounds of 100 request for each round
+#    all_results = []
+#    logger.debug('annotating chembl data')
+#    annotator = ChemicalAnnotator(rosetta)
+#    for i in range(0, j):
+#        # open the loop
+#        loop = asyncio.new_event_loop()
+#        num_requests = 100
+#        start = (num_requests * 1000) * i
+#        results = loop.run_until_complete(make_multiple_chembl_requests(num_requests=num_requests, start=start))
+#        loop.close()
+#        if i == 0:
+#            # determine the actual number of records to not just guess when we should stop
+#            total_count = results[0]['page_meta']['total_count']
+#            j = round(total_count / (1000 * num_requests))
+#        for result in results:
+#            extract_chebml_data_add_to_cache(result, annotator, rosetta)
+#        logger.debug(f'done annotating {(i / j) * 100} % of chembl')
+#
+#    logger.debug('caching chebml stuff done...')
 
 
 def extract_chebml_data_add_to_cache(result, annotator, rosetta):
@@ -746,9 +755,9 @@ def extract_chebml_data_add_to_cache(result, annotator, rosetta):
         rosetta.cache.set(f"annotation({Text.upper_curie(chembl_id)})", extract)
 
 
-def load_annotations_chemicals(rosetta):
-    annotate_from_chebi(rosetta)
-    annotate_from_chembl(rosetta)
+#def load_annotations_chemicals(rosetta):
+#    annotate_from_chebi(rosetta)
+#    annotate_from_chembl(rosetta)
 
 #######
 # Main - Stand alone entry point for testing

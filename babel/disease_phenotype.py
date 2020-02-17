@@ -31,21 +31,40 @@ def read_bad_hp_mappings():
     return drops
 
 def filter_umls(umls_pairs,sets_with_umls):
-    # We've got a bunch of umls pairs, but we really only want to use them if they're not 
-    # already attached to a hp or mondo.
-    used = set()
-    #It's ok to mush stuff together, because only the umls will hit
+    # We've got a bunch of umls pairs, but we really only want to use them if they're not
+    # already BOTH attached to a hp or mondo.
+
     for s in sets_with_umls:
-        used.update(s)
-    ok_pairs = []
-    for pair in umls_pairs:
-        ok = True
-        for item in pair:
-            if item in used:
-                ok = False
-        if ok:
-            ok_pairs.append(pair)
-    return ok_pairs
+        if 'UMLS:C2931082' in s:
+            print(s)
+        if 'MESH:C536004' in s:
+            print(s)
+    with open('filtered.txt','w') as ff:
+        used = set()
+        for s in sets_with_umls:
+            used.update(s)
+        #if 'UMLS:C2931082' in used:
+        #    print('umls in used')
+        #if 'MESH:C536004' in used:
+        #    print('mesh in used')
+        ok_pairs = []
+        for pair in umls_pairs:
+            p=list(pair)
+        #    print(p[0])
+        #    print(p[1])
+            ok = ((p[0] not in used) or (p[1] not in used))
+            if ok:
+                ok_pairs.append(pair)
+            else:
+                ff.write(f'{p[0]}\t{p[1]}\n')
+        return ok_pairs
+
+def combine_id_sets(l1,l2):
+    """Given lists of sets, combine them, overlapping sets that are exactly the same"""
+    s = set( [frozenset(x) for x in l1])
+    s2 = set( [frozenset(x) for x in l2])
+    s.update(s2)
+    return [ set(x) for x in s ]
 
 def load_diseases_and_phenotypes():
     print('disease/phenotype')
@@ -57,12 +76,24 @@ def load_diseases_and_phenotypes():
     print('ok')
     dump_sets(hpo_sets,'hpo_sets.txt')
     print('get and write mondo sets')
-    mondo_sets = build_exact_sets('MONDO:0000001')
+    #MONDO has disease, and its sister disease susceptibility.  I'm putting both in disease.  Biolink q
+    #But! this is a problem right now because there are some things that go in both, and they are getting filtered out
+    mondo_sets_1 = build_exact_sets('MONDO:0000001')
+    mondo_sets_2 = build_exact_sets('MONDO:0042489')
+    #if we just add these together, then any mondo in both lists will get filtered out in the next step.
+    #so we need to put them into a set.  You can't put sets directly into a set, you have to freeze them first
+    mondo_sets = combine_id_sets(mondo_sets_1,mondo_sets_2)
     mondo_sets = filter_out_non_unique_ids(mondo_sets)
     dump_sets(mondo_sets,'mondo_sets.txt')
     print('get and write umls sets')
     meddra_umls = read_meddra()
+    for u,o in meddra_umls:
+        if u == 'UMLS:C2931082':
+            print('Original',u,o)
     meddra_umls = filter_umls(meddra_umls,mondo_sets+hpo_sets)
+    for u,o in meddra_umls:
+        if u == 'UMLS:C2931082':
+            print('Post-Filter',u,o)
     dump_sets(hpo_sets,'meddra_umls_sets.txt')
     dicts = {}
     print('put it all together')
@@ -128,8 +159,11 @@ def build_exact_sets(iri):
     for k,v in uberres.items():
         if k[1] is not None and k[1].startswith('obsolete'):
             continue
-        dbx = set([ norm(x) for x in v  ])
+        dbx = set([ norm(x) for x in v ])
         dbx.add(LabeledID(identifier=k[0],label=k[1]))
+        if k[0] == 'MONDO:0012521':
+            print(dbx)
+        #    exit()
         results.append(dbx)
     return results
 

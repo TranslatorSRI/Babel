@@ -278,10 +278,20 @@ def filter_out_non_unique_ids(old_list):
     output [{'x', 'y'}, {'m', 'n'}]
     """
     idcounts = defaultdict(int)
+#    mondomap = defaultdict(list)
     for terms in old_list:
         for term in terms:
             idcounts[term] += 1
+#            mondomap[term].append(terms)
     bad_ids = set( [k for k,v in idcounts.items() if v > 1])
+#    for b in bad_ids:
+#        mm = mondomap[b]
+#        mondos = []
+#        for ms in mm:
+#            for x in ms:
+#                if Text.get_curie(x) == 'MONDO':
+#                    mondos.append(x)
+#        print(b, mondos)
     new_list = list(map(
         lambda term_list : \
         set(

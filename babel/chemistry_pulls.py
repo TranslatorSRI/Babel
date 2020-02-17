@@ -3,7 +3,7 @@ import requests
 import re
 from collections import defaultdict
 from Bio import SwissProt
-from babel.babel_utils import pull_via_ftp,get_config
+from babel.babel_utils import pull_via_ftp,get_config,LabeledID
 
 ###
 # CHEBI
@@ -78,6 +78,8 @@ def extract_from_chebi_sdf(chebi_parts):
     chebi_unmapped = []
     chebi_with_structure = set()
     for cid,props in chebi_parts.items():
+        if cid == 'CHEBI:131643':
+            print("HI")
         mapped=False
         chebi_with_structure.add(cid)
         kk = 'keggcompounddatabaselinks'
@@ -209,12 +211,39 @@ def pull_iuphar_by_structure():
 # https://www.genome.jp/kegg-bin/download_htext?htext=br08005.keg&format=json&filedir=
 # Which can be parsed to find the KEGG compounds that have a sequence.
 # As for crawling them and pulling the sequence, should we be going through the KEGG client? probably?
+
+def pull_kegg_compounds():
+    keggs = []
+    for i in range(1,22250):
+        rid = f'C{str(i).zfill(5)}'
+        url = f'http://rest.kegg.jp/get/cpd:{rid}'
+        raw_results = requests.get(url)
+        rawlines = raw_results.text.split('\n')
+        if len(rawlines) > 0:
+            if rawlines[0].startswith('ENTRY'):
+                if rawlines[1].startswith('NAME'):
+                    name = ' '.join(rawlines[1].split()[1:])
+                    if name.endswith(';'):
+                        name = name[:-1]
+                    keggid = f'KEGG.COMPOUND:{rid}'
+                    keggs.append( (keggid, LabeledID(identifier=keggid, label=name)))
+    return keggs
+
+
+def pull_br_file(br):
+    r=requests.get(f'https://www.genome.jp/kegg-bin/download_htext?htext=br{br}.keg&format=json&filedir=')
+    j = r.json()
+    identifiersandnames = []
+    handle_kegg_list(j['children'],identifiersandnames)
+    return identifiersandnames
+
 def pull_kegg_sequences():
     kegg_sequences = defaultdict(set)
     r=requests.get('https://www.genome.jp/kegg-bin/download_htext?htext=br08005.keg&format=json&filedir=')
     j = r.json()
-    identifiers = []
-    handle_kegg_list(j['children'],identifiers)
+    identifiersandnames = []
+    handle_kegg_list(j['children'],identifiersandnames)
+    identifiers = [x[0] for x in identifiersandnames]
     for i,kid in enumerate(identifiers):
         s = get_sequence(kid)
         kegg_sequences[s].add(f'KEGG.COMPOUND:{kid}')
@@ -226,7 +255,7 @@ def handle_kegg_list(childlist,names):
             handle_kegg_list(child['children'],names)
         else:
             n = child['name'].split()
-            names.append(n[0])
+            names.append( (n[0],' '.join(n[1:])) )
 
 def get_sequence(compound_id):
     onetothree={'A':'Ala' ,'B':'Asx' ,'C':'Cys' ,'D':'Asp' ,'E':'Glu' ,'F':'Phe' ,'G':'Gly' ,
@@ -282,4 +311,6 @@ def get_sequence(compound_id):
 
 
 if __name__ == '__main__':
-    pull_uniprot(repull=True)
+    #pull_uniprot(repull=True)
+    keggs=pull_kegg_compounds()
+

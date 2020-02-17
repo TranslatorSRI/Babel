@@ -50,13 +50,17 @@ class NodeFactory:
             if len(v) == 1:
                 cleaned.append(v[0])
             else:
-                if len(v) > 2:
+                #Originally, we were just trying to get the LabeledID.  But sometimes we get more than one, so len(v)
+                # can be more than two.
+                wrote = False
+                for vi in v:
+                    if isinstance(vi,LabeledID):
+                        cleaned.append(vi)
+                        wrote = True
+                        break
+                if not wrote:
                     print(input_identifiers)
                     exit()
-                if isinstance(v[0],LabeledID):
-                    cleaned.append(v[0])
-                else:
-                    cleaned.append(v[1])
         return cleaned
 
     def create_node(self,input_identifiers,node_type):
