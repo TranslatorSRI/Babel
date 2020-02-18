@@ -2,6 +2,7 @@ jsonlines
 requests
 pandas
 biopython
-pytest
+pytest==5.3.5
 sparqlwrapper
 pyyaml
+pytest-cov==2.8.1
