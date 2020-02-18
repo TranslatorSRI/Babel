@@ -18,7 +18,7 @@ from babel.chemistry_pulls import pull_chebi, chebi_sdf_entry_to_dict, pull_unip
 from babel.big_gz_sort import batch_sort
 
 
-logger = LoggingUtil.init_logging("chemicals", logging.DEBUG, format='medium', logFilePath=f'{os.path.dirname(os.path.abspath(__file__))}/logs/')
+#logger = LoggingUtil.init_logging("chemicals", logging.ERROR, format='medium', logFilePath=f'{os.path.dirname(os.path.abspath(__file__))}/logs/')
 
 def make_mesh_id(mesh_uri):
     return f"mesh:{mesh_uri.split('/')[-1][:-1]}"
@@ -750,7 +750,7 @@ def extract_chebml_data_add_to_cache(result, annotator, rosetta):
     molecules = result['molecules']
     for molecule in molecules:
         extract = annotator.extract_chembl_data(molecule, annotator.get_prefix_config('CHEMBL.COMPOUND')['keys'])
-        logger.debug(extract)
+        #logger.debug(extract)
         chembl_id = molecule['molecule_chembl_id']
         rosetta.cache.set(f"annotation({Text.upper_curie(chembl_id)})", extract)
 

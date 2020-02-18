@@ -5,7 +5,7 @@ from pprint import pprint
 from SPARQLWrapper import SPARQLWrapper2, JSON, POSTDIRECTLY, POST
 from string import Template
 
-logger = LoggingUtil.init_logging(__name__)
+#logger = LoggingUtil.init_logging(__name__)
 #import logging
 #logger = LoggingUtil.init_logging(__name__, logging.ERROR)
 
