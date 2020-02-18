@@ -1,4 +1,5 @@
 # Babel
+[![Build Status](https://travis-ci.com/TranslatorIIPrototypes/Babel.svg?branch=master)](https://travis-ci.com/TranslatorIIPrototypes/Babel)
 
 ## Introduction
 
