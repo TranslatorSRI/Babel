@@ -1,7 +1,7 @@
 # standard modules
 from typing import NamedTuple
 
-#logger = LoggingUtil.init_logging(__name__, logging.DEBUG)
+#logger = LoggingUtil.init_logging(__name__, logging.ERROR)
 
 class LabeledID(NamedTuple):
     """

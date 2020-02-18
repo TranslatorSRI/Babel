@@ -7,7 +7,7 @@ from string import Template
 
 logger = LoggingUtil.init_logging(__name__)
 #import logging
-#logger = LoggingUtil.init_logging(__name__, logging.DEBUG)
+#logger = LoggingUtil.init_logging(__name__, logging.ERROR)
 
 
 class TripleStore(object):

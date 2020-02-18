@@ -5,7 +5,7 @@ from src.LabeledID import LabeledID
 from src.util import LoggingUtil
 from babel.babel_utils import pull_via_ftp,write_compendium
 
-logger = LoggingUtil.init_logging(__name__, level=logging.DEBUG)
+logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
 def pull_hgnc_json():
     """Get the HGNC json file & convert to python"""
