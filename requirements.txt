@@ -4,3 +4,4 @@ pandas
 biopython
 pytest
 sparqlwrapper
+pyyaml
