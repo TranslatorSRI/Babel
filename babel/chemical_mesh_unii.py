@@ -9,7 +9,7 @@ from src.util import LoggingUtil
 from babel.babel_utils import pull_via_ftp, dump_dict, ThrottledRequester, make_local_name, StateDB, dump_sets
 from src.LabeledID import LabeledID
 
-logger = LoggingUtil.init_logging(__name__, level=logging.DEBUG)
+#logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
 def parse_mesh(data):
     """THERE are two kinds of mesh identifiers that correspond to chemicals.

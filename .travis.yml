@@ -1,0 +1,26 @@
+dist: xenial
+
+language: python
+python:
+  - "3.8"
+
+notifications:
+  email:
+    - powen@renci.org
+    - bizon@renci.org
+    - kebedey@renci.org
+
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+
+env:
+  global:
+    - PYTHONPATH=$PWD
+
+# command to run tests
+script:
+  - pytest -p no:warnings tests
+
+after_success:
+  - coveralls

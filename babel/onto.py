@@ -4,7 +4,7 @@ from src.util import LoggingUtil
 from src.LabeledID import LabeledID
 
 
-logger = LoggingUtil.init_logging(__name__)
+#logger = LoggingUtil.init_logging(__name__)
 
 class Onto():
     """UberGraph contains many obo ontologies that we can ask questions of.  Onto wraps that blazegraph
