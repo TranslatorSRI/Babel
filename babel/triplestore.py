@@ -50,7 +50,7 @@ class TripleStore(object):
             result = list(map(lambda b : [ b[val].value if val in b else None for val in outputs    ], response.bindings ))
         else:
             result = list(map(lambda b : { val : b[val].value if val in b else None for val in outputs  }, response.bindings ))
-        logger.debug ("query result: %s", result)
+        #logger.debug ("query result: %s", result)
         return result
 
     def query_template (self, template_text, outputs, inputs=[], post = False):
