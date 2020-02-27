@@ -8,14 +8,21 @@ def get_compendia():
     compendia = [f'{dname}/{x}'for x in somefiles if x.endswith('.txt')]
     return compendia
 
-def characterize_one_compendium(fname,threshold = 431):
+def characterize_one_compendium(fname,threshold = 1000):
+    used_ids = set()
     counts = defaultdict(int)
     with open(fname,'r') as inf:
         for line in inf:
             entity = loads(line)
+            ident = entity['id']['identifier']
+            if ident in used_ids:
+                print('overused identifier')
+                print(ident)
+                exit()
+            used_ids.add(ident)
             eids = entity['equivalent_identifiers']
             counts[len(eids)] += 1
-            if len(eids) == threshold:
+            if len(eids) > threshold:
                 for eid in eids:
                     print(eid)
 #                exit()

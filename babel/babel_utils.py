@@ -199,7 +199,6 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP'):
     bad = 0
     for group in newgroups:
         n+=1
-        #print(f'{n}/{len(newgroups)}')
         #Find all the equivalence sets that already correspond to any of the identifiers in the new set.
         existing_sets_w_x = [ (conc_set[x],x) for x in group if x in conc_set ]
         #All of these sets are now going to be combined through the equivalence of our new set.

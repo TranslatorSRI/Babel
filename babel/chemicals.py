@@ -159,11 +159,13 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     mesh_unii_file = make_local_name( 'mesh_to_unii.txt')
     mesh_unii_pairs = load_pairs(mesh_unii_file, 'UNII')
     glom(concord, mesh_unii_pairs,pref='MESH')
+    check_multiple_ids(concord)
     # DO MESH/PUBCHEM
     print('MESH/PUBCHEM')
     mesh_pc_file = make_local_name('mesh_to_pubchem.txt')
     mesh_pc_pairs = load_pairs(mesh_pc_file, 'PUBCHEM')
     glom(concord, mesh_pc_pairs,pref='MESH')
+    check_multiple_ids(concord)
     # DO MESH/CHEBI, but don't combine any chebi's into a set with it
     print('MESH/CHEBI')
     mesh_chebi = pull_mesh_chebi()
@@ -176,6 +178,17 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     print(f"Started with {len(mesh_chebi)} m/c pairs")
     print(f"filtered to {len(mesh_chebi_filter)} m/c pairs")
     glom(concord, mesh_chebi_filter,pref='MESH')
+    check_multiple_ids(concord)
+    #Now pull all the chemical meshes.
+    cmesh = []
+    with open( make_local_name('chemical_mesh.txt'),'r') as inf:
+        for line in inf:
+            s = line.strip().split('\t')
+            meshid = f'MESH:{s[0]}'
+            label = s[1]
+            cmesh.append ( (LabeledID(identifier = meshid, label = label), ) )
+    glom(concord, cmesh)
+    check_multiple_ids(concord)
     # 3. Pull from chebi the sdf and db files, use them to link to things (KEGG) in the no inchi/no smiles cases
     print('chebi')
     pubchem_chebi_pairs, kegg_chebi_pairs, chebi_unmapped = pull_chebi()
@@ -184,10 +197,18 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     glom(concord, kegg_chebi_pairs,pref='CHEBI')
     glom(concord, chebi_unmapped, pref='CHEBI')
     glom(concord, all_chebis, pref = 'CHEBI')
+    check_multiple_ids(concord)
     # 3a. pull in all KEGG labels and compounds.  This is mostly to pick up keggs that don't map to anything else
     print('kegg')
-    keggs = pull_kegg_compounds()
+    kname = make_local_name('kegg.pickle')
+    #to refresh kegg:
+    #keggs = pull_kegg_compounds()
+    #with open(kname,'wb') as kf:
+    #    pickle.dump(keggs,kf)
+    with open(kname,'rb') as inf:
+        keggs = pickle.load(inf)
     glom(concord,keggs,pref='KEGG.COMPOUND')
+    check_multiple_ids(concord)
     # 4. Go to KEGG, and get sequences for peptides.
     sequence_concord = pull_kegg_sequences()
     # 5. Pull UniProt (swissprot) XML.
@@ -204,12 +225,15 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     for s,v in sequence_to_iuphar.items():
         sequence_concord[s].update(v)
     glom(concord,iuphar_glom,pref='GTOPDB')
+    check_multiple_ids(concord)
     #  8. Use wikidata to get links between CHEBI and UniProt_PRO
     unichebi = pull_uniprot_chebi()
     glom(concord, unichebi)
+    check_multiple_ids(concord)
     #  9. glom across sequence and chemical stuff
     new_groups = sequence_concord.values()
     glom(concord,new_groups,unique_prefixes=['GTOPDB','INCHI'])
+    check_multiple_ids(concord)
     # 10. Drop PRO only sequences.
     to_remove = []
     for eq_id_set in concord:
@@ -231,6 +255,23 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     #Dump
     write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc.txt','chemical_substance')
     print('done')
+
+def check_multiple_ids(g):
+    used = set()
+    olks = {}
+    for k in g.keys():
+        if isinstance(k,LabeledID):
+            kid = k.identifier 
+        else:
+            kid = k
+        if kid in used:
+            print('ugh')
+            print(kid,k)
+            print(g[k])
+            print(g[olks[kid]])
+            exit()
+        olks[kid] = k
+        used.add(kid)
 
 def get_chebi_label(ident):
     res = requests.get(f'https://uberonto.renci.org/label/{ident}/').json()
@@ -448,10 +489,10 @@ def uci_key(row):
 #########################
 def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str = None) -> dict:
     #FOR TESTING
-    upname = make_local_name('unichem.pickle')
-    with open(upname,'rb') as up:
-        synonyms=pickle.load(up)
-    return synonyms
+    #upname = make_local_name('unichem.pickle')
+    #with open(upname,'rb') as up:
+    #    synonyms=pickle.load(up)
+    #return synonyms
     #DONE TESTING
     logger.info(f'Start of Unichem loading. Working directory: {working_dir}')
 
@@ -512,9 +553,12 @@ def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str 
                 if x[0] != lastuci:
                     if len(uniilines) == 1:
                         lines.append(uniilines[0])
-                    if len(lines) > 1:
-                        for wline in lines:
-                            outf.write(wline)
+                    #we had been filtering out singletons, which made sense if we only wanted synonyms
+                    #but in a nodenormalization setting, we want to recognize them all, even if we don't know
+                    # any other names for them
+                    #if len(lines) > 1:
+                    for wline in lines:
+                        outf.write(wline)
                     lines=[]
                     uniilines=[]
                     lastuci=x[0]

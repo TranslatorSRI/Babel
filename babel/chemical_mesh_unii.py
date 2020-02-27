@@ -6,7 +6,8 @@ import Levenshtein
 from ast import literal_eval
 
 from src.util import LoggingUtil
-from babel.babel_utils import pull_via_ftp, dump_dict, ThrottledRequester, make_local_name, StateDB
+from babel.babel_utils import pull_via_ftp, dump_dict, ThrottledRequester, make_local_name, StateDB, dump_sets
+from src.LabeledID import LabeledID
 
 logger = LoggingUtil.init_logging(__name__, level=logging.DEBUG)
 
@@ -74,7 +75,7 @@ def parse_mesh(data):
     print ( f"Found {len(term_to_unii)} compounds with UNII identifiers")
     print ( f"Found {len(unmapped_mesh)} compounds with NOTHING")
     print ( f"{len(term_to_cas) + len(term_to_unii) + len(unmapped_mesh)}")
-    return unmapped_mesh, term_to_cas, term_to_unii, term_to_EC,concept_to_label
+    return chemical_mesh, unmapped_mesh, term_to_cas, term_to_unii, term_to_EC,concept_to_label
 
 
 def chunked(it, size):
@@ -290,14 +291,17 @@ def refresh_mesh_pubchem(deep_refresh = True):
        CAS:  60880
        0:    190966"""
     #This is just a way to cache some slow work so you can come back to it dig around without re-running things.
+    chemname = make_local_name('chem_mesh.pickle')
     umfname = make_local_name('unmapped.pickle')
     mcfname = make_local_name('meshcas.pickle')
     mufname = make_local_name('meshunii.pickle')
     ecfname = make_local_name('meschec.pickle')
     labelname = make_local_name('meshlabels.pickle')
     if deep_refresh:
-        unmapped_mesh, term_to_cas, term_to_unii, term_to_EC, labels = \
+        chem_mesh, unmapped_mesh, term_to_cas, term_to_unii, term_to_EC, labels = \
             parse_mesh(pull_via_ftp('ftp.nlm.nih.gov','/online/mesh/rdf', 'mesh.nt.gz',decompress_data=True))
+        with open(chemname,'wb') as um:
+            pickle.dump(chem_mesh,um)
         with open(umfname,'wb') as um:
             pickle.dump(unmapped_mesh,um)
         with open(mcfname,'wb') as mc:
@@ -309,6 +313,8 @@ def refresh_mesh_pubchem(deep_refresh = True):
         with open(labelname,'wb') as ml:
             pickle.dump(labels,ml)
     else:
+        with open(chemname,'rb') as cm:
+            chem_mesh=pickle.load(um)
         with open(umfname,'rb') as um:
             unmapped_mesh=pickle.load(um)
         with  open(mcfname,'rb') as mc:
@@ -319,7 +325,10 @@ def refresh_mesh_pubchem(deep_refresh = True):
             term_to_EC=pickle.load(mec)
         with open(labelname,'rb') as lf:
             labels=pickle.load(lf)
-
+    #Want to dump all the mesh chemicals, with labels if they have them
+    with open(make_local_name('chemical_mesh.txt'),'w') as outf:
+        for meshid in chem_mesh:
+            outf.write(f'{meshid}\t{labels[meshid]}\n')
     #mesh_to_unii is one of the files read by chemicals.py
     dump_dict(term_to_unii,'mesh_to_unii.txt')
     dump_dict(term_to_EC,'mesh_to_EC.txt')
@@ -337,4 +346,5 @@ def get_api_key():
     return os.environ.get('EUTILS_API_KEY',default=None)
 
 if __name__ == '__main__':
-    refresh_mesh_pubchem(deep_refresh = False)
+    #refresh_mesh_pubchem(deep_refresh = False)
+    refresh_mesh_pubchem()

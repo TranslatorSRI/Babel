@@ -26,3 +26,11 @@ class LabeledID(NamedTuple):
     def __gt__(self, other):
         return self.identifier > other.identifier
 
+    def __hash__(self):
+        return hash(self.identifier)
+
+    def __eq__(self,other):
+        if not isinstance(other,LabeledID):
+            return self.identifier == other
+        return self.identifier == other.identifier
+
