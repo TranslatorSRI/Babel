@@ -31,6 +31,6 @@ class LabeledID(NamedTuple):
 
     def __eq__(self,other):
         if not isinstance(other,LabeledID):
-            return self.identifier == other
+            return False
         return self.identifier == other.identifier
 

@@ -109,6 +109,19 @@ def test_labeling_3():
     assert node['equivalent_identifiers'][2]['identifier'] == 'dictyBase:1234'
     assert node['id']['label'] == 'name'
 
+def test_clean_list():
+    input = frozenset({'UMLS:C1839767', 'UMLS:C1853383', LabeledID('HP:0010804','Tented upper lip vermilion'), 'UMLS:C1850072','HP:0010804'})
+    #input = ['HP:0010804', 'UMLS:C1839767', 'UMLS:C1853383', LabeledID('HP:0010804','Tented upper lip vermilion'), 'UMLS:C1850072']
+    nf = NodeFactory()
+    output = nf.clean_list(input)
+    assert len(output) == 4
+    lidfound = False
+    for x in output:
+        if isinstance(x,LabeledID):
+            lidfound = True
+            assert(x.identifier == 'HP:0010804')
+    assert lidfound
+
 def test_losing_umls():
     input = frozenset({'HP:0010804', 'UMLS:C1839767', 'UMLS:C1853383', LabeledID('HP:0010804','Tented upper lip vermilion'), 'UMLS:C1850072'})
     fac = NodeFactory()
