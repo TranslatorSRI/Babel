@@ -18,7 +18,7 @@ from babel.chemistry_pulls import pull_chebi, chebi_sdf_entry_to_dict, pull_unip
 from babel.big_gz_sort import batch_sort
 
 
-#logger = LoggingUtil.init_logging("chemicals", logging.ERROR, format='medium', logFilePath=f'{os.path.dirname(os.path.abspath(__file__))}/logs/')
+logger = LoggingUtil.init_logging("chemicals", logging.ERROR, format='medium', logFilePath=f'{os.path.dirname(os.path.abspath(__file__))}/logs/')
 
 def make_mesh_id(mesh_uri):
     return f"mesh:{mesh_uri.split('/')[-1][:-1]}"
