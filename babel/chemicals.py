@@ -4,19 +4,16 @@ import os
 import pickle
 import requests
 import asyncio
-import ftplib
-import pandas
 import gzip
 from collections import defaultdict
 
+from babel.unichem.unichem import load_unichem
 from src.util import LoggingUtil, Text
 from src.LabeledID import LabeledID
 
 from babel.chemical_mesh_unii import refresh_mesh_pubchem
-from babel.babel_utils import glom, pull_via_ftp, write_compendium,pull_via_urllib,make_local_name
-from babel.chemistry_pulls import pull_chebi, chebi_sdf_entry_to_dict, pull_uniprot, pull_iuphar, pull_kegg_sequences, pull_kegg_compounds
-from babel.big_gz_sort import batch_sort
-
+from babel.babel_utils import glom, pull_via_ftp, write_compendium, make_local_name
+from babel.chemistry_pulls import pull_chebi, pull_uniprot, pull_iuphar, pull_kegg_sequences
 
 logger = LoggingUtil.init_logging("chemicals", logging.ERROR, format='medium', logFilePath=f'{os.path.dirname(os.path.abspath(__file__))}/logs/')
 
@@ -453,15 +450,6 @@ def uni_glom(unichem_data, prefix1, prefix2, chemdict):
 
 
 
-#Note that sometime between September and December 2019, the UCI moved in UNICHEM's files
-#Which by the way, don't have a header in the file itself, but which are given an a readme :(
-#So there's no computer only way to figure this out :( :( :(
-def uci_key(row):
-    try:
-        return int(row.split(b'\t')[9])
-    except Exception as e:
-        print(row)
-        exit()
 
 #########################
 # load_unichem() - Loads a dict object with targeted chemical substance curies for synonymization
@@ -487,182 +475,12 @@ def uci_key(row):
 # struct_file: str - optional location of already downloaded and decompressed unichem STRUCTURE file
 # return: dict - The cross referenced curies ready for inserting into the the redis cache
 #########################
-def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str = None) -> dict:
-    #FOR TESTING
-    #upname = make_local_name('unichem.pickle')
-    #with open(upname,'rb') as up:
-    #    synonyms=pickle.load(up)
-    #return synonyms
-    #DONE TESTING
-    logger.info(f'Start of Unichem loading. Working directory: {working_dir}')
-
-    # init the returned list
-    synonyms: dict = {}
-
-    # init a chemicals counter
-    chem_counter: int = 0
-
-    try:
-        # declare the unichem ids for the target data
-        data_sources: dict = {1: 'CHEMBL.COMPOUND', 2: 'DRUGBANK', 4: 'GTOPDB', 6: 'KEGG.COMPOUND', 7: 'CHEBI', 14: 'UNII', 18: 'HMDB', 22: 'PUBCHEM'}
-
-        # get the newest UniChem data directory name
-        if xref_file is None or struct_file is None:
-            # get the latest UC directory name
-            target_uc_url: str = get_latest_unichem_url()
-            logger.info(f'Target unichem FTP URL: {target_uc_url}')
-
-            # get the files
-            #xref_file = pull_via_urllib(target_uc_url, 'UC_XREF.txt.gz', decompress=False)
-            #struct_file = pull_via_urllib(target_uc_url, 'UC_STRUCTURE.txt.gz' )
-            #shortcut to local files.
-            xref_file = make_local_name('UC_XREF.txt.gz')
-            struct_file = make_local_name('UC_STRUCTURE.txt')
-
-        logger.info(f'Using decompressed UniChem XREF file: {xref_file} and STRUCTURE file: {struct_file}')
-        logger.info(f'Start of data pre-processing.')
-
-        logger.debug('filter xrefs by srcid')
-        srcfiltered_xref_file=make_local_name('UC_XREF.srcfiltered.txt')
-        srclist = [ str(k) for k in data_sources.keys()]
-        with gzip.open(xref_file,'rt') as inf, open(srcfiltered_xref_file,'w') as outf:
-            for line in inf:
-                x = line.split('\t')
-                if x[1] in srclist and x[3] == '1':
-                    outf.write(line)
-
-        sorted_xref_file=make_local_name('UC_XREF.sorted.txt')
-        logger.debug(f'sort xrefs {xref_file}=>{sorted_xref_file}')
-        with open(srcfiltered_xref_file,'rb',64*1024) as inf, open(sorted_xref_file,'wb') as outf:
-            batch_sort(inf,outf,key=uci_key,tempdirs='.')
-        logger.debug('.. done ..')
-
-        logger.debug('remove singletons')
-        filtered_xref_file=make_local_name('UC_XREF.filtered.txt')
-        srclist = [ str(k) for k in data_sources.keys()]
-        #There's a particular problem with UNII (src id 14). Because they can't
-        #seem to generate inchikeys nicely, there are sometimes 2 UNIIs per key
-        # if we leave them, it's bad.  And we don't know which we should use, so
-        # take them out. 
-        with open(sorted_xref_file,'r') as inf, open(filtered_xref_file,'w') as outf:
-            lines = []
-            uniilines = []
-            lastuci = ''
-            for line in inf:
-                x = line.split('\t')
-                if x[0] != lastuci:
-                    if len(uniilines) == 1:
-                        lines.append(uniilines[0])
-                    #we had been filtering out singletons, which made sense if we only wanted synonyms
-                    #but in a nodenormalization setting, we want to recognize them all, even if we don't know
-                    # any other names for them
-                    #if len(lines) > 1:
-                    for wline in lines:
-                        outf.write(wline)
-                    lines=[]
-                    uniilines=[]
-                    lastuci=x[0]
-                if x[1] == '14':
-                    uniilines.append(line)
-                else:
-                    lines.append(line)
-        logger.debug('.. done ..')
-
-        logger.debug('read filtered')
-        #column 9 seems like a good place for the PK
-        df_filtered_xrefs = pandas.read_csv(filtered_xref_file, dtype={"uci": int, "src_id": int, "src_compound_id": str},
-                                            sep='\t', header=None, usecols=['uci','src_id','src_compound_id'],
-                                            names=['uci_old','src_id','src_compound_id','assignment','last_release_u_when_current','created ','lastupdated','userstamp','aux_src','uci'])
-        logger.debug('..done..')
-
-        # note: this is an alternate way to add a curie column to each record in one shot. takes about 10 minutes.
-        df_filtered_xrefs = df_filtered_xrefs.assign(curie=df_filtered_xrefs[['src_id', 'src_compound_id']].apply(lambda x: f'{data_sources[x[0]]}:{x[1]}', axis=1))
-        logger.debug(f'Curie column addition complete. Creating STRUCTURE iterator...')
-
-        # get an iterator to loop through the xref data
-        structure_iter = pandas.read_csv(struct_file, dtype={"uci": int, "standardinchikey": str},
-                                         sep='\t', header=None, usecols=['uci', 'standardinchikey'],
-                                         names=['uci_old','standardinchi','standardinchikey','created','username','fikhb','uci','parent_smiles'],
-                                         iterator=True, chunksize=100000)
-        logger.debug(f'STRUCTURE iterator created. Loading structure data frame, filtering by targeted XREF unichem ids...')
-
-        # load it into a data frame
-        df_structures = pandas.concat(struct_element[struct_element['uci'].isin(df_filtered_xrefs.uci)] for struct_element in structure_iter)
-        logger.debug(f'STRUCTURE data frame created with filtered with XREF unichem ids. {len(df_structures)} records loaded.')
-
-        # group the records by the unichem identifier
-        xref_grouped = df_filtered_xrefs.groupby(by=['uci'])
-        logger.debug(f'STRUCTURE data frame grouped by XREF unichem ids.')
-
-        logger.info('Data pre-processing complete. Start of final data processing...')
-
-        # for each of the structured records use the uci to get the xref records
-        for name, group in xref_grouped:
-            # get the synonym group into a list
-            syn_list: list = group.curie.tolist()
-
-            # add the inchikey to the list
-            syn_list.append('INCHIKEY:' + df_structures[df_structures.uci == name]['standardinchikey'].values[0])
-
-            # create a dict of all the curies. each element gets equated with the whole list
-            syn_dict: dict = dict.fromkeys(syn_list, set(syn_list))
-
-            # add it to the returned list
-            synonyms.update(syn_dict)
-
-            # increment the counter
-            chem_counter += 1
-
-            # output some feedback for the user
-            if (chem_counter % 250000) == 0:
-                logger.info(f'Processed {chem_counter} unichem chemicals...')
-    except KeyError as e:
-    #except Exception as e:
-        logger.error(f'Exception caught. Exception: {e}')
-
-    logger.info(f'Load complete. Processed a total of {chem_counter} unichem chemicals.')
-    upname = make_local_name('unichem.pickle')
-    with open(upname,'wb') as up:
-        pickle.dump(synonyms,up)
-
-    # return the resultant list set to the caller
-    return synonyms
 
 #########################
 # get_latest_unichem_url() - gets the latest UniChem data directory url
 #
 # return: str - the unichem FTP URL
 #########################
-def get_latest_unichem_url() -> str:
-    # get a handle to the ftp directory
-    ftp = ftplib.FTP("ftp.ebi.ac.uk")
-
-    # login
-    ftp.login()
-
-    # move to the target directory
-    ftp.cwd('/pub/databases/chembl/UniChem/data/oracleDumps')
-
-    # get the directory listing
-    files: list = ftp.nlst()
-
-    # close the ftp connection
-    ftp.quit()
-
-    # init the starting point
-    target_dir_index = 0
-
-    # parse the list to determine the latest version of the files
-    for f in files:
-        # is this file greater that the previous
-        if "UDRI" in f:
-            # convert the suffix into an int and compare it to the previous one
-            if int(f[4:]) > target_dir_index:
-                # save this as our new highest value
-                target_dir_index = int(f[4:])
-
-    # return the full url
-    return f'ftp://ftp.ebi.ac.uk/pub/databases/chembl/UniChem/data/oracleDumps/UDRI{target_dir_index}/'
 
 async def make_uberon_role_queries(chebi_ids, chemical_annotator):
     tasks = []
