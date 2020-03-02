@@ -13,7 +13,7 @@ from src.LabeledID import LabeledID
 
 from babel.chemical_mesh_unii import refresh_mesh_pubchem
 from babel.babel_utils import glom, pull_via_ftp, write_compendium, make_local_name
-from babel.chemistry_pulls import pull_chebi, pull_uniprot, pull_iuphar, pull_kegg_sequences
+from babel.chemistry_pulls import pull_chebi, pull_uniprot, pull_iuphar, pull_kegg_sequences, pull_kegg_compounds
 
 logger = LoggingUtil.init_logging("chemicals", logging.ERROR, format='medium', logFilePath=f'{os.path.dirname(os.path.abspath(__file__))}/logs/')
 
@@ -134,6 +134,8 @@ def filter_mesh_chebi(mesh_chebi,concord):
 #
 # It would be good to completely redo this so that it was make-like.
 def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=False,refresh_chembl=False):
+    #Keep labels separate
+    labels = {}
     # Build if need be
     if refresh_mesh:
         refresh_mesh_pubchem()
@@ -177,13 +179,15 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
             s = line.strip().split('\t')
             meshid = f'MESH:{s[0]}'
             label = s[1]
-            cmesh.append ( (LabeledID(identifier = meshid, label = label), meshid) )
+            cmesh.append ( meshid )
+            labels[meshid] = label
     glom(concord, cmesh)
     check_multiple_ids(concord)
     # 3. Pull from chebi the sdf and db files, use them to link to things (KEGG) in the no inchi/no smiles cases
     print('chebi')
     pubchem_chebi_pairs, kegg_chebi_pairs, chebi_unmapped = pull_chebi()
-    all_chebis = get_all_chebis()
+    all_chebis,chebi_labels = get_all_chebis()
+    labels.update(chebi_labels)
     glom(concord, pubchem_chebi_pairs,pref= 'CHEBI')
     glom(concord, kegg_chebi_pairs,pref='CHEBI')
     glom(concord, chebi_unmapped, pref='CHEBI')
@@ -193,12 +197,13 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     print('kegg')
     kname = make_local_name('kegg.pickle')
     #to refresh kegg:
-    #keggs = pull_kegg_compounds()
-    #with open(kname,'wb') as kf:
-    #    pickle.dump(keggs,kf)
-    with open(kname,'rb') as inf:
-        keggs = pickle.load(inf)
+    keggs,kegg_labels = pull_kegg_compounds()
+    with open(kname,'wb') as kf:
+        pickle.dump((keggs,kegg_labels),kf)
+    #with open(kname,'rb') as inf:
+    #    keggs,kegg_labels = pickle.load(inf)
     glom(concord,keggs,pref='KEGG.COMPOUND')
+    labels.update(kegg_labels)
     check_multiple_ids(concord)
     # 4. Go to KEGG, and get sequences for peptides.
     sequence_concord = pull_kegg_sequences()
@@ -244,7 +249,7 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
 #    label_pubchem(concord, refresh_pubchem = refresh_pubchem)
     print('dumping')
     #Dump
-    write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc.txt','chemical_substance')
+    write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc.txt','chemical_substance',labels=labels)
     print('done')
 
 def check_multiple_ids(g):
@@ -291,6 +296,7 @@ def get_all_chebis():
     chebiobo = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chebi/ontology', 'chebi_lite.obo')
     lines = chebiobo.split('\n')
     chebis = []
+    chebi_labels = {}
     for line in lines:
         if line.startswith('[Term]'):
             tid = None
@@ -301,9 +307,10 @@ def get_all_chebis():
             label = line[5:].strip()
             #There's some stuff in here like "has_part, has part"
             if tid.startswith('CHEBI:'):
-                lid = LabeledID(identifier=tid, label=label)
-                chebis.append( (lid, ) )
-    return chebis
+                #lid = LabeledID(identifier=tid, label=label)
+                chebis.append( (tid, ) )
+                chebi_labels[tid] = label
+    return chebis, chebi_labels
     #print('LABEL CHEBI')
     #label_compounds(concord, 'CHEBI', partial(get_dict_label, labels=chebi_labels))
     # label_compounds(concord,'CHEBI',get_chebi_label)

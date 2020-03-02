@@ -179,12 +179,12 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True):
     # return the filename to the caller
     return out_file_name
 
-def write_compendium(synonym_list,ofname,node_type):
+def write_compendium(synonym_list,ofname,node_type,labels={}):
     cdir = os.path.dirname(os.path.abspath(__file__))
     node_factory = NodeFactory()
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf:
         for slist in synonym_list:
-            node = node_factory.create_node(input_identifiers=slist, node_type=node_type)
+            node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels)
             if node is not None:
                 outf.write( node )
 

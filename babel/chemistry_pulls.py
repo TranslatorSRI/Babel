@@ -214,6 +214,7 @@ def pull_iuphar_by_structure():
 
 def pull_kegg_compounds():
     keggs = []
+    kegg_labels = {}
     for i in range(1,22250):
         rid = f'C{str(i).zfill(5)}'
         url = f'http://rest.kegg.jp/get/cpd:{rid}'
@@ -226,8 +227,9 @@ def pull_kegg_compounds():
                     if name.endswith(';'):
                         name = name[:-1]
                     keggid = f'KEGG.COMPOUND:{rid}'
-                    keggs.append( (keggid, LabeledID(identifier=keggid, label=name)))
-    return keggs
+                    keggs.append(keggid)
+                    kegg_labels[keggid] = name
+    return keggs, kegg_labels
 
 
 def pull_br_file(br):

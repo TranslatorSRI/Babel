@@ -64,10 +64,4 @@ def test_LabeledID_different_labels():
     assert d['S'] == d['Q']
     assert len(d['S']) == 3
 
-def test_labeledID_vs_unlabeled():
-    d = {}
-    lid = LabeledID(identifier='x',label='label')
-    eqs = [{lid},{'x'}]
-    glom(d,eqs)
-    assert d[lid] == d['x']
 

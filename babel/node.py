@@ -14,7 +14,7 @@ class NodeFactory:
     def get_ancestors(self,input_type):
         if input_type in self.ancestor_map:
             return self.ancestor_map[input_type]
-        url = f'{self.url_base}/{input_type}/ancestors/'
+        url = f'{self.url_base}/{input_type}/ancestors'
         response = requests.get(url,params={'version':'custom'})
         ancs = response.json()
         self.ancestor_map[input_type] = ancs
@@ -63,13 +63,28 @@ class NodeFactory:
                     exit()
         return cleaned
 
-    def create_node(self,input_identifiers,node_type):
+    def apply_labels(self, input_identifiers, labels):
+        #Originally we needed to clean up the identifer lists, because there would be both labeledids and
+        # string ids and we had to reconcile them.
+        # But now, we only allow regular ids in the list, and now we need to turn some of them into labeled ids for output
+        labeled_list = []
+        for iid in input_identifiers:
+            if isinstance(iid,LabeledID):
+                print('Chocolate in the peanut butter',iid)
+                exit()
+            if iid in labels:
+                labeled_list.append( LabeledID(identifier=iid, label = labels[iid]))
+            else:
+                labeled_list.append(iid)
+        return labeled_list
+
+    def create_node(self,input_identifiers,node_type,labels={}):
         #This is where we will normalize, i.e. choose the best id, and add types in accord with BL.
         #we should also include provenance and version information for the node set build.
         ancestors = self.get_ancestors(node_type)
         ancestors.reverse()
         prefixes = self.get_prefixes(node_type)
-        cleaned = self.clean_list(input_identifiers)
+        cleaned = self.apply_labels(input_identifiers,labels)
         try:
             idmap = defaultdict(list)
             for i in list(cleaned):
