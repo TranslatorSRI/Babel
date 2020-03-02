@@ -82,10 +82,8 @@ def get_inchi(uci, struct_file):
     Assumes that the struct_file is sorted on uci.  We'll check for that and blow up if it fails"""
     #struct header [0'uci_old', 1'standardinchi', 2'standardinchikey', 3'created', 4'username', 5'fikhb', 6'uci', 'parent_smiles'],
     found_uci = -1
-    print (f'get_inchi {uci}')
     while found_uci != uci:
         line = struct_file.readline().strip().split('\t')
-        print('line:',line)
         found_uci = int(line[6])
         if found_uci > uci:
             print(f'Found a uci too big. Looking for {uci} but got to {found_uci}')
@@ -112,7 +110,6 @@ def merge_xref_with_structure(filtered_xref_file,struct_file):
         xrefline = xrefs.readline().strip()
         while xrefline != '':
             nextgroup,uci,xrefline = advance_xrefs(xrefline,xrefs)
-            print(nextgroup,uci)
             inchi = get_inchi(uci,structs)
             syn_list = [f'{data_sources[t[1]]}:{t[2]}' for t in nextgroup]
             syn_list.append(f'INCHIKEY:{inchi}')
@@ -126,6 +123,7 @@ def merge_xref_with_structure(filtered_xref_file,struct_file):
             if (chem_counter % 250000) == 0:
                 logger.info(f'Processed {chem_counter} unichem chemicals...')
                 print(f'Processed {chem_counter} unichem chemicals...')
+    return synonyms
 
 
 #Here's the original, very slow, implementation.  I can't see any reason to think another approach
