@@ -1,13 +1,15 @@
 import ftplib
 import gzip
 import pickle
+import logging
 
 import pandas
 
+from src.util import LoggingUtil
 from babel.babel_utils import make_local_name
 from babel.big_gz_sort import batch_sort
-from babel.chemicals import logger
 
+logger = LoggingUtil.init_logging("chemicals", logging.DEBUG, format='medium')
 
 def load_unichem(working_dir: str = '', xref_file: str = None, struct_file: str = None, refresh=False) -> dict:
     if not refresh:
@@ -35,13 +37,14 @@ def refresh_unichem(working_dir: str = '', xref_file: str = None, struct_file: s
     srcfiltered_xref_file = filter_xrefs_by_srcid(data_sources, xref_file)
 
     sorted_xref_file = sort_xref_file(srcfiltered_xref_file, xref_file)
+    sorted_struct_file = sort_struct_file(struct_file)
 
     logger.debug('filter unii')
     #we used to remove singletons.  Now we don't but we do need to handle the unii
     #problem, so we still do this light filtering.
     filtered_xref_file = filter_bad_unii(data_sources, sorted_xref_file)
 
-    synonyms = merge_xref_with_structure(filtered_xref_file,struct_file)
+    synonyms = merge_xref_with_structure(filtered_xref_file,sorted_struct_file)
 
     upname = make_local_name('unichem.pickle')
     with open(upname,'wb') as up:
@@ -57,8 +60,8 @@ def advance_xrefs(line,xrefs):
     # 6'lastupdated', 7'userstamp', 8'aux_src', 9'uci'])
     # we want: ['uci', 'src_id', 'src_compound_id'],, i.e. 9, 1, 2
     group = []
-    x = line.strip().split('\t')
-    t = (int(x[9]), int(x[1]), x[2])
+    x = line.split('\t')
+    t = (int(x[9].strip()), int(x[1]), x[2])
     uci = t[0]
     original_uci = uci
     #loop over new lines, until we get a new uci or EOF
@@ -67,8 +70,10 @@ def advance_xrefs(line,xrefs):
             group.append(t)
         line = xrefs.readline()
         if not line == "":
-            x = line.strip().split('\t')
-            t = (x[9], x[1], x[2])
+            #This is too simple.  There's at least one line with no x[0], so stripping changes all the positions. 
+            #x = line.strip().split('\t')
+            x = line.split('\t')
+            t = (int(x[9].strip()), int(x[1]), x[2])
             uci = t[0]
     return group,original_uci,line
 
@@ -77,8 +82,10 @@ def get_inchi(uci, struct_file):
     Assumes that the struct_file is sorted on uci.  We'll check for that and blow up if it fails"""
     #struct header [0'uci_old', 1'standardinchi', 2'standardinchikey', 3'created', 4'username', 5'fikhb', 6'uci', 'parent_smiles'],
     found_uci = -1
+    print (f'get_inchi {uci}')
     while found_uci != uci:
         line = struct_file.readline().strip().split('\t')
+        print('line:',line)
         found_uci = int(line[6])
         if found_uci > uci:
             print(f'Found a uci too big. Looking for {uci} but got to {found_uci}')
@@ -89,13 +96,6 @@ def get_inchi(uci, struct_file):
             exit()
         return line[2]
 
-
-def make_curie_list(nextgroup):
-    """
-    Given a list containing tuples of (uci, src_id, src_compound_id) return a list of curies constructed from
-    :param nextgroup:
-    :return:
-    """
 
 
 #replaces merge_xref_with_structure_pandas
@@ -112,8 +112,8 @@ def merge_xref_with_structure(filtered_xref_file,struct_file):
         xrefline = xrefs.readline().strip()
         while xrefline != '':
             nextgroup,uci,xrefline = advance_xrefs(xrefline,xrefs)
-            inchi = get_inchi(uci,struct_file)
-            syn_list: make_curie_list(nextgroup)
+            print(nextgroup,uci)
+            inchi = get_inchi(uci,structs)
             syn_list = [f'{data_sources[t[1]]}:{t[2]}' for t in nextgroup]
             syn_list.append(f'INCHIKEY:{inchi}')
             # create a dict of all the curies. each element gets equated with the whole list
@@ -125,6 +125,7 @@ def merge_xref_with_structure(filtered_xref_file,struct_file):
             # output some feedback for the user
             if (chem_counter % 250000) == 0:
                 logger.info(f'Processed {chem_counter} unichem chemicals...')
+                print(f'Processed {chem_counter} unichem chemicals...')
 
 
 #Here's the original, very slow, implementation.  I can't see any reason to think another approach
@@ -243,6 +244,14 @@ def sort_xref_file(srcfiltered_xref_file, xref_file):
     logger.debug('.. done ..')
     return sorted_xref_file
 
+def sort_struct_file(struct_file):
+    sorted_struct_file = make_local_name('UC_STRUCT.sorted.txt')
+    with open(struct_file, 'rb', 64 * 1024) as inf, open(sorted_struct_file, 'wb') as outf:
+        batch_sort(inf, outf, key=uci_key_2, tempdirs='.')
+    logger.debug('.. done ..')
+    return sorted_struct_file
+
+
 
 def filter_xrefs_by_srcid(data_sources, xref_file):
     srcfiltered_xref_file = make_local_name('UC_XREF.srcfiltered.txt')
@@ -293,6 +302,13 @@ def get_latest_unichem_url() -> str:
 def uci_key(row):
     try:
         return int(row.split(b'\t')[9])
+    except Exception as e:
+        print(row)
+        exit()
+
+def uci_key_2(row):
+    try:
+        return int(row.split(b'\t')[6])
     except Exception as e:
         print(row)
         exit()
