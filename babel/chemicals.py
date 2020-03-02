@@ -141,15 +141,9 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     # 1. Handle all the stuff that has an InchiKey using unichem
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     print('UNICHEM')
-    concord = load_unichem(refresh=True)
-    #debugging
-    #for c in concord:
-    #    if c.startswith('CHEMBL:'):
-    #       print('alert!')
-    #       print(c)
-    #       exit()
-    #print('no chembls yet')
-    #
+    #concord = load_unichem(refresh=True)
+    #don't refresh
+    concord = load_unichem()
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     #DO MESH/UNII
     print('MESH/UNII')
@@ -183,7 +177,7 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
             s = line.strip().split('\t')
             meshid = f'MESH:{s[0]}'
             label = s[1]
-            cmesh.append ( (LabeledID(identifier = meshid, label = label), ) )
+            cmesh.append ( (LabeledID(identifier = meshid, label = label), meshid) )
     glom(concord, cmesh)
     check_multiple_ids(concord)
     # 3. Pull from chebi the sdf and db files, use them to link to things (KEGG) in the no inchi/no smiles cases
