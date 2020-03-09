@@ -152,12 +152,14 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     mesh_unii_file = make_local_name( 'mesh_to_unii.txt')
     mesh_unii_pairs = load_pairs(mesh_unii_file, 'UNII')
     glom(concord, mesh_unii_pairs,pref='MESH')
+    print('write-mesh-unii was fine')
     check_multiple_ids(concord)
     # DO MESH/PUBCHEM
     print('MESH/PUBCHEM')
     mesh_pc_file = make_local_name('mesh_to_pubchem.txt')
     mesh_pc_pairs = load_pairs(mesh_pc_file, 'PUBCHEM')
     glom(concord, mesh_pc_pairs,pref='MESH')
+    print('write-mesh-pubchem')
     check_multiple_ids(concord)
     # DO MESH/CHEBI, but don't combine any chebi's into a set with it
     print('MESH/CHEBI')
@@ -171,6 +173,7 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     print(f"Started with {len(mesh_chebi)} m/c pairs")
     print(f"filtered to {len(mesh_chebi_filter)} m/c pairs")
     glom(concord, mesh_chebi_filter,pref='MESH')
+    print('write-mesh-chebi')
     check_multiple_ids(concord)
     #Now pull all the chemical meshes.
     cmesh = []
@@ -179,9 +182,12 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
             s = line.strip().split('\t')
             meshid = f'MESH:{s[0]}'
             label = s[1]
-            cmesh.append ( meshid )
+            cmesh.append ( (meshid,) )
             labels[meshid] = label
     glom(concord, cmesh)
+    #print('write-mesh')
+    #this one is ok 3/8/2020
+    #write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc_mesh.txt','chemical_substance',labels=labels)
     check_multiple_ids(concord)
     # 3. Pull from chebi the sdf and db files, use them to link to things (KEGG) in the no inchi/no smiles cases
     print('chebi')
@@ -192,19 +198,28 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     glom(concord, kegg_chebi_pairs,pref='CHEBI')
     glom(concord, chebi_unmapped, pref='CHEBI')
     glom(concord, all_chebis, pref = 'CHEBI')
+    print('write-chebi')
+    #good march 8#
+    #write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc_chebi.txt','chemical_substance',labels=labels)
+    #exit()
     check_multiple_ids(concord)
     # 3a. pull in all KEGG labels and compounds.  This is mostly to pick up keggs that don't map to anything else
     print('kegg')
     kname = make_local_name('kegg.pickle')
     #to refresh kegg:
-    keggs,kegg_labels = pull_kegg_compounds()
-    with open(kname,'wb') as kf:
-        pickle.dump((keggs,kegg_labels),kf)
-    #with open(kname,'rb') as inf:
-    #    keggs,kegg_labels = pickle.load(inf)
+    #keggs,kegg_labels = pull_kegg_compounds()
+    #with open(kname,'wb') as kf:
+    #    pickle.dump((keggs,kegg_labels),kf)
+    # To use old KEGG
+    with open(kname,'rb') as inf:
+        keggs,kegg_labels = pickle.load(inf)
+    fkeggs = [ (k,) for k in keggs ]
+    keggs = fkeggs
     glom(concord,keggs,pref='KEGG.COMPOUND')
     labels.update(kegg_labels)
+    #OK TO HERE
     check_multiple_ids(concord)
+    #write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc_kegg.txt','chemical_substance',labels=labels)
     # 4. Go to KEGG, and get sequences for peptides.
     sequence_concord = pull_kegg_sequences()
     # 5. Pull UniProt (swissprot) XML.
@@ -221,34 +236,41 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     for s,v in sequence_to_iuphar.items():
         sequence_concord[s].update(v)
     glom(concord,iuphar_glom,pref='GTOPDB')
+    #write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc_iuphar.txt','chemical_substance',labels=labels)
     check_multiple_ids(concord)
     #  8. Use wikidata to get links between CHEBI and UniProt_PRO
     unichebi = pull_uniprot_chebi()
     glom(concord, unichebi)
+    #write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc_unicheb.txt','chemical_substance',labels=labels)
     check_multiple_ids(concord)
     #  9. glom across sequence and chemical stuff
     new_groups = sequence_concord.values()
     glom(concord,new_groups,unique_prefixes=['GTOPDB','INCHI'])
+    #write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc_newgroups.txt','chemical_substance',labels=labels)
     check_multiple_ids(concord)
     # 10. Drop PRO only sequences.
-    to_remove = []
-    for eq_id_set in concord:
-        if len(eq_id_set) > 1:
-            continue
-        print(eq_id_set)
-        item = iter(eq_id_set).next()
-        if '#PRO_' in item:
-            to_remove.add(eq_id_set)
-    for eids in to_remove:
-        concord.remove(eids)
+    # Something odd going on, remove for now.
+    #for eq_id_set in concord:
+    #    if len(eq_id_set) > 1:
+    #        continue
+    #    print(eq_id_set)
+    #    item = iter(eq_id_set).next()
+    #    if '#PRO_' in item:
+    #        to_remove.add(eq_id_set)
+    #for eids in to_remove:
+    #    concord.remove(eids)
+    #And we're back
     #Add labels to CHEBIs, CHEMBLs, MESHes
     print('LABEL')
     #label_chebis(concord)
-    label_chembls(concord, refresh_chembl = refresh_chembl )
+    labels.update(label_chembls(concord, refresh_chembl = refresh_chembl ))
     #label_meshes(concord)
 #    label_pubchem(concord, refresh_pubchem = refresh_pubchem)
     print('dumping')
     #Dump
+    #tout = set([frozenset(x) for x in concord.values()][:10000])
+    #write_compendium(tout,'chemconc.txt','chemical_substance',labels=labels)
+    #exit()
     write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc.txt','chemical_substance',labels=labels)
     print('done')
 
@@ -354,8 +376,9 @@ def label_chembls(concord, refresh_chembl = False):
                 pass
             else:
                 chunk.append(l)
-    print('LABEL CHEMBL', len(chembl_labels))
-    label_compounds(concord, 'CHEMBL.COMPOUND', partial(get_dict_label, labels=chembl_labels))
+    return chembl_labels
+    #print('LABEL CHEMBL', len(chembl_labels))
+    #label_compounds(concord, 'CHEMBL.COMPOUND', partial(get_dict_label, labels=chembl_labels))
     # label_compounds(concord,'CHEMBL',get_chembl_label)
 
 
@@ -398,14 +421,15 @@ def label_compounds(concord, prefix, get_label):
                 if not ident in foundlabels:
                     label = get_label(ident)
                     if label is not None:
-                        lid = LabeledID(ident, get_label(ident))
-                        foundlabels[ident] = lid
-                    else:
-                        foundlabels[ident] = None
-                label = foundlabels[ident]
-                if label is not None:
-                    to_remove.append(ident)
-                    to_add.append(foundlabels[ident])
+                        #lid = LabeledID(ident, get_label(ident))
+                        foundlabels[ident] = label
+                    #else:
+                    #    foundlabels[ident] = None
+                if ident in foundlabels:
+                    label = foundlabels[ident]
+                    if label is not None:
+                        to_remove.append(ident)
+                        to_add.append(foundlabels[ident])
         for r in to_remove:
             v.remove(r)
         for r in to_add:
