@@ -21,7 +21,7 @@ env:
 # command to run tests
 script:
   - mkdir babel/babel_downloads
-  - pytest -p no:warnings tests
+  - pytest -p no:warnings -m "not ftp" tests
 
 after_success:
   - coveralls
