@@ -143,9 +143,9 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     # 1. Handle all the stuff that has an InchiKey using unichem
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     print('UNICHEM')
-    #concord = load_unichem(refresh=True)
+    concord = load_unichem(refresh=True)
     #don't refresh
-    concord = load_unichem()
+    #concord = load_unichem()
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     #DO MESH/UNII
     print('MESH/UNII')
@@ -650,5 +650,6 @@ def extract_chebml_data_add_to_cache(result, annotator, rosetta):
 # Main - Stand alone entry point for testing
 #######
 if __name__ == '__main__':
-    load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=True,refresh_chembl=False)
+    load_chemicals(refresh_mesh=False,refresh_uniprot=True,refresh_pubchem=True,refresh_chembl=True)
+    #load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=True,refresh_chembl=False)
     #load_unichem(working_dir='.',xref_file='UC_XREF.txt.gz',struct_file='UC_STRUCTURE.txt')

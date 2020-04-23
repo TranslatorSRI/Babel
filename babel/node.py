@@ -70,7 +70,7 @@ class NodeFactory:
         labeled_list = []
         for iid in input_identifiers:
             if isinstance(iid,LabeledID):
-                print('Chocolate in the peanut butter',iid)
+                print('LabeledID dont belong here, pass in labels seperately',iid)
                 exit()
             if iid in labels:
                 labeled_list.append( LabeledID(identifier=iid, label = labels[iid]))

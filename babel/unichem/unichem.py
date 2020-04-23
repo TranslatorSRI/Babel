@@ -6,7 +6,7 @@ import logging
 import pandas
 
 from src.util import LoggingUtil
-from babel.babel_utils import make_local_name
+from babel.babel_utils import make_local_name,pull_via_urllib
 from babel.big_gz_sort import batch_sort
 
 logger = LoggingUtil.init_logging("chemicals", logging.DEBUG, format='medium')
@@ -45,6 +45,7 @@ def refresh_unichem(working_dir: str = '', xref_file: str = None, struct_file: s
     filtered_xref_file = filter_bad_unii(data_sources, sorted_xref_file)
 
     synonyms = merge_xref_with_structure(filtered_xref_file,sorted_struct_file)
+    print('Synonyms done, now pickle')
 
     upname = make_local_name('unichem.pickle')
     with open(upname,'wb') as up:
@@ -193,11 +194,11 @@ def get_unichem_files(struct_file, xref_file):
         logger.info(f'Target unichem FTP URL: {target_uc_url}')
 
         # get the files
-        # xref_file = pull_via_urllib(target_uc_url, 'UC_XREF.txt.gz', decompress=False)
-        # struct_file = pull_via_urllib(target_uc_url, 'UC_STRUCTURE.txt.gz' )
+        xref_file = pull_via_urllib(target_uc_url, 'UC_XREF.txt.gz', decompress=False)
+        struct_file = pull_via_urllib(target_uc_url, 'UC_STRUCTURE.txt.gz' )
         # shortcut to local files.
-        xref_file = make_local_name('UC_XREF.txt.gz')
-        struct_file = make_local_name('UC_STRUCTURE.txt')
+        #xref_file = make_local_name('UC_XREF.txt.gz')
+        #struct_file = make_local_name('UC_STRUCTURE.txt')
     return struct_file, xref_file
 
 

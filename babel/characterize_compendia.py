@@ -8,7 +8,7 @@ def get_compendia():
     compendia = [f'{dname}/{x}'for x in somefiles if x.endswith('.txt')]
     return compendia
 
-def characterize_one_compendium(fname,threshold = 1000):
+def characterize_one_compendium(fname,threshold = 300):
     used_ids = set()
     counts = defaultdict(int)
     with open(fname,'r') as inf:
@@ -32,7 +32,7 @@ def characterize_one_compendium(fname,threshold = 1000):
         print(k,counts[k])
 
 def go():
-    characterize_one_compendium('compendia/disease.txt')
+    characterize_one_compendium('compendia/phenotypes.txt')
     return
     comps = get_compendia()
     for c in comps:

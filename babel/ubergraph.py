@@ -93,7 +93,9 @@ class UberGraph:
         prefix CHEBI: <http://purl.obolibrary.org/obo/CHEBI_>
         prefix MONDO: <http://purl.obolibrary.org/obo/MONDO_>
         prefix HP: <http://purl.obolibrary.org/obo/HP_>
+        prefix EFO: <http://www.ebi.ac.uk/efo/EFO_>
         PREFIX EXACT_MATCH: <http://www.w3.org/2004/02/skos/core#exactMatch>
+        PREFIX M_EXACT_MATCH: <http://purl.obolibrary.org/obo/mondo#exactMatch>
         PREFIX EQUIVALENT_CLASS: <http://www.w3.org/2002/07/owl#equivalentClass>
         PREFIX ID: <http://www.geneontology.org/formats/oboInOwl#id>
         SELECT DISTINCT ?descendent ?descendentLabel ?match
@@ -112,6 +114,11 @@ class UberGraph:
         """
         resultmap = self.triplestore.query_template(
                template_text=text('EXACT_MATCH:'),
+               inputs={
+                   'identifier': iri
+               }, outputs=[ 'descendent', 'descendentLabel', 'match' ] )
+        resultmap += self.triplestore.query_template(
+               template_text=text('M_EXACT_MATCH:'),
                inputs={
                    'identifier': iri
                }, outputs=[ 'descendent', 'descendentLabel', 'match' ] )
