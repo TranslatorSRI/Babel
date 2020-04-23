@@ -14,6 +14,7 @@ from src.LabeledID import LabeledID
 from babel.chemical_mesh_unii import refresh_mesh_pubchem
 from babel.babel_utils import glom, pull_via_ftp, write_compendium, make_local_name
 from babel.chemistry_pulls import pull_chebi, pull_uniprot, pull_iuphar, pull_kegg_sequences, pull_kegg_compounds
+from babel.ubergraph import UberGraph
 
 logger = LoggingUtil.init_logging("chemicals", logging.ERROR, format='medium', logFilePath=f'{os.path.dirname(os.path.abspath(__file__))}/logs/')
 
@@ -314,6 +315,19 @@ def get_mesh_label(ident, labels):
 ###
 
 def get_all_chebis():
+    print('READ CHEBI')
+    iri = 'CHEBI:24431'
+    uber = UberGraph()
+    chebis = []
+    chebi_labels = {}
+    uberres = uber.get_subclasses_of(iri)
+    for c in uberres:
+        chebis.append( (c['descendent'],) )
+        chebi_labels[ c['descendent'] ] = c['descendentLabel']
+    return chebis, chebi_labels
+
+
+def get_all_chebis_obo():
     print('READ CHEBI')
     chebiobo = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chebi/ontology', 'chebi_lite.obo')
     lines = chebiobo.split('\n')
@@ -650,6 +664,6 @@ def extract_chebml_data_add_to_cache(result, annotator, rosetta):
 # Main - Stand alone entry point for testing
 #######
 if __name__ == '__main__':
-    load_chemicals(refresh_mesh=False,refresh_uniprot=True,refresh_pubchem=True,refresh_chembl=True)
-    #load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=True,refresh_chembl=False)
+    #load_chemicals(refresh_mesh=False,refresh_uniprot=True,refresh_pubchem=True,refresh_chembl=True)
+    load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=False,refresh_chembl=False)
     #load_unichem(working_dir='.',xref_file='UC_XREF.txt.gz',struct_file='UC_STRUCTURE.txt')

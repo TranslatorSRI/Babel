@@ -104,7 +104,7 @@ class Text:
     def opt_to_curie (text):
         if text is None:
             return None
-        if text.startswith('http://purl.obolibrary.org') or text.startswith('http://www.orpha.net'):
+        if text.startswith('http://purl.obolibrary.org') or text.startswith('http://www.orpha.net') or text.startswith('http://www.ebi.ac.uk/efo'):
             return ':'.join( text.split('/')[-1].split('_') )
         if text.startswith('http://linkedlifedata.com/resource/umls'):
             return f'UMLS:{text.split("/")[-1]}'
