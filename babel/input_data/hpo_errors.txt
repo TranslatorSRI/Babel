@@ -1,0 +1,352 @@
+(HP:0000131,Uterine leiomyoma)	{'SNOMEDCT:146801000119103', 'MESH:D007889'}	frozenset({'SNOMEDCT:146801000119103', 'DOID:127', 'UMLS:C0023267', 'MESH:D007889', 'NCIT:C3157', (MONDO:0001572,leiomyoma)})
+------------
+(HP:0000133,Gonadal dysgenesis)	{'SNOMEDCT:38804009'}	frozenset({'MEDDRA:10045181', 'ORPHANET:881', (MONDO:0019499,Turner syndrome), 'UMLS:C0041408', 'DOID:3491', 'NCIT:C26900', 'SNOMEDCT:38804009', 'MESH:D014424'})
+(HP:0000133,Gonadal dysgenesis)	{'UMLS:C0018055', 'MESH:D006060', 'SNOMEDCT:83579008'}	frozenset({'DOID:14449', 'SNOMEDCT:83579008', 'UMLS:C0018055', (MONDO:0001969,mixed gonadal dysgenesis), 'MESH:D006060'})
+------------
+(HP:0000246,Sinusitis)	{'UMLS:C0030469', 'MESH:D010254', 'SNOMEDCT:7393007'}	frozenset({(MONDO:0001735,paranasal sinus disease), 'SNOMEDCT:7393007', 'DOID:1352', 'UMLS:C0030469', 'MESH:D010254', 'NCIT:C26843'})
+------------
+(HP:0000473,Torticollis)	{'SNOMEDCT:70070008'}	frozenset({'NCIT:C4811', 'MESH:C535425', (MONDO:0008583,inherited torticollis (disease)), 'SNOMEDCT:70070008', 'OMIM:189600', 'SNOMEDCT:268240006'})
+(HP:0000473,Torticollis)	{'SNOMEDCT:74333002'}	frozenset({'ORPHANET:93962', (MONDO:0000481,cervical dystonia), 'NCIT:C85072', 'DOID:0050840', 'SNOMEDCT:74333002'})
+------------
+(HP:0000476,Cystic hygroma)	{'MESH:D018191'}	frozenset({'DOID:3081', 'MESH:D018191', (MONDO:0006719,cystic lymphangioma)})
+------------
+(HP:0000478,Abnormality of the eye)	{'SNOMEDCT:371405004', 'UMLS:C0015397', 'MESH:D005128'}	frozenset({'SNOMEDCT:371405004', 'NCIT:C26767', (MONDO:0005328,eye disease), 'DOID:5614', 'UMLS:C0015397', 'MESH:D005128'})
+(HP:0000478,Abnormality of the eye)	{'SNOMEDCT:371409005'}	frozenset({'SNOMEDCT:371409005', 'DOID:1492', (MONDO:0002022,disease of orbital region)})
+------------
+(HP:0000212,Gingival overgrowth)	{'UMLS:C0017567', 'MESH:D005886'}	frozenset({'UMLS:C0017567', 'MESH:D005886', (MONDO:0003397,gingival hypertrophy), 'DOID:5338'})
+------------
+(HP:0000589,Coloboma)	{'UMLS:C0009363'}	frozenset({(MONDO:0016023,ocular coloboma), 'ORPHANET:194', 'UMLS:C0009363'})
+------------
+(HP:0000704,Periodontitis)	{'SNOMEDCT:2556008', 'UMLS:C0031090', 'MESH:D010510'}	frozenset({(MONDO:0002635,periodontal disease), 'SNOMEDCT:2556008', 'UMLS:C0031090', 'DOID:3388', 'MESH:D010510', 'NCIT:C63743'})
+(HP:0000704,Periodontitis)	{'MESH:D005882', 'UMLS:C0017563', 'SNOMEDCT:18718003'}	frozenset({'UMLS:C0017563', 'SNOMEDCT:18718003', 'MESH:D005882', 'DOID:1483', (MONDO:0002021,gingival disease)})
+------------
+(HP:0000716,Depressivity)	{'SNOMEDCT:78667006'}	frozenset({'DOID:12139', 'NCIT:C34562', 'MESH:D019263', (MONDO:0001442,dysthymic disorder), 'SNOMEDCT:78667006'})
+(HP:0000716,Depressivity)	{'SNOMEDCT:35489007', 'MESH:D003866'}	frozenset({'MESH:D003866', (MONDO:0002050,depressive disorder), 'DOID:1596', 'SNOMEDCT:35489007', 'UMLS:CN236658', 'NCIT:C2982'})
+------------
+(HP:0002076,Migraine)	{'SNOMEDCT:37796009'}	frozenset({'OMIM:157300', 'SNOMEDCT:37796009', (MONDO:0008000,migraine with or without aura, susceptibility to, 1)})
+(HP:0002076,Migraine)	{'MESH:D008881'}	frozenset({'NCIT:C113482', 'NCIT:C89715', 'MESH:D008881', (MONDO:0005277,migraine disorder), 'DOID:6364'})
+------------
+(HP:0002092,Pulmonary arterial hypertension)	{'SNOMEDCT:697898008', 'UMLS:C3203102'}	frozenset({'UMLS:CN202574', 'UMLS:C3203102', (MONDO:0017147,idiopathic pulmonary arterial hypertension), 'SNOMEDCT:697898008', 'ORPHANET:275766', 'MEDDRA:10065151'})
+(HP:0002092,Pulmonary arterial hypertension)	{'MESH:D006976', 'SNOMEDCT:70995007'}	frozenset({'MESH:D006976', (MONDO:0005149,pulmonary hypertension), 'NCIT:C3120', 'DOID:6432', 'SNOMEDCT:70995007'})
+------------
+(HP:0002251,Aganglionic megacolon)	{'SNOMEDCT:33995003', 'MESH:D008531'}	frozenset({(MONDO:0001273,megacolon), 'SNOMEDCT:33995003', 'MESH:D008531', 'NCIT:C34810', 'DOID:11372'})
+(HP:0002251,Aganglionic megacolon)	{'UMLS:C0019569'}	frozenset({'MEDDRA:10010539', 'UMLS:C3661523', (MONDO:0018309,Hirschsprung disease), 'MESH:D006627', 'ORPHANET:388', 'UMLS:C0019569', 'NCIT:C34700', 'DOID:10487'})
+------------
+(HP:0002123,Generalized myoclonic seizures)	{'SNOMEDCT:267581004', 'UMLS:C0751778', 'MESH:D020191'}	frozenset({'SNOMEDCT:267581004', 'MESH:D020191', 'ORPHANET:98261', 'DOID:891', (MONDO:0020074,progressive myoclonic epilepsy), 'UMLS:C0751778', 'NCIT:C7636'})
+(HP:0002123,Generalized myoclonic seizures)	{'UMLS:C0014550'}	frozenset({'NCIT:C116593', 'SNOMEDCT:44423001', 'UMLS:C0014550', (MONDO:0016022,early myoclonic encephalopathy), 'ORPHANET:1935', 'DOID:308', 'UMLS:C0270855'})
+------------
+(HP:0005679,Dupuytren contracture)	{'SNOMEDCT:274142002'}	frozenset({'SNOMEDCT:274142002', 'ORPHANET:79142', 'OMIM:126900', (MONDO:0007476,familial Dupuytren contracture)})
+(HP:0005679,Dupuytren contracture)	{'MESH:D004387', 'SNOMEDCT:203045001'}	frozenset({'NCIT:C3469', 'MESH:D004387', 'SNOMEDCT:203045001', (MONDO:0006345,palmar fibromatosis)})
+------------
+(HP:0003762,Uterus didelphys)	{'UMLS:C0152240', 'SNOMEDCT:22504001'}	frozenset({'MEDDRA:10062606', 'UMLS:C0152240', (MONDO:0015839,septate uterus), 'SNOMEDCT:22504001', 'ORPHANET:180122'})
+------------
+(HP:0002414,Spina bifida)	{'UMLS:C0080178'}	frozenset({'UMLS:C0080178', 'ORPHANET:823', 'MEDDRA:10041524', (MONDO:0019351,isolated spina bifida)})
+(HP:0002414,Spina bifida)	{'SNOMEDCT:67531005', 'MESH:D016135'}	frozenset({'NCIT:C101214', 'MESH:D016135', (MONDO:0008449,spina bifida (disease)), 'SNOMEDCT:67531005', 'DOID:0080016'})
+------------
+(HP:0000863,Central diabetes insipidus)	{'SNOMEDCT:45369008'}	frozenset({'SNOMEDCT:45369008', 'DOID:12388', 'OMIM:125700', 'ORPHANET:30925', 'NCIT:C84933', (MONDO:0007450,neurohypophyseal diabetes insipidus)})
+------------
+(HP:0004315,Decreased circulating IgG level)	{'MESH:D017099', 'SNOMEDCT:190981001'}	frozenset({'NCIT:C27024', (MONDO:0001901,selective IgG subclass deficiency), 'SNOMEDCT:190981001', 'DOID:14176', 'MESH:D017099'})
+(HP:0004315,Decreased circulating IgG level)	{'UMLS:C0162539'}	frozenset({(MONDO:0045045,selective IgG immunodeficiency), 'NCIT:C27142', 'SNOMEDCT:12631000119106', 'UMLS:C0162539'})
+------------
+(HP:0005982,Reduced phenylalanine hydroxylase activity)	{'UMLS:C0751434'}	frozenset({'UMLS:C0751434', (MONDO:0019259,classic phenylketonuria), 'MEDDRA:10034875', 'ORPHANET:79254'})
+(HP:0005982,Reduced phenylalanine hydroxylase activity)	{'SNOMEDCT:7573000'}	frozenset({'SNOMEDCT:7573000', 'MESH:D010661', 'NCIT:C81315', 'ORPHANET:716', 'DOID:9281', (MONDO:0009861,phenylketonuria), 'MEDDRA:10034872', 'UMLS:C0031485', 'OMIM:261600'})
+------------
+(HP:0004389,Intestinal pseudo-obstruction)	{'UMLS:C0021847'}	frozenset({(MONDO:0020718,congenital short bowel syndrome 1), 'UMLS:C0021847'})
+(HP:0004389,Intestinal pseudo-obstruction)	{'SNOMEDCT:715201005'}	frozenset({(MONDO:0014097,congenital short bowel syndrome), 'ORPHANET:2301', 'SNOMEDCT:715201005'})
+------------
+(HP:0004394,Multiple gastric polyps)	{'SNOMEDCT:87252009', 'MESH:C562464'}	frozenset({(MONDO:0008277,stomach polyp), 'SNOMEDCT:87252009', 'NCIT:C3954', 'MESH:C562464'})
+(HP:0004394,Multiple gastric polyps)	{'UMLS:C0236048'}	frozenset({(MONDO:0024293,polyposis, gastric, Dos Santos and de Magalhaes 1980), 'OMIM:175020', 'UMLS:C0236048'})
+------------
+(HP:0006771,Duodenal adenocarcinoma)	{'MESH:D004379'}	frozenset({'MESH:D004379', (MONDO:0000920,duodenum cancer), 'DOID:10021', 'SNOMEDCT:363403002', 'NCIT:C9328'})
+(HP:0006771,Duodenal adenocarcinoma)	{'SNOMEDCT:254570009'}	frozenset({(MONDO:0021335,carcinoma of duodenum), 'NCIT:C4803', 'SNOMEDCT:254570009'})
+------------
+(HP:0006780,Parathyroid carcinoma)	{'SNOMEDCT:363481002'}	frozenset({'SNOMEDCT:363481002', 'NCIT:C9322', (MONDO:0021311,malignant tumor of parathyroid gland)})
+------------
+(HP:0004445,Elliptocytosis)	{'SNOMEDCT:178935009', 'MESH:D004612', 'UMLS:C0013902'}	frozenset({'ORPHANET:288', (MONDO:0017319,hereditary elliptocytosis), 'NCIT:C36293', 'DOID:2373', 'SNOMEDCT:178935009', 'MEDDRA:10014490', 'MESH:D004612', 'UMLS:C0013902', 'NCIT:C35882'})
+(HP:0004445,Elliptocytosis)	{'SNOMEDCT:191169008'}	frozenset({'ORPHANET:98868', (MONDO:0008165,southeast Asian ovalocytosis), 'OMIM:166900', 'UMLS:C1862323', 'SNOMEDCT:191169008', 'UMLS:C1833690'})
+------------
+(HP:0004395,Malnutrition)	{'SNOMEDCT:2492009'}	frozenset({(MONDO:0005137,nutritional disorder), 'DOID:374', 'SNOMEDCT:2492009', 'MESH:D009748', 'UMLS:C3714509', 'NCIT:C26836'})
+(HP:0004395,Malnutrition)	{'SNOMEDCT:70241007'}	frozenset({'NCIT:C3669', 'SNOMEDCT:363246002', 'DOID:5113', 'MESH:D003677', 'SNOMEDCT:70241007', (MONDO:0006873,nutritional deficiency disease)})
+------------
+(HP:0006818,4-layered lissencephaly)	{'MESH:D054221'}	frozenset({'MEDDRA:10068361', 'SNOMEDCT:253148005', 'UMLS:C0265219', (MONDO:0009532,Miller-Dieker lissencephaly syndrome), 'MESH:D054221', 'NCIT:C124852', 'OMIM:247200', 'DOID:0060469', 'ORPHANET:531'})
+(HP:0006818,4-layered lissencephaly)	{'UMLS:C0431375'}	frozenset({'UMLS:C1843916', 'UMLS:C0431375', 'ORPHANET:102009', (MONDO:0015146,classic lissencephaly)})
+------------
+(HP:0006824,Cranial nerve paralysis)	{'MESH:D003389', 'SNOMEDCT:73013002'}	frozenset({(MONDO:0003569,cranial nerve neuropathy), 'DOID:5656', 'MESH:D003389', 'UMLS:C0010266', 'NCIT:C26733', 'SNOMEDCT:73013002'})
+------------
+(HP:0006918,Diffuse cerebral sclerosis)	{'SNOMEDCT:49692006', 'UMLS:C0007795'}	frozenset({'UMLS:C0007795', (MONDO:0010085,Schilder disease), 'SNOMEDCT:49692006', 'ORPHANET:59298', 'OMIM:272100'})
+(HP:0006918,Diffuse cerebral sclerosis)	{'MESH:D002549'}	frozenset({'DOID:0080122', (MONDO:0008758,mitochondrial DNA depletion syndrome 4a), 'MESH:D002549', 'OMIM:203700', 'ORPHANET:726', 'NCIT:C35257', 'UMLS:C0205710', 'DOID:1442', 'MEDDRA:10062943', 'SNOMEDCT:20415001'})
+------------
+(HP:0002511,Alzheimer disease)	{'MESH:C536595', 'UMLS:C1863051'}	frozenset({'MESH:C536595', (MONDO:0007089,Alzheimer disease 2), 'DOID:0110035', 'OMIM:104310', 'UMLS:C1863051'})
+------------
+(HP:0004809,Neonatal alloimmune thrombocytopenia)	{'MESH:D054098'}	frozenset({'SNOMEDCT:82835005', 'MESH:D054098', (MONDO:0024277,neonatal thrombocytopenia)})
+------------
+(HP:0004810,Congenital hypoplastic anemia)	{'MESH:D000742', 'UMLS:C0002876', 'SNOMEDCT:52951008'}	frozenset({'MESH:D000742', 'DOID:1338', 'ORPHANET:85', (MONDO:0019403,congenital dyserythropoietic anemia), 'UMLS:C0002876', 'SNOMEDCT:52951008', 'NCIT:C84646'})
+------------
+(HP:0004912,Hypophosphatemic rickets)	{'UMLS:C1704375'}	frozenset({'UMLS:C1704375', 'ORPHANET:437', 'MEDDRA:10060873', (MONDO:0000044,hereditary hypophosphatemic rickets)})
+------------
+(HP:0005086,Knee osteoarthritis)	{'SNOMEDCT:239873007', 'UMLS:C0409959'}	frozenset({'SNOMEDCT:239873007', 'UMLS:C0409959', (MONDO:0012894,OS6), 'OMIM:612401'})
+------------
+(HP:0000943,Dysostosis multiplex)	{'MESH:D008059'}	frozenset({'MESH:D008059', 'NCIT:C85053', 'DOID:12802', 'SNOMEDCT:75610003', 'UMLS:C0023786', 'ORPHANET:579', (MONDO:0001586,mucopolysaccharidosis type 1), 'MEDDRA:10056886', 'UMLS:C2713321'})
+------------
+(HP:0001052,Nevus flammeus)	{'SNOMEDCT:254211001'}	frozenset({'DOID:5806', (MONDO:0003653,stork bite), 'SNOMEDCT:254211001'})
+(HP:0001052,Nevus flammeus)	{'MEDDRA:10067193', 'MESH:D019339', 'SNOMEDCT:416377005', 'UMLS:C0235752'}	frozenset({'OMIM:163000', 'NCIT:C3840', 'UMLS:CN205384', (MONDO:0008094,familial multiple nevi flammei), 'MEDDRA:10067193', 'MESH:D019339', 'UMLS:C0235752', 'SNOMEDCT:416377005', 'ORPHANET:624'})
+------------
+(HP:0001055,Erysipelas)	{'MESH:D004881', 'SNOMEDCT:51510002'}	frozenset({'MESH:D004881', (MONDO:0042496,ergotism), 'SNOMEDCT:51510002'})
+------------
+(HP:0007011,Fourth cranial nerve palsy)	{'MESH:D020432'}	frozenset({'DOID:13864', (MONDO:0007002,trochlear nerve disease), 'NCIT:C78395', 'MESH:D020432'})
+------------
+(HP:0004950,Peripheral arterial stenosis)	{'MESH:D016491'}	frozenset({'DOID:341', (MONDO:0005294,peripheral vascular disease), 'MESH:D016491', 'NCIT:C35136'})
+(HP:0004950,Peripheral arterial stenosis)	{'MESH:D058729', 'SNOMEDCT:399957001'}	frozenset({'NCIT:C84496', (MONDO:0005386,peripheral arterial disease), 'DOID:0050830', 'MESH:D058729', 'SNOMEDCT:399957001'})
+------------
+(HP:0002664,Neoplasm)	{'SNOMEDCT:363346000', 'UMLS:C0006826'}	frozenset({'DOID:0050687', 'NCIT:C9305', 'DOID:0050686', 'SNOMEDCT:363346000', 'UMLS:C0006826', (MONDO:0004992,cancer), 'DOID:162'})
+------------
+(HP:0002667,Nephroblastoma)	{'MESH:D009396'}	frozenset({'NCIT:C3267', 'UMLS:CN244940', 'MESH:D009396', (MONDO:0006058,Wilms tumor)})
+------------
+(HP:0001085,Papilledema)	{'MESH:D010211', 'SNOMEDCT:73221001'}	frozenset({'SNOMEDCT:73221001', 'MESH:D010211', (MONDO:0006879,optic papillitis), 'DOID:10175'})
+------------
+(HP:0001097,Keratoconjunctivitis sicca)	{'SNOMEDCT:363677007', 'MESH:D014985', 'UMLS:C0043349'}	frozenset({'NCIT:C34503', 'MESH:D014985', 'UMLS:C0043349', (MONDO:0000948,xerophthalmia), 'UMLS:C3665609', 'SNOMEDCT:363677007', 'DOID:10138'})
+(HP:0001097,Keratoconjunctivitis sicca)	{'UMLS:C0013238', 'SNOMEDCT:46152009', 'MESH:D015352'}	frozenset({'SNOMEDCT:46152009', 'NCIT:C34553', 'DOID:10140', 'UMLS:C0013238', (MONDO:0006733,dry eye syndrome), 'MESH:D015352'})
+------------
+(HP:0002721,Immunodeficiency)	{'MESH:D007153', 'UMLS:C0021051'}	frozenset({'DOID:612', 'MESH:D007153', (MONDO:0003778,primary immunodeficiency disease), 'NCIT:C39725', 'UMLS:C0021051'})
+------------
+(HP:0002745,Oral leukoplakia)	{'MESH:D007971'}	frozenset({(MONDO:0043243,leukoplakia), 'NCIT:C3186', 'MESH:D007971', 'UMLS:C0023531', 'SNOMEDCT:274134003'})
+------------
+(HP:0007479,Congenital nonbullous ichthyosiform erythroderma)	{'MESH:D017490'}	frozenset({(MONDO:0017778,lamellar ichthyosis), 'MEDDRA:10023686', 'ORPHANET:313', 'MESH:D017490', 'NCIT:C84805'})
+------------
+(HP:0008321,Reduced factor X activity)	{'SNOMEDCT:76642003'}	frozenset({'SNOMEDCT:76642003', 'ORPHANET:328', 'OMIM:227600', 'NCIT:C98940', 'DOID:2222', (MONDO:0009212,congenital factor X deficiency)})
+------------
+(HP:0001156,Brachydactyly)	{'UMLS:C0221357', 'SNOMEDCT:43476002'}	frozenset({'UMLS:C0221357', (MONDO:0017424,non-syndromic brachydactyly), 'ORPHANET:294937', 'SNOMEDCT:43476002'})
+------------
+(HP:0001010,Hypopigmentation of the skin)	{'SNOMEDCT:23006000'}	frozenset({'UMLS:C1876214', 'OMIM:126070', 'SNOMEDCT:23006000', (MONDO:0007459,dilution, pigmentary)})
+------------
+(HP:0005508,Monoclonal immunoglobulin M proteinemia)	{'MESH:D008258', 'UMLS:C0024419'}	frozenset({'OMIM:153600', 'UMLS:C0024419', 'NCIT:C80307', (MONDO:0007926,Waldenstrom macroglobulinemia), 'DOID:0060901', 'ORPHANET:33226', 'MEDDRA:10047801', 'MESH:D008258'})
+(HP:0005508,Monoclonal immunoglobulin M proteinemia)	{'SNOMEDCT:190817009'}	frozenset({'DOID:9080', 'SNOMEDCT:190817009', (MONDO:0005190,macroglobulinemia)})
+------------
+(HP:0005523,Lymphoproliferative disorder)	{'SNOMEDCT:77121009'}	frozenset({'UMLS:C0549463', 'NCIT:C61246', (MONDO:0010627,X-linked lymphoproliferative syndrome), 'ORPHANET:2442', 'SNOMEDCT:77121009', 'DOID:0060705', 'MEDDRA:10068348'})
+------------
+(HP:0007178,Motor polyneuropathy)	{'MESH:D009443'}	frozenset({'NCIT:C116381', (MONDO:0002122,neuritis), 'UMLS:C0027813', 'SNOMEDCT:84299009', 'DOID:1803', 'MESH:D009443', 'SNOMEDCT:128192007'})
+(HP:0007178,Motor polyneuropathy)	{'UMLS:C0235025'}	frozenset({'DOID:683', 'UMLS:C0235025', (MONDO:0004004,motor nerve neuritis)})
+------------
+(HP:0007263,Spinocerebellar atrophy)	{'UMLS:C0087012'}	frozenset({'ORPHANET:102002', 'SNOMEDCT:85102008', 'UMLS:C0087012', 'MESH:D002524', 'DOID:0050753', (MONDO:0000437,cerebellar ataxia), 'NCIT:C82341'})
+(HP:0007263,Spinocerebellar atrophy)	{'SNOMEDCT:129609000'}	frozenset({'ORPHANET:99', 'UMLS:CN227858', 'SNOMEDCT:129609000', 'DOID:1441', (MONDO:0020380,autosomal dominant cerebellar ataxia)})
+------------
+(HP:0005600,Congenital giant melanocytic nevus)	{'SNOMEDCT:254815002'}	frozenset({'SNOMEDCT:254815002', (MONDO:0023235,giant congenital nevus), 'NCIT:C4234'})
+------------
+(HP:0007607,Hypohidrotic ectodermal dysplasia)	{'MESH:D053358', 'UMLS:C0162359'}	frozenset({'OMIM:305100', (MONDO:0010585,X-linked hypohidrotic ectodermal dysplasia), 'MESH:D053358', 'UMLS:C0162359', 'ORPHANET:181'})
+------------
+(HP:0007642,Congenital stationary night blindness)	{'SNOMEDCT:193687000'}	frozenset({(MONDO:0004587,hereditary night blindness), 'SNOMEDCT:193687000', 'DOID:8498'})
+(HP:0007642,Congenital stationary night blindness)	{'UMLS:C1306122', 'MESH:C537743'}	frozenset({'UMLS:C1306122', (MONDO:0019152,Oguchi disease), 'ORPHANET:75382', 'MESH:C537743'})
+------------
+(HP:0001287,Meningitis)	{'MESH:D008581'}	frozenset({'MESH:D008581', 'NCIT:C79598', (MONDO:0004796,infectious meningitis), 'SNOMEDCT:312216007', 'DOID:9471'})
+------------
+(HP:0001304,Torsion dystonia)	{'SNOMEDCT:22451001'}	frozenset({'NCIT:C34564', 'SNOMEDCT:22451001', (MONDO:0044811,idiopathic torsion dystonia)})
+(HP:0001304,Torsion dystonia)	{'MESH:D004422'}	frozenset({'UMLS:C1848954', (MONDO:0000476,generalized dystonia), 'MESH:D004422', 'DOID:0050835', (HP:0007325,Generalized dystonia), 'SNOMEDCT:425492002'})
+(HP:0001304,Torsion dystonia)	{'UMLS:C0013423'}	frozenset({'OMIM:128100', 'MESH:C538005', (MONDO:0007492,early-onset generalized limb-onset dystonia), 'DOID:0060730', 'UMLS:C0013423', 'ORPHANET:256', 'UMLS:C3888090'})
+------------
+(HP:0008677,Congenital nephrotic syndrome)	{'MESH:C535761'}	frozenset({'SNOMEDCT:197601003', 'UMLS:C0403399', 'MEDDRA:10060740', 'MESH:C535761', 'ORPHANET:839', (MONDO:0009732,congenital nephrotic syndrome, Finnish type), 'OMIM:256300', 'NCIT:C122795'})
+------------
+(HP:0007802,Granular corneal dystrophy)	{'MESH:D003317'}	frozenset({'SNOMEDCT:5587004', (HP:0001131,Corneal dystrophy), 'MEDDRA:10011005', 'DOID:2566', 'MESH:D003317', 'UMLS:C0010036', 'NCIT:C34513', (MONDO:0018102,corneal dystrophy (disease)), 'ORPHANET:34533'})
+------------
+(HP:0007803,Monochromacy)	{'UMLS:C1857618'}	frozenset({'UMLS:C1857618', (MONDO:0009003,achromatopsia 2), 'OMIM:216900', 'DOID:0110007'})
+(HP:0007803,Monochromacy)	{'UMLS:C0152200'}	frozenset({'SNOMEDCT:102450007', 'ORPHANET:49382', (MONDO:0018852,achromatopsia), 'NCIT:C84528', 'MEDDRA:10000454', 'DOID:13911', 'UMLS:C0152200'})
+------------
+(HP:0005323,Hemifacial hypertrophy)	{'SNOMEDCT:10394003', 'UMLS:C0016719', 'MESH:D005621'}	frozenset({'OMIM:229300', 'DOID:12705', 'ORPHANET:95', (MONDO:0009245,Friedreich ataxia), 'NCIT:C84718', 'MEDDRA:10017374', 'SNOMEDCT:10394003', 'UMLS:C0016719', 'MESH:D005621'})
+------------
+(HP:0008480,Cervical spondylosis)	{'MESH:D055009'}	frozenset({'SNOMEDCT:48210000', (MONDO:0002253,spondylosis), 'MESH:D055009', 'DOID:2247', 'UMLS:C0038019'})
+------------
+(HP:0001343,Kernicterus)	{'SNOMEDCT:50143004'}	frozenset({(MONDO:0018477,bilirubin encephalopathy), 'ORPHANET:415286', 'SNOMEDCT:50143004'})
+------------
+(HP:0002860,Squamous cell carcinoma)	{'MESH:D018307'}	frozenset({'NCIT:C3792', 'UMLS:C0206720', 'DOID:3168', (MONDO:0002532,squamous cell neoplasm), 'MESH:D018307'})
+------------
+(HP:0003005,Ganglioneuroma)	{'MESH:D005729'}	frozenset({'NCIT:C6934', 'ORPHANET:251937', (MONDO:0016730,gangliocytoma), 'UMLS:CN201978', 'DOID:2426', 'MESH:D005729'})
+------------
+(HP:0008069,Neoplasm of the skin)	{'SNOMEDCT:372130007', 'UMLS:C0007114'}	frozenset({(MONDO:0002898,skin cancer), 'NCIT:C2920', 'UMLS:C0007114', 'DOID:4159', 'SNOMEDCT:372130007'})
+------------
+(HP:0009726,Renal neoplasm)	{'MESH:D007680'}	frozenset({(MONDO:0002367,kidney cancer), 'MESH:D007680', 'SNOMEDCT:363518003', 'DOID:263', 'UMLS:CN881103', 'NCIT:C7548'})
+(HP:0009726,Renal neoplasm)	{'UMLS:C1378703'}	frozenset({(MONDO:0005206,renal carcinoma), 'DOID:4451', 'UMLS:C1378703', 'NCIT:C9384'})
+------------
+(HP:0002896,Neoplasm of the liver)	{'UMLS:C0345904', 'SNOMEDCT:93870000'}	frozenset({'UMLS:C0854795', 'NCIT:C34803', (MONDO:0002691,liver cancer), 'SNOMEDCT:93870000', 'DOID:3571', 'UMLS:C0024620', 'UMLS:C0345904'})
+------------
+(HP:0002898,Embryonal neoplasm)	{'MESH:D009373'}	frozenset({'DOID:3095', (MONDO:0002510,germ cell and embryonal cancer), 'MESH:D009373'})
+------------
+(HP:0008169,Reduced factor VII activity)	{'UMLS:C0015503'}	frozenset({'UMLS:C0015503', (MONDO:0009211,congenital factor VII deficiency), 'ORPHANET:327', 'OMIM:227500', 'NCIT:C131631', 'DOID:2215', 'MEDDRA:10016079'})
+------------
+(HP:0008207,Primary adrenal insufficiency)	{'UMLS:C0405580'}	frozenset({'MESH:D000309', 'SNOMEDCT:386584007', 'SNOMEDCT:237785004', (MONDO:0000004,adrenocortical insufficiency), 'NCIT:C26691', 'UMLS:C0001623', 'DOID:10493', (HP:0000846,Adrenal insufficiency), 'UMLS:C0405580', 'SNOMEDCT:111563005'})
+(HP:0008207,Primary adrenal insufficiency)	{'MESH:D000224', 'UMLS:C0001403', 'SNOMEDCT:373662000'}	frozenset({'MEDDRA:10001130', 'NCIT:C113814', 'UMLS:C0001403', 'MESH:D000224', 'OMIM:240200', 'SNOMEDCT:373662000', 'ORPHANET:85138', (MONDO:0009410,Addison disease), 'UMLS:C0271737', 'DOID:13774'})
+------------
+(HP:0008209,Premature ovarian insufficiency)	{'UMLS:C0085215', 'MESH:D016649'}	frozenset({(MONDO:0005387,primary ovarian failure), 'NCIT:C113352', 'SNOMEDCT:370999003', 'MESH:D016649', 'DOID:5426', 'UMLS:C0948896', (HP:0000815,Hypergonadotropic hypogonadism), 'SNOMEDCT:65846009', 'UMLS:C0085215'})
+(HP:0008209,Premature ovarian insufficiency)	{'UMLS:C0025322', 'MESH:D008594'}	frozenset({'SNOMEDCT:237788002', 'UMLS:C0025322', 'DOID:10787', 'MESH:D008594', 'NCIT:C80099', (MONDO:0001119,premature menopause)})
+------------
+(HP:0009771,Osteolytic defects of the phalanges of the hand)	{'SNOMEDCT:63122002'}	frozenset({'UMLS:C0917715', 'MESH:C531695', 'MESH:C535663', 'NCIT:C84745', 'SNOMEDCT:63122002', (MONDO:0007057,acroosteolysis dominant type), 'OMIM:102500', 'ORPHANET:955', 'UMLS:C2930971', 'MESH:D031845', 'DOID:2736'})
+(HP:0009771,Osteolytic defects of the phalanges of the hand)	{'SNOMEDCT:27201004', 'MESH:D030981'}	frozenset({'SNOMEDCT:27201004', 'OMIM:102400', 'MESH:D030981', (MONDO:0007056,acroosteolysis), 'NCIT:C35545'})
+------------
+(HP:0008843,Hip osteoarthritis)	{'SNOMEDCT:239872002', 'UMLS:C0029410'}	frozenset({'SNOMEDCT:239872002', (MONDO:0012893,osteoarthritis susceptibility 5), 'UMLS:C0029410', 'OMIM:612400'})
+------------
+(HP:0001539,Omphalocele)	{'MESH:D006554'}	frozenset({'SNOMEDCT:396347007', 'UMLS:C0019322', 'NCIT:C118375', 'MESH:D006554', 'FYLER:4445', (HP:0001537,Umbilical hernia), 'DOID:0060321', (MONDO:0000747,umbilical hernia)})
+------------
+(HP:0001597,Abnormality of the nail)	{'UMLS:C0027339', 'MESH:D009260', 'SNOMEDCT:17790008'}	frozenset({'DOID:4123', 'MESH:D009260', (MONDO:0002884,nail disease), 'SNOMEDCT:17790008', 'UMLS:C0027339'})
+------------
+(HP:0001618,Dysphonia)	{'MESH:D055154'}	frozenset({'MESH:D055154', (MONDO:0000485,spasmodic dystonia), 'UMLS:C1963946', 'DOID:0050844', 'ORPHANET:93961', 'SNOMEDCT:3331000119108'})
+(HP:0001618,Dysphonia)	{'SNOMEDCT:47004009'}	frozenset({(MONDO:0004730,speech disorder), 'NCIT:C5041', 'SNOMEDCT:47004009', (HP:0002167,Neurological speech impairment), 'MESH:D013064', 'UMLS:C0037822', 'DOID:92'})
+------------
+(HP:0001634,Mitral valve prolapse)	{'SNOMEDCT:8074002'}	frozenset({(MONDO:0011479,postural orthostatic tachycardia syndrome), 'SNOMEDCT:8074002', 'ORPHANET:443236', 'DOID:0111154', 'OMIM:604715'})
+------------
+(HP:0001635,Congestive heart failure)	{'SNOMEDCT:84114007'}	frozenset({'MESH:D006333', 'NCIT:C50577', 'SNOMEDCT:84114007', (MONDO:0005252,heart failure), 'UMLS:CN236639'})
+------------
+(HP:0001638,Cardiomyopathy)	{'SNOMEDCT:57809008'}	frozenset({'NCIT:C35544', (MONDO:0024643,myocardial disorder), 'SNOMEDCT:57809008'})
+------------
+(HP:0001935,Microcytic anemia)	{'MESH:C562385'}	frozenset({'OMIM:206200', 'SNOMEDCT:722005000', 'MESH:C562385', (MONDO:0008788,IRIDA syndrome), 'ORPHANET:209981'})
+------------
+(HP:0001973,Autoimmune thrombocytopenia)	{'MESH:D016553', 'UMLS:C0398650'}	frozenset({'OMIM:188030', (MONDO:0008558,autoimmune thrombocytopenic purpura), 'UMLS:C0398650', 'NCIT:C3446', 'DOID:8924', 'ORPHANET:3002', 'MESH:D016553', 'MEDDRA:10021245'})
+------------
+(HP:0010313,Breast hypertrophy)	{'MESH:C536821'}	frozenset({(MONDO:0007237,familial juvenile hypertrophy of the breast), 'OMIM:113670', 'MESH:C536821', 'ORPHANET:180176', 'UMLS:CN226754'})
+------------
+(HP:0010890,Morbus Osgood-Schlatter)	{'SNOMEDCT:79353000'}	frozenset({'MEDDRA:10072255', 'DOID:14798', 'NCIT:C118460', 'MESH:C536237', (MONDO:0017194,Blount disease), 'SNOMEDCT:79353000', 'UMLS:C0175756', 'ORPHANET:2768'})
+------------
+(HP:0002032,Esophageal atresia)	{'UMLS:C0014850'}	frozenset({'MEDDRA:10021530', 'UMLS:C0014850', (MONDO:0008586,esophageal atresia/tracheoesophageal fistula), 'MEDDRA:10044310', 'FYLER:4202', 'SNOMEDCT:95435007', 'OMIM:189960', 'DOID:0080171', 'ORPHANET:1199', 'MESH:D014138', (HP:0002575,Tracheoesophageal fistula), 'UMLS:C0040588', 'MEDDRA:10030146', 'MESH:C531835'})
+------------
+(HP:0010784,Uterine neoplasm)	{'SNOMEDCT:126908007'}	frozenset({(MONDO:0021353,tumor of uterus), 'NCIT:C3435', 'SNOMEDCT:126908007'})
+(HP:0010784,Uterine neoplasm)	{'MESH:D014594'}	frozenset({'DOID:363', 'MESH:D014594', 'NCIT:C3552', (MONDO:0002715,uterine cancer), 'SNOMEDCT:371973000'})
+------------
+(HP:0010786,Urinary tract neoplasm)	{'SNOMEDCT:126879004'}	frozenset({'SNOMEDCT:126879004', (MONDO:0021066,urinary system neoplasm), 'NCIT:C3431'})
+(HP:0010786,Urinary tract neoplasm)	{'MESH:D014571'}	frozenset({(MONDO:0004180,benign urinary system neoplasm), 'DOID:731', 'NCIT:C4893', 'MESH:D014571', 'SNOMEDCT:92468007'})
+------------
+(HP:0010788,Testicular neoplasm)	{'MESH:D013736'}	frozenset({'MESH:D013736', 'SNOMEDCT:363449006', (MONDO:0005447,testicular cancer), 'NCIT:C7251', 'DOID:2998'})
+------------
+(HP:0010816,Epidermal nevus)	{'UMLS:C0334082'}	frozenset({'SNOMEDCT:239112008', 'UMLS:C0334082', 'ORPHANET:35125', 'MEDDRA:10014985', 'MESH:D054000', 'MESH:C536114', (MONDO:0018115,epidermal nevus syndrome)})
+------------
+(HP:0010442,Polydactyly)	{'MESH:D017689', 'UMLS:C0152427'}	frozenset({'ORPHANET:2913', 'MESH:D017689', 'MEDDRA:10036063', (MONDO:0011348,non-syndromic polydactyly), 'UMLS:C0152427'})
+------------
+(HP:0010445,Primum atrial septal defect)	{'UMLS:C0344735', 'MESH:C536112'}	frozenset({'UMLS:C0344735', 'SNOMEDCT:718216009', 'MESH:C536112', (MONDO:0015275,partial atrioventricular canal), 'ORPHANET:1330'})
+------------
+(HP:0010934,Xanthinuria)	{'SNOMEDCT:54627004'}	frozenset({'DOID:0060236', 'ORPHANET:3467', (MONDO:0018106,hereditary xanthinuria), 'SNOMEDCT:54627004'})
+------------
+(HP:0010958,Bilateral renal agenesis)	{'SNOMEDCT:41962002'}	frozenset({(MONDO:0001558,Potter syndrome), 'DOID:12594', 'SNOMEDCT:41962002', 'NCIT:C40435', 'UMLS:C0178426'})
+------------
+(HP:0003141,Increased LDL cholesterol concentration)	{'SNOMEDCT:398036000'}	frozenset({'SNOMEDCT:398036000', 'OMIM:143890', (MONDO:0007750,hypercholesterolemia, familial, 1)})
+(HP:0003141,Increased LDL cholesterol concentration)	{'SNOMEDCT:190773008'}	frozenset({'SNOMEDCT:190773008', (MONDO:0005439,familial hypercholesterolemia), 'UMLS:CN118841', 'NCIT:C34704', 'DOID:13810'})
+------------
+(HP:0011803,Bifid nose)	{'SNOMEDCT:204521002'}	frozenset({'ORPHANET:141242', 'SNOMEDCT:204521002', (MONDO:0015414,paramedian nasal cleft)})
+------------
+(HP:0011002,Osteopetrosis)	{'SNOMEDCT:367489004'}	frozenset({'UMLS:C1318518', 'ORPHANET:667', 'NCIT:C129733', 'SNOMEDCT:367489004', (MONDO:0019026,autosomal recessive osteopetrosis)})
+------------
+(HP:0011024,Abnormality of the gastrointestinal tract)	{'MESH:D005767', 'SNOMEDCT:53619000'}	frozenset({'MESH:D005767', 'SNOMEDCT:53619000', 'NCIT:C2990', 'DOID:77', (MONDO:0004335,digestive system disease)})
+(HP:0011024,Abnormality of the gastrointestinal tract)	{'SNOMEDCT:25374005'}	frozenset({'DOID:2326', 'NCIT:C34632', 'UMLS:C0017160', 'SNOMEDCT:25374005', 'MESH:D005759', (MONDO:0002269,gastroenteritis)})
+------------
+(HP:0003343,Reduced glutathione synthetase activity)	{'SNOMEDCT:39112005'}	frozenset({'OMIM:266130', (MONDO:0009947,glutathione synthetase deficiency with 5-oxoprolinuria), 'SNOMEDCT:39112005', 'ORPHANET:289846'})
+(HP:0003343,Reduced glutathione synthetase activity)	{'UMLS:C0398746', 'SNOMEDCT:234589002', 'MESH:C536835'}	frozenset({'ORPHANET:32', 'SNOMEDCT:234589002', 'MESH:C536835', (MONDO:0017909,inherited glutathione synthetase deficiency), 'UMLS:C0398746', 'UMLS:C1291643', 'NCIT:C128193'})
+------------
+(HP:0003225,Reduced coagulation factor V activity)	{'UMLS:C0015499', 'SNOMEDCT:88776002', 'MESH:D005166'}	frozenset({'MEDDRA:10048930', 'NCIT:C98938', 'MESH:D005166', 'UMLS:C0015499', 'SNOMEDCT:88776002', (MONDO:0009210,congenital factor V deficiency), 'DOID:2216', 'ORPHANET:326', 'OMIM:227400'})
+------------
+(HP:0003264,Deficiency of N-acetylglucosamine-1-phosphotransferase)	{'MESH:D009081'}	frozenset({'UMLS:C0026697', 'SNOMEDCT:70528007', 'ORPHANET:79212', 'MESH:D009081', (MONDO:0019248,mucolipidosis), 'NCIT:C61267'})
+(HP:0003264,Deficiency of N-acetylglucosamine-1-phosphotransferase)	{'SNOMEDCT:70199000', 'UMLS:C0020725'}	frozenset({'UMLS:C0020725', 'UMLS:C2931894', 'NCIT:C61270', 'SNOMEDCT:70199000', 'UMLS:C2673377', 'OMIM:252500', 'MESH:C538602', (MONDO:0009650,mucolipidosis type II), 'ORPHANET:576', 'DOID:0080070'})
+------------
+(HP:0011971,Dermatographic urticaria)	{'SNOMEDCT:7632005'}	frozenset({'NCIT:C111885', (MONDO:0007448,familial dermatographia), 'SNOMEDCT:7632005', 'OMIM:125635', 'MESH:C536612', 'DOID:743'})
+(HP:0011971,Dermatographic urticaria)	{'SNOMEDCT:402601007'}	frozenset({'DOID:0060220', 'SNOMEDCT:402601007', (MONDO:0006599,physical urticaria)})
+------------
+(HP:0012246,Oculomotor nerve palsy)	{'MESH:D015840'}	frozenset({(MONDO:0003546,third cranial nerve disease), 'MESH:D015840', 'SNOMEDCT:60750009', 'DOID:562', 'UMLS:C0271353', 'NCIT:C27598'})
+------------
+(HP:0030416,Vulvar neoplasm)	{'MESH:D014846'}	frozenset({'SNOMEDCT:363367000', 'NCIT:C7502', 'MESH:D014846', 'DOID:1245', (MONDO:0001528,vulva cancer)})
+------------
+(HP:0012268,Myxoid liposarcoma)	{'UMLS:C0206634'}	frozenset({'UMLS:C0206634', 'ORPHANET:99967', (MONDO:0020561,myxoid/round cell liposarcoma)})
+------------
+(HP:0012288,Neoplasm of head and neck)	{'UMLS:C0278996'}	frozenset({'DOID:11934', (MONDO:0005627,head and neck cancer), 'UMLS:C0278996', 'NCIT:C4013'})
+------------
+(HP:0010735,Polyostotic fibrous dysplasia)	{'UMLS:C0016065'}	frozenset({'UMLS:C0242292', (MONDO:0018919,McCune-Albright syndrome), 'UMLS:C0016065', 'ORPHANET:562', 'OMIM:174800', 'DOID:1858', 'NCIT:C48627', 'SNOMEDCT:726029005'})
+------------
+(HP:0012114,Endometrial carcinoma)	{'MESH:D016889'}	frozenset({'MESH:D016889', 'NCIT:C3012', 'SNOMEDCT:123844007', (MONDO:0021251,endometrium neoplasm)})
+------------
+(HP:0012123,Posterior uveitis)	{'UMLS:C0008526', 'SNOMEDCT:16553002', 'MESH:D002833', 'UMLS:C0042167'}	frozenset({'MESH:D002833', 'DOID:11406', (MONDO:0001280,choroiditis), 'MEDDRA:10036370', 'ORPHANET:280892', 'NCIT:C35111', 'SNOMEDCT:16553002', 'UMLS:C0008526', 'UMLS:C0042167'})
+------------
+(HP:0012197,Insulinoma)	{'UMLS:C0021670'}	frozenset({'NCIT:C3140', 'ORPHANET:97279', (MONDO:0005048,pancreatic insulin-producing neuroendocrine tumor), 'UMLS:C0021670'})
+------------
+(HP:0030357,Small cell lung carcinoma)	{'SNOMEDCT:254633006'}	frozenset({'UMLS:C0262584', (MONDO:0003436,lung oat cell carcinoma), 'DOID:5411', 'SNOMEDCT:254633006'})
+------------
+(HP:0012309,Cutaneous amyloidosis)	{'UMLS:C0268397', 'MESH:C562642', 'SNOMEDCT:282834007'}	frozenset({'ORPHANET:137807', 'DOID:0050639', 'UMLS:C0268397', 'MESH:C562642', (MONDO:0015301,primary cutaneous amyloidosis), 'SNOMEDCT:282834007', 'MEDDRA:10011659'})
+(HP:0012309,Cutaneous amyloidosis)	{'SNOMEDCT:718105008'}	frozenset({'ORPHANET:49804', (MONDO:0018856,lichen amyloidosis), 'SNOMEDCT:718105008'})
+------------
+(HP:0011142,Age-related nuclear cataract)	{'UMLS:C1832423'}	frozenset({'OMIM:601371', (MONDO:0011060,early-onset non-syndromic cataract), 'ORPHANET:91492', 'UMLS:C1832423'})
+(HP:0011142,Age-related nuclear cataract)	{'MESH:C563333'}	frozenset({'MESH:C563333', 'UMLS:CN207247', (MONDO:0020376,early-onset nuclear cataract), 'UMLS:C0392557', 'MEDDRA:10057735', 'ORPHANET:98991', 'MEDDRA:10007759', 'UMLS:C1112705'})
+------------
+(HP:0012622,Chronic kidney disease)	{'MESH:D051436'}	frozenset({'MESH:D051436', 'SNOMEDCT:90688005', (MONDO:0024327,chronic renal failure syndrome), 'NCIT:C9438'})
+------------
+(HP:0012539,Non-Hodgkin lymphoma)	{'SNOMEDCT:118601006'}	frozenset({'SNOMEDCT:118601006', (MONDO:0011508,lymphoma, non-Hodgkin, familial), 'OMIM:605027'})
+------------
+(HP:0030712,Uterine synechiae)	{'MESH:D006175'}	frozenset({'MESH:D006175', 'NCIT:C84743', 'DOID:429', 'UMLS:C0018414', (MONDO:0002946,gynatresia)})
+------------
+(HP:0100604,Neoplasm of the lip)	{'MESH:D008048'}	frozenset({'SNOMEDCT:187622006', 'NCIT:C7485', 'MESH:D008048', 'DOID:8564', (MONDO:0006834,lip cancer)})
+------------
+(HP:0100615,Ovarian neoplasm)	{'MESH:D010051'}	frozenset({'DOID:2394', 'SNOMEDCT:363443007', 'OMIM:167000', 'NCIT:C7431', 'ORPHANET:213500', 'MESH:D010051', (MONDO:0008170,ovarian cancer)})
+------------
+(HP:0100617,Testicular seminoma)	{'MESH:D018239', 'SNOMEDCT:443675005'}	frozenset({(MONDO:0003001,seminoma), 'NCIT:C9309', 'MESH:D018239', 'SNOMEDCT:443675005', 'DOID:4440'})
+------------
+(HP:0100648,Neoplasm of the tongue)	{'MESH:D014062'}	frozenset({(MONDO:0004631,tongue cancer), 'NCIT:C9345', 'SNOMEDCT:363360003', 'DOID:8649', 'MESH:D014062'})
+------------
+(HP:0100650,Vaginal neoplasm)	{'MESH:D014625'}	frozenset({'DOID:119', 'NCIT:C7410', (MONDO:0001402,vaginal cancer), 'MESH:D014625', 'SNOMEDCT:363445000'})
+------------
+(HP:0100658,Cellulitis)	{'MESH:D017192'}	frozenset({'MESH:D017192', (MONDO:0024295,skin disease caused by bacterial infection)})
+------------
+(HP:0100665,Angioedema)	{'SNOMEDCT:41291007'}	frozenset({(MONDO:0019013,non-histaminic angioedema), 'UMLS:CN227560', 'ORPHANET:658', 'SNOMEDCT:41291007'})
+------------
+(HP:0030869,Anorchism)	{'UMLS:C1261504'}	frozenset({'OMIM:273250', 'UMLS:C0266427', (MONDO:0010107,testicular regression syndrome), 'UMLS:C1261504', 'MEDDRA:10002641', 'ORPHANET:983', 'MESH:C537770', (HP:0012870,Vanishing testis), 'SNOMEDCT:53599007', 'UMLS:C0405582'})
+------------
+(HP:0100684,Salivary gland neoplasm)	{'SNOMEDCT:235132004'}	frozenset({'SNOMEDCT:235132004', 'NCIT:C3361', (MONDO:0021357,tumor of salivary gland)})
+(HP:0100684,Salivary gland neoplasm)	{'MESH:D012468', 'SNOMEDCT:255072001'}	frozenset({'NCIT:C3811', 'DOID:8850', 'SNOMEDCT:255072001', (MONDO:0004669,salivary gland cancer), 'MESH:D012468'})
+------------
+(HP:0100697,Neurofibrosarcoma)	{'UMLS:C0751690', 'SNOMEDCT:404037002'}	frozenset({'DOID:5940', 'SNOMEDCT:404037002', 'MEDDRA:10029236', (MONDO:0017827,malignant peripheral nerve sheath tumor), 'UMLS:C0751690', 'NCIT:C3798', 'ORPHANET:3148'})
+------------
+(HP:0100704,Cerebral visual impairment)	{'SNOMEDCT:68574006', 'UMLS:C0155320', 'MESH:D019575'}	frozenset({'SNOMEDCT:68574006', 'DOID:11831', 'UMLS:C0155320', (MONDO:0001385,cortical blindness), 'MESH:D019575', 'NCIT:C118707'})
+------------
+(HP:0030067,Peripheral primitive neuroectodermal neoplasm)	{'MESH:D018241'}	frozenset({'MESH:D018241', 'UMLS:C0027828', 'ORPHANET:2677', (MONDO:0017046,neuroepithelioma)})
+(HP:0030067,Peripheral primitive neuroectodermal neoplasm)	{'UMLS:C0684337'}	frozenset({'SNOMEDCT:254764001', 'UMLS:C0684337', (HP:0006717,Peripheral neuroepithelioma), (MONDO:0018271,peripheral primitive neuroectodermal tumor), 'UMLS:C3489398', 'NCIT:C9341', 'ORPHANET:370348'})
+------------
+(HP:0030080,Burkitt lymphoma)	{'SNOMEDCT:277571004'}	frozenset({'DOID:7061', (MONDO:0004947,B-cell acute lymphoblastic leukemia), 'SNOMEDCT:277571004', 'NCIT:C8936'})
+------------
+(HP:0030792,Jaw neoplasm)	{'MESH:D007573'}	frozenset({'MESH:D007573', 'DOID:1862', (MONDO:0002131,jaw cancer)})
+------------
+(HP:0100516,Neoplasm of the ureter)	{'MESH:D014516', 'SNOMEDCT:363458004', 'UMLS:C0153619'}	frozenset({'MESH:D014516', 'OMIM:191600', 'SNOMEDCT:363458004', 'DOID:11819', (MONDO:0008627,ureter cancer), 'NCIT:C7543', 'UMLS:C0153619'})
+------------
+(HP:0100551,Neoplasm of the trachea)	{'SNOMEDCT:126703006'}	frozenset({'SNOMEDCT:126703006', (MONDO:0002318,trachea leiomyoma), 'UMLS:C1336772', 'NCIT:C6049', 'DOID:248'})
+------------
+(HP:0100881,Congenital mesoblastic nephroma)	{'MESH:D018201'}	frozenset({'MESH:D018201', 'DOID:4772', 'SNOMEDCT:307604008', 'UMLS:C0206628', (MONDO:0003130,mesoblastic nephroma)})
+------------
+(HP:0100890,Cyst of the ductus choledochus)	{'SNOMEDCT:397868007'}	frozenset({'OMIM:603003', 'SNOMEDCT:397868007', (MONDO:0011278,bile duct cysts)})
+------------
+(HP:0100739,Bulimia)	{'SNOMEDCT:78004001'}	frozenset({(MONDO:0005452,bulimia nervosa), 'SNOMEDCT:78004001', 'MESH:D052018', 'DOID:12129', 'NCIT:C34440'})
+(HP:0100739,Bulimia)	{'MESH:D002032'}	frozenset({'SNOMEDCT:439960005', 'NCIT:C97162', (MONDO:0005582,binge eating disorder), 'MESH:D002032'})
+------------
+(HP:0100742,Vascular neoplasm)	{'MESH:D009383'}	frozenset({'DOID:175', 'MESH:D009383', (MONDO:0002095,vascular cancer), 'NCIT:C8538'})
+------------
+(HP:0011524,Iris melanoma)	{'UMLS:C0346373'}	frozenset({'NCIT:C7712', 'MESH:C536494', 'UMLS:C0220633', 'DOID:6039', (MONDO:0006486,uveal melanoma), 'MEDDRA:10061252', 'UMLS:C0346373', (HP:0007716,Uveal melanoma), 'ORPHANET:39044'})
+------------
+(HP:0100568,Neoplasm of the endocrine system)	{'MESH:D004701'}	frozenset({'NCIT:C3575', 'MESH:D004701', (MONDO:0021069,malignant endocrine neoplasm), 'DOID:170'})
+(HP:0100568,Neoplasm of the endocrine system)	{'SNOMEDCT:387922007'}	frozenset({'SNOMEDCT:387922007', 'NCIT:C3010', (MONDO:0002082,endocrine gland neoplasm)})
+------------
+(HP:0100763,Abnormality of the lymphatic system)	{'SNOMEDCT:111590001'}	frozenset({'SNOMEDCT:111590001', (MONDO:0044986,lymphoid system disease)})
+(HP:0100763,Abnormality of the lymphatic system)	{'SNOMEDCT:362971004', 'UMLS:C0024228', 'MESH:D008206'}	frozenset({'MESH:D008206', 'UMLS:C0024228', 'DOID:75', (MONDO:0005833,lymphatic system disease), 'SNOMEDCT:362971004', 'NCIT:C50764'})
+------------
+(HP:0100764,Lymphangioma)	{'SNOMEDCT:400178008'}	frozenset({'ORPHANET:2415', 'SNOMEDCT:400178008', (MONDO:0016569,rare lymphatic malformation)})
+------------
+(HP:0200044,Porokeratosis)	{'UMLS:C0949506', 'SNOMEDCT:80432009'}	frozenset({'UMLS:C0949506', 'ORPHANET:735', (MONDO:0019141,porokeratosis of Mibelli), 'SNOMEDCT:80432009'})
+------------
+(HP:0011704,Sick sinus syndrome)	{'UMLS:C0037052'}	frozenset({(MONDO:0012061,familial sick sinus syndrome), 'MEDDRA:10040639', 'ORPHANET:166282', 'SNOMEDCT:233913007', 'UMLS:C0037052', 'MESH:C563907'})
+------------
+(HP:0200008,Intestinal polyposis)	{'MESH:D044483'}	frozenset({'UMLS:C0282207', (MONDO:0008283,Cronkhite-Canada syndrome), 'NCIT:C7035', 'ORPHANET:2930', 'DOID:6225', 'SNOMEDCT:76304001', 'MESH:D044483', 'MEDDRA:10062907', 'OMIM:175500'})
+(HP:0200008,Intestinal polyposis)	{'UMLS:C1257915'}	frozenset({(MONDO:0015185,intestinal polyposis syndrome), 'SNOMEDCT:254589009', 'UMLS:C1257915', 'UMLS:CN197525', 'ORPHANET:104010', 'UMLS:C0345891', 'MEDDRA:10057018'})
+(HP:0200008,Intestinal polyposis)	{'UMLS:C0744333'}	frozenset({'UMLS:C0744333', 'NCIT:C35516', (MONDO:0024292,gastrointestinal polyp)})
+------------
+(HP:0100003,Peritoneal mesothelioma)	{'UMLS:C0346109'}	frozenset({'MEDDRA:10056558', (MONDO:0005512,malignant peritoneal mesothelioma), 'NCIT:C8704', 'DOID:1788', 'UMLS:C0346109', 'ORPHANET:168811'})
+------------
+(HP:0011726,Persistent fetal circulation)	{'SNOMEDCT:233815004'}	frozenset({'NCIT:C85006', (MONDO:0022430,persistent fetal circulation syndrome), 'SNOMEDCT:233815004'})
+(HP:0011726,Persistent fetal circulation)	{'UMLS:C0031190', 'MESH:D010547'}	frozenset({'OMIM:265380', 'DOID:13042', 'SNOMEDCT:447275002', 'MESH:C536590', (MONDO:0009934,congenital alveolar capillary dysplasia), 'NCIT:C98809', 'MESH:D010547', 'UMLS:C0031190', 'ORPHANET:210122'})
+------------
+(HP:0100018,Nuclear cataract)	{'UMLS:C0392557'}	frozenset({'MESH:C563333', 'UMLS:CN207247', (MONDO:0020376,early-onset nuclear cataract), 'UMLS:C0392557', 'MEDDRA:10057735', 'ORPHANET:98991', 'MEDDRA:10007759', 'UMLS:C1112705'})
+------------
+(HP:0011675,Arrhythmia)	{'SNOMEDCT:44808001'}	frozenset({'DOID:10273', (MONDO:0000992,heart conduction disease), 'SNOMEDCT:44808001'})
+(HP:0011675,Arrhythmia)	{'SNOMEDCT:698247007'}	frozenset({'SNOMEDCT:698247007', (MONDO:0007263,cardiac rhythm disease), 'NCIT:C2881'})
+------------
+(HP:0011611,Interrupted aortic arch)	{'SNOMEDCT:218728005'}	frozenset({'ORPHANET:2445', 'OMIM:217095', (MONDO:0016581,conotruncal heart malformations), 'SNOMEDCT:218728005', 'UMLS:C1857586'})
+------------
+(HP:0100324,Scleroderma)	{'SNOMEDCT:89155008'}	frozenset({'MESH:D012595', 'SNOMEDCT:89155008', 'MEDDRA:10042953', (MONDO:0005100,systemic sclerosis), 'UMLS:CN206012', 'DOID:418', 'NCIT:C72070', 'ORPHANET:90291'})
+------------
+(HP:0100255,Metaphyseal dysplasia)	{'MESH:C536252'}	frozenset({'OMIM:265900', 'ORPHANET:3005', (MONDO:0009943,Pyle disease), 'MESH:C536252'})
