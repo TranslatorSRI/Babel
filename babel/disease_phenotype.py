@@ -68,10 +68,24 @@ def combine_id_sets(l1,l2):
     s.update(s2)
     return [ set(x) for x in s ]
 
+def read_badxrefs(pref):
+    morebad = defaultdict(list)
+    fn = os.path.join(os.path.dirname(os.path.abspath(__file__)),'input_data',f'{pref}_badxrefs.txt')
+    with open(fn,'r') as inf:
+        for line in inf:
+            if line.startswith('#'):
+                continue
+            x = line.strip().split(' ')
+            morebad[x[0]].append(x[1])
+    return morebad
+
 def load_diseases_and_phenotypes():
     print('disease/phenotype')
     print('get and write hp sets')
     bad_mappings = read_bad_hp_mappings()
+    more_bad_mappings = read_badxrefs('hpo')
+    for h,m in more_bad_mappings.items():
+        bad_mappings[h].update(m)
     hpo_sets,labels = build_sets('HP:0000118', ignore_list = ['ICD','NCIT'], bad_mappings = bad_mappings)
     print('filter')
     hpo_sets = filter_out_non_unique_ids(hpo_sets)
@@ -80,8 +94,13 @@ def load_diseases_and_phenotypes():
     print('get and write mondo sets')
     #MONDO has disease, and its sister disease susceptibility.  I'm putting both in disease.  Biolink q
     #But! this is a problem right now because there are some things that go in both, and they are getting filtered out
-    mondo_sets_1,labels_1 = build_exact_sets('MONDO:0000001')
-    mondo_sets_2,labels_2 = build_exact_sets('MONDO:0042489')
+    bad_mondo_mappings = read_badxrefs('mondo')
+    mondo_sets_1,labels_1 = build_exact_sets('MONDO:0000001',bad_mondo_mappings)
+    mondo_sets_2,labels_2 = build_exact_sets('MONDO:0042489',bad_mondo_mappings)
+    mondo_close = get_close_matches('MONDO:0000001')
+    mondo_close2 = get_close_matches('MONDO:0042489')
+    for k,v in mondo_close2.items():
+        mondo_close[k] = v
     dump_sets(mondo_sets_1,'mondo1.txt')
     dump_sets(mondo_sets_2,'mondo2.txt')
     labels.update(labels_1)
@@ -120,7 +139,7 @@ def load_diseases_and_phenotypes():
     glom(dicts,hpo_sets,unique_prefixes=['MONDO'],pref='HP')
     dump_dicts(dicts,'mondo_hpo_dicts.txt')
     print('umls')
-    glom(dicts,meddra_umls,unique_prefixes=['MONDO'],pref='UMLS')
+    glom(dicts,meddra_umls,unique_prefixes=['MONDO'],pref='UMLS',close={'MONDO':mondo_close})
     dump_dicts(dicts,'mondo_hpo_meddra_dicts.txt')
     print('efo')
     glom(dicts,efo_sets,unique_prefixes=['MONDO'],pref='EFO')
@@ -166,18 +185,22 @@ def create_typed_sets(eqsets):
                     #Therapeutic or Preventive Procedure, Laboratory Procedure,Laboratory or Test Result
                     #Diagnostic Procedure
                     if semtype not in unknown_types:
-                        print('What is this UMLS type?')
-                        print(semtype,umls_ids[0])
+                        #print('What is this UMLS type?')
+                        #print(semtype,umls_ids[0])
                         unknown_types.add(semtype)
                     pass
             except Exception as e:
-                print(f'Missing UMLS: {umls_ids[0]}')
-                print(equivalent_ids)
+                #print(f'Missing UMLS: {umls_ids[0]}')
+                #print(equivalent_ids)
                 #Calling it a phenotype
                 phenotypic_features.add(equivalent_ids)
+        elif 'EFO' in prefixes:
+            phenotypic_features.add(equivalent_ids)
+        else:
+            print(prefixes)
     return diseases, phenotypic_features
 
-def build_exact_sets(iri):
+def build_exact_sets(iri,bad_mappings = defaultdict(set)):
     prefix = Text.get_curie(iri)
     uber = UberGraph()
     uberres = uber.get_subclasses_and_exacts(iri)
@@ -191,11 +214,28 @@ def build_exact_sets(iri):
         if k[1] is not None and k[1].startswith('obsolete'):
             continue
         dbx = set([ norm(x) for x in v ])
+        for bm in bad_mappings[k[0]]:
+            dbx.remove(bm)
         dbx.add(k[0])
         labels[k[0]] = k[1]
         results.append(dbx)
     return results,labels
 
+def get_close_matches(iri):
+    prefix = Text.get_curie(iri)
+    uber = UberGraph()
+    uberres = uber.get_subclasses_and_close(iri)
+    close = {}
+    for k,v in uberres.items():
+        #Don't hop ontologies here.
+        subclass_prefix = Text.get_curie(k[0])
+        if subclass_prefix != prefix:
+            continue
+        if k[1] is not None and k[1].startswith('obsolete'):
+            continue
+        dbx = set([ norm(x) for x in v ])
+        close[k[0]] = dbx
+    return close
 
 
 def norm(curie):
@@ -230,7 +270,7 @@ def build_sets(iri, ignore_list = ['ICD'], bad_mappings = {}):
 # We can't distribute MRCONSO.RRF, and dragging it out of UMLS is a manual process.
 # It's possible we could rebuild using the services, but no doubt very slowly
 def read_meddra():
-    pairs = []
+    pairs = set()
     mrcon = os.path.join(os.path.dirname(__file__),'input_data', 'MRCONSO.RRF')
     nothandled = set()
     with open(mrcon,'r') as inf:
@@ -238,7 +278,9 @@ def read_meddra():
             x = line.strip().split('|')
             if x[1] != 'ENG':
                 continue
-            #There is a suppress column.  Only go forward if it is not 'N' (it can be 'O', 'E', 'Y', all mean suppress)
+            if x[2] == 'S':
+                continue
+            #There is a suppress column.  Only go forward if it is  'N' (it can be 'O', 'E', 'Y', all mean suppress)
             if x[16] != 'N':
                 continue
             oid = x[10]
@@ -262,8 +304,8 @@ def read_meddra():
                     print('not handling source:',source)
                     nothandled.add(source)
                 continue
-            pairs.append( {f'UMLS:{x[0]}',otherid})
-    return pairs
+            pairs.add( frozenset({f'UMLS:{x[0]}',otherid}) )
+    return list(pairs)
 
 def read_umls_types():
     types = {}

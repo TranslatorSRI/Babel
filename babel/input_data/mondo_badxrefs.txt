@@ -1,0 +1,5 @@
+#https://github.com/monarch-initiative/mondo/issues/1395
+MONDO:0008143 UMLS:C0029408
+MONDO:0008143 SNOMEDCT:396275006
+#https://github.com/monarch-initiative/mondo/issues/1654
+MONDO:0045057 UMLS:C0029221

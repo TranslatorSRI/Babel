@@ -8,7 +8,7 @@ def get_compendia():
     compendia = [f'{dname}/{x}'for x in somefiles if x.endswith('.txt')]
     return compendia
 
-def characterize_one_compendium(fname,threshold = 300):
+def characterize_one_compendium(fname,threshold = 150):
     used_ids = set()
     counts = defaultdict(int)
     with open(fname,'r') as inf:

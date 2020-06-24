@@ -188,7 +188,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={}):
             if node is not None:
                 outf.write( node )
 
-def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP'):
+def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.
     conc_set is a dictionary where the values are these equivalent identifier sets and
     the keys are all of the elements in the set.   For each element in a set, there is a key
@@ -205,6 +205,10 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP'):
         existing_sets = [ es[0] for es in existing_sets_w_x ]
         x =  [ es[1] for es in existing_sets_w_x ]
         newset=set().union(*existing_sets)
+        if 'MONDO:0045057' in newset:
+            print('-----------------')
+            #print(existing_sets_w_x)
+            print(group)
         #put all the new stuff in it.  Do it element-wise, cause we don't know the type of the new group
         for element in group:
             newset.add(element)
@@ -227,6 +231,26 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP'):
                 #print('------------')
         if not setok:
             continue
+        #Now check the 'close' dictionary to see if we've accidentally gotten to a close match becoming an exact match
+        setok = True
+        for cpref, closedict in close.items():
+            idents = set([e if type(e) == str else e.identifier for e in newset])
+            prefidents = [e for e in idents if e.startswith(cpref)]
+            for pident in prefidents:
+                if pident == 'MONDO:0045057':
+                    print('Closedict:', closedict[pident])
+                for cd in closedict[pident]:
+                    if cd in newset:
+                        setok = False
+            if len(prefidents) == 0:
+                continue
+        if not setok:
+            continue
+        if 'MONDO:0045057' in newset:
+            ln = list(newset)
+            ln.sort()
+            print(ln)
+            print('===================')
         #Now make all the elements point to this new set:
         for element in newset:
             conc_set[element] = newset
