@@ -144,9 +144,9 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     # 1. Handle all the stuff that has an InchiKey using unichem
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     print('UNICHEM')
-    concord = load_unichem(refresh=True)
+    #concord = load_unichem(refresh=True)
     #don't refresh
-    #concord = load_unichem()
+    concord = load_unichem()
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     #DO MESH/UNII
     print('MESH/UNII')

@@ -189,16 +189,17 @@ def merge_xref_with_structure_pandas(filtered_xref_file,struct_file):
 
 def get_unichem_files(struct_file, xref_file):
     if xref_file is None or struct_file is None:
+        #pull
         # get the latest UC directory name
-        target_uc_url: str = get_latest_unichem_url()
-        logger.info(f'Target unichem FTP URL: {target_uc_url}')
-
+        #target_uc_url: str = get_latest_unichem_url()
+        #logger.info(f'Target unichem FTP URL: {target_uc_url}')
         # get the files
-        xref_file = pull_via_urllib(target_uc_url, 'UC_XREF.txt.gz', decompress=False)
-        struct_file = pull_via_urllib(target_uc_url, 'UC_STRUCTURE.txt.gz' )
+        #xref_file = pull_via_urllib(target_uc_url, 'UC_XREF.txt.gz', decompress=False)
+        #struct_file = pull_via_urllib(target_uc_url, 'UC_STRUCTURE.txt.gz' )
+
         # shortcut to local files.
-        #xref_file = make_local_name('UC_XREF.txt.gz')
-        #struct_file = make_local_name('UC_STRUCTURE.txt')
+        xref_file = make_local_name('UC_XREF.txt.gz')
+        struct_file = make_local_name('UC_STRUCTURE.txt')
     return struct_file, xref_file
 
 
