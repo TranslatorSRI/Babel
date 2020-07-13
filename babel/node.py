@@ -15,7 +15,7 @@ class NodeFactory:
         if input_type in self.ancestor_map:
             return self.ancestor_map[input_type]
         url = f'{self.url_base}/{input_type}/ancestors'
-        response = requests.get(url,params={'version':'custom'})
+        response = requests.get(url)
         ancs = response.json()
         self.ancestor_map[input_type] = ancs
         return ancs
@@ -24,7 +24,7 @@ class NodeFactory:
         if input_type in self.prefix_map:
             return self.prefix_map[input_type]
         url = f'{self.url_base}/{input_type}'
-        response = requests.get(url,params={'version':'custom'})
+        response = requests.get(url)
         j = response.json()
         prefs = j['id_prefixes']
         self.prefix_map[input_type] = prefs
