@@ -32,11 +32,11 @@ def read_bad_hp_mappings():
 def filter_umls(umls_pairs,sets_with_umls):
     # We've got a bunch of umls pairs, but we really only want to use them if they're not
     # already BOTH attached to a hp or mondo.
-    for s in sets_with_umls:
-        if 'UMLS:C2931082' in s:
-            print(s)
-        if 'MESH:C536004' in s:
-            print(s)
+    #for s in sets_with_umls:
+    #    if 'UMLS:C2931082' in s:
+    #        print(s)
+    #    if 'MESH:C536004' in s:
+    #        print(s)
     with open('filtered.txt','w') as ff:
         used = set()
         for s in sets_with_umls:
@@ -59,10 +59,10 @@ def filter_umls(umls_pairs,sets_with_umls):
 
 def combine_id_sets(l1,l2):
     """Given lists of sets, combine them, overlapping sets that are exactly the same"""
-    print(l1[0])
-    print(type(l1[0]))
-    print(l2[0])
-    print(type(l2[0]))
+    #print(l1[0])
+    #print(type(l1[0]))
+    #print(l2[0])
+    #print(type(l2[0]))
     s = set( [frozenset(x) for x in l1])
     s2 = set( [frozenset(x) for x in l2])
     s.update(s2)
@@ -111,7 +111,8 @@ def load_diseases_and_phenotypes():
     mondo_sets = filter_out_non_unique_ids(mondo_sets)
     dump_sets(mondo_sets,'mondo_sets.txt')
     print('get and write umls sets')
-    meddra_umls = read_meddra()
+    bad_umls = read_badxrefs('umls')
+    meddra_umls = read_meddra(bad_umls)
     meddra_umls = filter_umls(meddra_umls,mondo_sets+hpo_sets)
     dump_sets(meddra_umls,'meddra_umls_sets.txt')
     dicts = {}
@@ -125,9 +126,7 @@ def load_diseases_and_phenotypes():
     #measurement
     efo_sets_3,l = build_exact_sets('EFO:0001444')
     labels.update(l)
-    print('a')
     efo_sets_a = combine_id_sets(efo_sets_1,efo_sets_2)
-    print('b')
     efo_sets = combine_id_sets(efo_sets_a, efo_sets_3)
     efo_sets = filter_out_non_unique_ids(efo_sets)
     dump_sets(efo_sets,'efo_sets.txt')
@@ -196,8 +195,8 @@ def create_typed_sets(eqsets):
                 phenotypic_features.add(equivalent_ids)
         elif 'EFO' in prefixes:
             phenotypic_features.add(equivalent_ids)
-        else:
-            print(prefixes)
+        #else:
+        #    print(prefixes)
     return diseases, phenotypic_features
 
 def build_exact_sets(iri,bad_mappings = defaultdict(set)):
@@ -269,7 +268,7 @@ def build_sets(iri, ignore_list = ['ICD'], bad_mappings = {}):
 #THIS is bad.
 # We can't distribute MRCONSO.RRF, and dragging it out of UMLS is a manual process.
 # It's possible we could rebuild using the services, but no doubt very slowly
-def read_meddra():
+def read_meddra(bad_maps):
     pairs = set()
     mrcon = os.path.join(os.path.dirname(__file__),'input_data', 'MRCONSO.RRF')
     nothandled = set()
@@ -301,10 +300,13 @@ def read_meddra():
                 continue
             else:
                 if source not in nothandled:
-                    print('not handling source:',source)
+                    #print('not handling source:',source)
                     nothandled.add(source)
                 continue
-            pairs.add( frozenset({f'UMLS:{x[0]}',otherid}) )
+            uid = f'UMLS:{x[0]}'
+            if uid in bad_maps and otherid == bad_maps[uid]:
+                continue
+            pairs.add( frozenset({uid,otherid}) )
     return list(pairs)
 
 def read_umls_types():

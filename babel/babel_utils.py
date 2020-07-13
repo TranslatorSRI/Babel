@@ -95,6 +95,7 @@ def dump_dicts(dicts,fname):
 def dump_sets(sets,fname):
     config = get_config()
     oname = os.path.join(os.path.dirname(__file__),config['download_directory'], fname)
+    print('dumping: ',oname)
     with open(oname,'w') as outf:
         for s in sets:
             outf.write(f'{s}\n')
@@ -205,10 +206,6 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
         existing_sets = [ es[0] for es in existing_sets_w_x ]
         x =  [ es[1] for es in existing_sets_w_x ]
         newset=set().union(*existing_sets)
-        if 'MONDO:0045057' in newset:
-            print('-----------------')
-            #print(existing_sets_w_x)
-            print(group)
         #put all the new stuff in it.  Do it element-wise, cause we don't know the type of the new group
         for element in group:
             newset.add(element)
@@ -237,8 +234,6 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
             idents = set([e if type(e) == str else e.identifier for e in newset])
             prefidents = [e for e in idents if e.startswith(cpref)]
             for pident in prefidents:
-                if pident == 'MONDO:0045057':
-                    print('Closedict:', closedict[pident])
                 for cd in closedict[pident]:
                     if cd in newset:
                         setok = False
@@ -246,16 +241,11 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
                 continue
         if not setok:
             continue
-        if 'MONDO:0045057' in newset:
-            ln = list(newset)
-            ln.sort()
-            print(ln)
-            print('===================')
         #Now make all the elements point to this new set:
         for element in newset:
             conc_set[element] = newset
-    if bad > 0:
-        print(f'Found {bad} mixups')
+    #if bad > 0:
+    #    print(f'Found {bad} mixups')
         #exit()
 
 def get_prefixes(idlist):

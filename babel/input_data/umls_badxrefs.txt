@@ -1,2 +1,4 @@
 #a list of mappings that gives trouble.  Hand maintained, which is...not good
 #UMLS:C0029221 is organic brain syndrome, but it's linked directly to 'delirium' in other vocabs.  it's more of a superclass
+#This mesh term is for Estrogen, and it maps correctly to, but it also maps to C0877035, which is "Estrogen Effect"
+UMLS:C0877035 MESH:D004967
