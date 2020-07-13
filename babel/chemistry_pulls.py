@@ -20,8 +20,11 @@ def pull_chebi():
     kegg_chebi, pubchem_chebi, unmapped_chebi = pull_database_xrefs(skips = chebi_with_structure)
     return chebi_pubchem + pubchem_chebi, chebi_kegg + kegg_chebi, chebi_unmapped + unmapped_chebi
 
-def pull_chebi_sdf(interesting_keys):
-    chebisdf = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chebi/SDF/', 'ChEBI_complete.sdf.gz',decompress_data=True)
+def pull_chebi_sdf(interesting_keys,repull=False):
+    if repull:
+        chebisdf = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chebi/SDF/', 'ChEBI_complete.sdf.gz',decompress_data=True)
+    else:
+        chebisdf = os.path.join(os.path.dirname(os.path.abspath(__file__)),get_config()['download_directory'],'ChEBI_complete.sdf')
     chebi_props = {}
     lines = chebisdf.split('\n')
     chunk = []
@@ -36,8 +39,11 @@ def pull_chebi_sdf(interesting_keys):
                 chunk += [line]
     return chebi_props
 
-def pull_database_xrefs(skips=[]):
-    chebixrefs = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chebi/Flat_file_tab_delimited/', 'database_accession.tsv')
+def pull_database_xrefs(skips=[],repull=False):
+    if repull:
+        chebixrefs = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chebi/Flat_file_tab_delimited/', 'database_accession.tsv')
+    else:
+        chebixrefs = os.path.join(os.path.dirname(os.path.abspath(__file__)),get_config()['download_directory'],'database_accession.tsv')
     lines = chebixrefs.split('\n')
     kegg_chebi = []
     pubchem_chebi = []
