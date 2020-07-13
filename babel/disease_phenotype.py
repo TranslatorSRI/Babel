@@ -214,7 +214,8 @@ def build_exact_sets(iri,bad_mappings = defaultdict(set)):
             continue
         dbx = set([ norm(x) for x in v ])
         for bm in bad_mappings[k[0]]:
-            dbx.remove(bm)
+            if bm in dbx:
+                dbx.remove(bm)
         dbx.add(k[0])
         labels[k[0]] = k[1]
         results.append(dbx)

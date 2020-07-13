@@ -9,17 +9,21 @@ def build_sets(iri, ignore_list = ['PMID']):
     uber = UberGraph()
     uberres = uber.get_subclasses_and_xrefs(iri)
     results = []
+    labels = {}
     for k,v in uberres.items():
         #if k[1] is not None and k[1].startswith('obsolete'):
         #    continue
         dbx = set([ x for x in v if not Text.get_curie(x) in ignore_list ])
-        dbx.add(LabeledID(identifier=k[0],label=k[1]))
+        dbx.add(k[0])
+        if k[1] is not None and len(k[1]) > 0:
+            labels[k[0]] = k[1]
+        #dbx.add(LabeledID(identifier=k[0],label=k[1]))
         results.append(dbx)
-    return results
+    return results,labels
 
 def load_anatomy():
-    anatomy_sets = build_sets('UBERON:0001062')
-    cellular_component_sets = build_sets('GO:0005575')
+    anatomy_sets,labels = build_sets('UBERON:0001062')
+    cellular_component_sets,labels_b = build_sets('GO:0005575')
     #There can be some nastiness where we need to glom together different entities that came back
     # from this call, so we need to run a glom.
     #There's actually a special problem that happens in this case.  Because A) the subclass crosses
@@ -27,18 +31,17 @@ def load_anatomy():
     # happen that the same entity shows up as a subject with a label as well as a curie string
     # with no label.  And glom, as nice as it is, isn't smart enough to figure that out.
     # Sooo, we gotta clean that up.
-    # Actually, I think we should probably just keep labels separate until output, but that's
-    # a change for the future.
-    relabel_entities(anatomy_sets)
-    relabel_entities(cellular_component_sets)
+    #relabel_entities(anatomy_sets)
+    #relabel_entities(cellular_component_sets)
     dicts = {}
     print('put it all together')
     glom(dicts, anatomy_sets)
     glom(dicts, cellular_component_sets)
+    labels.update(labels_b)
     anat_sets, cell_sets, cc_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]))
-    write_compendium(anat_sets,'anatomy.txt','anatomical_entity')
-    write_compendium(cell_sets,'cell.txt','cell')
-    write_compendium(cc_sets,'cellular_component.txt','cellular_component')
+    write_compendium(anat_sets,'anatomy.txt','anatomical_entity',labels)
+    write_compendium(cell_sets,'cell.txt','cell',labels)
+    write_compendium(cc_sets,'cellular_component.txt','cellular_component',labels)
 
 def create_typed_sets(eqsets):
     """Given a set of sets of equivalent identifiers, we want to type each one into
