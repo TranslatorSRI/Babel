@@ -24,7 +24,7 @@ def test_get_double_subclasses():
 def test_prefixes():
     fac = NodeFactory()
     prefixes = fac.get_prefixes('chemical_substance')
-    expected_prefixes = ['CHEBI', 'CHEMBL.COMPOUND', 'DRUGBANK', 'PUBCHEM', 'MESH', 'HMDB', 'INCHI', 'INCHIKEY', 'UNII', 'KEGG.COMPOUND', 'GTOPDB']
+    expected_prefixes = ['CHEBI', 'CHEMBL.COMPOUND', 'DRUGBANK', 'PUBCHEM.COMPOUND', 'MESH', 'HMDB', 'INCHI', 'INCHIKEY', 'UNII', 'KEGG', 'gtpo']
     for p,ep in zip(prefixes,expected_prefixes):
         assert p==ep
 
