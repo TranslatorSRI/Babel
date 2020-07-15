@@ -20,26 +20,29 @@ def pull_hgnc_json():
 
 def json_2_identifiers(gene_dict):
     symbol = gene_dict['symbol']
-    hgnc_id = LabeledID(identifier=gene_dict['hgnc_id'], label=symbol)
-    hgnc_symbol = LabeledID(identifier=f"HGNC.SYMBOL:{symbol}", label=symbol)
+    labels = {}
+    hgnc_id = gene_dict['hgnc_id']
+    hgnc_symbol = f"HGNC.SYMBOL:{symbol}"
     idset = set([hgnc_id, hgnc_symbol])
+    labels[hgnc_id]=symbol
+    labels[hgnc_symbol]=symbol
     if 'entrez_id' in gene_dict:
-        idset.add( LabeledID(identifier=f"NCBIGENE:{gene_dict['entrez_id']}"))
+        idset.add( f"NCBIGENE:{gene_dict['entrez_id']}")
     #There's a strong debate to be had about whether UniProtKB id's belong with genes
     # or with proteins.  In SwissProt, an identifier is meant to be 1:1 with a gene.
     # In my mind, that makes it a gene.  So we will continue to group UniProtKB with them
     #For individual protein sequences, or peptide sequences, we will make them gene_products.
     #Also generate a PR identifier for each from the uniprot id (PR uses uniprot ids for uniprot things)
     if 'uniprot_ids' in gene_dict:
-        idset.update([LabeledID(identifier=f"UniProtKB:{uniprotkbid}") for uniprotkbid in gene_dict['uniprot_ids']])
-        idset.update([LabeledID(identifier=f"PR:{uniprotkbid}") for uniprotkbid in gene_dict['uniprot_ids']])
+        idset.update([f"UniProtKB:{uniprotkbid}" for uniprotkbid in gene_dict['uniprot_ids']])
+        idset.update([f"PR:{uniprotkbid}" for uniprotkbid in gene_dict['uniprot_ids']])
     if 'ensembl_gene_id' in gene_dict:
-        idset.add( LabeledID(identifier=f"ENSEMBL:{gene_dict['ensembl_gene_id']}"))
+        idset.add( f"ENSEMBL:{gene_dict['ensembl_gene_id']}")
     if 'iuphar' in gene_dict:
         if gene_dict['iuphar'].startswith('objectId'):
             gid = gene_dict['iuphar'].split(':')[1]
-            idset.add( LabeledID(identifier=f'IUPHAR:{gid}') )
-    return idset
+            idset.add( f'IUPHAR:{gid}' )
+    return idset,labels
 
 def load_genes():
     """
@@ -48,8 +51,8 @@ def load_genes():
     Next step: Instead of HGNC as the mapping of record, move to either uniprot or NCBI.
     Include names from sources as well...
     """
-    synonyms = synonymize_genes()
-    write_compendium(synonyms,'gene_compendium.txt','gene')
+    synonyms,labels = synonymize_genes()
+    write_compendium(synonyms,'gene_compendium.txt','gene',labels=labels)
 
 def synonymize_genes():
     """
@@ -58,8 +61,13 @@ def synonymize_genes():
     hgnc = pull_hgnc_json()
     hgnc_genes = hgnc['response']['docs']
     logger.debug(f' Found {len(hgnc_genes)} genes in HGNC')
-    hgnc_identifiers = [ json_2_identifiers(gene) for gene in hgnc_genes ]
-    return hgnc_identifiers
+    hgnc_identifiers_and_labels = [ json_2_identifiers(gene) for gene in hgnc_genes ]
+    hgnc_identifiers = []
+    labels = {}
+    for x in hgnc_identifiers_and_labels:
+        hgnc_identifiers.append(x[0])
+        labels.update(x[1])
+    return hgnc_identifiers,labels
 
 if __name__ == '__main__':
     load_genes()
