@@ -137,6 +137,9 @@ def filter_mesh_chebi(mesh_chebi,concord):
 def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=False,refresh_chembl=False):
     #Keep labels separate
     labels = {}
+    # DO MESH/CHEBI, but don't combine any chebi's into a set with it
+    print('MESH/CHEBI')
+    mesh_chebi = pull_mesh_chebi()
     # Build if need be
     if refresh_mesh:
         refresh_mesh_pubchem()
@@ -144,9 +147,10 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     # 1. Handle all the stuff that has an InchiKey using unichem
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     print('UNICHEM')
-    #concord = load_unichem(refresh=True)
+    #refresh
+    concord = load_unichem(refresh=True)
     #don't refresh
-    concord = load_unichem()
+    #concord = load_unichem()
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     #DO MESH/UNII
     print('MESH/UNII')
@@ -158,13 +162,13 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     # DO MESH/PUBCHEM
     print('MESH/PUBCHEM')
     mesh_pc_file = make_local_name('mesh_to_pubchem.txt')
-    mesh_pc_pairs = load_pairs(mesh_pc_file, 'PUBCHEM')
+    mesh_pc_pairs = load_pairs(mesh_pc_file, 'PUBCHEM.COMPOUND')
     glom(concord, mesh_pc_pairs,pref='MESH')
     print('write-mesh-pubchem')
     check_multiple_ids(concord)
     # DO MESH/CHEBI, but don't combine any chebi's into a set with it
-    print('MESH/CHEBI')
-    mesh_chebi = pull_mesh_chebi()
+    #print('MESH/CHEBI')
+    #mesh_chebi = pull_mesh_chebi()
     #Merging CHEBIS can be ok because of primary/secondary chebis.  Really we 
     # don't want to merge INCHIs
     #MESH/CHEBI is a real mess though.  wikidata has no principled way to connect identifiers.  It's just whatever
@@ -208,15 +212,15 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     print('kegg')
     kname = make_local_name('kegg.pickle')
     #to refresh kegg:
-    #keggs,kegg_labels = pull_kegg_compounds()
-    #with open(kname,'wb') as kf:
-    #    pickle.dump((keggs,kegg_labels),kf)
+    keggs,kegg_labels = pull_kegg_compounds()
+    with open(kname,'wb') as kf:
+        pickle.dump((keggs,kegg_labels),kf)
     # To use old KEGG
-    with open(kname,'rb') as inf:
-        keggs,kegg_labels = pickle.load(inf)
+    #with open(kname,'rb') as inf:
+    #    keggs,kegg_labels = pickle.load(inf)
     fkeggs = [ (k,) for k in keggs ]
     keggs = fkeggs
-    glom(concord,keggs,pref='KEGG.COMPOUND')
+    glom(concord,keggs,pref='KEGG')
     labels.update(kegg_labels)
     #OK TO HERE
     check_multiple_ids(concord)
@@ -236,17 +240,18 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     sequence_to_iuphar, iuphar_glom = pull_iuphar()
     for s,v in sequence_to_iuphar.items():
         sequence_concord[s].update(v)
-    glom(concord,iuphar_glom,pref='GTOPDB')
+    glom(concord,iuphar_glom,pref='gtpo')
     #write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc_iuphar.txt','chemical_substance',labels=labels)
     check_multiple_ids(concord)
     #  8. Use wikidata to get links between CHEBI and UniProt_PRO
-    unichebi = pull_uniprot_chebi()
-    glom(concord, unichebi)
+    #These 2 lines are if we want back uniprots
+    #unichebi = pull_uniprot_chebi() 
+    #glom(concord, unichebi)
     #write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc_unicheb.txt','chemical_substance',labels=labels)
     check_multiple_ids(concord)
     #  9. glom across sequence and chemical stuff
     new_groups = sequence_concord.values()
-    glom(concord,new_groups,unique_prefixes=['GTOPDB','INCHI'])
+    glom(concord,new_groups,unique_prefixes=['gtpo','INCHI'])
     #write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc_newgroups.txt','chemical_substance',labels=labels)
     check_multiple_ids(concord)
     # 10. Drop PRO only sequences.
@@ -417,10 +422,10 @@ def label_pubchem(concord, refresh_pubchem = False):
             # since the synonyms are weighted already will just pick the first one.
             l = line.strip()
             cid, label = l.split('\t')
-            if f'PUBCHEM:{cid}' in labels:
+            if f'PUBCHEM.COMPOUND:{cid}' in labels:
                 continue
-            labels[f'PUBCHEM:{cid}'] = label
-    label_compounds(concord, 'PUBCHEM', partial(get_dict_label, labels= labels))
+            labels[f'PUBCHEM.COMPOUND:{cid}'] = label
+    label_compounds(concord, 'PUBCHEM.COMPOUND', partial(get_dict_label, labels= labels))
 
 
 ###
@@ -659,6 +664,15 @@ def extract_chebml_data_add_to_cache(result, annotator, rosetta):
 #def load_annotations_chemicals(rosetta):
 #    annotate_from_chebi(rosetta)
 #    annotate_from_chembl(rosetta)
+
+def kegg_stand():
+    print('kegg')
+    kname = make_local_name('kegg.pickle')
+    #to refresh kegg:
+    keggs,kegg_labels = pull_kegg_compounds()
+    with open(kname,'wb') as kf:
+        pickle.dump((keggs,kegg_labels),kf)
+
 
 #######
 # Main - Stand alone entry point for testing

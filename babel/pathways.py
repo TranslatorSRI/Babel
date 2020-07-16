@@ -1,6 +1,6 @@
 import logging
 
-from src.LabeledID import LabeledID
+#from src.LabeledID import LabeledID
 from src.util import LoggingUtil
 from babel.babel_utils import write_compendium, pull_via_urllib, get_config
 from zipfile import ZipFile
@@ -15,6 +15,7 @@ def pull_smpdb():
         zipObj.extractall(ddir)
     infname = f'{ddir}/smpdb_pathways.csv'
     smpdbs = []
+    labels = {}
     with open(infname,'r') as inf:
         h = inf.readline()
         for line in inf:
@@ -26,16 +27,17 @@ def pull_smpdb():
             x = line.strip().split(',')
             ident = f'SMPDB:{x[0]}'
             name = x[2]
-            smpdbs.append( (LabeledID(identifier = ident, label = name), ) )
-    return smpdbs
+            smpdbs.append( (ident,) )
+            labels[ident] = name
+    return smpdbs,labels
 
 
 def load_pathways():
     """
     Right now, we're just pulling SMPDB, but that's not very satisfying
     """
-    smpdb = pull_smpdb()
-    write_compendium(smpdb,'pathways.txt','pathway')
+    smpdb,labels = pull_smpdb()
+    write_compendium(smpdb,'pathways.txt','pathway', labels=labels)
 
 
 if __name__ == '__main__':

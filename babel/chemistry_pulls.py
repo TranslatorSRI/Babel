@@ -58,10 +58,10 @@ def pull_database_xrefs(skips=[],repull=False):
             continue
         unstructured_chebis.add(cid)
         if x[3] == 'KEGG COMPOUND accession':
-            kegg_chebi.append( (cid, f'KEGG.COMPOUND:{x[4]}') )
+            kegg_chebi.append( (cid, f'KEGG:{x[4]}') )
             mapped_chebis.add(cid)
         if x[3] == 'Pubchem accession':
-            pubchem_chebi.append( (cid, f'PUBCHEM:{x[4]}') )
+            pubchem_chebi.append( (cid, f'PUBCHEM.COMPOUND:{x[4]}') )
             mapped_chebis.add(cid)
     uc = unstructured_chebis.difference(mapped_chebis)
     unmapped_chebis = [ (x,) for x in uc ]
@@ -91,7 +91,7 @@ def extract_from_chebi_sdf(chebi_parts):
         kk = 'keggcompounddatabaselinks'
         if kk in props:
             mapped=True
-            chebi_kegg.append( (cid,f'KEGG.COMPOUND:{props[kk]}'))
+            chebi_kegg.append( (cid,f'KEGG:{props[kk]}'))
         pk = 'pubchemdatabaselinks'
         if pk in props:
             v = props[pk]
@@ -100,7 +100,7 @@ def extract_from_chebi_sdf(chebi_parts):
                 if 'CID' in p:
                     mapped = True
                     x = p.split('CID: ')[1]
-                    r = (cid, f'PUBCHEM:{x}')
+                    r = (cid, f'PUBCHEM.COMPOUND:{x}')
                     chebi_pubchem.append(r)
         if not mapped:
             chebi_unmapped.append( (cid,) )
@@ -187,7 +187,7 @@ def pull_iuphar_by_structure():
         if len(x[14]) > 2: #it has "" even if nothing else :(
             seq = x[14][1:-1]
             seq3 = x[15][1:-1]
-            iuid = f'GTOPDB:{x[0][1:-1]}'
+            iuid = f'gtpo:{x[0][1:-1]}'
             if 'X' in seq:
                 xind = seq.find('X')
                 bad = seq3.split('-')[xind]
@@ -232,7 +232,7 @@ def pull_kegg_compounds():
                     name = ' '.join(rawlines[1].split()[1:])
                     if name.endswith(';'):
                         name = name[:-1]
-                    keggid = f'KEGG.COMPOUND:{rid}'
+                    keggid = f'KEGG:{rid}'
                     keggs.append(keggid)
                     kegg_labels[keggid] = name
     return keggs, kegg_labels
@@ -254,7 +254,7 @@ def pull_kegg_sequences():
     identifiers = [x[0] for x in identifiersandnames]
     for i,kid in enumerate(identifiers):
         s = get_sequence(kid)
-        kegg_sequences[s].add(f'KEGG.COMPOUND:{kid}')
+        kegg_sequences[s].add(f'KEGG:{kid}')
     return kegg_sequences
 
 def handle_kegg_list(childlist,names):

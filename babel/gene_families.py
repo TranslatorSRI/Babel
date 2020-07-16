@@ -1,6 +1,6 @@
 import logging
 
-from src.LabeledID import LabeledID
+#from src.LabeledID import LabeledID
 from src.util import LoggingUtil
 from babel.babel_utils import pull_via_ftp,write_compendium
 
@@ -12,19 +12,22 @@ def pull_hgnc_families():
     lines = data.split('\n')
     #skip header
     hgnc_families=[]
+    labels = {}
     for line in lines[1:]:
         parts = line.split(',')
         if len(parts) < 10:
             continue
         i = f"HGNC.FAMILY:{parts[0][1:-1]}"
         l = parts[2][1:-1]
-        hgnc_families.append( LabeledID(identifier=i, label=l))
-    return hgnc_families
+        hgnc_families.append( i )
+        labels[i] = l
+    return hgnc_families,labels
 
 def pull_panther_families():
-    data = pull_via_ftp('ftp.pantherdb.org','/sequence_classifications/current_release/PANTHER_Sequence_Classification_files/','PTHR14.1_human_')
+    data = pull_via_ftp('ftp.pantherdb.org','/sequence_classifications/current_release/PANTHER_Sequence_Classification_files/','PTHR15.0_human')
     lines = data.split('\n')
     panther_families=[]
+    labels = {}
     done = set()
     for line in lines[1:]:
         parts = line.split('\t')
@@ -36,16 +39,18 @@ def pull_panther_families():
         mfname = parts[3]
         sfname = parts[4]
         if mf not in done:
-            main_family = LabeledID(identifier=f'PANTHER.FAMILY:{mf}',label=mfname)
+            main_family = f'PANTHER.FAMILY:{mf}'
             panther_families.append(main_family)
+            labels[main_family]=mfname
             done.add(mf)
         if sf not in done:
-            sub_family = LabeledID(identifier=f'PANTHER.FAMILY:{sf}', label=sfname)
+            sub_family = f'PANTHER.FAMILY:{sf}'
             panther_families.append(sub_family)
+            labels[sub_family]=sfname
             done.add(sf)
     for f in panther_families[:10]:
         print(f)
-    return panther_families
+    return panther_families,labels
 
 def load_gene_families():
     """
@@ -53,11 +58,12 @@ def load_gene_families():
     There are 2 sources, hgnc and panther.  There's no crossing them, so we're just going to turn each one into its
     own entity
     """
-    hgnc = pull_hgnc_families()
-    panther = pull_panther_families()
+    hgnc,labels = pull_hgnc_families()
+    panther,labels2 = pull_panther_families()
+    labels.update(labels2)
     #Write compendium wants a list of iterables
     synonyms = [ (x,) for x in hgnc+panther ]
-    write_compendium(synonyms,'gene_family_compendium.txt','gene_family')
+    write_compendium(synonyms,'gene_family_compendium.txt','gene_family',labels=labels)
 
 #def synonymize_genes():
 #    """

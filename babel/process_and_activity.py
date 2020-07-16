@@ -12,8 +12,22 @@ def build_sets(iri, ignore_list = ['PMID','EC']):
     results = []
     uberres = clean_sets(uberres)
     labels = {}
+    repre={'KEGG':'KEGG', 'REACTOME': 'REACT', 'Reactome':'REACT', 'METACYC':'MetaCyc'}
     for k,v in uberres.items():
-        dbx = set([ x for x in v if not Text.get_curie(x) in ignore_list ])
+        modv = []
+        #The smarter way to do this would be by actually expanding, and then using our jsonld context
+        # to create the correct curie. In fact, that might be good to do across the board.
+        for x in v:
+            added = False
+            for oldpre in repre:
+                if x.startswith(oldpre):
+                    newx = f'{repre[oldpre]}:{x.split(":")[-1]}'
+                    modv.append(newx)
+                    added = True
+                    break
+            if not added:
+                modv.append(x)
+        dbx = set([ x for x in modv if not Text.get_curie(x) in ignore_list ])
         #prefixes = set([Text.get_curie(x) for x in dbx])
         #print(prefixes)
         dbx.add(k[0])

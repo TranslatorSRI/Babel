@@ -252,7 +252,7 @@ def lookup_by_cas(term_to_cas,apikey,mesh_labels):
         except Exception as e:
             print("EXCEPTION 3")
             print(e)
-            break
+            continue
         done += 1
         if done % 1000 == 0:
             print(f' completed {done} / {num}')

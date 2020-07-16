@@ -198,6 +198,7 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     with which we want to update conc_set."""
     n = 0
     bad = 0
+    shit_prefixes=set(['KEGG.COMPOUND','PUBCHEM','GTOPDB'])
     for group in newgroups:
         n+=1
         #Find all the equivalence sets that already correspond to any of the identifiers in the new set.
@@ -209,6 +210,12 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
         #put all the new stuff in it.  Do it element-wise, cause we don't know the type of the new group
         for element in group:
             newset.add(element)
+        for check_element in newset:
+            prefix = check_element.split(':')[0]
+            if prefix in shit_prefixes:
+                print(prefix)
+                print(check_element)
+                raise 'garbage'
         #make sure we didn't combine anything we want to keep separate
         setok = True
         for up in unique_prefixes:
