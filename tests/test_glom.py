@@ -45,23 +45,4 @@ def test_bigger_sets():
     glom(d,eqs)
     assert d['1']==d['2']==d['3']==d['4']==d['5']==d['6']==d['7']=={'1','2','3','4','5','6','7'}
 
-def test_Labeled_ID():
-    """Does glom work correctly with LabeledID"""
-    d = {}
-    lid = LabeledID(identifier='x', label='l')
-    eqs = [{lid,"S"}, {lid,"Q"}]
-    glom(d,eqs)
-    assert d['S'] == d['Q']
-    assert len(d['S']) == 3
-
-def test_LabeledID_different_labels():
-    """Does glom work correctly with LabeledID"""
-    d = {}
-    lid = LabeledID(identifier='x', label='l')
-    lid2 = LabeledID(identifier='x', label='2')
-    eqs = [{lid,"S"}, {lid2,"Q"}]
-    glom(d,eqs)
-    assert d['S'] == d['Q']
-    assert len(d['S']) == 3
-
 
