@@ -3,7 +3,8 @@ from src.LabeledID import LabeledID
 from src.util import Text
 from babel.babel_utils import write_compendium,glom,get_prefixes
 
-def build_sets(iri, ignore_list = ['PMID']):
+#The BTO and BAMs identifiers promote over-glommed nodes
+def build_sets(iri, ignore_list = ['PMID','BTO','BAMS']):
     """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
     is a set for each subclass of the input iri"""
     uber = UberGraph()
@@ -15,15 +16,28 @@ def build_sets(iri, ignore_list = ['PMID']):
         #    continue
         dbx = set([ x for x in v if not Text.get_curie(x) in ignore_list ])
         dbx.add(k[0])
+        if k[0] == 'UBERON:0002037':
+            print('found it')
+            print(k[0])
         if k[1] is not None and len(k[1]) > 0:
+            if k[0] == 'UBERON:0002037':
+                print(k[0],k[1])
             labels[k[0]] = k[1]
         #dbx.add(LabeledID(identifier=k[0],label=k[1]))
         results.append(dbx)
     return results,labels
 
+def export_start(s,ofname):
+    with open(ofname,'w') as outf:
+        for aset in s:
+            outf.write(','.join(list(aset)))
+            outf.write('\n')
+
 def load_anatomy():
     anatomy_sets,labels = build_sets('UBERON:0001062')
     cellular_component_sets,labels_b = build_sets('GO:0005575')
+    #If you want to examine the starting point, use this:
+    #export_start(anatomy_sets,'asets')
     #There can be some nastiness where we need to glom together different entities that came back
     # from this call, so we need to run a glom.
     #There's actually a special problem that happens in this case.  Because A) the subclass crosses
@@ -35,8 +49,8 @@ def load_anatomy():
     #relabel_entities(cellular_component_sets)
     dicts = {}
     print('put it all together')
-    glom(dicts, anatomy_sets)
-    glom(dicts, cellular_component_sets)
+    glom(dicts, anatomy_sets, unique_prefixes=['UBERON','GO'])
+    glom(dicts, cellular_component_sets, unique_prefixes=['UBERON','GO'])
     labels.update(labels_b)
     anat_sets, cell_sets, cc_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]))
     write_compendium(anat_sets,'anatomy.txt','anatomical_entity',labels)
@@ -63,7 +77,8 @@ def create_typed_sets(eqsets):
         elif 'UBERON' in prefixes or 'BSPO' in prefixes:
             anatomies.add(equivalent_ids)
         else:
-            print(equivalent_ids)
+            #print(equivalent_ids)
+            pass
     return anatomies,cells,components
 
 def relabel_entities(sets):
