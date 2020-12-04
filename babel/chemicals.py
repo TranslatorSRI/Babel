@@ -277,7 +277,7 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     #tout = set([frozenset(x) for x in concord.values()][:10000])
     #write_compendium(tout,'chemconc.txt','chemical_substance',labels=labels)
     #exit()
-    write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc.txt','chemical_substance',labels=labels)
+    write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc.txt','biolink:ChemicalSubstance',labels=labels)
     print('done')
 
 def check_multiple_ids(g):

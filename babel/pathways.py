@@ -37,7 +37,7 @@ def load_pathways():
     Right now, we're just pulling SMPDB, but that's not very satisfying
     """
     smpdb,labels = pull_smpdb()
-    write_compendium(smpdb,'pathways.txt','pathway', labels=labels)
+    write_compendium(smpdb,'pathways.txt','biolink:Pathway', labels=labels)
 
 
 if __name__ == '__main__':

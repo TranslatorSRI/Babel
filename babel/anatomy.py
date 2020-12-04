@@ -53,9 +53,9 @@ def load_anatomy():
     glom(dicts, cellular_component_sets, unique_prefixes=['UBERON','GO'])
     labels.update(labels_b)
     anat_sets, cell_sets, cc_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]))
-    write_compendium(anat_sets,'anatomy.txt','anatomical_entity',labels)
-    write_compendium(cell_sets,'cell.txt','cell',labels)
-    write_compendium(cc_sets,'cellular_component.txt','cellular_component',labels)
+    write_compendium(anat_sets,'anatomy.txt','biolink:AnatomicalEntity',labels)
+    write_compendium(cell_sets,'cell.txt','biolink:Cell',labels)
+    write_compendium(cc_sets,'cellular_component.txt','biolink:CellularComponent',labels)
 
 def create_typed_sets(eqsets):
     """Given a set of sets of equivalent identifiers, we want to type each one into

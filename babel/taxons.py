@@ -36,7 +36,7 @@ def load_taxa():
     taxa = {x:[x] for x in ncbi_taxa_labels}
     glom(taxa,meshes)
     synset = set([frozenset(x) for x in taxa.values()])
-    write_compendium(synset,'taxon_compendium.txt','organism_taxon',labels=labels)
+    write_compendium(synset,'taxon_compendium.txt','biolink:OrganismTaxon',labels=labels)
 
 if __name__ == '__main__':
     load_taxa()

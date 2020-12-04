@@ -52,7 +52,7 @@ def load_genes():
     Include names from sources as well...
     """
     synonyms,labels = synonymize_genes()
-    write_compendium(synonyms,'gene_compendium.txt','gene',labels=labels)
+    write_compendium(synonyms,'gene_compendium.txt','biolink:Gene',labels=labels)
 
 def synonymize_genes():
     """

@@ -145,8 +145,8 @@ def load_diseases_and_phenotypes():
     dump_dicts(dicts,'mondo_hpo_meddra_efo_dicts.txt')
     print('dump it')
     diseases,phenotypes = create_typed_sets(set([frozenset(x) for x in dicts.values()]))
-    write_compendium(diseases,'disease.txt','disease',labels)
-    write_compendium(phenotypes,'phenotypes.txt','phenotypic_feature',labels)
+    write_compendium(diseases,'disease.txt','biolink:Disease',labels)
+    write_compendium(phenotypes,'phenotypes.txt','biolink:PhenotypicFeature',labels)
 
 
 def create_typed_sets(eqsets):

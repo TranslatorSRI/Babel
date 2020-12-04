@@ -63,7 +63,7 @@ def load_gene_families():
     labels.update(labels2)
     #Write compendium wants a list of iterables
     synonyms = [ (x,) for x in hgnc+panther ]
-    write_compendium(synonyms,'gene_family_compendium.txt','gene_family',labels=labels)
+    write_compendium(synonyms,'gene_family_compendium.txt','biolink:GeneFamily',labels=labels)
 
 #def synonymize_genes():
 #    """

@@ -44,8 +44,8 @@ def load_one(starter,stype):
     write_compendium(osets,f'{stype}.txt',stype,labels=labels)
 
 def load():
-    load_one('GO:0003674','molecular_activity')
-    load_one('GO:0008150','biological_process')
+    load_one('GO:0003674','biolink:MolecularActivity')
+    load_one('GO:0008150','biolink:BiologicalProcess')
 
 
 #def relabel_entities(sets):
