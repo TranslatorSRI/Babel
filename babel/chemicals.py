@@ -134,7 +134,7 @@ def filter_mesh_chebi(mesh_chebi,concord):
 # 10. Drop PRO only sequences.
 #
 # It would be good to completely redo this so that it was make-like.
-def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=False,refresh_chembl=False):
+def load_chemicals(refresh_mesh=False,refresh_unichem=False,refresh_kegg=False,refresh_uniprot=False,refresh_pubchem=False,refresh_chembl=False):
     #Keep labels separate
     labels = {}
     # DO MESH/CHEBI, but don't combine any chebi's into a set with it
@@ -148,7 +148,7 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     print('UNICHEM')
     #refresh
-    concord = load_unichem(refresh=True)
+    concord = load_unichem(refresh=refresh_unichem)
     #don't refresh
     #concord = load_unichem()
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
@@ -211,13 +211,15 @@ def load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=Fals
     # 3a. pull in all KEGG labels and compounds.  This is mostly to pick up keggs that don't map to anything else
     print('kegg')
     kname = make_local_name('kegg.pickle')
-    #to refresh kegg:
-    keggs,kegg_labels = pull_kegg_compounds()
-    with open(kname,'wb') as kf:
-        pickle.dump((keggs,kegg_labels),kf)
-    # To use old KEGG
-    #with open(kname,'rb') as inf:
-    #    keggs,kegg_labels = pickle.load(inf)
+    if refresh_kegg:
+        #to refresh kegg:
+        keggs,kegg_labels = pull_kegg_compounds()
+        with open(kname,'wb') as kf:
+            pickle.dump((keggs,kegg_labels),kf)
+    else:
+        # To use old KEGG
+        with open(kname,'rb') as inf:
+            keggs,kegg_labels = pickle.load(inf)
     fkeggs = [ (k,) for k in keggs ]
     keggs = fkeggs
     glom(concord,keggs,pref='KEGG')
@@ -679,5 +681,5 @@ def kegg_stand():
 #######
 if __name__ == '__main__':
     #load_chemicals(refresh_mesh=False,refresh_uniprot=True,refresh_pubchem=True,refresh_chembl=True)
-    load_chemicals(refresh_mesh=False,refresh_uniprot=False,refresh_pubchem=False,refresh_chembl=False)
+    load_chemicals(refresh_mesh=False,refresh_unichem=False,refresh_kegg=False,refresh_uniprot=False,refresh_pubchem=True,refresh_chembl=True)
     #load_unichem(working_dir='.',xref_file='UC_XREF.txt.gz',struct_file='UC_STRUCTURE.txt')

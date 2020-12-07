@@ -141,13 +141,11 @@ def pull_uniprot(repull=False):
     # there were a reason.
     with open(xmlname,'r') as unif:
         for record in SwissProt.parse(unif):
+            fseq = []
             uniprotid = f'UniProtKB:{record.accessions[0]}'
-            #xrefs = [ f"{x[0]}:{x[1]}" for x in record.cross_references if x[0].lower() in ['mint','string','nextprot']]
-            #xrefs.append( f'PR:{record.accessions[0]}' )
-            #xrefs.append( uniprotid )
-            feats = [ f for f in record.features if f[4].startswith('PRO_') and isinstance(f[1],int) and isinstance(f[2],int) ]
-            fseq = [(record.sequence[f[1]-1:f[2]],f[4]) for f  in feats ]
-            #seq_to_idlist[record.sequence].update(xrefs)
+            for f in record.features:
+                if f.type == 'CHAIN' and f.id.startswith('PRO_'):
+                    fseq.append((f.location.extract(record.sequence),f.id))
             for fs,fn in fseq:
                 seq_to_idlist[fs].add(f'{uniprotid}#{fn}')
     return seq_to_idlist
@@ -277,6 +275,7 @@ def get_sequence(compound_id):
     raw_results = requests.get(url)#.json()
     results = raw_results.text.split('\n')
     mode = 'looking'
+    x=''
     for line in results:
         if mode == 'looking' and line.startswith('SEQUENCE'):
             x = ' '.join(line.strip().split()[1:])

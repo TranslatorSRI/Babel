@@ -41,7 +41,7 @@ def load_one(starter,stype):
     dicts = {}
     glom(dicts, sets,unique_prefixes=['GO'])
     osets = set([frozenset(x) for x in dicts.values()])
-    write_compendium(osets,f'{stype}.txt',stype,labels=labels)
+    write_compendium(osets,f'{stype.split(":")[-1]}.txt',stype,labels=labels)
 
 def load():
     load_one('GO:0003674','biolink:MolecularActivity')

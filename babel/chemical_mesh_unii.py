@@ -196,7 +196,7 @@ def get_pubchem_labels(cids,requester):
                     labels[label] = cid
     if len(labels)==0:
         print(url)
-        exit()
+        #exit()
     return labels
 
 
