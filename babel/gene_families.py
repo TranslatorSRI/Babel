@@ -24,7 +24,12 @@ def pull_hgnc_families():
     return hgnc_families,labels
 
 def pull_panther_families():
+    #These little stinkers added an extra column between PTHR15.0 and PTHR16.0
+    #IF you need to use pre 16, decrement the column values below by 1
     data = pull_via_ftp('ftp.pantherdb.org','/sequence_classifications/current_release/PANTHER_Sequence_Classification_files/','PTHR16.0_human')
+    SUBFAMILY_COLUMN = 3
+    MAINFAMILY_NAME_COLUMN = 4
+    SUBFAMILY_NAME_COLUMN = 5
     lines = data.split('\n')
     panther_families=[]
     labels = {}
@@ -34,10 +39,10 @@ def pull_panther_families():
         if len(parts) < 5:
             print(len(parts))
             continue
-        sf = parts[2]
+        sf = parts[SUBFAMILY_COLUMN]
         mf = sf.split(':')[0]
-        mfname = parts[3]
-        sfname = parts[4]
+        mfname = parts[MAINFAMILY_NAME_COLUMN]
+        sfname = parts[SUBFAMILY_NAME_COLUMN]
         if mf not in done:
             main_family = f'PANTHER.FAMILY:{mf}'
             panther_families.append(main_family)
@@ -48,8 +53,6 @@ def pull_panther_families():
             panther_families.append(sub_family)
             labels[sub_family]=sfname
             done.add(sf)
-    for f in panther_families[:10]:
-        print(f)
     return panther_families,labels
 
 def load_gene_families():
