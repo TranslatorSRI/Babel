@@ -24,7 +24,7 @@ def pull_hgnc_families():
     return hgnc_families,labels
 
 def pull_panther_families():
-    data = pull_via_ftp('ftp.pantherdb.org','/sequence_classifications/current_release/PANTHER_Sequence_Classification_files/','PTHR15.0_human')
+    data = pull_via_ftp('ftp.pantherdb.org','/sequence_classifications/current_release/PANTHER_Sequence_Classification_files/','PTHR16.0_human')
     lines = data.split('\n')
     panther_families=[]
     labels = {}
