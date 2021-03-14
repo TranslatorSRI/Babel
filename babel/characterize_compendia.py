@@ -8,8 +8,9 @@ def get_compendia():
     compendia = [f'{dname}/{x}'for x in somefiles if x.endswith('.txt')]
     return compendia
 
-def characterize_one_compendium(fname,threshold = 150):
+def characterize_one_compendium(fname,threshold = 80):
     used_ids = set()
+    all_ids = set()
     counts = defaultdict(int)
     with open(fname,'r') as inf:
         for line in inf:
@@ -22,17 +23,23 @@ def characterize_one_compendium(fname,threshold = 150):
             used_ids.add(ident)
             eids = entity['equivalent_identifiers']
             counts[len(eids)] += 1
-            if len(eids) > threshold:
+            all_ids.update([e['identifier'] for e in eids])
+            if len(eids) == threshold:
                 for eid in eids:
                     print(eid)
 #                exit()
     skeys = list(counts.keys())
     skeys.sort()
-    for k in skeys:
-        print(k,counts[k])
+#    for k in skeys:
+#        print(k,counts[k])
+    print(fname)
+    print(len(used_ids),'rows in the compendium')
+    print(skeys[-5:])
+    print(len(all_ids), ' total identifiers')
 
 def go():
-    characterize_one_compendium('compendia/phenotypes.txt')
+    characterize_one_compendium('compendia/disease.txt')
+    characterize_one_compendium('compendia/cull_s_term/disease.txt')
     return
     comps = get_compendia()
     for c in comps:

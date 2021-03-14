@@ -198,9 +198,11 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     with which we want to update conc_set."""
     n = 0
     bad = 0
-    shit_prefixes=set(['KEGG.COMPOUND','PUBCHEM','GTOPDB'])
+    shit_prefixes=set(['KEGG','PUBCHEM'])
     for group in newgroups:
         n+=1
+        if 'UBERON:0018374' in group:
+            print('higroup',group)
         #Find all the equivalence sets that already correspond to any of the identifiers in the new set.
         existing_sets_w_x = [ (conc_set[x],x) for x in group if x in conc_set ]
         #All of these sets are now going to be combined through the equivalence of our new set.
@@ -210,6 +212,8 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
         #put all the new stuff in it.  Do it element-wise, cause we don't know the type of the new group
         for element in group:
             newset.add(element)
+        if 'UBERON:0018374' in newset:
+            print('hiset',newset)
         for check_element in newset:
             prefix = check_element.split(':')[0]
             if prefix in shit_prefixes:
@@ -218,9 +222,13 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
                 raise 'garbage'
         #make sure we didn't combine anything we want to keep separate
         setok = True
+        if 'UBERON:0018374' in group:
+            print('setok?',setok)
         for up in unique_prefixes:
+            if 'UBERON:0018374' in group:
+                print('up?',up)
             idents = [e if type(e)==str else e.identifier for e in newset]
-            if len(set([e for e in idents if e.startswith(up)])) > 1:
+            if len(set([e for e in idents if (e.split(':')[0] ==up)])) > 1:
                 bad += 1
                 setok = False
                 wrote = set()
@@ -234,12 +242,20 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
                 #    print(f'{killer}\t{set(group).intersection(preset)}\t{preset}\n')
                 #print('------------')
         if not setok:
+            if 'UBERON:0018374' in group:
+                print('badset',group,setok)
             continue
         #Now check the 'close' dictionary to see if we've accidentally gotten to a close match becoming an exact match
         setok = True
+        if 'MESH:C562463' in group:
+            print('meshy')
         for cpref, closedict in close.items():
             idents = set([e if type(e) == str else e.identifier for e in newset])
             prefidents = [e for e in idents if e.startswith(cpref)]
+            if 'MESH:C562463' in group:
+                print(newset)
+                print(prefidents)
+                print('------')
             for pident in prefidents:
                 for cd in closedict[pident]:
                     if cd in newset:

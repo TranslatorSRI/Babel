@@ -13,7 +13,7 @@ from src.LabeledID import LabeledID
 
 from babel.chemical_mesh_unii import refresh_mesh_pubchem
 from babel.babel_utils import glom, pull_via_ftp, write_compendium, make_local_name
-from babel.chemistry_pulls import pull_chebi, pull_uniprot, pull_iuphar, pull_kegg_sequences, pull_kegg_compounds
+from babel.chemistry_pulls import pull_chebi, pull_uniprot, pull_iuphar, pull_kegg_sequences, pull_kegg_compounds, pull_gtpo_inchikey
 from babel.ubergraph import UberGraph
 
 logger = LoggingUtil.init_logging("chemicals", logging.ERROR, format='medium', logFilePath=f'{os.path.dirname(os.path.abspath(__file__))}/logs/')
@@ -151,6 +151,9 @@ def load_chemicals(refresh_mesh=False,refresh_unichem=False,refresh_kegg=False,r
     concord = load_unichem(refresh=refresh_unichem)
     #don't refresh
     #concord = load_unichem()
+    #There are gtpo ligands that have inchikeys but are not part of unichem
+    gtpopairs = pull_gtpo_inchikey()
+    glom(concord, gtpopairs)
     # 2. Mesh is all "no structure".  We try to use a variety of sources to hook mesh id's to anything else
     #DO MESH/UNII
     print('MESH/UNII')
@@ -222,7 +225,7 @@ def load_chemicals(refresh_mesh=False,refresh_unichem=False,refresh_kegg=False,r
             keggs,kegg_labels = pickle.load(inf)
     fkeggs = [ (k,) for k in keggs ]
     keggs = fkeggs
-    glom(concord,keggs,pref='KEGG')
+    glom(concord,keggs,pref='KEGG.COMPOUND')
     labels.update(kegg_labels)
     #OK TO HERE
     check_multiple_ids(concord)
@@ -242,7 +245,7 @@ def load_chemicals(refresh_mesh=False,refresh_unichem=False,refresh_kegg=False,r
     sequence_to_iuphar, iuphar_glom = pull_iuphar()
     for s,v in sequence_to_iuphar.items():
         sequence_concord[s].update(v)
-    glom(concord,iuphar_glom,pref='gtpo')
+    glom(concord,iuphar_glom,pref='GTOPDB')
     #write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc_iuphar.txt','chemical_substance',labels=labels)
     check_multiple_ids(concord)
     #  8. Use wikidata to get links between CHEBI and UniProt_PRO
@@ -253,7 +256,7 @@ def load_chemicals(refresh_mesh=False,refresh_unichem=False,refresh_kegg=False,r
     check_multiple_ids(concord)
     #  9. glom across sequence and chemical stuff
     new_groups = sequence_concord.values()
-    glom(concord,new_groups,unique_prefixes=['gtpo','INCHI'])
+    glom(concord,new_groups,unique_prefixes=['GTOPDB','INCHI'])
     #write_compendium(set([ frozenset(x) for x in concord.values() ]),'chemconc_newgroups.txt','chemical_substance',labels=labels)
     check_multiple_ids(concord)
     # 10. Drop PRO only sequences.
@@ -369,11 +372,7 @@ def process_chunk(lines, label_dict):
     for line in lines[1:]:
         s = line.strip()
         if s.startswith('rdfs:label'):
-            label = s.split()[1]
-            if label.startswith('"'):
-                label = label[1:]
-            if label.endswith('"'):
-                label = label[:-1]
+            label = s.split('"')[1]
     if label is not None:
         label_dict[chemblid] = label
 
@@ -681,5 +680,5 @@ def kegg_stand():
 #######
 if __name__ == '__main__':
     #load_chemicals(refresh_mesh=False,refresh_uniprot=True,refresh_pubchem=True,refresh_chembl=True)
-    load_chemicals(refresh_mesh=False,refresh_unichem=False,refresh_kegg=False,refresh_uniprot=False,refresh_pubchem=True,refresh_chembl=True)
+    load_chemicals(refresh_mesh=False,refresh_unichem=False,refresh_kegg=False,refresh_uniprot=False,refresh_pubchem=False,refresh_chembl=False)
     #load_unichem(working_dir='.',xref_file='UC_XREF.txt.gz',struct_file='UC_STRUCTURE.txt')

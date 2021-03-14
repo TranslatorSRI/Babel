@@ -3,7 +3,7 @@ import logging
 
 from src.LabeledID import LabeledID
 from src.util import LoggingUtil
-from babel.babel_utils import pull_via_ftp,write_compendium
+from babel.babel_utils import pull_via_ftp,write_compendium,glom
 
 logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
@@ -17,6 +17,27 @@ def pull_hgnc_json():
 #    data = pull_via_ftp('ftp.ebi.ac.uk','/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/', 'HUMAN_9606_idmapping.dat.gz')
 #    tabs = decompress(data).decode()
 #    return tabs
+
+def pull_swissprot():
+    swissname = pull_via_ftp('ftp.uniprot.org','/pub/databases/uniprot/current_release/knowledgebase/complete/','uniprot_sprot.fasta.gz',decompress_data=True,outfilename='uniprot_sprot.fasta')
+    swissprot_labels = {}
+    nlines = 0
+    with open(swissname,'r') as inf:
+        for line in inf:
+            nlines += 1
+            if line.startswith('>'):
+                #example fasta line:
+                #>sp|Q6GZX4|001R_FRG3G Putative transcription factor 001R OS=Frog virus 3 (isolate Goorha) OX=654924 GN=FV3-001R PE=4 SV=1
+                x = line.split('|')
+                uniprotid = f'UniProtKB:{x[1]}'
+                name = x[2].split(' OS=')[0]
+                swissprot_labels[uniprotid] = name
+    print('numlines',nlines)
+    print('nl',len(swissprot_labels))
+    swissies = [ (k,) for k in swissprot_labels.keys() ]
+    print('s',len(swissies))
+    return swissies, swissprot_labels
+    
 
 def json_2_identifiers(gene_dict):
     symbol = gene_dict['symbol']
@@ -52,7 +73,9 @@ def load_genes():
     Include names from sources as well...
     """
     synonyms,labels = synonymize_genes()
-    write_compendium(synonyms,'gene_compendium.txt','biolink:Gene',labels=labels)
+    synset =set([frozenset(x) for x in synonyms.values()]) 
+    print(len(synset))
+    write_compendium(synset,'gene_compendium.txt','biolink:Gene',labels=labels)
 
 def synonymize_genes():
     """
@@ -67,7 +90,14 @@ def synonymize_genes():
     for x in hgnc_identifiers_and_labels:
         hgnc_identifiers.append(x[0])
         labels.update(x[1])
-    return hgnc_identifiers,labels
+    print(len(hgnc_identifiers))
+    gene_comp =  {}
+    glom(gene_comp,hgnc_identifiers)
+    sp,spl = pull_swissprot()
+    print(len(sp))
+    glom(gene_comp,sp)
+    labels.update(spl)    
+    return gene_comp,labels
 
 if __name__ == '__main__':
     load_genes()

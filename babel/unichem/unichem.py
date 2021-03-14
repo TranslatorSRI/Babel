@@ -25,7 +25,7 @@ def refresh_unichem(working_dir: str = '', xref_file: str = None, struct_file: s
     logger.info(f'Start of Unichem loading. Working directory: {working_dir}')
 
     # declare the unichem ids for the target data
-    data_sources: dict = {1: 'CHEMBL.COMPOUND', 2: 'DRUGBANK', 4: 'gtpo', 6: 'KEGG', 7: 'CHEBI', 14: 'UNII', 18: 'HMDB', 22: 'PUBCHEM.COMPOUND'}
+    data_sources: dict = {1: 'CHEMBL.COMPOUND', 2: 'DRUGBANK', 4: 'GTOPDB', 6: 'KEGG.COMPOUND', 7: 'CHEBI', 14: 'UNII', 18: 'HMDB', 22: 'PUBCHEM.COMPOUND'}
     #data_sources: dict = {1: 'CHEMBL.COMPOUND', 2: 'DRUGBANK', 4: 'GTOPDB', 6: 'KEGG.COMPOUND', 7: 'CHEBI', 14: 'UNII', 18: 'HMDB', 22: 'PUBCHEM'}
 
     # get the newest UniChem data directory name
@@ -104,7 +104,7 @@ def merge_xref_with_structure(filtered_xref_file,struct_file):
     structure file from which we can pull inchikeys, and which is also sorted by uci_key, create a list of
     synonymous chemicals by walking through the two files in parallel."""
     #Used to construct curies.  It's repeated from load_unichem which is a bad smell.
-    data_sources: dict = {1: 'CHEMBL.COMPOUND', 2: 'DRUGBANK', 4: 'gtpo', 6: 'KEGG', 7: 'CHEBI', 14: 'UNII', 18: 'HMDB', 22: 'PUBCHEM.COMPOUND'}
+    data_sources: dict = {1: 'CHEMBL.COMPOUND', 2: 'DRUGBANK', 4: 'GTOPDB', 6: 'KEGG.COMPOUND', 7: 'CHEBI', 14: 'UNII', 18: 'HMDB', 22: 'PUBCHEM.COMPOUND'}
     #initialize
     synonyms: dict = {}
     chem_counter = 0

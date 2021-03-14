@@ -14,17 +14,19 @@ def load(fname):
 def compare(fname):
     new = load(f'compendia/{fname}')
     old = load(f'compendia/older/{fname}')
-    n = 0
+    lost_key = 0
+    changed_value = 0
     for key in old:
         if key not in new:
-            n+=1
+            lost_key+=1
             print(key)
         elif new[key] != old[key]:
-            n+=1
-            print(key)
-            print(' ',old[key])
-            print(' ',new[key])
-    print(n)
+            changed_value +=1
+            #print(key)
+            #print(' ',old[key])
+            #print(' ',new[key])
+    print(lost_key)
+    print(changed_value)
 
 if __name__ == '__main__':
     compare('phenotypes.txt')

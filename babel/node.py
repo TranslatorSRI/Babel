@@ -102,13 +102,20 @@ class NodeFactory:
         identifiers = []
         accepted_ids = set()
         #Converting identifiers from LabeledID to dicts
+        #In order to be consistent from run to run, we need to worry about the
+        # case where e.g. there are 2 UMLS id's and UMLS is the preferred pref.
+        # We're going to choose the canonical ID here just by sorting the N .
         for p in prefixes:
             pupper = p.upper()
             if pupper in idmap:
+                newids = []
                 for v in idmap[pupper]:
                     newid = Text.recurie(v,p)
-                    identifiers.append(self.make_json_id(newid))
+                    jid = self.make_json_id(newid)
+                    newids.append( (jid['identifier'],jid) )
                     accepted_ids.add(v)
+                newids.sort()
+                identifiers += [ nid[1] for nid in newids ]
         #Warn if we have prefixes that we're ignoring
         for k,vals in idmap.items():
             for v in vals:

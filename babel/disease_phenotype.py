@@ -29,27 +29,44 @@ def read_bad_hp_mappings():
             drops[curie].update(badset)
     return drops
 
-def filter_umls(umls_pairs,sets_with_umls):
+
+def filter_secondaries(umls_pairs,ffilename):
+    #umls pairs is a list of (umls,other) sets
+    # We want to go through this.  If "other" only occurs once, it's ok,
+    # but if it occurs more than once, it's going to gum up the works, so 
+    # we chuck it
+    othercounts = defaultdict(int)
+    for xyset in umls_pairs:
+        x,y = tuple(xyset)
+        other = x
+        if x.startswith('UMLS'):
+            other =  y
+        othercounts[other] += 1         
+    ret = []
+    with open(ffilename,'w') as outf:
+        for xyset in umls_pairs:
+            x,y = tuple(xyset)
+            other = x
+            if x.startswith('UMLS'):
+                other =  y
+            if othercounts[other] > 1:
+                outf.write(f'{x}\t{y}\n')         
+            else:
+                ret.append( frozenset([x,y]) )
+    print(len(ret))
+    return ret
+
+
+def filter_umls(umls_pairs,sets_with_umls,ffilename):
     # We've got a bunch of umls pairs, but we really only want to use them if they're not
     # already BOTH attached to a hp or mondo.
-    #for s in sets_with_umls:
-    #    if 'UMLS:C2931082' in s:
-    #        print(s)
-    #    if 'MESH:C536004' in s:
-    #        print(s)
-    with open('filtered.txt','w') as ff:
+    with open(ffilename,'w') as ff:
         used = set()
         for s in sets_with_umls:
             used.update(s)
-        #if 'UMLS:C2931082' in used:
-        #    print('umls in used')
-        #if 'MESH:C536004' in used:
-        #    print('mesh in used')
         ok_pairs = []
         for pair in umls_pairs:
             p=list(pair)
-        #    print(p[0])
-        #    print(p[1])
             ok = ((p[0] not in used) or (p[1] not in used))
             if ok:
                 ok_pairs.append(pair)
@@ -112,8 +129,12 @@ def load_diseases_and_phenotypes():
     dump_sets(mondo_sets,'mondo_sets.txt')
     print('get and write umls sets')
     bad_umls = read_badxrefs('umls')
-    meddra_umls = read_meddra(bad_umls)
-    meddra_umls = filter_umls(meddra_umls,mondo_sets+hpo_sets)
+    meddra_umls,secondary_meddra_umls = read_meddra(bad_umls)
+    meddra_umls = filter_umls(meddra_umls,mondo_sets+hpo_sets,'filtered.txt')
+    secondary_meddra_umls = filter_umls(secondary_meddra_umls,mondo_sets+hpo_sets,'filtered_secondary.txt')
+    #Now, if we just use all the secondary links, things get too agglommed.  
+    # So instead, lets filter these again.
+    meddra_umls += filter_secondaries(secondary_meddra_umls,'double_filter.txt')
     dump_sets(meddra_umls,'meddra_umls_sets.txt')
     dicts = {}
     #EFO has 3 parts that we want here:
@@ -138,13 +159,14 @@ def load_diseases_and_phenotypes():
     glom(dicts,hpo_sets,unique_prefixes=['MONDO'],pref='HP')
     dump_dicts(dicts,'mondo_hpo_dicts.txt')
     print('umls')
-    glom(dicts,meddra_umls,unique_prefixes=['MONDO'],pref='UMLS',close={'MONDO':mondo_close})
+    glom(dicts,meddra_umls,unique_prefixes=['MONDO','HP'],pref='UMLS',close={'MONDO':mondo_close})
     dump_dicts(dicts,'mondo_hpo_meddra_dicts.txt')
     print('efo')
-    glom(dicts,efo_sets,unique_prefixes=['MONDO'],pref='EFO')
+    glom(dicts,efo_sets,unique_prefixes=['MONDO','HP'],pref='EFO')
     dump_dicts(dicts,'mondo_hpo_meddra_efo_dicts.txt')
     print('dump it')
-    diseases,phenotypes = create_typed_sets(set([frozenset(x) for x in dicts.values()]))
+    fs = set([frozenset(x) for x in dicts.values()])
+    diseases,phenotypes = create_typed_sets(fs)
     write_compendium(diseases,'disease.txt','biolink:Disease',labels)
     write_compendium(phenotypes,'phenotypes.txt','biolink:PhenotypicFeature',labels)
 
@@ -162,6 +184,11 @@ def create_typed_sets(eqsets):
     phenotypic_features = set()
     unknown_types = set()
     for equivalent_ids in eqsets:
+        if 'MEDDRA:10012374' in equivalent_ids:
+            print('found!')
+            debug = True
+        else:
+            debug = False
         #prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
         prefixes = get_prefixes(equivalent_ids)
         if 'MONDO' in prefixes:
@@ -169,29 +196,46 @@ def create_typed_sets(eqsets):
         elif 'HP' in prefixes:
             phenotypic_features.add(equivalent_ids)
         elif 'UMLS' in prefixes:
+            debug = False
             umls_ids = [ Text.un_curie(x) for x in equivalent_ids if Text.get_curie(x) == 'UMLS']
+            #We're going to look at all the UMLS ids.  For the most part, if we find "finding" or "sign or symptom" it means that we're looking at a phenotype
+            # so we check for phenotypes first
             #if len(umls_ids) > 1:
-            #    print(umls_ids)
+            if 'C1831808' in umls_ids:
+                print('-------')
+                debug = True
             try:
-                semtype = umls_types[umls_ids[0]]
-                if semtype in ['Disease or Syndrome','Neoplastic Process','Injury or Poisoning',
-                               'Mental or Behavioral Dysfunction','Congenital Abnormality',
-                               'Anatomical Abnormality']:
-                    diseases.add(equivalent_ids)
-                elif semtype in ['Finding', 'Pathologic Function', 'Sign or Symptom', 'Acquired Abnormality']:
-                    phenotypic_features.add(equivalent_ids)
-                else:
+                if debug:
+                    for umls_id in umls_ids:
+                        print(umls_id, umls_types[umls_id])
+                semtypes = set( [umls_types[u] for u in umls_ids] )
+                found = False
+                for st in ['Finding', 'Pathologic Function', 'Sign or Symptom', 'Acquired Abnormality']:
+                    if st in semtypes:
+                        found = True
+                        phenotypic_features.add(equivalent_ids)
+                if not found:
+                    for st in ['Disease or Syndrome','Neoplastic Process','Injury or Poisoning',
+                                   'Mental or Behavioral Dysfunction','Congenital Abnormality',
+                                   'Anatomical Abnormality']:
+                        if st in semtypes:
+                            diseases.add(equivalent_ids)
+                            found = True
+                if not found:
                     #Therapeutic or Preventive Procedure, Laboratory Procedure,Laboratory or Test Result
                     #Diagnostic Procedure
-                    if semtype not in unknown_types:
-                        #print('What is this UMLS type?')
-                        #print(semtype,umls_ids[0])
-                        unknown_types.add(semtype)
-                    pass
+                    for semtype in semtypes:
+                        if semtype not in unknown_types:
+                            #print('What is this UMLS type?')
+                            #print(semtype,umls_ids[0])
+                            unknown_types.add(semtype)
             except Exception as e:
-                #print(f'Missing UMLS: {umls_ids[0]}')
-                #print(equivalent_ids)
-                #Calling it a phenotype
+                if debug:
+                    print('EXCEPCION')
+                    print(e)
+                    print(f'Missing UMLS: {umls_ids[0]}')
+                    print(equivalent_ids)
+                    print('Calling it a phenotype')
                 phenotypic_features.add(equivalent_ids)
         elif 'EFO' in prefixes:
             phenotypic_features.add(equivalent_ids)
@@ -271,6 +315,7 @@ def build_sets(iri, ignore_list = ['ICD'], bad_mappings = {}):
 # It's possible we could rebuild using the services, but no doubt very slowly
 def read_meddra(bad_maps):
     pairs = set()
+    secondaries = set()
     mrcon = os.path.join(os.path.dirname(__file__),'input_data', 'MRCONSO.RRF')
     nothandled = set()
     with open(mrcon,'r') as inf:
@@ -278,8 +323,16 @@ def read_meddra(bad_maps):
             x = line.strip().split('|')
             if x[1] != 'ENG':
                 continue
+            #This is a TS (Term Status) TS Description
+            #  P   Preferred LUI of the CUI
+            #  S   Non-Preferred LUI of the CUI
+            #The problem with keeping the non-preferred terms is that
+            # it tends to lead to an overagglomeration via snomed, meddra
+            # and umls.  So we're going to segregate them and treat
+            # specially
+            primary = True
             if x[2] == 'S':
-                continue
+                primary = False
             #There is a suppress column.  Only go forward if it is  'N' (it can be 'O', 'E', 'Y', all mean suppress)
             if x[16] != 'N':
                 continue
@@ -297,6 +350,8 @@ def read_meddra(bad_maps):
                 otherid = f'SNOMEDCT:{oid}'
             elif source == 'MSH':
                 otherid = f'MESH:{oid}'
+            elif source == 'OMIM':
+                otherid = f'OMIM:{oid}'
             elif source in ['LNC','SRC']:
                 continue
             else:
@@ -307,8 +362,11 @@ def read_meddra(bad_maps):
             uid = f'UMLS:{x[0]}'
             if uid in bad_maps and otherid == bad_maps[uid]:
                 continue
-            pairs.add( frozenset({uid,otherid}) )
-    return list(pairs)
+            if primary:
+                pairs.add( frozenset({uid,otherid}) )
+            else:
+                secondaries.add( frozenset({uid,otherid} ) )
+    return list(pairs),list(secondaries)
 
 def read_umls_types():
     types = {}
