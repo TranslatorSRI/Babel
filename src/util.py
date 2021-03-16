@@ -104,8 +104,10 @@ class Text:
     def opt_to_curie (text):
         if text is None:
             return None
+        #grumble, I should be better about handling prefixes
         if text.startswith('http://purl.obolibrary.org') or text.startswith('http://www.orpha.net') or text.startswith('http://www.ebi.ac.uk/efo'):
-            return ':'.join( text.split('/')[-1].split('_') )
+            p = text.split('/')[-1].split('_')
+            return ':'.join( p )
         if text.startswith('http://linkedlifedata.com/resource/umls'):
             return f'UMLS:{text.split("/")[-1]}'
         if text.startswith('http://identifiers.org/'):
@@ -117,6 +119,8 @@ class Text:
             return f'SNOMEDCT:{text.split("/")[-1]}'
         if text.startswith('KEGG_PATHWAY'):
             return Text.recurie(text,'KEGG.PATHWAY')
+        if text.startswith('NCIt'):
+            return Text.recurie(text,'NCIT')
         if text.startswith('KEGG_REACTION'):
             return Text.recurie(text,'KEGG.REACTION')
         return text

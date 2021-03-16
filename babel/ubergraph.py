@@ -8,6 +8,71 @@ class UberGraph:
     def __init__(self):
         self.triplestore = TripleStore("https://stars-app.renci.org/uberongraph/sparql")
 
+    def get_all_labels(self):
+        text = """
+                prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                prefix UBERON: <http://purl.obolibrary.org/obo/UBERON_>
+                prefix CL: <http://purl.obolibrary.org/obo/CL_>
+                prefix GO: <http://purl.obolibrary.org/obo/GO_>
+                prefix CHEBI: <http://purl.obolibrary.org/obo/CHEBI_>
+                prefix MONDO: <http://purl.obolibrary.org/obo/MONDO_>
+                prefix HP: <http://purl.obolibrary.org/obo/HP_>
+                prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
+                select distinct ?thing ?label
+                from <http://reasoner.renci.org/ontology>
+                where {
+                    ?thing rdfs:label ?label .
+                }
+                """
+        rr = self.triplestore.query_template(
+            inputs={}, \
+            outputs=['thing', 'label'], \
+            template_text=text \
+            )
+        results = []
+        for x in rr:
+            y = {}
+            y['iri'] = Text.opt_to_curie(x['thing'])
+            y['label'] = x['label']
+            results.append(y)
+        return results
+
+    def get_all_synonyms(self):
+        text = """
+                prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                prefix owl: <http://www.w3.org/2002/07/owl#>
+                prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#>
+                prefix UBERON: <http://purl.obolibrary.org/obo/UBERON_>
+                prefix CL: <http://purl.obolibrary.org/obo/CL_>
+                prefix GO: <http://purl.obolibrary.org/obo/GO_>
+                prefix CHEBI: <http://purl.obolibrary.org/obo/CHEBI_>
+                prefix MONDO: <http://purl.obolibrary.org/obo/MONDO_>
+                prefix HP: <http://purl.obolibrary.org/obo/HP_>
+                prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
+                SELECT ?cls ?pred ?val
+                from <http://reasoner.renci.org/ontology>
+                WHERE 
+                { ?cls ?pred ?val ;
+                    a owl:Class .
+                    FILTER (
+                    ?pred = oboInOwl:hasRelatedSynonym ||
+                    ?pred = oboInOwl:hasNarrowSynonym ||
+                    ?pred = oboInOwl:hasBroadSynonym ||
+                    ?pred = oboInOwl:hasExactSynonym
+                    )
+                }
+                """
+        rr = self.triplestore.query_template(
+            inputs={}, \
+            outputs=['cls', 'pred', 'val'], \
+            template_text=text \
+            )
+        results = []
+        for x in rr:
+            y = ( Text.opt_to_curie(x['cls']), x['pred'], x['val'])
+            results.append(y)
+        return results
+
     def get_subclasses_of(self,iri):
         text="""
         prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -17,6 +82,7 @@ class UberGraph:
         prefix CHEBI: <http://purl.obolibrary.org/obo/CHEBI_>
         prefix MONDO: <http://purl.obolibrary.org/obo/MONDO_>
         prefix HP: <http://purl.obolibrary.org/obo/HP_>
+        prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
         select distinct ?descendent ?descendentLabel
         from <http://reasoner.renci.org/ontology>
         where {
@@ -51,6 +117,7 @@ class UberGraph:
         prefix CHEBI: <http://purl.obolibrary.org/obo/CHEBI_>
         prefix MONDO: <http://purl.obolibrary.org/obo/MONDO_>
         prefix HP: <http://purl.obolibrary.org/obo/HP_>
+        prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
         select distinct ?descendent ?descendentLabel ?xref 
         from <http://reasoner.renci.org/nonredundant>
         from <http://reasoner.renci.org/ontology>
@@ -94,6 +161,7 @@ class UberGraph:
         prefix MONDO: <http://purl.obolibrary.org/obo/MONDO_>
         prefix HP: <http://purl.obolibrary.org/obo/HP_>
         prefix EFO: <http://www.ebi.ac.uk/efo/EFO_>
+        prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
         PREFIX EXACT_MATCH: <http://www.w3.org/2004/02/skos/core#exactMatch>
         PREFIX M_EXACT_MATCH: <http://purl.obolibrary.org/obo/mondo#exactMatch>
         PREFIX EQUIVALENT_CLASS: <http://www.w3.org/2002/07/owl#equivalentClass>
@@ -150,6 +218,7 @@ class UberGraph:
         prefix MONDO: <http://purl.obolibrary.org/obo/MONDO_>
         prefix HP: <http://purl.obolibrary.org/obo/HP_>
         prefix EFO: <http://www.ebi.ac.uk/efo/EFO_>
+        prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
         PREFIX CLOSE_MATCH: <http://www.w3.org/2004/02/skos/core#closeMatch>
         PREFIX M_CLOSE_MATCH: <http://purl.obolibrary.org/obo/mondo#closeMatch>
         PREFIX EQUIVALENT_CLASS: <http://www.w3.org/2002/07/owl#equivalentClass>

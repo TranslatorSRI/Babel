@@ -8,16 +8,23 @@ import requests
 import os
 import urllib
 import jsonlines
-from babel.node import NodeFactory
+from babel.node import NodeFactory, SynonymFactory
 from src.util import Text
 from src.LabeledID import LabeledID
 from json import load
 from collections import defaultdict
 import sqlite3
 
-def make_local_name(fname):
+def make_local_name(fname,subpath=None):
     config = get_config()
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)),config['download_directory'],fname)
+    if subpath is None:
+        return os.path.join(os.path.dirname(os.path.abspath(__file__)),config['download_directory'],fname)
+    odir = os.path.join(os.path.dirname(os.path.abspath(__file__)),config['download_directory'],subpath)
+    try:
+        os.makedirs(odir)
+    except:
+        pass
+    return os.path.join(odir,fname)
 
 class StateDB():
     def __init__(self,fname):
@@ -182,12 +189,17 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True):
 
 def write_compendium(synonym_list,ofname,node_type,labels={}):
     cdir = os.path.dirname(os.path.abspath(__file__))
-    node_factory = NodeFactory()
-    with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf:
+    node_factory = NodeFactory(make_local_name(''))
+    synonym_factory = SynonymFactory(make_local_name(''))
+    with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, open(os.path.join(cdir,'compendia',f'{ofname}_synonyms.txt'),'w') as sfile:
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels)
             if node is not None:
                 outf.write( node )
+                synonyms = synonym_factory.get_synonyms(node)
+                if len(synonyms) > 0:
+                    for p,o in synonyms:
+                        sfile.write(f'{node["id"]["identifier"]}\t{p}\t{o}\n')
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.
