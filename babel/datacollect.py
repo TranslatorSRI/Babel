@@ -137,8 +137,8 @@ def pull_pubchem():
     pull_pubchem_synonyms()
 
 if __name__ == '__main__':
-    #pull_ubers()
+    pull_ubers()
     pull_mesh_labels()
-    #pull_umls()
-    #pull_pubchem()
+    pull_umls()
+    pull_pubchem()
 

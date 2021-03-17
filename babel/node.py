@@ -54,7 +54,11 @@ class NodeFactory:
             return self.ancestor_map[input_type]
         url = f'{self.url_base}/{input_type}/ancestors'
         response = requests.get(url)
-        ancs = response.json()
+        #this is a hack to handle stuff we want to synonymize that isn't a named thing (like organism taxon)
+        try:
+            ancs = response.json()
+        except:
+            ancs = [input_type]
         self.ancestor_map[input_type] = ancs
         return ancs
 
@@ -63,8 +67,12 @@ class NodeFactory:
             return self.prefix_map[input_type]
         url = f'{self.url_base}/{input_type}'
         response = requests.get(url)
-        j = response.json()
-        prefs = j['id_prefixes']
+        try:
+            j = response.json()
+            prefs = j['id_prefixes']
+        except:
+            #this is a mega hack to deal with the taxon change
+            prefs = ['NCBITaxon','MESH']
         self.prefix_map[input_type] = prefs
         return prefs
 

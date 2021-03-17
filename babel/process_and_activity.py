@@ -12,7 +12,7 @@ def build_sets(iri, ignore_list = ['PMID','EC']):
     results = []
     uberres = clean_sets(uberres)
     labels = {}
-    repre={'KEGG':'KEGG', 'REACTOME': 'REACT', 'Reactome':'REACT', 'METACYC':'MetaCyc'}
+    repre={'KEGG':'KEGG.REACTION', 'REACTOME': 'REACT', 'Reactome':'REACT', 'METACYC':'MetaCyc'}
     for k,v in uberres.items():
         modv = []
         #The smarter way to do this would be by actually expanding, and then using our jsonld context
