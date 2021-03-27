@@ -211,9 +211,11 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     n = 0
     bad = 0
     shit_prefixes=set(['KEGG','PUBCHEM'])
+    test_id = 'UBERON:0006061'
+    excised = set()
     for group in newgroups:
         n+=1
-        if 'UBERON:0018374' in group:
+        if test_id in group:
             print('higroup',group)
         #Find all the equivalence sets that already correspond to any of the identifiers in the new set.
         existing_sets_w_x = [ (conc_set[x],x) for x in group if x in conc_set ]
@@ -224,8 +226,11 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
         #put all the new stuff in it.  Do it element-wise, cause we don't know the type of the new group
         for element in group:
             newset.add(element)
-        if 'UBERON:0018374' in newset:
+        if test_id in newset:
             print('hiset',newset)
+            print('esets')
+            for eset in existing_sets:
+                print(' ',eset)
         for check_element in newset:
             prefix = check_element.split(':')[0]
             if prefix in shit_prefixes:
@@ -234,10 +239,10 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
                 raise 'garbage'
         #make sure we didn't combine anything we want to keep separate
         setok = True
-        if 'UBERON:0018374' in group:
+        if test_id in group:
             print('setok?',setok)
         for up in unique_prefixes:
-            if 'UBERON:0018374' in group:
+            if test_id in group:
                 print('up?',up)
             idents = [e if type(e)==str else e.identifier for e in newset]
             if len(set([e for e in idents if (e.split(':')[0] ==up)])) > 1:
@@ -254,8 +259,39 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
                 #    print(f'{killer}\t{set(group).intersection(preset)}\t{preset}\n')
                 #print('------------')
         if not setok:
-            if 'UBERON:0018374' in group:
-                print('badset',group,setok)
+            #Our new group created a new set that merged stuff we didn't want to merge.
+            #Let's figure out the culprit(s) and excise them
+            counts = defaultdict(int)
+            for x in group:
+                counts[x] += 1
+            #THe way existing sets was created, means that the same set can be in there twice, and we don't want to
+            # count things that way
+            unique_existing_sets = []
+            for ex in existing_sets:
+                u = True
+                for q in unique_existing_sets:
+                    if ex == q:
+                        u = False
+                if u:
+                    unique_existing_sets.append(ex)
+            for es in unique_existing_sets:
+                for y in es:
+                    counts[y] += 1
+            bads = [ x for x,y in counts.items() if y > 1 ]
+            #now we know which identifiers are causing trouble.
+            #We don't want to completely throw them out, but we can't allow them to gum things up.
+            #So, we need to first remove them from all the sets, then we need to put them in their own set
+            #It might be good to track this somehow?
+            excised.update(bads)
+            for b in bads:
+                if b in group:
+                    group.remove(b)
+                for exset in existing_sets:
+                    if b in exset:
+                        exset.remove(b)
+                conc_set[b] = set([b])
+            for x in group:
+                conc_set[x] = group
             continue
         #Now check the 'close' dictionary to see if we've accidentally gotten to a close match becoming an exact match
         setok = True
@@ -279,6 +315,13 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
         #Now make all the elements point to this new set:
         for element in newset:
             conc_set[element] = newset
+    ccount = defaultdict(int)
+    for x in excised:
+        ccount[Text.get_curie(x)] += 1
+    print('These are the excisions:')
+    for prefix,c in ccount.items():
+        print(prefix,c)
+    print('----')
     #if bad > 0:
     #    print(f'Found {bad} mixups')
         #exit()
