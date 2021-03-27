@@ -12,17 +12,13 @@ def build_sets(iri, ignore_list = ['PMID','BTO','BAMS']):
     results = []
     labels = {}
     for k,v in uberres.items():
-        #if k[1] is not None and k[1].startswith('obsolete'):
-        #    continue
         dbx = set([ x for x in v if not Text.get_curie(x) in ignore_list ])
+        for vi in v:
+            if vi.startswith('NCIt'):
+                print(k,v)
+                print('===')
         dbx.add(k[0])
-        if k[0] == 'UBERON:0018374':
-            print('found it')
-            print(k[0])
-            print(dbx)
         if k[1] is not None and len(k[1]) > 0:
-            if k[0] == 'UBERON:0018374':
-                print(k[0],k[1])
             labels[k[0]] = k[1]
         #dbx.add(LabeledID(identifier=k[0],label=k[1]))
         results.append(dbx)
@@ -51,9 +47,7 @@ def load_anatomy():
     dicts = {}
     print('put it all together')
     glom(dicts, anatomy_sets, unique_prefixes=['UBERON','GO'])
-    print(dicts['UBERON:0018374'])
     glom(dicts, cellular_component_sets, unique_prefixes=['UBERON','GO'])
-    print(dicts['UBERON:0018374'])
     labels.update(labels_b)
     anat_sets, cell_sets, cc_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]))
     write_compendium(anat_sets,'anatomy.txt','biolink:AnatomicalEntity',labels)
