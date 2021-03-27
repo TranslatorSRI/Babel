@@ -150,12 +150,10 @@ def pull_hgnc():
             name = gene['name']
             sfile.write(f'{hgnc_id}\thttp://www.geneontology.org/formats/oboInOwl#hasExactSynonym\t{name}\n')
             if 'alias_symbol' in gene:
-                print('alias symbol')
                 alias_symbols = gene['alias_symbol']
                 for asym in alias_symbols:
                     sfile.write(f'{hgnc_id}\thttp://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym\t{asym}\n')
             if 'alias_name' in gene:
-                print('alias name')
                 alias_names = gene['alias_name']
                 for asym in alias_names:
                     sfile.write(f'{hgnc_id}\thttp://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym\t{asym}\n')
