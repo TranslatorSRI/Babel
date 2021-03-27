@@ -72,6 +72,7 @@ def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=No
                 return binary.decode()
     ofilename = os.path.join(os.path.dirname(os.path.abspath(__file__)),config['download_directory'],outfilename)
     print(f'  writing data to {ofilename}')
+    print(f'{ftpsite}/{ftpdir}/{ftpfile}')
     if not decompress_data:
         with open(ofilename,'wb') as ofile:
             ftp.retrbinary(f'RETR {ftpfile}', ofile.write)
