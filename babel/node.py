@@ -3,6 +3,7 @@ from src.util import Text
 from src.LabeledID import LabeledID
 from collections import defaultdict
 import os
+from bmt import Toolkit
 
 class SynonymFactory():
     def __init__(self,syndir):
@@ -43,6 +44,7 @@ class NodeFactory:
     def __init__(self,label_dir):
         #self.url_base = 'http://arrival.edc.renci.org:32511/bl'
         self.url_base = 'https://bl-lookup-sri.renci.org/bl'
+        self.toolkit = Toolkit('https://raw.githubusercontent.com/biolink/biolink-model/1.6.1/biolink-model.yaml')
         self.ancestor_map = {}
         self.prefix_map = {}
         self.ignored_prefixes = set()
@@ -52,13 +54,16 @@ class NodeFactory:
     def get_ancestors(self,input_type):
         if input_type in self.ancestor_map:
             return self.ancestor_map[input_type]
-        url = f'{self.url_base}/{input_type}/ancestors'
-        response = requests.get(url)
-        #this is a hack to handle stuff we want to synonymize that isn't a named thing (like organism taxon)
-        try:
-            ancs = response.json()
-        except:
-            ancs = [input_type]
+        print('call it in')
+        #url = f'{self.url_base}/{input_type}/ancestors'
+        #print(url)
+        #response = requests.get(url)
+        #print('back')
+        #ancs = response.json()
+        a = self.toolkit.get_ancestors(input_type)
+        ancs = [ self.toolkit.get_element(ai)['class_uri'] for ai in a ]
+        if input_type not in ancs:
+            ancs  [input_type] + ancs
         self.ancestor_map[input_type] = ancs
         return ancs
 
@@ -144,8 +149,13 @@ class NodeFactory:
         #This is where we will normalize, i.e. choose the best id, and add types in accord with BL.
         #we should also include provenance and version information for the node set build.
         ancestors = self.get_ancestors(node_type)
-        ancestors.reverse()
+        #ancestors.reverse()
         prefixes = self.get_prefixes(node_type)
+        if len(input_identifiers) == 0:
+            return None
+        if len(input_identifiers) > 1000:
+            print('this seems like a lot')
+            print(len(input_identifiers))
         cleaned = self.apply_labels(input_identifiers,labels)
         try:
             idmap = defaultdict(list)
