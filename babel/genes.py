@@ -26,6 +26,7 @@ def pull_prot(which,refresh):
         swissname = make_local_name(f'uniprot_{which}.fasta')
     swissprot_labels = {}
     nlines = 0
+    maxn = 1000
     with open(swissname,'r') as inf:
         for line in inf:
             nlines += 1
@@ -35,7 +36,9 @@ def pull_prot(which,refresh):
                 x = line.split('|')
                 uniprotid = f'UniProtKB:{x[1]}'
                 name = x[2].split(' OS=')[0]
-                swissprot_labels[uniprotid] = name
+                swissprot_labels[uniprotid] = f'{name} ({which})'
+            #if nlines > maxn:
+            #    break
     print('numlines',nlines)
     print('nl',len(swissprot_labels))
     swissies = [ (k,) for k in swissprot_labels.keys() ]

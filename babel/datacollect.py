@@ -188,13 +188,13 @@ def pull_prot(which,refresh):
 
 def pull_prots(refresh_swiss=False,refresh_trembl=False):
     swiss,labels = pull_prot('sprot',refresh_swiss)
-    fname = make_local_name('labels', subpath='MESH')
+    fname = make_local_name('labels', subpath='UNIPROTKB')
     with open(fname,'w') as synonyms:
         for k,v in labels.items():
-            synonyms.write(f'{k}\thttp://www.geneontology.org/formats/oboInOwl#hasExactSynonym\t{v}\n')
+            synonyms.write(f'{k}\t{v}\n')
         tremb,tlabels = pull_prot('trembl',refresh_trembl)
         for k,v in tlabels.items():
-            synonyms.write(f'{k}\thttp://www.geneontology.org/formats/oboInOwl#hasExactSynonym\t{v}\n')
+            synonyms.write(f'{k}\t{v}\n')
 
 if __name__ == '__main__':
     #pull_ubers()

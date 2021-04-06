@@ -11,6 +11,7 @@ class SynonymFactory():
         self.synonyms = {}
 
     def load_synonyms(self,prefix):
+        print(f'Loading {prefix}')
         lbs = defaultdict(set)
         labelfname = os.path.join(self.synonym_dir, prefix, 'labels')
         if os.path.exists(labelfname):
