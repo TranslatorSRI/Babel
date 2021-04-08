@@ -14,7 +14,7 @@ from src.LabeledID import LabeledID
 def parse_mesh(data):
     """THERE are two kinds of mesh identifiers that correspond to chemicals.
     1. Anything in the D tree
-    2. SCR_Chemicals from the appendices.
+    2. SCR_Chemicals from the appendices. But we don't want the proteins here (yet?)
     Dig through and find anything like this"""
     chemical_mesh = set()
     unmapped_mesh = set()
@@ -23,6 +23,8 @@ def parse_mesh(data):
     concept_to_unii  = {}
     concept_to_EC  = {}
     concept_to_label = {}
+    concept_to_descriptor = {}
+    trees = {}
     for line in data.split('\n'):
         if line.startswith('#'):
             continue
@@ -35,9 +37,10 @@ def parse_mesh(data):
             continue
         if v == '<http://id.nlm.nih.gov/mesh/vocab#treeNumber>':
             treenum = o.split('/')[-1]
+            meshid = s[:-1].split('/')[-1]
             if treenum.startswith('D'):
-                meshid = s[:-1].split('/')[-1]
                 chemical_mesh.add(meshid)
+            trees[meshid] = treenum
         elif o == '<http://id.nlm.nih.gov/mesh/vocab#SCR_Chemical>':
             meshid = s[:-1].split('/')[-1]
             chemical_mesh.add(meshid)
@@ -45,6 +48,10 @@ def parse_mesh(data):
             meshid = s[:-1].split('/')[-1]
             concept = o
             term_to_concept[meshid] = o
+        elif v == '<http://id.nlm.nih.gov/mesh/vocab#preferredMappedTo>':
+            meshid = s[:-1].split('/')[-1]
+            descriptorid = o[:-1].split('/')[-1]
+            concept_to_descriptor[meshid] = descriptorid
         elif v == '<http://id.nlm.nih.gov/mesh/vocab#registryNumber>':
             o = o[1:-1] #Strip quotes
             if o == '0':
@@ -54,23 +61,45 @@ def parse_mesh(data):
             elif o.startswith('EC'):
                 concept_to_EC[s] = o
             else:
-                concept_to_unii[s] = o
+                #txid is a taxon id, not something we want
+                if not o.startswith('txid'):
+                    concept_to_unii[s] = o
         elif v == '<http://www.w3.org/2000/01/rdf-schema#label>':
             meshid = s[:-1].split('/')[-1]
             concept_to_label[meshid] = o.strip().split('"')[1]
     term_to_cas={}
     term_to_unii={}
     term_to_EC={}
+    #Take things out of chemical mesh if they are proteins:
+    bads = set()
+    for c in chemical_mesh:
+        if c in concept_to_descriptor:
+            d = concept_to_descriptor[c]
+            if d in trees:
+                t = trees[d]
+                if t.startswith('D12.776'):
+                    bads.add(c)
+            elif 'Q' not in d:
+                print('wtf',d)
+    print(f'going to remove {len(bads)} proteins')
+    chemical_mesh = chemical_mesh.difference(bads)
     for term,concept in term_to_concept.items():
         if concept in concept_to_cas:
+            if term not in chemical_mesh:
+                print('why does this have a cas?',term)
             term_to_cas[term] = concept_to_cas[concept]
         elif concept in concept_to_unii:
+            if term not in chemical_mesh:
+                print('why does this have a unii? Concept:',concept,'Term:',term)
             term_to_unii[term] = concept_to_unii[concept]
         elif concept in concept_to_EC:
+            if term not in chemical_mesh:
+                print('why does this have an EC?',term)
             term_to_EC[term] = concept_to_EC[concept]
         else:
-            print(term,concept,concept in chemical_mesh)
-            unmapped_mesh.add(term)
+            #print(term,concept,term in chemical_mesh)
+            if term in chemical_mesh:
+                unmapped_mesh.add(term)
     print ( f"Found {len(chemical_mesh)} compounds in mesh")
     print ( f"Found {len(term_to_cas)} compounds with CAS identifiers")
     print ( f"Found {len(term_to_unii)} compounds with UNII identifiers")

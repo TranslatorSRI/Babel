@@ -159,10 +159,48 @@ def pull_hgnc():
                     sfile.write(f'{hgnc_id}\thttp://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym\t{asym}\n')
 
 
+def pull_prot(which,refresh):
+    #swissname = pull_via_ftplib('ftp.uniprot.org','/pub/databases/uniprot/current_release/knowledgebase/complete/',f'uniprot_{which}.fasta.gz',decompress_data=True,outfilename=f'uniprot_{which}.fasta')
+    if refresh:
+        swissname = pull_via_urllib('ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/',f'uniprot_{which}.fasta.gz')
+    else:
+        swissname = make_local_name(f'uniprot_{which}.fasta')
+    swissprot_labels = {}
+    nlines = 0
+    maxn = 1000
+    with open(swissname,'r') as inf:
+        for line in inf:
+            nlines += 1
+            if line.startswith('>'):
+                #example fasta line:
+                #>sp|Q6GZX4|001R_FRG3G Putative transcription factor 001R OS=Frog virus 3 (isolate Goorha) OX=654924 GN=FV3-001R PE=4 SV=1
+                x = line.split('|')
+                uniprotid = f'UniProtKB:{x[1]}'
+                name = x[2].split(' OS=')[0]
+                swissprot_labels[uniprotid] = f'{name} ({which})'
+            #if nlines > maxn:
+            #    break
+    print('numlines',nlines)
+    print('nl',len(swissprot_labels))
+    swissies = [ (k,) for k in swissprot_labels.keys() ]
+    print('s',len(swissies))
+    return swissies, swissprot_labels
+
+def pull_prots(refresh_swiss=False,refresh_trembl=False):
+    swiss,labels = pull_prot('sprot',refresh_swiss)
+    fname = make_local_name('labels', subpath='UNIPROTKB')
+    with open(fname,'w') as synonyms:
+        for k,v in labels.items():
+            synonyms.write(f'{k}\t{v}\n')
+        tremb,tlabels = pull_prot('trembl',refresh_trembl)
+        for k,v in tlabels.items():
+            synonyms.write(f'{k}\t{v}\n')
+
 if __name__ == '__main__':
     #pull_ubers()
     #pull_mesh_labels()
     #pull_umls()
     #pull_pubchem()
-    pull_hgnc()
+    #pull_hgnc()
+    pull_prots()
 

@@ -72,6 +72,7 @@ def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=No
                 return binary.decode()
     ofilename = os.path.join(os.path.dirname(os.path.abspath(__file__)),config['download_directory'],outfilename)
     print(f'  writing data to {ofilename}')
+    print(f'{ftpsite}/{ftpdir}/{ftpfile}')
     if not decompress_data:
         with open(ofilename,'wb') as ofile:
             ftp.retrbinary(f'RETR {ftpfile}', ofile.write)
@@ -191,6 +192,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={}):
     cdir = os.path.dirname(os.path.abspath(__file__))
     node_factory = NodeFactory(make_local_name(''))
     synonym_factory = SynonymFactory(make_local_name(''))
+    node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={})
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, open(os.path.join(cdir,'compendia',f'{ofname}_synonyms.txt'),'w') as sfile:
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels)
@@ -213,7 +215,11 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     shit_prefixes=set(['KEGG','PUBCHEM'])
     test_id = 'UBERON:0006061'
     excised = set()
-    for group in newgroups:
+    for xgroup in newgroups:
+        if isinstance(xgroup,frozenset):
+            group = set(xgroup)
+        else:
+            group = xgroup
         n+=1
         if test_id in group:
             print('higroup',group)

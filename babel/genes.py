@@ -3,7 +3,7 @@ import logging
 
 from src.LabeledID import LabeledID
 from src.util import LoggingUtil
-from babel.babel_utils import pull_via_ftp,write_compendium,glom
+from babel.babel_utils import pull_via_ftp,pull_via_urllib,write_compendium,glom,make_local_name
 
 logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
@@ -18,10 +18,15 @@ def pull_hgnc_json():
 #    tabs = decompress(data).decode()
 #    return tabs
 
-def pull_swissprot():
-    swissname = pull_via_ftp('ftp.uniprot.org','/pub/databases/uniprot/current_release/knowledgebase/complete/','uniprot_sprot.fasta.gz',decompress_data=True,outfilename='uniprot_sprot.fasta')
+def pull_prot(which,refresh):
+    #swissname = pull_via_ftplib('ftp.uniprot.org','/pub/databases/uniprot/current_release/knowledgebase/complete/',f'uniprot_{which}.fasta.gz',decompress_data=True,outfilename=f'uniprot_{which}.fasta')
+    if refresh:
+        swissname = pull_via_urllib('ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/',f'uniprot_{which}.fasta.gz')
+    else:
+        swissname = make_local_name(f'uniprot_{which}.fasta')
     swissprot_labels = {}
     nlines = 0
+    maxn = 1000
     with open(swissname,'r') as inf:
         for line in inf:
             nlines += 1
@@ -31,13 +36,21 @@ def pull_swissprot():
                 x = line.split('|')
                 uniprotid = f'UniProtKB:{x[1]}'
                 name = x[2].split(' OS=')[0]
-                swissprot_labels[uniprotid] = name
+                swissprot_labels[uniprotid] = f'{name} ({which})'
+            #if nlines > maxn:
+            #    break
     print('numlines',nlines)
     print('nl',len(swissprot_labels))
     swissies = [ (k,) for k in swissprot_labels.keys() ]
     print('s',len(swissies))
     return swissies, swissprot_labels
-    
+
+def pull_prots(refresh_swiss=False,refresh_trembl=False):
+    swiss,slabels = pull_prot('sprot',refresh_swiss)
+    tremb,tlabels = pull_prot('trembl',refresh_trembl)
+    slabels.update(tlabels)
+    return swiss+tremb,slabels
+
 
 def json_2_identifiers(gene_dict):
     symbol = gene_dict['symbol']
@@ -93,7 +106,7 @@ def synonymize_genes():
     print(len(hgnc_identifiers))
     gene_comp =  {}
     glom(gene_comp,hgnc_identifiers)
-    sp,spl = pull_swissprot()
+    sp,spl = pull_prots()
     print(len(sp))
     glom(gene_comp,sp)
     labels.update(spl)    
