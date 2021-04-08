@@ -680,5 +680,5 @@ def kegg_stand():
 #######
 if __name__ == '__main__':
     #load_chemicals(refresh_mesh=False,refresh_uniprot=True,refresh_pubchem=True,refresh_chembl=True)
-    load_chemicals(refresh_mesh=False,refresh_unichem=False,refresh_kegg=False,refresh_uniprot=False,refresh_pubchem=False,refresh_chembl=False)
+    load_chemicals(refresh_mesh=True,refresh_unichem=False,refresh_kegg=False,refresh_uniprot=False,refresh_pubchem=False,refresh_chembl=False)
     #load_unichem(working_dir='.',xref_file='UC_XREF.txt.gz',struct_file='UC_STRUCTURE.txt')
