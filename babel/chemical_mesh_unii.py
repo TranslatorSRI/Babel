@@ -69,12 +69,14 @@ def parse_mesh(data):
         elif concept in concept_to_EC:
             term_to_EC[term] = concept_to_EC[concept]
         else:
+            print(term,concept,concept in chemical_mesh)
             unmapped_mesh.add(term)
     print ( f"Found {len(chemical_mesh)} compounds in mesh")
     print ( f"Found {len(term_to_cas)} compounds with CAS identifiers")
     print ( f"Found {len(term_to_unii)} compounds with UNII identifiers")
     print ( f"Found {len(unmapped_mesh)} compounds with NOTHING")
     print ( f"{len(term_to_cas) + len(term_to_unii) + len(unmapped_mesh)}")
+    exit()
     return chemical_mesh, unmapped_mesh, term_to_cas, term_to_unii, term_to_EC,concept_to_label
 
 
