@@ -1,5 +1,7 @@
-from src import datacollect
-from src import anatomy
+import src.datahandlers.mesh as mesh
+import src.datahandlers.obo as obo
+import src.datahandlers.umls as umls
+import src.createcompendia.anatomy as anatomy
 
 configfile: "config.json"
 
@@ -7,6 +9,18 @@ rule all:
     input:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs'])
+
+rule clean_compendia:
+    params:
+        dir=config['output_directory']
+    shell:
+        "rm {params.dir}/compendia/*; rm {params.dir}/synonyms/*"
+
+rule clean_data:
+    params:
+        dir=config['download_directory']
+    shell:
+        "rm -rf {params.dir}/*"
 
 #####
 #
@@ -20,7 +34,7 @@ rule get_mesh:
     output:
         config['download_directory']+'/MESH/mesh.nt'
     run:
-        datacollect.pull_mesh()
+        mesh.pull_mesh()
 
 rule get_mesh_labels:
     input:
@@ -28,7 +42,7 @@ rule get_mesh_labels:
     output:
         config['download_directory']+'/MESH/labels'
     run:
-        datacollect.pull_mesh_labels()
+        mesh.pull_mesh_labels()
 
 rule get_mesh_synonyms:
     #We don't actually get any.  Maybe we could from the nt?
@@ -46,7 +60,7 @@ rule get_umls_labels_and_synonyms:
         config['download_directory']+'/SNOMEDCT/labels',
         config['download_directory']+'/SNOMEDCT/synonyms'
     run:
-        datacollect.pull_umls()
+        umls.pull_umls()
 
 ### OBO Ontologies
 
@@ -55,7 +69,7 @@ rule get_ontology_labels_and_synonyms:
         expand("{download_directory}/{onto}/labels", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
         expand("{download_directory}/{onto}/synonyms", download_directory = config['download_directory'], onto = config['ubergraph_ontologies'])
     run:
-        datacollect.pull_uber(config['ubergraph_ontologies'])
+        obo.pull_uber(config['ubergraph_ontologies'])
 
 ####
 #

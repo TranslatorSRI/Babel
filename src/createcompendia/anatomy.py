@@ -1,5 +1,4 @@
 from src.ubergraph import UberGraph
-from src.LabeledID import LabeledID
 from src.util import Text
 from src.babel_utils import write_compendium,glom,get_prefixes
 
