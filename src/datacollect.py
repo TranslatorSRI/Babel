@@ -1,10 +1,10 @@
-from babel.ubergraph import UberGraph
-from babel.babel_utils import make_local_name, pull_via_ftp
+from src.ubergraph import UberGraph
+from src.babel_utils import make_local_name, pull_via_ftp
 from collections import defaultdict
 import os, gzip
 from json import loads,dumps
 
-def pull_uber_labels():
+def pull_uber_labels(expected):
     uber = UberGraph()
     labels = uber.get_all_labels()
     ldict = defaultdict(set)
@@ -19,33 +19,36 @@ def pull_uber_labels():
                 for unit in ldict[p]:
                     outf.write(f'{unit[0]}\t{unit[1]}\n')
 
-def pull_uber_synonyms():
+def pull_uber_synonyms(expected):
     uber = UberGraph()
     labels = uber.get_all_synonyms()
-    print(len(labels))
     ldict = defaultdict(set)
     for unit in labels:
         iri = unit[0]
         p = iri.split(':')[0]
         ldict[p].add(  unit )
-    for p in ldict:
-        print(p)
+    #There are some of the ontologies that we don't get synonyms for.   But this makes snakemake unhappy so
+    # we are going to make some zero-length files for it
+    for p in expected:
         if p not in ['http','ro'] and not p.startswith('t') and not '#' in p:
             fname = make_local_name('synonyms',subpath=p)
             with open(fname,'w') as outf:
                 for unit in ldict[p]:
                     outf.write(f'{unit[0]}\t{unit[1]}\t{unit[2]}\n')
 
-def pull_ubers():
-    pull_uber_labels()
-    pull_uber_synonyms()
+def pull_uber(expected_ontologies):
+    pull_uber_labels(expected_ontologies)
+    pull_uber_synonyms(expected_ontologies)
+
+def pull_mesh():
+    pull_via_ftp('ftp.nlm.nih.gov', '/online/mesh/rdf', 'mesh.nt.gz', decompress_data=True, outfilename='MESH/mesh.nt')
 
 def pull_mesh_labels():
-    data = pull_via_ftp('ftp.nlm.nih.gov', '/online/mesh/rdf', 'mesh.nt.gz', decompress_data=True)
-    fname = make_local_name('labels', subpath='MESH')
+    ifname = make_local_name('mesh.nt', subpath='MESH')
+    ofname = make_local_name('labels', subpath='MESH')
     badlines = 0
-    with open(fname, 'w') as outf:
-        for line in data.split('\n'):
+    with open(ofname, 'w') as outf, open(ifname,'r') as data:
+        for line in data:
             if line.startswith('#'):
                 continue
             triple = line[:-1].strip().split('\t')
@@ -76,22 +79,36 @@ def read_umls_priority():
     return prid
 
 def pull_umls():
+    """Run through MRCONSO.RRF creating label and synonym files for UMLS and SNOMEDCT"""
     mrcon = os.path.join(os.path.dirname(__file__), 'input_data', 'MRCONSO.RRF')
     rows = defaultdict(list)
     priority = read_umls_priority()
-    with open(mrcon, 'r') as inf:
+    snomed_label_name = make_local_name('labels', subpath='SNOMEDCT')
+    snomed_syn_name = make_local_name('synonyms', subpath='SNOMEDCT')
+    with open(mrcon, 'r') as inf, open(snomed_label_name,'w') as snolabels, open(snomed_syn_name,'w') as snosyns:
         for line in inf:
             x = line.strip().split('|')
             cui = x[0]
             lang = x[1]
+            #Only keep english terms
             if lang != 'ENG':
                 continue
+            #only keep unsuppressed rows
             suppress = x[16]
             if suppress == 'O' or suppress == 'E':
                 continue
             source = x[11]
             termtype = x[12]
             term = x[14]
+            #While we're here, if this thing is snomed, lets get it
+            if source == 'SNOMEDCT_US':
+                snomed_id = f'SNOMEDCT:{x[15]}'
+                if termtype == 'PT':
+                    snolabels.write(f'{snomed_id}\t{term}\n')
+                snosyns.write(f'{snomed_id}\thttp://www.geneontology.org/formats/oboInOwl#hasExactSynonym\t{term}\n')
+            #UMLS is a collection of sources. They pick one of the names from these sources for a concept,
+            # and that's based on a priority that they define. Here we get the priority for terms so we
+            # can get the right one for the label
             pkey = (source,termtype,suppress)
             try:
                 pri= priority[pkey]

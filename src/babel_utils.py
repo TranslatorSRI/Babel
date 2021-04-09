@@ -18,8 +18,8 @@ import sqlite3
 def make_local_name(fname,subpath=None):
     config = get_config()
     if subpath is None:
-        return os.path.join(os.path.dirname(os.path.abspath(__file__)),config['download_directory'],fname)
-    odir = os.path.join(os.path.dirname(os.path.abspath(__file__)),config['download_directory'],subpath)
+        return os.path.join(config['download_directory'],fname)
+    odir = os.path.join(config['download_directory'],subpath)
     try:
         os.makedirs(odir)
     except:
@@ -70,7 +70,9 @@ def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=No
                 return gzip.decompress(binary).decode()
             else:
                 return binary.decode()
-    ofilename = os.path.join(os.path.dirname(os.path.abspath(__file__)),config['download_directory'],outfilename)
+    ofilename = os.path.join(config['download_directory'],outfilename)
+    if not os.path.exists(os.path.dirname(outfilename)):
+        os.makedirs(os.path.dirname(outfilename))
     print(f'  writing data to {ofilename}')
     print(f'{ftpsite}/{ftpdir}/{ftpfile}')
     if not decompress_data:
@@ -189,11 +191,12 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True):
     return out_file_name
 
 def write_compendium(synonym_list,ofname,node_type,labels={}):
-    cdir = os.path.dirname(os.path.abspath(__file__))
+    config = get_config()
+    cdir = config['output_directory']
     node_factory = NodeFactory(make_local_name(''))
     synonym_factory = SynonymFactory(make_local_name(''))
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={})
-    with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, open(os.path.join(cdir,'compendia',f'{ofname}_synonyms.txt'),'w') as sfile:
+    with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels)
             if node is not None:
