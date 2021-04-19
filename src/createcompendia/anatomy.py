@@ -5,6 +5,12 @@ from src.babel_utils import write_compendium,glom,get_prefixes,read_identifier_f
 import src.datahandlers.umls as umls
 import src.datahandlers.mesh as mesh
 
+ANATOMICAL_ENTITY = 'biolink:AnatomicalEntity'
+GROSS_ANATOMICAL_STRUCTURE = 'biolink:GrossAnatomicalStructure'
+CELL = 'biolink:Cell'
+CELLULAR_COMPONENT = 'biolink:CellularComponent'
+
+
 def remove_overused_xrefs(kv):
     """Given a dict of iri->list of xrefs, look through them for xrefs that are in more than one list.
     Remove those anywhere they occur, as they will only lead to pain further on."""
@@ -59,7 +65,7 @@ def write_obo_ids(irisandtypes,outfile,exclude=[]):
         excludes += uber.get_subclasses_of(excluded_iri)
     excluded_iris = set( [k['descendent'] for k in excludes ])
     prefix = Text.get_curie(iri)
-    order = ['biolink:CellularComponent','biolink:Cell','biolink:GrossAnatomicalStructure','biolink:AnatomicalEntity']
+    order = [CELLULAR_COMPONENT, CELL, GROSS_ANATOMICAL_STRUCTURE, ANATOMICAL_ENTITY]
     with open(outfile, 'w') as idfile:
         for kd,typeset in iris_to_types.items():
             if kd not in excluded_iris and kd.startswith(prefix):
@@ -78,26 +84,26 @@ def write_ncit_ids(outfile):
     ostomy_site_id = 'NCIT:C122638'
     chromosome_structure_id ='NCIT:C13377'
     anatomic_site_id='NCIT:C13717' #the site of procedures like injections etc
-    write_obo_ids([(anatomy_id,'biolink:AnatomicalEntity'),(cell_id,'biolink:Cell'),(component_id,'biolink:CellularComponent')],outfile,exclude=[genomic_location_id,chromosome_band_id,macromolecular_structure_id,ostomy_site_id,chromosome_structure_id,anatomic_site_id])
+    write_obo_ids([(anatomy_id, ANATOMICAL_ENTITY), (cell_id, CELL), (component_id, CELLULAR_COMPONENT)], outfile, exclude=[genomic_location_id, chromosome_band_id, macromolecular_structure_id, ostomy_site_id, chromosome_structure_id, anatomic_site_id])
 
 def write_uberon_ids(outfile):
     anatomy_id = 'UBERON:0001062'
     gross_id   = 'UBERON:0010000'
-    write_obo_ids([(anatomy_id,'biolink:AnatomicalEntity'),(gross_id,'biolink:GrossAnatomicalStructure')],outfile)
+    write_obo_ids([(anatomy_id,ANATOMICAL_ENTITY),(gross_id,GROSS_ANATOMICAL_STRUCTURE)],outfile)
 
 def write_cl_ids(outfile):
     cell_id   = 'CL:0000000'
-    write_obo_ids([(cell_id,'biolink:Cell')],outfile)
+    write_obo_ids([(cell_id,CELL)],outfile)
 
 def write_go_ids(outfile):
     component_id = 'GO:0005575'
-    write_obo_ids([(component_id,'biolink:CellularComponent')],outfile)
+    write_obo_ids([(component_id,CELLULAR_COMPONENT)],outfile)
 
 
 def write_mesh_ids(outfile):
-    meshmap = { f'A{str(i).zfill(2)}':'biolink:AnatomicalEntity' for i in range(1,21) }
-    meshmap['A11'] = 'biolink:Cell'
-    meshmap['A11.284'] = 'biolink:CellularComponent'
+    meshmap = { f'A{str(i).zfill(2)}':ANATOMICAL_ENTITY for i in range(1,21) }
+    meshmap['A11'] = CELL
+    meshmap['A11.284'] = CELLULAR_COMPONENT
     mesh.write_ids(meshmap,outfile)
 
 def write_umls_ids(outfile):
@@ -112,9 +118,9 @@ def write_umls_ids(outfile):
     #A2.1.4.1 Body System
     #A2.1.5.1 Body Space or Junction
     #A2.1.5.2 Body Location or Region
-    umlsmap = { x:'biolink:AnatomicalEntity' for x in ['A1.2','A1.2.1','A1.2.3.1','A1.2.3.2','A2.1.4.1','A2.1.5.1','A2.1.5.2']}
-    umlsmap['A1.2.3.3'] = "biolink:Cell"
-    umlsmap['A1.2.3.4'] = "biolink:CellularComponent"
+    umlsmap = { x:ANATOMICAL_ENTITY for x in ['A1.2','A1.2.1','A1.2.3.1','A1.2.3.2','A2.1.4.1','A2.1.5.1','A2.1.5.2']}
+    umlsmap['A1.2.3.3'] = CELL
+    umlsmap['A1.2.3.4'] = CELLULAR_COMPONENT
     umls.write_umls_ids(umlsmap,outfile)
 
 def build_anatomy_obo_relationships(outdir):
@@ -161,11 +167,9 @@ def create_typed_sets(eqsets,types):
                    If it has an UBERON trust the UBERON's type
     After that, check the types dict to see if we know anything.
     """
-    order = ['biolink:CellularComponent','biolink:Cell','biolink:GrossAnatomicalStructure','biolink:AnatomicalEntity']
+    order = [CELLULAR_COMPONENT,CELL,GROSS_ANATOMICAL_STRUCTURE,ANATOMICAL_ENTITY]
     typed_sets = defaultdict(set)
     for equivalent_ids in eqsets:
-        if 'MESH:D000009' in equivalent_ids:
-            print('Still here')
         #prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
         prefixes = get_prefixes(equivalent_ids)
         found  = False
@@ -173,9 +177,6 @@ def create_typed_sets(eqsets,types):
             if prefix in prefixes and not found:
                 mytype = types[prefixes[prefix][0]]
                 typed_sets[mytype].add(equivalent_ids)
-                if 'MESH:D000009' in equivalent_ids:
-                    print(prefix,mytype)
-                    print(equivalent_ids)
                 found = True
         if not found:
             typecounts = defaultdict(int)
@@ -189,15 +190,11 @@ def create_typed_sets(eqsets,types):
             elif len(typecounts) == 1:
                 t = list(typecounts.keys())[0]
                 typed_sets[t].add(equivalent_ids)
-                if 'MESH:D000009' in equivalent_ids:
-                    print('1',t)
             else:
                 #First attempt is majority vote, and after that by most specific
                 otypes = [ (-c, order.index(t), t) for t,c in typecounts.items()]
                 otypes.sort()
                 t = otypes[0][2]
                 typed_sets[t].add(equivalent_ids)
-                if 'MESH:D000009' in equivalent_ids:
-                    print('>1',t)
     return typed_sets
 
