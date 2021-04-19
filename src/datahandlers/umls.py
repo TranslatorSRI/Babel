@@ -1,8 +1,60 @@
-from src.ubergraph import UberGraph
 from src.babel_utils import make_local_name, pull_via_ftp
 from collections import defaultdict
-import os, gzip
-from json import loads,dumps
+import os
+
+def write_umls_ids(category_map,umls_output):
+    categories = set(category_map.keys())
+    mrsty = os.path.join('input_data', 'MRSTY.RRF')
+    umls_keepers = set()
+    with open(mrsty,'r') as inf, open(umls_output,'w') as outf:
+        for line in inf:
+            x = line.strip().split('|')
+            cat = x[2]
+            if cat in categories:
+                outf.write(f'UMLS:{x[0]}\t{category_map[cat]}\n')
+
+
+#I've made this more complicated than it ought to be for 2 reasons:
+# One is to keep from having to pass through the umls file more than once, but that's a bad reason
+# The second is because I want to use the UMLS as a source for some terminologies (SNOMED) even if there's another
+#  way.  I'm going to modify this to do one thing at a time, and if it takes a little longer, then so be it.
+def build_sets(umls_input, umls_output , other_prefixes):
+    """Given a list of umls identifiers we want to generate all the concordances
+    between UMLS and that other entity"""
+    umls_ids = set()
+    with open(umls_input) as inf:
+        for line in inf:
+            u = line.strip().split('\t')[0].split(':')[1]
+            umls_ids.add(u)
+    lookfor = set(other_prefixes.keys())
+    mrconso = os.path.join('input_data', 'MRCONSO.RRF')
+    pairs = set()
+    with open(mrconso,'r') as inf, open(umls_output,'w') as concordfile:
+        for line in inf:
+            x = line.strip().split('|')
+            cui = x[0]
+            if cui not in umls_ids:
+                continue
+            lang = x[1]
+            #Only keep english terms
+            if lang != 'ENG':
+                continue
+            #only keep unsuppressed rows
+            suppress = x[16]
+            if suppress == 'O' or suppress == 'E':
+                continue
+            #only keep sources we're looking for
+            source = x[11]
+            if source not in lookfor:
+                continue
+            other_id = f'{other_prefixes[source]}:{x[13]}'
+            #I don't know why this is in here, but it is not an identifier equivalent to anything
+            if other_id == 'NCIT:TCGA':
+                continue
+            tup = (f'UMLS:{cui}',other_id)
+            if tup not in pairs:
+                concordfile.write(f'{tup[0]}\teq\t{tup[1]}\n')
+                pairs.add(tup)
 
 def read_umls_priority():
     mrp = os.path.join('input_data', 'umls_precedence.txt')

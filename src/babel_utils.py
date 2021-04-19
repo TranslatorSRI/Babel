@@ -8,7 +8,7 @@ import requests
 import os
 import urllib
 import jsonlines
-from babel.node import NodeFactory, SynonymFactory
+from src.node import NodeFactory, SynonymFactory
 from src.util import Text
 from src.LabeledID import LabeledID
 from json import load
@@ -216,13 +216,18 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     n = 0
     bad = 0
     shit_prefixes=set(['KEGG','PUBCHEM'])
-    test_id = 'UBERON:0006061'
+    test_id = 'xUBERON:0002262'
     excised = set()
     for xgroup in newgroups:
         if isinstance(xgroup,frozenset):
             group = set(xgroup)
         else:
             group = xgroup
+        #As of now, xgroup should never be more than two things
+        if len(xgroup) > 2:
+            print(xgroup)
+            print('nope nope nope')
+            exit()
         n+=1
         if test_id in group:
             print('higroup',group)
@@ -237,9 +242,10 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
             newset.add(element)
         if test_id in newset:
             print('hiset',newset)
+            print('input_set',group)
             print('esets')
             for eset in existing_sets:
-                print(' ',eset)
+                print(' ',eset,group.intersection(eset))
         for check_element in newset:
             prefix = check_element.split(':')[0]
             if prefix in shit_prefixes:
@@ -269,39 +275,43 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
                 #print('------------')
         if not setok:
             #Our new group created a new set that merged stuff we didn't want to merge.
+            #Previously we did a lot of fooling around at this point.  But now we're just going to say, I have a
+            # pairwise concordance.  That can at most link two groups.  just don't link them. In other words,
+            # we are simply ignoring this concordance.
+            continue
             #Let's figure out the culprit(s) and excise them
-            counts = defaultdict(int)
-            for x in group:
-                counts[x] += 1
-            #THe way existing sets was created, means that the same set can be in there twice, and we don't want to
+            #counts = defaultdict(int)
+            #for x in group:
+            #    counts[x] += 1
+            ##THe way existing sets was created, means that the same set can be in there twice, and we don't want to
             # count things that way
-            unique_existing_sets = []
-            for ex in existing_sets:
-                u = True
-                for q in unique_existing_sets:
-                    if ex == q:
-                        u = False
-                if u:
-                    unique_existing_sets.append(ex)
-            for es in unique_existing_sets:
-                for y in es:
-                    counts[y] += 1
-            bads = [ x for x,y in counts.items() if y > 1 ]
+            #unique_existing_sets = []
+            #for ex in existing_sets:
+            #    u = True
+            #    for q in unique_existing_sets:
+            #        if ex == q:
+            #            u = False
+            #    if u:
+            #        unique_existing_sets.append(ex)
+            #for es in unique_existing_sets:
+            #    for y in es:
+            #        counts[y] += 1
+            #bads = [ x for x,y in counts.items() if y > 1 ]
             #now we know which identifiers are causing trouble.
             #We don't want to completely throw them out, but we can't allow them to gum things up.
             #So, we need to first remove them from all the sets, then we need to put them in their own set
             #It might be good to track this somehow?
-            excised.update(bads)
-            for b in bads:
-                if b in group:
-                    group.remove(b)
-                for exset in existing_sets:
-                    if b in exset:
-                        exset.remove(b)
-                conc_set[b] = set([b])
-            for x in group:
-                conc_set[x] = group
-            continue
+            #excised.update(bads)
+            #for b in bads:
+            #    if b in group:
+            #        group.remove(b)
+            #    for exset in existing_sets:
+            #        if b in exset:
+            #            exset.remove(b)
+            #    conc_set[b] = set([b])
+            #for x in group:
+            #    conc_set[x] = group
+            #continue
         #Now check the 'close' dictionary to see if we've accidentally gotten to a close match becoming an exact match
         setok = True
         if 'MESH:C562463' in group:
@@ -324,24 +334,16 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
         #Now make all the elements point to this new set:
         for element in newset:
             conc_set[element] = newset
-    ccount = defaultdict(int)
-    for x in excised:
-        ccount[Text.get_curie(x)] += 1
-    print('These are the excisions:')
-    for prefix,c in ccount.items():
-        print(prefix,c)
-    print('----')
-    #if bad > 0:
-    #    print(f'Found {bad} mixups')
-        #exit()
 
 def get_prefixes(idlist):
-    prefs = set()
+    prefs = defaultdict(list)
     for ident in idlist:
         if isinstance(ident,LabeledID):
+            print('nonono')
+            exit()
             prefs.add(Text.get_curie(ident.identifier))
         else:
-            prefs.add(Text.get_curie(ident))
+            prefs[Text.get_curie(ident)].append(ident)
     return prefs
 
 def get_config():
@@ -400,3 +402,19 @@ def filter_out_non_unique_ids(old_list):
                 term_list
             )), old_list))
     return new_list
+
+
+def read_identifier_file(infile):
+    """Identifier files are mostly just lists of identifiers that constitutes all the id's from a given
+    source that should be included in a normalization run.   There is an optional second column that contains
+    a hint to the normalizer about the proper biolink type for this entity."""
+    types = {}
+    identifiers = list()
+    with open(infile,'r') as inf:
+        for line in inf:
+            x = line.strip().split('\t')
+            identifiers.append((x[0],))
+            if len(x) > 1:
+                types[x[0]] = x[1]
+    return identifiers,types
+

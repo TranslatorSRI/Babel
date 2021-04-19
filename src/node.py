@@ -55,16 +55,10 @@ class NodeFactory:
     def get_ancestors(self,input_type):
         if input_type in self.ancestor_map:
             return self.ancestor_map[input_type]
-        print('call it in')
-        #url = f'{self.url_base}/{input_type}/ancestors'
-        #print(url)
-        #response = requests.get(url)
-        #print('back')
-        #ancs = response.json()
         a = self.toolkit.get_ancestors(input_type)
         ancs = [ self.toolkit.get_element(ai)['class_uri'] for ai in a ]
         if input_type not in ancs:
-            ancs  [input_type] + ancs
+            ancs = [input_type] + ancs
         self.ancestor_map[input_type] = ancs
         return ancs
 
@@ -193,7 +187,7 @@ class NodeFactory:
         for k,vals in idmap.items():
             for v in vals:
                 if v not in accepted_ids and (k,node_type) not in self.ignored_prefixes:
-                    print(f'Ignoring prefix {k} for type {node_type}, identifier {v}')
+                    #print(f'Ignoring prefix {k} for type {node_type}, identifier {v}')
                     self.ignored_prefixes.add( (k,node_type) )
         if len(identifiers) == 0:
             return None
@@ -207,7 +201,7 @@ class NodeFactory:
         node = {
             'id': {'identifier':best_id,},
             'equivalent_identifiers': identifiers,
-            'type': [node_type] + ancestors
+            'type': ancestors
         }
         if label is not None:
             node['id']['label'] =  label

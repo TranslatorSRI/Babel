@@ -1,7 +1,6 @@
 from src.triplestore import TripleStore
 from src.util import Text
 from collections import defaultdict
-from functools import reduce
 
 class UberGraph:
 

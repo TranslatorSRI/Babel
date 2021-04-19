@@ -1,7 +1,5 @@
 import os
-import traceback
 from src.util import LoggingUtil
-from pprint import pprint
 from SPARQLWrapper import SPARQLWrapper2, JSON, POSTDIRECTLY, POST
 from string import Template
 

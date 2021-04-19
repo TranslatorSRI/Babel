@@ -1,8 +1,16 @@
 import pytest
-from babel.babel_utils import glom
+from src.babel_utils import glom
 from src.LabeledID import LabeledID
 
 """glom is a tool that looks at list of sets of values and combines them together if they share members"""
+
+def test_uberon():
+    uberon=[('UBERON:123',)]
+    dict={}
+    glom(dict,uberon,unique_prefixes='UBERON')
+    uber2 = [set(['UBERON:123','SOME:other'])]
+    glom(dict,uber2,unique_prefixes='UBERON')
+    print(dict)
 
 def test_simple():
     """Given 3 sets, 2 of which share a member, output 2 sets, with the sharing sets combined"""
