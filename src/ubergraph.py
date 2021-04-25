@@ -117,37 +117,29 @@ class UberGraph:
         prefix MONDO: <http://purl.obolibrary.org/obo/MONDO_>
         prefix HP: <http://purl.obolibrary.org/obo/HP_>
         prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
-        select distinct ?descendent ?descendentLabel ?xref 
+        select distinct ?descendent ?xref 
         from <http://reasoner.renci.org/nonredundant>
         from <http://reasoner.renci.org/ontology>
         where {
           graph <http://reasoner.renci.org/ontology/closure> {
                 ?descendent rdfs:subClassOf $sourcedefclass .
           }  
-          OPTIONAL {
-            ?descendent rdfs:label ?descendentLabel .
-          }
-          OPTIONAL {
-            ?descendent <http://www.geneontology.org/formats/oboInOwl#hasDbXref> ?xref .
-          }
+          ?descendent <http://www.geneontology.org/formats/oboInOwl#hasDbXref> ?xref .
         }
         """
         resultmap = self.triplestore.query_template(
             inputs  = { 'sourcedefclass': iri  }, \
-            outputs = [ 'descendent', 'descendentLabel', 'xref' ], \
+            outputs = [ 'descendent', 'xref' ], \
             template_text = text \
         )
-        results = defaultdict(list)
+        results = defaultdict(set)
         for row in resultmap:
-            if row['xref'] is None:
-                results[(Text.opt_to_curie(row['descendent']),row['descendentLabel'])]=[]
-            else:
-                #Sometimes we're getting back just strings that aren't curies, skip those (but complain)
-                if ':' not in row['xref']:
-                    print(f'Bad XREF from {row["descendent"]} to {row["xref"]}')
-                    continue
-                results[ (Text.opt_to_curie(row['descendent']),row['descendentLabel'])].\
-                    append( (Text.opt_to_curie(row['xref']) ))
+            dcurie = Text.opt_to_curie(row['descendent'])
+            #Sometimes we're getting back just strings that aren't curies, skip those (but complain)
+            if ':' not in row['xref']:
+                print(f'Bad XREF from {row["descendent"]} to {row["xref"]}')
+                continue
+            results[ dcurie ].add( (Text.opt_to_curie(row['xref']) ))
         return results
 
     def get_subclasses_and_exacts(self,iri):

@@ -1,17 +1,14 @@
 from collections import defaultdict
+
+from src.prefixes import MESH, NCIT, CL, GO, UBERON, SNOMEDCT
+from src.categories import ANATOMICAL_ENTITY, GROSS_ANATOMICAL_STRUCTURE, CELL, CELLULAR_COMPONENT
 from src.ubergraph import UberGraph
 from src.util import Text
 from src.babel_utils import write_compendium,glom,get_prefixes,read_identifier_file
 import src.datahandlers.umls as umls
 import src.datahandlers.mesh as mesh
 
-ANATOMICAL_ENTITY = 'biolink:AnatomicalEntity'
-GROSS_ANATOMICAL_STRUCTURE = 'biolink:GrossAnatomicalStructure'
-CELL = 'biolink:Cell'
-CELLULAR_COMPONENT = 'biolink:CellularComponent'
-
-
-def remove_overused_xrefs(kv):
+def remove_overused_xrefs_dict(kv):
     """Given a dict of iri->list of xrefs, look through them for xrefs that are in more than one list.
     Remove those anywhere they occur, as they will only lead to pain further on."""
     used_xrefs = set()
@@ -24,6 +21,19 @@ def remove_overused_xrefs(kv):
     print(f'There are {len(overused_xrefs)} overused xrefs')
     for k,v in kv.items():
         kv[k] = list( set(v).difference(overused_xrefs) )
+
+def remove_overused_xrefs(pairlist):
+    """Given a list of tuples (id1, id2) meaning id1-[xref]->id2, remove any id2 that are associated with more
+    than one id1.  The idea is that if e.g. id1 is made up of UBERONS and 2 of those have an xref to say a UMLS
+    then it doesn't mean that all of those should be identified.  We don't really know what it means, so remove it."""
+    xref_counts = defaultdict(int)
+    for k, v in pairlist:
+        xref_counts[v] += 1
+    improved_pairs = []
+    for k,v in pairlist:
+        if xref_counts[v] < 2:
+            improved_pairs.append( (k,v) )
+    return improved_pairs
 
 #The BTO and BAMs and HTTP (braininfo) identifiers promote over-glommed nodes
 #FMA is a specific problem where in CL they use FMA xref to mean 'part of'
@@ -39,19 +49,15 @@ def build_sets(iri, concordfiles, ignore_list = ['PMID','BTO','BAMS','FMA','CALO
     is a set for each subclass of the input iri.  Write these lists to concord files, indexed by the prefix"""
     uber = UberGraph()
     uberres = uber.get_subclasses_and_xrefs(iri)
-    ##TODO:
-    ## I'm not completely sure that we should do this here.  Perhaps the concordance should be raw, so that the glommer can figure it out (like
-    #  when to go to a kboom approach.  Though I think getting rid of dupes here is right.
-    # 1. for some reason, we're writing dups.
-    # 2. Worse, we are writing the same xref for multiple uberons, which just leads to shit when glom tries to clean up.
-    # check for and remove re-used xrefs
-    remove_overused_xrefs(uberres)
+    #this is getting handled when we input the xrefs, because different methods for compendium building may
+    # have a smart way of handling them
+    #remove_overused_xrefs(uberres)
     for k,v in uberres.items():
         for x in v:
             if Text.get_curie(x) not in ignore_list:
-                p = Text.get_curie(k[0])
+                p = Text.get_curie(k)
                 if p in concordfiles:
-                    concordfiles[p].write(f'{k[0]}\txref\t{x}\n')
+                    concordfiles[p].write(f'{k}\txref\t{x}\n')
 
 def write_obo_ids(irisandtypes,outfile,exclude=[]):
     uber = UberGraph()
@@ -75,33 +81,33 @@ def write_obo_ids(irisandtypes,outfile,exclude=[]):
 
 def write_ncit_ids(outfile):
     #For NCIT, there are some branches of the subhiearrchy that we don't want, like this one for genomic locus
-    anatomy_id = 'NCIT:C12219'
-    cell_id = 'NCIT:C12508'
-    component_id = 'NCIT:C34070'
-    genomic_location_id = 'NCIT:C64389'
-    chromosome_band_id = 'NCIT:C13432'
-    macromolecular_structure_id = 'NCIT:C14134' #protein domains
-    ostomy_site_id = 'NCIT:C122638'
-    chromosome_structure_id ='NCIT:C13377'
-    anatomic_site_id='NCIT:C13717' #the site of procedures like injections etc
+    anatomy_id = f'{NCIT}:C12219'
+    cell_id = f'{NCIT}:C12508'
+    component_id = f'{NCIT}:C34070'
+    genomic_location_id = f'{NCIT}:C64389'
+    chromosome_band_id = f'{NCIT}:C13432'
+    macromolecular_structure_id = f'{NCIT}:C14134' #protein domains
+    ostomy_site_id = f'{NCIT}:C122638'
+    chromosome_structure_id =f'{NCIT}:C13377'
+    anatomic_site_id=f'{NCIT}:C13717' #the site of procedures like injections etc
     write_obo_ids([(anatomy_id, ANATOMICAL_ENTITY), (cell_id, CELL), (component_id, CELLULAR_COMPONENT)], outfile, exclude=[genomic_location_id, chromosome_band_id, macromolecular_structure_id, ostomy_site_id, chromosome_structure_id, anatomic_site_id])
 
 def write_uberon_ids(outfile):
-    anatomy_id = 'UBERON:0001062'
-    gross_id   = 'UBERON:0010000'
-    write_obo_ids([(anatomy_id,ANATOMICAL_ENTITY),(gross_id,GROSS_ANATOMICAL_STRUCTURE)],outfile)
+    anatomy_id = f'{UBERON}:0001062'
+    gross_id   = f'{UBERON}:0010000'
+    write_obo_ids([(anatomy_id, ANATOMICAL_ENTITY), (gross_id, GROSS_ANATOMICAL_STRUCTURE)], outfile)
 
 def write_cl_ids(outfile):
-    cell_id   = 'CL:0000000'
-    write_obo_ids([(cell_id,CELL)],outfile)
+    cell_id   = f'{CL}:0000000'
+    write_obo_ids([(cell_id, CELL)], outfile)
 
 def write_go_ids(outfile):
-    component_id = 'GO:0005575'
-    write_obo_ids([(component_id,CELLULAR_COMPONENT)],outfile)
+    component_id = f'{GO}:0005575'
+    write_obo_ids([(component_id, CELLULAR_COMPONENT)], outfile)
 
 
 def write_mesh_ids(outfile):
-    meshmap = { f'A{str(i).zfill(2)}':ANATOMICAL_ENTITY for i in range(1,21) }
+    meshmap = { f'A{str(i).zfill(2)}': ANATOMICAL_ENTITY for i in range(1, 21)}
     meshmap['A11'] = CELL
     meshmap['A11.284'] = CELLULAR_COMPONENT
     mesh.write_ids(meshmap,outfile)
@@ -118,19 +124,19 @@ def write_umls_ids(outfile):
     #A2.1.4.1 Body System
     #A2.1.5.1 Body Space or Junction
     #A2.1.5.2 Body Location or Region
-    umlsmap = { x:ANATOMICAL_ENTITY for x in ['A1.2','A1.2.1','A1.2.3.1','A1.2.3.2','A2.1.4.1','A2.1.5.1','A2.1.5.2']}
+    umlsmap = {x: ANATOMICAL_ENTITY for x in ['A1.2', 'A1.2.1', 'A1.2.3.1', 'A1.2.3.2', 'A2.1.4.1', 'A2.1.5.1', 'A2.1.5.2']}
     umlsmap['A1.2.3.3'] = CELL
     umlsmap['A1.2.3.4'] = CELLULAR_COMPONENT
     umls.write_umls_ids(umlsmap,outfile)
 
 def build_anatomy_obo_relationships(outdir):
     #Create the equivalence pairs
-    with open(f'{outdir}/UBERON','w') as uberon, open(f'{outdir}/GO','w') as go, open(f'{outdir}/CL','w') as cl:
-        build_sets('UBERON:0001062',{'UBERON':uberon, 'GO':go, 'CL':cl })
-        build_sets('GO:0005575',{'UBERON':uberon, 'GO':go, 'CL':cl })
+    with open(f'{outdir}/{UBERON}', 'w') as uberon, open(f'{outdir}/{GO}', 'w') as go, open(f'{outdir}/{CL}', 'w') as cl:
+        build_sets(f'{UBERON}:0001062', {UBERON:uberon, GO:go, CL:cl})
+        build_sets(f'{GO}:0005575', {UBERON:uberon, GO:go, CL:cl})
 
 def build_anatomy_umls_relationships(idfile,outfile):
-    umls.build_sets(idfile,outfile,{'SNOMEDCT_US':'SNOMEDCT','MSH':"MESH",'NCI':'NCIT'})
+    umls.build_sets(idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT})
 
 def build_compendia(concordances, identifiers):
     """:concordances: a list of files from which to read relationships
@@ -140,19 +146,18 @@ def build_compendia(concordances, identifiers):
     for ifile in identifiers:
         print(ifile)
         new_identifiers,new_types = read_identifier_file(ifile)
-        glom(dicts,new_identifiers, unique_prefixes=['UBERON','GO'])
+        glom(dicts, new_identifiers, unique_prefixes=[UBERON, GO])
         types.update(new_types)
-        print(f'Has it? {"MESH:D000009" in dicts}')
     for infile in concordances:
         print(infile)
         print('loading',infile)
-        newpairs = []
+        pairs = []
         with open(infile,'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
-                newpairs.append( set([x[0], x[2]]))
-        glom(dicts,newpairs, unique_prefixes=['UBERON','GO'])
-        print(f'Has it? {"MESH:D000009" in dicts}')
+                pairs.append( set([x[0], x[2]]))
+        newpairs = remove_overused_xrefs(pairs)
+        glom(dicts, newpairs, unique_prefixes=[UBERON, GO])
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]),types)
     for biotype,sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
@@ -167,13 +172,13 @@ def create_typed_sets(eqsets,types):
                    If it has an UBERON trust the UBERON's type
     After that, check the types dict to see if we know anything.
     """
-    order = [CELLULAR_COMPONENT,CELL,GROSS_ANATOMICAL_STRUCTURE,ANATOMICAL_ENTITY]
+    order = [CELLULAR_COMPONENT, CELL, GROSS_ANATOMICAL_STRUCTURE, ANATOMICAL_ENTITY]
     typed_sets = defaultdict(set)
     for equivalent_ids in eqsets:
         #prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
         prefixes = get_prefixes(equivalent_ids)
         found  = False
-        for prefix in ['GO','CL','UBERON']:
+        for prefix in [GO, CL, UBERON]:
             if prefix in prefixes and not found:
                 mytype = types[prefixes[prefix][0]]
                 typed_sets[mytype].add(equivalent_ids)

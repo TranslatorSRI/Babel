@@ -2,6 +2,7 @@ import os
 from os import path
 import jsonlines
 from collections import defaultdict
+from src.util import Text
 
 def assess_completeness(input_dir,compendia,reportfile):
     """Given a directory containing id files, make sure that every id in those files ended up in one of the compendia"""
@@ -27,17 +28,34 @@ def assess_completeness(input_dir,compendia,reportfile):
         for missing_id in l:
             outf.write(f'{missing_id}\n')
 
+def makecountset(j):
+    eids = [Text.get_curie(x['identifier']) for x in j['equivalent_identifiers']]
+    pcounts = defaultdict(int)
+    for p in eids:
+        pcounts[p] += 1
+    return frozenset( [(k,v)  for k,v in pcounts.items()] )
+
+
 def assess(compendium,reportfile):
     nclusters =  0
     clustersizes = defaultdict(int)
+    clustertypes = defaultdict(int)
     with jsonlines.open(compendium,'r') as inf:
         for j in inf:
             nclusters += 1
             clustersizes[ len(j['equivalent_identifiers']) ] += 1
+            countset = makecountset(j)
+            clustertypes[countset] += 1
     with open(reportfile,'w') as outf:
         outf.write(f'{nclusters} clusters\n')
         sizes = list(clustersizes.keys())
         sizes.sort()
         outf.write(f'Max cluster size: {max(sizes)}\n')
+        outf.write(f'\nCluster Size Distribution\n')
         for s in sizes:
             outf.write(f'{s}\t{clustersizes[s]}\n')
+        ct = [ (v,k) for k,v in clustertypes.items() ]
+        ct.sort()
+        outf.write('\nCluster Type Distribution\n')
+        for v,k in ct:
+            outf.write(f'{k}\t{v}\n')

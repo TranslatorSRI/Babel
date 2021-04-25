@@ -192,4 +192,4 @@ rule anatomy:
     output:
         x=config['output_directory']+'/reports/anatomy_done'
     shell:
-        "echo 'done' >> {{x}}"
+        "echo 'done' >> {output.x}"
