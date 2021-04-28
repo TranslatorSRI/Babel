@@ -1,22 +1,141 @@
-from json import loads
+from src.prefixes import OMIM,ENSEMBL,NCBIGENE,WORMBASE, MGI, ZFIN, DICTYBASE, FLYBASE, RGD, SGD, HGNC, UMLS, PR
+from src.categories import GENE, PROTEIN
+
+import src.datahandlers.umls as umls
+import src.datahandlers.obo as obo
+
+from src.babel_utils import read_identifier_file,glom,write_compendium
+
+import os
+import json
+import gzip
+
 import logging
-
-from src.LabeledID import LabeledID
 from src.util import LoggingUtil
-from babel.babel_utils import pull_via_ftp,pull_via_urllib,write_compendium,glom,make_local_name
-
 logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
-def pull_hgnc_json():
-    """Get the HGNC json file & convert to python"""
-    data = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/genenames/new/json', 'hgnc_complete_set.json')
-    hgnc_json = loads( data )
-    return hgnc_json
+def write_ensembl_ids(ensembl_dir, outfile):
+    with open(outfile,'w') as outf:
+        #find all the ensembl directories
+        dirlisting = os.listdir(ensembl_dir)
+        for dl in dirlisting:
+            dlpath = os.path.join(ensembl_dir,dl)
+            if os.path.isdir(dlpath):
+                infname = os.path.join(dlpath,'BioMart.tsv')
+                if os.path.exists(infname):
+                    #open each ensembl file, find the id column, and put it in the output
+                    with open(infname,'r') as inf:
+                        h = inf.readline()
+                        x = h[:-1].split('\t')
+                        column = x.index('Gene stable ID')
+                        for line in inf:
+                            x = line[:-1].split('\t')
+                            outf.write(f'{ENSEMBL}:{x[column]}\n')
 
-#def pull_uniprot_kb():
-#    data = pull_via_ftp('ftp.ebi.ac.uk','/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/', 'HUMAN_9606_idmapping.dat.gz')
-#    tabs = decompress(data).decode()
-#    return tabs
+def write_hgnc_ids(infile,outfile):
+    with open(infile,'r') as inf:
+        hgnc_json = json.load(inf)
+    with open(outfile,'w') as outf:
+        for gene in hgnc_json['response']['docs']:
+            outf.write(f"{gene['hgnc_id']}\n")
+
+
+def write_omim_ids(infile,outfile):
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            if line.startswith('#'):
+                continue
+            chunks = line.split('\t')
+            if chunks[1] == 'gene':
+                outf.write(f'{OMIM}:{chunks[0]}\n')
+
+def write_umls_ids(outfile):
+    umlsmap = {}
+    umlsmap['A1.2.3.5'] = GENE
+    #Do I want this?  There are a bunch of things under here that we probably don't want.
+    blacklist=set(['C0017361', #recessive genes
+                   'C0017346', #Gag viral gene family
+                    ])
+    umls.write_umls_ids(umlsmap, outfile, blacklist)
+
+def write_pr_ids(outfile):
+    protein_id   = f'{PR}:000000001'
+    obo.write_obo_ids([(protein_id, PROTEIN)], outfile, [PROTEIN])
+
+def build_gene_ncbi_ensemble_relationships(infile,outfile):
+    with gzip.open(infile,'r') as inf, open(outfile,'w') as outf:
+        h = inf.readline()
+        last = ('','')
+        for line in inf:
+            x = line.strip().split()
+            ncbigene_id = f'{NCBIGENE}:{x[2]}'
+            ensembl_id = f'{ENSEMBL}:{x[3]}'
+            new = (ncbigene_id,ensembl_id)
+            if new == last:
+                continue
+            outf.write(f'{ncbigene_id}\teq\t{ensembl_id}\n')
+            last=new
+
+def build_gene_ncbigene_xrefs(infile,outfile):
+    mappings = {'WormBase': WORMBASE, 'FLYBASE': FLYBASE, 'ZFIN': ZFIN,
+                'HGNC': HGNC, 'MGI': MGI, 'RGD': RGD, 'dictyBase': DICTYBASE,
+                'SGD': SGD }
+    with gzip.open(infile, 'r') as inf, open(outfile, 'w') as outf:
+        h = inf.readline()
+        for line in inf:
+            x = line.decode('utf-8').strip().split('\t')
+            ncbigene_id = f'{NCBIGENE}:{x[1]}'
+            xrefs = x[5].split('|')
+            for xref in xrefs:
+                if xref == '-':
+                    continue
+                xref_parts = xref.split(':')
+                found_prefix=xref_parts[0]
+                if found_prefix in mappings:
+                    outf.write(f'{ncbigene_id}\txref\t{mappings[found_prefix]}:{xref_parts[-1]}\n')
+
+def build_gene_medgen_relationships(infile,outfile):
+    with open(infile, 'r') as inf, open(outfile, 'w') as outf:
+        h = inf.readline()
+        for line in inf:
+            x = line.strip().split('\t')
+            if not x[2] == 'gene':
+                continue
+            ncbigene_id = f'{NCBIGENE}:{x[1]}'
+            omim_id = f'{OMIM}:{x[0]}'
+            outf.write(f'{ncbigene_id}\teq\t{omim_id}\n')
+            #It looks like this never gets invoked - these columns are only filled in for phenotypes
+            if not x[4] == '-':
+                umls_id = f'{UMLS}:{x[4]}'
+                outf.write(f'{ncbigene_id}\teq\t{umls_id}\n')
+
+def build_gene_umls_hgnc_relationships(umls_idfile,outfile):
+    #Could also add MESH, if that were a valid gene prefix
+    umls.build_sets(umls_idfile, outfile, {'HGNC':HGNC})
+
+def build_gene_compendia(concordances, identifiers):
+    """:concordances: a list of files from which to read relationships
+       :identifiers: a list of files from which to read identifiers and optional categories"""
+    dicts = {}
+    types = {}
+    uniques = [NCBIGENE,HGNC,ENSEMBL,OMIM]
+    for ifile in identifiers:
+        print(ifile)
+        new_identifiers, new_types = read_identifier_file(ifile)
+        glom(dicts, new_identifiers, unique_prefixes= uniques)
+        types.update(new_types)
+    for infile in concordances:
+        print(infile)
+        print('loading', infile)
+        pairs = []
+        with open(infile, 'r') as inf:
+            for line in inf:
+                x = line.strip().split('\t')
+                pairs.append(set([x[0], x[2]]))
+        glom(dicts, pairs, unique_prefixes=uniques)
+    gene_sets = set([frozenset(x) for x in dicts.values()])
+    write_compendium(gene_sets, f'{GENE}.txt', 'biolink:Gene', {})
+
 
 def pull_prot(which,refresh):
     #swissname = pull_via_ftplib('ftp.uniprot.org','/pub/databases/uniprot/current_release/knowledgebase/complete/',f'uniprot_{which}.fasta.gz',decompress_data=True,outfilename=f'uniprot_{which}.fasta')

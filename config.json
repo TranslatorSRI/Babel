@@ -2,10 +2,16 @@
   "download_directory": "babel_downloads",
   "output_directory": "babel_outputs",
 
+  "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
   "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "EFO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","NCBITaxon","OGMS","PATO","PR","RO","UBPROP"],
 
   "anatomy_prefixes": ["UBERON","GO","CL","UMLS","MESH","NCIT","SNOMEDCT"],
   "anatomy_ids": ["UBERON","GO","CL","UMLS","MESH","NCIT"],
   "anatomy_concords": ["UBERON","GO","CL","UMLS"],
-  "anatomy_outputs": ["AnatomicalEntity.txt", "Cell.txt", "CellularComponent.txt","GrossAnatomicalStructure.txt"]
+  "anatomy_outputs": ["AnatomicalEntity.txt", "Cell.txt", "CellularComponent.txt","GrossAnatomicalStructure.txt"],
+
+  "gene_labels": ["HGNC","NCBIGene","UMLS"],
+  "gene_ids": ["ENSEMBL","HGNC","NCBIGene","UMLS","OMIM"],
+  "gene_concords": ["NCBIGene","NCBIGeneENSEMBL","medgen","UMLS"],
+  "gene_outputs": ["Gene.txt"]
 }

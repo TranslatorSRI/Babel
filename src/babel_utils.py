@@ -143,7 +143,7 @@ class ThrottledRequester:
 
 
 
-def pull_via_urllib(url: str, in_file_name: str, decompress = True):
+def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None):
     """
     Retrieve files via urllib, optionally decompresses it, and writes it locally into downloads
     url: str - the url with the correct version attached
@@ -155,7 +155,10 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True):
     working_dir = download_dir
 
     # get the (local) download file name, derived from the input file name
-    dl_file_name = os.path.join(os.path.dirname(os.path.abspath(__file__)),download_dir,in_file_name)
+    if subpath is None:
+        dl_file_name = os.path.join(download_dir,in_file_name)
+    else:
+        dl_file_name = os.path.join(download_dir,subpath,in_file_name)
 
     # get a handle to the ftp file
     handle = urllib.request.urlopen(url + in_file_name)
@@ -184,6 +187,9 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True):
                 for line in compressed_file:
                     # write the data to the output file
                     output_file.write(line)
+
+        #remove the compressed file
+        os.remove(dl_file_name)
     else:
         out_file_name = dl_file_name
 

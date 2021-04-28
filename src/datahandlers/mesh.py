@@ -1,5 +1,4 @@
 from src.babel_utils import make_local_name, pull_via_ftp
-#from rdflib import Graph
 import pyoxigraph
 from collections import defaultdict
 
@@ -10,10 +9,6 @@ class Mesh:
     """Load the mesh rdf file for querying"""
     def __init__(self):
         ifname = make_local_name('mesh.nt', subpath='MESH')
-        #ifname = make_local_name('mesh_trunc.nt', subpath='MESH')
-        #self.m= Graph()
-        #self.m.parse(ifname, format="nt")
-        #print('loading complete')
         from datetime import datetime as dt
         print('loading mesh.nt')
         start = dt.now()

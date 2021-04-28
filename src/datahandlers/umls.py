@@ -1,8 +1,9 @@
 from src.babel_utils import make_local_name, pull_via_ftp
+from src.prefixes import UMLS
 from collections import defaultdict
 import os
 
-def write_umls_ids(category_map,umls_output):
+def write_umls_ids(category_map,umls_output,blacklist=set()):
     categories = set(category_map.keys())
     mrsty = os.path.join('input_data', 'MRSTY.RRF')
     umls_keepers = set()
@@ -11,7 +12,8 @@ def write_umls_ids(category_map,umls_output):
             x = line.strip().split('|')
             cat = x[2]
             if cat in categories:
-                outf.write(f'UMLS:{x[0]}\t{category_map[cat]}\n')
+                if not x[0] in blacklist:
+                    outf.write(f'{UMLS}:{x[0]}\t{category_map[cat]}\n')
 
 
 #I've made this more complicated than it ought to be for 2 reasons:
@@ -47,11 +49,15 @@ def build_sets(umls_input, umls_output , other_prefixes):
             source = x[11]
             if source not in lookfor:
                 continue
-            other_id = f'{other_prefixes[source]}:{x[13]}'
+            #For some dippy reason, in the id column they say "HGNC:76"
+            if ':' in x[13]:
+                other_id = f'{other_prefixes[source]}:{x[13].split(":")[-1]}'
+            else:
+                other_id = f'{other_prefixes[source]}:{x[13]}'
             #I don't know why this is in here, but it is not an identifier equivalent to anything
             if other_id == 'NCIT:TCGA':
                 continue
-            tup = (f'UMLS:{cui}',other_id)
+            tup = (f'{UMLS}:{cui}',other_id)
             if tup not in pairs:
                 concordfile.write(f'{tup[0]}\teq\t{tup[1]}\n')
                 pairs.add(tup)
@@ -115,8 +121,8 @@ def pull_umls():
     with open(lname,'w') as labels, open(sname,'w') as synonyms:
         for cui,crows in rows.items():
             crows.sort()
-            labels.write(f'UMLS:{cui}\t{crows[0][1]}\n')
+            labels.write(f'{UMLS}:{cui}\t{crows[0][1]}\n')
             syns = set( [crow[1] for crow in crows])
             for s in syns:
-                synonyms.write(f'UMLS:{cui}\thttp://www.geneontology.org/formats/oboInOwl#hasExactSynonym\t{s}\n')
+                synonyms.write(f'{UMLS}:{cui}\thttp://www.geneontology.org/formats/oboInOwl#hasExactSynonym\t{s}\n')
 

@@ -4,6 +4,9 @@ from collections import defaultdict
 import os, gzip
 from json import loads,dumps
 
+from src.util import Text
+
+
 def pull_uber_labels(expected):
     uber = UberGraph()
     labels = uber.get_all_labels()
@@ -40,3 +43,22 @@ def pull_uber(expected_ontologies):
     pull_uber_labels(expected_ontologies)
     pull_uber_synonyms(expected_ontologies)
 
+
+def write_obo_ids(irisandtypes,outfile,order,exclude=[]):
+    uber = UberGraph()
+    iris_to_types=defaultdict(set)
+    for iri,ntype in irisandtypes:
+        uberres = uber.get_subclasses_of(iri)
+        for k in uberres:
+            iris_to_types[k['descendent']].add(ntype)
+    excludes = []
+    for excluded_iri in exclude:
+        excludes += uber.get_subclasses_of(excluded_iri)
+    excluded_iris = set( [k['descendent'] for k in excludes ])
+    prefix = Text.get_curie(iri)
+    with open(outfile, 'w') as idfile:
+        for kd,typeset in iris_to_types.items():
+            if kd not in excluded_iris and kd.startswith(prefix):
+                l = list(typeset)
+                l.sort(key=lambda k: order.index(k))
+                idfile.write(f'{kd}\t{l[0]}\n')

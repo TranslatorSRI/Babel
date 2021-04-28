@@ -82,6 +82,7 @@ class UberGraph:
         prefix MONDO: <http://purl.obolibrary.org/obo/MONDO_>
         prefix HP: <http://purl.obolibrary.org/obo/HP_>
         prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
+        prefix PR: <http://purl.obolibrary.org/obo/PR_>
         select distinct ?descendent ?descendentLabel
         from <http://reasoner.renci.org/ontology>
         where {
