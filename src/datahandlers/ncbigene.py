@@ -11,6 +11,7 @@ def pull_ncbigene_labels_and_synonyms():
     ifname = make_local_name('gene_info.gz', subpath='NCBIGene')
     labelname = make_local_name('labels', subpath='NCBIGene')
     synname = make_local_name('synonyms', subpath='NCBIGene')
+    bad_gene_types = set(['biological-region','other','unknown'])
     with gzip.open(ifname,'r') as inf, open(labelname,'w') as labelfile, open(synname,'w') as synfile :
         h = inf.readline()
         for line in inf:
@@ -18,6 +19,9 @@ def pull_ncbigene_labels_and_synonyms():
             x = sline.strip().split('\t')
             gene_id = f'NCBIGene:{x[1]}'
             symbol = x[2]
+            gene_type = x[9]
+            if gene_type in bad_gene_types:
+                continue
             labelfile.write(f'{gene_id}\t{symbol}\n')
             syns = set(x[4].split('|'))
             syns.add(symbol)
