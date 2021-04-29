@@ -83,10 +83,10 @@ def build_gene_ncbi_ensemble_relationships(infile,ncbi_idfile,outfile):
         last = ('','')
         for line in inf:
             x = line.strip().split()
-            ncbigene_id = f'{NCBIGENE}:{x[2]}'
+            ncbigene_id = f'{NCBIGENE}:{x[1]}'
             if ncbigene_id not in ncbi_ids:
                 continue
-            ensembl_id = f'{ENSEMBL}:{x[3]}'
+            ensembl_id = f'{ENSEMBL}:{x[2]}'
             new = (ncbigene_id,ensembl_id)
             if new == last:
                 continue
