@@ -15,6 +15,7 @@ from src.util import LoggingUtil
 logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
 def write_ensembl_ids(ensembl_dir, outfile):
+    """Loop over all the ensembl species.  Find any protein-coding gene"""
     with open(outfile,'w') as outf:
         #find all the ensembl directories
         dirlisting = os.listdir(ensembl_dir)
@@ -25,12 +26,22 @@ def write_ensembl_ids(ensembl_dir, outfile):
                 if os.path.exists(infname):
                     #open each ensembl file, find the id column, and put it in the output
                     with open(infname,'r') as inf:
+                        wrote=set()
                         h = inf.readline()
                         x = h[:-1].split('\t')
-                        column = x.index('Gene stable ID')
+                        gene_column = x.index('Gene stable ID')
+                        protein_column = x.index('Protein stable ID')
                         for line in inf:
                             x = line[:-1].split('\t')
-                            outf.write(f'{ENSEMBL}:{x[column]}\n')
+                            #Is it protein coding?
+                            if x[protein_column] == '':
+                                continue
+                            gid = f'{ENSEMBL}:{x[gene_column]}'
+                            #The gid is not unique, so don't write the same one over again
+                            if gid in wrote:
+                                continue
+                            wrote.add(gid)
+                            outf.write(f'{gid}\n')
 
 def write_hgnc_ids(infile,outfile):
     with open(infile,'r') as inf:
