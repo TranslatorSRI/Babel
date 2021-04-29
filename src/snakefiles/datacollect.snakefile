@@ -27,9 +27,9 @@ rule get_uniprotkb_labels:
         sprot_input=config['download_directory']+'/UniProtKB/uniprot_sprot.fasta',
         trembl_input=config['download_directory']+'/UniProtKB/uniprot_trembl.fasta',
     output:
-        config['download_directory']+'/UniProtKB/labels'
+        outfile=config['download_directory']+'/UniProtKB/labels'
     run:
-        mesh.pull_mesh_labels()
+        uniprotkb.pull_uniprot_labels(input.sprot_input,input.trembl_input,output.outfile)
 
 ### MESH
 
