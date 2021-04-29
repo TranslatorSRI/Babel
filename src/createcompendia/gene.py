@@ -101,7 +101,7 @@ def write_umls_ids(outfile):
             if source == 'OMIM':
                 value = x[13]
                 if "." in value:
-                    umls_keepers.remove(value)
+                    umls_keepers.remove(x[0])
     with open(outfile,'w') as outf:
         for umls in umls_keepers:
             outf.write(f'{UMLS}:{umls}\t{GENE}\n')
