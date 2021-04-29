@@ -13,6 +13,13 @@ import logging
 from src.util import LoggingUtil
 logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
+def write_mods_ids(dd,modlist):
+    for mod in modlist:
+        with open(f'{dd}/{mod}/labels','r') as inf, open(f'{dd}/gene/ids/{mod}','w') as outf:
+            for line in inf:
+                x = line.split('\t')[0]
+                outf.write(f'{x}\n')
+
 def write_ensembl_ids(ensembl_dir, outfile):
     """Loop over all the ensembl species.  Find any protein-coding gene"""
     with open(outfile,'w') as outf:
@@ -53,6 +60,13 @@ def write_ensembl_ids(ensembl_dir, outfile):
                                 zfin = x[zfin_column]
                                 if len(zfin) > 0:
                                     outf.write(f'{gid}\teq\t{ZFIN}:{zfin}')
+
+def write_zfin_ids(infile,outfile):
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            x = line.strip().split()
+            if 'GENE' in x[0]:
+                outf.write(f'{ZFIN}:{x[0]}')
 
 def write_hgnc_ids(infile,outfile):
     with open(infile,'r') as inf:

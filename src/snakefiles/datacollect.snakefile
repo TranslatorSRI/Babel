@@ -6,7 +6,7 @@ import src.datahandlers.ensembl as ensembl
 import src.datahandlers.hgnc as hgnc
 import src.datahandlers.omim as omim
 import src.datahandlers.uniprotkb as uniprotkb
-import src.datahandlers.zfin as zfin
+import src.datahandlers.mods as mods
 
 #####
 #
@@ -14,13 +14,21 @@ import src.datahandlers.zfin as zfin
 #
 ####
 
-### ZFIN
+### MODS
 
-rule get_zfin:
+rule get_mods:
     output:
-        config['download_directory']+'/ZFIN/identifiersForIntermine.txt'
+        expand("{download_directory}/{mod}/GENE-DESCRIPTION-JSON_{mod}.json", download_directory = config['download_directory'], mod = config['mods']),
     run:
-        zfin.pull_zfin()
+        mods.pull_mods()
+
+rule get_mods_labels:
+    input:
+        expand("{download_directory}/{mod}/GENE-DESCRIPTION-JSON_{mod}.json",download_directory=config['download_directory'], mod=config['mods']),
+    output:
+        expand("{download_directory}/{mod}/labels",download_directory=config['download_directory'], mod=config['mods']),
+    run:
+        mods.write_labels(config['download_directory'])
 
 ### UniProtKB
 
