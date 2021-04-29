@@ -60,13 +60,51 @@ def write_omim_ids(infile,outfile):
                 outf.write(f'{OMIM}:{chunks[0]}\n')
 
 def write_umls_ids(outfile):
-    umlsmap = {}
-    umlsmap['A1.2.3.5'] = GENE
+    """Find the UMLS entities that are genes.  This is complicated by the fact that UMLS  semantic type doesn't
+    have a corresponding GENE class.  It has something (A1.2.3.5) which includes genes, but also includes genomes and
+    variants and gene properties and gene families.  We can do some filtering by looking around in the MRCONSO as well
+    as the MRSTY. In particular, if the term maps to an OMIM that has a period in it, then it's a variant. Good job
+    UMLS, it's not like genes are central to biology or anything.
+    It's possible in the future that we'd like to try to assign better classes to some of these things."""
+
     #Do I want this?  There are a bunch of things under here that we probably don't want.
     blacklist=set(['C0017361', #recessive genes
                    'C0017346', #Gag viral gene family
                     ])
-    umls.write_umls_ids(umlsmap, outfile, blacklist)
+    mrsty = os.path.join('input_data', 'MRSTY.RRF')
+    umls_keepers = set()
+    with open(mrsty, 'r') as inf:
+        for line in inf:
+            x = line.strip().split('|')
+            cat = x[2]
+            if cat == 'A1.2.3.5':
+                umls_keepers.add(x[0])
+    umls_keepers.difference_update(blacklist)
+    #Now filter out OMIM variants
+    mrconso = os.path.join('input_data', 'MRCONSO.RRF')
+    with open(mrconso,'r') as inf:
+        for line in inf:
+            x = line.strip().split('|')
+            cui = x[0]
+            if cui not in umls_keepers:
+                continue
+            lang = x[1]
+            #Only keep english terms
+            if lang != 'ENG':
+                continue
+            #only keep unsuppressed rows
+            suppress = x[16]
+            if suppress == 'O' or suppress == 'E':
+                continue
+            #only keep sources we're looking for
+            source = x[11]
+            if source == 'OMIM':
+                value = x[13]
+                if "." in value:
+                    umls_keepers.remove(value)
+    with open(outfile,'w') as outf:
+        for umls in umls_keepers:
+            outf.write(f'{UMLS}:{umls}\t{GENE}\n')
 
 def read_ncbi_idfile(ncbi_idfile):
     ncbi_ids = set()
