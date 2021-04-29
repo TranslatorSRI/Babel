@@ -72,7 +72,7 @@ def read_ncbi_idfile(ncbi_idfile):
     ncbi_ids = set()
     with open(ncbi_idfile,'r') as inf:
         for line in inf:
-            x = line.strip().split('\t')
+            x = line.strip().split('\t')[0]
             ncbi_ids.add(x)
     return ncbi_ids
 
