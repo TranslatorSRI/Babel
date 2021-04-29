@@ -114,13 +114,13 @@ def read_ncbi_idfile(ncbi_idfile):
             ncbi_ids.add(x)
     return ncbi_ids
 
-def build_gene_ncbi_ensemble_relationships(infile,ncbi_idfile,outfile):
+def build_gene_ncbi_ensembl_relationships(infile,ncbi_idfile,outfile):
     ncbi_ids = read_ncbi_idfile(ncbi_idfile)
     with gzip.open(infile,'r') as inf, open(outfile,'w') as outf:
         h = inf.readline()
         last = ('','')
         for line in inf:
-            x = line.strip().split()
+            x = line.strip().split('\t')
             ncbigene_id = f'{NCBIGENE}:{x[1]}'
             if ncbigene_id not in ncbi_ids:
                 continue
