@@ -68,13 +68,24 @@ def write_umls_ids(outfile):
                     ])
     umls.write_umls_ids(umlsmap, outfile, blacklist)
 
-def build_gene_ncbi_ensemble_relationships(infile,outfile):
+def read_ncbi_idfile(ncbi_idfile):
+    ncbi_ids = set()
+    with open(ncbi_idfile,'r') as inf:
+        for line in inf:
+            x = line.strip().split('\t')
+            ncbi_ids.add(x)
+    return ncbi_ids
+
+def build_gene_ncbi_ensemble_relationships(infile,ncbi_idfile,outfile):
+    ncbi_ids = read_ncbi_idfile(ncbi_idfile)
     with gzip.open(infile,'r') as inf, open(outfile,'w') as outf:
         h = inf.readline()
         last = ('','')
         for line in inf:
             x = line.strip().split()
             ncbigene_id = f'{NCBIGENE}:{x[2]}'
+            if ncbigene_id not in ncbi_ids:
+                continue
             ensembl_id = f'{ENSEMBL}:{x[3]}'
             new = (ncbigene_id,ensembl_id)
             if new == last:
@@ -82,15 +93,18 @@ def build_gene_ncbi_ensemble_relationships(infile,outfile):
             outf.write(f'{ncbigene_id}\teq\t{ensembl_id}\n')
             last=new
 
-def build_gene_ncbigene_xrefs(infile,outfile):
+def build_gene_ncbigene_xrefs(infile,ncbi_idfile,outfile):
     mappings = {'WormBase': WORMBASE, 'FLYBASE': FLYBASE, 'ZFIN': ZFIN,
                 'HGNC': HGNC, 'MGI': MGI, 'RGD': RGD, 'dictyBase': DICTYBASE,
                 'SGD': SGD }
+    ncbi_ids = read_ncbi_idfile(ncbi_idfile)
     with gzip.open(infile, 'r') as inf, open(outfile, 'w') as outf:
         h = inf.readline()
         for line in inf:
             x = line.decode('utf-8').strip().split('\t')
             ncbigene_id = f'{NCBIGENE}:{x[1]}'
+            if ncbigene_id not in ncbi_ids:
+                continue
             xrefs = x[5].split('|')
             for xref in xrefs:
                 if xref == '-':

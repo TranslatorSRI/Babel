@@ -42,19 +42,21 @@ rule gene_umls_ids:
 
 rule get_gene_ncbigene_ensembl_relationships:
     input:
-        infile=config['download_directory']+"/NCBIGene/gene2ensembl.gz"
+        infile=config['download_directory']+"/NCBIGene/gene2ensembl.gz",
+        idfile=config['download_directory'] + "/gene/ids/NCBIGene"
     output:
         outfile=config['download_directory']+'/gene/concords/NCBIGeneENSEMBL'
     run:
-        gene.build_gene_ncbi_ensemble_relationships(input.infile,output.outfile)
+        gene.build_gene_ncbi_ensemble_relationships(input.infile,input.idfile,output.outfile)
 
 rule get_gene_ncbigene_relationships:
     input:
-        infile=config['download_directory']+"/NCBIGene/gene_info.gz"
+        infile=config['download_directory']+"/NCBIGene/gene_info.gz",
+        idfile=config['download_directory']+"/gene/ids/NCBIGene"
     output:
         outfile=config['download_directory']+'/gene/concords/NCBIGene'
     run:
-        gene.build_gene_ncbigene_xrefs(input.infile,output.outfile)
+        gene.build_gene_ncbigene_xrefs(input.infile,input.idfile,output.outfile)
 
 rule get_gene_medgen_relationships:
     input:
