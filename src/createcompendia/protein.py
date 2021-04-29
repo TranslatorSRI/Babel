@@ -1,0 +1,114 @@
+from src.prefixes import ENSEMBL, UMLS, PR
+from src.categories import PROTEIN
+
+import src.datahandlers.umls as umls
+import src.datahandlers.obo as obo
+
+from src.babel_utils import read_identifier_file,glom,write_compendium
+
+import os
+import json
+import gzip
+
+import logging
+from src.util import LoggingUtil
+logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
+
+def write_ensembl_ids(ensembl_dir, outfile):
+    """Loop over all the ensembl species.  Find any protein-coding gene"""
+    with open(outfile,'w') as outf:
+        #find all the ensembl directories
+        dirlisting = os.listdir(ensembl_dir)
+        for dl in dirlisting:
+            dlpath = os.path.join(ensembl_dir,dl)
+            if os.path.isdir(dlpath):
+                infname = os.path.join(dlpath,'BioMart.tsv')
+                if os.path.exists(infname):
+                    #open each ensembl file, find the id column, and put it in the output
+                    with open(infname,'r') as inf:
+                        wrote=set()
+                        h = inf.readline()
+                        x = h[:-1].split('\t')
+                        gene_column = x.index('Gene stable ID')
+                        protein_column = x.index('Protein stable ID')
+                        for line in inf:
+                            x = line[:-1].split('\t')
+                            #Is it protein coding?
+                            if x[protein_column] == '':
+                                continue
+                            gid = f'{ENSEMBL}:{x[gene_column]}'
+                            #The gid is not unique, so don't write the same one over again
+                            if gid in wrote:
+                                continue
+                            wrote.add(gid)
+                            outf.write(f'{gid}\n')
+
+def write_umls_ids(outfile):
+    umlsmap = {}
+    umlsmap['A1.4.1.2.1.7'] = PROTEIN
+    umls.write_umls_ids(umlsmap, outfile)
+
+def write_pr_ids(outfile):
+    protein_id   = f'{PR}:000000001'
+    obo.write_obo_ids([(protein_id, PROTEIN)], outfile, [PROTEIN])
+
+#def build_gene_ncbi_ensemble_relationships(infile,outfile):
+#    with gzip.open(infile,'r') as inf, open(outfile,'w') as outf:
+#        h = inf.readline()
+#        last = ('','')
+#        for line in inf:
+#            x = line.strip().split()
+#            ncbigene_id = f'{NCBIGENE}:{x[2]}'
+#            ensembl_id = f'{ENSEMBL}:{x[3]}'
+#            new = (ncbigene_id,ensembl_id)
+#            if new == last:
+#                continue
+#            outf.write(f'{ncbigene_id}\teq\t{ensembl_id}\n')
+#            last=new
+#
+#def build_gene_ncbigene_xrefs(infile,outfile):
+#    mappings = {'WormBase': WORMBASE, 'FLYBASE': FLYBASE, 'ZFIN': ZFIN,
+#                'HGNC': HGNC, 'MGI': MGI, 'RGD': RGD, 'dictyBase': DICTYBASE,
+#                'SGD': SGD }
+#    with gzip.open(infile, 'r') as inf, open(outfile, 'w') as outf:
+#        h = inf.readline()
+#        for line in inf:
+#            x = line.decode('utf-8').strip().split('\t')
+#            ncbigene_id = f'{NCBIGENE}:{x[1]}'
+#            xrefs = x[5].split('|')
+#            for xref in xrefs:
+#                if xref == '-':
+#                    continue
+#                xref_parts = xref.split(':')
+#                found_prefix=xref_parts[0]
+#                if found_prefix in mappings:
+#                    outf.write(f'{ncbigene_id}\txref\t{mappings[found_prefix]}:{xref_parts[-1]}\n')
+#
+#def build_gene_umls_hgnc_relationships(umls_idfile,outfile):
+#    #Could also add MESH, if that were a valid gene prefix
+#    umls.build_sets(umls_idfile, outfile, {'HGNC':HGNC})
+
+def build_protein_compendia(concordances, identifiers):
+    """:concordances: a list of files from which to read relationships
+       :identifiers: a list of files from which to read identifiers and optional categories"""
+    dicts = {}
+    types = {}
+    uniques = [ENSEMBL,]
+    for ifile in identifiers:
+        print(ifile)
+        new_identifiers, new_types = read_identifier_file(ifile)
+        glom(dicts, new_identifiers, unique_prefixes= uniques)
+        types.update(new_types)
+    for infile in concordances:
+        print(infile)
+        print('loading', infile)
+        pairs = []
+        with open(infile, 'r') as inf:
+            for line in inf:
+                x = line.strip().split('\t')
+                pairs.append(set([x[0], x[2]]))
+        glom(dicts, pairs, unique_prefixes=uniques)
+    gene_sets = set([frozenset(x) for x in dicts.values()])
+    baretype = PROTEIN.split(':')[-1]
+    write_compendium(gene_sets, f'{baretype}.txt', PROTEIN, {})
+

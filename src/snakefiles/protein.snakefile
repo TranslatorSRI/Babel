@@ -1,5 +1,7 @@
-import src.createcompendia.gene as gene
+import src.createcompendia.gene as geneprotein
 import src.assess_compendia as assessments
+
+### Gene / Protein
 
 rule gene_ncbi_ids:
     input:
@@ -16,7 +18,7 @@ rule gene_omim_ids:
     output:
         outfile=config['download_directory']+"/gene/ids/OMIM"
     run:
-        gene.write_omim_ids(input.infile,output.outfile)
+        geneprotein.write_omim_ids(input.infile,output.outfile)
 
 rule gene_ensembl_ids:
     input:
@@ -24,7 +26,7 @@ rule gene_ensembl_ids:
     output:
         outfile=config['download_directory']+"/gene/ids/ENSEMBL"
     run:
-        gene.write_ensembl_ids(config['download_directory'] + '/ENSEMBL',output.outfile)
+        geneprotein.write_gene_ensembl_ids(config['download_directory']+'/ENSEMBL',output.outfile)
 
 rule gene_hgnc_ids:
     input:
@@ -32,13 +34,13 @@ rule gene_hgnc_ids:
     output:
         outfile=config['download_directory']+"/gene/ids/HGNC"
     run:
-        gene.write_hgnc_ids(input.infile,output.outfile)
+        geneprotein.write_hgnc_ids(input.infile,output.outfile)
 
 rule gene_umls_ids:
     output:
         outfile=config['download_directory']+"/gene/ids/UMLS"
     run:
-        gene.write_umls_ids(output.outfile)
+        geneprotein.write_gene_umls_ids(output.outfile)
 
 rule get_gene_ncbigene_ensembl_relationships:
     input:
@@ -46,7 +48,7 @@ rule get_gene_ncbigene_ensembl_relationships:
     output:
         outfile=config['download_directory']+'/gene/concords/NCBIGeneENSEMBL'
     run:
-        gene.build_gene_ncbi_ensemble_relationships(input.infile,output.outfile)
+        geneprotein.build_gene_ncbi_ensemble_relationships(input.infile,output.outfile)
 
 rule get_gene_ncbigene_relationships:
     input:
@@ -54,7 +56,7 @@ rule get_gene_ncbigene_relationships:
     output:
         outfile=config['download_directory']+'/gene/concords/NCBIGene'
     run:
-        gene.build_gene_ncbigene_xrefs(input.infile,output.outfile)
+        geneprotein.build_gene_ncbigene_xrefs(input.infile,output.outfile)
 
 rule get_gene_medgen_relationships:
     input:
@@ -62,7 +64,7 @@ rule get_gene_medgen_relationships:
     output:
         outfile=config['download_directory']+'/gene/concords/medgen'
     run:
-        gene.build_gene_medgen_relationships(input.infile, output.outfile)
+        geneprotein.build_gene_medgen_relationships(input.infile, output.outfile)
 
 rule get_gene_umls_relationships:
     input:
@@ -70,7 +72,7 @@ rule get_gene_umls_relationships:
     output:
         outfile=config['download_directory']+'/gene/concords/UMLS'
     run:
-        gene.build_gene_umls_hgnc_relationships(input.infile, output.outfile)
+        geneprotein.build_gene_umls_hgnc_relationships(input.infile, output.outfile)
 
 rule gene_compendia:
     input:
@@ -82,7 +84,7 @@ rule gene_compendia:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['gene_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['gene_outputs'])
     run:
-        gene.build_gene_compendia(input.concords,input.idlists)
+        geneprotein.build_gene_compendia(input.concords,input.idlists)
 
 rule check_gene_completeness:
     input:
@@ -108,3 +110,27 @@ rule gene:
         x=config['output_directory']+'/reports/gene_done'
     shell:
         "echo 'done' >> {output.x}"
+
+
+###
+
+rule protein_pr_ids:
+    output:
+        outfile=config['download_directory']+"/protein/ids/PR"
+    run:
+        geneprotein.write_pr_ids(output.outfile)
+
+rule protein_uniprotkb_ids:
+    input:
+        infile=config['download_directory']+'/UniProtKB/labels'
+    output:
+        outfile=config['download_directory']+"/protein/ids/UniProtKB"
+    shell:
+        #This one is a simple enough transform to do with awk
+        "awk '{{print $1}}' {input.infile} > {output.outfile}"
+
+rule protein_umls_ids:
+    output:
+        outfile=config['download_directory']+"/protein/ids/UMLS"
+    run:
+        geneprotein.write_protein_umls_ids(output.outfile)

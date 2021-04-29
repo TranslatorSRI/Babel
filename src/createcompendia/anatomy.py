@@ -63,7 +63,7 @@ def build_sets(iri, concordfiles, ignore_list = ['PMID','BTO','BAMS','FMA','CALO
 
 def write_obo_ids(irisandtypes,outfile,exclude=[]):
     order = [CELLULAR_COMPONENT, CELL, GROSS_ANATOMICAL_STRUCTURE, ANATOMICAL_ENTITY]
-    obo.write_obo_ids(irisandtypes, outfile, order, order, exclude=[])
+    obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])
 
 
 def write_ncit_ids(outfile):
