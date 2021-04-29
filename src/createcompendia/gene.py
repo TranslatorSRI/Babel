@@ -120,7 +120,7 @@ def build_gene_ncbi_ensembl_relationships(infile,ncbi_idfile,outfile):
         h = inf.readline()
         last = ('','')
         for line in inf:
-            x = line.strip().split('\t')
+            x = line.decode('utf-8').strip().split('\t')
             ncbigene_id = f'{NCBIGENE}:{x[1]}'
             if ncbigene_id not in ncbi_ids:
                 continue
