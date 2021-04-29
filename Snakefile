@@ -1,12 +1,9 @@
-import src.createcompendia.anatomy as anatomy
-import src.createcompendia.geneprotein as geneprotein
-import src.assess_compendia as assessments
-
 configfile: "config.json"
 
 include: "src/snakefiles/datacollect.snakefile"
 include: "src/snakefiles/anatomy.snakefile"
 include: "src/snakefiles/gene.snakefile"
+include: "src/snakefiles/protein.snakefile"
 
 rule all:
     input:
