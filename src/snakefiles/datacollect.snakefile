@@ -6,12 +6,21 @@ import src.datahandlers.ensembl as ensembl
 import src.datahandlers.hgnc as hgnc
 import src.datahandlers.omim as omim
 import src.datahandlers.uniprotkb as uniprotkb
+import src.datahandlers.zfin as zfin
 
 #####
 #
 # Data sets: pull data sets, and parse them to get labels and synonyms
 #
 ####
+
+### ZFIN
+
+rule get_zfin:
+    output:
+        config['download_directory']+'/ZFIN/identifiersForIntermine.txt'
+    run:
+        zfin.pull_zfin()
 
 ### UniProtKB
 

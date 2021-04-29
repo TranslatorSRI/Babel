@@ -11,7 +11,7 @@
   "anatomy_outputs": ["AnatomicalEntity.txt", "Cell.txt", "CellularComponent.txt","GrossAnatomicalStructure.txt"],
 
   "gene_labels": ["HGNC","NCBIGene","UMLS"],
-  "gene_ids": ["ENSEMBL","HGNC","NCBIGene","UMLS","OMIM"],
+  "gene_ids": ["ENSEMBL","HGNC","NCBIGene","UMLS","OMIM","ZFIN"],
   "gene_concords": ["NCBIGene","NCBIGeneENSEMBL","medgen","UMLS"],
   "gene_outputs": ["Gene.txt"]
 }

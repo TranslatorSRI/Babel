@@ -1,6 +1,14 @@
 import src.createcompendia.gene as gene
 import src.assess_compendia as assessments
 
+rule gene_zfin_ids:
+    input:
+        infile=config['download_directory']+'/ZFIN/identifiersForIntermine.txt'
+    output:
+        outfile=config['download_directory']+'gene/ids/ZFIN'
+    run:
+        gene.write_zfin_ids(input.infile,output.outfile)
+
 rule gene_ncbi_ids:
     input:
         infile=config['download_directory']+'/NCBIGene/labels'
