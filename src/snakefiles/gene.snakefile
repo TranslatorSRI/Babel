@@ -58,6 +58,15 @@ rule get_gene_ncbigene_relationships:
     run:
         gene.build_gene_ncbigene_xrefs(input.infile,input.idfile,output.outfile)
 
+rule get_gene_ensembl_relationships:
+    input:
+        infile =config['download_directory'] + '/ENSEMBL/BioMartDownloadComplete'
+    output:
+        outfile=config['download_directory']+'/gene/concords/ENSEMBL'
+    run:
+        gene.build_gene_ensembl_relationships(config['download_directory']+'/ENSEMBL',output.outfile)
+
+
 rule get_gene_medgen_relationships:
     input:
         infile=config['download_directory']+'/NCBIGene/mim2gene_medgen'

@@ -30,17 +30,29 @@ def write_ensembl_ids(ensembl_dir, outfile):
                         x = h[:-1].split('\t')
                         gene_column = x.index('Gene stable ID')
                         protein_column = x.index('Protein stable ID')
+                        try:
+                            entrez_column = x.index('NCBI gene (formerly Entrezgene) ID')
+                        except:
+                            entrez_column = None
+                        try:
+                            zfin_column = x.index('ZFIN ID')
+                        except:
+                            zfin_column = None
                         for line in inf:
                             x = line[:-1].split('\t')
                             #Is it protein coding?
-                            if x[protein_column] == '':
-                                continue
+                            #Protein coding is not actually relevant.
+                            #if x[protein_column] == '':
+                            #    continue
                             gid = f'{ENSEMBL}:{x[gene_column]}'
-                            #The gid is not unique, so don't write the same one over again
-                            if gid in wrote:
-                                continue
-                            wrote.add(gid)
-                            outf.write(f'{gid}\n')
+                            if entrez_column is not None:
+                                entrez = x[entrez_column]
+                                if len(entrez) > 0:
+                                    outf.write(f'{gid}\teq\t{NCBIGENE}:{entrez}')
+                            if zfin_column is not None:
+                                zfin = x[zfin_column]
+                                if len(zfin) > 0:
+                                    outf.write(f'{gid}\teq\t{ZFIN}:{zfin}')
 
 def write_hgnc_ids(infile,outfile):
     with open(infile,'r') as inf:
@@ -166,6 +178,36 @@ def build_gene_medgen_relationships(infile,outfile):
             if not x[4] == '-':
                 umls_id = f'{UMLS}:{x[4]}'
                 outf.write(f'{ncbigene_id}\teq\t{umls_id}\n')
+
+def build_gene_ensembl_relationships(ensembl_dir, outfile):
+    """Loop over all the ensembl species.  Find any protein-coding gene"""
+    with open(outfile,'w') as outf:
+        #find all the ensembl directories
+        dirlisting = os.listdir(ensembl_dir)
+        for dl in dirlisting:
+            dlpath = os.path.join(ensembl_dir,dl)
+            if os.path.isdir(dlpath):
+                infname = os.path.join(dlpath,'BioMart.tsv')
+                if os.path.exists(infname):
+                    #open each ensembl file, find the id column, and put it in the output
+                    with open(infname,'r') as inf:
+                        wrote=set()
+                        h = inf.readline()
+                        x = h[:-1].split('\t')
+                        gene_column = x.index('Gene stable ID')
+                        protein_column = x.index('Protein stable ID')
+                        for line in inf:
+                            x = line[:-1].split('\t')
+                            #Is it protein coding?
+                            if x[protein_column] == '':
+                                continue
+                            gid = f'{ENSEMBL}:{x[gene_column]}'
+                            #The gid is not unique, so don't write the same one over again
+                            if gid in wrote:
+                                continue
+                            wrote.add(gid)
+                            outf.write(f'{gid}\n')
+
 
 def build_gene_umls_hgnc_relationships(umls_idfile,outfile):
     #Could also add MESH, if that were a valid gene prefix
