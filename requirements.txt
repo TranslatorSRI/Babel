@@ -11,3 +11,4 @@ apybiomart
 git+https://github.com/pytries/datrie.git
 snakemake
 bmt
+pyoxigraph
