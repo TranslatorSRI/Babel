@@ -47,7 +47,7 @@ rule get_gene_ncbigene_ensembl_relationships:
     output:
         outfile=config['download_directory']+'/gene/concords/NCBIGeneENSEMBL'
     run:
-        gene.build_gene_ncbi_ensemble_relationships(input.infile,input.idfile,output.outfile)
+        gene.build_gene_ncbi_ensembl_relationships(input.infile,input.idfile,output.outfile)
 
 rule get_gene_ncbigene_relationships:
     input:
