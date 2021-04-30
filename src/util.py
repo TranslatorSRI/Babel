@@ -76,6 +76,12 @@ class Text:
         return text.upper().split(':', 1)[0] if ':' in text else None
 
     @staticmethod
+    def get_prefix (text):
+        if isinstance(text,LabeledID):
+            text = text.identifier
+        return text.split(':', 1)[0] if ':' in text else None
+
+    @staticmethod
     def recurie(text,new_prefix):
         """Given input CURIE and a new prefix, replace the old prefix with the new"""
         if isinstance(text, LabeledID):
