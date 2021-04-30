@@ -22,7 +22,7 @@ def write_labels(dd):
     for mod,prefix in modmap.items():
         with open(f'{dd}/{prefix}/GENE-DESCRIPTION-JSON_{prefix}.json','r') as inf:
             j = json.load(inf)
-        with open(f'{dd}/{mod}/labels','w') as outf:
+        with open(f'{dd}/{prefix}/labels','w') as outf:
             for gene in j['data']:
                 gid = gene['gene_id'].split(':')[-1]
                 outf.write(f'{prefix}:{gid}\t{gene["gene_name"]}\n')
