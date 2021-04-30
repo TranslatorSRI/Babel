@@ -137,7 +137,7 @@ class NodeFactory:
             if iid in labels:
                 labeled_list.append( LabeledID(identifier=iid, label = labels[iid]))
             else:
-                prefix = Text.get_curie(iid)
+                prefix = Text.get_prefix(iid)
                 if prefix not in self.extra_labels:
                     self.load_extra_labels(prefix)
                 if iid in self.extra_labels[prefix]:

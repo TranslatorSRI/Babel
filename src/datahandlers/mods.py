@@ -8,7 +8,8 @@ modmap['WB']= WORMBASE
 
 def pull_mods():
     for mod in mods:
-        pull_via_urllib('https://fms.alliancegenome.org/download/',f'GENE-DESCRIPTION-JSON_{mod}.json.gz',subpath=mod)
+        subp = modmap[mod]
+        pull_via_urllib('https://fms.alliancegenome.org/download/',f'GENE-DESCRIPTION-JSON_{mod}.json.gz',subpath=subp)
 
 def write_labels(dd):
     for mod,prefix in modmap.items():
