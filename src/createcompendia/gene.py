@@ -91,7 +91,9 @@ def write_umls_ids(outfile):
     variants and gene properties and gene families.  We can do some filtering by looking around in the MRCONSO as well
     as the MRSTY. In particular, if the term maps to an OMIM that has a period in it, then it's a variant. Good job
     UMLS, it's not like genes are central to biology or anything.
+    Also, remove anything that in the label identifies itself as an Allele or Mutation
     It's possible in the future that we'd like to try to assign better classes to some of these things."""
+
 
     #Do I want this?  There are a bunch of things under here that we probably don't want.
     blacklist=set(['C0017361', #recessive genes
@@ -128,6 +130,8 @@ def write_umls_ids(outfile):
                 value = x[13]
                 if "." in value:
                     umls_keepers.remove(x[0])
+            if 'Allele' in x[14] or 'Mutation' in x[14]:
+                umls_keepers.remove(x[0])
     with open(outfile,'w') as outf:
         for umls in umls_keepers:
             outf.write(f'{UMLS}:{umls}\t{GENE}\n')
