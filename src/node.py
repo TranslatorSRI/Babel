@@ -73,6 +73,12 @@ class NodeFactory:
         except:
             #this is a mega hack to deal with the taxon change
             prefs = ['NCBITaxon','MESH']
+        #The pref are in a particular order, but apparently it can have dups (ugh)
+        newprefs = ['']
+        for pref in prefs:
+            if not pref  == newprefs[-1]:
+                newprefs.append(pref)
+        prefs = newprefs[1:]
         self.prefix_map[input_type] = prefs
         return prefs
 
@@ -143,7 +149,7 @@ class NodeFactory:
     def create_node(self,input_identifiers,node_type,labels={}):
         #This is where we will normalize, i.e. choose the best id, and add types in accord with BL.
         #we should also include provenance and version information for the node set build.
-        test = 'FB:FBgn0261954'
+        test = 'xFB:FBgn0261954'
         if test in input_identifiers:
             print(input_identifiers)
         ancestors = self.get_ancestors(node_type)

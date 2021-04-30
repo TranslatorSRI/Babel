@@ -233,7 +233,7 @@ def build_gene_compendia(concordances, identifiers):
     dicts = {}
     types = {}
     uniques = [NCBIGENE,HGNC,ENSEMBL,OMIM]
-    test = 'FB:FBgn0261954'
+    test = 'xFB:FBgn0261954'
     for ifile in identifiers:
         print('loading',ifile)
         new_identifiers, new_types = read_identifier_file(ifile)
