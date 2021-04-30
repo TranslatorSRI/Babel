@@ -11,7 +11,9 @@ import os
 # just what we need.
 def pull_ensembl(complete_file):
     f = find_datasets()
-    cols = set(["ensembl_gene_id", "ensembl_peptide_id", "description", "external_gene_name", "external_gene_source", "external_synonym","chromosome_name","source","gene_biotype","entrezgene_id","zfin_id_id"])
+    cols = set(["ensembl_gene_id", "ensembl_peptide_id", "description", "external_gene_name", "external_gene_source",
+                "external_synonym","chromosome_name","source","gene_biotype","entrezgene_id",
+                "zfin_id_id",'mgi_id','rgd_id','flybase_gene_id','sgd_gene','wormbase_gene'])
     for ds in f['Dataset_ID']:
         print(ds)
         outfile = make_local_name('BioMart.tsv',subpath=f'ENSEMBL/{ds}')

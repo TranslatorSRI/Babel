@@ -20,7 +20,7 @@ def write_mods_ids(dd,modlist):
                 x = line.split('\t')[0]
                 outf.write(f'{x}\n')
 
-def write_ensembl_ids(ensembl_dir, outfile):
+def build_gene_ensembl_relationships(ensembl_dir, outfile):
     """Loop over all the ensembl species.  Find any protein-coding gene"""
     with open(outfile,'w') as outf:
         #find all the ensembl directories
@@ -36,15 +36,19 @@ def write_ensembl_ids(ensembl_dir, outfile):
                         h = inf.readline()
                         x = h[:-1].split('\t')
                         gene_column = x.index('Gene stable ID')
+                        column_to_prefix = { 'NCBI gene (formerly Entrezgene) ID': {NCBIGENE},
+                                             'ZFIN ID': {ZFIN},
+                                             'SGD gene name ID': {SGD},
+                                             'WormBase Gene ID': {WORMBASE},
+                                             'FlyBase ID': {FLYBASE},
+                                             'MGI ID': {MGI},
+                                             'RGD ID': {RGD}
+                                             }
                         protein_column = x.index('Protein stable ID')
-                        try:
-                            entrez_column = x.index('NCBI gene (formerly Entrezgene) ID')
-                        except:
-                            entrez_column = None
-                        try:
-                            zfin_column = x.index('ZFIN ID')
-                        except:
-                            zfin_column = None
+                        columnno_to_prefix = {}
+                        for i,v in enumerate(x):
+                            if v in column_to_prefix:
+                                columnno_to_prefix[i] = column_to_prefix[v]
                         for line in inf:
                             x = line[:-1].split('\t')
                             #Is it protein coding?
@@ -52,14 +56,10 @@ def write_ensembl_ids(ensembl_dir, outfile):
                             #if x[protein_column] == '':
                             #    continue
                             gid = f'{ENSEMBL}:{x[gene_column]}'
-                            if entrez_column is not None:
-                                entrez = x[entrez_column]
-                                if len(entrez) > 0:
-                                    outf.write(f'{gid}\teq\t{NCBIGENE}:{entrez}')
-                            if zfin_column is not None:
-                                zfin = x[zfin_column]
-                                if len(zfin) > 0:
-                                    outf.write(f'{gid}\teq\t{ZFIN}:{zfin}')
+                            for cno,pref in columnno_to_prefix.items():
+                                value = x[cno]
+                                if len(value) > 0:
+                                    outf.write(f'{gid}\teq\t{pref}:{value}\n')
 
 def write_zfin_ids(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
@@ -193,7 +193,7 @@ def build_gene_medgen_relationships(infile,outfile):
                 umls_id = f'{UMLS}:{x[4]}'
                 outf.write(f'{ncbigene_id}\teq\t{umls_id}\n')
 
-def build_gene_ensembl_relationships(ensembl_dir, outfile):
+def write_ensembl_ids(ensembl_dir, outfile):
     """Loop over all the ensembl species.  Find any protein-coding gene"""
     with open(outfile,'w') as outf:
         #find all the ensembl directories
@@ -213,8 +213,8 @@ def build_gene_ensembl_relationships(ensembl_dir, outfile):
                         for line in inf:
                             x = line[:-1].split('\t')
                             #Is it protein coding?
-                            if x[protein_column] == '':
-                                continue
+                            #if x[protein_column] == '':
+                            #    continue
                             gid = f'{ENSEMBL}:{x[gene_column]}'
                             #The gid is not unique, so don't write the same one over again
                             if gid in wrote:
