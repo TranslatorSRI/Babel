@@ -143,6 +143,9 @@ class NodeFactory:
     def create_node(self,input_identifiers,node_type,labels={}):
         #This is where we will normalize, i.e. choose the best id, and add types in accord with BL.
         #we should also include provenance and version information for the node set build.
+        test = 'FB:FBgn0261954'
+        if test in input_identifiers:
+            print(input_identifiers)
         ancestors = self.get_ancestors(node_type)
         #ancestors.reverse()
         prefixes = self.get_prefixes(node_type)
@@ -183,6 +186,8 @@ class NodeFactory:
                     accepted_ids.add(v)
                 newids.sort()
                 identifiers += [ nid[1] for nid in newids ]
+        if test in identifiers:
+            print(identifiers)
         #Warn if we have prefixes that we're ignoring
         for k,vals in idmap.items():
             for v in vals:
