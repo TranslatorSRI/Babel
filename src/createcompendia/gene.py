@@ -233,16 +233,11 @@ def build_gene_compendia(concordances, identifiers):
     dicts = {}
     types = {}
     uniques = [NCBIGENE,HGNC,ENSEMBL,OMIM]
-    test = 'xFB:FBgn0261954'
     for ifile in identifiers:
         print('loading',ifile)
         new_identifiers, new_types = read_identifier_file(ifile)
         glom(dicts, new_identifiers, unique_prefixes= uniques)
         types.update(new_types)
-        if test not in dicts:
-            print("haven't yet got that one")
-        else:
-            print(dicts[test])
     for infile in concordances:
         print(infile)
         print('loading', infile)
@@ -252,7 +247,6 @@ def build_gene_compendia(concordances, identifiers):
                 x = line.strip().split('\t')
                 pairs.append(set([x[0], x[2]]))
         glom(dicts, pairs, unique_prefixes=uniques)
-        print(dicts[test])
     gene_sets = set([frozenset(x) for x in dicts.values()])
     baretype = GENE.split(':')[-1]
     write_compendium(gene_sets, f'{baretype}.txt', GENE, {})
