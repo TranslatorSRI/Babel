@@ -1,6 +1,7 @@
 from src.prefixes import WORMBASE
 from src.babel_utils import pull_via_urllib
 import json
+import os
 
 mods = ['WB', 'FB', 'ZFIN', 'MGI', 'RGD', 'SGD']
 modmap = { x:x for x in mods }
@@ -9,7 +10,13 @@ modmap['WB']= WORMBASE
 def pull_mods():
     for mod in mods:
         subp = modmap[mod]
-        pull_via_urllib('https://fms.alliancegenome.org/download/',f'GENE-DESCRIPTION-JSON_{mod}.json.gz',subpath=subp)
+        origname = pull_via_urllib('https://fms.alliancegenome.org/download/',f'GENE-DESCRIPTION-JSON_{mod}.json.gz',subpath=subp)
+        #This should be fine.  But for the makefile it's nice if the directory in which this goes is the same as the {mod} in the filename.
+        # And we'd like it to be the names of the prefixes
+        if mod != modmap[mod]:
+            newname = origname.replace(mod,modmap[mod])
+            os.rename(origname,newname)
+
 
 def write_labels(dd):
     for mod,prefix in modmap.items():
