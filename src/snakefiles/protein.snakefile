@@ -23,7 +23,7 @@ rule protein_umls_ids:
     run:
         protein.write_umls_ids(output.outfile)
 
-rule gene_ensembl_ids:
+rule protein_ensembl_ids:
     input:
         infile=config['download_directory']+'/ENSEMBL/BioMartDownloadComplete'
     output:
