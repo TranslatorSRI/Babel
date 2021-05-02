@@ -100,7 +100,7 @@ def build_protein_uniprotkb_ensemble_relationships(infile,outfile):
             if x[1] == 'Ensembl_PRO':
                 uniprot_id = f'{UNIPROTKB}:{x[0]}'
                 ensembl_id = f'{ENSEMBL}:{x[2]}'
-            outf.write(f'{uniprot_id}\teq\t{ensembl_id}\n')
+                outf.write(f'{uniprot_id}\teq\t{ensembl_id}\n')
 #
 #def build_gene_ncbigene_xrefs(infile,outfile):
 #    mappings = {'WormBase': WORMBASE, 'FLYBASE': FLYBASE, 'ZFIN': ZFIN,
