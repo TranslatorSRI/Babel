@@ -1,5 +1,4 @@
-import src.createcompendia.protein as geneprotein
-import src.assess_compendia as assessments
+import src.createcompendia.protein as protein
 
 ### Gene / Protein
 
@@ -7,7 +6,7 @@ rule protein_pr_ids:
     output:
         outfile=config['download_directory']+"/protein/ids/PR"
     run:
-        geneprotein.write_pr_ids(output.outfile)
+        protein.write_pr_ids(output.outfile)
 
 rule protein_uniprotkb_ids:
     input:
@@ -22,4 +21,12 @@ rule protein_umls_ids:
     output:
         outfile=config['download_directory']+"/protein/ids/UMLS"
     run:
-        geneprotein.write_protein_umls_ids(output.outfile)
+        protein.write_umls_ids(output.outfile)
+
+rule gene_ensembl_ids:
+    input:
+        infile=config['download_directory']+'/ENSEMBL/BioMartDownloadComplete'
+    output:
+        outfile=config['download_directory']+"/protein/ids/ENSEMBL"
+    run:
+        protein.write_ensembl_ids(config['download_directory'] + '/ENSEMBL',output.outfile)
