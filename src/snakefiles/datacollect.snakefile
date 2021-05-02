@@ -35,7 +35,8 @@ rule get_mods_labels:
 rule get_uniprotkb:
     output:
         config['download_directory']+'/UniProtKB/uniprot_sprot.fasta',
-        config['download_directory']+'/UniProtKB/uniprot_trembl.fasta'
+        config['download_directory']+'/UniProtKB/uniprot_trembl.fasta',
+        config['download_directory']+'/UniProtKB/idmapping.dat'
     run:
         uniprotkb.pull_uniprotkb()
 
