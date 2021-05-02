@@ -3,7 +3,6 @@ import src.assess_compendia as assessments
 
 ### Gene / Protein
 
-
 rule protein_pr_ids:
     output:
         outfile=config['download_directory']+"/protein/ids/PR"

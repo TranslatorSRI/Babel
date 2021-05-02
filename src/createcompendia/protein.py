@@ -52,6 +52,35 @@ def write_pr_ids(outfile):
     protein_id   = f'{PR}:000000001'
     obo.write_obo_ids([(protein_id, PROTEIN)], outfile, [PROTEIN])
 
+
+def write_ensembl_ids(ensembl_dir, outfile):
+    """Loop over all the ensembl species.  Find any protein-coding gene"""
+    with open(outfile, 'w') as outf:
+        # find all the ensembl directories
+        dirlisting = os.listdir(ensembl_dir)
+        for dl in dirlisting:
+            dlpath = os.path.join(ensembl_dir, dl)
+            if os.path.isdir(dlpath):
+                infname = os.path.join(dlpath, 'BioMart.tsv')
+                if os.path.exists(infname):
+                    # open each ensembl file, find the id column, and put it in the output
+                    with open(infname, 'r') as inf:
+                        wrote = set()
+                        h = inf.readline()
+                        x = h[:-1].split('\t')
+                        protein_column = x.index('Protein stable ID')
+                        for line in inf:
+                            x = line[:-1].split('\t')
+                            if x[protein_column] == '':
+                                continue
+                            pid = f'{ENSEMBL}:{x[protein_column]}'
+                            # The pid is not unique, so don't write the same one over again
+                            if pid in wrote:
+                                continue
+                            wrote.add(pid)
+                            outf.write(f'{pid}\n')
+
+
 #def build_gene_ncbi_ensemble_relationships(infile,outfile):
 #    with gzip.open(infile,'r') as inf, open(outfile,'w') as outf:
 #        h = inf.readline()
