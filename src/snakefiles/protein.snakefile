@@ -30,3 +30,17 @@ rule protein_ensembl_ids:
         outfile=config['download_directory']+"/protein/ids/ENSEMBL"
     run:
         protein.write_ensembl_ids(config['download_directory'] + '/ENSEMBL',output.outfile)
+
+rule get_protein_uniprotkb_ensembl_relationships:
+    input:
+        infile = config['download_directory'] + '/UniProtKB/idmapping.dat'
+    output:
+        outfile = config['download_directory'] + '/protein/concords/UniProtKB'
+    run:
+        protein.build_protein_uniprotkb_ensemble_relationships(input.infile,output.outfile)
+
+rule get_protein_pr_uniprotkb_relationships:
+    output:
+        outfile  = config['download_directory'] + '/protein/concords/PR'
+    run:
+        protein.build_pr_uniprot_relationships(output.outfile)

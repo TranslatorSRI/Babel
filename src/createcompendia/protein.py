@@ -1,10 +1,11 @@
-from src.prefixes import ENSEMBL, UMLS, PR
+from src.prefixes import ENSEMBL, UMLS, PR, UNIPROTKB
 from src.categories import PROTEIN
 
 import src.datahandlers.umls as umls
 import src.datahandlers.obo as obo
+from src.ubergraph import UberGraph
 
-from src.babel_utils import read_identifier_file,glom,write_compendium
+from src.babel_utils import read_identifier_file,glom,write_compendium,Text
 
 import os
 import json
@@ -80,20 +81,26 @@ def write_ensembl_ids(ensembl_dir, outfile):
                             wrote.add(pid)
                             outf.write(f'{pid}\n')
 
+def build_pr_uniprot_relationships(outfile, ignore_list = []):
+    """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
+    is a set for each subclass of the input iri.  Write these lists to concord files, indexed by the prefix"""
+    iri = 'PR:000000001'
+    uber = UberGraph()
+    pro_res = uber.get_subclasses_and_xrefs(iri)
+    with open(outfile,'w') as concfile:
+        for k,v in pro_res.items():
+            for x in v:
+                if Text.get_curie(x) not in ignore_list:
+                     concfile.write(f'{k}\txref\t{x}\n')
 
-#def build_gene_ncbi_ensemble_relationships(infile,outfile):
-#    with gzip.open(infile,'r') as inf, open(outfile,'w') as outf:
-#        h = inf.readline()
-#        last = ('','')
-#        for line in inf:
-#            x = line.strip().split()
-#            ncbigene_id = f'{NCBIGENE}:{x[2]}'
-#            ensembl_id = f'{ENSEMBL}:{x[3]}'
-#            new = (ncbigene_id,ensembl_id)
-#            if new == last:
-#                continue
-#            outf.write(f'{ncbigene_id}\teq\t{ensembl_id}\n')
-#            last=new
+def build_protein_uniprotkb_ensemble_relationships(infile,outfile):
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            x = line.strip().split()
+            if x[1] == 'Ensembl_PRO':
+                uniprot_id = f'{UNIPROTKB}:{x[0]}'
+                ensembl_id = f'{ENSEMBL}:{x[2]}'
+            outf.write(f'{uniprot_id}\teq\t{ensembl_id}\n')
 #
 #def build_gene_ncbigene_xrefs(infile,outfile):
 #    mappings = {'WormBase': WORMBASE, 'FLYBASE': FLYBASE, 'ZFIN': ZFIN,
