@@ -18,9 +18,9 @@ def readlabels(which):
     return swissprot_labels
 
 def pull_uniprotkb():
-    #for which in ['sprot','trembl']:
-    #    pull_via_urllib('ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/',f'uniprot_{which}.fasta.gz',subpath='UniProtKB')
-    pull_via_urllib('ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/',f'idmapping.dat',decompress=False,subpath='UniProtKB')
+    pull_via_urllib('ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/',f'idmapping.dat.gz',subpath='UniProtKB')
+    for which in ['sprot','trembl']:
+        pull_via_urllib('ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/',f'uniprot_{which}.fasta.gz',subpath='UniProtKB')
 
 def pull_uniprot_labels(sprotfile,tremblfile,fname):
     slabels = readlabels('sprot')
