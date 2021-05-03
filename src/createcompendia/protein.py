@@ -91,7 +91,7 @@ def build_pr_uniprot_relationships(outfile, ignore_list = []):
         for k,v in pro_res.items():
             for x in v:
                 if Text.get_curie(x) not in ignore_list:
-                    if k.startwith('PR'):
+                    if k.startswith('PR'):
                         concfile.write(f'{k}\txref\t{x}\n')
 
 def build_protein_uniprotkb_ensemble_relationships(infile,outfile):
