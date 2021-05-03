@@ -1,4 +1,4 @@
-from src.prefixes import ENSEMBL, UMLS, PR, UNIPROTKB
+from src.prefixes import ENSEMBL, UMLS, PR, UNIPROTKB, NCIT
 from src.categories import PROTEIN
 
 import src.datahandlers.umls as umls
@@ -102,6 +102,18 @@ def build_protein_uniprotkb_ensemble_relationships(infile,outfile):
                 uniprot_id = f'{UNIPROTKB}:{x[0]}'
                 ensembl_id = f'{ENSEMBL}:{x[2]}'
                 outf.write(f'{uniprot_id}\teq\t{ensembl_id}\n')
+
+
+def build_ncit_uniprot_relationships(infile,outfile):
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            x = line.strip().split()
+            ncit_id = f'{NCIT}:{x[0]}'
+            uniprot_id = f'{UNIPROTKB}:{x[1]}'
+            outf.write(f'{ncit_id}\teq\t{uniprot_id}\n')
+
+def build_umls_ncit_relationships(idfile,outfile):
+    umls.build_sets(idfile, outfile, {'NCI': NCIT})
 
 def build_protein_compendia(concordances, identifiers):
     """:concordances: a list of files from which to read relationships

@@ -46,6 +46,22 @@ rule get_protein_pr_uniprotkb_relationships:
     run:
         protein.build_pr_uniprot_relationships(output.outfile)
 
+rule get_protein_ncit_uniprotkb_relationships:
+    input:
+        infile = config['download_directory'] + '/NCIT/NCIt-SwissProt_Mapping.txt'
+    output:
+        outfile  = config['download_directory'] + '/protein/concords/NCIT_UniProtKB'
+    run:
+        protein.build_ncit_uniprot_relationships(input.infile, output.outfile)
+
+rule get_protein_ncit_umls_relationships:
+    input:
+        infile=config['download_directory']+"/protein/ids/UMLS"
+    output:
+        outfile=config['download_directory']+'/protein/concords/NCIT_UMLS',
+    run:
+        protein.build_umls_ncit_relationships(input.infile,output.outfile)
+
 rule protein_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['protein_labels']),

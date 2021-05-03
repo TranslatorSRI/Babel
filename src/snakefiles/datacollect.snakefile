@@ -7,6 +7,7 @@ import src.datahandlers.hgnc as hgnc
 import src.datahandlers.omim as omim
 import src.datahandlers.uniprotkb as uniprotkb
 import src.datahandlers.mods as mods
+import src.datahandlers.ncit as ncit
 
 #####
 #
@@ -142,3 +143,11 @@ rule get_omim:
     run:
         omim.pull_omim()
 
+
+### NCIT
+
+rule get_ncit:
+    output:
+        outfile = config['download_directory']+'/NCIT/NCIt-SwissProt_Mapping.txt'
+    run:
+        ncit.pull_ncit()
