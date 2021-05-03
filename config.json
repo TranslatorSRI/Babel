@@ -17,6 +17,7 @@
   "gene_outputs": ["Gene.txt"],
 
   "protein_labels": ["UniProtKB","PR","UMLS"],
+  "protein_synonyms": ["PR", "UMLS"],
   "protein_ids": ["ENSEMBL","UniProtKB","PR","UMLS"],
   "protein_concords": ["UniProtKB","PR"],
   "protein_outputs": ["Protein.txt"]
