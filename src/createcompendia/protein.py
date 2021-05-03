@@ -124,6 +124,8 @@ def build_protein_compendia(concordances, identifiers):
                 pairs.append(set([x[0], x[2]]))
         glom(dicts, pairs, unique_prefixes=uniques)
     gene_sets = set([frozenset(x) for x in dicts.values()])
+    #Try to preserve some memory here.
+    dicts.clear()
     baretype = PROTEIN.split(':')[-1]
     write_compendium(gene_sets, f'{baretype}.txt', PROTEIN, {})
 
