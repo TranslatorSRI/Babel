@@ -30,6 +30,7 @@ class SynonymFactory():
                         continue
                     lbs[x[0]].add( (x[1], x[2]) )
         self.synonyms[prefix] = lbs
+        print(f'Loaded')
 
     def get_synonyms(self,node):
         node_synonyms = set()
