@@ -50,8 +50,8 @@ rule protein_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['protein_labels']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['protein_labels']),
-        concords=expand("{dd}/gene/concords/{ap}",dd=config['download_directory'],ap=config['protein_concords']),
-        idlists=expand("{dd}/gene/ids/{ap}",dd=config['download_directory'],ap=config['protein_ids']),
+        concords=expand("{dd}/protein/concords/{ap}",dd=config['download_directory'],ap=config['protein_concords']),
+        idlists=expand("{dd}/protein/ids/{ap}",dd=config['download_directory'],ap=config['protein_ids']),
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs'])
