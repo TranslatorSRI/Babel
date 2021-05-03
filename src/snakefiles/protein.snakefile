@@ -48,19 +48,19 @@ rule get_protein_pr_uniprotkb_relationships:
 
 rule protein_compendia:
     input:
-        labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['gene_labels']),
-        synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['gene_labels']),
-        concords=expand("{dd}/gene/concords/{ap}",dd=config['download_directory'],ap=config['gene_concords']),
-        idlists=expand("{dd}/gene/ids/{ap}",dd=config['download_directory'],ap=config['gene_ids']),
+        labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['protein_labels']),
+        synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['protein_labels']),
+        concords=expand("{dd}/gene/concords/{ap}",dd=config['download_directory'],ap=config['protein_concords']),
+        idlists=expand("{dd}/gene/ids/{ap}",dd=config['download_directory'],ap=config['protein_ids']),
     output:
-        expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['gene_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['gene_outputs'])
+        expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
+        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs'])
     run:
         protein.build_protein_compendia(input.concords,input.idlists)
 
 rule check_protein_completeness:
     input:
-        input_compendia = expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['gene_outputs'])
+        input_compendia = expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs'])
     output:
         report_file = config['output_directory']+'/reports/protein_completeness.txt'
     run:
