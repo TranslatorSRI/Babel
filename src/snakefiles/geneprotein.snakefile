@@ -7,9 +7,9 @@ rule geneprotein_uniprot_relationships:
     input:
         infile = config['download_directory'] + '/UniProtKB/idmapping.dat'
     output:
-        outfile_concords = config['download_directory'] + '/geneprotein/concords/UniProt'
+        outfile_concords = config['download_directory'] + '/geneprotein/concords/UniProtNCBI'
     run:
-        geneprotein.build_concord()
+        geneprotein.build_uniprotkb_ncbigene_relationships()
 
 rule protein_compendia:
     input:
@@ -19,7 +19,7 @@ rule protein_compendia:
         protein_synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['protein_synonyms']),
         gene_concords=expand("{dd}/gene/concords/{ap}",dd=config['download_directory'],ap=config['gene_concords']),
         protein_concords=expand("{dd}/protein/concords/{ap}",dd=config['download_directory'],ap=config['protein_concords']),
-        geneprotein_concords=config['download_directory']+'/geneprotein/concords/UniProt',
+        geneprotein_concords=config['download_directory']+'/geneprotein/concords/UniProtNCBI',
         gene_idlists=expand("{dd}/gene/ids/{ap}",dd=config['download_directory'],ap=config['gene_ids']),
         protein_idlists=expand("{dd}/protein/ids/{ap}",dd=config['download_directory'],ap=config['protein_ids'])
     output:
