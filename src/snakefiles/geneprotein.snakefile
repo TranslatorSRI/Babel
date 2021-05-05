@@ -19,7 +19,7 @@ rule geneprotein_compendia:
         protein_synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['protein_synonyms']),
         gene_concords=expand("{dd}/gene/concords/{ap}",dd=config['download_directory'],ap=config['gene_concords']),
         protein_concords=expand("{dd}/protein/concords/{ap}",dd=config['download_directory'],ap=config['protein_concords']),
-        geneprotein_concords=config['download_directory']+'/geneprotein/concords/UniProtNCBI',
+        geneprotein_concords=[config['download_directory']+'/geneprotein/concords/UniProtNCBI'],
         gene_idlists=expand("{dd}/gene/ids/{ap}",dd=config['download_directory'],ap=config['gene_ids']),
         protein_idlists=expand("{dd}/protein/ids/{ap}",dd=config['download_directory'],ap=config['protein_ids'])
     output:
