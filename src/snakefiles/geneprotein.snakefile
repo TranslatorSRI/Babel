@@ -11,7 +11,7 @@ rule geneprotein_uniprot_relationships:
     run:
         geneprotein.build_uniprotkb_ncbigene_relationships()
 
-rule protein_compendia:
+rule geneprotein_compendia:
     input:
         gene_labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['gene_labels']),
         protein_labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['protein_labels']),
