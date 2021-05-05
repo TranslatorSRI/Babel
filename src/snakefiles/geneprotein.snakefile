@@ -9,7 +9,7 @@ rule geneprotein_uniprot_relationships:
     output:
         outfile_concords = config['download_directory'] + '/geneprotein/concords/UniProtNCBI'
     run:
-        geneprotein.build_uniprotkb_ncbigene_relationships()
+        geneprotein.build_uniprotkb_ncbigene_relationships(input.infile,output.outfile_concords)
 
 rule geneprotein_compendia:
     input:
