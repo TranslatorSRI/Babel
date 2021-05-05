@@ -13,21 +13,13 @@ rule geneprotein_uniprot_relationships:
 
 rule geneprotein_compendia:
     input:
-        gene_labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['gene_labels']),
-        protein_labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['protein_labels']),
-        gene_synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['gene_labels']),
-        protein_synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['protein_synonyms']),
-        gene_concords=expand("{dd}/gene/concords/{ap}",dd=config['download_directory'],ap=config['gene_concords']),
-        protein_concords=expand("{dd}/protein/concords/{ap}",dd=config['download_directory'],ap=config['protein_concords']),
-        geneprotein_concords=[config['download_directory']+'/geneprotein/concords/UniProtNCBI'],
-        gene_idlists=expand("{dd}/gene/ids/{ap}",dd=config['download_directory'],ap=config['gene_ids']),
-        protein_idlists=expand("{dd}/protein/ids/{ap}",dd=config['download_directory'],ap=config['protein_ids'])
+        gene_compendium=config['output_directory']+'/compendia/'+'Gene.txt',
+        protein_compendium=config['output_directory']+'/compendia/'+'Protein.txt',
+        geneprotein_concord=config['download_directory']+'/geneprotein/concords/UniProtNCBI'
     output:
-        expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['geneprotein_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['geneprotein_outputs'])
+        outfile=config['output_directory']+'/compendia/'+config['geneprotein_outputs']
     run:
-        geneprotein.build_compendium(input.gene_concords+input.protein_concords+input.geneprotein_concords,
-            input.gene_idlists+input.protein_idlists)
+        geneprotein.build_compendium(input.gene_compendium,input.protein_compendium,input.geneprotein_concord,output.outfile)
 
 rule check_geneprotein_completeness:
     input:
