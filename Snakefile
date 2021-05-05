@@ -4,6 +4,7 @@ include: "src/snakefiles/datacollect.snakefile"
 include: "src/snakefiles/anatomy.snakefile"
 include: "src/snakefiles/gene.snakefile"
 include: "src/snakefiles/protein.snakefile"
+include: "src/snakefiles/geneprotein.snakefile"
 
 rule all:
     input:
