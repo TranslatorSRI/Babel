@@ -17,13 +17,13 @@ rule geneprotein_compendia:
         protein_compendium=config['output_directory']+'/compendia/'+'Protein.txt',
         geneprotein_concord=config['download_directory']+'/geneprotein/concords/UniProtNCBI'
     output:
-        outfile=config['output_directory']+'/compendia/'+config['geneprotein_outputs']
+        outfile=config['output_directory']+'/compendia/GeneProtein.txt'
     run:
         geneprotein.build_compendium(input.gene_compendium,input.protein_compendium,input.geneprotein_concord,output.outfile)
 
 rule check_geneprotein_completeness:
     input:
-        input_compendia = expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['geneprotein_outputs'])
+        input_compendia=[config['output_directory']+'/compendia/GeneProtein.txt']
     output:
         report_file = config['output_directory']+'/reports/geneprotein_completeness.txt'
     run:
@@ -40,7 +40,7 @@ rule check_geneprotein:
 rule geneprotein:
     input:
         config['output_directory']+'/reports/geneprotein_completeness.txt',
-        reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['geneprotein_outputs'])
+        reports = expand("{od}/reports/GeneProtein.txt",od=config['output_directory'])
     output:
         x=config['output_directory']+'/reports/geneprotein_done'
     shell:
