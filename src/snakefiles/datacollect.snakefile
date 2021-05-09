@@ -8,6 +8,7 @@ import src.datahandlers.omim as omim
 import src.datahandlers.uniprotkb as uniprotkb
 import src.datahandlers.mods as mods
 import src.datahandlers.ncit as ncit
+import src.datahandlers.doid as doid
 
 #####
 #
@@ -151,3 +152,11 @@ rule get_ncit:
         outfile = config['download_directory']+'/NCIT/NCIt-SwissProt_Mapping.txt'
     run:
         ncit.pull_ncit()
+
+### DOID
+
+rule get_doid:
+    output:
+        outfile = config['download_directory']+'/DOID/doid.json'
+    run:
+        doid.pull_doid()

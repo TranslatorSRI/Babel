@@ -1,13 +1,13 @@
-import src.createcompendia.anatomy as anatomy
+import src.createcompendia.diseasephenotype as diseasephenotype
 import src.assess_compendia as assessments
 
-### AnatomicalEntity / Cell / CellularComponent
+### Disease / Phenotypic Feature
 
-rule anatomy_uberon_ids:
+rule disease_mondo_ids:
     output:
-        outfile=config['download_directory']+"/anatomy/ids/UBERON"
+        outfile=config['download_directory']+"/disease/ids/MONDO"
     run:
-        anatomy.write_uberon_ids(output.outfile)
+        diseasephenotype.write_mondo_ids(output.outfile)
 
 rule anatomy_cl_ids:
     output:

@@ -2,95 +2,49 @@ from collections import defaultdict
 
 import src.datahandlers.obo as obo
 
-from src.prefixes import MESH, NCIT, CL, GO, UBERON, SNOMEDCT
-from src.categories import ANATOMICAL_ENTITY, GROSS_ANATOMICAL_STRUCTURE, CELL, CELLULAR_COMPONENT
-from src.ubergraph import UberGraph
-from src.util import Text
-from src.babel_utils import write_compendium,glom,get_prefixes,read_identifier_file
-import src.datahandlers.umls as umls
-import src.datahandlers.mesh as mesh
+from src.prefixes import MESH, NCIT, MONDO
+from src.categories import DISEASE, PHENOTYPIC_FEATURE
+#from src.ubergraph import UberGraph
+#from src.util import Text
+#from src.babel_utils import write_compendium,glom,get_prefixes,read_identifier_file
+#import src.datahandlers.umls as umls
+#import src.datahandlers.mesh as mesh
 
-def remove_overused_xrefs_dict(kv):
-    """Given a dict of iri->list of xrefs, look through them for xrefs that are in more than one list.
-    Remove those anywhere they occur, as they will only lead to pain further on."""
-    used_xrefs = set()
-    overused_xrefs = set()
-    for k, v in kv.items():
-        for x in v:
-            if x in used_xrefs:
-                overused_xrefs.add(x)
-            used_xrefs.add(x)
-    print(f'There are {len(overused_xrefs)} overused xrefs')
-    for k,v in kv.items():
-        kv[k] = list( set(v).difference(overused_xrefs) )
-
-def remove_overused_xrefs(pairlist):
-    """Given a list of tuples (id1, id2) meaning id1-[xref]->id2, remove any id2 that are associated with more
-    than one id1.  The idea is that if e.g. id1 is made up of UBERONS and 2 of those have an xref to say a UMLS
-    then it doesn't mean that all of those should be identified.  We don't really know what it means, so remove it."""
-    xref_counts = defaultdict(int)
-    for k, v in pairlist:
-        xref_counts[v] += 1
-    improved_pairs = []
-    for k,v in pairlist:
-        if xref_counts[v] < 2:
-            improved_pairs.append( (k,v) )
-    return improved_pairs
-
-#The BTO and BAMs and HTTP (braininfo) identifiers promote over-glommed nodes
-#FMA is a specific problem where in CL they use FMA xref to mean 'part of'
-#CALOHA is a specific problem where in CL they use FMA xref to mean 'part of'
-#GOC is a specific problem where in CL they use FMA xref to mean 'part of'
-#wikipedia.en is a specific problem where in CL they use FMA xref to mean 'part of'
-#NIF_Subcellular leads to a weird mashup between a GO term and a bunch of other stuff.
-#CL only shows up as an xref once in uberon, and it's a mistake.  It doesn't show up in anything else.
-#GO only shows up as an xref once in uberon, and it's a mistake.  It doesn't show up in anything else.
-#PMID is just wrong
-def build_sets(iri, concordfiles, ignore_list = ['PMID','BTO','BAMS','FMA','CALOHA','GOC','WIKIPEDIA.EN','CL','GO','NIF_SUBCELLULAR','HTTP','OPENCYC']):
-    """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
-    is a set for each subclass of the input iri.  Write these lists to concord files, indexed by the prefix"""
-    uber = UberGraph()
-    uberres = uber.get_subclasses_and_xrefs(iri)
-    #this is getting handled when we input the xrefs, because different methods for compendium building may
-    # have a smart way of handling them
-    #remove_overused_xrefs(uberres)
-    for k,v in uberres.items():
-        for x in v:
-            if Text.get_curie(x) not in ignore_list:
-                p = Text.get_curie(k)
-                if p in concordfiles:
-                    concordfiles[p].write(f'{k}\txref\t{x}\n')
+#def build_sets(iri, concordfiles, ignore_list = ['PMID','BTO','BAMS','FMA','CALOHA','GOC','WIKIPEDIA.EN','CL','GO','NIF_SUBCELLULAR','HTTP','OPENCYC']):
+#    """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
+#    is a set for each subclass of the input iri.  Write these lists to concord files, indexed by the prefix"""
+#    uber = UberGraph()
+#    uberres = uber.get_subclasses_and_xrefs(iri)
+#    #this is getting handled when we input the xrefs, because different methods for compendium building may
+#    # have a smart way of handling them
+#    #remove_overused_xrefs(uberres)
+#    for k,v in uberres.items():
+#        for x in v:
+#            if Text.get_curie(x) not in ignore_list:
+#                p = Text.get_curie(k)
+#                if p in concordfiles:
+#                    concordfiles[p].write(f'{k}\txref\t{x}\n')
 
 def write_obo_ids(irisandtypes,outfile,exclude=[]):
-    order = [CELLULAR_COMPONENT, CELL, GROSS_ANATOMICAL_STRUCTURE, ANATOMICAL_ENTITY]
+    order = [DISEASE, PHENOTYPIC_FEATURE]
     obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])
 
+#def write_ncit_ids(outfile):
+#    #For NCIT, there are some branches of the subhiearrchy that we don't want, like this one for genomic locus
+#    anatomy_id = f'{NCIT}:C12219'
+#    cell_id = f'{NCIT}:C12508'
+#    component_id = f'{NCIT}:C34070'
+#    genomic_location_id = f'{NCIT}:C64389'
+#    chromosome_band_id = f'{NCIT}:C13432'
+#    macromolecular_structure_id = f'{NCIT}:C14134' #protein domains
+#    ostomy_site_id = f'{NCIT}:C122638'
+#    chromosome_structure_id =f'{NCIT}:C13377'
+#    anatomic_site_id=f'{NCIT}:C13717' #the site of procedures like injections etc
+#    write_obo_ids([(anatomy_id, ANATOMICAL_ENTITY), (cell_id, CELL), (component_id, CELLULAR_COMPONENT)], outfile, exclude=[genomic_location_id, chromosome_band_id, macromolecular_structure_id, ostomy_site_id, chromosome_structure_id, anatomic_site_id])
 
-def write_ncit_ids(outfile):
-    #For NCIT, there are some branches of the subhiearrchy that we don't want, like this one for genomic locus
-    anatomy_id = f'{NCIT}:C12219'
-    cell_id = f'{NCIT}:C12508'
-    component_id = f'{NCIT}:C34070'
-    genomic_location_id = f'{NCIT}:C64389'
-    chromosome_band_id = f'{NCIT}:C13432'
-    macromolecular_structure_id = f'{NCIT}:C14134' #protein domains
-    ostomy_site_id = f'{NCIT}:C122638'
-    chromosome_structure_id =f'{NCIT}:C13377'
-    anatomic_site_id=f'{NCIT}:C13717' #the site of procedures like injections etc
-    write_obo_ids([(anatomy_id, ANATOMICAL_ENTITY), (cell_id, CELL), (component_id, CELLULAR_COMPONENT)], outfile, exclude=[genomic_location_id, chromosome_band_id, macromolecular_structure_id, ostomy_site_id, chromosome_structure_id, anatomic_site_id])
-
-def write_uberon_ids(outfile):
-    anatomy_id = f'{UBERON}:0001062'
-    gross_id   = f'{UBERON}:0010000'
-    write_obo_ids([(anatomy_id, ANATOMICAL_ENTITY), (gross_id, GROSS_ANATOMICAL_STRUCTURE)], outfile)
-
-def write_cl_ids(outfile):
-    cell_id   = f'{CL}:0000000'
-    write_obo_ids([(cell_id, CELL)], outfile)
-
-def write_go_ids(outfile):
-    component_id = f'{GO}:0005575'
-    write_obo_ids([(component_id, CELLULAR_COMPONENT)], outfile)
+def write_mondo_ids(outfile):
+    disease_id = f'{MONDO}:0000001'
+    write_obo_ids([(disease_id, DISEASE)])
 
 
 def write_mesh_ids(outfile):
