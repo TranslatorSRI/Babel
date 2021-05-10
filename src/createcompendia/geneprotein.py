@@ -1,6 +1,5 @@
-from src.prefixes import ENSEMBL, PR, UNIPROTKB, NCBIGENE
-from src.categories import GENEORPROTEIN
-from src.babel_utils import read_identifier_file,glom,write_compendium,Text
+from src.prefixes import UNIPROTKB, NCBIGENE
+from collections import defaultdict
 
 import jsonlines
 
@@ -17,13 +16,16 @@ def build_uniprotkb_ncbigene_relationships(infile,outfile):
                 ncbigene_id = f'{NCBIGENE}:{x[2]}'
                 outf.write(f'{uniprot_id}\trelated_to\t{ncbigene_id}\n')
 
-def merge(gene,protein):
-    """We have two objects, one represents a gene, one a protein.  We want to create a combined something."""
+def merge(geneproteinlist):
+    """We have a gene and one or more proteins.  We want to create a combined something."""
     geneprotein = {}
     #Use the gene's ID.
+    #The gene should be first in the list by construction
+    gene = geneproteinlist[0]
     geneprotein['id'] = gene['id']
-    #there shouldn't be any overlap here, so we can just concatenate
-    geneprotein['equivalent_identifiers'] = gene['equivalent_identifiers'] + protein['equivalent_identifiers']
+    for protein in geneproteinlist[1:]:
+        #there shouldn't be any overlap here, so we can just concatenate
+        geneprotein['equivalent_identifiers'] = gene['equivalent_identifiers'] + protein['equivalent_identifiers']
     #Now, we need to slightly modify the types. Not sure this is good, but maybe it is?
     geneprotein['type'] = ['biolink:Gene'] + protein['type']
     return geneprotein
@@ -36,14 +38,19 @@ def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, o
     Then we load in the proteins.  If we don't have the protein in our concord we immediately dump it to the outfile
     If we do have the protein, then we merge it with the gene version and dump that to the file.
     So at most, we only have the genes that map to proteins in memory at the same time.
+
+    There is one complication- the gene/protein links are not 1:1.  There are multiple UniProts associated with
+    the same gene.  So we need to read until we have all of the proteins for a gene before we merge/write.
     """
     uniprot2ncbi={}
+    ncbi2uniprot = defaultdict(list)
     with open(geneprotein_concord, 'r') as inf:
         for line in inf:
             x = line.strip().split('\t')
             uniprot2ncbi[x[0]] = x[2]
+            ncbi2uniprot[x[2]].append(x[0])
     mappable_gene_ids = set(uniprot2ncbi.values())
-    mappable_genes={}
+    mappable_genes = defaultdict(list)
     with jsonlines.open(outfile,'w') as outf:
         with jsonlines.open(gene_compendium,'r') as infile:
             for gene in infile:
@@ -51,18 +58,20 @@ def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, o
                 if best_id not in mappable_gene_ids:
                     outf.write(gene)
                 else:
-                    mappable_genes[best_id] = gene
+                    mappable_genes[best_id].append( gene )
         with jsonlines.open(protein_compendium,'r') as infile:
             for protein in infile:
-                best_id = protein['id']['identifier']
-                if best_id not in uniprot2ncbi:
+                uniprot_id = protein['id']['identifier']
+                if uniprot_id not in uniprot2ncbi:
                     outf.write(protein)
                 else:
                     #Found a match!
                     try:
-                        gene = mappable_genes[uniprot2ncbi[best_id]]
-                        newnode = merge(gene, protein)
-                        outfile.write(newnode)
+                        ncbi_id = uniprot2ncbi[uniprot_id]
+                        mappable_genes[ncbi_id].append(protein)
+                        if len(mappable_genes[ncbi_id]) == len(ncbi2uniprot[ncbi_id]) + 1:
+                            newnode = merge(mappable_genes[ncbi_id])
+                            outfile.write(newnode)
                     except:
                         #What can happen is that there is an NCBI that gets discontinued, but that information hasn't
                         # made its way into the gene/protein concord. So we might try to look up a gene record
