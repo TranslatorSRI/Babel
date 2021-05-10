@@ -1,0 +1,2 @@
+UniProtKB:Q62951	related_to	NCBIGene:25417
+UniProtKB:F1LNT0	related_to	NCBIGene:25417

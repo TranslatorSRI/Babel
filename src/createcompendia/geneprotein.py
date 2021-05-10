@@ -71,7 +71,7 @@ def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, o
                         mappable_genes[ncbi_id].append(protein)
                         if len(mappable_genes[ncbi_id]) == len(ncbi2uniprot[ncbi_id]) + 1:
                             newnode = merge(mappable_genes[ncbi_id])
-                            outfile.write(newnode)
+                            outf.write(newnode)
                     except:
                         #What can happen is that there is an NCBI that gets discontinued, but that information hasn't
                         # made its way into the gene/protein concord. So we might try to look up a gene record
