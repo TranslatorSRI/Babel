@@ -2,12 +2,10 @@ from collections import defaultdict
 
 import src.datahandlers.obo as obo
 
-from src.prefixes import MESH, NCIT, MONDO
+from src.prefixes import MESH, NCIT, MONDO, OMIM
 from src.categories import DISEASE, PHENOTYPIC_FEATURE
-#from src.ubergraph import UberGraph
-#from src.util import Text
-#from src.babel_utils import write_compendium,glom,get_prefixes,read_identifier_file
-#import src.datahandlers.umls as umls
+import src.datahandlers.umls as umls
+
 #import src.datahandlers.mesh as mesh
 
 #def build_sets(iri, concordfiles, ignore_list = ['PMID','BTO','BAMS','FMA','CALOHA','GOC','WIKIPEDIA.EN','CL','GO','NIF_SUBCELLULAR','HTTP','OPENCYC']):
@@ -44,8 +42,23 @@ def write_obo_ids(irisandtypes,outfile,exclude=[]):
 
 def write_mondo_ids(outfile):
     disease_id = f'{MONDO}:0000001'
-    write_obo_ids([(disease_id, DISEASE)])
+    write_obo_ids([(disease_id, DISEASE)],outfile)
 
+def write_efo_ids(outfile):
+    # Disease
+    disease_id='EFO:0000408'
+    phenotype_id='EFO:0000651'
+    measurement_id='EFO:0001444'
+    write_obo_ids([(disease_id, DISEASE),(phenotype_id,PHENOTYPIC_FEATURE),(measurement_id,PHENOTYPIC_FEATURE)],outfile)
+
+def write_omim_ids(infile,outfile):
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            if line.startswith('#'):
+                continue
+            chunks = line.split('\t')
+            if 'phenotype' in chunks[1]:
+                outf.write(f'{OMIM}:{chunks[0]}\t{DISEASE}\n')
 
 def write_mesh_ids(outfile):
     meshmap = { f'A{str(i).zfill(2)}': ANATOMICAL_ENTITY for i in range(1, 21)}
@@ -54,20 +67,18 @@ def write_mesh_ids(outfile):
     mesh.write_ids(meshmap,outfile)
 
 def write_umls_ids(outfile):
-    #UMLS categories:
-    #A1.2 Anatomical Structure
-    #A1.2.1 Embryonic Structure
-    #A1.2.3 Fully Formed Anatomical Structure
-    #A1.2.3.1 Body Part, Organ, or Organ Component
-    #A1.2.3.2 Tissue
-    #A1.2.3.3 Cell
-    #A1.2.3.4 Cell Component
-    #A2.1.4.1 Body System
-    #A2.1.5.1 Body Space or Junction
-    #A2.1.5.2 Body Location or Region
-    umlsmap = {x: ANATOMICAL_ENTITY for x in ['A1.2', 'A1.2.1', 'A1.2.3.1', 'A1.2.3.2', 'A2.1.4.1', 'A2.1.5.1', 'A2.1.5.2']}
-    umlsmap['A1.2.3.3'] = CELL
-    umlsmap['A1.2.3.4'] = CELLULAR_COMPONENT
+    #Disease
+    #B2.2.1.2.1 Disease or Syndrome
+    #A1.2.2.1 Congenital Abnormality
+    #A1.2.2.2 Acquired Abnormality
+    #B2.3 Injury or Poisoning
+    #B2.2.1.2 Pathologic Function
+    #B2.2.1.2.1.1 Mental or Behavioral Dysfunction
+    #B2.2.1.2.2ell or Molecular Dysfunction
+    #A1.2.2 Anatomical Abnormality
+    #B2.2.1.2.1.2 Neoplastic Process
+    umlsmap = {x: DISEASE for x in ['B2.2.1.2.1', 'A1.2.2.1', 'A1.2.2.2', 'B2.3', 'B2.2.1.2', 'B2.2.1.2.1.1','B2.2.1.2.2','A1.2.2','B2.2.1.2.1.2']}
+    umlsmap['A2.2.2'] = PHENOTYPIC_FEATURE
     umls.write_umls_ids(umlsmap,outfile)
 
 def build_anatomy_obo_relationships(outdir):

@@ -1,2 +1,4 @@
 UniProtKB:Q62951	related_to	NCBIGene:25417
 UniProtKB:F1LNT0	related_to	NCBIGene:25417
+UniProtKB:G1K8J2	related_to	NCBIGene:100558865
+UniProtKB:R4GBX2	related_to	NCBIGene:100558865

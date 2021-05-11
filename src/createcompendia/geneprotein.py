@@ -23,9 +23,10 @@ def merge(geneproteinlist):
     #The gene should be first in the list by construction
     gene = geneproteinlist[0]
     geneprotein['id'] = gene['id']
+    geneprotein['equivalent_identifiers'] = gene['equivalent_identifiers']
     for protein in geneproteinlist[1:]:
         #there shouldn't be any overlap here, so we can just concatenate
-        geneprotein['equivalent_identifiers'] = gene['equivalent_identifiers'] + protein['equivalent_identifiers']
+        geneprotein['equivalent_identifiers'] += protein['equivalent_identifiers']
     #Now, we need to slightly modify the types. Not sure this is good, but maybe it is?
     geneprotein['type'] = ['biolink:Gene'] + protein['type']
     return geneprotein

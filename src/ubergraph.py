@@ -83,6 +83,7 @@ class UberGraph:
         prefix HP: <http://purl.obolibrary.org/obo/HP_>
         prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
         prefix PR: <http://purl.obolibrary.org/obo/PR_>
+        prefix EFO: <http://www.ebi.ac.uk/efo/EFO_>
         select distinct ?descendent ?descendentLabel
         from <http://reasoner.renci.org/ontology>
         where {

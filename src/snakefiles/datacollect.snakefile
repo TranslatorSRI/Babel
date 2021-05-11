@@ -9,6 +9,7 @@ import src.datahandlers.uniprotkb as uniprotkb
 import src.datahandlers.mods as mods
 import src.datahandlers.ncit as ncit
 import src.datahandlers.doid as doid
+import src.datahandlers.orphanet as orphanet
 
 #####
 #
@@ -160,3 +161,30 @@ rule get_doid:
         outfile = config['download_directory']+'/DOID/doid.json'
     run:
         doid.pull_doid()
+
+rule get_doid_labels_and_synonyms:
+    input:
+        infile = config['download_directory']+'/DOID/doid.json'
+    output:
+        labelfile = config['download_directory'] + '/DOID/labels',
+        synonymfile = config['download_directory'] + '/DOID/synonyms'
+    run:
+        doid.pull_doid_labels_and_synonyms(input.infile, output.labelfile, output.synonymfile)
+
+### Orphanet
+
+rule get_orphanet:
+    output:
+        outfile = config['download_directory']+'/Orphanet/Orphanet_Nomenclature_Pack_EN.zip'
+    run:
+        orphanet.pull_orphanet()
+
+rule get_orphanet_labels_and_synonyms:
+    input:
+        infile = config['download_directory']+'/Orphanet/Orphanet_Nomenclature_Pack_EN.zip'
+    output:
+        labelfile = config['download_directory'] + '/Orphanet/labels',
+        synonymfile = config['download_directory'] + '/Orphanet/synonyms'
+    run:
+        orphanet.pull_orphanet_labels_and_synonyms(input.infile, output.labelfile, output.synonymfile)
+
