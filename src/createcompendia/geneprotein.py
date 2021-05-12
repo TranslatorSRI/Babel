@@ -83,8 +83,15 @@ def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, o
                         if len(mappable_genes[ncbi_id]) == len(ncbi2uniprot[ncbi_id]) + 1:
                             newnode = merge(mappable_genes[ncbi_id])
                             outf.write(newnode)
+                            #Remove once we've written so we can make sure to clean up at the end
+                            del mappable_genes[ncbi_id]
                     except:
                         #What can happen is that there is an NCBI that gets discontinued, but that information hasn't
                         # made its way into the gene/protein concord. So we might try to look up a gene record
                         # that no longer exists
                         outf.write(protein)
+            #It can happen that there is a protein-gene link where the gene doesn't exist in our data.
+            #Then we end up with proteins left over in mappable_genes that need to be written out.
+            for missing_gene in mappable_genes:
+                for protein in mappable_genes[missing_gene]:
+                    outf.write(protein)

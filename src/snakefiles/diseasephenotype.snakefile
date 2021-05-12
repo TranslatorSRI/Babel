@@ -3,6 +3,11 @@ import src.assess_compendia as assessments
 
 ### Disease / Phenotypic Feature
 
+
+# SNOMEDCT will not have an independent list
+# MEDDRA will not have an independent list
+# They will only have identifiers that enter via links in UMLS
+
 rule disease_mondo_ids:
     output:
         outfile=config['download_directory']+"/disease/ids/MONDO"
@@ -33,26 +38,33 @@ rule disease_efo_ids:
     run:
         diseasephenotype.write_efo_ids(output.outfile)
 
-#rule anatomy_ncit_ids:
-#    output:
-#        outfile=config['download_directory']+"/anatomy/ids/NCIT"
-#    run:
-#        anatomy.write_ncit_ids(output.outfile)
-#
-#rule anatomy_mesh_ids:
-#    input:
-#        config['download_directory']+'/MESH/mesh.nt'
-#    output:
-#        outfile=config['download_directory']+"/anatomy/ids/MESH"
-#    run:
-#        anatomy.write_mesh_ids(output.outfile)
-#
+rule disease_ncit_ids:
+    output:
+        outfile=config['download_directory']+"/disease/ids/NCIT"
+    run:
+        diseasephenotype.write_ncit_ids(output.outfile)
+
+rule disease_mesh_ids:
+    input:
+        config['download_directory']+'/MESH/mesh.nt'
+    output:
+        outfile=config['download_directory']+"/disease/ids/MESH"
+    run:
+        diseasephenotype.write_mesh_ids(output.outfile)
+
 rule disease_umls_ids:
     #The location of the RRFs is known to the guts, but should probably come out here.
     output:
         outfile=config['download_directory']+"/disease/ids/UMLS"
     run:
         diseasephenotype.write_umls_ids(output.outfile)
+
+rule disease_hp_ids:
+    #The location of the RRFs is known to the guts, but should probably come out here.
+    output:
+        outfile=config['download_directory']+"/disease/ids/HP"
+    run:
+        diseasephenotype.write_hp_ids(output.outfile)
 
 #rule get_anatomy_obo_relationships:
 #    output:

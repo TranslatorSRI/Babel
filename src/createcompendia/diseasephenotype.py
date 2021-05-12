@@ -6,7 +6,7 @@ from src.prefixes import MESH, NCIT, MONDO, OMIM
 from src.categories import DISEASE, PHENOTYPIC_FEATURE
 import src.datahandlers.umls as umls
 
-#import src.datahandlers.mesh as mesh
+import src.datahandlers.mesh as mesh
 
 #def build_sets(iri, concordfiles, ignore_list = ['PMID','BTO','BAMS','FMA','CALOHA','GOC','WIKIPEDIA.EN','CL','GO','NIF_SUBCELLULAR','HTTP','OPENCYC']):
 #    """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
@@ -27,18 +27,10 @@ def write_obo_ids(irisandtypes,outfile,exclude=[]):
     order = [DISEASE, PHENOTYPIC_FEATURE]
     obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])
 
-#def write_ncit_ids(outfile):
-#    #For NCIT, there are some branches of the subhiearrchy that we don't want, like this one for genomic locus
-#    anatomy_id = f'{NCIT}:C12219'
-#    cell_id = f'{NCIT}:C12508'
-#    component_id = f'{NCIT}:C34070'
-#    genomic_location_id = f'{NCIT}:C64389'
-#    chromosome_band_id = f'{NCIT}:C13432'
-#    macromolecular_structure_id = f'{NCIT}:C14134' #protein domains
-#    ostomy_site_id = f'{NCIT}:C122638'
-#    chromosome_structure_id =f'{NCIT}:C13377'
-#    anatomic_site_id=f'{NCIT}:C13717' #the site of procedures like injections etc
-#    write_obo_ids([(anatomy_id, ANATOMICAL_ENTITY), (cell_id, CELL), (component_id, CELLULAR_COMPONENT)], outfile, exclude=[genomic_location_id, chromosome_band_id, macromolecular_structure_id, ostomy_site_id, chromosome_structure_id, anatomic_site_id])
+def write_ncit_ids(outfile):
+    disease_id = f'{NCIT}:C2991'
+    phenotypic_feature_id = f'{NCIT}:C3367'
+    write_obo_ids([(disease_id, DISEASE), (phenotypic_feature_id, PHENOTYPIC_FEATURE)], outfile, exclude=[])
 
 def write_mondo_ids(outfile):
     disease_id = f'{MONDO}:0000001'
@@ -51,6 +43,11 @@ def write_efo_ids(outfile):
     measurement_id='EFO:0001444'
     write_obo_ids([(disease_id, DISEASE),(phenotype_id,PHENOTYPIC_FEATURE),(measurement_id,PHENOTYPIC_FEATURE)],outfile)
 
+def write_hp_ids(outfile):
+    #Phenotype
+    phenotype_id = 'HP:0000118'
+    write_obo_ids([(phenotype_id,PHENOTYPIC_FEATURE)],outfile)
+
 def write_omim_ids(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
@@ -61,10 +58,10 @@ def write_omim_ids(infile,outfile):
                 outf.write(f'{OMIM}:{chunks[0]}\t{DISEASE}\n')
 
 def write_mesh_ids(outfile):
-    meshmap = { f'A{str(i).zfill(2)}': ANATOMICAL_ENTITY for i in range(1, 21)}
-    meshmap['A11'] = CELL
-    meshmap['A11.284'] = CELLULAR_COMPONENT
-    mesh.write_ids(meshmap,outfile)
+    dcodes = ['C01','C04','C05','C06','C07','C08','C09','C10','C11','C12','C13','C14','C15','C16','C17','C18','C19','C20','C21','C22','C24','C25','C26']
+    meshmap = { i:DISEASE for i in dcodes}
+    meshmap['C23'] = PHENOTYPIC_FEATURE
+    mesh.write_ids(meshmap,outfile,order=[DISEASE,PHENOTYPIC_FEATURE])
 
 def write_umls_ids(outfile):
     #Disease
