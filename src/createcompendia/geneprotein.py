@@ -8,13 +8,23 @@ from src.util import LoggingUtil
 logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
 def build_uniprotkb_ncbigene_relationships(infile,outfile):
-    with open(infile,'r') as inf, open(outfile,'w') as outf:
+    #The trick is that the uniprot mapping file can have more than one gene per protein.
+    # Our model is 1 gene, many proteins, so this causes trouble.
+    # For the moment, we will not include that have more than one gene per protein
+    mappings = defaultdict(list)
+    with open(infile,'r') as inf
         for line in inf:
             x = line.strip().split()
             if x[1] == 'GeneID':
                 uniprot_id = f'{UNIPROTKB}:{x[0]}'
                 ncbigene_id = f'{NCBIGENE}:{x[2]}'
+                mappings[uniprot_id].append(ncbigene_id)
+    with open(outfile, 'w') as outf:
+        for uniprot_id, ncbigene_ids in mappings.items():
+            if len(ncbigene_ids) == 1:
+                ncbigene_id = ncbigene_ids[0]
                 outf.write(f'{uniprot_id}\trelated_to\t{ncbigene_id}\n')
+
 
 def merge(geneproteinlist):
     """We have a gene and one or more proteins.  We want to create a combined something."""
