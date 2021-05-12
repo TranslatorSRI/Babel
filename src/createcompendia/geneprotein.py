@@ -12,7 +12,7 @@ def build_uniprotkb_ncbigene_relationships(infile,outfile):
     # Our model is 1 gene, many proteins, so this causes trouble.
     # For the moment, we will not include that have more than one gene per protein
     mappings = defaultdict(list)
-    with open(infile,'r') as inf
+    with open(infile,'r') as inf:
         for line in inf:
             x = line.strip().split()
             if x[1] == 'GeneID':
