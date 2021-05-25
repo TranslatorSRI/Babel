@@ -4,6 +4,7 @@ import jsonlines
 from collections import defaultdict
 from src.util import Text
 
+#TODO: Assess whether we are bringing in any new identifiers (we shouldn't, unless we just don't have id's for a thing)
 def assess_completeness(input_dir,compendia,reportfile):
     """Given a directory containing id files, make sure that every id in those files ended up in one of the compendia"""
     id_files = os.listdir(input_dir)

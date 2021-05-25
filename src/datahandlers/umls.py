@@ -20,7 +20,7 @@ def write_umls_ids(category_map,umls_output,blacklist=set()):
 # One is to keep from having to pass through the umls file more than once, but that's a bad reason
 # The second is because I want to use the UMLS as a source for some terminologies (SNOMED) even if there's another
 #  way.  I'm going to modify this to do one thing at a time, and if it takes a little longer, then so be it.
-def build_sets(umls_input, umls_output , other_prefixes):
+def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdict(set), acceptable_identifiers={}):
     """Given a list of umls identifiers we want to generate all the concordances
     between UMLS and that other entity"""
     umls_ids = set()
@@ -50,14 +50,20 @@ def build_sets(umls_input, umls_output , other_prefixes):
             if source not in lookfor:
                 continue
             #For some dippy reason, in the id column they say "HGNC:76"
+            pref = other_prefixes[source]
             if ':' in x[13]:
-                other_id = f'{other_prefixes[source]}:{x[13].split(":")[-1]}'
+                other_id = f'{pref}:{x[13].split(":")[-1]}'
             else:
-                other_id = f'{other_prefixes[source]}:{x[13]}'
+                other_id = f'{pref}:{x[13]}'
             #I don't know why this is in here, but it is not an identifier equivalent to anything
             if other_id == 'NCIT:TCGA':
                 continue
             tup = (f'{UMLS}:{cui}',other_id)
+            #Don't include bad mappings or bad ids
+            if tup[1] in bad_mappings[tup[0]]:
+                continue
+            if (pref in acceptable_identifiers) and (not tup[1] in acceptable_identifiers[pref]):
+                continue
             if tup not in pairs:
                 concordfile.write(f'{tup[0]}\teq\t{tup[1]}\n')
                 pairs.add(tup)

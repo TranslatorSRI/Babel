@@ -257,7 +257,7 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
             if prefix in shit_prefixes:
                 print(prefix)
                 print(check_element)
-                raise 'garbage'
+                raise Exception('garbage')
         #make sure we didn't combine anything we want to keep separate
         setok = True
         if test_id in group:
@@ -424,3 +424,23 @@ def read_identifier_file(infile):
                 types[x[0]] = x[1]
     return identifiers,types
 
+
+def remove_overused_xrefs(pairlist):
+    """Given a list of tuples (id1, id2) meaning id1-[xref]->id2, remove any id2 that are associated with more
+    than one id1.  The idea is that if e.g. id1 is made up of UBERONS and 2 of those have an xref to say a UMLS
+    then it doesn't mean that all of those should be identified.  We don't really know what it means, so remove it."""
+    xref_counts = defaultdict(int)
+    for k, v in pairlist:
+        xref_counts[v] += 1
+    improved_pairs = []
+    for k,v in pairlist:
+        if xref_counts[v] < 2:
+            improved_pairs.append( (k,v) )
+    return improved_pairs
+
+def norm(x,op):
+    #Get curie returns the uppercase
+    pref = Text.get_curie(x)
+    if pref in op:
+        return Text.recurie(x,op[pref])
+    return x

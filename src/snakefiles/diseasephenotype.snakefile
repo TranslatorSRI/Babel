@@ -66,79 +66,89 @@ rule disease_hp_ids:
     run:
         diseasephenotype.write_hp_ids(output.outfile)
 
-#rule get_anatomy_obo_relationships:
-#    output:
-#        config['download_directory']+'/anatomy/concords/UBERON',
-#        config['download_directory']+'/anatomy/concords/CL',
-#        config['download_directory']+'/anatomy/concords/GO',
-#    run:
-#        anatomy.build_anatomy_obo_relationships(config['download_directory']+'/anatomy/concords')
-#
-#rule get_anatomy_umls_relationships:
-#    input:
-#        infile=config['download_directory']+"/anatomy/ids/UMLS"
-#    output:
-#        outfile=config['download_directory']+'/anatomy/concords/UMLS',
-#    run:
-#        anatomy.build_anatomy_umls_relationships(input.infile,output.outfile)
-#
-#rule anatomy_compendia:
-#    input:
-#        labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['anatomy_prefixes']),
-#        synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['anatomy_prefixes']),
-#        concords=expand("{dd}/anatomy/concords/{ap}",dd=config['download_directory'],ap=config['anatomy_concords']),
-#        idlists=expand("{dd}/anatomy/ids/{ap}",dd=config['download_directory'],ap=config['anatomy_ids']),
-#    output:
-#        expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
-#        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs'])
-#    run:
-#        anatomy.build_compendia(input.concords,input.idlists)
-#
-#rule check_anatomy_completeness:
-#    input:
-#        input_compendia = expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['anatomy_outputs'])
-#    output:
-#        report_file = config['output_directory']+'/reports/anatomy_completeness.txt'
-#    run:
-#        assessments.assess_completeness(config['download_directory']+'/anatomy/ids',input.input_compendia,output.report_file)
-#
-#rule check_anatomical_entity:
-#    input:
-#        infile=config['output_directory']+'/compendia/AnatomicalEntity.txt'
-#    output:
-#        outfile=config['output_directory']+'/reports/AnatomicalEntity.txt'
-#    run:
-#        assessments.assess(input.infile, output.outfile)
-#
-#rule check_gross_anatomical_structure:
-#    input:
-#        infile=config['output_directory']+'/compendia/GrossAnatomicalStructure.txt'
-#    output:
-#        outfile=config['output_directory']+'/reports/GrossAnatomicalStructure.txt'
-#    run:
-#        assessments.assess(input.infile, output.outfile)
-#
-#rule check_cell:
-#    input:
-#        infile=config['output_directory']+'/compendia/Cell.txt'
-#    output:
-#        outfile=config['output_directory']+'/reports/Cell.txt'
-#    run:
-#        assessments.assess(input.infile, output.outfile)
-#
-#rule check_cellular_component:
-#    input:
-#        infile=config['output_directory']+'/compendia/CellularComponent.txt'
-#    output:
-#        outfile=config['output_directory']+'/reports/CellularComponent.txt'
-#    run:
-#        assessments.assess(input.infile, output.outfile)
-#
-#rule anatomy:
-#    input:
-#        config['output_directory']+'/reports/anatomy_completeness.txt',
-#        reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['anatomy_outputs'])
-#    output:
-#        x=config['output_directory']+'/reports/anatomy_done'
-#    shell:
-#        "echo 'done' >> {output.x}"
+rule disease_omim_ids:
+    input:
+        infile=config['download_directory']+"/OMIM/mim2gene.txt"
+    output:
+        outfile=config['download_directory']+"/disease/ids/OMIM"
+    run:
+        diseasephenotype.write_omim_ids(input.infile,output.outfile)
+
+### Concords
+
+rule get_disease_obo_relationships:
+    output:
+        config['download_directory']+'/disease/concords/MONDO',
+        config['download_directory']+'/disease/concords/MONDO_close',
+        config['download_directory']+'/disease/concords/HP',
+        config['download_directory']+'/disease/concords/EFO',
+    run:
+        diseasephenotype.build_disease_obo_relationships(config['download_directory']+'/disease/concords')
+
+rule get_disease_umls_relationships:
+    input:
+        infile=config['download_directory']+"/disease/ids/UMLS",
+        omim=config['download_directory']+'/disease/ids/OMIM'
+    output:
+        outfile=config['download_directory']+'/disease/concords/UMLS',
+    run:
+        diseasephenotype.build_disease_umls_relationships(input.infile,output.outfile,input.omim)
+
+rule get_disease_doid_relationships:
+    input:
+        infile = config['download_directory']+'/DOID/doid.json'
+    output:
+        outfile=config['download_directory']+'/disease/concords/DOID',
+    run:
+        diseasephenotype.build_disease_doid_relationships(input.infile,output.outfile)
+
+rule disease_compendia:
+    input:
+        bad_hpo_xrefs = "input_data/badHPx.txt",
+        bad_mondo_xrefs = "input_data/mondo_badxrefs.txt",
+        bad_umls_xrefs = "input_data/umls_badxrefs.txt",
+        close_matches = config['download_directory']+"/disease/concords/MONDO_close",
+        labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['disease_labelsandsynonyms']),
+        synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['disease_labelsandsynonyms']),
+        concords=expand("{dd}/disease/concords/{ap}",dd=config['download_directory'],ap=config['disease_concords']),
+        idlists=expand("{dd}/disease/ids/{ap}",dd=config['download_directory'],ap=config['disease_ids']),
+    output:
+        expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['disease_outputs']),
+        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['disease_outputs'])
+    run:
+        diseasephenotype.build_compendium(input.concords,input.idlists,input.close_matches,{'HP':input.bad_hpo_xrefs,
+                                                                        'MONDO':input.bad_mondo_xrefs,
+                                                                        'UMLS':input.bad_umls_xrefs} )
+
+rule check_disease_completeness:
+    input:
+        input_compendia = expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['disease_outputs'])
+    output:
+        report_file = config['output_directory']+'/reports/disease_completeness.txt'
+    run:
+        assessments.assess_completeness(config['download_directory']+'/disease/ids',input.input_compendia,output.report_file)
+
+rule check_disease:
+    input:
+        infile=config['output_directory']+'/compendia/Disease.txt'
+    output:
+        outfile=config['output_directory']+'/reports/Disease.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+rule check_phenotypic_feature:
+    input:
+        infile=config['output_directory']+'/compendia/PhenotypicFeature.txt'
+    output:
+        outfile=config['output_directory']+'/reports/PhenotypicFeature.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+rule disease:
+    input:
+        config['output_directory']+'/reports/disease_completeness.txt',
+        reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['disease_outputs'])
+    output:
+        x=config['output_directory']+'/reports/disease_done'
+    shell:
+        "echo 'done' >> {output.x}"

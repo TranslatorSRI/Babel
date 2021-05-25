@@ -1,6 +1,7 @@
 from src.triplestore import TripleStore
 from src.util import Text
 from collections import defaultdict
+from src.babel_utils import norm
 
 class UberGraph:
 
@@ -160,7 +161,7 @@ class UberGraph:
         PREFIX M_EXACT_MATCH: <http://purl.obolibrary.org/obo/mondo#exactMatch>
         PREFIX EQUIVALENT_CLASS: <http://www.w3.org/2002/07/owl#equivalentClass>
         PREFIX ID: <http://www.geneontology.org/formats/oboInOwl#id>
-        SELECT DISTINCT ?descendent ?descendentLabel ?match
+        SELECT DISTINCT ?descendent ?match
         FROM <http://reasoner.renci.org/ontology>
         WHERE {{
             graph <http://reasoner.renci.org/ontology/closure> {{
@@ -169,33 +170,30 @@ class UberGraph:
             OPTIONAL {{
                 ?descendent {predicate} ?match.      
             }} 
-            OPTIONAL {{
-                ?descendent rdfs:label ?descendentLabel
-            }}
         }}
         """
         resultmap = self.triplestore.query_template(
                template_text=text('EXACT_MATCH:'),
                inputs={
                    'identifier': iri
-               }, outputs=[ 'descendent', 'descendentLabel', 'match' ] )
+               }, outputs=[ 'descendent', 'match' ] )
         resultmap += self.triplestore.query_template(
                template_text=text('M_EXACT_MATCH:'),
                inputs={
                    'identifier': iri
-               }, outputs=[ 'descendent', 'descendentLabel', 'match' ] )
+               }, outputs=[ 'descendent', 'match' ] )
         resultmap += self.triplestore.query_template(
                 template_text=text('EQUIVALENT_CLASS:'),
                 inputs={
                     'identifier': iri
-                }, outputs=[ 'descendent', 'descendentLabel', 'match'] )
+                }, outputs=[ 'descendent', 'match'] )
         results = defaultdict(list)
         for row in resultmap:
+            desc=Text.opt_to_curie(row['descendent'])
             if row['match'] is None:
-                results[(Text.opt_to_curie(row['descendent']),row['descendentLabel'])] += []
+                results[desc] += []
             else:
-                results[ (Text.opt_to_curie(row['descendent']),row['descendentLabel'])].\
-                    append( (Text.opt_to_curie(row['match']) ))
+                results[ desc ].append( (Text.opt_to_curie(row['match']) ))
         #Sometimes, if there are no exact_matches, we'll get some kind of blank node id
         # like 't19830198'. Want to filter those out.
         for k,v in results.items():
@@ -217,7 +215,7 @@ class UberGraph:
         PREFIX M_CLOSE_MATCH: <http://purl.obolibrary.org/obo/mondo#closeMatch>
         PREFIX EQUIVALENT_CLASS: <http://www.w3.org/2002/07/owl#equivalentClass>
         PREFIX ID: <http://www.geneontology.org/formats/oboInOwl#id>
-        SELECT DISTINCT ?descendent ?descendentLabel ?match
+        SELECT DISTINCT ?descendent ?match
         FROM <http://reasoner.renci.org/ontology>
         WHERE {{
             graph <http://reasoner.renci.org/ontology/closure> {{
@@ -225,9 +223,6 @@ class UberGraph:
             }}
             OPTIONAL {{
                 ?descendent {predicate} ?match.      
-            }} 
-            OPTIONAL {{
-                ?descendent rdfs:label ?descendentLabel
             }}
         }}
         """
@@ -235,22 +230,51 @@ class UberGraph:
                template_text=text('CLOSE_MATCH:'),
                inputs={
                    'identifier': iri
-               }, outputs=[ 'descendent', 'descendentLabel', 'match' ] )
+               }, outputs=[ 'descendent',  'match' ] )
         resultmap += self.triplestore.query_template(
                template_text=text('M_CLOSE_MATCH:'),
                inputs={
                    'identifier': iri
-               }, outputs=[ 'descendent', 'descendentLabel', 'match' ] )
+               }, outputs=[ 'descendent', 'match' ] )
         results = defaultdict(list)
         for row in resultmap:
+            desc = Text.opt_to_curie(row['descendent'])
             if row['match'] is None:
-                results[(Text.opt_to_curie(row['descendent']),row['descendentLabel'])] += []
+                results[desc] += []
             else:
-                results[ (Text.opt_to_curie(row['descendent']),row['descendentLabel'])].\
-                    append( (Text.opt_to_curie(row['match']) ))
+                results[ desc].append( (Text.opt_to_curie(row['match']) ))
         #Sometimes, if there are no exact_matches, we'll get some kind of blank node id
         # like 't19830198'. Want to filter those out.
         for k,v in results.items():
             results[k] = list(filter(lambda x: ':' in x, v))
         return results
+
+
+def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={}, hop_ontologies=False ):
+    """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
+    is a set for each subclass of the input iri.  Write these lists to concord files, indexed by the prefix"""
+    print(iri, other_prefixes)
+    prefix = Text.get_curie(iri)
+    types2relations={'xref':'xref', 'exact': 'oio:exactMatch', 'close': 'oio:closeMatch'}
+    if set_type not in types2relations:
+        return
+    uber = UberGraph()
+    if set_type == 'xref':
+        uberres = uber.get_subclasses_and_xrefs(iri)
+    elif set_type == 'exact':
+        uberres = uber.get_subclasses_and_exacts(iri)
+    elif set_type == 'close':
+        uberres = uber.get_subclasses_and_close(iri)
+    for k,v in uberres.items():
+        if not hop_ontologies:
+            subclass_prefix = Text.get_curie(k)
+            if subclass_prefix != prefix:
+                continue
+        v = set([ norm(x,other_prefixes) for x in v ])
+        for x in v:
+            if Text.get_curie(x) not in ignore_list:
+                p = Text.get_curie(k)
+                if p in concordfiles:
+                    concordfiles[p].write(f'{k}\t{types2relations[set_type]}\t{x}\n')
+
 

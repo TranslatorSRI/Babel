@@ -22,4 +22,6 @@ mondoes.
 
 In one case, it looks like the two mondo terms SHOULD be merged.  In that case, we delete both rows.
 
+This then gets parsed into a 2 column file, and at that point has been further added to by hand
+
 The disease_phenotype script will now pull this file in and use it to clean things up.
