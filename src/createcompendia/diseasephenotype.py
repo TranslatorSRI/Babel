@@ -31,7 +31,13 @@ def write_efo_ids(outfile):
     disease_id='EFO:0000408'
     phenotype_id='EFO:0000651'
     measurement_id='EFO:0001444'
-    write_obo_ids([(disease_id, DISEASE),(phenotype_id,PHENOTYPIC_FEATURE),(measurement_id,PHENOTYPIC_FEATURE)],outfile)
+    #There is a problem with EFO / Ubergraph: https://github.com/INCATools/ubergraph/issues/21
+    #Until it is resolved, I have to add in some extra roots
+    efos = [(disease_id, DISEASE), (phenotype_id, PHENOTYPIC_FEATURE), (measurement_id, PHENOTYPIC_FEATURE)]
+    roots = [9676,43707,10285,319,405,9663,24458,1379,5803,540,618,684,6960]
+    for eroot in roots:
+        efos.append((f'{EFO}:{eroot:07}',DISEASE))
+    write_obo_ids(efos,outfile)
 
 def write_hp_ids(outfile):
     #Phenotype
@@ -53,7 +59,14 @@ def write_mesh_ids(outfile):
     meshmap['C23'] = PHENOTYPIC_FEATURE
     mesh.write_ids(meshmap,outfile,order=[DISEASE,PHENOTYPIC_FEATURE])
 
-def write_umls_ids(outfile):
+def write_umls_ids(outfile,badumlsfile):
+    badumls=set()
+    with open(badumlsfile,'r') as inf:
+        for line in inf:
+            if line.startswith('#'):
+                continue
+            umlscui = line.split()[0]
+            badumls.add(umlscui)
     #Disease
     #B2.2.1.2.1 Disease or Syndrome
     #A1.2.2.1 Congenital Abnormality
@@ -65,10 +78,15 @@ def write_umls_ids(outfile):
     #A1.2.2 Anatomical Abnormality
     #B2.2.1.2.1.2 Neoplastic Process
     umlsmap = {x: DISEASE for x in ['B2.2.1.2.1', 'A1.2.2.1', 'A1.2.2.2', 'B2.3', 'B2.2.1.2', 'B2.2.1.2.1.1','B2.2.1.2.2','A1.2.2','B2.2.1.2.1.2']}
+    #A2.2 Finding
+    # Compared groupings with and without finding.  Finding includes a lot of stuff like "Negative" or whatever and it causes some extra globbing up.
+    # For instance, the Alzheimer node starts to grab in some nonsense.
     umlsmap['A2.2'] = PHENOTYPIC_FEATURE
+    #A2.2.1 Laboratory or Test Result
+    #A2.2.2 Sign or Symptom
     umlsmap['A2.2.1'] = PHENOTYPIC_FEATURE
     umlsmap['A2.2.2'] = PHENOTYPIC_FEATURE
-    umls.write_umls_ids(umlsmap,outfile)
+    umls.write_umls_ids(umlsmap,outfile,blacklist=badumls)
 
 
 def build_disease_obo_relationships(outdir):
@@ -91,15 +109,22 @@ def build_disease_obo_relationships(outdir):
         build_sets('EFO:0000408', {EFO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
         build_sets('EFO:0000651', {EFO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
         build_sets('EFO:0001444', {EFO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
+        #This is to deal with the ubergraph issue discussed in the efo_id function
+        roots = [9676, 43707, 10285, 319, 405, 9663, 24458, 1379, 5803, 540, 618, 684, 6960]
+        for eroot in roots:
+            build_sets(f'{EFO}:{eroot:07}', {EFO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
 
-def build_disease_umls_relationships(idfile,outfile,omimfile):
+def build_disease_umls_relationships(idfile,outfile,omimfile,ncitfile):
     #UMLS contains xrefs between a disease UMLS and a gene OMIM. So here we are saying: if you are going to link to
     # an omim identifier, make sure it's a disease omim, not some other thing.
-    good_omims=set()
-    with open(omimfile,'r') as inf:
-        x = inf.readline().split(0)
-        good_omims.add(x)
-    umls.build_sets(idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM},acceptable_identifiers={'OMIM':good_omims})
+    good_ids = {}
+    for prefix,prefixidfile in [(OMIM,omimfile),(NCIT,ncitfile)]:
+        good_ids[prefix] = set()
+        with open(prefixidfile,'r') as inf:
+            for line in inf:
+                x = line.split()[0]
+                good_ids[prefix].add(x)
+    umls.build_sets(idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM},acceptable_identifiers=good_ids)
 
 def build_disease_doid_relationships(idfile,outfile):
     doid.build_xrefs(idfile, outfile, other_prefixes={'ICD10CM':ICD10, 'ICD9CM':ICD9, 'ICDO': ICD0, 'NCI': NCIT,
@@ -149,7 +174,7 @@ def build_compendium(concordances, identifiers, mondoclose, badxrefs):
             newpairs = pairs
         glom(dicts, newpairs, unique_prefixes=[MONDO, HP], close={MONDO:close_mondos})
         try:
-            print(dicts['UMLS:C0391820'])
+            print(dicts['OMIM:607644'])
         except:
             print('notyet')
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]),types)

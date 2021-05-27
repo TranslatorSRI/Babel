@@ -320,15 +320,9 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
             #continue
         #Now check the 'close' dictionary to see if we've accidentally gotten to a close match becoming an exact match
         setok = True
-        if 'MESH:C562463' in group:
-            print('meshy')
         for cpref, closedict in close.items():
             idents = set([e if type(e) == str else e.identifier for e in newset])
             prefidents = [e for e in idents if e.startswith(cpref)]
-            if 'MESH:C562463' in group:
-                print(newset)
-                print(prefidents)
-                print('------')
             for pident in prefidents:
                 for cd in closedict[pident]:
                     if cd in newset:

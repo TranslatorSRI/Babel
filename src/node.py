@@ -22,11 +22,9 @@ class SynonymFactory():
         synfname = os.path.join(self.synonym_dir, prefix, 'synonyms')
         if os.path.exists(synfname):
             with open(synfname, 'r') as inf:
-                print(synfname)
                 for line in inf:
                     x = line.strip().split('\t')
                     if len(x) < 3:
-                        print(x)
                         continue
                     lbs[x[0]].add( (x[1], x[2]) )
         self.synonyms[prefix] = lbs

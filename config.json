@@ -1,4 +1,5 @@
 {
+  "input_directory": "input_data",
   "download_directory": "babel_downloads",
   "output_directory": "babel_outputs",
 

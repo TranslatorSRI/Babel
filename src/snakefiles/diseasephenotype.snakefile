@@ -54,10 +54,12 @@ rule disease_mesh_ids:
 
 rule disease_umls_ids:
     #The location of the RRFs is known to the guts, but should probably come out here.
+    input:
+        badumls = config['input_directory']+"/badumls"
     output:
         outfile=config['download_directory']+"/disease/ids/UMLS"
     run:
-        diseasephenotype.write_umls_ids(output.outfile)
+        diseasephenotype.write_umls_ids(output.outfile,input.badumls)
 
 rule disease_hp_ids:
     #The location of the RRFs is known to the guts, but should probably come out here.
@@ -88,11 +90,12 @@ rule get_disease_obo_relationships:
 rule get_disease_umls_relationships:
     input:
         infile=config['download_directory']+"/disease/ids/UMLS",
-        omim=config['download_directory']+'/disease/ids/OMIM'
+        omim=config['download_directory']+'/disease/ids/OMIM',
+        ncit=config['download_directory'] + '/disease/ids/NCIT'
     output:
         outfile=config['download_directory']+'/disease/concords/UMLS',
     run:
-        diseasephenotype.build_disease_umls_relationships(input.infile,output.outfile,input.omim)
+        diseasephenotype.build_disease_umls_relationships(input.infile,output.outfile,input.omim,input.ncit)
 
 rule get_disease_doid_relationships:
     input:
