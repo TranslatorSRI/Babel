@@ -10,6 +10,11 @@ import src.datahandlers.mods as mods
 import src.datahandlers.ncit as ncit
 import src.datahandlers.doid as doid
 import src.datahandlers.orphanet as orphanet
+import src.datahandlers.reactome as reactome
+import src.datahandlers.rhea as rhea
+import src.datahandlers.ec as ec
+import src.datahandlers.smpdb as smpdb
+import src.datahandlers.pantherpathways as pantherpathways
 
 #####
 #
@@ -188,3 +193,76 @@ rule get_orphanet_labels_and_synonyms:
     run:
         orphanet.pull_orphanet_labels_and_synonyms(input.infile, output.labelfile, output.synonymfile)
 
+### Reactome
+
+rule get_reactome:
+    output:
+        outfile = config['download_directory']+'/REACT/ReactomePathways.txt',
+        labelfile = config['download_directory']+'/REACT/labels'
+    run:
+        reactome.pull_reactome_pathways(output.labelfile)
+
+### RHEA
+
+rule get_rhea:
+    output:
+        outfile = config['download_directory'] + '/RHEA/Rhea.rdf',
+    run:
+        rhea.pull_rhea()
+
+rule get_rhea_labels:
+    input:
+        infile=config['download_directory'] + '/RHEA/Rhea.rdf',
+    output:
+        labelfile=config['download_directory'] + '/RHEA/labels',
+    run:
+        rhea.make_labels(output.labelfile)
+
+### EC
+
+rule get_EC:
+    output:
+        outfile = config['download_directory'] + '/EC/enzyme.rdf'
+    run:
+        ec.pull_ec()
+
+rule get_EC_labels:
+    input:
+        infile=config['download_directory'] + '/EC/enzyme.rdf'
+    output:
+        labelfile=config['download_directory'] + '/EC/labels',
+        synonymfile =config['download_directory'] + '/EC/synonyms'
+    run:
+        ec.make_labels(output.labelfile,output.synonymfile)
+
+### SMPDB
+
+rule get_SMPDB:
+    output:
+        outfile=config['download_directory'] + '/SMPDB/smpdb_pathways.csv'
+    run:
+        smpdb.pull_smpdb()
+
+rule get_SMPDB_labels:
+    input:
+        infile=config['download_directory'] + '/SMPDB/smpdb_pathways.csv'
+    output:
+        labelfile=config['download_directory'] + '/SMPDB/labels'
+    run:
+        smpdb.make_labels(input.infile,output.labelfile)
+
+### PantherPathways
+
+rule get_panther_pathways:
+    output:
+        outfile = config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.5.txt'
+    run:
+        pantherpathways.pull_panther_pathways()
+
+rule get_panther_pathway_labels:
+    input:
+        infile=config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.5.txt'
+    output:
+        labelfile=config['download_directory'] + '/PANTHER.PATHWAY/labels'
+    run:
+        pantherpathways.make_pathway_labels(input.infile,output.labelfile)
