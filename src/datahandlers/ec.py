@@ -1,4 +1,5 @@
 from src.prefixes import EC
+from src.categories import MOLECULAR_ACTIVITY
 from src.babel_utils import pull_via_urllib
 from src.babel_utils import make_local_name, pull_via_ftp
 import pyoxigraph
@@ -47,7 +48,26 @@ class ECgraph:
                     synfile.write(f'{EC}:{ecid}\t{labeltype}\t{label}\n')
                     if not labeltype == 'skos:altLabel':
                         labelfile.write(f'{EC}:{ecid}\t{label}\n')
+    def pull_EC_ids(self,idfname):
+        with open(idfname, 'w') as idfile:
+            s="""  PREFIX ec: <http://purl.uniprot.org/enzyme/>
+                   PREFIX uc: <http://purl.uniprot.org/core/>
+                   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+                   SELECT DISTINCT ?x
+                   WHERE { ?x rdf:type uc:Enzyme }
+            """
+            qres = self.m.query(s)
+            for row in list(qres):
+                iterm = str(row['x'])
+                ecid = iterm[:-1].split('/')[-1]
+                #idfile.write(f'{EC}:{ecid}\t{rtype}\n')
+                idfile.write(f'{EC}:{ecid}\t{MOLECULAR_ACTIVITY}\n')
 
 def make_labels(labelfile,synfile):
     m = ECgraph()
     m.pull_EC_labels_and_synonyms(labelfile,synfile)
+
+def make_ids(idfname):
+    m = ECgraph()
+    m.pull_EC_ids(idfname)

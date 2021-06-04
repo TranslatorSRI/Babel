@@ -11,8 +11,6 @@ def pull_smpdb():
 
 def make_labels(inputfile,labelfile):
     """Get the SMPDB file.  It's not good - there are \n and commas, and commas are also the delimiter. I mean, what?"""
-    smpdbs = []
-    labels = {}
     with open(inputfile,'r') as inf, open(labelfile,'w') as outf:
         h = inf.readline()
         for line in inf:
@@ -21,10 +19,11 @@ def make_labels(inputfile,labelfile):
             if not line.startswith('SMP'):
                 continue
             #print(line)
-            x = line.strip().split(',')
+            #my god what a stupid file.  It's a csv, but there are commas in the data.  Not only that
+            # but the last column is quoted, but the next to the last column (which also has commas) is not.
+            frontline = line.split('"')[0][:-1] #remove the last (quoted) column
+            x = frontline.strip().split(',')
             ident = f'{SMPDB}:{x[0]}'
-            name = x[2]
-            outf.write(f'{ident}\t{name}\n')
-            smpdbs.append( (ident,) )
-            labels[ident] = name
-    return smpdbs,labels
+            name = ','.join(x[2:]) #get the rest of the splits and put them back together.
+            if len(name) > 0:
+                outf.write(f'{ident}\t{name}\n')

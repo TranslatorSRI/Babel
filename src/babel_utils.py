@@ -419,17 +419,23 @@ def read_identifier_file(infile):
     return identifiers,types
 
 
-def remove_overused_xrefs(pairlist):
+def remove_overused_xrefs(pairlist,bothways=False):
     """Given a list of tuples (id1, id2) meaning id1-[xref]->id2, remove any id2 that are associated with more
     than one id1.  The idea is that if e.g. id1 is made up of UBERONS and 2 of those have an xref to say a UMLS
     then it doesn't mean that all of those should be identified.  We don't really know what it means, so remove it."""
-    xref_counts = defaultdict(int)
+    xref_counts_v = defaultdict(int)
+    xref_counts_k = defaultdict(int)
     for k, v in pairlist:
-        xref_counts[v] += 1
+        xref_counts_v[v] += 1
+        xref_counts_k[k] += 1
     improved_pairs = []
     for k,v in pairlist:
-        if xref_counts[v] < 2:
-            improved_pairs.append( (k,v) )
+        if xref_counts_v[v] < 2:
+            if bothways:
+                if xref_counts_k[k] < 2:
+                    improved_pairs.append( (k,v) )
+            else:
+                improved_pairs.append((k, v))
     return improved_pairs
 
 def norm(x,op):

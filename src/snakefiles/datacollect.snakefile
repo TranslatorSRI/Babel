@@ -197,10 +197,17 @@ rule get_orphanet_labels_and_synonyms:
 
 rule get_reactome:
     output:
-        outfile = config['download_directory']+'/REACT/ReactomePathways.txt',
-        labelfile = config['download_directory']+'/REACT/labels'
+        outfile = config['download_directory']+'/REACT/Events.json'
     run:
-        reactome.pull_reactome_pathways(output.labelfile)
+        reactome.pull_reactome(output.outfile)
+
+rule get_reactome_labels:
+    input:
+        infile=config['download_directory'] + '/REACT/Events.json',
+    output:
+        labelfile=config['download_directory'] + '/REACT/labels',
+    run:
+        reactome.make_labels(input.infile,output.labelfile)
 
 ### RHEA
 

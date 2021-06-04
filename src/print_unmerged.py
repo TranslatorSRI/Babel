@@ -26,4 +26,5 @@ def assess_big(compendium,mx=100):
 
 if __name__ == '__main__':
     #assess_singles('../babel_outputs/compendia/PhenotypicFeature.txt','HP')
-    assess_big('../babel_outputs/compendia/Disease.txt',80)
+    assess_big('../babel_outputs/compendia/MolecularActivity.txt',5)
+
