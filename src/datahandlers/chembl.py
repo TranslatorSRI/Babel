@@ -3,13 +3,14 @@ from src.babel_utils import pull_via_ftp, make_local_name
 import ftplib
 import pyoxigraph
 
-def pull_chembl(outfname):
+def pull_chembl(moleculefilename):
     fname = get_latest_chembl_name()
     if not fname is None:
         # fname should be like chembl_28.0_molecule.ttl.gz
         #Pull via ftp is going to add the download_dir, so this is a hack until pull_via_ftp is nicer.
-        oname = 'CHEMBL/'+outfname.split('/')[-1]
+        oname = 'CHEMBL/'+moleculefilename.split('/')[-1]
         pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chembl/ChEMBL-RDF/latest/', fname, decompress_data=True, outfilename=oname)
+        pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chembl/ChEMBL-RDF/latest/', 'cco.ttl.gz', decompress_data=True, outfilename='CHEMBL/cco.ttl')
 
 
 def get_latest_chembl_name() -> str:
@@ -37,11 +38,13 @@ def get_latest_chembl_name() -> str:
 
 class ChemblRDF:
     """Load the mesh rdf file for querying"""
-    def __init__(self,ifname):
+    def __init__(self,ifname,ccofile):
         from datetime import datetime as dt
-        print('loading mesh.nt')
+        print('loading chembl')
         start = dt.now()
         self.m= pyoxigraph.MemoryStore()
+        with open(ccofile,'rb') as inf:
+            self.m.load(inf,'application/turtle')
         with open(ifname,'rb') as inf:
             self.m.load(inf,'application/turtle')
         end = dt.now()
@@ -67,7 +70,7 @@ class ChemblRDF:
                 #label = ilabel.strip().split('"')[1]
                 outf.write(f'{CHEMBLCOMPOUND}:{iterm}\t{ilabel}\n')
 
-def pull_chembl_labels(infile,outfile):
-    m = ChemblRDF(infile)
+def pull_chembl_labels(infile,ccofile,outfile):
+    m = ChemblRDF(infile,ccofile)
     m.pull_labels(outfile)
 

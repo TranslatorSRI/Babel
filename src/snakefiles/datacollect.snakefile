@@ -18,6 +18,8 @@ import src.datahandlers.pantherpathways as pantherpathways
 import src.datahandlers.unichem as unichem
 import src.datahandlers.chembl as chembl
 import src.datahandlers.gtopdb as gtopdb
+import src.datahandlers.kegg as kegg
+import src.datahandlers.unii as unii
 
 #####
 #
@@ -298,17 +300,19 @@ rule filter_unichem:
 
 rule get_chembl:
     output:
-        outfile=config['download_directory']+'/CHEMBL/chembl_latest_molecule.ttl'
+        moleculefile=config['download_directory']+'/CHEMBL/chembl_latest_molecule.ttl',
+        ccofile=config['download_directory']+'/CHEMBL/cco.ttl'
     run:
-        chembl.pull_chembl(output.outfile)
+        chembl.pull_chembl(output.moleculefile)
 
 rule chembl_labels:
     input:
-        infile=config['download_directory']+'/CHEMBL/chembl_latest_molecule.ttl'
+        infile=config['download_directory']+'/CHEMBL/chembl_latest_molecule.ttl',
+        ccofile=config['download_directory']+'/CHEMBL/cco.ttl',
     output:
-        outfile=config['download_directory']+'CHEMBL/labels'
+        outfile=config['download_directory']+'/CHEMBL/labels'
     run:
-        chembl.pull_chembl_labels(input.infile,output.outfile)
+        chembl.pull_chembl_labels(input.infile,input.ccofile,output.outfile)
 
 ### DrugBank requires a login... not sure how to handle
 
@@ -328,4 +332,30 @@ rule gtopdb_labels_and_synonyms:
         synfile  =config['download_directory']+'/GTOPDB/synonyms'
     run:
         gtopdb.make_labels_and_synonyms(input.infile,output.labelfile,output.synfile)
+
+#KEGG We're also only getting compounds now.  And we're going through the api b/c data files are not available
+# so no data pull, just making labels
+
+rule keggcompound_labels:
+    output:
+        labelfile=config['download_directory'] + '/KEGGCOMPOUND/labels'
+    run:
+        kegg.pull_kegg_compound_labels(output.labelfile)
+
+# UNII
+
+rule get_unii:
+    output:
+        outfile=config['download_directory']+'/UNII/Latest_UNII_Names.txt'
+    run:
+        unii.pull_unii()
+
+rule unii_labels_and_synonyms:
+    input:
+        infile=config['download_directory']+'/UNII/Latest_UNII_Names.txt'
+    output:
+        labelfile=config['download_directory']+'/UNII/labels',
+        synfile  =config['download_directory']+'/UNII/synonyms'
+    run:
+        unii.make_labels_and_synonyms(input.infile,output.labelfile,output.synfile)
 
