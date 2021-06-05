@@ -9,7 +9,7 @@ def pull_pubchem():
         pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/pubchem/Compound/Extras', f, outfilename=outfile)
 
 def make_labels(infile,outfile):
-    with gzip.open(infile, 'rt') as inf, open(outfile,'w') as outf:
+    with gzip.open(infile, 'r') as inf, open(outfile,'w') as outf:
         for line in inf:
             x = line.strip().split('\t')
             outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\t{x[1]}')
