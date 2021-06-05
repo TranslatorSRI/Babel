@@ -12,10 +12,8 @@ def make_labels(infile,outfile):
     with gzip.open(infile, 'r') as inf, open(outfile,'w') as outf:
         for l in inf:
             print(l)
-            line = l.decode('utf8')
+            line = l.decode('latin1')
             x = line.strip().split('\t')
-            print(line)
-            print(x)
             outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\t{x[1]}')
 
 def get_pubchem_labels_and_synonyms(infile,labelfile,synfile):
