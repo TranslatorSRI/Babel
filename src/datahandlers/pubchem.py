@@ -13,5 +13,5 @@ def make_labels_or_synonyms(infile,outfile):
         for l in inf:
             line = l.decode('latin1')
             x = line.strip().split('\t')
-            outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\t{x[1]}')
+            outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\t{x[1]}\n')
 

@@ -37,7 +37,21 @@ def write_unii_ids(infile,outfile):
 def write_drugbank_ids(infile,outfile):
     """We don't have a good drugbank source, so we're going to dig through unichem and get out drugbank ids."""
     #doublecheck so that we know we're getting the right value
-    assert unichem_data_sources[2] == DRUGBANK
+    drugbank_id = 2
+    assert unichem_data_sources[drugbank_id] == DRUGBANK
+    # The columns are: [0'uci_old', 1'src_id', 2'src_compound_id', 3'assignment', 4'last_release_u_when_current', 5 'created ',
+    # 6'lastupdated', 7'userstamp', 8'aux_src', 9'uci'])
+    written = set()
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            x = line.split('\t')
+            if x[1] == drugbank_id:
+                if x[1] in written:
+                    continue
+                dbid = f'{DRUGBANK}:{x[2]}'
+                outf.write(f'{dbid}\t{CHEMICAL_SUBSTANCE}\n')
+            written.add(x[1])
+
 
 
 
