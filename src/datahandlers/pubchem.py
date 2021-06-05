@@ -13,6 +13,8 @@ def make_labels(infile,outfile):
         for l in inf:
             line = str(l)
             x = line.strip().split('\t')
+            print(line)
+            print(x)
             outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\t{x[1]}')
 
 def get_pubchem_labels_and_synonyms(infile,labelfile,synfile):
