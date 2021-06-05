@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import src.datahandlers.obo as obo
 
-from src.prefixes import MESH, CHEBI, UNII, DRUGBANK
+from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY
 from src.categories import CHEMICAL_SUBSTANCE
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
@@ -37,7 +37,7 @@ def write_unii_ids(infile,outfile):
 def write_drugbank_ids(infile,outfile):
     """We don't have a good drugbank source, so we're going to dig through unichem and get out drugbank ids."""
     #doublecheck so that we know we're getting the right value
-    drugbank_id = 2
+    drugbank_id = '2'
     assert unichem_data_sources[drugbank_id] == DRUGBANK
     # The columns are: [0'uci_old', 1'src_id', 2'src_compound_id', 3'assignment', 4'last_release_u_when_current', 5 'created ',
     # 6'lastupdated', 7'userstamp', 8'aux_src', 9'uci'])
@@ -45,14 +45,37 @@ def write_drugbank_ids(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
             x = line.split('\t')
-            if x[1] == str(drugbank_id):
+            if x[1] == drugbank_id:
                 if x[2] in written:
                     continue
                 dbid = f'{DRUGBANK}:{x[2]}'
                 outf.write(f'{dbid}\t{CHEMICAL_SUBSTANCE}\n')
                 written.add(x[2])
 
+def write_unichem_concords(structfile,reffile,outdir):
+    inchikeys = read_inchikeys(structfile)
+    concfiles = {}
+    for num,name in unichem_data_sources.items():
+        concfiles[str(num)] = open(f'{outdir}/UNICHEM_{name}','w')
+    with open(reffile,'r') as inf:
+        # The columns are: [0'uci_old', 1'src_id', 2'src_compound_id', 3'assignment', 4'last_release_u_when_current', 5 'created ',
+        # 6'lastupdated', 7'userstamp', 8'aux_src', 9'uci'])
+        for line in reffile:
+            x = line.strip.split('\t')
+            outf = concfiles[x[1]]
+            outf.write(f'{unichem_data_sources[x[1]]}:{x[2]}\t{inchikeys[x[9]]}\n')
+    for outf in concfiles.values():
+        outf.close()
 
+def read_inchikeys(struct_file):
+    #struct header [0'uci_old', 1'standardinchi', 2'standardinchikey', 3'created', 4'username', 5'fikhb', 6'uci', 'parent_smiles'],
+    inchikeys = {}
+    with open(struct_file,'r') as inf:
+        for sline in inf:
+            line = sline.strip().split('\t')
+            uci = int(line[6])
+            inchikeys[uci] = f'{INCHIKEY}:{line[2]}'
+    return inchikeys
 
 
 ###TRASH VVVVVVVV TRASH###

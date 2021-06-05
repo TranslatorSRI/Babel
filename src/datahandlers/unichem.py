@@ -10,8 +10,8 @@ from babel.big_gz_sort import batch_sort
 from src.prefixes import CHEMBLCOMPOUND,DRUGCENTRAL,DRUGBANK,GTOPDB,KEGGCOMPOUND,CHEBI,UNII,HMDB,PUBCHEMCOMPOUND
 
 #global for this file
-data_sources: dict = {1: CHEMBLCOMPOUND, 2: DRUGBANK, 4: GTOPDB, 6: KEGGCOMPOUND, 7: CHEBI, 14: UNII, 18: HMDB,
-                      22: PUBCHEMCOMPOUND, 34: DRUGCENTRAL}
+data_sources: dict = {'1': CHEMBLCOMPOUND, '2': DRUGBANK, '4': GTOPDB, '6': KEGGCOMPOUND, '7': CHEBI, '14': UNII,
+                      '18': HMDB, '22': PUBCHEMCOMPOUND, '34': DRUGCENTRAL}
 
 
 def pull_unichem():
@@ -29,6 +29,8 @@ def filter_xrefs_by_srcid(xref_file,outfile):
             x = line.split('\t')
             if x[1] in srclist and x[3] == '1':
                 outf.write(line)
+
+#### nothing ####
 
 def otherstuff():
     srcfiltered_xref_file = filter_xrefs_by_srcid(data_sources, xref_file)

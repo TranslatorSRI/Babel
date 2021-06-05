@@ -81,7 +81,7 @@ rule chemical_drugbank_ids:
 
 ######
 
-rule xget_protein_uniprotkb_ensembl_relationships:
+rule get_protein_uniprotkb_ensembl_relationships:
     input:
         infile = config['download_directory'] + '/UniProtKB/idmapping.dat'
     output:
