@@ -12,7 +12,7 @@ def make_labels(infile,outfile):
     with gzip.open(infile, 'r') as inf, open(outfile,'w') as outf:
         for l in inf:
             print(l)
-            line = l.decode('utf-8')
+            line = l.decode('utf8')
             x = line.strip().split('\t')
             print(line)
             print(x)
