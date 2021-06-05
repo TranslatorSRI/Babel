@@ -8,7 +8,7 @@ def pull_chembl(outfname):
     if not fname is None:
         # fname should be like chembl_28.0_molecule.ttl.gz
         #Pull via ftp is going to add the download_dir, so this is a hack until pull_via_ftp is nicer.
-        oname = "/".join(outfname.split('/')[1:])
+        oname = '/CHEMBL/'+outfname.split('/')[-1]
         pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chembl/ChEMBL-RDF/latest/', fname, decompress_data=True, outfilename=oname)
 
 
