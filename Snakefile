@@ -7,6 +7,7 @@ include: "src/snakefiles/protein.snakefile"
 include: "src/snakefiles/geneprotein.snakefile"
 include: "src/snakefiles/diseasephenotype.snakefile"
 include: "src/snakefiles/process.snakefile"
+include: "src/snakefiles/chemical.snakefile"
 
 rule all:
     input:

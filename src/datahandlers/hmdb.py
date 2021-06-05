@@ -23,6 +23,8 @@ class writer:
             self.sfile.write(f'{hmdbident}\oio:exact\t{sname}\n')
 
 def make_labels_and_synonyms(inputfile,labelfile,synfile):
-    with open(inputfile,'r') as inf, open(labelfile,'w') as lf, open(synfile,'w') as sf:
+    with open(inputfile,'r') as inf:
+        xml = inf.read()
+    with open(labelfile,'w') as lf, open(synfile,'w') as sf:
         w = writer(lf,sf)
-        xmltodict.parse(inf, item_depth=1, item_callback=w.handle_metabolite)
+        xmltodict.parse(xml, item_depth=1, item_callback=w.handle_metabolite)

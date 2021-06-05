@@ -26,7 +26,7 @@ def make_labels_and_synonyms(inputfile,labelfile,synfile):
         h = inf.readline()
         for line in inf:
             parts = line.strip().split('\t')
-            ident = f'{UNII}:{parts}'
+            ident = f'{UNII}:{parts[idcol]}'
             label = parts[labelcol]
             synonym = parts[syncol]
             lstring = f'{ident}\t{label}\n'

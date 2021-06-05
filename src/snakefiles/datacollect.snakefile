@@ -303,17 +303,17 @@ rule filter_unichem:
 
 rule get_chembl:
     output:
-        moleculefile=config['download_directory']+'/CHEMBL/chembl_latest_molecule.ttl',
-        ccofile=config['download_directory']+'/CHEMBL/cco.ttl'
+        moleculefile=config['download_directory']+'/CHEMBLCOMPOUND/chembl_latest_molecule.ttl',
+        ccofile=config['download_directory']+'/CHEMBLCOMPOUND/cco.ttl'
     run:
         chembl.pull_chembl(output.moleculefile)
 
 rule chembl_labels:
     input:
-        infile=config['download_directory']+'/CHEMBL/chembl_latest_molecule.ttl',
-        ccofile=config['download_directory']+'/CHEMBL/cco.ttl',
+        infile=config['download_directory']+'/CHEMBLCOMPOUND/chembl_latest_molecule.ttl',
+        ccofile=config['download_directory']+'/CHEMBLCOMPOUND/cco.ttl',
     output:
-        outfile=config['download_directory']+'/CHEMBL/labels'
+        outfile=config['download_directory']+'/CHEMBLCOMPOUND/labels'
     run:
         chembl.pull_chembl_labels(input.infile,input.ccofile,output.outfile)
 
@@ -412,3 +412,12 @@ rule get_drugcentral:
         config['download_directory'] + '/DRUGCENTRAL/structures.smiles.tsv'
     run:
         drugcentral.pull_drugcentral()
+
+rule drugcentral_labels:
+    input:
+        infile=config['download_directory']+'/DRUGCENTRAL/structures.smiles.tsv'
+    output:
+        outfile=config['download_directory']+'/DRUGCENTRAL/labels'
+    shell:
+        #This one is a simple enough transform to do with awk
+        "awk '{{print $3\t$4}}' {input.infile} > {output.outfile}"
