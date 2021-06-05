@@ -5,7 +5,7 @@ def pull_pubchem():
     files = ['CID-MeSH','CID-Synonym-filtered.gz','CID-Title.gz']
     for f in files:
         outfile=f'PUBCHEM/{f}'
-        pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/pubchem/Coumpound/Extras', 'f', outfilename=outfile)
+        pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/pubchem/Compound/Extras', 'f', outfilename=outfile)
 
 def get_pubchem_labels_and_synonyms(infile,labelfile,synfile):
     labels = {}
