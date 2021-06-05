@@ -10,7 +10,8 @@ def pull_pubchem():
 
 def make_labels(infile,outfile):
     with gzip.open(infile, 'r') as inf, open(outfile,'w') as outf:
-        for line in inf:
+        for l in inf:
+            line = str(l)
             x = line.strip().split('\t')
             outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\t{x[1]}')
 

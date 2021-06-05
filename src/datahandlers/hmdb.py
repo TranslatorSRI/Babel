@@ -15,10 +15,11 @@ class writer:
         self.lfile = lfile
         self.sfile = sfile
     def handle_metabolite(self,_,metabolite):
-        print(metabolite)
+        print(metabolite.keys())
         hmdbident=f'{HMDB}:{metabolite["accession"]}'
         label = metabolite['name']
         self.lfile.write(f'{hmdbident}\t{label}\n')
+        print(metabolite['synonyms'], len(metabolite['synonyms']))
         for synel in metabolite['synonyms']:
             sname = synel['synonym']
             self.sfile.write(f'{hmdbident}\oio:exact\t{sname}\n')
@@ -28,4 +29,4 @@ def make_labels_and_synonyms(inputfile,labelfile,synfile):
         xml = inf.read()
     with open(labelfile,'w') as lf, open(synfile,'w') as sf:
         w = writer(lf,sf)
-        xmltodict.parse(xml, item_depth=1, item_callback=w.handle_metabolite)
+        xmltodict.parse(xml, item_depth=2, item_callback=w.handle_metabolite)
