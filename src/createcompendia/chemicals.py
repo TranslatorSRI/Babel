@@ -46,11 +46,11 @@ def write_drugbank_ids(infile,outfile):
         for line in inf:
             x = line.split('\t')
             if x[1] == str(drugbank_id):
-                if x[1] in written:
+                if x[2] in written:
                     continue
                 dbid = f'{DRUGBANK}:{x[2]}'
                 outf.write(f'{dbid}\t{CHEMICAL_SUBSTANCE}\n')
-            written.add(x[1])
+                written.add(x[2])
 
 
 
