@@ -1,11 +1,18 @@
+from src.prefixes import PUBCHEMCOMPOUND
 from src.babel_utils import make_local_name, pull_via_ftp
-import json
+import gzip
 
 def pull_pubchem():
     files = ['CID-MeSH','CID-Synonym-filtered.gz','CID-Title.gz']
     for f in files:
         outfile=f'PUBCHEM/{f}'
         pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/pubchem/Compound/Extras', f, outfilename=outfile)
+
+def make_labels(infile,outfile):
+    with gzip.open(infile, 'rt') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            x = line.strip().split('\t')
+            outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\t{x[1]}')
 
 def get_pubchem_labels_and_synonyms(infile,labelfile,synfile):
     labels = {}

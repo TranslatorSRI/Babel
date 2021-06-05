@@ -395,8 +395,9 @@ rule pubchem_labels:
         infile = config['download_directory'] + '/PUBCHEM/CID-Title.gz'
     output:
         outfile = config['download_directory'] + '/PUBCHEM/labels'
-    shell:
-        "cat x"
+    run:
+        pubchem.make_labels(input.infile,output.outfile)
+
 
 rule pubchem_synonyms:
     input:
