@@ -17,6 +17,7 @@ import src.datahandlers.smpdb as smpdb
 import src.datahandlers.pantherpathways as pantherpathways
 import src.datahandlers.unichem as unichem
 import src.datahandlers.chembl as chembl
+import src.datahandlers.gtopdb as gtopdb
 
 #####
 #
@@ -309,9 +310,22 @@ rule chembl_labels:
     run:
         chembl.pull_chembl_labels(input.infile,output.outfile)
 
-### DrugBank
+### DrugBank requires a login... not sure how to handle
 
-rule get_chebi:
+### GTOPDB We're only pulling ligands.  Maybe one day we'll want the whole db?
+
+rule get_gtopdb:
     output:
-        outfile=config['download_directory']+'/CHEBI/'
+        outfile=config['download_directory']+'/GTOPDB/ligands.tsv'
+    run:
+        gtopdb.pull_gtopdb_ligands()
+
+rule gtopdb_labels_and_synonyms:
+    input:
+        infile=config['download_directory']+'/GTOPDB/ligands.tsv'
+    output:
+        labelfile=config['download_directory']+'/GTOPDB/labels',
+        synfile  =config['download_directory']+'/GTOPDB/synonyms'
+    run:
+        gtopdb.make_labels_and_synonyms(input.infile,output.labelfile,output.synfile)
 

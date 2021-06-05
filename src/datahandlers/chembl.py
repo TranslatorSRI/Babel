@@ -48,22 +48,24 @@ class ChemblRDF:
         print('loading complete')
         print(f'took {end-start}')
     def pull_labels(self,ofname):
-        s="""   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                PREFIX meshv: <http://id.nlm.nih.gov/mesh/vocab#>
-                PREFIX mesh: <http://id.nlm.nih.gov/mesh/>
-
-                SELECT DISTINCT ?term ?label
-                WHERE { ?term rdfs:label ?label }
-                ORDER BY ?term
+        s="""PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+             PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+             SELECT ?molecule ?label
+             WHERE {
+                ?molecule a ?type .
+                ?type rdfs:subClassOf* cco:Substance .
+                ?molecule rdfs:label ?label .
+            }
         """
         qres = self.m.query(s)
         with open(ofname, 'w', encoding='utf8') as outf:
             for row in list(qres):
-                iterm = str(row['term'])
+                iterm = str(row['molecule'])
                 ilabel = str(row['label'])
-                meshid = iterm[:-1].split('/')[-1]
-                label = ilabel.strip().split('"')[1]
-                outf.write(f'MESH:{meshid}\t{label}\n')
+                #chemblid = iterm[:-1].split('/')[-1]
+                #label = ilabel.strip().split('"')[1]
+                outf.write(f'{CHEMBLCOMPOUND}:{iterm}\t{ilabel}\n')
 
 def pull_chembl_labels(infile,outfile):
     m = ChemblRDF(infile)
