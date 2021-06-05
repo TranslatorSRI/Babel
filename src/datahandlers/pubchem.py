@@ -11,10 +11,10 @@ def pull_pubchem():
 def make_labels(infile,outfile):
     with gzip.open(infile, 'r') as inf, open(outfile,'w') as outf:
         for l in inf:
-            line = str(l)
+            line = l.decode('utf-8')
             x = line.strip().split('\t')
-            print(line)
-            print(x)
+            #print(line)
+            #print(x)
             outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\t{x[1]}')
 
 def get_pubchem_labels_and_synonyms(infile,labelfile,synfile):
