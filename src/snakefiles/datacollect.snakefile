@@ -372,7 +372,7 @@ rule get_HMDB:
 
 rule hmdb_labels_and_synonyms:
     input:
-        infile=config['download_directory']+'/HMDB/hmdb_metabolites.txt'
+        infile=config['download_directory']+'/HMDB/hmdb_metabolites.xml'
     output:
         labelfile=config['download_directory']+'/HMDB/labels',
         synfile  =config['download_directory']+'/HMDB/synonyms'
