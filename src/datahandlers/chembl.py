@@ -37,7 +37,8 @@ def get_latest_chembl_name() -> str:
 
 
 class ChemblRDF:
-    """Load the mesh rdf file for querying"""
+    """Load the rdf file for querying"""
+    # Note that we need both the molecule file, and the cco file.  The latter contains the class hierarchy
     def __init__(self,ifname,ccofile):
         from datetime import datetime as dt
         print('loading chembl')
@@ -66,9 +67,9 @@ class ChemblRDF:
             for row in list(qres):
                 iterm = str(row['molecule'])
                 ilabel = str(row['label'])
-                #chemblid = iterm[:-1].split('/')[-1]
-                #label = ilabel.strip().split('"')[1]
-                outf.write(f'{CHEMBLCOMPOUND}:{iterm}\t{ilabel}\n')
+                chemblid = iterm[:-1].split('/')[-1]
+                label = ilabel[1:-1]
+                outf.write(f'{CHEMBLCOMPOUND}:{chemblid}\t{label}\n')
 
 def pull_chembl_labels(infile,ccofile,outfile):
     m = ChemblRDF(infile,ccofile)

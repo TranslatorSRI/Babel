@@ -20,6 +20,9 @@ import src.datahandlers.chembl as chembl
 import src.datahandlers.gtopdb as gtopdb
 import src.datahandlers.kegg as kegg
 import src.datahandlers.unii as unii
+import src.datahandlers.hmdb as hmdb
+import src.datahandlers.pubchem as pubchem
+import src.datahandlers.drugcentral as drugcentral
 
 #####
 #
@@ -359,3 +362,53 @@ rule unii_labels_and_synonyms:
     run:
         unii.make_labels_and_synonyms(input.infile,output.labelfile,output.synfile)
 
+# HMDB
+
+rule get_HMDB:
+    output:
+        outfile=config['download_directory']+'/HMDB/hmdb_metabolites.xml'
+    run:
+        hmdb.pull_hmdb()
+
+rule hmdb_labels_and_synonyms:
+    input:
+        infile=config['download_directory']+'/HMDB/hmdb_metabolites.txt'
+    output:
+        labelfile=config['download_directory']+'/HMDB/labels',
+        synfile  =config['download_directory']+'/HMDB/synonyms'
+    run:
+        hmdb.make_labels_and_synonyms(input.infile,output.labelfile,output.synfile)
+
+# PUBCHEM:
+
+rule get_pubchem:
+    output:
+        config['download_directory'] +'/PUBCHEM/CID-MeSH',
+        config['download_directory'] +'/PUBCHEM/CID-Synonym-filtered.gz',
+        config['download_directory'] + '/PUBCHEM/CID-Title.gz'
+    run:
+        pubchem.pull_pubchem()
+
+rule pubchem_labels:
+    input:
+        infile = config['download_directory'] + '/PUBCHEM/CID-Title.gz'
+    output:
+        outfile = config['download_directory'] + '/PUBCHEM/labels'
+    shell:
+        "cat x"
+
+rule pubchem_synonyms:
+    input:
+        infile = config['download_directory'] + '/PUBCHEM/CID-Synonym-filtered.gz',
+    output:
+        outfile  = config['download_directory'] + '/PUBCHEM/synonyms'
+    run:
+        pubchem.pubchem_synonyms()
+
+# DRUGCENTRAL
+
+rule get_drugcentral:
+    output:
+        config['download_directory'] + '/DRUGCENTRAL/structures.smiles.tsv'
+    run:
+        drugcentral.pull_drugcentral()
