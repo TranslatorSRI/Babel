@@ -2,8 +2,10 @@ from collections import defaultdict
 
 import src.datahandlers.obo as obo
 
-from src.prefixes import MESH, CHEBI, UNII
+from src.prefixes import MESH, CHEBI, UNII, DRUGBANK
 from src.categories import CHEMICAL_SUBSTANCE
+
+from src.datahandlers.unichem import data_sources as unichem_data_sources
 #from src.ubergraph import build_sets
 #from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
 #import src.datahandlers.umls as umls
@@ -31,6 +33,11 @@ def write_unii_ids(infile,outfile):
                     #This is a plant or an eye of newt or something
                     continue
             outf.write(f'{UNII}:{x[0]}\t{CHEMICAL_SUBSTANCE}\n')
+
+def write_drugbank_ids(infile,outfile):
+    """We don't have a good drugbank source, so we're going to dig through unichem and get out drugbank ids."""
+    #doublecheck so that we know we're getting the right value
+    assert unichem_data_sources[2] == DRUGBANK
 
 
 

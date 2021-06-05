@@ -396,7 +396,7 @@ rule pubchem_labels:
     output:
         outfile = config['download_directory'] + '/PUBCHEM/labels'
     run:
-        pubchem.make_labels(input.infile,output.outfile)
+        pubchem.make_labels_or_synonyms(input.infile,output.outfile)
 
 
 rule pubchem_synonyms:
@@ -405,7 +405,7 @@ rule pubchem_synonyms:
     output:
         outfile  = config['download_directory'] + '/PUBCHEM/synonyms'
     run:
-        pubchem.pubchem_synonyms()
+        pubchem.make_labels_or_synonyms(input.infile,output.outfile)
 
 # DRUGCENTRAL
 

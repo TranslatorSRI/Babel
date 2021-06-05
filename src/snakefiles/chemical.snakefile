@@ -1,6 +1,16 @@
 import src.createcompendia.chemicals as chemicals
 import src.assess_compendia as assessments
 
+rule chemical_pubchem_ids:
+    input:
+        infile=config['download_directory']+"/PUBCHEM/labels"
+    output:
+        outfile=config['download_directory']+"/chemicals/ids/PUBCHEM"
+    shell:
+        #This one is a simple enough transform to do with awk
+        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+
+
 rule chemical_chembl_ids:
     input:
         infile=config['download_directory']+"/CHEMBLCOMPOUND/labels"
@@ -45,12 +55,29 @@ rule chemical_hmdb_ids:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
 
+rule chemical_drugcentral_ids:
+    input:
+        infile=config['download_directory']+"/DRUGCENTRAL/labels"
+    output:
+        outfile=config['download_directory']+"/chemicals/ids/DRUGCENTRAL"
+    shell:
+        #This one is a simple enough transform to do with awk
+        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
 
 rule chemical_chebi_ids:
     output:
         outfile=config['download_directory']+"/chemicals/ids/CHEBI"
     run:
         chemicals.write_chebi_ids(output.outfile)
+
+rule chemical_drugbank_ids:
+    input:
+        infile=config['download_directory']+"/UniChem/UC_XREF.srcfiltered.txt"
+    output:
+        outfile=config['download_directory']+"/chemicals/ids/DRUGBANK"
+    run:
+        chemicals.write_drugbank_ids(input.infile,output.outfile)
+
 
 ######
 

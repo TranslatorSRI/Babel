@@ -10,23 +10,24 @@ def pull_hmdb():
     with ZipFile(dname, 'r') as zipObj:
         zipObj.extractall(ddir)
 
-class writer:
-    def __init__(self,lfile,sfile):
-        self.lfile = lfile
-        self.sfile = sfile
-    def handle_metabolite(self,_,metabolite):
-        print(metabolite.keys())
-        hmdbident=f'{HMDB}:{metabolite["accession"]}'
-        label = metabolite['name']
-        self.lfile.write(f'{hmdbident}\t{label}\n')
-        print(metabolite['synonyms'], len(metabolite['synonyms']))
-        for synel in metabolite['synonyms']:
-            sname = synel['synonym']
-            self.sfile.write(f'{hmdbident}\oio:exact\t{sname}\n')
+def handle_metabolite(metabolite,lfile,sfile):
+    print(metabolite.keys())
+    hmdbident=f'{HMDB}:{metabolite["accession"]}'
+    label = metabolite['name']
+    lfile.write(f'{hmdbident}\t{label}\n')
+    print(metabolite['synonyms'], len(metabolite['synonyms']))
+    syns = metabolite['synonyms']
+    if 'synonym' in syns:
+        print( syns['synonym'] )
+        for sname in syns['synonym']:
+            sfile.write(f'{hmdbident}\oio:exact\t{sname}\n')
+    print('end')
 
 def make_labels_and_synonyms(inputfile,labelfile,synfile):
     with open(inputfile,'r') as inf:
         xml = inf.read()
-    with open(labelfile,'w') as lf, open(synfile,'w') as sf:
-        w = writer(lf,sf)
-        xmltodict.parse(xml, item_depth=2, item_callback=w.handle_metabolite)
+    parsed = xmltodict.parse(xml)
+    metabolites = parsed['hmdb']['metabolite']
+    with open(labelfile,'w') as lfile, open(synfile,'w') as sfile:
+        for metabolite in metabolites:
+            handle_metabolite(metabolite,lfile,sfile)
