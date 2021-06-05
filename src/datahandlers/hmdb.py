@@ -15,6 +15,7 @@ class writer:
         self.lfile = lfile
         self.sfile = sfile
     def handle_metabolite(self,_,metabolite):
+        print(metabolite)
         hmdbident=f'{HMDB}:{metabolite["accession"]}'
         label = metabolite['name']
         self.lfile.write(f'{hmdbident}\t{label}\n')

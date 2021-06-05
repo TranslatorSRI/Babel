@@ -349,7 +349,8 @@ rule keggcompound_labels:
 
 rule get_unii:
     output:
-        outfile=config['download_directory']+'/UNII/Latest_UNII_Names.txt'
+        config['download_directory']+'/UNII/Latest_UNII_Names.txt',
+        config['download_directory']+'/UNII/Latest_UNII_Records.txt'
     run:
         unii.pull_unii()
 

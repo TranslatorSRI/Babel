@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import src.datahandlers.obo as obo
 
-from src.prefixes import MESH, CHEBI
+from src.prefixes import MESH, CHEBI, UNII
 from src.categories import CHEMICAL_SUBSTANCE
 #from src.ubergraph import build_sets
 #from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
@@ -16,6 +16,23 @@ def write_obo_ids(irisandtypes,outfile,exclude=[]):
 def write_chebi_ids(outfile):
     chemical_entity_id = f'{CHEBI}:24431'
     write_obo_ids([(chemical_entity_id, CHEMICAL_SUBSTANCE)], outfile)
+
+def write_unii_ids(infile,outfile):
+    """UNII contains a bunch of junk like leaves.   We are going to try to clean it a bit to get things
+    that are actually chemicals.  In biolink 2.0 we cn revisit exactly what happens here."""
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        h = inf.readline().strip().split('\t')
+        bad_cols = ['NCBI','PLANTS','GRIN','MPNS']
+        bad_colnos = [ h.index(bc) for bc in bad_cols ]
+        for line in inf:
+            x = line.strip().split('\t')
+            for bcn in bad_colnos:
+                if len(x[bcn]) > 0:
+                    #This is a plant or an eye of newt or something
+                    continue
+            outf.write(f'{UNII}:{x[0]}\t{CHEMICAL_SUBSTANCE}\n')
+
+
 
 ###TRASH VVVVVVVV TRASH###
 

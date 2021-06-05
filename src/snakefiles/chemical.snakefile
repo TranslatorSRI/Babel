@@ -30,12 +30,11 @@ rule chemical_kegg_ids:
 
 rule chemical_unii_ids:
     input:
-        infile=config['download_directory']+"/UNII/labels"
+        infile=config['download_directory']+"/UNII/Latest_UNII_Records.txt"
     output:
         outfile=config['download_directory']+"/chemicals/ids/UNII"
-    shell:
-        #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+    run:
+        chemicals.write_unii_ids(input.infile,output.outfile)
 
 rule chemical_hmdb_ids:
     input:
