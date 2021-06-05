@@ -11,16 +11,13 @@ def pull_hmdb():
         zipObj.extractall(ddir)
 
 def handle_metabolite(metabolite,lfile,sfile):
-    print(metabolite.keys())
     hmdbident=f'{HMDB}:{metabolite["accession"]}'
     label = metabolite['name']
     lfile.write(f'{hmdbident}\t{label}\n')
-    print(metabolite['synonyms'], len(metabolite['synonyms']))
     syns = metabolite['synonyms']
-    if 'synonym' in syns:
-        print( syns['synonym'] )
+    if (syns is not None) and ('synonym' in syns):
         for sname in syns['synonym']:
-            sfile.write(f'{hmdbident}\oio:exact\t{sname}\n')
+            sfile.write(f'{hmdbident}\toio:exact\t{sname}\n')
     print('end')
 
 def make_labels_and_synonyms(inputfile,labelfile,synfile):
