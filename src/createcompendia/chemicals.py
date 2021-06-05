@@ -45,7 +45,7 @@ def write_drugbank_ids(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
             x = line.split('\t')
-            if x[1] == drugbank_id:
+            if x[1] == str(drugbank_id):
                 if x[1] in written:
                     continue
                 dbid = f'{DRUGBANK}:{x[2]}'
