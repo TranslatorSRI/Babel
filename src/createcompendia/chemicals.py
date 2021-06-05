@@ -14,7 +14,7 @@ def write_obo_ids(irisandtypes,outfile,exclude=[]):
     obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])
 
 def write_chebi_ids(outfile):
-    chemical_entity_id = f'{CHEBI}:244312'
+    chemical_entity_id = f'{CHEBI}:24431'
     write_obo_ids([(chemical_entity_id, CHEMICAL_SUBSTANCE)], outfile)
 
 ###TRASH VVVVVVVV TRASH###
