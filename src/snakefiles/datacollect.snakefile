@@ -15,6 +15,8 @@ import src.datahandlers.rhea as rhea
 import src.datahandlers.ec as ec
 import src.datahandlers.smpdb as smpdb
 import src.datahandlers.pantherpathways as pantherpathways
+import src.datahandlers.unichem as unichem
+import src.datahandlers.chembl as chembl
 
 #####
 #
@@ -273,3 +275,43 @@ rule get_panther_pathway_labels:
         labelfile=config['download_directory'] + '/PANTHER.PATHWAY/labels'
     run:
         pantherpathways.make_pathway_labels(input.infile,output.labelfile)
+
+### Unichem
+
+rule get_unichem:
+    output:
+        config['download_directory'] + '/UNICHEM/UC_XREF.txt.gz',
+        config['download_directory'] + '/UNICHEM/UC_STRUCTURE.txt',
+    run:
+        unichem.pull_unichem()
+
+rule filter_unichem:
+    input:
+        infile= config ['download_directory'] + '/UNICHEM/UC_XREF.txt.gz'
+    output:
+        outfile=config['download_directory']+'/UNICHEM/UC_XREF.srcfiltered.txt'
+    run:
+        unichem.filter_xrefs_by_srcid(input.infile,output.outfile)
+
+### CHEMBL
+
+rule get_chembl:
+    output:
+        outfile=config['download_directory']+'/CHEMBL/chembl_latest_molecule.ttl'
+    run:
+        chembl.pull_chembl(output.outfile)
+
+rule chembl_labels:
+    input:
+        infile=config['download_directory']+'/CHEMBL/chembl_latest_molecule.ttl'
+    output:
+        outfile=config['download_directory']+'CHEMBL/labels'
+    run:
+        chembl.pull_chembl_labels(input.infile,output.outfile)
+
+### DrugBank
+
+rule get_chebi:
+    output:
+        outfile=config['download_directory']+'/CHEBI/'
+

@@ -51,6 +51,7 @@ class StateDB():
         curr.execute(f"INSERT INTO cache VALUES (?,?)",(key,value))
         self.connection.commit()
 
+#The signature here should be modified to be like pull via urlllib
 def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=None):
     """Retrieve data via ftp.
     Setting decompress=True will ungzip the data
