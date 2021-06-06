@@ -60,7 +60,7 @@ def write_unichem_concords(structfile,reffile,outdir):
     with open(reffile,'r') as inf:
         # The columns are: [0'uci_old', 1'src_id', 2'src_compound_id', 3'assignment', 4'last_release_u_when_current', 5 'created ',
         # 6'lastupdated', 7'userstamp', 8'aux_src', 9'uci'])
-        for line in reffile:
+        for line in inf:
             x = line[:-1].split('\t')
             if len(x) < 10:
                 print(line)
