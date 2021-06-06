@@ -9,5 +9,5 @@ def make_labels(infile,outfile):
         h = inf.readline()
         for line in inf:
             x = line.strip().split('\t')
-            outf.write(f'{DRUGCENTRAL}:{x[3]}\t{x[4]}')
+            outf.write(f'{DRUGCENTRAL}:{x[3]}\t{x[4]}\n')
 
