@@ -93,7 +93,7 @@ rule get_chemical_unichem_relationships:
 rule chemical_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['chemical_labels']),
-        synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['chemcal_synonyms']),
+        synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['chemical_synonyms']),
         concords = expand('{dd}/chemicals/concords/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] ),
         idlists=expand("{dd}/chemical/ids/{ap}",dd=config['download_directory'],ap=config['chemical_ids']),
     output:
