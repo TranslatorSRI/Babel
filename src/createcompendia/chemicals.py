@@ -72,7 +72,7 @@ def read_inchikeys(struct_file):
     inchikeys = {}
     with open(struct_file,'r') as inf:
         for sline in inf:
-            line = sline.strip().split('\t')
+            line = sline[:-1].split('\t')
             if len(line) == 0:
                 continue
             if len(line) < 7:
