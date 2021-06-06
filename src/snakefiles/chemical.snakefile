@@ -86,8 +86,7 @@ rule get_chemical_unichem_relationships:
         structfile = config['download_directory'] + '/UNICHEM/UC_STRUCTURE.txt',
         reffile = config['download_directory'] + '/UNICHEM/UC_XREF.srcfiltered.txt'
     output:
-        outfiles = expand('$dd/chemicals/concords/UNICHEM_$ucc',dd=[config['download_directory']],
-            ucc=config['unichem_datasources'] )
+        outfiles = expand('{dd}/chemicals/concords/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] )
     run:
         chemicals.write_unichem_concords(input.structfile,input.reffile,config['download_directory']+'/chemicals/concords')
 

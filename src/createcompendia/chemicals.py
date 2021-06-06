@@ -73,6 +73,8 @@ def read_inchikeys(struct_file):
     with open(struct_file,'r') as inf:
         for sline in inf:
             line = sline.strip().split('\t')
+            if len(line) == 0:
+                continue
             uci = int(line[6])
             inchikeys[uci] = f'{INCHIKEY}:{line[2]}'
     return inchikeys
