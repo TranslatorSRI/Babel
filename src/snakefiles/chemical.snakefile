@@ -81,13 +81,15 @@ rule chemical_drugbank_ids:
 
 ######
 
-rule get_protein_uniprotkb_ensembl_relationships:
+rule get_chemical_unichem_relationships:
     input:
-        infile = config['download_directory'] + '/UniProtKB/idmapping.dat'
+        structfile = config['download_directory'] + '/UNICHEM/UC_STRUCTURE.txt',
+        reffile = config['download_directory'] + '/UNICHEM/UC_XREF.srcfiltered.txt'
     output:
-        outfile = config['download_directory'] + '/protein/concords/UniProtKB'
+        outfiles = expand('$dd/chemicals/concords/UNICHEM_$ucc',dd=[config['download_directory']],
+            ucc=config['unichem_datasources'] )
     run:
-        protein.build_protein_uniprotkb_ensemble_relationships(input.infile,output.outfile)
+        chemicals.write_unichem_concords(input.structfile,input.reffile,config['download_directory']+'/chemicals/concords')
 
 rule chemical_compendia:
     input:
