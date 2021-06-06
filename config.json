@@ -4,7 +4,7 @@
   "output_directory": "babel_outputs",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
-  "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "EFO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","NCBITaxon","OGMS","PATO","PR","RO","UBPROP"],
+  "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "EFO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","OGMS","PATO","PR","RO","UBPROP"],
   "mods": ["WormBase","FB","MGI","ZFIN","RGD","SGD"],
 
   "anatomy_prefixes": ["UBERON","GO","CL","UMLS","MESH","NCIT","SNOMEDCT"],
@@ -38,6 +38,7 @@
   "unichem_datasources": ["CHEMBL.COMPOUND","DRUGBANK","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral"],
   "chemical_labels": ["CHEMBLCOMPOUND","GTOPDB","KEGGCOMPOUND","CHEBI","UNII","HMDB","PUBCHEM","DRUGCENTRAL"],
   "chemical_synonyms": ["GTOPDB","CHEBI","UNII","HMDB","PUBCHEM"],
+  "chemical_concords": ["wikipedia_mesh_chebi"],
   "chemical_ids": ["CHEMBLCOMPOUND","GTOPDB","KEGGCOMPOUND","CHEBI","UNII","HMDB","PUBCHEM","DRUGCENTRAL","DRUGBANK"],
   "chemical_outputs": ["ChemicalSubstance.txt"]
 }
