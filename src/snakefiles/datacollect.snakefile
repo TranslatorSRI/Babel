@@ -422,4 +422,4 @@ rule drugcentral_labels:
         outfile=config['download_directory']+'/DRUGCENTRAL/labels'
     shell:
         #This one is a simple enough transform to do with awk
-        "awk '{{print $3\t$4}}' {input.infile} > {output.outfile}"
+        "awk '{{print DRUGCENTRAL:$4\t$5}}' {input.infile} > {output.outfile}"
