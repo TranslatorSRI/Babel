@@ -421,5 +421,4 @@ rule drugcentral_labels:
     output:
         outfile=config['download_directory']+'/DRUGCENTRAL/labels'
     shell:
-        #This one is a simple enough transform to do with awk
-        "awk '{{print \"DRUGCENTRAL:\"$4\t$5}}' {input.infile} > {output.outfile}"
+        drugcentral.make_labels(input.infile,output.outfile)
