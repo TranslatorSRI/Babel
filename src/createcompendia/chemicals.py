@@ -62,11 +62,9 @@ def write_unichem_concords(structfile,reffile,outdir):
         # 6'lastupdated', 7'userstamp', 8'aux_src', 9'uci'])
         for line in reffile:
             x = line[:-1].split('\t')
-            if len(line) == 0:
-                continue
-            if len(x) < 2:
-                print(x)
+            if len(x) < 10:
                 print(line)
+                continue
             outf = concfiles[x[1]]
             outf.write(f'{unichem_data_sources[x[1]]}:{x[2]}\t{inchikeys[x[9]]}\n')
     for outf in concfiles.values():
