@@ -56,7 +56,9 @@ def write_unichem_concords(structfile,reffile,outdir):
     inchikeys = read_inchikeys(structfile)
     concfiles = {}
     for num,name in unichem_data_sources.items():
-        concfiles[str(num)] = open(f'{outdir}/UNICHEM_{name}','w')
+        concname = f'{outdir}/UNICHEM_{name}'
+        print(concname)
+        concfiles[num] = open(concname,'w')
     with open(reffile,'r') as inf:
         # The columns are: [0'uci_old', 1'src_id', 2'src_compound_id', 3'assignment', 4'last_release_u_when_current', 5 'created ',
         # 6'lastupdated', 7'userstamp', 8'aux_src', 9'uci'])
