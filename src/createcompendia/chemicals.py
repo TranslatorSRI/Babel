@@ -6,9 +6,8 @@ from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY
 from src.categories import CHEMICAL_SUBSTANCE
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
-#from src.ubergraph import build_sets
-#from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
-#import src.datahandlers.umls as umls
+from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
+
 #import src.datahandlers.mesh as mesh
 
 def write_obo_ids(irisandtypes,outfile,exclude=[]):
@@ -68,7 +67,7 @@ def write_unichem_concords(structfile,reffile,outdir):
                 print(line)
                 continue
             outf = concfiles[x[1]]
-            outf.write(f'{unichem_data_sources[x[1]]}:{x[2]}\t{inchikeys[x[9]]}\n')
+            outf.write(f'{unichem_data_sources[x[1]]}:{x[2]}\toio:equivalent\t{inchikeys[x[9]]}\n')
     for outf in concfiles.values():
         outf.close()
 
@@ -85,6 +84,31 @@ def read_inchikeys(struct_file):
             uci = line[6]
             inchikeys[uci] = f'{INCHIKEY}:{line[2]}'
     return inchikeys
+
+def build_compendia(concordances, identifiers):
+    """:concordances: a list of files from which to read relationships
+       :identifiers: a list of files from which to read identifiers and optional categories"""
+    dicts = {}
+    types = {}
+    for ifile in identifiers:
+        print(ifile)
+        new_identifiers,new_types = read_identifier_file(ifile)
+        glom(dicts, new_identifiers, unique_prefixes=[INCHIKEY])
+        types.update(new_types)
+    for infile in concordances:
+        print(infile)
+        print('loading',infile)
+        pairs = []
+        with open(infile,'r') as inf:
+            for line in inf:
+                x = line.strip().split('\t')
+                pairs.append( set([x[0], x[2]]))
+        newpairs = remove_overused_xrefs(pairs)
+        glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
+    chem_sets = set([frozenset(x) for x in dicts.values()])
+    baretype = CHEMICAL_SUBSTANCE.split(':')[-1]
+    write_compendium(chem_sets, f'{baretype}.txt', CHEMICAL_SUBSTANCE, {})
+
 
 
 ###TRASH VVVVVVVV TRASH###
@@ -176,30 +200,6 @@ def build_anatomy_obo_relationships(outdir):
 def build_anatomy_umls_relationships(idfile,outfile):
     umls.build_sets(idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT})
 
-def build_compendia(concordances, identifiers):
-    """:concordances: a list of files from which to read relationships
-       :identifiers: a list of files from which to read identifiers and optional categories"""
-    dicts = {}
-    types = {}
-    for ifile in identifiers:
-        print(ifile)
-        new_identifiers,new_types = read_identifier_file(ifile)
-        glom(dicts, new_identifiers, unique_prefixes=[UBERON, GO])
-        types.update(new_types)
-    for infile in concordances:
-        print(infile)
-        print('loading',infile)
-        pairs = []
-        with open(infile,'r') as inf:
-            for line in inf:
-                x = line.strip().split('\t')
-                pairs.append( set([x[0], x[2]]))
-        newpairs = remove_overused_xrefs(pairs)
-        glom(dicts, newpairs, unique_prefixes=[UBERON, GO])
-    typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]),types)
-    for biotype,sets in typed_sets.items():
-        baretype = biotype.split(':')[-1]
-        write_compendium(sets,f'{baretype}.txt',biotype,{})
 
 def create_typed_sets(eqsets,types):
     """Given a set of sets of equivalent identifiers, we want to type each one into

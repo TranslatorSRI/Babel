@@ -92,15 +92,15 @@ rule get_chemical_unichem_relationships:
 
 rule chemical_compendia:
     input:
-        labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['protein_labels']),
-        synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['protein_synonyms']),
-        concords=expand("{dd}/protein/concords/{ap}",dd=config['download_directory'],ap=config['protein_concords']),
-        idlists=expand("{dd}/protein/ids/{ap}",dd=config['download_directory'],ap=config['protein_ids']),
+        labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['chemical_labels']),
+        synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['chemcal_synonyms']),
+        concords = expand('{dd}/chemicals/concords/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] ),
+        idlists=expand("{dd}/chemical/ids/{ap}",dd=config['download_directory'],ap=config['chemical_ids']),
     output:
-        expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs'])
+        expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
+        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs'])
     run:
-        protein.build_protein_compendia(input.concords,input.idlists)
+        chemicals.build_compendia(input.concords,input.idlists)
 
 rule check_chemical_completeness:
     input:
