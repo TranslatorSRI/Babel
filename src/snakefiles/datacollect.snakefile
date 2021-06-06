@@ -420,5 +420,5 @@ rule drugcentral_labels:
         infile=config['download_directory']+'/DRUGCENTRAL/structures.smiles.tsv'
     output:
         outfile=config['download_directory']+'/DRUGCENTRAL/labels'
-    shell:
+    run:
         drugcentral.make_labels(input.infile,output.outfile)
