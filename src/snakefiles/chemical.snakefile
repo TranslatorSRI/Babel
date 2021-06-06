@@ -95,7 +95,7 @@ rule chemical_compendia:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['chemical_labels']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['chemical_synonyms']),
         concords = expand('{dd}/chemicals/concords/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] ),
-        idlists=expand("{dd}/chemical/ids/{ap}",dd=config['download_directory'],ap=config['chemical_ids']),
+        idlists=expand("{dd}/chemicals/ids/{ap}",dd=config['download_directory'],ap=config['chemical_ids']),
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs'])

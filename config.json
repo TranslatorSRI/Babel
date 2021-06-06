@@ -36,8 +36,8 @@
   "process_outputs": ["Pathway.txt", "BiologicalProcess.txt", "MolecularActivity.txt"],
 
   "unichem_datasources": ["CHEMBL.COMPOUND","DRUGBANK","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral"],
-  "chemical_labels": ["CHEMBLCOMPOUND","GTOPDB","KEGGCOMPOUND","CHEBI","UNII","HMDB","PUBCHEMCOMPOUND","DRUGCENTRAL"],
-  "chemical_synonyms": ["GTOPDB","CHEBI","UNII","HMDB","PUBCHEMCOMPOUND"],
-  "chemical_ids": ["CHEMBLCOMPOUND","GTOPDB","KEGGCOMPOUND","CHEBI","UNII","HMDB","PUBCHEMCOMPOUND","DRUGCENTRAL","DRUGBANK"],
+  "chemical_labels": ["CHEMBLCOMPOUND","GTOPDB","KEGGCOMPOUND","CHEBI","UNII","HMDB","PUBCHEM","DRUGCENTRAL"],
+  "chemical_synonyms": ["GTOPDB","CHEBI","UNII","HMDB","PUBCHEM"],
+  "chemical_ids": ["CHEMBLCOMPOUND","GTOPDB","KEGGCOMPOUND","CHEBI","UNII","HMDB","PUBCHEM","DRUGCENTRAL","DRUGBANK"],
   "chemical_outputs": ["ChemicalSubstance.txt"]
 }
