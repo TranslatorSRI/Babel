@@ -1,4 +1,5 @@
 from collections import defaultdict
+import jsonlines
 
 import src.datahandlers.obo as obo
 
@@ -84,6 +85,24 @@ def read_inchikeys(struct_file):
             uci = line[6]
             inchikeys[uci] = f'{INCHIKEY}:{line[2]}'
     return inchikeys
+
+def combine_unichem(concordances,output):
+    dicts = {}
+    for infile in concordances:
+        print(infile)
+        print('loading',infile)
+        pairs = []
+        with open(infile,'r') as inf:
+            for line in inf:
+                x = line.strip().split('\t')
+                pairs.append( set([x[0], x[2]]))
+        newpairs = remove_overused_xrefs(pairs)
+        glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
+    chem_sets = set([frozenset(x) for x in dicts.values()])
+    with jsonlines.open(output, mode='w') as writer:
+        for chemset in chem_sets:
+            writer.write(list(chem_sets))
+
 
 def build_compendia(concordances, identifiers):
     """:concordances: a list of files from which to read relationships

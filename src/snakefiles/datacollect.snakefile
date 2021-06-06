@@ -23,6 +23,7 @@ import src.datahandlers.unii as unii
 import src.datahandlers.hmdb as hmdb
 import src.datahandlers.pubchem as pubchem
 import src.datahandlers.drugcentral as drugcentral
+import src.datahandlers.ncbitaxon as ncbitaxon
 
 #####
 #
@@ -422,3 +423,19 @@ rule drugcentral_labels:
         outfile=config['download_directory']+'/DRUGCENTRAL/labels'
     run:
         drugcentral.make_labels(input.infile,output.outfile)
+
+# NCBITaxon
+
+rule get_ncbitaxon:
+    output:
+        config['download_directory'] + '/NCBITAXONx/taxdump.tar'
+    run:
+        ncbitaxon.pull_ncbitaxon()
+
+rule ncbitaxon_labels:
+    input:
+        infile = config['download_directory'] + '/NCBITAXONx/taxdump.tar'
+    output:
+        outfile = config['download_directory'] + '/NCBITAXONx/labels'
+    run:
+        ncbitaxon.make_labels(input.infile,output.outfile)

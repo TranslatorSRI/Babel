@@ -86,9 +86,17 @@ rule get_chemical_unichem_relationships:
         structfile = config['download_directory'] + '/UNICHEM/UC_STRUCTURE.txt',
         reffile = config['download_directory'] + '/UNICHEM/UC_XREF.srcfiltered.txt'
     output:
-        outfiles = expand('{dd}/chemicals/concords/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] )
+        outfiles = expand('{dd}/chemicals/concords/UNICHEM/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] )
     run:
         chemicals.write_unichem_concords(input.structfile,input.reffile,config['download_directory']+'/chemicals/concords')
+
+rule chemical_unichem_concordia:
+    input:
+        concords = expand('{dd}/chemicals/concords/UNICHEM/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] ),
+    output:
+        unichemgroup = config['download_directory']+'/chemicals/partials/UNICHEM'
+    run:
+        chemicals.combine_unichem(input.concords,output)
 
 rule chemical_compendia:
     input:
@@ -104,25 +112,25 @@ rule chemical_compendia:
 
 rule check_chemical_completeness:
     input:
-        input_compendia = expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs'])
+        input_compendia = expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['chemical_outputs'])
     output:
-        report_file = config['output_directory']+'/reports/protein_completeness.txt'
+        report_file = config['output_directory']+'/reports/chemical_completeness.txt'
     run:
-        assessments.assess_completeness(config['download_directory']+'/protein/ids',input.input_compendia,output.report_file)
+        assessments.assess_completeness(config['download_directory']+'/chemical/ids',input.input_compendia,output.report_file)
 
 rule check_chemical:
     input:
-        infile=config['output_directory']+'/compendia/Protein.txt'
+        infile=config['output_directory']+'/compendia/ChemicalSubstance.txt'
     output:
-        outfile=config['output_directory']+'/reports/Protein.txt'
+        outfile=config['output_directory']+'/reports/ChemicalSubstance.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 
 rule chemical:
     input:
-        config['output_directory']+'/reports/protein_completeness.txt',
-        reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['protein_outputs'])
+        config['output_directory']+'/reports/chemical_completeness.txt',
+        reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['chemical_outputs'])
     output:
-        x=config['output_directory']+'/reports/protein_done'
+        x=config['output_directory']+'/reports/chemicals_done'
     shell:
         "echo 'done' >> {output.x}"
