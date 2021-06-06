@@ -428,14 +428,14 @@ rule drugcentral_labels:
 
 rule get_ncbitaxon:
     output:
-        config['download_directory'] + '/NCBITAXONx/taxdump.tar'
+        config['download_directory'] + '/NCBITAXON/taxdump.tar'
     run:
         ncbitaxon.pull_ncbitaxon()
 
 rule ncbitaxon_labels:
     input:
-        infile = config['download_directory'] + '/NCBITAXONx/taxdump.tar'
+        infile = config['download_directory'] + '/NCBITAXON/taxdump.tar'
     output:
-        outfile = config['download_directory'] + '/NCBITAXONx/labels'
+        outfile = config['download_directory'] + '/NCBITAXON/labels'
     run:
         ncbitaxon.make_labels(input.infile,output.outfile)

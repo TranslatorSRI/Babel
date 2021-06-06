@@ -1,5 +1,6 @@
 from collections import defaultdict
 import jsonlines
+import requests
 
 import src.datahandlers.obo as obo
 
@@ -103,11 +104,36 @@ def combine_unichem(concordances,output):
         for chemset in chem_sets:
             writer.write(list(chem_sets))
 
+def read_partial_unichem(unichem_partial):
+    chem_sets = {}
+    with jsonlines.open(unichem_partial) as reader:
+        for chemlist in reader:
+            chemset = set(chemlist)
+            for element in chemset:
+                chem_sets[element] = chemset
+    return chem_sets
 
-def build_compendia(concordances, identifiers):
+def get_wikipedia_relationships(outfile):
+    url = 'https://query.wikidata.org/sparql?format=json&query=SELECT ?chebi ?mesh WHERE { ?compound wdt:P683 ?chebi . ?compound wdt:P486 ?mesh. }'
+    results = requests.get(url).json()
+    pairs = [(f'{MESH}:{r["mesh"]["value"]}', f'{CHEBI}:{r["chebi"]["value"]}')
+             for r in results['results']['bindings']
+             if not r['mesh']['value'].startswith('M')]
+    #Wikidata is great, except when it sucks.   One thing it likes to do is to
+    # have multiple CHEBIs for a concept, say ignoring stereochemistry or
+    # the like.  No good.   It's easy enough to filter these out, but then
+    # we wouldn't have the mesh associated with anything. A spot check makes it seem like
+    # cases of this type usually also have a UNII.  So we can perhaps remove ugly pairs without
+    # a problem. We leave them in at this point, and they will get filtered out on reading
+    with open(outfile,'w') as outf:
+        m2c = defaultdict(list)
+        for m,c in pairs:
+            outf.write(f'{m}\txref\t{c}\n')
+
+def build_compendia(concordances, identifiers,unichem_partial):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
-    dicts = {}
+    dicts = read_partial_unichem(unichem_partial)
     types = {}
     for ifile in identifiers:
         print(ifile)

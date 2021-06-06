@@ -3,7 +3,7 @@ import gzip
 import tarfile
 
 def pull_ncbitaxon():
-    pull_via_ftp('ftp.ncbi.nih.gov','/pub/taxonomy','taxdump.tar.gz',decompress_data=True,outfilename=f'NCBITAXONx/taxdump.tar')
+    pull_via_ftp('ftp.ncbi.nih.gov','/pub/taxonomy','taxdump.tar.gz',decompress_data=True,outfilename=f'NCBITAXON/taxdump.tar')
 
 def make_labels(infile,labelfile):
     taxtar = tarfile.open(infile,'r')

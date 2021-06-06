@@ -81,6 +81,13 @@ rule chemical_drugbank_ids:
 
 ######
 
+rule get_chemical_wikipedia_relationships:
+    output:
+        outfile = config['download_directory'] + '/chemicals/concords/wikipedia_mesh_chebi'
+    run:
+        chemicals.get_wikipedia_relationships(output.outfile)
+
+
 rule get_chemical_unichem_relationships:
     input:
         structfile = config['download_directory'] + '/UNICHEM/UC_STRUCTURE.txt',
@@ -96,19 +103,20 @@ rule chemical_unichem_concordia:
     output:
         unichemgroup = config['download_directory']+'/chemicals/partials/UNICHEM'
     run:
-        chemicals.combine_unichem(input.concords,output)
+        chemicals.combine_unichem(input.concords,output.unichemgroup)
 
 rule chemical_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['chemical_labels']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['chemical_synonyms']),
-        concords = expand('{dd}/chemicals/concords/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] ),
+        unichemgroup = config['download_directory']+'/chemicals/partials/UNICHEM',
+        concords = expand('{dd}/chemicals/concords/{cc}',dd=config['download_directory'], cc=config['chemical_concords'] ),
         idlists=expand("{dd}/chemicals/ids/{ap}",dd=config['download_directory'],ap=config['chemical_ids']),
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs'])
     run:
-        chemicals.build_compendia(input.concords,input.idlists)
+        chemicals.build_compendia(input.concords,input.idlists,input.unichemgroup)
 
 rule check_chemical_completeness:
     input:
