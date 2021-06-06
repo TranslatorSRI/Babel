@@ -61,7 +61,7 @@ def write_unichem_concords(structfile,reffile,outdir):
         # The columns are: [0'uci_old', 1'src_id', 2'src_compound_id', 3'assignment', 4'last_release_u_when_current', 5 'created ',
         # 6'lastupdated', 7'userstamp', 8'aux_src', 9'uci'])
         for line in reffile:
-            x = line.strip.split('\t')
+            x = line[:-1].split('\t')
             outf = concfiles[x[1]]
             outf.write(f'{unichem_data_sources[x[1]]}:{x[2]}\t{inchikeys[x[9]]}\n')
     for outf in concfiles.values():
