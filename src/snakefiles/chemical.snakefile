@@ -1,6 +1,14 @@
 import src.createcompendia.chemicals as chemicals
 import src.assess_compendia as assessments
 
+rule chemical_mesh_ids:
+    input:
+        infile=config['download_directory']+'/MESH/mesh.nt'
+    output:
+        outfile=config['download_directory']+'/chemicals/ids/MESH'
+    run:
+        chemicals.write_mesh_ids(output.outfile)
+
 rule chemical_pubchem_ids:
     input:
         infile=config['download_directory']+"/PUBCHEM/labels"
@@ -87,6 +95,12 @@ rule get_chemical_wikipedia_relationships:
     run:
         chemicals.get_wikipedia_relationships(output.outfile)
 
+rule get_chemical_mesh_relationships:
+    output:
+        casout = config['download_directory'] + '/chemicals/concords/mesh_cas',
+        uniout = config['download_directory'] + '/chemicals/concords/mesh_unii'
+    run:
+        chemicals.get_mesh_relationships(output.casout,output.uniout)
 
 rule get_chemical_unichem_relationships:
     input:
@@ -96,6 +110,23 @@ rule get_chemical_unichem_relationships:
         outfiles = expand('{dd}/chemicals/concords/UNICHEM/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] )
     run:
         chemicals.write_unichem_concords(input.structfile,input.reffile,config['download_directory']+'/chemicals/concords')
+
+rule get_chemical_pubchem_mesh_concord:
+    input:
+        pubchemfile=config['download_directory'] + '/PUBCHEM/CID-MeSH',
+        meshlabels=config['download_directory'] + '/MESH/labels'
+    output:
+        outfile =  config['download_directory'] + '/chemicals/concord/PUBCHEM_MESH'
+    run:
+        chemicals.make_pubchem_mesh_concord(input.pubchemfile,input.meshlabels,output.outfile)
+
+rule get_chemical_pubchem_cas_concord:
+    input:
+        pubchemsynonyms=config['download_directory'] + '/PUBCHEM/synonyms'
+    output:
+        outfile = config['download_directory'] + '/chemicals/concord/PUBCHEM_CAS'
+    run:
+        chemicals.make_pubchem_cas_concord(input.pubchemsynonyms, output.outfile)
 
 rule chemical_unichem_concordia:
     input:

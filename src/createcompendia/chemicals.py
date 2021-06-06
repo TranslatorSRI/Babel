@@ -4,13 +4,42 @@ import requests
 
 import src.datahandlers.obo as obo
 
-from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY
+from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND
 from src.categories import CHEMICAL_SUBSTANCE
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
 from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
 
-#import src.datahandlers.mesh as mesh
+import src.datahandlers.mesh as mesh
+
+def write_mesh_ids(outfile):
+    #Get the D tree,
+    # D01	Inorganic Chemicals
+    # D02	Organic Chemicals
+    # D03	Heterocyclic Compounds
+    # D04	Polycyclic Compounds
+    # D05	Macromolecular Substances  NO
+    # D06	Hormones, Hormone Substitutes, and Hormone Antagonists
+    # D08	Enzymes and Coenzymes
+    # D09	Carbohydrates
+    # D10	Lipids
+    # D12	Amino Acids, Peptides, and Proteins
+    # D12.125 AA yes
+    # D12.644 Peptides yes
+    # D12.776 proteins  NO
+    # D13	Nucleic Acids, Nucleotides, and Nucleosides
+    # D20	Complex Mixtures
+    # D23	Biological Factors
+    # D25	Biomedical and Dental Materials
+    # D26	Pharmaceutical Preparations
+    # D27	Chemical Actions and Uses
+    meshmap = { f'D{str(i).zfill(2)}': CHEMICAL_SUBSTANCE for i in range(1, 28)}
+    meshmap['D05'] = 'EXCLUDE'
+    meshmap['D12.776'] = 'EXCLUDE'
+    meshmap['D12.125'] = CHEMICAL_SUBSTANCE
+    meshmap['D12.644'] = CHEMICAL_SUBSTANCE
+    #Also add anything from SCR_Chemical, if it doesn't have a tree map
+    mesh.write_ids(meshmap,outfile,order=['EXCLUDE',CHEMICAL_SUBSTANCE],extra_vocab={'SCR_Chemical':CHEMICAL_SUBSTANCE})
 
 def write_obo_ids(irisandtypes,outfile,exclude=[]):
     order = [CHEMICAL_SUBSTANCE]
@@ -102,7 +131,7 @@ def combine_unichem(concordances,output):
     chem_sets = set([frozenset(x) for x in dicts.values()])
     with jsonlines.open(output, mode='w') as writer:
         for chemset in chem_sets:
-            writer.write(list(chem_sets))
+            writer.write(list(chemset))
 
 def read_partial_unichem(unichem_partial):
     chem_sets = {}
@@ -112,6 +141,55 @@ def read_partial_unichem(unichem_partial):
             for element in chemset:
                 chem_sets[element] = chemset
     return chem_sets
+
+def is_cas(thing):
+    #The last digit in a CAS is a checksum. We could use, but are not atm.
+    x = thing.split('-')
+    if len(x) != 3:
+        return False
+    if len(x[-1]) != 1:
+        return False
+    for xi in x:
+        if not xi.isnumeric():
+            return False
+    return True
+
+def make_pubchem_cas_concord(pubchemsynonyms, outfile):
+    with open(pubchemsynonyms,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            x = line.strip().split('\t')
+            if is_cas(x[1]):
+                outf.write(f'{x[0]}\txref\tCAS:{x[1]}\n')
+
+def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile):
+    mesh_label_to_id={}
+    with open(meshlabels,'r') as inf:
+        for line in inf:
+            x = line.strip().split('\t')
+            mesh_label_to_id[x[1]] = x[0]
+    #The pubchem - mesh pairs are supposed to be ordered in this file such that the
+    # first mapping is the 'best' i.e. the one most frequently reported.
+    # We will only use the first one
+    used_pubchem = set()
+    with open(pubcheminput,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            x = line.strip().split('\t') # x[0] = puchemid (no prefix), x[1] = mesh label
+            if x[0] in used_pubchem:
+                continue
+            mesh_id = mesh_label_to_id[x[1]]
+            outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\txref\t{mesh_id}\n')
+            used_pubchem.add(x[0])
+
+
+def get_mesh_relationships(cas_out, unii_out):
+    #perhaps I should filter by the chemical mesh ids...
+    regis = mesh.pull_mesh_registry()
+    with open(cas_out,'w') as casout, open(unii_out,'w') as uniiout:
+        for meshid,reg in regis:
+            if is_cas(reg):
+                casout.write(f'{meshid}\t{reg}\n')
+            else:
+                uniiout.write(f'{meshid}\t{reg}\n')
 
 def get_wikipedia_relationships(outfile):
     url = 'https://query.wikidata.org/sparql?format=json&query=SELECT ?chebi ?mesh WHERE { ?compound wdt:P683 ?chebi . ?compound wdt:P486 ?mesh. }'
@@ -202,11 +280,6 @@ def write_go_ids(outfile):
     write_obo_ids([(component_id, CELLULAR_COMPONENT)], outfile)
 
 
-def write_mesh_ids(outfile):
-    meshmap = { f'A{str(i).zfill(2)}': ANATOMICAL_ENTITY for i in range(1, 21)}
-    meshmap['A11'] = CELL
-    meshmap['A11.284'] = CELLULAR_COMPONENT
-    mesh.write_ids(meshmap,outfile)
 
 def write_umls_ids(outfile):
     #UMLS categories:
