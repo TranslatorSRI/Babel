@@ -4,8 +4,9 @@ import requests
 
 import src.datahandlers.obo as obo
 
-from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB
+from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND
 from src.categories import CHEMICAL_SUBSTANCE
+from src.sdfreader import read_sdf
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
 from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
@@ -192,6 +193,53 @@ def make_gtopdb_relations(infile,outfile):
             gid = f'{GTOPDB}:{x[gid_index][1:-1]}'
             inchi = f'{INCHIKEY}:{x[inchi_index][1:-1]}'
             outf.write(f'{gid}\t{inchi}\n')
+
+def make_chebi_relations(sdf,dbx,outfile):
+    """CHEBI contains relations both about chemicals with and without inchikeys.  You might think that because
+    everything is based on unichem, we could avoid the with structures part, but history has shown that we lose
+    links in that case, so we will use both the structured and unstructured chemical entries."""
+    #THE SDF and XREF stuff are handled in the same function because knowing what we found in the SDF impacts
+    # what we want to get out of the xrefs. But the function is quite unwieldy
+    #READ SDF
+    ikeys = { x:x for x in ['chebiname', 'chebiid', 'secondarychebiid','inchikey','smiles', 'keggcompounddatabaselinks', 'pubchemdatabaselinks'] }
+    chebi_sdf_dat = read_sdf(sdf,ikeys)
+    #CHEBIs in the sdf by definition have structure (the sdf is a structure file)
+    structured_chebi = set(chebi_sdf_dat.keys())
+    #READ xrefs
+    with open(dbx,'r') as inf:
+        dbxdata = inf.read()
+    kk = 'keggcompounddatabaselinks'
+    pk = 'pubchemdatabaselinks'
+    with open(outfile,'w') as outf:
+        #Write SDF structured things
+        for cid,props in chebi_sdf_dat.items():
+            if kk in props:
+                outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{props[kk]}\n')
+            if pk in props:
+                #Apparently there's a lot of structure here?
+                v = props[pk]
+                parts = v.split('SID: ')
+                for p in parts:
+                    if 'CID' in p:
+                        mapped = True
+                        x = p.split('CID: ')[1]
+                        outf.write(f'{cid}\txref\t{PUBCHEMCOMPOUND}:{x}\n')
+        #DO THE xref stuff
+        lines = dbxdata.split('\n')
+        for line in lines[1:]:
+            x = line.strip().split('\t')
+            if len(x) < 4:
+                continue
+            cid = f'{CHEBI}:{x[1]}'
+            if cid in structured_chebi:
+                continue
+            if x[3] == 'KEGG COMPOUND accession':
+                outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{x[4]}\n')
+            if x[3] == 'Pubchem accession':
+                outf.write(f'{cid}\txref\t{PUBCHEMCOMPOUND}:{x[4]}\n')
+
+
+
 
 def get_mesh_relationships(cas_out, unii_out):
     #perhaps I should filter by the chemical mesh ids...

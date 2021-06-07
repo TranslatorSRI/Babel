@@ -138,6 +138,15 @@ rule get_gtopdb_inchikey_concord:
     run:
         chemicals.make_gtopdb_relations(input.infile,output.outfile)
 
+rule get_chebi_concord:
+    input:
+        sdf=config['download_directory']+'/CHEBI/ChEBI_complete.sdf',
+        dbx=config['download_directory']+'/CHEBI/database_accession.tsv'
+    output:
+        outfile=config['download_directory']+'/chemicals/concords/CHEBI'
+    run:
+        chemicals.make_chebi_relations(input.sdf,input.dbx,output.outfile)
+
 rule chemical_unichem_concordia:
     input:
         concords = expand('{dd}/chemicals/concords/UNICHEM/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] ),
