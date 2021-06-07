@@ -196,7 +196,7 @@ def make_gtopdb_relations(infile,outfile):
                 continue
             gid = f'{GTOPDB}:{x[gid_index][1:-1]}'
             inchi = f'{INCHIKEY}:{x[inchi_index][1:-1]}'
-            outf.write(f'{gid}\t{inchi}\n')
+            outf.write(f'{gid}\txref\t{inchi}\n')
 
 def make_chebi_relations(sdf,dbx,outfile):
     """CHEBI contains relations both about chemicals with and without inchikeys.  You might think that because
