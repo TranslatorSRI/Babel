@@ -117,7 +117,7 @@ rule get_chemical_pubchem_mesh_concord:
         pubchemfile=config['download_directory'] + '/PUBCHEM/CID-MeSH',
         meshlabels=config['download_directory'] + '/MESH/labels'
     output:
-        outfile =  config['download_directory'] + '/chemicals/concord/PUBCHEM_MESH'
+        outfile =  config['download_directory'] + '/chemicals/concords/PUBCHEM_MESH'
     run:
         chemicals.make_pubchem_mesh_concord(input.pubchemfile,input.meshlabels,output.outfile)
 
@@ -125,7 +125,7 @@ rule get_chemical_pubchem_cas_concord:
     input:
         pubchemsynonyms=config['download_directory'] + '/PUBCHEM/synonyms'
     output:
-        outfile = config['download_directory'] + '/chemicals/concord/PUBCHEM_CAS'
+        outfile = config['download_directory'] + '/chemicals/concords/PUBCHEM_CAS'
     run:
         chemicals.make_pubchem_cas_concord(input.pubchemsynonyms, output.outfile)
 
