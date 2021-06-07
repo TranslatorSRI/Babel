@@ -102,6 +102,7 @@ rule get_chemical_mesh_relationships:
     run:
         chemicals.get_mesh_relationships(output.casout,output.uniout)
 
+#This is about a 2 hour step and requires something more than 256G of RAM.  512G works.
 rule get_chemical_unichem_relationships:
     input:
         structfile = config['download_directory'] + '/UNICHEM/UC_STRUCTURE.txt',
@@ -127,6 +128,15 @@ rule get_chemical_pubchem_cas_concord:
         outfile = config['download_directory'] + '/chemicals/concord/PUBCHEM_CAS'
     run:
         chemicals.make_pubchem_cas_concord(input.pubchemsynonyms, output.outfile)
+
+# There are some gtopdb inchikey relations that for some reason are not in unichem
+rule get_gtopdb_inchikey_concord:
+    input:
+        infile=config['download_directory']+'/GTOPDB/ligands.tsv'
+    output:
+        outfile=config['download_directory'] + '/chemicals/concords/GTOPDB'
+    run:
+        chemicals.make_gtopdb_relations(input.infile,output.outfile)
 
 rule chemical_unichem_concordia:
     input:

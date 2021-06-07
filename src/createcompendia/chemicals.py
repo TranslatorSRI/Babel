@@ -4,7 +4,7 @@ import requests
 
 import src.datahandlers.obo as obo
 
-from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND
+from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB
 from src.categories import CHEMICAL_SUBSTANCE
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
@@ -180,16 +180,31 @@ def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile):
             outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\txref\t{mesh_id}\n')
             used_pubchem.add(x[0])
 
+def make_gtopdb_relations(infile,outfile):
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        h = inf.readline().strip().split('\t')
+        gid_index = h.index('"Ligand id"')
+        inchi_index = h.index('"InChIKey"')
+        for line in inf:
+            x = line.strip().split('\t')
+            if x[inchi_index] == '""':
+                continue
+            gid = f'{GTOPDB}:{x[gid_index][1:-1]}'
+            inchi = f'{INCHIKEY}:{x[inchi_index][1:-1]}'
+            outf.write(f'{gid}\t{inchi}\n')
 
 def get_mesh_relationships(cas_out, unii_out):
     #perhaps I should filter by the chemical mesh ids...
     regis = mesh.pull_mesh_registry()
     with open(cas_out,'w') as casout, open(unii_out,'w') as uniiout:
         for meshid,reg in regis:
+            if reg.startswith('EC'):
+                continue
             if is_cas(reg):
-                casout.write(f'{meshid}\t{reg}\n')
+                casout.write(f'{meshid}\tCAS:{reg}\n')
             else:
-                uniiout.write(f'{meshid}\t{reg}\n')
+                #is a unii?
+                uniiout.write(f'{meshid}\tUNII:{reg}\n')
 
 def get_wikipedia_relationships(outfile):
     url = 'https://query.wikidata.org/sparql?format=json&query=SELECT ?chebi ?mesh WHERE { ?compound wdt:P683 ?chebi . ?compound wdt:P486 ?mesh. }'

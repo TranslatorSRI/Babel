@@ -24,6 +24,7 @@ import src.datahandlers.hmdb as hmdb
 import src.datahandlers.pubchem as pubchem
 import src.datahandlers.drugcentral as drugcentral
 import src.datahandlers.ncbitaxon as ncbitaxon
+import src.datahandlers.chebi as chebi
 
 #####
 #
@@ -439,3 +440,12 @@ rule ncbitaxon_labels:
         outfile = config['download_directory'] + '/NCBITAXON/labels'
     run:
         ncbitaxon.make_labels(input.infile,output.outfile)
+
+# CHEBI: some comes via obo, but we need the SDF file too
+
+rule get_chebi:
+    output:
+        config['download_directory'] + '/CHEBI/ChEBI_complete.sdf',
+        config['download_directory'] + '/CHEBI/database_accession.tsv',
+    run:
+        chebi.pull_chebi()

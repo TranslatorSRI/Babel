@@ -1,6 +1,7 @@
 from src.babel_utils import make_local_name, pull_via_ftp
 import pyoxigraph
 from collections import defaultdict
+from src.prefixes import MESH
 
 def pull_mesh():
     pull_via_ftp('ftp.nlm.nih.gov', '/online/mesh/rdf', 'mesh.nt.gz', decompress_data=True, outfilename='MESH/mesh.nt')
@@ -34,7 +35,7 @@ class Mesh:
         for row in list(qres):
             iterm = str(row['term'])
             meshid = iterm[:-1].split('/')[-1]
-            meshes.append( f'MESH:{meshid}' )
+            meshes.append( f'{MESH}:{meshid}' )
         return meshes
     def get_terms_with_type(self,termtype):
         s=f"""  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -51,7 +52,7 @@ class Mesh:
         for row in list(qres):
             iterm = str(row['term'])
             meshid = iterm[:-1].split('/')[-1]
-            meshes.append( f'MESH:{meshid}' )
+            meshes.append( f'{MESH}:{meshid}' )
         return meshes
     def get_registry(self):
         """Based on stuff like
@@ -68,9 +69,12 @@ class Mesh:
         qres = self.m.query(s)
         res = []
         for row in list(qres):
-            iterm = str(row['treenum'])
-            label = str(row['reg'])
-            meshid = iterm[:-1].split('/')[-1]
+            iterm = str(row['term'])
+            label = str(row['reg'])[1:-1] #strip quotes
+            if label == '0':
+                #wtf is this dumbness?
+                continue
+            meshid = f"{MESH}:{iterm[:-1].split('/')[-1]}"
             res.append( (meshid,label) )
         return res
     def print_tree_labels(self):
@@ -109,7 +113,7 @@ class Mesh:
                 ilabel = str(row['label'])
                 meshid = iterm[:-1].split('/')[-1]
                 label = ilabel.strip().split('"')[1]
-                outf.write(f'MESH:{meshid}\t{label}\n')
+                outf.write(f'{MESH}:{meshid}\t{label}\n')
 
 def pull_mesh_labels():
     m = Mesh()
