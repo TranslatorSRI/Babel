@@ -40,5 +40,11 @@
   "chemical_synonyms": ["GTOPDB","CHEBI","UNII","HMDB","PUBCHEM"],
   "chemical_concords": ["wikipedia_mesh_chebi","PUBCHEM_MESH","mesh_cas","mesh_unii","PUBCHEM_CAS","GTOPDB","CHEBI"],
   "chemical_ids": ["CHEMBLCOMPOUND","GTOPDB","KEGGCOMPOUND","CHEBI","UNII","HMDB","PUBCHEM","DRUGCENTRAL","DRUGBANK"],
-  "chemical_outputs": ["ChemicalSubstance.txt"]
+  "chemical_outputs": ["ChemicalSubstance.txt"],
+
+  "taxon_labels": ["NCBITAXON","MESH"],
+  "taxon_synonyms": ["NCBITAXON"],
+  "taxon_ids": ["NCBITAXON","MESH"],
+  "taxon_concords": ["NCBI_MESH"],
+  "taxon_outputs": ["OrganismTaxon.txt"]
 }

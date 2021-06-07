@@ -433,13 +433,14 @@ rule get_ncbitaxon:
     run:
         ncbitaxon.pull_ncbitaxon()
 
-rule ncbitaxon_labels:
+rule ncbitaxon_labels_and_synonyms:
     input:
         infile = config['download_directory'] + '/NCBITAXON/taxdump.tar'
     output:
-        outfile = config['download_directory'] + '/NCBITAXON/labels'
+        lfile = config['download_directory'] + '/NCBITAXON/labels',
+        sfile = config['download_directory'] + '/NCBITAXON/synonyms'
     run:
-        ncbitaxon.make_labels(input.infile,output.outfile)
+        ncbitaxon.make_labels_and_synonyms(input.infile,output.lfile,output.sfile)
 
 # CHEBI: some comes via obo, but we need the SDF file too
 

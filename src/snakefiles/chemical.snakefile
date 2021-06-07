@@ -174,7 +174,7 @@ rule check_chemical_completeness:
     output:
         report_file = config['output_directory']+'/reports/chemical_completeness.txt'
     run:
-        assessments.assess_completeness(config['download_directory']+'/chemical/ids',input.input_compendia,output.report_file)
+        assessments.assess_completeness(config['download_directory']+'/chemicals/ids',input.input_compendia,output.report_file)
 
 rule check_chemical:
     input:
