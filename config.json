@@ -46,5 +46,9 @@
   "taxon_synonyms": ["NCBITAXON"],
   "taxon_ids": ["NCBITAXON","MESH"],
   "taxon_concords": ["NCBI_MESH"],
-  "taxon_outputs": ["OrganismTaxon.txt"]
+  "taxon_outputs": ["OrganismTaxon.txt"],
+
+  "genefamily_labels": ["PANTHERFAMILY","HGNCFAMILY"],
+  "genefamily_ids": ["PANTHERFAMILY","HGNCFAMILY"],
+  "genefamily_outputs": ["GeneFamily.txt"]
 }

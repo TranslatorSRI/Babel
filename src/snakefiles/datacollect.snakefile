@@ -25,6 +25,8 @@ import src.datahandlers.pubchem as pubchem
 import src.datahandlers.drugcentral as drugcentral
 import src.datahandlers.ncbitaxon as ncbitaxon
 import src.datahandlers.chebi as chebi
+import src.datahandlers.hgncfamily as hgncfamily
+import src.datahandlers.pantherfamily as pantherfamily
 
 #####
 #
@@ -151,6 +153,39 @@ rule get_hgnc_labels_and_synonyms:
         infile=rules.get_hgnc.output.outfile
     run:
         hgnc.pull_hgnc_labels_and_synonyms(input.infile)
+
+### HGNC.FAMILY
+
+rule get_hgncfamily:
+    output:
+        outfile=config['download_directory'] + '/HGNCFAMILY/family.csv'
+    run:
+        hgncfamily.pull_hgncfamily()
+
+rule get_hgncfamily_labels:
+    input:
+        infile=rules.get_hgncfamily.output.outfile
+    output:
+        outfile = config['download_directory'] + '/HGNCFAMILY/labels',
+    run:
+        hgncfamily.pull_labels(input.infile,output.outfile)
+
+### PANTHER.FAMILY
+
+rule get_pantherfamily:
+    output:
+        outfile=config['download_directory'] + '/PANTHERFAMILY/family.csv'
+    run:
+        pantherfamily.pull_pantherfamily()
+
+rule get_pantherfamily_labels:
+    input:
+        infile=rules.get_pantherfamily.output.outfile
+    output:
+        outfile = config['download_directory'] + '/PANTHERFAMILY/labels',
+    run:
+        pantherfamily.pull_labels(input.infile,output.outfile)
+
 
 ### OMIM
 
