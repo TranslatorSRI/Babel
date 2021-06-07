@@ -177,7 +177,11 @@ def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile):
             x = line.strip().split('\t') # x[0] = puchemid (no prefix), x[1] = mesh label
             if x[0] in used_pubchem:
                 continue
-            mesh_id = mesh_label_to_id[x[1]]
+            try:
+                mesh_id = mesh_label_to_id[x[1]]
+            except:
+                print(f'no mesh for label {x[1]}')
+                continue
             outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\txref\t{mesh_id}\n')
             used_pubchem.add(x[0])
 
