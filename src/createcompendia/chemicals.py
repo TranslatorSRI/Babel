@@ -253,10 +253,10 @@ def get_mesh_relationships(cas_out, unii_out):
             if reg.startswith('EC'):
                 continue
             if is_cas(reg):
-                casout.write(f'{meshid}\tCAS:{reg}\n')
+                casout.write(f'{meshid}\txref\tCAS:{reg}\n')
             else:
                 #is a unii?
-                uniiout.write(f'{meshid}\tUNII:{reg}\n')
+                uniiout.write(f'{meshid}\txref\tUNII:{reg}\n')
 
 def get_wikipedia_relationships(outfile):
     url = 'https://query.wikidata.org/sparql?format=json&query=SELECT ?chebi ?mesh WHERE { ?compound wdt:P683 ?chebi . ?compound wdt:P486 ?mesh. }'
