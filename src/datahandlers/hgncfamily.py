@@ -2,7 +2,7 @@ from src.babel_utils import make_local_name, pull_via_ftp
 from src.prefixes import HGNCFAMILY
 
 def pull_hgncfamily():
-    outfile='HGNCFAMILY/family.csv'
+    outfile=f'{HGNCFAMILY}/family.csv'
     pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/genenames/new/csv/genefamily_db_tables','family.csv', outfilename=outfile)
 
 def pull_labels(infile,outfile):
