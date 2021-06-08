@@ -3,9 +3,9 @@ import src.assess_compendia as assessments
 
 rule taxon_ncbi_ids:
     input:
-        infile=config['download_directory']+'/NCBITAXON/labels'
+        infile=config['download_directory']+'/NCBITaxon/labels'
     output:
-        outfile=config['download_directory']+'/taxon/ids/NCBITAXON'
+        outfile=config['download_directory']+'/taxon/ids/NCBITaxon'
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:OrganismTaxon\"}}' {input.infile} > {output.outfile}"

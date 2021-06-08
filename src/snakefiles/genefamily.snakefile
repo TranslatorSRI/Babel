@@ -3,18 +3,18 @@ import src.assess_compendia as assessments
 
 rule genefamily_pantherfamily_ids:
     input:
-        infile=config['download_directory']+'/PANTHERFAMILY/labels'
+        infile=config['download_directory']+'/PANTHER.FAMILY/labels'
     output:
-        outfile=config['download_directory']+'/genefamily/ids/PANTHERFAMILY'
+        outfile=config['download_directory']+'/genefamily/ids/PANTHER.FAMILY'
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:GeneFamily\"}}' {input.infile} > {output.outfile}"
 
 rule genefamily_hgncfamily_ids:
     input:
-        infile=config['download_directory']+'/HGNCFAMILY/labels'
+        infile=config['download_directory']+'/HGNC.FAMILY/labels'
     output:
-        outfile=config['download_directory']+"/genefamily/ids/HGNCFAMILY"
+        outfile=config['download_directory']+"/genefamily/ids/HGNC.FAMILY"
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:GeneFamily\"}}' {input.infile} > {output.outfile}"

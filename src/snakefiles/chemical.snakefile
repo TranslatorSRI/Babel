@@ -11,9 +11,9 @@ rule chemical_mesh_ids:
 
 rule chemical_pubchem_ids:
     input:
-        infile=config['download_directory']+"/PUBCHEM/labels"
+        infile=config['download_directory']+"/PUBCHEM.COMPOUND/labels"
     output:
-        outfile=config['download_directory']+"/chemicals/ids/PUBCHEM"
+        outfile=config['download_directory']+"/chemicals/ids/PUBCHEM.COMPOUND"
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
@@ -21,9 +21,9 @@ rule chemical_pubchem_ids:
 
 rule chemical_chembl_ids:
     input:
-        infile=config['download_directory']+"/CHEMBLCOMPOUND/labels"
+        infile=config['download_directory']+"/CHEMBL.COMPOUND/labels"
     output:
-        outfile=config['download_directory']+"/chemicals/ids/CHEMBLCOMPOUND"
+        outfile=config['download_directory']+"/chemicals/ids/CHEMBL.COMPOUND"
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
@@ -39,9 +39,9 @@ rule chemical_gtopdb_ids:
 
 rule chemical_kegg_ids:
     input:
-        infile=config['download_directory']+"/KEGGCOMPOUND/labels"
+        infile=config['download_directory']+"/KEGG.COMPOUND/labels"
     output:
-        outfile=config['download_directory']+"/chemicals/ids/KEGGCOMPOUND"
+        outfile=config['download_directory']+"/chemicals/ids/KEGG.COMPOUND"
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
@@ -65,9 +65,9 @@ rule chemical_hmdb_ids:
 
 rule chemical_drugcentral_ids:
     input:
-        infile=config['download_directory']+"/DRUGCENTRAL/labels"
+        infile=config['download_directory']+"/DrugCentral/labels"
     output:
-        outfile=config['download_directory']+"/chemicals/ids/DRUGCENTRAL"
+        outfile=config['download_directory']+"/chemicals/ids/DrugCentral"
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
@@ -114,7 +114,7 @@ rule get_chemical_unichem_relationships:
 
 rule get_chemical_pubchem_mesh_concord:
     input:
-        pubchemfile=config['download_directory'] + '/PUBCHEM/CID-MeSH',
+        pubchemfile=config['download_directory'] + '/PUBCHEM.COMPOUND/CID-MeSH',
         meshlabels=config['download_directory'] + '/MESH/labels'
     output:
         outfile =  config['download_directory'] + '/chemicals/concords/PUBCHEM_MESH'
@@ -123,7 +123,7 @@ rule get_chemical_pubchem_mesh_concord:
 
 rule get_chemical_pubchem_cas_concord:
     input:
-        pubchemsynonyms=config['download_directory'] + '/PUBCHEM/synonyms'
+        pubchemsynonyms=config['download_directory'] + '/PUBCHEM.COMPOUND/synonyms'
     output:
         outfile = config['download_directory'] + '/chemicals/concords/PUBCHEM_CAS'
     run:

@@ -28,6 +28,8 @@ import src.datahandlers.chebi as chebi
 import src.datahandlers.hgncfamily as hgncfamily
 import src.datahandlers.pantherfamily as pantherfamily
 
+import src.prefixes as prefixes
+
 #####
 #
 # Data sets: pull data sets, and parse them to get labels and synonyms
@@ -158,7 +160,7 @@ rule get_hgnc_labels_and_synonyms:
 
 rule get_hgncfamily:
     output:
-        outfile=config['download_directory'] + '/HGNCFAMILY/family.csv'
+        outfile=config['download_directory'] + '/HGNC.FAMILY/family.csv'
     run:
         hgncfamily.pull_hgncfamily()
 
@@ -166,7 +168,7 @@ rule get_hgncfamily_labels:
     input:
         infile=rules.get_hgncfamily.output.outfile
     output:
-        outfile = config['download_directory'] + '/HGNCFAMILY/labels',
+        outfile = config['download_directory'] + '/HGNC.FAMILY/labels',
     run:
         hgncfamily.pull_labels(input.infile,output.outfile)
 
@@ -174,7 +176,7 @@ rule get_hgncfamily_labels:
 
 rule get_pantherfamily:
     output:
-        outfile=config['download_directory'] + '/PANTHERFAMILY/family.csv'
+        outfile=config['download_directory'] + '/PANTHER.FAMILY/family.csv'
     run:
         pantherfamily.pull_pantherfamily()
 
@@ -182,7 +184,7 @@ rule get_pantherfamily_labels:
     input:
         infile=rules.get_pantherfamily.output.outfile
     output:
-        outfile = config['download_directory'] + '/PANTHERFAMILY/labels',
+        outfile = config['download_directory'] + '/PANTHER.FAMILY/labels',
     run:
         pantherfamily.pull_labels(input.infile,output.outfile)
 
@@ -340,17 +342,17 @@ rule filter_unichem:
 
 rule get_chembl:
     output:
-        moleculefile=config['download_directory']+'/CHEMBLCOMPOUND/chembl_latest_molecule.ttl',
-        ccofile=config['download_directory']+'/CHEMBLCOMPOUND/cco.ttl'
+        moleculefile=config['download_directory']+'/CHEMBL.COMPOUND/chembl_latest_molecule.ttl',
+        ccofile=config['download_directory']+'/CHEMBL.COMPOUND/cco.ttl'
     run:
         chembl.pull_chembl(output.moleculefile)
 
 rule chembl_labels:
     input:
-        infile=config['download_directory']+'/CHEMBLCOMPOUND/chembl_latest_molecule.ttl',
-        ccofile=config['download_directory']+'/CHEMBLCOMPOUND/cco.ttl',
+        infile=config['download_directory']+'/CHEMBL.COMPOUND/chembl_latest_molecule.ttl',
+        ccofile=config['download_directory']+'/CHEMBL.COMPOUND/cco.ttl',
     output:
-        outfile=config['download_directory']+'/CHEMBLCOMPOUND/labels'
+        outfile=config['download_directory']+'/CHEMBL.COMPOUND/labels'
     run:
         chembl.pull_chembl_labels(input.infile,input.ccofile,output.outfile)
 
@@ -378,7 +380,7 @@ rule gtopdb_labels_and_synonyms:
 
 rule keggcompound_labels:
     output:
-        labelfile=config['download_directory'] + '/KEGGCOMPOUND/labels'
+        labelfile=config['download_directory'] + '/KEGG.COMPOUND/labels'
     run:
         kegg.pull_kegg_compound_labels(output.labelfile)
 
@@ -421,26 +423,26 @@ rule hmdb_labels_and_synonyms:
 
 rule get_pubchem:
     output:
-        config['download_directory'] +'/PUBCHEM/CID-MeSH',
-        config['download_directory'] +'/PUBCHEM/CID-Synonym-filtered.gz',
-        config['download_directory'] + '/PUBCHEM/CID-Title.gz'
+        config['download_directory'] +'/PUBCHEM.COMPOUND/CID-MeSH',
+        config['download_directory'] +'/PUBCHEM.COMPOUND/CID-Synonym-filtered.gz',
+        config['download_directory'] + '/PUBCHEM.COMPOUND/CID-Title.gz'
     run:
         pubchem.pull_pubchem()
 
 rule pubchem_labels:
     input:
-        infile = config['download_directory'] + '/PUBCHEM/CID-Title.gz'
+        infile = config['download_directory'] + '/PUBCHEM.COMPOUND/CID-Title.gz'
     output:
-        outfile = config['download_directory'] + '/PUBCHEM/labels'
+        outfile = config['download_directory'] + '/PUBCHEM.COMPOUND/labels'
     run:
         pubchem.make_labels_or_synonyms(input.infile,output.outfile)
 
 
 rule pubchem_synonyms:
     input:
-        infile = config['download_directory'] + '/PUBCHEM/CID-Synonym-filtered.gz',
+        infile = config['download_directory'] + '/PUBCHEM.COMPOUND/CID-Synonym-filtered.gz',
     output:
-        outfile  = config['download_directory'] + '/PUBCHEM/synonyms'
+        outfile  = config['download_directory'] + '/PUBCHEM.COMPOUND/synonyms'
     run:
         pubchem.make_labels_or_synonyms(input.infile,output.outfile)
 
@@ -448,15 +450,15 @@ rule pubchem_synonyms:
 
 rule get_drugcentral:
     output:
-        config['download_directory'] + '/DRUGCENTRAL/structures.smiles.tsv'
+        config['download_directory'] + '/DrugCentral/structures.smiles.tsv'
     run:
         drugcentral.pull_drugcentral()
 
 rule drugcentral_labels:
     input:
-        infile=config['download_directory']+'/DRUGCENTRAL/structures.smiles.tsv'
+        infile=config['download_directory']+'/DrugCentral/structures.smiles.tsv'
     output:
-        outfile=config['download_directory']+'/DRUGCENTRAL/labels'
+        outfile=config['download_directory']+'/DrugCentral/labels'
     run:
         drugcentral.make_labels(input.infile,output.outfile)
 
@@ -464,16 +466,16 @@ rule drugcentral_labels:
 
 rule get_ncbitaxon:
     output:
-        config['download_directory'] + '/NCBITAXON/taxdump.tar'
+        config['download_directory'] + '/NCBITaxon/taxdump.tar'
     run:
         ncbitaxon.pull_ncbitaxon()
 
 rule ncbitaxon_labels_and_synonyms:
     input:
-        infile = config['download_directory'] + '/NCBITAXON/taxdump.tar'
+        infile = config['download_directory'] + '/NCBITaxon/taxdump.tar'
     output:
-        lfile = config['download_directory'] + '/NCBITAXON/labels',
-        sfile = config['download_directory'] + '/NCBITAXON/synonyms'
+        lfile = config['download_directory'] + '/NCBITaxon/labels',
+        sfile = config['download_directory'] + '/NCBITaxon/synonyms'
     run:
         ncbitaxon.make_labels_and_synonyms(input.infile,output.lfile,output.sfile)
 

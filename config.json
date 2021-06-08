@@ -36,19 +36,19 @@
   "process_outputs": ["Pathway.txt", "BiologicalProcess.txt", "MolecularActivity.txt"],
 
   "unichem_datasources": ["CHEMBL.COMPOUND","DRUGBANK","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral"],
-  "chemical_labels": ["CHEMBLCOMPOUND","GTOPDB","KEGGCOMPOUND","CHEBI","UNII","HMDB","PUBCHEM","DRUGCENTRAL"],
-  "chemical_synonyms": ["GTOPDB","CHEBI","UNII","HMDB","PUBCHEM"],
+  "chemical_labels": ["CHEMBL.COMPOUND","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral"],
+  "chemical_synonyms": ["GTOPDB","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND"],
   "chemical_concords": ["wikipedia_mesh_chebi","PUBCHEM_MESH","mesh_cas","mesh_unii","PUBCHEM_CAS","GTOPDB","CHEBI"],
-  "chemical_ids": ["CHEMBLCOMPOUND","GTOPDB","KEGGCOMPOUND","CHEBI","UNII","HMDB","PUBCHEM","DRUGCENTRAL","DRUGBANK"],
+  "chemical_ids": ["CHEMBL.COMPOUND","GTOPDB","KEGGCOMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral","DRUGBANK"],
   "chemical_outputs": ["ChemicalSubstance.txt"],
 
-  "taxon_labels": ["NCBITAXON","MESH"],
-  "taxon_synonyms": ["NCBITAXON"],
-  "taxon_ids": ["NCBITAXON","MESH"],
+  "taxon_labels": ["NCBITaxon","MESH"],
+  "taxon_synonyms": ["NCBITaxon"],
+  "taxon_ids": ["NCBITaxon","MESH"],
   "taxon_concords": ["NCBI_MESH"],
   "taxon_outputs": ["OrganismTaxon.txt"],
 
-  "genefamily_labels": ["PANTHERFAMILY","HGNCFAMILY"],
-  "genefamily_ids": ["PANTHERFAMILY","HGNCFAMILY"],
+  "genefamily_labels": ["PANTHER.FAMILY","HGNC.FAMILY"],
+  "genefamily_ids": ["PANTHER.FAMILY","HGNC.FAMILY"],
   "genefamily_outputs": ["GeneFamily.txt"]
 }
