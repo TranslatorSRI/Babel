@@ -260,13 +260,13 @@ rule get_reactome_labels:
 
 rule get_rhea:
     output:
-        outfile = config['download_directory'] + '/RHEA/Rhea.rdf',
+        outfile = config['download_directory'] + '/RHEA/rhea.rdf',
     run:
         rhea.pull_rhea()
 
 rule get_rhea_labels:
     input:
-        infile=config['download_directory'] + '/RHEA/Rhea.rdf',
+        infile=config['download_directory'] + '/RHEA/rhea.rdf',
     output:
         labelfile=config['download_directory'] + '/RHEA/labels',
     run:

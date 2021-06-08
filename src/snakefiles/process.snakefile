@@ -60,7 +60,7 @@ rule get_process_go_relationships:
 
 rule get_process_rhea_relationships:
     input:
-        infile=config['download_directory']+"/RHEA/Rhea.rdf",
+        infile=config['download_directory']+"/RHEA/rhea.rdf",
     output:
         outfile=config['download_directory']+'/process/concords/RHEA',
     run:
