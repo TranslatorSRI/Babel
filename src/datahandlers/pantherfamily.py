@@ -2,7 +2,7 @@ from src.babel_utils import make_local_name, pull_via_ftp
 from src.prefixes import PANTHERFAMILY
 
 def pull_pantherfamily():
-    outfile='PANTHERFAMILY/family.csv'
+    outfile=f'{PANTHERFAMILY}/family.csv'
     pull_via_ftp('ftp.pantherdb.org','/sequence_classifications/current_release/PANTHER_Sequence_Classification_files/','PTHR16.0_human',outfilename=outfile)
 
 def pull_labels(infile,outfile):
