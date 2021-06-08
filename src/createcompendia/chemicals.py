@@ -164,10 +164,15 @@ def make_pubchem_cas_concord(pubchemsynonyms, outfile):
 
 def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile):
     mesh_label_to_id={}
+    #Meshlabels has all kinds of stuff. e.g. these are both in there:
+    #MESH:D014867    Water
+    #MESH:M0022883   Water
+    #but we only want the ones that are MESH:D... or MESH:C....
     with open(meshlabels,'r') as inf:
         for line in inf:
             x = line.strip().split('\t')
-            mesh_label_to_id[x[1]] = x[0]
+            if x[0].split(':')[-1][0] in ['C','D']:
+                mesh_label_to_id[x[1]] = x[0]
     #The pubchem - mesh pairs are supposed to be ordered in this file such that the
     # first mapping is the 'best' i.e. the one most frequently reported.
     # We will only use the first one
