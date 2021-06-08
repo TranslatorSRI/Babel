@@ -1,6 +1,5 @@
 import pytest
 from src.babel_utils import glom
-from src.LabeledID import LabeledID
 
 """glom is a tool that looks at list of sets of values and combines them together if they share members"""
 

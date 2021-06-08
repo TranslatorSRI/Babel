@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime as dt
 from datetime import timedelta
-from babel.babel_utils import ThrottledRequester
+from src.babel_utils import ThrottledRequester
 
 def test_throttling():
     """Call a quick-returning service, but include a throttle of 1/2 second (500 ms).
