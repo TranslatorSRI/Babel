@@ -56,8 +56,6 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
                 other_id = f'{pref}:{x[13].split(":")[-1]}'
             else:
                 other_id = f'{pref}:{x[13]}'
-            if cui == test_cui:
-                print(other_id)
             #I don't know why this is in here, but it is not an identifier equivalent to anything
             if other_id == 'NCIT:TCGA':
                 continue
