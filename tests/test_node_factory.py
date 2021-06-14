@@ -1,5 +1,5 @@
 import pytest
-from babel.node import NodeFactory
+from src.node import NodeFactory
 from src.LabeledID import LabeledID
 
 def test_get_subclasses():
@@ -116,3 +116,10 @@ def test_losing_umls():
     assert node['id']['identifier'] == 'HP:0010804'
     assert node['id']['label'] == 'Tented upper lip vermilion'
     assert len(node['equivalent_identifiers']) == 4
+
+def test_same_value_different_prefix():
+    input = frozenset({'FB:FBgn0261954', 'ENSEMBL:FBgn0261954', 'NCBIGene:46006'})
+    fac = NodeFactory('')
+    node = fac.create_node(input,'biolink:Gene',{})
+    assert len(node['equivalent_identifiers']) == 3
+    assert len(set([x['identifier'] for x in node['equivalent_identifiers']])) == 3

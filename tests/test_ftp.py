@@ -1,5 +1,5 @@
 import pytest
-from babel.babel_utils import pull_via_ftp
+from src.babel_utils import pull_via_ftp
 import gzip
 
 #FTP doesn't play nicely with travis-ci, so these are marked so they can be excluded.

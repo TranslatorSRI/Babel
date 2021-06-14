@@ -1,0 +1,51 @@
+#These ones were hanging around, I'm not sure why they were removed.  I will check once I have rebuilt.
+#C0160438 Injury to other specified pelvic organs, without mention of open wound into cavity
+#C0160439 Injury to: [pelvic organ NOS] or [fallopian tube] or [prostate]
+#C0160440
+#C0160441
+#C0403688
+#C0434171
+#C0478263
+#C0555308
+#C1542118
+#C1542120
+#These ones are made by looking through A2.2 "Findings" for things that didn't seem like phenotpyes.
+# Some of these absolutely caused problems in the past.
+C0184511        Improved
+C0184512        Stabilized (qualifier value)
+C0205082        Severe (severity modifier)
+C0205160        Negative
+C0205161        Abnormal
+C0159131        Other nonspecific abnormal findings
+C0159132        Nonspecific abnormal toxicological findings
+C0159135        Other abnormal clinical findings
+C1268671	Lesion density modifiers
+C2092244	modifying circumstance: multiple modifiers
+C3550999	Caused by mutation in the ubiquitin-like modifier-activating enzyme 1 gene (UBA1, 314370.0001)
+C3846187	Biological response modifier recommended, unknown if adminis
+C3846433	Biological response modifier (BRM)
+C4313680	Caused by mutation in the ubiquitin like modifier activating enzyme 5 gene (UBA5, 610552.0012)
+C4479503	Weakly penetrant except in the presence of a BMP2 (112261) modifier allele
+C4539527	Caused by mutation in the ISG15 ubiquitin-like modifier gene (ISG15, 147571.0001)
+C4539576	Caused by mutation in the ubiquitin like modifier activating enzyme 5 gene (UBA5, 610552.0001)
+C4693124	Caused by disruption of the small ubiquitin-like modifier 1 gene (SUMO1, 601912.0001)
+C4693540	Caused by mutation in the ubiquitin-fold modifier-1 gene (UFM1, 610553.0001)
+C4748082	Caused by mutation in the ubiquitin-fold modifier-conjugating enzyme 1 gene (UFC1, 610554.0001)/
+C5142917	Micro isolate related modifier
+C0332218	Difficult (qualifier value)
+C0445119	No growth (qualifier value)
+C0686909	Orthotopic graft (qualifier value)
+C1299586	Has difficulty doing (qualifier value)
+C1519885	Vaccinated (qualifier)
+C2984077    Not at all 
+C2984078    A little bit 
+C2984079    Somewhat 
+C2984080    Quite a Bit 
+C2984109    Very Often 
+C2984217    Medication Error Due to Software Problem Associated with Medical Device 
+C2984218    Data Problem 
+C2984219    Patient Data Problem 
+C2984602    Conclusion not Yet Available 
+C2984603    Cause Traced to Device Design
+C2984604    Device Difficult to Operate
+C0033213    Problem

@@ -24,9 +24,8 @@ strong dependencies against the Babel code.
 
 ## Configuration
 
-Before running, edit `config.json` and provide a path relative to the config file.
-This path will be used to store downloaded an intermediate files.  If all compendia 
-are built, this directory will end up holding approximately 80GB of files.
+Before running, edit `config.json` and set the `babel_downloads` and `babel_output` directories.  Do not edit the
+remaining items, which are used to control the build process.
 
 Also, if building the disease/phenotype compendia, there are two files that 
 must be obtained with the user's UMLS license.  In particular `MRCONSO.RRF` 
@@ -34,79 +33,69 @@ and `MRSTY.RRF` should be placed in `/babel/input_data`.
 
 ## Building Compendia
 
-From the root directory, the following command can be used to generate the compendia.
-```
-export PYTHONPATH=.; python babel/anatomy.py
-export PYTHONPATH=.; python babel/disease_phenotype.py
-export PYTHONPATH=.; python babel/process_and_activity.py
-export PYTHONPATH=.; python babel/chemicals.py
-```
-Each generates one or more files in `babel/compendia`.  These files have a 
-standard format of one entity per row.  Each entity is a JSON string, containing an
-identifier, a label, the semantic types of the object, and its equivalent
-identifiers.
+Compendia building is managed by snakemake.  To build, for example, the anatomy related compendia, run
 
-## Compendia Notes
+```snakemake --cores 1 anatomy```
 
-Different semantic types have different scripts, because the algorithms applied
-vary.  
+Currently, the following targets build compendia:
+* anatomy
+* chemical
+* disease
+* gene
+* protein
+* genefamily
+* taxon
+* process
+* geneprotein
 
-### Process and Activity
+Each target builds one or more compendia corresponding to a biolink model category.  For instance, the anatomy target 
+builds compendia for `biolink:AnatomicalEntity`, `biolink:Cell`, `biolink:CellularComponent`, and `biolink:GrossAnatomicalStructure`.
 
-`process_and_activity.py` is the simplest script.  It first queries UberGraph to
-find all entities that descend from the term `GO:0008150` (biological_process) and
-their db_xref values.  The (oversimple) assumption is made that each
-entity's db_xref values are equivalent identifiers. These equivalent identifiers
-are used to write a compendium for biological process, and then the process is
-repeated starting with `GO:0003674` (molecular_activity)
+## Build Process
 
-### Anatomy
+The information contained here is not required to create the compendia, but may be useful to understand.  The build process is 
+divided into two parts:
 
-The `anatomy.py` script queries UberGraph to find all entities that descend from 
-`UBERON:0001062` and their db_xref values.  UberGraph contains numerous ontologies, 
-so this query returns not only entities from UBERON, but also cell types from CL,
-and cellular components from GO.  The (oversimple) assumption is made that each
-entity's db_xref values are equivalent identifiers.  Types are assigned simply:
-if the entity has an UBERON identifier, it is an anatomic_entity, otherwise if it
-has a CL identifier it is a cell, otherwise if it has a GO identifier, it is a
-cellular_component.  Otherwise, the entity is ignored. Individual compendia are written
-for each type.
+1. Pulling data from external sources and parsing it independent of use
+2. Extracting and combining entities for specific types from these downloaded data sets.
 
-### Disease and Phenotypic Feature
+This distinction is made because a single data set, such as MESH may contain entities of many different types and may be 
+used by many downstream targets.
 
-`disease_phenotype.py` handles disease and phenotypic feature types jointly, 
-because there are multiple entities that are considered as diseases by some
-vocabularies and phenoptyic features by others.   We rely heavily on the MONDO
-ontology in two ways.  First, MONDO provides strong equivalence statements, which
-we use to drive equivalence for diseases.  Second, we take MONDO as authoritative
-where diseases are concerned.  If an entity is in MONDO, we consider it a disease
-independent of what other ontologies say about it.
+### Pulling Data
 
-The actual procedure is more complicated than above.   First, we pull all 
-descendents of `HP:0000118`, and their db_xrefs from UberGraph. Here, we 
-deliberately ignore xrefs of type `ICD` and `NCIT` as these tend to lead to 
-unwanted merges.  We then filter out any identifier that occurs as a db_xref
-in more than one of these HP terms.  Next, we merge into this set, all descendents
-of `MONDO:0000001` along with their exactMatch and equivalentTo identifiers.
-Finally, we merge in identifiers from MEDDRA and UMLS.  Once these groups are
-allowed to merge (if they share any equivalent identifiers), we assign a type,
-either disease or phenotypic feature to each.  If a term has a MONDO identifier,
-it is a disease.  If it does not have a MONDO, but does have an HP identifier,
-it is a phenotypic feature. If it does not have either a MONDO or HP identifier,
-then we check its UMLS identifier, and infer from UMLS whether it is a disease
-or a phenotypic feature.  If it has none of the above, then we consider it a 
-phenotypic feature.
+The datacollection snakemake file coordinates pulling data from external sources into a local filesystem.  Each data source 
+has a module in `src.datahandlers`.  Data goes into the babel_downloads directory, in subdirectories named by the curie prefix
+for that data set.  If the directory is misnamed and does not match the prefix, then labels will not be added to the identifiers
+in the final compendium.
 
-### Chemical Substance
+Once data is assembled, we attempt to create 2 extra files for each data source: `labels` and `synonyms`.   `labels` is a two
+column tab-delimited file. The first column is a curie identifier from the data source, and the second column is the label
+from that data set.  Each entity should only appear once in the `labels` file.
+The `labels` file for a data set does not subset the data for a specific purpose, but contains all 
+labels for any entity in that data set.  
 
-The most complicated equivalent set creation is for chemical substance.  The full
-description is beyond the scope of this readme, but the basic outline is as follows.
-We assume that for chemicals that have inchikeys, the inchikey defines equivalence.
-In general, we rely on EBI's UniChem to provide inchikeys and related equivalence.
+`synonyms` contains other lexical names for the entity and is a 3-column tab-delimited file, with the second column
+indicating the type of synonym (exact, related, xref, etc..)
 
-However, some entities that we consider chemical substances do not have an inchikey,
-but may have a SMILES.  For these entities, we join on these SMILES.  
+### Creating compendia
 
-For entities with neither an InchiKey nor a SMILES, we rely on db_xref annotations
-or similar relationships from other databases as above.
+The individual details of creating a compendium vary, but all follow the same essential pattern.  
 
+First, we extract the identifiers that will be used in the compendia from each data source that will contribute, and
+places them into a directory.  For instance, in the build of the chemical compendium, these ids are placed into 
+`/babel_downloads/chemical/ids`. Each file is a two column file containing curie identifiers in column 1, and the biolink
+category for that entity in column 2.  
+
+Second, we create pairwise concords across vocabularies.  These are places in e.g. `babel_downloads/chemical/concords`. 
+Each concord is a 3 column file of the format
+
+`<curie1> <relation> <curie2>`
+
+While the relation is currently unused, future versions of babel may use the relation in building cliques.
+
+Third, the compendia is built by bringing together the ids and concords, pulling in the categories from the id files, 
+and the labels from the label files.
+
+Fourth, the compendia is assessed to make sure that all of the ids in the id files made into one of the possibly multiple 
+compendia.  The compendia are further assessed to locate large cliques and display the level of vocabulary merging.
