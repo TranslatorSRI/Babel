@@ -429,6 +429,13 @@ rule get_pubchem:
     run:
         pubchem.pull_pubchem()
 
+rule get_pubchem_structures:
+    output:
+        config['download_directory'] + '/PUBCHEM.COMPOUND/CID-InChI-Key.gz',
+        config['download_directory'] + '/PUBCHEM.COMPOUND/CID-SMILES.gz',
+    run:
+        pubchem.pull_pubchem_structures()
+
 rule pubchem_labels:
     input:
         infile = config['download_directory'] + '/PUBCHEM.COMPOUND/CID-Title.gz'

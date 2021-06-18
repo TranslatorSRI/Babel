@@ -4,6 +4,7 @@ from src.LabeledID import LabeledID
 from collections import defaultdict
 import os
 from bmt import Toolkit
+from prefixes import PUBCHEMCOMPOUND
 
 class SynonymFactory():
     def __init__(self,syndir):
@@ -177,6 +178,7 @@ class NodeFactory:
         #In order to be consistent from run to run, we need to worry about the
         # case where e.g. there are 2 UMLS id's and UMLS is the preferred pref.
         # We're going to choose the canonical ID here just by sorting the N .
+        # Except for PUBCHEMs.  They get their own special mess.
         for p in prefixes:
             pupper = p.upper()
             if pupper in idmap:
@@ -187,6 +189,8 @@ class NodeFactory:
                     newids.append( (jid['identifier'],jid) )
                     accepted_ids.add(v)
                 newids.sort()
+                if pupper == {PUBCHEMCOMPOUND}.upper() and len(newids) > 1:
+                    newids = pubchemsort(newids,cleaned)
                 identifiers += [ nid[1] for nid in newids ]
         #Warn if we have prefixes that we're ignoring
         for k,vals in idmap.items():
@@ -211,3 +215,41 @@ class NodeFactory:
         if label is not None:
             node['id']['label'] =  label
         return node
+
+def pubchemsort(pc_ids, labeled_ids):
+    """Figure out the correct ordering of pubchem identifiers"""
+    # For most types / prefixes we're just sorting the allowed id's.  This gives us a consistent ID from run to run
+    # But there's a special case: The biolink-preferred identifier for chemicals is PUBCHEM.COMPOUND.
+    # Out merging is based on INCHIKEYS.  However, it happens all the time that more than one PC has the same  inchikey
+    # (because of the way they discard hydrogens).
+    # This leads to some nastiness e.g. with water.  There are 2 pubchems with the same inchikey.  One is
+    # H2O (water) and one is H.OH (hydron;hydroxide).  Just a lexical sorting of the identifiers puts the crap one first.
+    # Observations: 1. there are many other identifiers e.g. mesh chebi etc that have the same label (water).
+    # 2. almost always the shortest name is best
+    # 2a. With the exception of titles that are CID somthing or are SMILES...
+    # So here we're going to try a couple things: first we're going to see if we can match other labels.
+    # Failing that,  we'll take the shortest non CID name.  Hard to recognize smiles but we can see if that turns
+    # into a problem or not.
+    label_counts = defaultdict(int)
+    pclabels = {}
+    for lid in labeled_ids:
+        try:
+            if lid.identifier.startswith({PUBCHEMCOMPOUND}):
+                pclabels[lid.label.upper()] = lid.identifier
+            else:
+                label_counts[lid.label.upper()] += 1
+        except:
+            pass
+    matches = [ (label_counts[pclabel],pcident) for pcident,pclabel in pclabels.items() ]
+    matches.sort()
+    best = matches[-1]
+    #There are two cases here: we matched something (best[0] > 0) or we didn't (best[0] == 0)
+    if best[0] > 0:
+        best_pubchem_id = best[1]
+    else:
+        #now we are going to pick the shortest pubchem label that isn't CID something
+        lens = [ (len(pclabel), pcident) for pcident,pclabel in pclabels.items()]
+        lens.sort()
+        best_pubchem_id = matches[-1][1]
+    pc_ids.remove(best_pubchem_id)
+    return [best_pubchem_id] + pc_ids
