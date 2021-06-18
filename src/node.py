@@ -189,7 +189,7 @@ class NodeFactory:
                     newids.append( (jid['identifier'],jid) )
                     accepted_ids.add(v)
                 newids.sort()
-                if pupper == {PUBCHEMCOMPOUND}.upper() and len(newids) > 1:
+                if pupper == PUBCHEMCOMPOUND.upper() and len(newids) > 1:
                     newids = pubchemsort(newids,cleaned)
                 identifiers += [ nid[1] for nid in newids ]
         #Warn if we have prefixes that we're ignoring
@@ -234,7 +234,7 @@ def pubchemsort(pc_ids, labeled_ids):
     pclabels = {}
     for lid in labeled_ids:
         try:
-            if lid.identifier.startswith({PUBCHEMCOMPOUND}):
+            if lid.identifier.startswith(PUBCHEMCOMPOUND):
                 pclabels[lid.label.upper()] = lid.identifier
             else:
                 label_counts[lid.label.upper()] += 1
