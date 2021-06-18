@@ -4,7 +4,7 @@ from src.LabeledID import LabeledID
 from collections import defaultdict
 import os
 from bmt import Toolkit
-from prefixes import PUBCHEMCOMPOUND
+from src.prefixes import PUBCHEMCOMPOUND
 
 class SynonymFactory():
     def __init__(self,syndir):
