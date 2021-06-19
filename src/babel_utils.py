@@ -72,8 +72,9 @@ def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=No
             else:
                 return binary.decode()
     ofilename = os.path.join(config['download_directory'],outfilename)
-    if not os.path.exists(os.path.dirname(outfilename)):
-        os.makedirs(os.path.dirname(outfilename))
+    odir = os.path.abspath(os.path.dirname(ofilename))
+    if not os.path.exists(odir):
+        os.makedirs(odir)
     print(f'  writing data to {ofilename}')
     print(f'{ftpsite}/{ftpdir}/{ftpfile}')
     if not decompress_data:
@@ -234,7 +235,7 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
         if len(xgroup) > 2:
             print(xgroup)
             print('nope nope nope')
-            exit()
+            raise ValueError
         n+=1
         if test_id in group:
             print('higroup',group)

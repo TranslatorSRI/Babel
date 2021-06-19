@@ -111,6 +111,8 @@ class UberGraph:
 
 
     def get_subclasses_and_xrefs(self,iri):
+        """Return all subclasses of iri that have an xref as well as the xref.
+        Does not return subclasses that lack an xref."""
         text="""
         prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         prefix UBERON: <http://purl.obolibrary.org/obo/UBERON_>

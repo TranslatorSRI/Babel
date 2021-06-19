@@ -44,8 +44,8 @@ class SynonymFactory():
 class NodeFactory:
     def __init__(self,label_dir):
         #self.url_base = 'http://arrival.edc.renci.org:32511/bl'
-        self.url_base = 'https://bl-lookup-sri.renci.org/bl'
-        self.toolkit = Toolkit('https://raw.githubusercontent.com/biolink/biolink-model/1.6.1/biolink-model.yaml')
+        #self.url_base = 'https://bl-lookup-sri.renci.org/bl'
+        self.toolkit = Toolkit('https://raw.githubusercontent.com/biolink/biolink-model/2.0.2/biolink-model.yaml')
         self.ancestor_map = {}
         self.prefix_map = {}
         self.ignored_prefixes = set()
@@ -65,15 +65,10 @@ class NodeFactory:
     def get_prefixes(self,input_type):
         if input_type in self.prefix_map:
             return self.prefix_map[input_type]
-        url = f'{self.url_base}/{input_type}'
-        response = requests.get(url)
-        try:
-            j = response.json()
-            prefs = j['id_prefixes']
-        except:
-            #this is a mega hack to deal with the taxon change
-            prefs = ['NCBITaxon','MESH']
+        j = self.toolkit.get_element(input_type)
+        prefs = j['id_prefixes']
         #The pref are in a particular order, but apparently it can have dups (ugh)
+        # The particular dups are gone now, but the code remains in case they come back...
         newprefs = ['']
         for pref in prefs:
             if not pref  == newprefs[-1]:
