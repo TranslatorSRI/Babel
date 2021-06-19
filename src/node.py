@@ -217,7 +217,12 @@ class NodeFactory:
         return node
 
 def pubchemsort(pc_ids, labeled_ids):
-    """Figure out the correct ordering of pubchem identifiers"""
+    """Figure out the correct ordering of pubchem identifiers.
+       pc_ids is a list of tuples of (identifier,json) where json = {"identifier":id, "label":x}
+       but may not have a label.
+       It is just for the pubchems
+       labeled_ids is a list of the other ids.  The entries can be a bare string for stuff w/o a label
+       or a labeled ID for stuff with a label."""
     # For most types / prefixes we're just sorting the allowed id's.  This gives us a consistent ID from run to run
     # But there's a special case: The biolink-preferred identifier for chemicals is PUBCHEM.COMPOUND.
     # Out merging is based on INCHIKEYS.  However, it happens all the time that more than one PC has the same  inchikey
@@ -251,8 +256,9 @@ def pubchemsort(pc_ids, labeled_ids):
         lens = [ (len(pclabel), pcident) for pcident,pclabel in pclabels.items()]
         lens.sort()
         best_pubchem_id = matches[-1][1]
-    for pcid in pc_ids:
+    for pcelement in pc_ids:
+        pcid,_ = pcelement
         if pcid.identifer == best_pubchem_id:
-            best_pubchem = pcid
+            best_pubchem = pcelement
     pc_ids.remove(best_pubchem)
     return [best_pubchem] + pc_ids
