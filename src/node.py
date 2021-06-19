@@ -251,5 +251,8 @@ def pubchemsort(pc_ids, labeled_ids):
         lens = [ (len(pclabel), pcident) for pcident,pclabel in pclabels.items()]
         lens.sort()
         best_pubchem_id = matches[-1][1]
-    pc_ids.remove(best_pubchem_id)
-    return [best_pubchem_id] + pc_ids
+    for pcid in pc_ids:
+        if pcid.identifer == best_pubchem_id:
+            best_pubchem = pcid
+    pc_ids.remove(best_pubchem)
+    return [best_pubchem] + pc_ids
