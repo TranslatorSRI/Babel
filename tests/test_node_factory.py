@@ -85,7 +85,6 @@ def test_labeling_2():
     labeldir = os.path.join(here,'testdata')
     fac = NodeFactory(labeldir)
     node = fac.create_node([f'{pref.ENSEMBL}:81239',f'{pref.NCBIGENE}:123', f'{pref.DICTYBASE}:1234'],'biolink:Gene',{f'{pref.DICTYBASE}:1234': 'name'})
-    print(node['id'])
     assert node['id']['identifier'] == f'{pref.NCBIGENE}:123'
     assert node['equivalent_identifiers'][0]['identifier'] == node['id']['identifier']
     assert node['equivalent_identifiers'][1]['identifier'] == f'{pref.ENSEMBL}:81239'
@@ -95,7 +94,6 @@ def test_labeling_2():
 
 def test_clean_list():
     input = frozenset({'UMLS:C1839767', 'UMLS:C1853383', LabeledID('HP:0010804','Tented upper lip vermilion'), 'UMLS:C1850072','HP:0010804'})
-    #input = ['HP:0010804', 'UMLS:C1839767', 'UMLS:C1853383', LabeledID('HP:0010804','Tented upper lip vermilion'), 'UMLS:C1850072']
     here=os.path.abspath(os.path.dirname(__file__))
     labeldir = os.path.join(here,'testdata')
     nf = NodeFactory(labeldir)
@@ -127,3 +125,48 @@ def test_same_value_different_prefix():
     node = fac.create_node(input,'biolink:Gene',{})
     assert len(node['equivalent_identifiers']) == 3
     assert len(set([x['identifier'] for x in node['equivalent_identifiers']])) == 3
+
+def test_pubchem_simple():
+    """PUBCHEM.COMPOUND is the preferred prefix, but what if there are 2 of them?  We want to choose the one that has the label matching other labels"""
+    here=os.path.abspath(os.path.dirname(__file__))
+    labeldir = os.path.join(here,'testdata')
+    fac = NodeFactory(labeldir)
+    node = fac.create_node([f'{pref.PUBCHEMCOMPOUND}:999',
+                            f'{pref.PUBCHEMCOMPOUND}:111',
+                            f'{pref.CHEBI}:XYZ'],
+                           'biolink:SmallMolecule',
+                           {f'{pref.PUBCHEMCOMPOUND}:999': 'water',
+                            f'{pref.PUBCHEMCOMPOUND}:111': 'h',
+                            f'{pref.CHEBI}:XYZ': 'WATER'})
+    assert node['id']['identifier'] == f'{pref.PUBCHEMCOMPOUND}:999'
+    assert node['id']['label'] == 'water'
+
+def test_pubchem_no_match():
+    """PUBCHEM.COMPOUND is the preferred prefix, use the shortest label"""
+    here=os.path.abspath(os.path.dirname(__file__))
+    labeldir = os.path.join(here,'testdata')
+    fac = NodeFactory(labeldir)
+    node = fac.create_node([f'{pref.PUBCHEMCOMPOUND}:999',
+                            f'{pref.PUBCHEMCOMPOUND}:111',
+                            f'{pref.CHEBI}:XYZ'],
+                           'biolink:SmallMolecule',
+                           {f'{pref.PUBCHEMCOMPOUND}:999': 'h',
+                            f'{pref.PUBCHEMCOMPOUND}:111': 'water',
+                            f'{pref.CHEBI}:XYZ': 'blahblah'})
+    assert node['id']['identifier'] == f'{pref.PUBCHEMCOMPOUND}:999'
+    assert node['id']['label'] == 'h'
+
+def test_pubchem_ignore_CID():
+    """PUBCHEM.COMPOUND is the preferred prefix, use the shortest label unless it's a CID"""
+    here=os.path.abspath(os.path.dirname(__file__))
+    labeldir = os.path.join(here,'testdata')
+    fac = NodeFactory(labeldir)
+    node = fac.create_node([f'{pref.PUBCHEMCOMPOUND}:999',
+                            f'{pref.PUBCHEMCOMPOUND}:111',
+                            f'{pref.CHEBI}:XYZ'],
+                           'biolink:SmallMolecule',
+                           {f'{pref.PUBCHEMCOMPOUND}:999': 'CID1',
+                            f'{pref.PUBCHEMCOMPOUND}:111': 'longerlabel',
+                            f'{pref.CHEBI}:XYZ': 'blahblah'})
+    assert node['id']['identifier'] == f'{pref.PUBCHEMCOMPOUND}:111'
+    assert node['id']['label'] == 'longerlabel'

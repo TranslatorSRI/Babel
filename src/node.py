@@ -240,7 +240,7 @@ def pubchemsort(pc_ids, labeled_ids):
                 label_counts[lid.label.upper()] += 1
         except:
             pass
-    matches = [ (label_counts[pclabel],pcident) for pcident,pclabel in pclabels.items() ]
+    matches = [ (label_counts[pclabel],pcident) for pclabel,pcident in pclabels.items() ]
     matches.sort()
     best = matches[-1]
     #There are two cases here: we matched something (best[0] > 0) or we didn't (best[0] == 0)
@@ -248,12 +248,12 @@ def pubchemsort(pc_ids, labeled_ids):
         best_pubchem_id = best[1]
     else:
         #now we are going to pick the shortest pubchem label that isn't CID something
-        lens = [ (len(pclabel), pcident) for pcident,pclabel in pclabels.items()]
+        lens = [ (len(pclabel), pcident) for pclabel,pcident in pclabels.items() if not pclabel.startswith('CID') ]
         lens.sort()
-        best_pubchem_id = matches[-1][1]
+        best_pubchem_id = lens[0][1]
     for pcelement in pc_ids:
         pcid,_ = pcelement
-        if pcid.identifer == best_pubchem_id:
+        if pcid == best_pubchem_id:
             best_pubchem = pcelement
     pc_ids.remove(best_pubchem)
     return [best_pubchem] + pc_ids
