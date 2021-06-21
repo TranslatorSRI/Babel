@@ -36,11 +36,11 @@ def write_pubchem_ids(labelfile,smilesfile,outfile):
             if sn == pn:
                 #We have a smiles for this id
                 stype = get_type_from_smiles(smiline[1])
-                outf.write(f'{x}\t{stype}')
+                outf.write(f'{x}\t{stype}\n')
             else:
                 #sn > pn, we went past it.  No smiles for that
                 print('no smiles:',x,pn,sn)
-                outf.write(f'{x}\t{CHEMICAL_ENTITY}')
+                outf.write(f'{x}\t{CHEMICAL_ENTITY}\n')
 
 
 def write_mesh_ids(outfile):
