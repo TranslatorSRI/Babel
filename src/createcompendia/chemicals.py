@@ -107,7 +107,7 @@ def write_unii_ids(infile,outfile):
                 if len(x[bcn]) > 0:
                     #This is a plant or an eye of newt or something
                     continue
-            outf.write(f'{UNII}:{x[0]}\t{CHEMICAL_SUBSTANCE}\n')
+            outf.write(f'{UNII}:{x[0]}\t{CHEMICAL_ENTITY}\n')
 
 def write_drugbank_ids(infile,outfile):
     """We don't have a good drugbank source, so we're going to dig through unichem and get out drugbank ids."""
