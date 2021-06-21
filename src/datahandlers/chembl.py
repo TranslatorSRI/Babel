@@ -79,7 +79,7 @@ class ChemblRDF:
              WHERE {
                 ?molecule cheminf:SIO_000008 ?smile_entity 
                 ?smile_entity a cheminf:CHEMINF_000018 ;
-                              cheminf:SIO_000300 smiles? .
+                              cheminf:SIO_000300 ?smiles .
             }
         """
         qres = self.m.query(s)
