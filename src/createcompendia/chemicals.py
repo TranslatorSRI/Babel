@@ -40,7 +40,7 @@ def write_pubchem_ids(labelfile,smilesfile,outfile):
             else:
                 #sn > pn, we went past it.  No smiles for that
                 print('no smiles:',x,pn,sn)
-                exit()
+                outf.write(f'{x}\t{CHEMICAL_ENTITY}')
 
 
 def write_mesh_ids(outfile):
