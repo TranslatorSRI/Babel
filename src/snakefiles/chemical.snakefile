@@ -22,12 +22,12 @@ rule chemical_pubchem_ids:
 
 rule chemical_chembl_ids:
     input:
-        infile=config['download_directory']+"/CHEMBL.COMPOUND/labels"
+        labelfile=config['download_directory']+"/CHEMBL.COMPOUND/labels",
+        smifile  =config['download_directory'] + "/CHEMBL.COMPOUND/smiles"
     output:
         outfile=config['download_directory']+"/chemicals/ids/CHEMBL.COMPOUND"
-    shell:
-        #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+    run:
+        chemicals.write_chemical_ids_from_labels_and_smiles(input.labelfile,input.smifile,output.outfile)
 
 rule chemical_gtopdb_ids:
     input:
@@ -44,7 +44,7 @@ rule chemical_kegg_ids:
         outfile=config['download_directory']+"/chemicals/ids/KEGG.COMPOUND"
     shell:
         #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+        "awk '{{print $1\"\tbiolink:ChemicalEntyt\"}}' {input.infile} > {output.outfile}"
 
 rule chemical_unii_ids:
     input:
@@ -61,7 +61,7 @@ rule chemical_hmdb_ids:
     output:
         outfile=config['download_directory']+"/chemicals/ids/HMDB"
     run:
-        chemicals.write_hmdb_ids(input.labelfile,input.smifile,output.outfile)
+        chemicals.write_chemical_ids_from_labels_and_smiles(input.labelfile,input.smifile,output.outfile)
 
 rule chemical_drugcentral_ids:
     input:

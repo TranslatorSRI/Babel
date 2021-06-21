@@ -127,7 +127,7 @@ def write_drugbank_ids(infile,outfile):
                 outf.write(f'{dbid}\t{CHEMICAL_ENTITY}\n')
                 written.add(x[2])
 
-def write_hmdb_ids(labelfile,smifile,outfile):
+def write_chemical_ids_from_labels_and_smiles(labelfile,smifile,outfile):
     smiles = {}
     with open(smifile,'r') as inf:
         for line in inf:
