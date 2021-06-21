@@ -4,6 +4,7 @@ from collections import defaultdict
 from src.babel_utils import norm
 
 class UberGraph:
+    #Some of these get_subclass_and_whatever things can/should be merged...
 
     def __init__(self):
         self.triplestore = TripleStore("https://stars-app.renci.org/uberongraph/sparql")
@@ -106,6 +107,44 @@ class UberGraph:
             y = {}
             y['descendent'] = Text.opt_to_curie(x['descendent'])
             y['descendentLabel'] = x['descendentLabel']
+            results.append(y)
+        return results
+
+    def get_subclasses_and_smiles(self,iri):
+        text="""
+        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        prefix UBERON: <http://purl.obolibrary.org/obo/UBERON_>
+        prefix CL: <http://purl.obolibrary.org/obo/CL_>
+        prefix GO: <http://purl.obolibrary.org/obo/GO_>
+        prefix CHEBI: <http://purl.obolibrary.org/obo/CHEBI_>
+        prefix CHEBIP: <http://purl.obolibrary.org/obo/chebi/>
+        prefix MONDO: <http://purl.obolibrary.org/obo/MONDO_>
+        prefix HP: <http://purl.obolibrary.org/obo/HP_>
+        prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
+        prefix PR: <http://purl.obolibrary.org/obo/PR_>
+        prefix EFO: <http://www.ebi.ac.uk/efo/EFO_>
+        select distinct ?descendent ?descendentSmiles
+        from <http://reasoner.renci.org/ontology>
+        where {
+            graph <http://reasoner.renci.org/ontology/closure> {
+                ?descendent rdfs:subClassOf $sourcedefclass .
+            }
+            OPTIONAL {
+                ?descendent CHEBIP:smiles ?descendentSmiles .
+            }
+        }
+        """
+        rr = self.triplestore.query_template(
+            inputs  = { 'sourcedefclass': iri  }, \
+            outputs = [ 'descendent', 'descendentSmiles' ], \
+            template_text = text \
+        )
+        results = []
+        for x in rr:
+            y = {}
+            y['descendent'] = Text.opt_to_curie(x['descendent'])
+            if x['descendentSmiles'] is not None:
+                y['SMILES'] = x['descendentSmiles']
             results.append(y)
         return results
 

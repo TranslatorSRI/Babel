@@ -8,7 +8,7 @@ def pull_pubchem():
 
 def pull_pubchem_structures():
     files = ['CID-InChI-Key.gz','CID-SMILES.gz']
-    pull(files)
+    pull(files,)
 
 def pull(files):
     for f in files:

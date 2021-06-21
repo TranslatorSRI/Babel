@@ -1,17 +1,47 @@
 from collections import defaultdict
 import jsonlines
 import requests
+from gzip import GzipFile
 
 import src.datahandlers.obo as obo
 
-from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND
-from src.categories import CHEMICAL_SUBSTANCE
+from src.ubergraph import UberGraph
+from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL
+from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, \
+    AMINO_ACID_ENTITY
 from src.sdfreader import read_sdf
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
 from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
 
 import src.datahandlers.mesh as mesh
+
+def get_type_from_smiles(smiles):
+    if '.' in smiles:
+        return MOLECULAR_MIXTURE
+    else:
+        return SMALL_MOLECULE
+
+def write_pubchem_ids(labelfile,smilesfile,outfile):
+    #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
+    # but since they're already sorted, let's give it a shot
+    with open(labelfile,'r') as inlabels, GzipFile(smilesfile,'r') as insmiles, open(outfile,'w') as outf:
+        sn = -1
+        for labelline in inlabels:
+            x = labelline.split('\t')[0]
+            pn = int(x.split(':')[-1])
+            while sn < pn:
+                smiline = insmiles.readline().decode('utf-8').strip().split('\t')
+                sn = int(smiline[0])
+            if sn == pn:
+                #We have a smiles for this id
+                stype = get_type_from_smiles(smiline[1])
+                outf.write(f'{x}\t{stype}')
+            else:
+                #sn > pn, we went past it.  No smiles for that
+                print('no smiles:',x,pn,sn)
+                exit()
+
 
 def write_mesh_ids(outfile):
     #Get the D tree,
@@ -21,7 +51,7 @@ def write_mesh_ids(outfile):
     # D04	Polycyclic Compounds
     # D05	Macromolecular Substances  NO
     # D06	Hormones, Hormone Substitutes, and Hormone Antagonists
-    # D08	Enzymes and Coenzymes
+    # D08	Enzymes and Coenzymes  NO, include with ... Activities?
     # D09	Carbohydrates
     # D10	Lipids
     # D12	Amino Acids, Peptides, and Proteins
@@ -33,22 +63,36 @@ def write_mesh_ids(outfile):
     # D23	Biological Factors
     # D25	Biomedical and Dental Materials
     # D26	Pharmaceutical Preparations
-    # D27	Chemical Actions and Uses
-    meshmap = { f'D{str(i).zfill(2)}': CHEMICAL_SUBSTANCE for i in range(1, 28)}
+    # D27	Chemical Actions and Uses NO
+    meshmap = { f'D{str(i).zfill(2)}': CHEMICAL_ENTITY for i in range(1, 27)}
     meshmap['D05'] = 'EXCLUDE'
+    meshmap['D08'] = 'EXCLUDE'
     meshmap['D12.776'] = 'EXCLUDE'
-    meshmap['D12.125'] = CHEMICAL_SUBSTANCE
-    meshmap['D12.644'] = CHEMICAL_SUBSTANCE
+    meshmap['D12.125'] = POLYPEPTIDE
+    meshmap['D12.644'] = POLYPEPTIDE
+    meshmap['D13'] = AMINO_ACID_ENTITY
+    meshmap['D20'] = COMPLEX_CHEMICAL_MIXTURE
     #Also add anything from SCR_Chemical, if it doesn't have a tree map
-    mesh.write_ids(meshmap,outfile,order=['EXCLUDE',CHEMICAL_SUBSTANCE],extra_vocab={'SCR_Chemical':CHEMICAL_SUBSTANCE})
+    mesh.write_ids(meshmap,outfile,order=['EXCLUDE',POLYPEPTIDE,AMINO_ACID_ENTITY,CHEMICAL_ENTITY],extra_vocab={'SCR_Chemical':CHEMICAL_ENTITY})
 
-def write_obo_ids(irisandtypes,outfile,exclude=[]):
-    order = [CHEMICAL_SUBSTANCE]
-    obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])
+#def write_obo_ids(irisandtypes,outfile,exclude=[]):
+#    order = [CHEMICAL_SUBSTANCE]
+#    obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])
 
 def write_chebi_ids(outfile):
+    #We're not using obo.write_obo_ids here because we need to 1) grab smiles as well and 2) figure out the types
     chemical_entity_id = f'{CHEBI}:24431'
-    write_obo_ids([(chemical_entity_id, CHEMICAL_SUBSTANCE)], outfile)
+    uber = UberGraph()
+    uberres = uber.get_subclasses_and_smiles(chemical_entity_id)
+    with open(outfile, 'w') as idfile:
+        for k in uberres:
+            if 'SMILES' in k:
+                #Is it a mixture?
+                ctype = get_type_from_smiles(k['SMILES'])
+            else:
+                #What is it?
+                ctype = CHEMICAL_ENTITY
+            idfile.write(f'{k["descendent"]}\t{ctype}\n')
 
 def write_unii_ids(infile,outfile):
     """UNII contains a bunch of junk like leaves.   We are going to try to clean it a bit to get things
@@ -80,8 +124,47 @@ def write_drugbank_ids(infile,outfile):
                 if x[2] in written:
                     continue
                 dbid = f'{DRUGBANK}:{x[2]}'
-                outf.write(f'{dbid}\t{CHEMICAL_SUBSTANCE}\n')
+                outf.write(f'{dbid}\t{CHEMICAL_ENTITY}\n')
                 written.add(x[2])
+
+def write_hmdb_ids(labelfile,smifile,outfile):
+    smiles = {}
+    with open(smifile,'r') as inf:
+        for line in inf:
+            x = line.strip().split('\t')
+            smiles[x[0]] = x[1]
+    with open(labelfile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            hmdbid = line.split('\t')[0]
+            if hmdbid in smiles:
+                ctype = get_type_from_smiles(smiles[hmdbid])
+            else:
+                ctype = CHEMICAL_ENTITY
+            outf.write(f'{hmdbid}\t{ctype}\n')
+
+
+def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            x = line.split('\t')
+            if stripquotes:
+                x = [ xi[1:-1] for xi in x ]
+            smi = x[smicol]
+            dcid = f'{pref}:{x[idcol]}'
+            ctype = get_type_from_smiles(smi)
+            outf.write(f'{dcid}\t{ctype}\n')
+
+def write_drugcentral_ids(infile,outfile):
+    smicol = 0
+    idcol = 3
+    pref = DRUGCENTRAL
+    parse_smifile(infile,outfile,smicol,idcol,pref)
+
+def write_gtopdb_ids(infile,outfile):
+    smicol = 14
+    idcol = 0
+    pref = GTOPDB
+    parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=True)
 
 def write_unichem_concords(structfile,reffile,outdir):
     inchikeys = read_inchikeys(structfile)

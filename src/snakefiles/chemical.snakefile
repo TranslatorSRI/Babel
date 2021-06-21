@@ -11,13 +11,14 @@ rule chemical_mesh_ids:
 
 rule chemical_pubchem_ids:
     input:
-        infile=config['download_directory']+"/PUBCHEM.COMPOUND/labels"
+        infile=config['download_directory']+"/PUBCHEM.COMPOUND/labels",
+        smilesfile=config['download_directory']+"/PUBCHEM.COMPOUND/CID-SMILES.gz"
     output:
         outfile=config['download_directory']+"/chemicals/ids/PUBCHEM.COMPOUND"
-    shell:
+    run:
         #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
-
+        chemicals.write_pubchem_ids(input.infile,input.smilesfile,output.outfile)
+        #"awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
 
 rule chemical_chembl_ids:
     input:
@@ -30,12 +31,11 @@ rule chemical_chembl_ids:
 
 rule chemical_gtopdb_ids:
     input:
-        infile=config['download_directory']+"/GTOPDB/labels"
+        infile=config['download_directory']+"/GTOPDB/ligands.tsv"
     output:
         outfile=config['download_directory']+"/chemicals/ids/GTOPDB"
-    shell:
-        #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+    run:
+        chemicals.write_gtopdb_ids
 
 rule chemical_kegg_ids:
     input:
@@ -56,21 +56,20 @@ rule chemical_unii_ids:
 
 rule chemical_hmdb_ids:
     input:
-        infile=config['download_directory']+"/HMDB/labels"
+        labelfile=config['download_directory']+"/HMDB/labels",
+        smifile=config['download_directory'] + "/HMDB/smiles"
     output:
         outfile=config['download_directory']+"/chemicals/ids/HMDB"
-    shell:
-        #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+    run:
+        chemicals.write_hmdb_ids(input.labelfile,input.smifile,output.outfile)
 
 rule chemical_drugcentral_ids:
     input:
         infile=config['download_directory']+"/DrugCentral/labels"
     output:
         outfile=config['download_directory']+"/chemicals/ids/DrugCentral"
-    shell:
-        #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+    run:
+        chemicals.write_drugcentral_ids(input.infile,output.outfile)
 
 rule chemical_chebi_ids:
     output:
