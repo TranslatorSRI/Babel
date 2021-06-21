@@ -73,7 +73,7 @@ def write_mesh_ids(outfile):
     meshmap['D13'] = AMINO_ACID_ENTITY
     meshmap['D20'] = COMPLEX_CHEMICAL_MIXTURE
     #Also add anything from SCR_Chemical, if it doesn't have a tree map
-    mesh.write_ids(meshmap,outfile,order=['EXCLUDE',POLYPEPTIDE,AMINO_ACID_ENTITY,CHEMICAL_ENTITY],extra_vocab={'SCR_Chemical':CHEMICAL_ENTITY})
+    mesh.write_ids(meshmap,outfile,order=['EXCLUDE',POLYPEPTIDE,AMINO_ACID_ENTITY,COMPLEX_CHEMICAL_MIXTURE,CHEMICAL_ENTITY],extra_vocab={'SCR_Chemical':CHEMICAL_ENTITY})
 
 #def write_obo_ids(irisandtypes,outfile,exclude=[]):
 #    order = [CHEMICAL_SUBSTANCE]
