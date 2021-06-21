@@ -35,7 +35,7 @@ rule chemical_gtopdb_ids:
     output:
         outfile=config['download_directory']+"/chemicals/ids/GTOPDB"
     run:
-        chemicals.write_gtopdb_ids(input.infile,output.outfil)
+        chemicals.write_gtopdb_ids(input.infile,output.outfile)
 
 rule chemical_kegg_ids:
     input:
