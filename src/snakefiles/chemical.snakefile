@@ -65,7 +65,7 @@ rule chemical_hmdb_ids:
 
 rule chemical_drugcentral_ids:
     input:
-        infile=config['download_directory']+"/DrugCentral/labels"
+        infile=config['download_directory']+"/DrugCentral/structures.smiles.tsv"
     output:
         outfile=config['download_directory']+"/chemicals/ids/DrugCentral"
     run:
