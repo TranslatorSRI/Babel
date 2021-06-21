@@ -383,11 +383,48 @@ def build_compendia(concordances, identifiers,unichem_partial):
                 pairs.append( set([x[0], x[2]]))
         newpairs = remove_overused_xrefs(pairs)
         glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
-    chem_sets = set([frozenset(x) for x in dicts.values()])
-    baretype = CHEMICAL_SUBSTANCE.split(':')[-1]
-    write_compendium(chem_sets, f'{baretype}.txt', CHEMICAL_SUBSTANCE, {})
+    typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]), types)
+    for biotype, sets in typed_sets.items():
+        baretype = biotype.split(':')[-1]
+        write_compendium(sets, f'{baretype}.txt', biotype, {})
 
-
+def create_typed_sets(eqsets, types):
+    """Given a set of sets of equivalent identifiers, we want to type each one into
+    being either a disease or a phenotypic feature.  Or something else, that we may want to
+    chuck out here.
+    Current rules: If it has GO trust the GO's type
+    After that, check the types dict to see if we know anything.
+    """
+    order = [MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, AMINO_ACID_ENTITY, CHEMICAL_ENTITY]
+    typed_sets = defaultdict(set)
+    for equivalent_ids in eqsets:
+        # prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
+        prefixes = get_prefixes(equivalent_ids)
+        found = False
+        for prefix in [PUBCHEMCOMPOUND]:
+            if prefix in prefixes and not found:
+                mytype = types[prefixes[prefix][0]]
+                typed_sets[mytype].add(equivalent_ids)
+                found = True
+        if not found:
+            typecounts = defaultdict(int)
+            for eid in equivalent_ids:
+                if eid in types:
+                    typecounts[types[eid]] += 1
+            if len(typecounts) == 0:
+                print('how did we not get any types?')
+                print(equivalent_ids)
+                exit()
+            elif len(typecounts) == 1:
+                t = list(typecounts.keys())[0]
+                typed_sets[t].add(equivalent_ids)
+            else:
+                # First attempt is majority vote, and after that by most specific
+                otypes = [(-c, order.index(t), t) for t, c in typecounts.items()]
+                otypes.sort()
+                t = otypes[0][2]
+                typed_sets[t].add(equivalent_ids)
+    return typed_sets
 
 ###TRASH VVVVVVVV TRASH###
 
