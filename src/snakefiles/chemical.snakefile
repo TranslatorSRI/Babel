@@ -175,11 +175,53 @@ rule check_chemical_completeness:
     run:
         assessments.assess_completeness(config['download_directory']+'/chemicals/ids',input.input_compendia,output.report_file)
 
-rule check_chemical:
+rule check_chemical_entity:
     input:
-        infile=config['output_directory']+'/compendia/ChemicalSubstance.txt'
+        infile=config['output_directory']+'/compendia/ChemicalEntity.txt'
     output:
-        outfile=config['output_directory']+'/reports/ChemicalSubstance.txt'
+        outfile=config['output_directory']+'/reports/ChemicalEntity.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+["biolink:MolecularMixture", "biolink:SmallMolecule", "biolink:Polypeptide", "biolink:ComplexChemicalMixture", "biolink:AminoAcidEntity", "biolink:ChemicalEntity"],
+
+rule check_molecular_mixture:
+    input:
+        infile=config['output_directory']+'/compendia/MolecularMixture.txt'
+    output:
+        outfile=config['output_directory']+'/reports/MolecularMixture.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+rule check_small_molecule:
+    input:
+        infile=config['output_directory']+'/compendia/SmallMolecule.txt'
+    output:
+        outfile=config['output_directory']+'/reports/SmallMolecule.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+rule check_polypeptide:
+    input:
+        infile=config['output_directory']+'/compendia/Polypeptide.txt'
+    output:
+        outfile=config['output_directory']+'/reports/Polypeptide.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+rule check_complex_mixture:
+    input:
+        infile=config['output_directory']+'/compendia/ComplexChemicalMixture.txt'
+    output:
+        outfile=config['output_directory']+'/reports/ComplexChemicalMixture.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+rule check_amino_acid_entity:
+    input:
+        infile=config['output_directory']+'/compendia/AminoAcidEntity.txt'
+    output:
+        outfile=config['output_directory']+'/reports/AminoAcidEntity.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 

@@ -3,8 +3,6 @@ import jsonlines
 import requests
 from gzip import GzipFile
 
-import src.datahandlers.obo as obo
-
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL
 from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, \
@@ -339,6 +337,9 @@ def get_mesh_relationships(cas_out, unii_out):
     with open(cas_out,'w') as casout, open(unii_out,'w') as uniiout:
         for meshid,reg in regis:
             if reg.startswith('EC'):
+                continue
+            if reg.startswith('txid'):
+                #is a taxon
                 continue
             if is_cas(reg):
                 casout.write(f'{meshid}\txref\tCAS:{reg}\n')
