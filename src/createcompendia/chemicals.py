@@ -5,8 +5,7 @@ from gzip import GzipFile
 
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL
-from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, \
-    AMINO_ACID_ENTITY, CHEMICAL_MIXTURE
+from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE
 from src.sdfreader import read_sdf
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
@@ -68,10 +67,10 @@ def write_mesh_ids(outfile):
     meshmap['D12.776'] = 'EXCLUDE'
     meshmap['D12.125'] = POLYPEPTIDE
     meshmap['D12.644'] = POLYPEPTIDE
-    meshmap['D13'] = AMINO_ACID_ENTITY
+    meshmap['D13'] = POLYPEPTIDE
     meshmap['D20'] = COMPLEX_CHEMICAL_MIXTURE
     #Also add anything from SCR_Chemical, if it doesn't have a tree map
-    mesh.write_ids(meshmap,outfile,order=['EXCLUDE',POLYPEPTIDE,AMINO_ACID_ENTITY,COMPLEX_CHEMICAL_MIXTURE,CHEMICAL_ENTITY],extra_vocab={'SCR_Chemical':CHEMICAL_ENTITY})
+    mesh.write_ids(meshmap,outfile,order=['EXCLUDE',POLYPEPTIDE,COMPLEX_CHEMICAL_MIXTURE,CHEMICAL_ENTITY],extra_vocab={'SCR_Chemical':CHEMICAL_ENTITY})
 
 #def write_obo_ids(irisandtypes,outfile,exclude=[]):
 #    order = [CHEMICAL_SUBSTANCE]
@@ -82,10 +81,12 @@ def write_chebi_ids(outfile):
     chemical_entity_id = f'{CHEBI}:24431'
     racimate_id = f'{CHEBI}:60911'
     mixture_id = f'{CHEBI}:60004'
+    peptide_id = f'{CHEBI}:16670'
     uber = UberGraph()
     uberres_chems = uber.get_subclasses_and_smiles(chemical_entity_id)
     uberres_racimates = set([x['descendent'] for x in uber.get_subclasses_of(racimate_id)]) #no smiles for this one
     uberres_mixtures = set([x['descendent'] for x in uber.get_subclasses_of(mixture_id)]) #no smiles for this one
+    uberres_peptides = set([x['descendent'] for x in uber.get_subclasses_of(peptide_id)]) #no smiles for this one
     with open(outfile, 'w') as idfile:
         for k in uberres_chems:
             desc = k["descendent"]
@@ -93,6 +94,8 @@ def write_chebi_ids(outfile):
                 continue
             if desc in uberres_racimates:
                 ctype = MOLECULAR_MIXTURE
+            elif desc in uberres_peptides:
+                ctype = POLYPEPTIDE
             elif desc in uberres_mixtures:
                 ctype = CHEMICAL_MIXTURE
             elif 'SMILES' in k:

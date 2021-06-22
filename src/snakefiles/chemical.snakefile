@@ -219,14 +219,6 @@ rule check_complex_mixture:
     run:
         assessments.assess(input.infile, output.outfile)
 
-rule check_amino_acid_entity:
-    input:
-        infile=config['output_directory']+'/compendia/AminoAcidEntity'
-    output:
-        outfile=config['output_directory']+'/reports/AminoAcidEntity'
-    run:
-        assessments.assess(input.infile, output.outfile)
-
 rule check_chemical_mixture:
     input:
         infile=config['output_directory']+'/compendia/ChemicalMixture'
