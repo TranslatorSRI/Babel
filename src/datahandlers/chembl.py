@@ -77,7 +77,7 @@ class ChemblRDF:
              PREFIX cheminf: <http://semanticscience.org/resource/>
              SELECT ?molecule ?smiles
              WHERE {
-                ?molecule cheminf:SIO_000008 ?smile_entity 
+                ?molecule cheminf:SIO_000008 ?smile_entity .
                 ?smile_entity a cheminf:CHEMINF_000018 ;
                               cheminf:SIO_000300 ?smiles .
             }
