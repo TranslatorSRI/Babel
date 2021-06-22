@@ -177,9 +177,9 @@ rule check_chemical_completeness:
 
 rule check_chemical_entity:
     input:
-        infile=config['output_directory']+'/compendia/ChemicalEntity.txt'
+        infile=config['output_directory']+'/compendia/ChemicalEntity'
     output:
-        outfile=config['output_directory']+'/reports/ChemicalEntity.txt'
+        outfile=config['output_directory']+'/reports/ChemicalEntity'
     run:
         assessments.assess(input.infile, output.outfile)
 
@@ -187,41 +187,41 @@ rule check_chemical_entity:
 
 rule check_molecular_mixture:
     input:
-        infile=config['output_directory']+'/compendia/MolecularMixture.txt'
+        infile=config['output_directory']+'/compendia/MolecularMixture'
     output:
-        outfile=config['output_directory']+'/reports/MolecularMixture.txt'
+        outfile=config['output_directory']+'/reports/MolecularMixture'
     run:
         assessments.assess(input.infile, output.outfile)
 
 rule check_small_molecule:
     input:
-        infile=config['output_directory']+'/compendia/SmallMolecule.txt'
+        infile=config['output_directory']+'/compendia/SmallMolecule'
     output:
-        outfile=config['output_directory']+'/reports/SmallMolecule.txt'
+        outfile=config['output_directory']+'/reports/SmallMolecule'
     run:
         assessments.assess(input.infile, output.outfile)
 
 rule check_polypeptide:
     input:
-        infile=config['output_directory']+'/compendia/Polypeptide.txt'
+        infile=config['output_directory']+'/compendia/Polypeptide'
     output:
-        outfile=config['output_directory']+'/reports/Polypeptide.txt'
+        outfile=config['output_directory']+'/reports/Polypeptide'
     run:
         assessments.assess(input.infile, output.outfile)
 
 rule check_complex_mixture:
     input:
-        infile=config['output_directory']+'/compendia/ComplexChemicalMixture.txt'
+        infile=config['output_directory']+'/compendia/ComplexChemicalMixture'
     output:
-        outfile=config['output_directory']+'/reports/ComplexChemicalMixture.txt'
+        outfile=config['output_directory']+'/reports/ComplexChemicalMixture'
     run:
         assessments.assess(input.infile, output.outfile)
 
 rule check_amino_acid_entity:
     input:
-        infile=config['output_directory']+'/compendia/AminoAcidEntity.txt'
+        infile=config['output_directory']+'/compendia/AminoAcidEntity'
     output:
-        outfile=config['output_directory']+'/reports/AminoAcidEntity.txt'
+        outfile=config['output_directory']+'/reports/AminoAcidEntity'
     run:
         assessments.assess(input.infile, output.outfile)
 
