@@ -80,14 +80,18 @@ def write_mesh_ids(outfile):
 def write_chebi_ids(outfile):
     #We're not using obo.write_obo_ids here because we need to 1) grab smiles as well and 2) figure out the types
     chemical_entity_id = f'{CHEBI}:24431'
+    racimate_id = f'{CHEBI}:60911'
     uber = UberGraph()
-    uberres = uber.get_subclasses_and_smiles(chemical_entity_id)
+    uberres_chems = uber.get_subclasses_and_smiles(chemical_entity_id)
+    uberres_racimates = set([x['descendent'] for x in uber.get_subclasses_of(racimate_id)]) #no smiles for this one
     with open(outfile, 'w') as idfile:
-        for k in uberres:
+        for k in uberres_chems:
             desc = k["descendent"]
             if not desc.startswith('CHEBI'):
                 continue
-            if 'SMILES' in k:
+            if desc in uberres_racimates:
+                ctype = MOLECULAR_MIXTURE
+            elif 'SMILES' in k:
                 #Is it a mixture?
                 ctype = get_type_from_smiles(k['SMILES'])
             else:
