@@ -404,9 +404,12 @@ def create_typed_sets(eqsets, types):
         found = False
         for prefix in [PUBCHEMCOMPOUND]:
             if prefix in prefixes and not found:
-                mytype = types[prefixes[prefix][0]]
-                typed_sets[mytype].add(equivalent_ids)
-                found = True
+                try:
+                    mytype = types[prefixes[prefix][0]]
+                    typed_sets[mytype].add(equivalent_ids)
+                    found = True
+                except:
+                    pass
         if not found:
             typecounts = defaultdict(int)
             for eid in equivalent_ids:
