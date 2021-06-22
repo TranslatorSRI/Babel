@@ -84,6 +84,9 @@ def write_chebi_ids(outfile):
     uberres = uber.get_subclasses_and_smiles(chemical_entity_id)
     with open(outfile, 'w') as idfile:
         for k in uberres:
+            desc = k["descendent"]
+            if not desc.startswith('CHEBI'):
+                continue
             if 'SMILES' in k:
                 #Is it a mixture?
                 ctype = get_type_from_smiles(k['SMILES'])
