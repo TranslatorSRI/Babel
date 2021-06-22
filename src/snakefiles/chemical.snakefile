@@ -95,11 +95,13 @@ rule get_chemical_wikipedia_relationships:
         chemicals.get_wikipedia_relationships(output.outfile)
 
 rule get_chemical_mesh_relationships:
+    input:
+        infile = config['download_directory'] + '/chemicals/ids/MESH'
     output:
         casout = config['download_directory'] + '/chemicals/concords/mesh_cas',
         uniout = config['download_directory'] + '/chemicals/concords/mesh_unii'
     run:
-        chemicals.get_mesh_relationships(output.casout,output.uniout)
+        chemicals.get_mesh_relationships(input.infile,output.casout,output.uniout)
 
 #This is about a 2 hour step and requires something more than 256G of RAM.  512G works.
 rule get_chemical_unichem_relationships:

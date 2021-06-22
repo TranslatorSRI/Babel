@@ -331,11 +331,17 @@ def make_chebi_relations(sdf,dbx,outfile):
 
 
 
-def get_mesh_relationships(cas_out, unii_out):
-    #perhaps I should filter by the chemical mesh ids...
+def get_mesh_relationships(mesh_id_file,cas_out, unii_out):
+    meshes = set()
+    with open(mesh_id_file,'r') as inf:
+        for line in inf:
+            x = line.split('\t')
+            meshes.add(x[0])
     regis = mesh.pull_mesh_registry()
     with open(cas_out,'w') as casout, open(unii_out,'w') as uniiout:
         for meshid,reg in regis:
+            if meshid not in meshes:
+                continue
             if reg.startswith('EC'):
                 continue
             if reg.startswith('txid'):
