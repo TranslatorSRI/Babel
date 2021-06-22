@@ -227,6 +227,15 @@ rule check_amino_acid_entity:
     run:
         assessments.assess(input.infile, output.outfile)
 
+rule check_chemical_mixture:
+    input:
+        infile=config['output_directory']+'/compendia/ChemicalMixture'
+    output:
+        outfile=config['output_directory']+'/reports/ChemicalMixture'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+
 rule chemical:
     input:
         config['output_directory']+'/reports/chemical_completeness.txt',

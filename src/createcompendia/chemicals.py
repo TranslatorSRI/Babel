@@ -6,7 +6,7 @@ from gzip import GzipFile
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL
 from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, \
-    AMINO_ACID_ENTITY
+    AMINO_ACID_ENTITY, CHEMICAL_MIXTURE
 from src.sdfreader import read_sdf
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
@@ -81,9 +81,11 @@ def write_chebi_ids(outfile):
     #We're not using obo.write_obo_ids here because we need to 1) grab smiles as well and 2) figure out the types
     chemical_entity_id = f'{CHEBI}:24431'
     racimate_id = f'{CHEBI}:60911'
+    mixture_id = f'{CHEBI}:60004'
     uber = UberGraph()
     uberres_chems = uber.get_subclasses_and_smiles(chemical_entity_id)
     uberres_racimates = set([x['descendent'] for x in uber.get_subclasses_of(racimate_id)]) #no smiles for this one
+    uberres_mixtures = set([x['descendent'] for x in uber.get_subclasses_of(mixture_id)]) #no smiles for this one
     with open(outfile, 'w') as idfile:
         for k in uberres_chems:
             desc = k["descendent"]
@@ -91,6 +93,8 @@ def write_chebi_ids(outfile):
                 continue
             if desc in uberres_racimates:
                 ctype = MOLECULAR_MIXTURE
+            elif desc in uberres_mixtures:
+                ctype = CHEMICAL_MIXTURE
             elif 'SMILES' in k:
                 #Is it a mixture?
                 ctype = get_type_from_smiles(k['SMILES'])
