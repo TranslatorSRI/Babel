@@ -1,6 +1,7 @@
 from collections import defaultdict
 import jsonlines
 import requests
+import ast
 from gzip import GzipFile
 
 from src.ubergraph import UberGraph
@@ -384,7 +385,7 @@ def get_wikipedia_relationships(outfile):
         for m,c in pairs:
             outf.write(f'{m}\txref\t{c}\n')
 
-def build_compendia(concordances, identifiers,unichem_partial):
+def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_concord, type_file):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = read_partial_unichem(unichem_partial)
@@ -404,7 +405,26 @@ def build_compendia(concordances, identifiers,unichem_partial):
                 pairs.append( set([x[0], x[2]]))
         newpairs = remove_overused_xrefs(pairs)
         glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
-    typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]), types)
+    with open(type_file,'w') as outf:
+        for x,y in types.items():
+            outf.write(f'{x}\t{y}\n')
+    untyped_sets = set([frozenset(x) for x in dicts.values()])
+    with open(untyped_concord, 'w') as outf:
+        for s in untyped_sets:
+            outf.write(f'{s}\n')
+
+def build_compendia(type_file,untyped_compendia_file):
+    types = {}
+    with open(type_file,'r') as inf:
+        for line in inf:
+            x = line.strip().split('\t')
+            types[x[0]] = x[1]
+    untyped_sets = set()
+    with open(untyped_compendia_file,'r') as inf:
+        for line in inf:
+            s = ast.literal_eval(line.strip())
+            untyped_sets.add(s)
+    typed_sets = create_typed_sets(untyped_sets, types)
     for biotype, sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
         write_compendium(sets, f'{baretype}.txt', biotype, {})
