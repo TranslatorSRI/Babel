@@ -416,7 +416,7 @@ def create_typed_sets(eqsets, types):
     Current rules: If it has GO trust the GO's type
     After that, check the types dict to see if we know anything.
     """
-    order = [MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
+    order = [MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
     typed_sets = defaultdict(set)
     for equivalent_ids in eqsets:
         # prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
