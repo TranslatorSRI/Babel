@@ -164,16 +164,16 @@ rule untyped_chemical_compendia:
         concords = expand('{dd}/chemicals/concords/{cc}',dd=config['download_directory'], cc=config['chemical_concords'] ),
         idlists=expand("{dd}/chemicals/ids/{ap}",dd=config['download_directory'],ap=config['chemical_ids']),
     output:
-        typesfile    = config['output_directory'] + '/chemicals/partials/types',
-        untyped_file = config['output_directory'] + '/chemicals/partials/untyped_compendium',
+        typesfile    = config['download_directory'] + '/chemicals/partials/types',
+        untyped_file = config['download_directory'] + '/chemicals/partials/untyped_compendium',
     run:
         chemicals.build_untyped_compendia(input.concords,input.idlists,input.unichemgroup,output.untyped_file,output.typesfile)
 
 
 rule chemical_compendia:
     input:
-        typesfile    = config['output_directory'] + '/chemicals/partials/types',
-        untyped_file = config['output_directory'] + '/chemicals/partials/untyped_compendium',
+        typesfile    = config['download_directory'] + '/chemicals/partials/types',
+        untyped_file = config['download_directory'] + '/chemicals/partials/untyped_compendium',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs'])
