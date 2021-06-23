@@ -438,7 +438,9 @@ def create_typed_sets(eqsets, types):
             if len(typecounts) == 0:
                 print('how did we not get any types?')
                 print(equivalent_ids)
-                exit()
+                #One thing that happens is that we can have PUBCHEMs that have been deleted, but are still in UNICHEM
+                # then the pubchem doesn't get assigned a type, but still ends up in the compendium
+                typed_sets[CHEMICAL_ENTITY].add(equivalent_ids)
             elif len(typecounts) == 1:
                 t = list(typecounts.keys())[0]
                 typed_sets[t].add(equivalent_ids)
