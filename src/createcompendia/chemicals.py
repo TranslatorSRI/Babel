@@ -423,7 +423,7 @@ def build_compendia(type_file,untyped_compendia_file):
     with open(untyped_compendia_file,'r') as inf:
         for line in inf:
             s = ast.literal_eval(line.strip())
-            untyped_sets.add(s)
+            untyped_sets.add(frozenset(s))
     typed_sets = create_typed_sets(untyped_sets, types)
     for biotype, sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
