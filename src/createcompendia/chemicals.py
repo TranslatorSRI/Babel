@@ -411,7 +411,7 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
     untyped_sets = set([frozenset(x) for x in dicts.values()])
     with open(untyped_concord, 'w') as outf:
         for s in untyped_sets:
-            outf.write(f'{s}\n')
+            outf.write(f'{set(s)}\n')
 
 def build_compendia(type_file,untyped_compendia_file):
     types = {}
