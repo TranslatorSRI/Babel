@@ -44,7 +44,7 @@ rule chemical_kegg_ids:
         outfile=config['download_directory']+"/chemicals/ids/KEGG.COMPOUND"
     shell:
         #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalEntyt\"}}' {input.infile} > {output.outfile}"
+        "awk '{{print $1\"\tbiolink:ChemicalEntity\"}}' {input.infile} > {output.outfile}"
 
 rule chemical_unii_ids:
     input:
