@@ -247,10 +247,15 @@ def pubchemsort(pc_ids, labeled_ids):
     if best[0] > 0:
         best_pubchem_id = best[1]
     else:
-        #now we are going to pick the shortest pubchem label that isn't CID something
-        lens = [ (len(pclabel), pcident) for pclabel,pcident in pclabels.items() if not pclabel.startswith('CID') ]
-        lens.sort()
-        best_pubchem_id = lens[0][1]
+        try:
+            #now we are going to pick the shortest pubchem label that isn't CID something
+            lens = [ (len(pclabel), pcident) for pclabel,pcident in pclabels.items() if not pclabel.startswith('CID') ]
+            lens.sort()
+            best_pubchem_id = lens[0][1]
+        except:
+            print(pc_ids)
+            print(pclabels)
+            print(lens)
     for pcelement in pc_ids:
         pcid,_ = pcelement
         if pcid == best_pubchem_id:
