@@ -196,45 +196,43 @@ rule check_chemical_entity:
     run:
         assessments.assess(input.infile, output.outfile)
 
-["biolink:MolecularMixture", "biolink:SmallMolecule", "biolink:Polypeptide", "biolink:ComplexChemicalMixture", "biolink:AminoAcidEntity", "biolink:ChemicalEntity"],
-
 rule check_molecular_mixture:
     input:
-        infile=config['output_directory']+'/compendia/MolecularMixture'
+        infile=config['output_directory']+'/compendia/MolecularMixture.txt'
     output:
-        outfile=config['output_directory']+'/reports/MolecularMixture'
+        outfile=config['output_directory']+'/reports/MolecularMixture.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 
 rule check_small_molecule:
     input:
-        infile=config['output_directory']+'/compendia/SmallMolecule'
+        infile=config['output_directory']+'/compendia/SmallMolecule.txt'
     output:
-        outfile=config['output_directory']+'/reports/SmallMolecule'
+        outfile=config['output_directory']+'/reports/SmallMolecule.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 
 rule check_polypeptide:
     input:
-        infile=config['output_directory']+'/compendia/Polypeptide'
+        infile=config['output_directory']+'/compendia/Polypeptide.txt'
     output:
-        outfile=config['output_directory']+'/reports/Polypeptide'
+        outfile=config['output_directory']+'/reports/Polypeptide.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 
 rule check_complex_mixture:
     input:
-        infile=config['output_directory']+'/compendia/ComplexChemicalMixture'
+        infile=config['output_directory']+'/compendia/ComplexChemicalMixture.txt'
     output:
-        outfile=config['output_directory']+'/reports/ComplexChemicalMixture'
+        outfile=config['output_directory']+'/reports/ComplexChemicalMixture.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 
 rule check_chemical_mixture:
     input:
-        infile=config['output_directory']+'/compendia/ChemicalMixture'
+        infile=config['output_directory']+'/compendia/ChemicalMixture.txt'
     output:
-        outfile=config['output_directory']+'/reports/ChemicalMixture'
+        outfile=config['output_directory']+'/reports/ChemicalMixture.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 
