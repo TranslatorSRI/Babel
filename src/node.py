@@ -65,10 +65,10 @@ class NodeFactory:
     def get_prefixes(self,input_type):
         if input_type in self.prefix_map:
             return self.prefix_map[input_type]
+        print(input_type)
         j = self.toolkit.get_element(input_type)
-        try:
-            prefs = j['id_prefixes']
-        except:
+        prefs = j['id_prefixes']
+        if len(prefs) == 0:
             print('no prefixes for', input_type, 'Using small molecules')
             prefs = self.get_prefixes("biolink:SmallMolecule")
         #The pref are in a particular order, but apparently it can have dups (ugh)
