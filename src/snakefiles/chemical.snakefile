@@ -190,9 +190,9 @@ rule check_chemical_completeness:
 
 rule check_chemical_entity:
     input:
-        infile=config['output_directory']+'/compendia/ChemicalEntity'
+        infile=config['output_directory']+'/compendia/ChemicalEntity.txt'
     output:
-        outfile=config['output_directory']+'/reports/ChemicalEntity'
+        outfile=config['output_directory']+'/reports/ChemicalEntity.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 
