@@ -222,9 +222,9 @@ rule check_polypeptide:
 
 rule check_complex_mixture:
     input:
-        infile=config['output_directory']+'/compendia/ComplexChemicalMixture.txt'
+        infile=config['output_directory']+'/compendia/ComplexMolecularMixture.txt'
     output:
-        outfile=config['output_directory']+'/reports/ComplexChemicalMixture.txt'
+        outfile=config['output_directory']+'/reports/ComplexMolecularMixture.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 
