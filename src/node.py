@@ -66,7 +66,11 @@ class NodeFactory:
         if input_type in self.prefix_map:
             return self.prefix_map[input_type]
         j = self.toolkit.get_element(input_type)
-        prefs = j['id_prefixes']
+        try:
+            prefs = j['id_prefixes']
+        except:
+            print('no prefixes for', input_type)
+            prefs =[]
         #The pref are in a particular order, but apparently it can have dups (ugh)
         # The particular dups are gone now, but the code remains in case they come back...
         newprefs = ['']
