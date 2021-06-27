@@ -71,6 +71,8 @@ class NodeFactory:
         if len(prefs) == 0:
             print('no prefixes for', input_type, 'Using small molecules')
             prefs = self.get_prefixes("biolink:SmallMolecule")
+        elif input_type == 'biolink:Polypeptide':
+            prefs = prefs + self.get_prefixes('biolink:SmallMolecule')
         #The pref are in a particular order, but apparently it can have dups (ugh)
         # The particular dups are gone now, but the code remains in case they come back...
         newprefs = ['']
