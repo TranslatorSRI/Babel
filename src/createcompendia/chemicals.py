@@ -445,9 +445,12 @@ def create_typed_sets(eqsets, types):
         for prefix in [PUBCHEMCOMPOUND]:
             if prefix in prefixes and not found:
                 try:
-                    mytype = types[prefixes[prefix][0]]
-                    typed_sets[mytype].add(equivalent_ids)
-                    found = True
+                    #I only want to accept the type if all pubchems agree on it.
+                    pctypes = set([types[x] for x in prefixes[prefix]])
+                    if len(pctypes) == 1:
+                        mytype = types[prefixes[prefix][0]]
+                        typed_sets[mytype].add(equivalent_ids)
+                        found = True
                 except:
                     pass
         if not found:
