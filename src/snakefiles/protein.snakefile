@@ -1,5 +1,6 @@
 import src.createcompendia.protein as protein
 import src.assess_compendia as assessments
+import src.filter_compendia as filter
 
 ### Gene / Protein
 
@@ -98,3 +99,11 @@ rule protein:
         x=config['output_directory']+'/reports/protein_done'
     shell:
         "echo 'done' >> {output.x}"
+
+rule filter_protein:
+    input:
+        full=config['output_directory'] + '/compendia/Protein.txt'
+    output:
+        filtered=config['output_directory'] + '/compendia/Protein_filtered.txt'
+    run:
+        filter.filter_compendium(input.full,output.filtered)
