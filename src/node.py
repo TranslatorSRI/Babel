@@ -68,7 +68,9 @@ class NodeFactory:
         print(input_type)
         j = self.toolkit.get_element(input_type)
         prefs = j['id_prefixes']
-        if len(prefs) == 0:
+        if input_type == 'biolink:Protein':
+            prefs=['UniProtKB','PR','ENSEMBL','FB','UMLS']
+        elif len(prefs) == 0:
             print('no prefixes for', input_type, 'Using small molecules')
             prefs = self.get_prefixes("biolink:SmallMolecule")
         elif input_type == 'biolink:Polypeptide':
