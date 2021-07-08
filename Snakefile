@@ -12,8 +12,8 @@ include: "src/snakefiles/taxon.snakefile"
 include: "src/snakefiles/genefamily.snakefile"
 
 rule xall:
-    input:
-        config['output_directory'] + '/reports/anatomy_done'
+#    input:
+#        config['output_directory'] + '/reports/anatomy_done'
 #        config['output_directory'] + '/reports/chemicals_done',
 #        config['output_directory'] + '/reports/disease_done',
 #        config['output_directory'] + '/reports/gene_done',
