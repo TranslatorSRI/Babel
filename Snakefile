@@ -21,10 +21,10 @@ rule xall:
 #        config['output_directory'] + '/reports/process_done',
 #        config['output_directory'] + '/reports/protein_done',
 #        config['output_directory'] + '/reports/taxon_done'
-    output:
-        x = config['output_directory'] + '/reports/all_done'
+#    output:
+#        x = config['output_directory'] + '/reports/all_done'
     shell:
-        "echo 'done' >> {output.x}"
+        "echo 'done' >> hi"
 
 
 rule clean_compendia:
