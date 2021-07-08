@@ -13,14 +13,14 @@ include: "src/snakefiles/genefamily.snakefile"
 
 rule all:
     input:
-        config['output_directory'] + '/reports/anatomy_done',
-        config['output_directory'] + '/reports/chemicals_done',
-        config['output_directory'] + '/reports/disease_done',
-        config['output_directory'] + '/reports/gene_done',
-        config['output_directory'] + '/reports/genefamily_done',
-        config['output_directory'] + '/reports/process_done',
-        config['output_directory'] + '/reports/protein_done',
-        config['output_directory'] + '/reports/taxon_done'
+        config['output_directory'] + '/reports/anatomy_done'
+#        config['output_directory'] + '/reports/chemicals_done',
+#        config['output_directory'] + '/reports/disease_done',
+#        config['output_directory'] + '/reports/gene_done',
+#        config['output_directory'] + '/reports/genefamily_done',
+#        config['output_directory'] + '/reports/process_done',
+#        config['output_directory'] + '/reports/protein_done',
+#        config['output_directory'] + '/reports/taxon_done'
     output:
         x = config['output_directory'] + '/reports/all_done'
     shell:
