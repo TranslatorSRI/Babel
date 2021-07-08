@@ -13,7 +13,7 @@ include: "src/snakefiles/genefamily.snakefile"
 
 rule all:
     input:
-        config['output_directory'] + '/reports/anatomy_done'
+        config['output_directory'] + '/reports/anatomy_done',
         config['output_directory'] + '/reports/chemicals_done',
         config['output_directory'] + '/reports/disease_done',
         config['output_directory'] + '/reports/gene_done',
