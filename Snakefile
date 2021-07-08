@@ -11,7 +11,7 @@ include: "src/snakefiles/chemical.snakefile"
 include: "src/snakefiles/taxon.snakefile"
 include: "src/snakefiles/genefamily.snakefile"
 
-rule all:
+rule xall:
     input:
         config['output_directory'] + '/reports/anatomy_done'
 #        config['output_directory'] + '/reports/chemicals_done',
