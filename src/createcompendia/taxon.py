@@ -17,7 +17,7 @@ def write_mesh_ids(outfile):
     # B03	Bacteria
     # B04	Viruses
     # B05	Organism Forms
-    meshmap = { f'D{str(i).zfill(2)}': ORGANISM_TAXON for i in range(1, 6)}
+    meshmap = { f'B{str(i).zfill(2)}': ORGANISM_TAXON for i in range(1, 6)}
     #Also add anything from SCR_Chemical, if it doesn't have a tree map
     mesh.write_ids(meshmap,outfile,order=[ORGANISM_TAXON],extra_vocab={'SCR_Organism':ORGANISM_TAXON})
 
