@@ -152,7 +152,7 @@ class NodeFactory:
     def create_node(self,input_identifiers,node_type,labels={}):
         #This is where we will normalize, i.e. choose the best id, and add types in accord with BL.
         #we should also include provenance and version information for the node set build.
-        ancestors = self.get_ancestors(node_type)
+        #ancestors = self.get_ancestors(node_type)
         #ancestors.reverse()
         prefixes = self.get_prefixes(node_type)
         if len(input_identifiers) == 0:
@@ -211,12 +211,11 @@ class NodeFactory:
             label = labels[0]
 
         node = {
-            'id': {'identifier':best_id,},
-            'equivalent_identifiers': identifiers,
-            'type': ancestors
+            'identifiers': identifiers,
+            'type': node_type
         }
-        if label is not None:
-            node['id']['label'] =  label
+        #if label is not None:
+        #    node['id']['label'] =  label
         return node
 
 def pubchemsort(pc_ids, labeled_ids):
