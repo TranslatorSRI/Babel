@@ -212,7 +212,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={}):
                 synonyms = synonym_factory.get_synonyms(node)
                 if len(synonyms) > 0:
                     for p,o in synonyms:
-                        sfile.write(f'{node["id"]["identifier"]}\t{p}\t{o}\n')
+                        sfile.write(f'{node["identifiers"][0]["identifier"]}\t{p}\t{o}\n')
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.
