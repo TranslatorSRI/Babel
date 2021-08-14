@@ -18,7 +18,7 @@ def assess_completeness(input_dir,compendia,reportfile):
         print(comp)
         with jsonlines.open(comp, 'r') as inf:
             for j in inf:
-                ids = [x['identifier'] for x in  j['equivalent_identifiers'] ]
+                ids = [x['i'] for x in  j['identifiers'] ]
                 for identifier in ids:
                     all_identifiers.discard(identifier)
     with open(reportfile,'w') as outf:
@@ -30,7 +30,7 @@ def assess_completeness(input_dir,compendia,reportfile):
             outf.write(f'{missing_id}\n')
 
 def makecountset(j):
-    eids = [Text.get_curie(x['identifier']) for x in j['equivalent_identifiers']]
+    eids = [Text.get_curie(x['i']) for x in j['identifiers']]
     pcounts = defaultdict(int)
     for p in eids:
         pcounts[p] += 1
@@ -44,7 +44,7 @@ def assess(compendium,reportfile):
     with jsonlines.open(compendium,'r') as inf:
         for j in inf:
             nclusters += 1
-            clustersizes[ len(j['equivalent_identifiers']) ] += 1
+            clustersizes[ len(j['identifiers']) ] += 1
             countset = makecountset(j)
             clustertypes[countset] += 1
     with open(reportfile,'w') as outf:
