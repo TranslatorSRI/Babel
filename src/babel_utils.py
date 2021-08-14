@@ -208,7 +208,9 @@ def write_compendium(synonym_list,ofname,node_type,labels={}):
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels)
             if node is not None:
-                outf.write( node )
+                nw = {"type": node['type']}
+                nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
+                outf.write( nw )
                 synonyms = synonym_factory.get_synonyms(node)
                 if len(synonyms) > 0:
                     for p,o in synonyms:
