@@ -33,7 +33,7 @@ class SynonymFactory():
 
     def get_synonyms(self,node):
         node_synonyms = set()
-        for ident in node['equivalent_identifiers']:
+        for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = Text.get_curie(thisid)
             if not pref in self.synonyms:
