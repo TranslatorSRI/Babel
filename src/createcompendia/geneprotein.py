@@ -1,4 +1,5 @@
 from src.prefixes import UNIPROTKB, NCBIGENE
+from src.babel_utils import glom
 from collections import defaultdict
 
 import jsonlines
@@ -40,6 +41,23 @@ def merge(geneproteinlist):
     #Now, we need to slightly modify the types. Not sure this is good, but maybe it is?
     geneprotein['type'] = ['biolink:Gene'] + protein['type']
     return geneprotein
+
+def build_conflation(geneprotein_concord, outfile):
+    """
+    Fortunately our concord is in terms of the two preferred ids.
+    All we have to do is load that in, glom it up, and write out the groups
+    """
+    conf = {}
+    pairs= []
+    with open(geneprotein_concord, 'r') as inf:
+        for line in inf:
+            x = line.strip().split('\t')
+            pairs.append( x[0], x[1] )
+    glom(conf,pairs)
+    conf_sets = set([frozenset(x) for x in conf.values()])
+    with jsonlines.open(outfile,'w') as outf:
+        for cs in conf_sets:
+            outf.write(cs)
 
 def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, outfile):
     """Gene and Protein are both pretty big, and we want this to happen somewhat easily.
