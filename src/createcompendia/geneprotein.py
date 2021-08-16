@@ -52,7 +52,7 @@ def build_conflation(geneprotein_concord, outfile):
     with open(geneprotein_concord, 'r') as inf:
         for line in inf:
             x = line.strip().split('\t')
-            pairs.append( x[0], x[1] )
+            pairs.append( (x[0], x[1]) )
     glom(conf,pairs)
     conf_sets = set([frozenset(x) for x in conf.values()])
     with jsonlines.open(outfile,'w') as outf:
