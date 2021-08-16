@@ -42,6 +42,13 @@ def merge(geneproteinlist):
     geneprotein['type'] = ['biolink:Gene'] + protein['type']
     return geneprotein
 
+kl={'NCBIGene':0, 'UniProtKB':1}
+def gpkey(curie):
+    """There are only NCBIGene and UniProtKB.  I want all the NCBI first and UniProt second, and after that, lexically sorted"""
+    pref = curie.split(':')[0]
+    return (kl[pref], curie)
+
+
 def build_conflation(geneprotein_concord, outfile):
     """
     Fortunately our concord is in terms of the two preferred ids.
@@ -57,7 +64,9 @@ def build_conflation(geneprotein_concord, outfile):
     conf_sets = set([frozenset(x) for x in conf.values()])
     with jsonlines.open(outfile,'w') as outf:
         for cs in conf_sets:
-            outf.write(list(cs))
+            lc = list(cs)
+            lc.sort(key=gpkey)
+            outf.write(lc)
 
 def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, outfile):
     """Gene and Protein are both pretty big, and we want this to happen somewhat easily.
