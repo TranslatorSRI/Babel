@@ -57,7 +57,7 @@ def build_conflation(geneprotein_concord, outfile):
     conf_sets = set([frozenset(x) for x in conf.values()])
     with jsonlines.open(outfile,'w') as outf:
         for cs in conf_sets:
-            outf.write(cs)
+            outf.write(list(cs))
 
 def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, outfile):
     """Gene and Protein are both pretty big, and we want this to happen somewhat easily.
