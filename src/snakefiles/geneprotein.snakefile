@@ -13,13 +13,13 @@ rule geneprotein_uniprot_relationships:
 
 rule geneprotein:
     input:
-        #gene_compendium=config['output_directory']+'/compendia/'+'Gene.txt',
-        #protein_compendium=config['output_directory']+'/compendia/'+'Protein.txt',
+        gene_compendium=config['output_directory']+'/compendia/'+'Gene.txt',
+        protein_compendium=config['output_directory']+'/compendia/'+'Protein.txt',
         geneprotein_concord=config['download_directory']+'/geneprotein/concords/UniProtNCBI'
     output:
         outfile=config['output_directory']+'/conflation/GeneProtein.txt'
     run:
-        geneprotein.build_conflation(input.geneprotein_concord,output.outfile)
+        geneprotein.build_conflation(input.geneprotein_concord,input.gene_compendium,input.protein_compendium,output.outfile)
 
 #rule check_geneprotein_completeness:
 #    input:

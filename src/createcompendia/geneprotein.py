@@ -48,18 +48,28 @@ def gpkey(curie):
     pref = curie.split(':')[0]
     return (kl[pref], curie)
 
+def collect_valid_ids(compendium_file, idset):
+    with jsonlines.open(compendium_file,'r') as inf:
+        for line in inf:
+            ids = [x['i'] for x in line['identifiers']]
+            idset.update(ids)
 
-def build_conflation(geneprotein_concord, outfile):
+def build_conflation(geneprotein_concord, gene_compendium, protein_compendium, outfile):
     """
     Fortunately our concord is in terms of the two preferred ids.
-    All we have to do is load that in, glom it up, and write out the groups
+    All we should have to do is load that in, glom it up, and write out the groups
+    But, there are some things in the concord that don't exist in at least the gene (maybe in the protein as well)
     """
+    all_ids = set()
+    collect_valid_ids(gene_compendium,all_ids)
+    collect_valid_ids(protein_compendium,all_ids)
     conf = {}
     pairs= []
     with open(geneprotein_concord, 'r') as inf:
         for line in inf:
             x = line.strip().split('\t')
-            pairs.append( (x[0], x[2]) )
+            if (x[0] in all_ids) and (x[2] in all_ids):
+                pairs.append( (x[0], x[2]) )
     glom(conf,pairs)
     conf_sets = set([frozenset(x) for x in conf.values()])
     with jsonlines.open(outfile,'w') as outf:
