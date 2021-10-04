@@ -70,8 +70,30 @@ class ChemblRDF:
                 chemblid = iterm[:-1].split('/')[-1]
                 label = ilabel[1:-1]
                 outf.write(f'{CHEMBLCOMPOUND}:{chemblid}\t{label}\n')
+    def pull_smiles(self,ofname):
+        s="""PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+             PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+             PREFIX cheminf: <http://semanticscience.org/resource/>
+             SELECT ?molecule ?smiles
+             WHERE {
+                ?molecule cheminf:SIO_000008 ?smile_entity .
+                ?smile_entity a cheminf:CHEMINF_000018 ;
+                              cheminf:SIO_000300 ?smiles .
+            }
+        """
+        qres = self.m.query(s)
+        with open(ofname, 'w', encoding='utf8') as outf:
+            for row in list(qres):
+                iterm = str(row['molecule'])
+                ilabel = str(row['smiles'])
+                chemblid = iterm[:-1].split('/')[-1]
+                label = ilabel[1:-1]
+                outf.write(f'{CHEMBLCOMPOUND}:{chemblid}\t{label}\n')
 
-def pull_chembl_labels(infile,ccofile,outfile):
+
+def pull_chembl_labels_and_smiles(infile,ccofile,labelfile,smifile):
     m = ChemblRDF(infile,ccofile)
-    m.pull_labels(outfile)
+    m.pull_labels(labelfile)
+    m.pull_smiles(smifile)
 

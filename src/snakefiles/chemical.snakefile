@@ -11,31 +11,31 @@ rule chemical_mesh_ids:
 
 rule chemical_pubchem_ids:
     input:
-        infile=config['download_directory']+"/PUBCHEM.COMPOUND/labels"
+        infile=config['download_directory']+"/PUBCHEM.COMPOUND/labels",
+        smilesfile=config['download_directory']+"/PUBCHEM.COMPOUND/CID-SMILES.gz"
     output:
         outfile=config['download_directory']+"/chemicals/ids/PUBCHEM.COMPOUND"
-    shell:
+    run:
         #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
-
+        chemicals.write_pubchem_ids(input.infile,input.smilesfile,output.outfile)
+        #"awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
 
 rule chemical_chembl_ids:
     input:
-        infile=config['download_directory']+"/CHEMBL.COMPOUND/labels"
+        labelfile=config['download_directory']+"/CHEMBL.COMPOUND/labels",
+        smifile  =config['download_directory'] + "/CHEMBL.COMPOUND/smiles"
     output:
         outfile=config['download_directory']+"/chemicals/ids/CHEMBL.COMPOUND"
-    shell:
-        #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+    run:
+        chemicals.write_chemical_ids_from_labels_and_smiles(input.labelfile,input.smifile,output.outfile)
 
 rule chemical_gtopdb_ids:
     input:
-        infile=config['download_directory']+"/GTOPDB/labels"
+        infile=config['download_directory']+"/GTOPDB/ligands.tsv"
     output:
         outfile=config['download_directory']+"/chemicals/ids/GTOPDB"
-    shell:
-        #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+    run:
+        chemicals.write_gtopdb_ids(input.infile,output.outfile)
 
 rule chemical_kegg_ids:
     input:
@@ -44,7 +44,7 @@ rule chemical_kegg_ids:
         outfile=config['download_directory']+"/chemicals/ids/KEGG.COMPOUND"
     shell:
         #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+        "awk '{{print $1\"\tbiolink:ChemicalEntity\"}}' {input.infile} > {output.outfile}"
 
 rule chemical_unii_ids:
     input:
@@ -56,21 +56,20 @@ rule chemical_unii_ids:
 
 rule chemical_hmdb_ids:
     input:
-        infile=config['download_directory']+"/HMDB/labels"
+        labelfile=config['download_directory']+"/HMDB/labels",
+        smifile=config['download_directory'] + "/HMDB/smiles"
     output:
         outfile=config['download_directory']+"/chemicals/ids/HMDB"
-    shell:
-        #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+    run:
+        chemicals.write_chemical_ids_from_labels_and_smiles(input.labelfile,input.smifile,output.outfile)
 
 rule chemical_drugcentral_ids:
     input:
-        infile=config['download_directory']+"/DrugCentral/labels"
+        infile=config['download_directory']+"/DrugCentral/structures.smiles.tsv"
     output:
         outfile=config['download_directory']+"/chemicals/ids/DrugCentral"
-    shell:
-        #This one is a simple enough transform to do with awk
-        "awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
+    run:
+        chemicals.write_drugcentral_ids(input.infile,output.outfile)
 
 rule chemical_chebi_ids:
     output:
@@ -96,11 +95,13 @@ rule get_chemical_wikipedia_relationships:
         chemicals.get_wikipedia_relationships(output.outfile)
 
 rule get_chemical_mesh_relationships:
+    input:
+        infile = config['download_directory'] + '/chemicals/ids/MESH'
     output:
         casout = config['download_directory'] + '/chemicals/concords/mesh_cas',
         uniout = config['download_directory'] + '/chemicals/concords/mesh_unii'
     run:
-        chemicals.get_mesh_relationships(output.casout,output.uniout)
+        chemicals.get_mesh_relationships(input.infile,output.casout,output.uniout)
 
 #This is about a 2 hour step and requires something more than 256G of RAM.  512G works.
 rule get_chemical_unichem_relationships:
@@ -155,7 +156,7 @@ rule chemical_unichem_concordia:
     run:
         chemicals.combine_unichem(input.concords,output.unichemgroup)
 
-rule chemical_compendia:
+rule untyped_chemical_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['chemical_labels']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['chemical_synonyms']),
@@ -163,10 +164,21 @@ rule chemical_compendia:
         concords = expand('{dd}/chemicals/concords/{cc}',dd=config['download_directory'], cc=config['chemical_concords'] ),
         idlists=expand("{dd}/chemicals/ids/{ap}",dd=config['download_directory'],ap=config['chemical_ids']),
     output:
+        typesfile    = config['download_directory'] + '/chemicals/partials/types',
+        untyped_file = config['download_directory'] + '/chemicals/partials/untyped_compendium',
+    run:
+        chemicals.build_untyped_compendia(input.concords,input.idlists,input.unichemgroup,output.untyped_file,output.typesfile)
+
+
+rule chemical_compendia:
+    input:
+        typesfile    = config['download_directory'] + '/chemicals/partials/types',
+        untyped_file = config['download_directory'] + '/chemicals/partials/untyped_compendium',
+    output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs'])
     run:
-        chemicals.build_compendia(input.concords,input.idlists,input.unichemgroup)
+        chemicals.build_compendia(input.typesfile,input.untyped_file)
 
 rule check_chemical_completeness:
     input:
@@ -176,13 +188,54 @@ rule check_chemical_completeness:
     run:
         assessments.assess_completeness(config['download_directory']+'/chemicals/ids',input.input_compendia,output.report_file)
 
-rule check_chemical:
+rule check_chemical_entity:
     input:
-        infile=config['output_directory']+'/compendia/ChemicalSubstance.txt'
+        infile=config['output_directory']+'/compendia/ChemicalEntity.txt'
     output:
-        outfile=config['output_directory']+'/reports/ChemicalSubstance.txt'
+        outfile=config['output_directory']+'/reports/ChemicalEntity.txt'
     run:
         assessments.assess(input.infile, output.outfile)
+
+rule check_molecular_mixture:
+    input:
+        infile=config['output_directory']+'/compendia/MolecularMixture.txt'
+    output:
+        outfile=config['output_directory']+'/reports/MolecularMixture.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+rule check_small_molecule:
+    input:
+        infile=config['output_directory']+'/compendia/SmallMolecule.txt'
+    output:
+        outfile=config['output_directory']+'/reports/SmallMolecule.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+rule check_polypeptide:
+    input:
+        infile=config['output_directory']+'/compendia/Polypeptide.txt'
+    output:
+        outfile=config['output_directory']+'/reports/Polypeptide.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+rule check_complex_mixture:
+    input:
+        infile=config['output_directory']+'/compendia/ComplexMolecularMixture.txt'
+    output:
+        outfile=config['output_directory']+'/reports/ComplexMolecularMixture.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+rule check_chemical_mixture:
+    input:
+        infile=config['output_directory']+'/compendia/ChemicalMixture.txt'
+    output:
+        outfile=config['output_directory']+'/reports/ChemicalMixture.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
 
 rule chemical:
     input:

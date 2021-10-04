@@ -1,4 +1,5 @@
 from src.prefixes import UNIPROTKB, NCBIGENE
+from src.babel_utils import glom
 from collections import defaultdict
 
 import jsonlines
@@ -40,6 +41,42 @@ def merge(geneproteinlist):
     #Now, we need to slightly modify the types. Not sure this is good, but maybe it is?
     geneprotein['type'] = ['biolink:Gene'] + protein['type']
     return geneprotein
+
+kl={'NCBIGene':0, 'UniProtKB':1}
+def gpkey(curie):
+    """There are only NCBIGene and UniProtKB.  I want all the NCBI first and UniProt second, and after that, lexically sorted"""
+    pref = curie.split(':')[0]
+    return (kl[pref], curie)
+
+def collect_valid_ids(compendium_file, idset):
+    with jsonlines.open(compendium_file,'r') as inf:
+        for line in inf:
+            ids = [x['i'] for x in line['identifiers']]
+            idset.update(ids)
+
+def build_conflation(geneprotein_concord, gene_compendium, protein_compendium, outfile):
+    """
+    Fortunately our concord is in terms of the two preferred ids.
+    All we should have to do is load that in, glom it up, and write out the groups
+    But, there are some things in the concord that don't exist in at least the gene (maybe in the protein as well)
+    """
+    all_ids = set()
+    collect_valid_ids(gene_compendium,all_ids)
+    collect_valid_ids(protein_compendium,all_ids)
+    conf = {}
+    pairs= []
+    with open(geneprotein_concord, 'r') as inf:
+        for line in inf:
+            x = line.strip().split('\t')
+            if (x[0] in all_ids) and (x[2] in all_ids):
+                pairs.append( (x[0], x[2]) )
+    glom(conf,pairs)
+    conf_sets = set([frozenset(x) for x in conf.values()])
+    with jsonlines.open(outfile,'w') as outf:
+        for cs in conf_sets:
+            lc = list(cs)
+            lc.sort(key=gpkey)
+            outf.write(lc)
 
 def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, outfile):
     """Gene and Protein are both pretty big, and we want this to happen somewhat easily.

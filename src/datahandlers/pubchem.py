@@ -4,8 +4,15 @@ import gzip
 
 def pull_pubchem():
     files = ['CID-MeSH','CID-Synonym-filtered.gz','CID-Title.gz']
+    pull(files)
+
+def pull_pubchem_structures():
+    files = ['CID-InChI-Key.gz','CID-SMILES.gz']
+    pull(files,)
+
+def pull(files):
     for f in files:
-        outfile=f'PUBCHEM/{f}'
+        outfile=f'{PUBCHEMCOMPOUND}/{f}'
         pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/pubchem/Compound/Extras', f, outfilename=outfile)
 
 def make_labels_or_synonyms(infile,outfile):

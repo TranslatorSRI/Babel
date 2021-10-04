@@ -13,8 +13,19 @@ include: "src/snakefiles/genefamily.snakefile"
 
 rule all:
     input:
-        expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs'])
+        config['output_directory'] + '/reports/anatomy_done',
+        config['output_directory'] + '/reports/chemicals_done',
+        config['output_directory'] + '/reports/disease_done',
+        config['output_directory'] + '/reports/gene_done',
+        config['output_directory'] + '/reports/genefamily_done',
+        config['output_directory'] + '/reports/process_done',
+        config['output_directory'] + '/reports/protein_done',
+        config['output_directory'] + '/reports/taxon_done'
+    output:
+        x = config['output_directory'] + '/reports/all_done'
+    shell:
+        "echo 'done' >> hi"
+
 
 rule clean_compendia:
     params:

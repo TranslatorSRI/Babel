@@ -4,6 +4,7 @@ from src.LabeledID import LabeledID
 from collections import defaultdict
 import os
 from bmt import Toolkit
+from src.prefixes import PUBCHEMCOMPOUND
 
 class SynonymFactory():
     def __init__(self,syndir):
@@ -32,7 +33,7 @@ class SynonymFactory():
 
     def get_synonyms(self,node):
         node_synonyms = set()
-        for ident in node['equivalent_identifiers']:
+        for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = Text.get_curie(thisid)
             if not pref in self.synonyms:
@@ -43,8 +44,8 @@ class SynonymFactory():
 class NodeFactory:
     def __init__(self,label_dir):
         #self.url_base = 'http://arrival.edc.renci.org:32511/bl'
-        self.url_base = 'https://bl-lookup-sri.renci.org/bl'
-        self.toolkit = Toolkit('https://raw.githubusercontent.com/biolink/biolink-model/1.6.1/biolink-model.yaml')
+        #self.url_base = 'https://bl-lookup-sri.renci.org/bl'
+        self.toolkit = Toolkit('https://raw.githubusercontent.com/biolink/biolink-model/2.1.0/biolink-model.yaml')
         self.ancestor_map = {}
         self.prefix_map = {}
         self.ignored_prefixes = set()
@@ -64,15 +65,18 @@ class NodeFactory:
     def get_prefixes(self,input_type):
         if input_type in self.prefix_map:
             return self.prefix_map[input_type]
-        url = f'{self.url_base}/{input_type}'
-        response = requests.get(url)
-        try:
-            j = response.json()
-            prefs = j['id_prefixes']
-        except:
-            #this is a mega hack to deal with the taxon change
-            prefs = ['NCBITaxon','MESH']
+        print(input_type)
+        j = self.toolkit.get_element(input_type)
+        prefs = j['id_prefixes']
+        if input_type == 'biolink:Protein':
+            prefs=['UniProtKB','PR','ENSEMBL','FB','UMLS']
+        elif len(prefs) == 0:
+            print('no prefixes for', input_type, 'Using small molecules')
+            prefs = self.get_prefixes("biolink:SmallMolecule")
+        elif input_type == 'biolink:Polypeptide':
+            prefs = prefs + self.get_prefixes('biolink:SmallMolecule')
         #The pref are in a particular order, but apparently it can have dups (ugh)
+        # The particular dups are gone now, but the code remains in case they come back...
         newprefs = ['']
         for pref in prefs:
             if not pref  == newprefs[-1]:
@@ -148,7 +152,7 @@ class NodeFactory:
     def create_node(self,input_identifiers,node_type,labels={}):
         #This is where we will normalize, i.e. choose the best id, and add types in accord with BL.
         #we should also include provenance and version information for the node set build.
-        ancestors = self.get_ancestors(node_type)
+        #ancestors = self.get_ancestors(node_type)
         #ancestors.reverse()
         prefixes = self.get_prefixes(node_type)
         if len(input_identifiers) == 0:
@@ -177,6 +181,7 @@ class NodeFactory:
         #In order to be consistent from run to run, we need to worry about the
         # case where e.g. there are 2 UMLS id's and UMLS is the preferred pref.
         # We're going to choose the canonical ID here just by sorting the N .
+        # Except for PUBCHEMs.  They get their own special mess.
         for p in prefixes:
             pupper = p.upper()
             if pupper in idmap:
@@ -187,6 +192,8 @@ class NodeFactory:
                     newids.append( (jid['identifier'],jid) )
                     accepted_ids.add(v)
                 newids.sort()
+                if pupper == PUBCHEMCOMPOUND.upper() and len(newids) > 1:
+                    newids = pubchemsort(newids,cleaned)
                 identifiers += [ nid[1] for nid in newids ]
         #Warn if we have prefixes that we're ignoring
         for k,vals in idmap.items():
@@ -204,10 +211,66 @@ class NodeFactory:
             label = labels[0]
 
         node = {
-            'id': {'identifier':best_id,},
-            'equivalent_identifiers': identifiers,
-            'type': ancestors
+            'identifiers': identifiers,
+            'type': node_type
         }
-        if label is not None:
-            node['id']['label'] =  label
+        #if label is not None:
+        #    node['id']['label'] =  label
         return node
+
+def pubchemsort(pc_ids, labeled_ids):
+    """Figure out the correct ordering of pubchem identifiers.
+       pc_ids is a list of tuples of (identifier,json) where json = {"identifier":id, "label":x}
+       but may not have a label.
+       It is just for the pubchems
+       labeled_ids is a list of the other ids.  The entries can be a bare string for stuff w/o a label
+       or a labeled ID for stuff with a label."""
+    # For most types / prefixes we're just sorting the allowed id's.  This gives us a consistent ID from run to run
+    # But there's a special case: The biolink-preferred identifier for chemicals is PUBCHEM.COMPOUND.
+    # Out merging is based on INCHIKEYS.  However, it happens all the time that more than one PC has the same  inchikey
+    # (because of the way they discard hydrogens).
+    # This leads to some nastiness e.g. with water.  There are 2 pubchems with the same inchikey.  One is
+    # H2O (water) and one is H.OH (hydron;hydroxide).  Just a lexical sorting of the identifiers puts the crap one first.
+    # Observations: 1. there are many other identifiers e.g. mesh chebi etc that have the same label (water).
+    # 2. almost always the shortest name is best
+    # 2a. With the exception of titles that are CID somthing or are SMILES...
+    # So here we're going to try a couple things: first we're going to see if we can match other labels.
+    # Failing that,  we'll take the shortest non CID name.  Hard to recognize smiles but we can see if that turns
+    # into a problem or not.
+    label_counts = defaultdict(int)
+    pclabels = {}
+    for lid in labeled_ids:
+        try:
+            if lid.identifier.startswith(PUBCHEMCOMPOUND):
+                pclabels[lid.label.upper()] = lid.identifier
+            else:
+                label_counts[lid.label.upper()] += 1
+        except:
+            pass
+    matches = [ (label_counts[pclabel],pcident) for pclabel,pcident in pclabels.items() ]
+    matches.sort()
+    best = matches[-1]
+    #There are two cases here: we matched something (best[0] > 0) or we didn't (best[0] == 0)
+    if best[0] > 0:
+        best_pubchem_id = best[1]
+    else:
+        try:
+            #now we are going to pick the shortest pubchem label that isn't CID something
+            lens = [ (len(pclabel), pcident) for pclabel,pcident in pclabels.items() if not pclabel.startswith('CID') ]
+            lens.sort()
+            if len(lens) > 0:
+                best_pubchem_id = lens[0][1]
+            else:
+                just_ids = list(pclabels.values())
+                just_ids.sort()
+                best_pubchem_id = just_ids[0]
+        except:
+            print(pc_ids)
+            print(pclabels)
+            print(lens)
+    for pcelement in pc_ids:
+        pcid,_ = pcelement
+        if pcid == best_pubchem_id:
+            best_pubchem = pcelement
+    pc_ids.remove(best_pubchem)
+    return [best_pubchem] + pc_ids

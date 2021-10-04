@@ -72,8 +72,9 @@ def pull_via_ftp(ftpsite, ftpdir, ftpfile, decompress_data=False, outfilename=No
             else:
                 return binary.decode()
     ofilename = os.path.join(config['download_directory'],outfilename)
-    if not os.path.exists(os.path.dirname(outfilename)):
-        os.makedirs(os.path.dirname(outfilename))
+    odir = os.path.abspath(os.path.dirname(ofilename))
+    if not os.path.exists(odir):
+        os.makedirs(odir)
     print(f'  writing data to {ofilename}')
     print(f'{ftpsite}/{ftpdir}/{ftpfile}')
     if not decompress_data:
@@ -207,11 +208,13 @@ def write_compendium(synonym_list,ofname,node_type,labels={}):
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels)
             if node is not None:
-                outf.write( node )
+                nw = {"type": node['type']}
+                nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
+                outf.write( nw )
                 synonyms = synonym_factory.get_synonyms(node)
                 if len(synonyms) > 0:
                     for p,o in synonyms:
-                        sfile.write(f'{node["id"]["identifier"]}\t{p}\t{o}\n')
+                        sfile.write(f'{node["identifiers"][0]["identifier"]}\t{p}\t{o}\n')
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.
@@ -234,7 +237,7 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
         if len(xgroup) > 2:
             print(xgroup)
             print('nope nope nope')
-            exit()
+            raise ValueError
         n+=1
         if test_id in group:
             print('higroup',group)

@@ -1,17 +1,45 @@
 from collections import defaultdict
 import jsonlines
 import requests
+import ast
+from gzip import GzipFile
 
-import src.datahandlers.obo as obo
-
-from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND
-from src.categories import CHEMICAL_SUBSTANCE
+from src.ubergraph import UberGraph
+from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL
+from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE
 from src.sdfreader import read_sdf
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
 from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
 
 import src.datahandlers.mesh as mesh
+
+def get_type_from_smiles(smiles):
+    if '.' in smiles:
+        return MOLECULAR_MIXTURE
+    else:
+        return SMALL_MOLECULE
+
+def write_pubchem_ids(labelfile,smilesfile,outfile):
+    #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
+    # but since they're already sorted, let's give it a shot
+    with open(labelfile,'r') as inlabels, GzipFile(smilesfile,'r') as insmiles, open(outfile,'w') as outf:
+        sn = -1
+        for labelline in inlabels:
+            x = labelline.split('\t')[0]
+            pn = int(x.split(':')[-1])
+            while sn < pn:
+                smiline = insmiles.readline().decode('utf-8').strip().split('\t')
+                sn = int(smiline[0])
+            if sn == pn:
+                #We have a smiles for this id
+                stype = get_type_from_smiles(smiline[1])
+                outf.write(f'{x}\t{stype}\n')
+            else:
+                #sn > pn, we went past it.  No smiles for that
+                print('no smiles:',x,pn,sn)
+                outf.write(f'{x}\t{CHEMICAL_ENTITY}\n')
+
 
 def write_mesh_ids(outfile):
     #Get the D tree,
@@ -21,7 +49,7 @@ def write_mesh_ids(outfile):
     # D04	Polycyclic Compounds
     # D05	Macromolecular Substances  NO
     # D06	Hormones, Hormone Substitutes, and Hormone Antagonists
-    # D08	Enzymes and Coenzymes
+    # D08	Enzymes and Coenzymes  NO, include with ... Activities?
     # D09	Carbohydrates
     # D10	Lipids
     # D12	Amino Acids, Peptides, and Proteins
@@ -33,22 +61,51 @@ def write_mesh_ids(outfile):
     # D23	Biological Factors
     # D25	Biomedical and Dental Materials
     # D26	Pharmaceutical Preparations
-    # D27	Chemical Actions and Uses
-    meshmap = { f'D{str(i).zfill(2)}': CHEMICAL_SUBSTANCE for i in range(1, 28)}
+    # D27	Chemical Actions and Uses NO
+    meshmap = { f'D{str(i).zfill(2)}': CHEMICAL_ENTITY for i in range(1, 27)}
     meshmap['D05'] = 'EXCLUDE'
+    meshmap['D08'] = 'EXCLUDE'
     meshmap['D12.776'] = 'EXCLUDE'
-    meshmap['D12.125'] = CHEMICAL_SUBSTANCE
-    meshmap['D12.644'] = CHEMICAL_SUBSTANCE
+    meshmap['D12.125'] = POLYPEPTIDE
+    meshmap['D12.644'] = POLYPEPTIDE
+    meshmap['D13'] = POLYPEPTIDE
+    meshmap['D20'] = COMPLEX_CHEMICAL_MIXTURE
     #Also add anything from SCR_Chemical, if it doesn't have a tree map
-    mesh.write_ids(meshmap,outfile,order=['EXCLUDE',CHEMICAL_SUBSTANCE],extra_vocab={'SCR_Chemical':CHEMICAL_SUBSTANCE})
+    mesh.write_ids(meshmap,outfile,order=['EXCLUDE',POLYPEPTIDE,COMPLEX_CHEMICAL_MIXTURE,CHEMICAL_ENTITY],extra_vocab={'SCR_Chemical':CHEMICAL_ENTITY})
 
-def write_obo_ids(irisandtypes,outfile,exclude=[]):
-    order = [CHEMICAL_SUBSTANCE]
-    obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])
+#def write_obo_ids(irisandtypes,outfile,exclude=[]):
+#    order = [CHEMICAL_SUBSTANCE]
+#    obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])
 
 def write_chebi_ids(outfile):
+    #We're not using obo.write_obo_ids here because we need to 1) grab smiles as well and 2) figure out the types
     chemical_entity_id = f'{CHEBI}:24431'
-    write_obo_ids([(chemical_entity_id, CHEMICAL_SUBSTANCE)], outfile)
+    racimate_id = f'{CHEBI}:60911'
+    mixture_id = f'{CHEBI}:60004'
+    peptide_id = f'{CHEBI}:16670'
+    uber = UberGraph()
+    uberres_chems = uber.get_subclasses_and_smiles(chemical_entity_id)
+    uberres_racimates = set([x['descendent'] for x in uber.get_subclasses_of(racimate_id)]) #no smiles for this one
+    uberres_mixtures = set([x['descendent'] for x in uber.get_subclasses_of(mixture_id)]) #no smiles for this one
+    uberres_peptides = set([x['descendent'] for x in uber.get_subclasses_of(peptide_id)]) #no smiles for this one
+    with open(outfile, 'w') as idfile:
+        for k in uberres_chems:
+            desc = k["descendent"]
+            if not desc.startswith('CHEBI'):
+                continue
+            if desc in uberres_racimates:
+                ctype = MOLECULAR_MIXTURE
+            elif desc in uberres_peptides:
+                ctype = POLYPEPTIDE
+            elif desc in uberres_mixtures:
+                ctype = CHEMICAL_MIXTURE
+            elif 'SMILES' in k:
+                #Is it a mixture?
+                ctype = get_type_from_smiles(k['SMILES'])
+            else:
+                #What is it?
+                ctype = CHEMICAL_ENTITY
+            idfile.write(f'{k["descendent"]}\t{ctype}\n')
 
 def write_unii_ids(infile,outfile):
     """UNII contains a bunch of junk like leaves.   We are going to try to clean it a bit to get things
@@ -63,7 +120,7 @@ def write_unii_ids(infile,outfile):
                 if len(x[bcn]) > 0:
                     #This is a plant or an eye of newt or something
                     continue
-            outf.write(f'{UNII}:{x[0]}\t{CHEMICAL_SUBSTANCE}\n')
+            outf.write(f'{UNII}:{x[0]}\t{CHEMICAL_ENTITY}\n')
 
 def write_drugbank_ids(infile,outfile):
     """We don't have a good drugbank source, so we're going to dig through unichem and get out drugbank ids."""
@@ -80,8 +137,47 @@ def write_drugbank_ids(infile,outfile):
                 if x[2] in written:
                     continue
                 dbid = f'{DRUGBANK}:{x[2]}'
-                outf.write(f'{dbid}\t{CHEMICAL_SUBSTANCE}\n')
+                outf.write(f'{dbid}\t{CHEMICAL_ENTITY}\n')
                 written.add(x[2])
+
+def write_chemical_ids_from_labels_and_smiles(labelfile,smifile,outfile):
+    smiles = {}
+    with open(smifile,'r') as inf:
+        for line in inf:
+            x = line.strip().split('\t')
+            smiles[x[0]] = x[1]
+    with open(labelfile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            hmdbid = line.split('\t')[0]
+            if hmdbid in smiles:
+                ctype = get_type_from_smiles(smiles[hmdbid])
+            else:
+                ctype = CHEMICAL_ENTITY
+            outf.write(f'{hmdbid}\t{ctype}\n')
+
+
+def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            x = line.split('\t')
+            if stripquotes:
+                x = [ xi[1:-1] for xi in x ]
+            smi = x[smicol]
+            dcid = f'{pref}:{x[idcol]}'
+            ctype = get_type_from_smiles(smi)
+            outf.write(f'{dcid}\t{ctype}\n')
+
+def write_drugcentral_ids(infile,outfile):
+    smicol = 0
+    idcol = 3
+    pref = DRUGCENTRAL
+    parse_smifile(infile,outfile,smicol,idcol,pref)
+
+def write_gtopdb_ids(infile,outfile):
+    smicol = 14
+    idcol = 0
+    pref = GTOPDB
+    parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=True)
 
 def write_unichem_concords(structfile,reffile,outdir):
     inchikeys = read_inchikeys(structfile)
@@ -250,12 +346,21 @@ def make_chebi_relations(sdf,dbx,outfile):
 
 
 
-def get_mesh_relationships(cas_out, unii_out):
-    #perhaps I should filter by the chemical mesh ids...
+def get_mesh_relationships(mesh_id_file,cas_out, unii_out):
+    meshes = set()
+    with open(mesh_id_file,'r') as inf:
+        for line in inf:
+            x = line.split('\t')
+            meshes.add(x[0])
     regis = mesh.pull_mesh_registry()
     with open(cas_out,'w') as casout, open(unii_out,'w') as uniiout:
         for meshid,reg in regis:
+            if meshid not in meshes:
+                continue
             if reg.startswith('EC'):
+                continue
+            if reg.startswith('txid'):
+                #is a taxon
                 continue
             if is_cas(reg):
                 casout.write(f'{meshid}\txref\tCAS:{reg}\n')
@@ -280,7 +385,7 @@ def get_wikipedia_relationships(outfile):
         for m,c in pairs:
             outf.write(f'{m}\txref\t{c}\n')
 
-def build_compendia(concordances, identifiers,unichem_partial):
+def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_concord, type_file):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = read_partial_unichem(unichem_partial)
@@ -300,132 +405,71 @@ def build_compendia(concordances, identifiers,unichem_partial):
                 pairs.append( set([x[0], x[2]]))
         newpairs = remove_overused_xrefs(pairs)
         glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
-    chem_sets = set([frozenset(x) for x in dicts.values()])
-    baretype = CHEMICAL_SUBSTANCE.split(':')[-1]
-    write_compendium(chem_sets, f'{baretype}.txt', CHEMICAL_SUBSTANCE, {})
+    with open(type_file,'w') as outf:
+        for x,y in types.items():
+            outf.write(f'{x}\t{y}\n')
+    untyped_sets = set([frozenset(x) for x in dicts.values()])
+    with open(untyped_concord, 'w') as outf:
+        for s in untyped_sets:
+            outf.write(f'{set(s)}\n')
 
+def build_compendia(type_file,untyped_compendia_file):
+    types = {}
+    with open(type_file,'r') as inf:
+        for line in inf:
+            x = line.strip().split('\t')
+            types[x[0]] = x[1]
+    untyped_sets = set()
+    with open(untyped_compendia_file,'r') as inf:
+        for line in inf:
+            s = ast.literal_eval(line.strip())
+            untyped_sets.add(frozenset(s))
+    typed_sets = create_typed_sets(untyped_sets, types)
+    for biotype, sets in typed_sets.items():
+        baretype = biotype.split(':')[-1]
+        write_compendium(sets, f'{baretype}.txt', biotype, {})
 
-
-###TRASH VVVVVVVV TRASH###
-
-def remove_overused_xrefs_dict(kv):
-    """Given a dict of iri->list of xrefs, look through them for xrefs that are in more than one list.
-    Remove those anywhere they occur, as they will only lead to pain further on."""
-    used_xrefs = set()
-    overused_xrefs = set()
-    for k, v in kv.items():
-        for x in v:
-            if x in used_xrefs:
-                overused_xrefs.add(x)
-            used_xrefs.add(x)
-    print(f'There are {len(overused_xrefs)} overused xrefs')
-    for k,v in kv.items():
-        kv[k] = list( set(v).difference(overused_xrefs) )
-
-
-
-
-def write_ncit_ids(outfile):
-    #For NCIT, there are some branches of the subhiearrchy that we don't want, like this one for genomic locus
-    anatomy_id = f'{NCIT}:C12219'
-    cell_id = f'{NCIT}:C12508'
-    component_id = f'{NCIT}:C34070'
-    genomic_location_id = f'{NCIT}:C64389'
-    chromosome_band_id = f'{NCIT}:C13432'
-    macromolecular_structure_id = f'{NCIT}:C14134' #protein domains
-    ostomy_site_id = f'{NCIT}:C122638'
-    chromosome_structure_id =f'{NCIT}:C13377'
-    anatomic_site_id=f'{NCIT}:C13717' #the site of procedures like injections etc
-    write_obo_ids([(anatomy_id, ANATOMICAL_ENTITY), (cell_id, CELL), (component_id, CELLULAR_COMPONENT)], outfile, exclude=[genomic_location_id, chromosome_band_id, macromolecular_structure_id, ostomy_site_id, chromosome_structure_id, anatomic_site_id])
-
-def write_uberon_ids(outfile):
-    anatomy_id = f'{UBERON}:0001062'
-    gross_id   = f'{UBERON}:0010000'
-    write_obo_ids([(anatomy_id, ANATOMICAL_ENTITY), (gross_id, GROSS_ANATOMICAL_STRUCTURE)], outfile)
-
-def write_cl_ids(outfile):
-    cell_id   = f'{CL}:0000000'
-    write_obo_ids([(cell_id, CELL)], outfile)
-
-def write_go_ids(outfile):
-    component_id = f'{GO}:0005575'
-    write_obo_ids([(component_id, CELLULAR_COMPONENT)], outfile)
-
-
-
-def write_umls_ids(outfile):
-    #UMLS categories:
-    #A1.2 Anatomical Structure
-    #A1.2.1 Embryonic Structure
-    #A1.2.3 Fully Formed Anatomical Structure
-    #A1.2.3.1 Body Part, Organ, or Organ Component
-    #A1.2.3.2 Tissue
-    #A1.2.3.3 Cell
-    #A1.2.3.4 Cell Component
-    #A2.1.4.1 Body System
-    #A2.1.5.1 Body Space or Junction
-    #A2.1.5.2 Body Location or Region
-    umlsmap = {x: ANATOMICAL_ENTITY for x in ['A1.2', 'A1.2.1', 'A1.2.3.1', 'A1.2.3.2', 'A2.1.4.1', 'A2.1.5.1', 'A2.1.5.2']}
-    umlsmap['A1.2.3.3'] = CELL
-    umlsmap['A1.2.3.4'] = CELLULAR_COMPONENT
-    umls.write_umls_ids(umlsmap,outfile)
-
-#Ignore list notes:
-#The BTO and BAMs and HTTP (braininfo) identifiers promote over-glommed nodes
-#FMA is a specific problem where in CL they use FMA xref to mean 'part of'
-#CALOHA is a specific problem where in CL they use FMA xref to mean 'part of'
-#GOC is a specific problem where in CL they use FMA xref to mean 'part of'
-#wikipedia.en is a specific problem where in CL they use FMA xref to mean 'part of'
-#NIF_Subcellular leads to a weird mashup between a GO term and a bunch of other stuff.
-#CL only shows up as an xref once in uberon, and it's a mistake.  It doesn't show up in anything else.
-#GO only shows up as an xref once in uberon, and it's a mistake.  It doesn't show up in anything else.
-#PMID is just wrong
-def build_anatomy_obo_relationships(outdir):
-    ignore_list = ['PMID','BTO','BAMS','FMA','CALOHA','GOC','WIKIPEDIA.EN','CL','GO','NIF_SUBCELLULAR','HTTP','OPENCYC']
-    #Create the equivalence pairs
-    with open(f'{outdir}/{UBERON}', 'w') as uberon, open(f'{outdir}/{GO}', 'w') as go, open(f'{outdir}/{CL}', 'w') as cl:
-        build_sets(f'{UBERON}:0001062', {UBERON:uberon, GO:go, CL:cl},ignore_list=ignore_list)
-        build_sets(f'{GO}:0005575', {UBERON:uberon, GO:go, CL:cl},ignore_list=ignore_list)
-
-def build_anatomy_umls_relationships(idfile,outfile):
-    umls.build_sets(idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT})
-
-
-def create_typed_sets(eqsets,types):
+def create_typed_sets(eqsets, types):
     """Given a set of sets of equivalent identifiers, we want to type each one into
     being either a disease or a phenotypic feature.  Or something else, that we may want to
     chuck out here.
     Current rules: If it has GO trust the GO's type
-                   If it has a CL trust the CL's type
-                   If it has an UBERON trust the UBERON's type
     After that, check the types dict to see if we know anything.
     """
-    order = [CELLULAR_COMPONENT, CELL, GROSS_ANATOMICAL_STRUCTURE, ANATOMICAL_ENTITY]
+    order = [MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
     typed_sets = defaultdict(set)
     for equivalent_ids in eqsets:
-        #prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
+        # prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
         prefixes = get_prefixes(equivalent_ids)
-        found  = False
-        for prefix in [GO, CL, UBERON]:
+        found = False
+        for prefix in [PUBCHEMCOMPOUND]:
             if prefix in prefixes and not found:
-                mytype = types[prefixes[prefix][0]]
-                typed_sets[mytype].add(equivalent_ids)
-                found = True
+                try:
+                    #I only want to accept the type if all pubchems agree on it.
+                    pctypes = set([types[x] for x in prefixes[prefix]])
+                    if len(pctypes) == 1:
+                        mytype = types[prefixes[prefix][0]]
+                        typed_sets[mytype].add(equivalent_ids)
+                        found = True
+                except:
+                    pass
         if not found:
             typecounts = defaultdict(int)
             for eid in equivalent_ids:
                 if eid in types:
                     typecounts[types[eid]] += 1
             if len(typecounts) == 0:
-                print('how did we not get any types?')
-                print(equivalent_ids)
-                exit()
+                #print('how did we not get any types?')
+                #print(equivalent_ids)
+                #One thing that happens is that we can have PUBCHEMs that have been deleted, but are still in UNICHEM
+                # then the pubchem doesn't get assigned a type, but still ends up in the compendium
+                typed_sets[CHEMICAL_ENTITY].add(equivalent_ids)
             elif len(typecounts) == 1:
                 t = list(typecounts.keys())[0]
                 typed_sets[t].add(equivalent_ids)
             else:
-                #First attempt is majority vote, and after that by most specific
-                otypes = [ (-c, order.index(t), t) for t,c in typecounts.items()]
+                # First attempt is majority vote, and after that by most specific
+                otypes = [(-c, order.index(t), t) for t, c in typecounts.items()]
                 otypes.sort()
                 t = otypes[0][2]
                 typed_sets[t].add(equivalent_ids)

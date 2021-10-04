@@ -347,14 +347,15 @@ rule get_chembl:
     run:
         chembl.pull_chembl(output.moleculefile)
 
-rule chembl_labels:
+rule chembl_labels_and_smiles:
     input:
         infile=config['download_directory']+'/CHEMBL.COMPOUND/chembl_latest_molecule.ttl',
         ccofile=config['download_directory']+'/CHEMBL.COMPOUND/cco.ttl',
     output:
-        outfile=config['download_directory']+'/CHEMBL.COMPOUND/labels'
+        outfile=config['download_directory']+'/CHEMBL.COMPOUND/labels',
+        smifile=config['download_directory']+'/CHEMBL.COMPOUND/smiles'
     run:
-        chembl.pull_chembl_labels(input.infile,input.ccofile,output.outfile)
+        chembl.pull_chembl_labels_and_smiles(input.infile,input.ccofile,output.outfile,output.smifile)
 
 ### DrugBank requires a login... not sure how to handle
 
@@ -415,9 +416,10 @@ rule hmdb_labels_and_synonyms:
         infile=config['download_directory']+'/HMDB/hmdb_metabolites.xml'
     output:
         labelfile=config['download_directory']+'/HMDB/labels',
-        synfile  =config['download_directory']+'/HMDB/synonyms'
+        synfile  =config['download_directory']+'/HMDB/synonyms',
+        smifile  =config['download_directory']+'/HMDB/smiles'
     run:
-        hmdb.make_labels_and_synonyms(input.infile,output.labelfile,output.synfile)
+        hmdb.make_labels_and_synonyms_and_smiles(input.infile,output.labelfile,output.synfile,output.smifile)
 
 # PUBCHEM:
 
@@ -428,6 +430,13 @@ rule get_pubchem:
         config['download_directory'] + '/PUBCHEM.COMPOUND/CID-Title.gz'
     run:
         pubchem.pull_pubchem()
+
+rule get_pubchem_structures:
+    output:
+        config['download_directory'] + '/PUBCHEM.COMPOUND/CID-InChI-Key.gz',
+        config['download_directory'] + '/PUBCHEM.COMPOUND/CID-SMILES.gz',
+    run:
+        pubchem.pull_pubchem_structures()
 
 rule pubchem_labels:
     input:

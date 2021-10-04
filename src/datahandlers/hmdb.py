@@ -10,21 +10,22 @@ def pull_hmdb():
     with ZipFile(dname, 'r') as zipObj:
         zipObj.extractall(ddir)
 
-def handle_metabolite(metabolite,lfile,sfile):
+def handle_metabolite(metabolite,lfile,synfile,smifile):
     hmdbident=f'{HMDB}:{metabolite["accession"]}'
     label = metabolite['name']
     lfile.write(f'{hmdbident}\t{label}\n')
     syns = metabolite['synonyms']
     if (syns is not None) and ('synonym' in syns):
         for sname in syns['synonym']:
-            sfile.write(f'{hmdbident}\toio:exact\t{sname}\n')
-    print('end')
+            synfile.write(f'{hmdbident}\toio:exact\t{sname}\n')
+    if 'smiles' in metabolite:
+        smifile.write(f'{hmdbident}\t{metabolite["smiles"]}\n')
 
-def make_labels_and_synonyms(inputfile,labelfile,synfile):
+def make_labels_and_synonyms_and_smiles(inputfile,labelfile,synfile,smifile):
     with open(inputfile,'r') as inf:
         xml = inf.read()
     parsed = xmltodict.parse(xml)
     metabolites = parsed['hmdb']['metabolite']
-    with open(labelfile,'w') as lfile, open(synfile,'w') as sfile:
+    with open(labelfile,'w') as lfile, open(synfile,'w') as sfile, open(smifile,'w') as smiles:
         for metabolite in metabolites:
-            handle_metabolite(metabolite,lfile,sfile)
+            handle_metabolite(metabolite,lfile,sfile,smiles)

@@ -42,14 +42,15 @@ def test_sets():
     assert d['4']==d['5']==d['6']==d['7']=={'4','5','6','7'}
 
 def test_bigger_sets():
-    """Test when the sets have more than two members"""
+    """Test when the sets have more than two members.
+    As of recent builds, we no longer expect this to work.
+    Now glom only operates on new pairwise sets"""
     d = {}
     eqs = [{'1','2','3'}, {'4','5','6'} ]
-    glom(d,eqs)
-    assert d['1']==d['2']==d['3']=={'1','2','3'}
-    assert d['4']==d['5']==d['6']=={'4','5','6'}
-    eqs = [{'3','4','6','7'} ]
-    glom(d,eqs)
-    assert d['1']==d['2']==d['3']==d['4']==d['5']==d['6']==d['7']=={'1','2','3','4','5','6','7'}
+    try:
+        glom(d,eqs)
+        assert False
+    except ValueError:
+        assert True
 
 

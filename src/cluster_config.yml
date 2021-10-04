@@ -1,0 +1,7 @@
+# cluster_config.yml - cluster configuration
+__default__:
+  time: 08:00:00 # time limit for each job
+  cores: 1
+  chdir: /home/bizon/Projects/Babel
+  output: logs/babel-%j.out
+  error: logs/babel-%j.err
