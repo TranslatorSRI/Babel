@@ -1,6 +1,12 @@
 import src.createcompendia.chemicals as chemicals
 import src.assess_compendia as assessments
 
+rule chemical_umls_ids:
+    output:
+        outfile=config['download_directory']+"/chemicals/ids/UMLS"
+    run:
+        chemicals.write_umls_ids(output.outfile)
+
 rule chemical_mesh_ids:
     input:
         infile=config['download_directory']+'/MESH/mesh.nt'

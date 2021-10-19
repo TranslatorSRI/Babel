@@ -13,12 +13,32 @@ from src.datahandlers.unichem import data_sources as unichem_data_sources
 from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
 
 import src.datahandlers.mesh as mesh
+import src.datahandlers.umls as umls
 
 def get_type_from_smiles(smiles):
     if '.' in smiles:
         return MOLECULAR_MIXTURE
     else:
         return SMALL_MOLECULE
+
+def write_umls_ids(outfile):
+    groups = ['A1.4.1.1.1.1', #antibiotic
+              'A1.4.1.1.3.2', # Hormone
+              'A1.4.1.1.3.3',# Enzyme
+              'A1.4.1.1.3.4',# Vitamin
+              'A1.4.1.1.3.5',# Immunologic Factor
+              'A1.4.1.1.4',# Indicator, Reagent, or Diagnostic Aid
+              'A1.4.1.2',# Chemical Viewed Structurally
+              'A1.4.1.2.1',# Organic Chemical
+              'A1.4.1.2.1.5',# Nucleic Acid, Nucleoside, or Nucleotide
+              'A1.4.1.2.2',# Inorganic Chemical
+              'A1.4.1.2.3'# Element, Ion, or Isotope
+             ]
+    #Leaving out these ones:
+    #'A1.4.1.1.3.6',# Receptor
+    #'A1.4.1.2.1.7 Amino Acid, Peptide, or Protein
+    umlsmap = {a:CHEMICAL_ENTITY for a in groups}
+    umls.write_umls_ids(umlsmap, outfile)
 
 def write_pubchem_ids(labelfile,smilesfile,outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
