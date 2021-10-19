@@ -117,7 +117,7 @@ rule get_chemical_unichem_relationships:
     output:
         outfiles = expand('{dd}/chemicals/concords/UNICHEM/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] )
     run:
-        chemicals.write_unichem_concords(input.structfile,input.reffile,config['download_directory']+'/chemicals/concords')
+        chemicals.write_unichem_concords(input.structfile,input.reffile,config['download_directory']+'/chemicals/concords/UNICHEM')
 
 rule get_chemical_pubchem_mesh_concord:
     input:
