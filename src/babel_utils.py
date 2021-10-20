@@ -201,7 +201,8 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None
 def write_compendium(synonym_list,ofname,node_type,labels={}):
     config = get_config()
     cdir = config['output_directory']
-    node_factory = NodeFactory(make_local_name(''))
+    biolink_version = config['biolink_version']
+    node_factory = NodeFactory(make_local_name(''),biolink_version)
     synonym_factory = SynonymFactory(make_local_name(''))
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={})
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:

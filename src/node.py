@@ -42,10 +42,8 @@ class SynonymFactory():
         return node_synonyms
 
 class NodeFactory:
-    def __init__(self,label_dir):
-        #self.url_base = 'http://arrival.edc.renci.org:32511/bl'
-        #self.url_base = 'https://bl-lookup-sri.renci.org/bl'
-        self.toolkit = Toolkit('https://raw.githubusercontent.com/biolink/biolink-model/2.1.0/biolink-model.yaml')
+    def __init__(self,label_dir,biolink_version):
+        self.toolkit = Toolkit(f'https://raw.githubusercontent.com/biolink/biolink-model/{biolink_version}/biolink-model.yaml')
         self.ancestor_map = {}
         self.prefix_map = {}
         self.ignored_prefixes = set()
