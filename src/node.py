@@ -58,8 +58,6 @@ class InformationContentFactory:
             thisid = ident['identifier']
             if thisid in self.ic:
                ICs.append(self.ic[thisid])
-        if len(ICs) > 1:
-            print(ICs)
         if len(ICs) == 0:
             return None
         return min(ICs)
