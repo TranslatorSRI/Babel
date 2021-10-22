@@ -63,6 +63,8 @@ class InformationContentFactory:
             print(node)
             print(ICs)
             exit()
+        if len(ICs) == 0:
+            return None
         return ICs[0]
 
 
