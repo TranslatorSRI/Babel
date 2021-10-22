@@ -104,6 +104,7 @@ class Text:
 
     @staticmethod
     def obo_to_curie (text):
+        """Converts /somthing/something/CL_0000001 to CL:0000001"""
         return ':'.join( text.split('/')[-1].split('_') )
 
     @staticmethod

@@ -47,7 +47,7 @@ class InformationContentFactory:
         with open(ic_file, 'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
-                node_id = Text.obo_to_curie(x[0])
+                node_id = Text.obo_to_curie(x[0][:-1]) # -1 takes off the >
                 ic = x[2]
                 print(node_id, ic)
                 self.ic[node_id] = ic
