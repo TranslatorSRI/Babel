@@ -213,7 +213,6 @@ def write_compendium(synonym_list,ofname,node_type,labels={}):
             if node is not None:
                 nw = {"type": node['type']}
                 ic = ic_factory.get_ic(node)
-                print(ic)
                 if ic is not None:
                     nw['ic'] = ic
                 nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]

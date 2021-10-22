@@ -49,15 +49,17 @@ class InformationContentFactory:
                 x = line.strip().split('\t')
                 node_id = Text.obo_to_curie(x[0])
                 ic = x[2]
+                print(node_id, ic)
                 self.ic[node_id] = ic
             print(f"Loaded {len(self.ic)} InformationContent values")
 
     def get_ic(self, node):
-        print(node)
         ICs = []
         for ident in node['identifiers']:
             thisid = ident['identifier']
+            print(f'looking for {thisid}')
             if thisid in self.ic:
+               print('ok')
                ICs.append(self.ic[thisid])
         if len(ICs) > 1:
             print(node)
