@@ -205,7 +205,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={}):
     biolink_version = config['biolink_version']
     node_factory = NodeFactory(make_local_name(''),biolink_version)
     synonym_factory = SynonymFactory(make_local_name(''))
-    ic_factory = InformationContentFactory(f'{get_config()["input_dir"]}/icRDF.tsv')
+    ic_factory = InformationContentFactory(f'{get_config()["input_directory"]}/icRDF.tsv')
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={})
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
