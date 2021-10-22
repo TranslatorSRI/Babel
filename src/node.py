@@ -41,6 +41,31 @@ class SynonymFactory():
             node_synonyms.update( self.synonyms[pref][thisid] )
         return node_synonyms
 
+class InformationContentFactory:
+    def __init__(self,ic_file):
+        self.ic = {}
+        with open(ic_file, 'r') as inf:
+            for line in inf:
+                x = line.strip().split('\t')
+                node_id = Text.obo_to_curie(x[0])
+                ic = x[2]
+                self.ic[node_id] = ic
+            print(f"Loaded {len(self.ic)} InformationContent values")
+
+    def get_ic(self, node):
+        print(node)
+        ICs = []
+        for ident in node['identifiers']:
+            thisid = ident['identifier']
+            if thisid in self.ic:
+               ICs.append(self.ic[thisid])
+        if len(ICs) > 1:
+            print(node)
+            print(ICs)
+            exit()
+        return ICs[0]
+
+
 class NodeFactory:
     def __init__(self,label_dir,biolink_version):
         self.toolkit = Toolkit(f'https://raw.githubusercontent.com/biolink/biolink-model/{biolink_version}/biolink-model.yaml')
