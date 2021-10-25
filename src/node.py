@@ -270,10 +270,9 @@ def pubchemsort(pc_ids, labeled_ids):
     matches = [ (label_counts[pclabel],pcident) for pclabel,pcident in pclabels.items() ]
     matches.sort()
     if len(matches) == 0:
-        print('wtf')
-        print(pc_ids)
-        print(labeled_ids)
-    best = matches[-1]
+        best = (0,'')
+    else:
+        best = matches[-1]
     #There are two cases here: we matched something (best[0] > 0) or we didn't (best[0] == 0)
     if best[0] > 0:
         best_pubchem_id = best[1]
