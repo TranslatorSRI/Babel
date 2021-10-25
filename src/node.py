@@ -288,9 +288,8 @@ def pubchemsort(pc_ids, labeled_ids):
                 just_ids.sort()
                 best_pubchem_id = just_ids[0]
         except:
-            print(pc_ids)
-            print(pclabels)
-            print(lens)
+            #Gross, there just aren't any labels
+            best_pubchem_id = sorted(pc_ids)[0][0]
     for pcelement in pc_ids:
         pcid,_ = pcelement
         if pcid == best_pubchem_id:
