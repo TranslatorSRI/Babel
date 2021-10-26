@@ -94,7 +94,7 @@ rule chemical_drugbank_ids:
 
 ######
 
-rul get_chemical_umls_relationshps:
+rule get_chemical_umls_relationshps:
     input:
         infile=config['download_directory']+"/chemicals/ids/UMLS",
     output:
