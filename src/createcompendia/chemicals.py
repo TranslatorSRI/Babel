@@ -40,6 +40,11 @@ def write_umls_ids(outfile):
     umlsmap = {a:CHEMICAL_ENTITY for a in groups}
     umls.write_umls_ids(umlsmap, outfile)
 
+
+def build_chemical_umls_relationships(idfile,outfile):
+    umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK})
+
+
 def write_pubchem_ids(labelfile,smilesfile,outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
     # but since they're already sorted, let's give it a shot

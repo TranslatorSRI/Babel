@@ -94,6 +94,14 @@ rule chemical_drugbank_ids:
 
 ######
 
+rul get_chemical_umls_relationshps:
+    input:
+        infile=config['download_directory']+"/chemicals/ids/UMLS",
+    output:
+        outfile=config['download_directory']+'/chemicals/concords/UMLS',
+    run:
+        chemicals.build_chemical_umls_relationships(input.infile,output.outfile)
+
 rule get_chemical_wikipedia_relationships:
     output:
         outfile = config['download_directory'] + '/chemicals/concords/wikipedia_mesh_chebi'
