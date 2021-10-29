@@ -463,14 +463,6 @@ rule get_drugcentralx:
     run:
         drugcentral.pull_drugcentralx()
 
-rule drugcentral_labels:
-    input:
-        infile=config['download_directory']+'/DrugCentral/structures.smiles.tsv'
-    output:
-        outfile=config['download_directory']+'/DrugCentral/labels'
-    run:
-        drugcentral.make_labels(input.infile,output.outfile)
-
 rule get_drugcentral:
     output:
         structfile = config['download_directory'] + '/DrugCentral/structures',
