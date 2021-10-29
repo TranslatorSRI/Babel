@@ -12,3 +12,4 @@ git+https://github.com/pytries/datrie.git
 snakemake
 bmt
 pyoxigraph
+psycopg2-binary

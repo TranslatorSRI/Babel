@@ -1,7 +1,7 @@
 {
   "input_directory": "input_data",
-  "download_directory": "/scratch/bizon/babel_downloads",
-  "output_directory": "/scratch/bizon/babel_outputs",
+  "download_directory": "babel_downloads",
+  "output_directory": "babel_outputs",
   "biolink_version": "2.2.7",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],

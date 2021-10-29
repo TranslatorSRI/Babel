@@ -457,11 +457,11 @@ rule pubchem_synonyms:
 
 # DRUGCENTRAL
 
-rule get_drugcentral:
+rule get_drugcentralx:
     output:
         config['download_directory'] + '/DrugCentral/structures.smiles.tsv'
     run:
-        drugcentral.pull_drugcentral()
+        drugcentral.pull_drugcentralx()
 
 rule drugcentral_labels:
     input:
@@ -470,6 +470,14 @@ rule drugcentral_labels:
         outfile=config['download_directory']+'/DrugCentral/labels'
     run:
         drugcentral.make_labels(input.infile,output.outfile)
+
+rule get_drugcentral:
+    output:
+        structfile = config['download_directory'] + '/DrugCentral/structures',
+        labelfile = config['download_directory'] + '/DrugCentral/labels',
+        xreffile = config['download_directory'] + '/DrugCentral/xrefs'
+    run:
+        drugcentral.pull_drugcentral(output.structfile,output.labelfile,output.xreffile)
 
 # NCBITaxon
 

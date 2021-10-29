@@ -71,11 +71,11 @@ rule chemical_hmdb_ids:
 
 rule chemical_drugcentral_ids:
     input:
-        infile=config['download_directory']+"/DrugCentral/structures.smiles.tsv"
+        structfile=config['download_directory']+"/DrugCentral/structures"
     output:
         outfile=config['download_directory']+"/chemicals/ids/DrugCentral"
     run:
-        chemicals.write_drugcentral_ids(input.infile,output.outfile)
+        chemicals.write_drugcentral_ids(input.structfile,output.outfile)
 
 rule chemical_chebi_ids:
     output:
@@ -85,7 +85,7 @@ rule chemical_chebi_ids:
 
 rule chemical_drugbank_ids:
     input:
-        infile=config['download_directory']+"/UNICHEM/UC_XREF.srcfiltered.txt"
+        infile=config['download_directory']+"/DrugBank/UC_XREF.srcfiltered.txt"
     output:
         outfile=config['download_directory']+"/chemicals/ids/DRUGBANK"
     run:
@@ -94,7 +94,15 @@ rule chemical_drugbank_ids:
 
 ######
 
-rule get_chemical_umls_relationshps:
+rule get_chemical_drugcentral_relationships:
+    input:
+        xreffile=config['download_directory']+"/DrugCentral/xrefs"
+    output:
+        outfile=config['download_directory']+'/chemicals/concords/DrugCentral'
+    run:
+        chemicals.build_drugcentral_relations(input.xreffile,output.outfile)
+
+rule get_chemical_umls_relationships:
     input:
         infile=config['download_directory']+"/chemicals/ids/UMLS",
     output:
