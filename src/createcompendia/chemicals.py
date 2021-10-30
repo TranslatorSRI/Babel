@@ -459,8 +459,25 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
             for line in inf:
                 x = line.strip().split('\t')
                 pairs.append( set([x[0], x[2]]))
+        p = False
+        if pairs[0][0].startswith(DRUGCENTRAL):
+            p = True
+            i = 'DrugCentral:4970'
+        if p:
+            print('before filtering:')
+            for pair in pairs:
+                if pair[0] == i:
+                    print(pair)
         newpairs = remove_overused_xrefs(pairs)
+        if p:
+            print('after filtering:')
+            for pair in newpairs:
+                if pair[0] == i:
+                    print(pair)
         glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
+        if p:
+            print('after glomming:')
+            print(dicts[i])
     with open(type_file,'w') as outf:
         for x,y in types.items():
             outf.write(f'{x}\t{y}\n')
