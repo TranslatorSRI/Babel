@@ -460,7 +460,7 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
                 x = line.strip().split('\t')
                 pairs.append( set([x[0], x[2]]))
         p = False
-        if pairs[0][0].startswith(DRUGCENTRAL):
+        if DRUGCENTRAL in [ n.split(':')[0] for n in pairs[0] ]:
             p = True
             i = 'DrugCentral:4970'
         if p:
