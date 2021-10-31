@@ -466,13 +466,13 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
         if p:
             print('before filtering:')
             for pair in pairs:
-                if pair[0] == i:
+                if i in pair:
                     print(pair)
         newpairs = remove_overused_xrefs(pairs)
         if p:
             print('after filtering:')
             for pair in newpairs:
-                if pair[0] == i:
+                if i in pair:
                     print(pair)
         glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
         if p:
