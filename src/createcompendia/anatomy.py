@@ -93,8 +93,8 @@ def build_anatomy_obo_relationships(outdir):
     ignore_list = ['PMID','BTO','BAMS','FMA','CALOHA','GOC','WIKIPEDIA.EN','CL','GO','NIF_SUBCELLULAR','HTTP','OPENCYC']
     #Create the equivalence pairs
     with open(f'{outdir}/{UBERON}', 'w') as uberon, open(f'{outdir}/{GO}', 'w') as go, open(f'{outdir}/{CL}', 'w') as cl:
-        build_sets(f'{UBERON}:0001062', {UBERON:uberon, GO:go, CL:cl},ignore_list=ignore_list)
-        build_sets(f'{GO}:0005575', {UBERON:uberon, GO:go, CL:cl},ignore_list=ignore_list)
+        build_sets(f'{UBERON}:0001062', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
+        build_sets(f'{GO}:0005575', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
 
 def build_anatomy_umls_relationships(idfile,outfile):
     umls.build_sets(idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT})

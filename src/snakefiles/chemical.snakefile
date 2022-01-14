@@ -1,6 +1,12 @@
 import src.createcompendia.chemicals as chemicals
 import src.assess_compendia as assessments
 
+rule chemical_umls_ids:
+    output:
+        outfile=config['download_directory']+"/chemicals/ids/UMLS"
+    run:
+        chemicals.write_umls_ids(output.outfile)
+
 rule chemical_mesh_ids:
     input:
         infile=config['download_directory']+'/MESH/mesh.nt'
@@ -65,11 +71,11 @@ rule chemical_hmdb_ids:
 
 rule chemical_drugcentral_ids:
     input:
-        infile=config['download_directory']+"/DrugCentral/structures.smiles.tsv"
+        structfile=config['download_directory']+"/DrugCentral/structures"
     output:
         outfile=config['download_directory']+"/chemicals/ids/DrugCentral"
     run:
-        chemicals.write_drugcentral_ids(input.infile,output.outfile)
+        chemicals.write_drugcentral_ids(input.structfile,output.outfile)
 
 rule chemical_chebi_ids:
     output:
@@ -79,7 +85,7 @@ rule chemical_chebi_ids:
 
 rule chemical_drugbank_ids:
     input:
-        infile=config['download_directory']+"/UNICHEM/UC_XREF.srcfiltered.txt"
+        infile=config['download_directory']+"/DrugBank/UC_XREF.srcfiltered.txt"
     output:
         outfile=config['download_directory']+"/chemicals/ids/DRUGBANK"
     run:
@@ -87,6 +93,22 @@ rule chemical_drugbank_ids:
 
 
 ######
+
+rule get_chemical_drugcentral_relationships:
+    input:
+        xreffile=config['download_directory']+"/DrugCentral/xrefs"
+    output:
+        outfile=config['download_directory']+'/chemicals/concords/DrugCentral'
+    run:
+        chemicals.build_drugcentral_relations(input.xreffile,output.outfile)
+
+rule get_chemical_umls_relationships:
+    input:
+        infile=config['download_directory']+"/chemicals/ids/UMLS",
+    output:
+        outfile=config['download_directory']+'/chemicals/concords/UMLS',
+    run:
+        chemicals.build_chemical_umls_relationships(input.infile,output.outfile)
 
 rule get_chemical_wikipedia_relationships:
     output:
@@ -111,7 +133,7 @@ rule get_chemical_unichem_relationships:
     output:
         outfiles = expand('{dd}/chemicals/concords/UNICHEM/UNICHEM_{ucc}',dd=config['download_directory'], ucc=config['unichem_datasources'] )
     run:
-        chemicals.write_unichem_concords(input.structfile,input.reffile,config['download_directory']+'/chemicals/concords')
+        chemicals.write_unichem_concords(input.structfile,input.reffile,config['download_directory']+'/chemicals/concords/UNICHEM')
 
 rule get_chemical_pubchem_mesh_concord:
     input:

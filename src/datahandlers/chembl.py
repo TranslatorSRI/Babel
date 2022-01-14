@@ -8,9 +8,14 @@ def pull_chembl(moleculefilename):
     if not fname is None:
         # fname should be like chembl_28.0_molecule.ttl.gz
         #Pull via ftp is going to add the download_dir, so this is a hack until pull_via_ftp is nicer.
-        oname = 'CHEMBLCOMPOUND/'+moleculefilename.split('/')[-1]
+        mparts = moleculefilename.split('/')
+        dname = mparts[-2]
+        oname = '/'.join(mparts[-2:])
         pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chembl/ChEMBL-RDF/latest/', fname, decompress_data=True, outfilename=oname)
-        pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chembl/ChEMBL-RDF/latest/', 'cco.ttl.gz', decompress_data=True, outfilename='CHEMBL/cco.ttl')
+        pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chembl/ChEMBL-RDF/latest/', 'cco.ttl.gz', decompress_data=True, outfilename=f'{dname}/cco.ttl')
+        #oname = 'CHEMBLCOMPOUND/'+moleculefilename.split('/')[-1]
+        #pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chembl/ChEMBL-RDF/latest/', fname, decompress_data=True, outfilename=oname)
+        #pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/chembl/ChEMBL-RDF/latest/', 'cco.ttl.gz', decompress_data=True, outfilename='CHEMBL/cco.ttl')
 
 
 def get_latest_chembl_name() -> str:

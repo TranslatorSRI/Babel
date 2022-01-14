@@ -41,11 +41,31 @@ class SynonymFactory():
             node_synonyms.update( self.synonyms[pref][thisid] )
         return node_synonyms
 
+class InformationContentFactory:
+    def __init__(self,ic_file):
+        self.ic = {}
+        with open(ic_file, 'r') as inf:
+            for line in inf:
+                x = line.strip().split('\t')
+                node_id = Text.obo_to_curie(x[0][:-1]) # -1 takes off the >
+                ic = x[2]
+                self.ic[node_id] = ic
+            print(f"Loaded {len(self.ic)} InformationContent values")
+
+    def get_ic(self, node):
+        ICs = []
+        for ident in node['identifiers']:
+            thisid = ident['identifier']
+            if thisid in self.ic:
+               ICs.append(self.ic[thisid])
+        if len(ICs) == 0:
+            return None
+        return min(ICs)
+
+
 class NodeFactory:
-    def __init__(self,label_dir):
-        #self.url_base = 'http://arrival.edc.renci.org:32511/bl'
-        #self.url_base = 'https://bl-lookup-sri.renci.org/bl'
-        self.toolkit = Toolkit('https://raw.githubusercontent.com/biolink/biolink-model/2.1.0/biolink-model.yaml')
+    def __init__(self,label_dir,biolink_version):
+        self.toolkit = Toolkit(f'https://raw.githubusercontent.com/biolink/biolink-model/{biolink_version}/biolink-model.yaml')
         self.ancestor_map = {}
         self.prefix_map = {}
         self.ignored_prefixes = set()
@@ -74,7 +94,10 @@ class NodeFactory:
             print('no prefixes for', input_type, 'Using small molecules')
             prefs = self.get_prefixes("biolink:SmallMolecule")
         elif input_type == 'biolink:Polypeptide':
-            prefs = prefs + self.get_prefixes('biolink:SmallMolecule')
+            prefs = list(set(prefs + self.get_prefixes('biolink:SmallMolecule')))
+        elif input_type == 'biolink:ChemicalEntity':
+            #This just has to be here for now
+            prefs = list(set(prefs + self.get_prefixes('biolink:SmallMolecule')))
         #The pref are in a particular order, but apparently it can have dups (ugh)
         # The particular dups are gone now, but the code remains in case they come back...
         newprefs = ['']
@@ -249,7 +272,10 @@ def pubchemsort(pc_ids, labeled_ids):
             pass
     matches = [ (label_counts[pclabel],pcident) for pclabel,pcident in pclabels.items() ]
     matches.sort()
-    best = matches[-1]
+    if len(matches) == 0:
+        best = (0,'')
+    else:
+        best = matches[-1]
     #There are two cases here: we matched something (best[0] > 0) or we didn't (best[0] == 0)
     if best[0] > 0:
         best_pubchem_id = best[1]
@@ -265,9 +291,8 @@ def pubchemsort(pc_ids, labeled_ids):
                 just_ids.sort()
                 best_pubchem_id = just_ids[0]
         except:
-            print(pc_ids)
-            print(pclabels)
-            print(lens)
+            #Gross, there just aren't any labels
+            best_pubchem_id = sorted(pc_ids)[0][0]
     for pcelement in pc_ids:
         pcid,_ = pcelement
         if pcid == best_pubchem_id:

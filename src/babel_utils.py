@@ -8,7 +8,7 @@ import requests
 import os
 import urllib
 import jsonlines
-from src.node import NodeFactory, SynonymFactory
+from src.node import NodeFactory, SynonymFactory, InformationContentFactory
 from src.util import Text
 from src.LabeledID import LabeledID
 from json import load
@@ -163,6 +163,7 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None
         dl_file_name = os.path.join(download_dir,subpath,in_file_name)
 
     # get a handle to the ftp file
+    print(url+in_file_name)
     handle = urllib.request.urlopen(url + in_file_name)
 
     # create the compressed file
@@ -201,14 +202,19 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None
 def write_compendium(synonym_list,ofname,node_type,labels={}):
     config = get_config()
     cdir = config['output_directory']
-    node_factory = NodeFactory(make_local_name(''))
+    biolink_version = config['biolink_version']
+    node_factory = NodeFactory(make_local_name(''),biolink_version)
     synonym_factory = SynonymFactory(make_local_name(''))
+    ic_factory = InformationContentFactory(f'{get_config()["input_directory"]}/icRDF.tsv')
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={})
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels)
             if node is not None:
                 nw = {"type": node['type']}
+                ic = ic_factory.get_ic(node)
+                if ic is not None:
+                    nw['ic'] = ic
                 nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
                 outf.write( nw )
                 synonyms = synonym_factory.get_synonyms(node)

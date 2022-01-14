@@ -5,7 +5,7 @@ import ast
 from gzip import GzipFile
 
 from src.ubergraph import UberGraph
-from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL
+from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS
 from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE
 from src.sdfreader import read_sdf
 
@@ -13,12 +13,37 @@ from src.datahandlers.unichem import data_sources as unichem_data_sources
 from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
 
 import src.datahandlers.mesh as mesh
+import src.datahandlers.umls as umls
 
 def get_type_from_smiles(smiles):
     if '.' in smiles:
         return MOLECULAR_MIXTURE
     else:
         return SMALL_MOLECULE
+
+def write_umls_ids(outfile):
+    groups = ['A1.4.1.1.1.1', #antibiotic
+              'A1.4.1.1.3.2', # Hormone
+              'A1.4.1.1.3.3',# Enzyme
+              'A1.4.1.1.3.4',# Vitamin
+              'A1.4.1.1.3.5',# Immunologic Factor
+              'A1.4.1.1.4',# Indicator, Reagent, or Diagnostic Aid
+              'A1.4.1.2',# Chemical Viewed Structurally
+              'A1.4.1.2.1',# Organic Chemical
+              'A1.4.1.2.1.5',# Nucleic Acid, Nucleoside, or Nucleotide
+              'A1.4.1.2.2',# Inorganic Chemical
+              'A1.4.1.2.3'# Element, Ion, or Isotope
+             ]
+    #Leaving out these ones:
+    #'A1.4.1.1.3.6',# Receptor
+    #'A1.4.1.2.1.7 Amino Acid, Peptide, or Protein
+    umlsmap = {a:CHEMICAL_ENTITY for a in groups}
+    umls.write_umls_ids(umlsmap, outfile)
+
+
+def build_chemical_umls_relationships(idfile,outfile):
+    umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK})
+
 
 def write_pubchem_ids(labelfile,smilesfile,outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
@@ -168,10 +193,16 @@ def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
             outf.write(f'{dcid}\t{ctype}\n')
 
 def write_drugcentral_ids(infile,outfile):
-    smicol = 0
-    idcol = 3
-    pref = DRUGCENTRAL
-    parse_smifile(infile,outfile,smicol,idcol,pref)
+    smicol = 1
+    idcol = 0
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            x = line.strip().split('\t')
+            if x[smicol] == 'None':
+                outf.write(f'{x[idcol]}\t{CHEMICAL_ENTITY}\n')
+            else:
+                outf.write(f'{x[idcol]}\t{get_type_from_smiles(x[smicol])}\n')
+
 
 def write_gtopdb_ids(infile,outfile):
     smicol = 14
@@ -285,6 +316,31 @@ def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile):
                 continue
             outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\txref\t{mesh_id}\n')
             used_pubchem.add(x[0])
+
+def build_drugcentral_relations(infile,outfile):
+    prefixmap = { 'CHEBI': CHEBI,
+                  'ChEMBL_ID': CHEMBLCOMPOUND,
+                  'DRUGBANK_ID': DRUGBANK,
+                  'IUPHAR_LIGAND_ID': GTOPDB,
+                  'MESH_DESCRIPTOR_UI': MESH,
+                  'PUBCHEM_CID': PUBCHEMCOMPOUND,
+                  'UMLSCUI': UMLS,
+                  'UNII': UNII}
+    external_id_col = 1
+    external_ns_col = 2
+    drugcentral_id_col = 3
+    with open(infile,'r') as inf, open(outfile,'w') as outf:
+        for line in inf:
+            parts = line.strip().split('\t')
+            #print(parts)
+            if len(parts) < 4:
+                continue
+            external_ns = parts[external_ns_col]
+            if external_ns not in prefixmap:
+                continue
+            #print('ok')
+            outf.write(f'{DRUGCENTRAL}:{parts[drugcentral_id_col]}\txref\t{prefixmap[external_ns]}:{parts[external_id_col]}\n')
+
 
 def make_gtopdb_relations(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
@@ -403,8 +459,25 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
             for line in inf:
                 x = line.strip().split('\t')
                 pairs.append( set([x[0], x[2]]))
+        p = False
+        if DRUGCENTRAL in [ n.split(':')[0] for n in pairs[0] ]:
+            p = True
+            i = 'DrugCentral:4970'
+        if p:
+            print('before filtering:')
+            for pair in pairs:
+                if i in pair:
+                    print(pair)
         newpairs = remove_overused_xrefs(pairs)
+        if p:
+            print('after filtering:')
+            for pair in newpairs:
+                if i in pair:
+                    print(pair)
         glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
+        if p:
+            print('after glomming:')
+            print(dicts[i])
     with open(type_file,'w') as outf:
         for x,y in types.items():
             outf.write(f'{x}\t{y}\n')
@@ -430,11 +503,9 @@ def build_compendia(type_file,untyped_compendia_file):
         write_compendium(sets, f'{baretype}.txt', biotype, {})
 
 def create_typed_sets(eqsets, types):
-    """Given a set of sets of equivalent identifiers, we want to type each one into
-    being either a disease or a phenotypic feature.  Or something else, that we may want to
-    chuck out here.
-    Current rules: If it has GO trust the GO's type
-    After that, check the types dict to see if we know anything.
+    """
+    Given a set of sets of equivalent identifiers, we want to type each one into
+    being a subclass of ChemicalEntity
     """
     order = [MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
     typed_sets = defaultdict(set)
