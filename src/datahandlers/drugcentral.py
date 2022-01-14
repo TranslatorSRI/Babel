@@ -11,7 +11,8 @@ def pull_drugcentral(structfile, labelfile, xreffile):
     # meaning UMLSCUI:C1172734 == DrugBank:4970
     with open(xreffile,'w') as outf:
         for xi in x:
-            xs = [str(y) for y in xi]
+            #CHEBIs have a CHEBI namespace, plus a CHEBI: in the identifier. Strip prefixes in the identifier
+            xs = [str(y).split(':')[-1] for y in xi]
             outf.write('\t'.join(xs))
             outf.write('\n')
     cur.execute("SELECT id, smiles, name FROM structures;")
