@@ -254,8 +254,10 @@ def combine_unichem(concordances,output):
             for line in inf:
                 x = line.strip().split('\t')
                 pairs.append( set([x[0], x[2]]))
-        newpairs = remove_overused_xrefs(pairs)
-        glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
+        #We believe unichem when it links things to inchikeys
+        #newpairs = remove_overused_xrefs(pairs)
+        #glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
+        glom(dicts, pairs, unique_prefixes=[INCHIKEY])
     chem_sets = set([frozenset(x) for x in dicts.values()])
     with jsonlines.open(output, mode='w') as writer:
         for chemset in chem_sets:
