@@ -13,3 +13,6 @@ snakemake
 bmt
 pyoxigraph
 psycopg2-binary
+
+# Added by Gaurav, Jan 2022
+xmltodict
