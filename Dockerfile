@@ -26,4 +26,4 @@ RUN pip3 install -r requirements.txt
 
 # Our default entrypoint is to start the Babel run.
 # nproc returns the number of available cores; we use one less than that.
-ENTRYPOINT bash -c 'snakemake -c $(($(nproc)-1))}'
+ENTRYPOINT bash -c 'snakemake -c $(($(nproc)-1))'
