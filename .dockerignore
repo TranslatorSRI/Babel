@@ -1,0 +1,2 @@
+# The private input data directory should not be included in the Docker image.
+input_data/private/**

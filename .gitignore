@@ -1,0 +1,3 @@
+# The private input files directory is for files that should not be included in
+# Git or Docker, such as UMLS files.
+input_files/private 
