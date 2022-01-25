@@ -31,6 +31,7 @@ ADD --chown=runner https://ftp.ncbi.nih.gov/gene/DATA/gene_info.gz babel_downloa
 ADD --chown=runner https://ftp.ncbi.nih.gov/gene/DATA/gene_orthologs.gz babel_downloads/NCBIGene/gene_orthologs.gz
 ADD --chown=runner https://ftp.ncbi.nih.gov/gene/DATA/gene_refseq_uniprotkb_collab.gz babel_downloads/NCBIGene/gene_refseq_uniprotkb_collab.gz
 ADD --chown=runner https://ftp.ncbi.nih.gov/gene/DATA/mim2gene_medgen babel_downloads/NCBIGene/mim2gene_medgen
+ADD --chown=runner https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras/CID-SMILES.gz babel_downloads/PUBCHEM.COMPOUND/CID-SMILES.gz
 
 # Make sure installed Python packages are on the PATH
 ENV PATH="/home/runner/.local/bin:${PATH}"
