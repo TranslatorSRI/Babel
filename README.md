@@ -29,7 +29,7 @@ remaining items, which are used to control the build process.
 
 Also, if building the disease/phenotype compendia, there are two files that 
 must be obtained with the user's UMLS license.  In particular `MRCONSO.RRF` 
-and `MRSTY.RRF` should be placed in `/babel/input_data`.
+and `MRSTY.RRF` should be placed in `/babel/input_data/private`.
 
 ## Building Compendia
 

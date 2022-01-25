@@ -99,7 +99,7 @@ def write_umls_ids(outfile):
     blacklist=set(['C0017361', #recessive genes
                    'C0017346', #Gag viral gene family
                     ])
-    mrsty = os.path.join('input_data', 'MRSTY.RRF')
+    mrsty = os.path.join('input_data', 'private', 'MRSTY.RRF')
     umls_keepers = set()
     with open(mrsty, 'r') as inf:
         for line in inf:
@@ -109,7 +109,7 @@ def write_umls_ids(outfile):
                 umls_keepers.add(x[0])
     umls_keepers.difference_update(blacklist)
     #Now filter out OMIM variants
-    mrconso = os.path.join('input_data', 'MRCONSO.RRF')
+    mrconso = os.path.join('input_data', 'private', 'MRCONSO.RRF')
     with open(mrconso,'r') as inf:
         for line in inf:
             x = line.strip().split('|')
