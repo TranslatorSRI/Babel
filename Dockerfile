@@ -13,6 +13,7 @@ RUN pip3 install --upgrade pip
 # We install some additional software while building this Docker.
 # Once built, we no longer need them.
 RUN apt-get install -y htop
+RUN apt-get install -y screen
 
 # Set up a local user account for running Babel.
 RUN useradd -U -m runner
