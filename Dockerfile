@@ -14,6 +14,7 @@ RUN pip3 install --upgrade pip
 # Once built, we no longer need them.
 RUN apt-get install -y htop
 RUN apt-get install -y screen
+RUN apt-get install -y vim
 
 # Set up a local user account for running Babel.
 RUN useradd -U -m runner
