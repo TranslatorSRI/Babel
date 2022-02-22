@@ -13,7 +13,7 @@ def pull_unii(download_dir):
         # [1] https://www.nlm.nih.gov/pubs/techbull/nd21/nd21_fda_srs.html
         # dname = pull_via_urllib('https://fdasis.nlm.nih.gov/srs/download/srs/',pullfile,decompress=False,subpath='UNII')
         # ddir = path.dirname(dname)
-        ddir = path.join('input_data', 'private', 'UNII)
+        ddir = path.join('input_data', 'private', 'UNII')
         dname = path.join(ddir, pullfile)
         with ZipFile(dname, 'r') as zipObj:
             zipObj.extractall(ddir)
