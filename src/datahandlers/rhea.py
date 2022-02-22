@@ -15,7 +15,7 @@ class Rhea:
         from datetime import datetime as dt
         print('loading rhea')
         start = dt.now()
-        self.m= pyoxigraph.MemoryStore()
+        self.m= pyoxigraph.SledStore('/tmp/rhea.sled')
         with open(ifname,'rb') as inf:
             self.m.load(inf,'application/rdf+xml')
         end = dt.now()

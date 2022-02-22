@@ -23,7 +23,7 @@ class ECgraph:
         from datetime import datetime as dt
         print('loading EC')
         start = dt.now()
-        self.m= pyoxigraph.MemoryStore()
+        self.m= pyoxigraph.SledStore('/tmp/ec.sled')
         with open(ifname,'rb') as inf:
             self.m.load(inf,'application/rdf+xml',base_iri='http://nihilism.com/')
         end = dt.now()
