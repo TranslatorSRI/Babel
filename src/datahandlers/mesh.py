@@ -13,7 +13,7 @@ class Mesh:
         from datetime import datetime as dt
         print('loading mesh.nt')
         start = dt.now()
-        self.m= pyoxigraph.SledStore()
+        self.m= pyoxigraph.MemoryStore()
         with open(ifname,'rb') as inf:
             self.m.load(inf,'application/n-triples')
         end = dt.now()

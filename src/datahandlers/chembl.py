@@ -48,7 +48,7 @@ class ChemblRDF:
         from datetime import datetime as dt
         print('loading chembl')
         start = dt.now()
-        self.m= pyoxigraph.SledStore('/tmp/chembl.sled')
+        self.m= pyoxigraph.MemoryStore()
         with open(ccofile,'rb') as inf:
             self.m.load(inf,'application/turtle')
         with open(ifname,'rb') as inf:
