@@ -26,7 +26,7 @@ def pull_unii(download_dir):
                 rename(original,final)
 
                 # Also copy these files to the download directory.
-                shutil.copyfile(final, path.join(download_dir, final))
+                shutil.copyfile(final, path.join(download_dir, finalname))
 
 
 def make_labels_and_synonyms(inputfile,labelfile,synfile):
