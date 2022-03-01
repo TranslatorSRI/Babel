@@ -7,7 +7,7 @@ class UberGraph:
     #Some of these get_subclass_and_whatever things can/should be merged...
 
     def __init__(self):
-        self.triplestore = TripleStore("https://stars-app.renci.org/uberongraph/sparql")
+        self.triplestore = TripleStore("https://ubergraph.apps.renci.org/sparql")
 
     def get_all_labels(self):
         text = """
