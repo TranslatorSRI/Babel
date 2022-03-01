@@ -7,10 +7,7 @@ class UberGraph:
     #Some of these get_subclass_and_whatever things can/should be merged...
 
     def __init__(self):
-        # From outside of RENCI Sterling, this would be
-        # https://ubergraph.apps.renci.org/sparql, but since we are
-        # running this from within Sterling, we need to use:
-        self.triplestore = TripleStore("http://ubergraph-service.balhoff/blazegraph/sparql")
+        self.triplestore = TripleStore("https://ubergraph.apps.renci.org/sparql")
 
     def get_all_labels(self):
         text = """
