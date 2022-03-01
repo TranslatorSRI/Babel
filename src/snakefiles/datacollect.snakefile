@@ -103,7 +103,7 @@ rule get_umls_labels_and_synonyms:
         config['download_directory']+'/SNOMEDCT/labels',
         config['download_directory']+'/SNOMEDCT/synonyms'
     run:
-        umls.pull_umls(config['download_directory'])
+        umls.pull_umls()
 
 ### OBO Ontologies
 
