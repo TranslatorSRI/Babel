@@ -7,7 +7,10 @@ class UberGraph:
     #Some of these get_subclass_and_whatever things can/should be merged...
 
     def __init__(self):
-        self.triplestore = TripleStore("https://ubergraph.apps.renci.org/sparql")
+        # From outside of RENCI Sterling, this would be
+        # https://ubergraph.apps.renci.org/sparql, but since we are
+        # running this from within Sterling, we need to use:
+        self.triplestore = TripleStore("http://ubergraph-service.balhoff/blazegraph/sparql")
 
     def get_all_labels(self):
         text = """
@@ -52,7 +55,7 @@ class UberGraph:
                 prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
                 SELECT ?cls ?pred ?val
                 from <http://reasoner.renci.org/ontology>
-                WHERE 
+                WHERE
                 { ?cls ?pred ?val ;
                     a owl:Class .
                     FILTER (
@@ -162,13 +165,13 @@ class UberGraph:
         prefix HP: <http://purl.obolibrary.org/obo/HP_>
         prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
         prefix PR: <http://purl.obolibrary.org/obo/PR_>
-        select distinct ?descendent ?xref 
+        select distinct ?descendent ?xref
         from <http://reasoner.renci.org/nonredundant>
         from <http://reasoner.renci.org/ontology>
         where {
           graph <http://reasoner.renci.org/ontology/closure> {
                 ?descendent rdfs:subClassOf $sourcedefclass .
-          }  
+          }
           ?descendent <http://www.geneontology.org/formats/oboInOwl#hasDbXref> ?xref .
         }
         """
@@ -209,8 +212,8 @@ class UberGraph:
                 ?descendent rdfs:subClassOf $identifier .
             }}
             OPTIONAL {{
-                ?descendent {predicate} ?match.      
-            }} 
+                ?descendent {predicate} ?match.
+            }}
         }}
         """
         resultmap = self.triplestore.query_template(
@@ -263,7 +266,7 @@ class UberGraph:
                 ?descendent rdfs:subClassOf $identifier .
             }}
             OPTIONAL {{
-                ?descendent {predicate} ?match.      
+                ?descendent {predicate} ?match.
             }}
         }}
         """
