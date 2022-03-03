@@ -53,14 +53,15 @@ class UberGraph:
                 SELECT ?cls ?pred ?val
                 from <http://reasoner.renci.org/ontology>
                 WHERE
-                { ?cls ?pred ?val ;
-                    a owl:Class .
-                    FILTER (
-                    ?pred = oboInOwl:hasRelatedSynonym ||
-                    ?pred = oboInOwl:hasNarrowSynonym ||
-                    ?pred = oboInOwl:hasBroadSynonym ||
-                    ?pred = oboInOwl:hasExactSynonym
-                    )
+                {
+                    VALUES ?pred {
+                        oboInOwl:hasRelatedSynonym
+                        oboInOwl:hasNarrowSynonym
+                        oboInOwl:hasBroadSynonym
+                        oboInOwl:hasExactSynonym
+                    }
+                    ?cls ?pred ?val ;
+                        a owl:Class .
                 }
                 """
         rr = self.triplestore.query_template(
