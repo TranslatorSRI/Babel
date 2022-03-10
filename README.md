@@ -99,3 +99,12 @@ and the labels from the label files.
 
 Fourth, the compendia is assessed to make sure that all of the ids in the id files made into one of the possibly multiple 
 compendia.  The compendia are further assessed to locate large cliques and display the level of vocabulary merging.
+
+## Testing
+
+This repository includes unit tests. You can execute them from the
+command line by running:
+
+```
+$ PYTHONPATH=$(pwd):${PYTHONPATH} pytest 
+```
