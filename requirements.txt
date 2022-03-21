@@ -10,7 +10,7 @@ pytest-cov==2.8.1
 apybiomart
 git+https://github.com/pytries/datrie.git
 snakemake
-bmt
+bmt==0.8.3
 pyoxigraph
 psycopg2-binary
 
