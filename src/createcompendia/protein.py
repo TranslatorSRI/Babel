@@ -131,7 +131,7 @@ def build_protein_compendia(concordances, identifiers):
         print('loading', infile) # This seems to be where we run out of memory
         pairs = []
         with open(infile, 'r') as inf:
-            for line, line_index in enumerate(inf):
+            for line_index, line in enumerate(inf):
                 if line_index % 10000 == 0:
                     print("Loaded line count", line_index)
                 x = line.strip().split('\t')
@@ -144,6 +144,11 @@ def build_protein_compendia(concordances, identifiers):
     print("merged dicts")
     #Try to preserve some memory here.
     dicts.clear()
+
+    # Memory usage falls at some point; maybe here?
+    # TODO: might be a good idea to write all of this out in one step and
+    # only then generate the compendium from those input files.
+
     baretype = PROTEIN.split(':')[-1]
     write_compendium(gene_sets, f'{baretype}.txt', PROTEIN, {})
 
