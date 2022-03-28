@@ -6,7 +6,7 @@ FROM debian:11
 
 # Install software we need to run the remaining code.
 RUN apt-get update
-RUN apt-get install -y python3 python3-pip
+RUN apt-get install -y python3 python3-pip python3-venv
 RUN apt-get install -y gcc
 RUN apt-get install -y git
 RUN pip3 install --upgrade pip
@@ -38,6 +38,11 @@ COPY --chown=runner . /home/runner/babel
 
 # Make sure installed Python packages are on the PATH
 ENV PATH="/home/runner/.local/bin:${PATH}"
+
+# Create and activate a local Python venv
+ENV VIRTUAL_ENV=/home/runner/babel/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 # Install requirements
 RUN pip3 install -r requirements.txt
