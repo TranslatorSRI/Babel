@@ -1,6 +1,7 @@
 # Dockerfile for running the Babel build.
 
 # We use Debian as our basic system (since that's what I'm most familiar with).
+# Debian 11 should be supported until June 2026
 FROM debian:11
 
 # Install software we need to run the remaining code.
@@ -42,5 +43,6 @@ ENV PATH="/home/runner/.local/bin:${PATH}"
 RUN pip3 install -r requirements.txt
 
 # Our default entrypoint is to start the Babel run.
-# nproc returns the number of available cores; we use one less than that.
-ENTRYPOINT bash -c 'snakemake -c $(($(nproc)-1))'
+# I'm not sure what a good number of cores is, so I'm
+# starting with 5 for now. 
+ENTRYPOINT bash -c 'snakemake --cores 5'
