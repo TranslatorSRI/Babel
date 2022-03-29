@@ -128,20 +128,20 @@ def build_protein_compendia(concordances, identifiers):
         types.update(new_types)
     for infile in concordances:
         print(infile)
-        print('loading', infile) # This seems to be where we run out of memory
+        print('loading', infile)
         pairs = []
         with open(infile, 'r') as inf:
             for line_index, line in enumerate(inf):
-                if line_index % 10000 == 0:
-                    print("Loaded line count", line_index)
+                # if line_index % 10000 == 0:
+                #     print("Loaded line count", line_index)
                 x = line.strip().split('\t')
                 pairs.append(set([x[0], x[2]]))
-        print("glomming", infile)
+        # print("glomming", infile) # This takes a while, but doesn't add much to the memory
         glom(dicts, pairs, unique_prefixes=uniques)
         print("glommed", infile)
-    print("merging dicts")
+    # print("merging dicts") # This seems to increase memory usage slightly.
     gene_sets = set([frozenset(x) for x in dicts.values()])
-    print("merged dicts")
+    print("merged dicts", infile)
     #Try to preserve some memory here.
     dicts.clear()
 
