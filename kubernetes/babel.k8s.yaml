@@ -28,11 +28,11 @@ spec:
     resources:
       requests:
         ephemeral-storage: "50Gi"
-        memory: "300G"
+        memory: "500G"
         cpu: "4"
       limits:
         ephemeral-storage: "50Gi"
-        memory: "300G"
+        memory: "500G"
         cpu: "8"
   volumes:
     - name: babel-private
