@@ -44,8 +44,8 @@ ENV VIRTUAL_ENV=/home/runner/babel/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
-# Install requirements
-RUN pip3 install -r requirements.txt
+# Install requirements from the lockfile.
+RUN pip3 install -r requirements.lock
 
 # Our default entrypoint is to start the Babel run.
 # I'm not sure what a good number of cores is, so I'm
