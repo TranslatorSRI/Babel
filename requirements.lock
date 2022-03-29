@@ -22,7 +22,7 @@ commonmark==0.9.1
 ConfigArgParse==1.5.3
 connection-pool==0.0.3
 coverage==6.3.2
-datrie @ git+https://github.com/pytries/datrie.git@ba96de5dd42420237e84b6083f1836ef345592c6
+datrie==0.8.2
 decorator==5.1.1
 Deprecated==1.2.13
 deprecation==2.1.0

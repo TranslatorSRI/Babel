@@ -1,3 +1,4 @@
+wheel
 jsonlines
 requests
 pandas
@@ -8,7 +9,7 @@ python-Levenshtein-wheels
 pytest==5.3.5
 pytest-cov==2.8.1
 apybiomart
-git+https://github.com/pytries/datrie.git
+datrie
 snakemake
 bmt==0.8.3
 pyoxigraph
