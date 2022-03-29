@@ -5,10 +5,11 @@
 FROM debian:11
 
 # Install software we need to run the remaining code.
-RUN apt-get update
-RUN apt-get install -y python3 python3-pip python3-venv
-RUN apt-get install -y gcc
-RUN apt-get install -y git
+RUN apt update
+RUN apt dist-upgrade
+RUN apt install -y python3 python3-pip python3-venv
+RUN apt install -y gcc
+RUN apt install -y git
 RUN pip3 install --upgrade pip
 
 # We install some additional software while building this Docker.
@@ -45,7 +46,8 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 # Install requirements from the lockfile.
-RUN pip3 install -r requirements.lock
+# RUN pip3 install -r requirements.lock
+RUN pip3 install -r requirements.txt
 
 # Our default entrypoint is to start the Babel run.
 # I'm not sure what a good number of cores is, so I'm
