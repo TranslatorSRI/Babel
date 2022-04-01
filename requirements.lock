@@ -1,4 +1,3 @@
-# From the previous Docker version on Sterling, March 28, 2022
 aiohttp==3.8.1
 aiosignal==1.2.0
 alabaster==0.7.12
@@ -22,7 +21,7 @@ commonmark==0.9.1
 ConfigArgParse==1.5.3
 connection-pool==0.0.3
 coverage==6.3.2
-datrie==0.8.2
+datrie @ git+https://github.com/pytries/datrie.git@ba96de5dd42420237e84b6083f1836ef345592c6
 decorator==5.1.1
 Deprecated==1.2.13
 deprecation==2.1.0
@@ -54,7 +53,7 @@ jsonschema==3.2.0
 jupyter-core==4.9.2
 linkml==1.2.4
 linkml-dataops==0.1.0
-linkml-runtime==1.2.3
+linkml-runtime==1.2.4
 markdown-it-py==2.0.1
 MarkupSafe==2.1.0
 mccabe==0.6.1
@@ -66,7 +65,7 @@ mypy-extensions==0.4.3
 myst-parser==0.17.0
 nbformat==5.1.3
 numpy==1.22.2
-numpydoc==1.2
+numpydoc==1.2.1
 openpyxl==3.0.9
 packaging==21.3
 pandas==1.4.1
@@ -112,7 +111,7 @@ ShExJSG==0.8.1
 six==1.16.0
 smart-open==5.2.1
 smmap==5.0.0
-snakemake==6.15.5
+snakemake==7.0.0
 snowballstemmer==2.2.0
 sparqlslurper==0.5.1
 SPARQLWrapper==1.8.5
@@ -126,7 +125,7 @@ sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-napoleon==0.7
 sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
-SQLAlchemy==1.4.32
+SQLAlchemy==1.4.33
 stopit==1.1.2
 stringcase==1.2.0
 tabulate==0.8.9
