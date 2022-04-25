@@ -14,7 +14,7 @@ spec:
   restartPolicy: Never
   containers:
   - name: babel
-    image: ggvaidya/babel:latest
+    image: ggvaidya/babel:dev
     # I just need something to run while I figure out how to make this work
     command: [ "/bin/bash", "-c", "--" ]
     args: [ "while true; echo Running; do sleep 30; done;" ]
@@ -27,13 +27,11 @@ spec:
       name: babel-outputs
     resources:
       requests:
-        ephemeral-storage: "50Gi"
         memory: "500G"
-        cpu: "4"
+        cpu: "3"
       limits:
-        ephemeral-storage: "50Gi"
         memory: "500G"
-        cpu: "8"
+        cpu: "3"
   volumes:
     - name: babel-private
       persistentVolumeClaim:
@@ -42,13 +40,5 @@ spec:
       persistentVolumeClaim:
         claimName: babel-downloads
     - name: babel-outputs
-      ephemeral:
-        volumeClaimTemplate:
-          metadata:
-            labels:
-              app: babel
-          spec:
-            accessModes: [ "ReadWriteOnce" ]
-            resources:
-              requests:
-                storage: "50Gi"
+      persistentVolumeClaim:
+        claimName: babel-outputs

@@ -1,0 +1,18 @@
+# Kubernetes file for setting up a volume to use for Babel outputs.
+#
+# As of April 2022, Babel outputs take up around 95G, so a default
+# of 150 Gi is probably good enough for the near future.
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: babel-outputs
+  labels:
+    app: babel
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 150Gi
+  storageClassName: basic
