@@ -1,30 +1,34 @@
 # Dockerfile for running the Babel build.
 
-# We use Debian as our basic system (since that's what I'm most familiar with).
-# Debian 11 should be supported until June 2026
-FROM debian:11
+# Configuration options:
+# - ${ROOT} is where Babel source code will be copied.
+ARG ROOT=/code/babel
 
-# Install software we need to run the remaining code.
+# Use the RENCI Python image to make it easier to work with other
+# RENCI Docker packages.
+FROM renciorg/renci-python-image:v0.0.1
+
+# Re-import the configuration.
+ARG ROOT
+
+# Upgrade system files.
 RUN apt update
-RUN apt dist-upgrade
-RUN apt install -y python3 python3-pip python3-venv
+RUN apt -y upgrade
+
+# Install or upgrade some prerequisite packages.
+RUN apt install -y python3-venv
 RUN apt install -y gcc
 RUN apt install -y git
 RUN pip3 install --upgrade pip
 
-# We install some additional software while building this Docker.
-# Once built, we no longer need them.
+# The following packages are useful in debugging runs
+# of this software on a Kubernetes cluster.
 RUN apt-get install -y htop
 RUN apt-get install -y screen
 RUN apt-get install -y vim
 
-# Set up a local user account for running Babel.
-RUN useradd -U -m runner
-USER runner
-WORKDIR /home/runner/babel
-
 # Copy directory into Docker.
-COPY --chown=runner . /home/runner/babel
+COPY --chown=nru . ${ROOT}
 
 # We can download some source files that Babel would otherwise need to download
 # later. This means that this Docker will need to be rebuilt whenever these files
@@ -37,11 +41,14 @@ COPY --chown=runner . /home/runner/babel
 #ADD --chown=runner https://ftp.ncbi.nih.gov/gene/DATA/mim2gene_medgen babel_downloads/NCBIGene/mim2gene_medgen
 #ADD --chown=runner https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras/CID-SMILES.gz babel_downloads/PUBCHEM.COMPOUND/CID-SMILES.gz
 
-# Make sure installed Python packages are on the PATH
-ENV PATH="/home/runner/.local/bin:${PATH}"
+# RENCI Python Image creates a `nru` (non-root user)
+# for running code.
+RUN mkdir -p ${ROOT}
+WORKDIR ${ROOT}
+USER nru
 
 # Create and activate a local Python venv
-ENV VIRTUAL_ENV=/home/runner/babel/venv
+ENV VIRTUAL_ENV=${ROOT}/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
