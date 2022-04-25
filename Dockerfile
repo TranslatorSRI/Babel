@@ -1,15 +1,15 @@
-# Dockerfile for running the Babel build.
+# Dockerfile for building a Babel image.
+
+# Use the RENCI Python image to make it easier to work with other
+# RENCI Docker packages and to make sure we have an up to date image.
+# (https://github.com/TranslatorSRI/RENCI-Python-image)
+FROM renciorg/renci-python-image:v0.0.1
 
 # Configuration options:
 # - ${ROOT} is where Babel source code will be copied.
 ARG ROOT=/code/babel
-
-# Use the RENCI Python image to make it easier to work with other
-# RENCI Docker packages.
-FROM renciorg/renci-python-image:v0.0.1
-
-# Re-import the configuration.
-ARG ROOT
+# - ${CORES} is the default number of cores to use.
+ARG CORES=5
 
 # Upgrade system files.
 RUN apt update
@@ -22,7 +22,8 @@ RUN apt install -y git
 RUN pip3 install --upgrade pip
 
 # The following packages are useful in debugging runs
-# of this software on a Kubernetes cluster.
+# of this software on a Kubernetes cluster, but can
+# be removed if not needed.
 RUN apt-get install -y htop
 RUN apt-get install -y screen
 RUN apt-get install -y vim
@@ -57,6 +58,4 @@ ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 RUN pip3 install -r requirements.txt
 
 # Our default entrypoint is to start the Babel run.
-# I'm not sure what a good number of cores is, so I'm
-# starting with 5 for now. 
-ENTRYPOINT bash -c 'snakemake --cores 5'
+ENTRYPOINT bash -c 'snakemake --cores ${CORES}'
