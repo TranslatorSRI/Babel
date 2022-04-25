@@ -1,5 +1,5 @@
 # The private input data directory should not be included in the Docker image.
 input_data/private/**
 
-# The venv is also not needed.
+# The venv is generated from requirements.txt when the Docker image is created.
 venv/**
