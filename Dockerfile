@@ -48,6 +48,11 @@ RUN mkdir -p ${ROOT}
 WORKDIR ${ROOT}
 USER nru
 
+# The RENCI Python Image doesn't create a home directory,
+# which is needed by Snakemake. So we make one ourselves.
+RUN mkdir ${ROOT}/home
+ENV HOME=${ROOT}/home
+
 # Create and activate a local Python venv
 ENV VIRTUAL_ENV=${ROOT}/venv
 RUN python3 -m venv $VIRTUAL_ENV
