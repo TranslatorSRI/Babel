@@ -12,7 +12,7 @@ apybiomart
 datrie
 snakemake
 bmt
-pyoxigraph
+pyoxigraph~=0.2.5
 psycopg2-binary
 
 # Added by Gaurav, Jan 2022
