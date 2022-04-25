@@ -111,8 +111,8 @@ $ docker run -it --rm --mount type=bind,source=...,target=/home/runner/babel/inp
 ```
 
 These two directories should be set up as following:
-* `babel/input_data/private` is used to store some necessary inputs
+* `babel/input_data/private` is used to store some input files
   that you will need to download yourself:
     * `MRCONSO.RRF` and `MRSTY.RRF`: parts of the UMLS release, need to be downloaded from [the UMLS download website](https://www.nlm.nih.gov/research/umls/licensedcontent/umlsknowledgesources.html).
     * `UNII/UNIIs.zip` and `UNII/UNII_Data.zip`: needs to be downloaded from [the FDA UNII download website](https://precision.fda.gov/uniisearch/archive).
-* `babel/babel_downloads` is used to store data files downloaded during Babel assembly. This could remain within the container, but will be pretty large, so it's probably best to store it outside of the container.
+* `babel/babel_downloads` is used to store data files downloaded during Babel assembly.
