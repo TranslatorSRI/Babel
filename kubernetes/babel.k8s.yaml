@@ -24,11 +24,11 @@ spec:
     command: [ "/bin/bash", "-c", "--" ]
     args: [ "while true; echo Running; do sleep 30; done;" ]
     volumeMounts:
-    - mountPath: "/home/runner/babel/input_data/private"
+    - mountPath: "/code/babel/input_data/private"
       name: babel-private
-    - mountPath: "/home/runner/babel/babel_downloads"
+    - mountPath: "/code/babel/babel_downloads"
       name: babel-downloads
-    - mountPath: "/home/runner/babel/babel_outputs"
+    - mountPath: "/code/babel/babel_outputs"
       name: babel-outputs
     resources:
       requests:
