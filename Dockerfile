@@ -27,6 +27,7 @@ RUN pip3 install --upgrade pip
 RUN apt-get install -y htop
 RUN apt-get install -y screen
 RUN apt-get install -y vim
+RUN apt-get install -y rsync
 
 # Copy directory into Docker.
 COPY --chown=nru . ${ROOT}
