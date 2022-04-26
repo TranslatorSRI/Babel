@@ -1,6 +1,6 @@
 # Kubernetes file for setting up a volume to use for Babel.
 
-# We need 0.5-1.0 TB as download space for running Babel.
+# We need ~400 Gi as download space for running Babel.
 
 apiVersion: v1
 kind: PersistentVolumeClaim
