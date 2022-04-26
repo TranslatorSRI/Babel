@@ -1,9 +1,14 @@
 # Kubernetes file for running Babel on the RENCI Sterling cluster
 
-# Create a single Pod to run Babel. We don't need a full deployment of this,
-# although eventually I will set this up to restart itself automatically if
-# the job is terminated (and, ideally, some way of notifying me once it's done
-# and other such cool things).
+# Create a single Pod to run Babel. At the moment, that's all we need,
+# so that's all we provide instructions for. Eventually, it'd be nice
+# to set this up as a proper Job that can be restarted until it completes
+# executing, notifies you once it's done, and so on.
+#
+# Memory requirements: 500G seems to be the minimum for now.
+# CPU requirements: I usually use 4-8 CPUs, but it should be usable with fewer.
+# Ephemeral storage: none seems to be required.
+
 apiVersion: v1
 kind: Pod
 metadata:
