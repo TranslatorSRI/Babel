@@ -18,6 +18,7 @@ rule all:
         config['output_directory'] + '/reports/disease_done',
         config['output_directory'] + '/reports/gene_done',
         config['output_directory'] + '/reports/genefamily_done',
+        config['output_directory'] + '/reports/geneprotein_done',
         config['output_directory'] + '/reports/process_done',
         config['output_directory'] + '/reports/protein_done',
         config['output_directory'] + '/reports/taxon_done'
