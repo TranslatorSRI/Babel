@@ -3,3 +3,6 @@ input_data/private/**
 
 # The venv is generated from requirements.txt when the Docker image is created.
 venv/**
+
+# No need to store Snakemake files.
+.snakemake/**
