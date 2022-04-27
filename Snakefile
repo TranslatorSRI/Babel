@@ -24,7 +24,7 @@ rule all:
     output:
         x = config['output_directory'] + '/reports/all_done'
     shell:
-        "echo 'done' >> hi"
+        "echo 'done' >> {output.x}"
 
 
 rule clean_compendia:
