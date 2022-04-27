@@ -11,7 +11,7 @@ rule geneprotein_uniprot_relationships:
     run:
         geneprotein.build_uniprotkb_ncbigene_relationships(input.infile,output.outfile_concords)
 
-rule geneprotein:
+rule geneprotein_conflation:
     input:
         gene_compendium=config['output_directory']+'/compendia/'+'Gene.txt',
         protein_compendium=config['output_directory']+'/compendia/'+'Protein.txt',
@@ -20,6 +20,14 @@ rule geneprotein:
         outfile=config['output_directory']+'/conflation/GeneProtein.txt'
     run:
         geneprotein.build_conflation(input.geneprotein_concord,input.gene_compendium,input.protein_compendium,output.outfile)
+
+rule geneprotein:
+    input:
+        config['output_directory']+'/conflation/GeneProtein.txt'
+    output:
+        x=config['output_directory']+'/reports/geneprotein_done'
+    shell:
+        "echo 'done' >> {output.x}"
 
 #rule check_geneprotein_completeness:
 #    input:
