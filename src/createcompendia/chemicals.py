@@ -184,6 +184,9 @@ def write_chemical_ids_from_labels_and_smiles(labelfile,smifile,outfile):
 def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
+            if line.startswith('"## GtoPdb Version'):
+                # Header line! Ignore.
+                continue
             x = line.split('\t')
             if stripquotes:
                 x = [ xi[1:-1] for xi in x ]
