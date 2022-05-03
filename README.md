@@ -29,7 +29,7 @@ remaining items, which are used to control the build process.
 
 Also, if building the disease/phenotype compendia, there are two files that 
 must be obtained with the user's UMLS license.  In particular `MRCONSO.RRF` 
-and `MRSTY.RRF` should be placed in `/babel/input_data`.
+and `MRSTY.RRF` should be placed in `/babel/input_data/private`.
 
 ## Building Compendia
 
@@ -99,3 +99,20 @@ and the labels from the label files.
 
 Fourth, the compendia is assessed to make sure that all of the ids in the id files made into one of the possibly multiple 
 compendia.  The compendia are further assessed to locate large cliques and display the level of vocabulary merging.
+
+## Building with Docker
+
+You can also run Babel with [Docker](https://www.docker.com/). There are
+two directories you need to bind or mount from outside the container:
+
+```
+$ docker build -t ggvaidya/babel .
+$ docker run -it --rm --mount type=bind,source=...,target=/home/runner/babel/input_data/private --mount type=bind,source=...,target=/home/runner/babel/babel_downloads --entrypoint /bin/bash ggvaidya/babel
+```
+
+These two directories should be set up as following:
+* `babel/input_data/private` is used to store some input files
+  that you will need to download yourself:
+    * `MRCONSO.RRF` and `MRSTY.RRF`: parts of the UMLS release, need to be downloaded from [the UMLS download website](https://www.nlm.nih.gov/research/umls/licensedcontent/umlsknowledgesources.html).
+    * `UNII/UNIIs.zip` and `UNII/UNII_Data.zip`: needs to be downloaded from [the FDA UNII download website](https://precision.fda.gov/uniisearch/archive).
+* `babel/babel_downloads` is used to store data files downloaded during Babel assembly.

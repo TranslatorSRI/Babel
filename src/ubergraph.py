@@ -7,7 +7,7 @@ class UberGraph:
     #Some of these get_subclass_and_whatever things can/should be merged...
 
     def __init__(self):
-        self.triplestore = TripleStore("https://stars-app.renci.org/uberongraph/sparql")
+        self.triplestore = TripleStore("https://ubergraph.apps.renci.org/sparql")
 
     def get_all_labels(self):
         text = """
@@ -52,15 +52,16 @@ class UberGraph:
                 prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
                 SELECT ?cls ?pred ?val
                 from <http://reasoner.renci.org/ontology>
-                WHERE 
-                { ?cls ?pred ?val ;
-                    a owl:Class .
-                    FILTER (
-                    ?pred = oboInOwl:hasRelatedSynonym ||
-                    ?pred = oboInOwl:hasNarrowSynonym ||
-                    ?pred = oboInOwl:hasBroadSynonym ||
-                    ?pred = oboInOwl:hasExactSynonym
-                    )
+                WHERE
+                {
+                    VALUES ?pred {
+                        oboInOwl:hasRelatedSynonym
+                        oboInOwl:hasNarrowSynonym
+                        oboInOwl:hasBroadSynonym
+                        oboInOwl:hasExactSynonym
+                    }
+                    ?cls ?pred ?val ;
+                        a owl:Class .
                 }
                 """
         rr = self.triplestore.query_template(
@@ -162,13 +163,13 @@ class UberGraph:
         prefix HP: <http://purl.obolibrary.org/obo/HP_>
         prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
         prefix PR: <http://purl.obolibrary.org/obo/PR_>
-        select distinct ?descendent ?xref 
+        select distinct ?descendent ?xref
         from <http://reasoner.renci.org/nonredundant>
         from <http://reasoner.renci.org/ontology>
         where {
           graph <http://reasoner.renci.org/ontology/closure> {
                 ?descendent rdfs:subClassOf $sourcedefclass .
-          }  
+          }
           ?descendent <http://www.geneontology.org/formats/oboInOwl#hasDbXref> ?xref .
         }
         """
@@ -209,8 +210,8 @@ class UberGraph:
                 ?descendent rdfs:subClassOf $identifier .
             }}
             OPTIONAL {{
-                ?descendent {predicate} ?match.      
-            }} 
+                ?descendent {predicate} ?match.
+            }}
         }}
         """
         resultmap = self.triplestore.query_template(
@@ -263,7 +264,7 @@ class UberGraph:
                 ?descendent rdfs:subClassOf $identifier .
             }}
             OPTIONAL {{
-                ?descendent {predicate} ?match.      
+                ?descendent {predicate} ?match.
             }}
         }}
         """

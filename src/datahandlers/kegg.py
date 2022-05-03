@@ -19,11 +19,15 @@ from src.prefixes import KEGGCOMPOUND
 # As for crawling them and pulling the sequence, should we be going through the KEGG client? probably?
 
 def pull_kegg_compound_labels(outfile):
+    request_session = requests.Session()
+    request_adapter = requests.adapters.HTTPAdapter(max_retries=10)
+    request_session.mount('http://', request_adapter)
+    request_session.mount('https://', request_adapter)
     with open(outfile,'w') as lfile:
         for i in range(1,22250):
             rid = f'C{str(i).zfill(5)}'
             url = f'http://rest.kegg.jp/get/cpd:{rid}'
-            raw_results = requests.get(url)
+            raw_results = request_session.get(url)
             rawlines = raw_results.text.split('\n')
             if len(rawlines) > 0:
                 if rawlines[0].startswith('ENTRY'):

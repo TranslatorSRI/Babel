@@ -131,13 +131,24 @@ def build_protein_compendia(concordances, identifiers):
         print('loading', infile)
         pairs = []
         with open(infile, 'r') as inf:
-            for line in inf:
+            for line_index, line in enumerate(inf):
+                # if line_index % 10000 == 0:
+                #     print("Loaded line count", line_index)
                 x = line.strip().split('\t')
                 pairs.append(set([x[0], x[2]]))
+        # print("glomming", infile) # This takes a while, but doesn't add much to the memory
         glom(dicts, pairs, unique_prefixes=uniques)
+        print("glommed", infile)
+    # print("merging dicts") # This seems to increase memory usage slightly.
     gene_sets = set([frozenset(x) for x in dicts.values()])
+    print("merged dicts", infile)
     #Try to preserve some memory here.
     dicts.clear()
+
+    # Memory usage falls at some point; maybe here?
+    # TODO: might be a good idea to write all of this out in one step and
+    # only then generate the compendium from those input files.
+
     baretype = PROTEIN.split(':')[-1]
     write_compendium(gene_sets, f'{baretype}.txt', PROTEIN, {})
 

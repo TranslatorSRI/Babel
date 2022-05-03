@@ -1,0 +1,49 @@
+# Kubernetes file for running Babel on the RENCI Sterling cluster
+
+# Create a single Pod to run Babel. At the moment, that's all we need,
+# so that's all we provide instructions for. Eventually, it'd be nice
+# to set this up as a proper Job that can be restarted until it completes
+# executing, notifies you once it's done, and so on.
+#
+# Memory requirements: 500G seems to be the minimum for now.
+# CPU requirements: I usually use 4-8 CPUs, but it should be usable with fewer.
+# Ephemeral storage: none seems to be required.
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: babel
+  labels:
+    app: babel
+spec:
+  restartPolicy: Never
+  containers:
+  - name: babel
+    image: ggvaidya/babel:dev
+    # I just need something to run while I figure out how to make this work
+    command: [ "/bin/bash", "-c", "--" ]
+    args: [ "while true; echo Running; do sleep 30; done;" ]
+    volumeMounts:
+    - mountPath: "/code/babel/input_data/private"
+      name: babel-private
+    - mountPath: "/code/babel/babel_downloads"
+      name: babel-downloads
+    - mountPath: "/code/babel/babel_outputs"
+      name: babel-outputs
+    resources:
+      requests:
+        memory: "500G"
+        cpu: "3"
+      limits:
+        memory: "500G"
+        cpu: "3"
+  volumes:
+    - name: babel-private
+      persistentVolumeClaim:
+        claimName: babel-private
+    - name: babel-downloads
+      persistentVolumeClaim:
+        claimName: babel-downloads
+    - name: babel-outputs
+      persistentVolumeClaim:
+        claimName: babel-outputs

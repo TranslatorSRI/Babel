@@ -85,7 +85,7 @@ rule chemical_chebi_ids:
 
 rule chemical_drugbank_ids:
     input:
-        infile=config['download_directory']+"/DrugBank/UC_XREF.srcfiltered.txt"
+        infile=config['download_directory']+"/UNICHEM/UC_XREF.srcfiltered.txt"
     output:
         outfile=config['download_directory']+"/chemicals/ids/DRUGBANK"
     run:

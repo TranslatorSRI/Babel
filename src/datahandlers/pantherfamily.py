@@ -3,7 +3,7 @@ from src.prefixes import PANTHERFAMILY
 
 def pull_pantherfamily():
     outfile=f'{PANTHERFAMILY}/family.csv'
-    pull_via_ftp('ftp.pantherdb.org','/sequence_classifications/current_release/PANTHER_Sequence_Classification_files/','PTHR16.0_human',outfilename=outfile)
+    pull_via_ftp('ftp.pantherdb.org','/sequence_classifications/current_release/PANTHER_Sequence_Classification_files/','PTHR17.0_human',outfilename=outfile)
 
 def pull_labels(infile,outfile):
     with open(infile,'r') as inf:

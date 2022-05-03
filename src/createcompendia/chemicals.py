@@ -184,6 +184,9 @@ def write_chemical_ids_from_labels_and_smiles(labelfile,smifile,outfile):
 def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
+            if line.startswith('"## GtoPdb Version'):
+                # Header line! Ignore.
+                continue
             x = line.split('\t')
             if stripquotes:
                 x = [ xi[1:-1] for xi in x ]
@@ -344,7 +347,11 @@ def build_drugcentral_relations(infile,outfile):
 
 def make_gtopdb_relations(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
-        h = inf.readline().strip().split('\t')
+        h = inf.readline()
+        # We might have a header/version line. If so, skip to the next line.
+        if h.startswith('"## GtoPdb Version'):
+            h = inf.readline()
+        h = h.strip().split('\t')
         gid_index = h.index('"Ligand id"')
         inchi_index = h.index('"InChIKey"')
         for line in inf:

@@ -1,0 +1,19 @@
+# Kubernetes file for setting up a private volume to use for Babel.
+#
+# This private volume is only needed to store some "private" data, such
+# as UMLS files, that should not be included in the Docker image.
+# The private volume only needs to be ~5Gi in size.
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: babel-private
+  labels:
+    app: babel
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: basic

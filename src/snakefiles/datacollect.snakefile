@@ -309,13 +309,13 @@ rule get_SMPDB_labels:
 
 rule get_panther_pathways:
     output:
-        outfile = config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.5.txt'
+        outfile = config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.6.txt'
     run:
         pantherpathways.pull_panther_pathways()
 
 rule get_panther_pathway_labels:
     input:
-        infile=config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.5.txt'
+        infile=config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.6.txt'
     output:
         labelfile=config['download_directory'] + '/PANTHER.PATHWAY/labels'
     run:
@@ -392,7 +392,7 @@ rule get_unii:
         config['download_directory']+'/UNII/Latest_UNII_Names.txt',
         config['download_directory']+'/UNII/Latest_UNII_Records.txt'
     run:
-        unii.pull_unii()
+        unii.pull_unii(config['download_directory'] + '/UNII')
 
 rule unii_labels_and_synonyms:
     input:

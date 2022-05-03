@@ -5,7 +5,7 @@ import os
 
 def write_umls_ids(category_map,umls_output,blacklist=set()):
     categories = set(category_map.keys())
-    mrsty = os.path.join('input_data', 'MRSTY.RRF')
+    mrsty = os.path.join('input_data', 'private', 'MRSTY.RRF')
     umls_keepers = set()
     with open(mrsty,'r') as inf, open(umls_output,'w') as outf:
         for line in inf:
@@ -29,7 +29,7 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
             u = line.strip().split('\t')[0].split(':')[1]
             umls_ids.add(u)
     lookfor = set(other_prefixes.keys())
-    mrconso = os.path.join('input_data', 'MRCONSO.RRF')
+    mrconso = os.path.join('input_data', 'private', 'MRCONSO.RRF')
     pairs = set()
     #test_cui = 'C0026827'
     with open(mrconso,'r') as inf, open(umls_output,'w') as concordfile:
@@ -87,7 +87,7 @@ def read_umls_priority():
 
 def pull_umls():
     """Run through MRCONSO.RRF creating label and synonym files for UMLS and SNOMEDCT"""
-    mrcon = os.path.join('input_data', 'MRCONSO.RRF')
+    mrcon = os.path.join('input_data', 'private', 'MRCONSO.RRF')
     rows = defaultdict(list)
     priority = read_umls_priority()
     snomed_label_name = make_local_name('labels', subpath='SNOMEDCT')
