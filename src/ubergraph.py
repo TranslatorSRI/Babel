@@ -318,4 +318,6 @@ def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={},
                 if p in concordfiles:
                     concordfiles[p].write(f'{k}\t{types2relations[set_type]}\t{x}\n')
 
-
+if __name__ == '__main__':
+    ug = UberGraph()
+    ug.get_all_labels()
