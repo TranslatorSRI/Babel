@@ -117,7 +117,7 @@ class Text:
             p = text.split('/')[-1].split('_')
             return ':'.join( p )
         if text.startswith('https://omim.org/'):
-            return f'{OMIM}:{text.split("/"[-1])}'
+            return f'{OMIM}:{text.split("/")[-1]}'
         if text.startswith('http://linkedlifedata.com/resource/umls'):
             return f'{UMLS}:{text.split("/")[-1]}'
         if text.startswith('http://identifiers.org/'):
