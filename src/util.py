@@ -6,7 +6,7 @@ from collections import namedtuple
 import copy
 from logging.handlers import RotatingFileHandler
 from src.LabeledID import LabeledID
-from prefixes import OMIM, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT
+from src.prefixes import OMIM, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT
 
 #loggers = {}
 class LoggingUtil(object):
