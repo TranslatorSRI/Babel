@@ -6,7 +6,7 @@ from collections import namedtuple
 import copy
 from logging.handlers import RotatingFileHandler
 from src.LabeledID import LabeledID
-from src.prefixes import OMIM, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT
+from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT
 
 #loggers = {}
 class LoggingUtil(object):
@@ -117,7 +117,10 @@ class Text:
             p = text.split('/')[-1].split('_')
             return ':'.join( p )
         if text.startswith('https://omim.org/'):
-            return f'{OMIM}:{text.split("/")[-1]}'
+            ident = text.split("/")[-1]
+            if ident.startswith('PS'):
+                return f'{OMIMPS}:{ident[2:]}'
+            return f'{OMIM}:{ident}'
         if text.startswith('http://linkedlifedata.com/resource/umls'):
             return f'{UMLS}:{text.split("/")[-1]}'
         if text.startswith('http://identifiers.org/'):
