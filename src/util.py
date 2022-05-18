@@ -6,7 +6,7 @@ from collections import namedtuple
 import copy
 from logging.handlers import RotatingFileHandler
 from src.LabeledID import LabeledID
-from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT
+from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10
 
 #loggers = {}
 class LoggingUtil(object):
@@ -128,6 +128,8 @@ class Text:
             return f'{p[-2].upper()}:{p[-1]}'
         if text.startswith('http://en.wikipedia.org/wiki'):
             return f'wikipedia.en:{text.split("/")[-1]}'
+        if text.startswith('http://apps.who.int/classifications/icd10'):
+            return f'{ICD10}:{text.split("/")[-1]}'
         if text.startswith('http://www.snomedbrowser.com/'):
             return f'{SNOMEDCT}:{text.split("/")[-1]}'
         if text.startswith('KEGG_PATHWAY'):
