@@ -6,6 +6,7 @@ from collections import namedtuple
 import copy
 from logging.handlers import RotatingFileHandler
 from src.LabeledID import LabeledID
+from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10
 
 #loggers = {}
 class LoggingUtil(object):
@@ -115,21 +116,28 @@ class Text:
         if text.startswith('http://purl.obolibrary.org') or text.startswith('http://www.orpha.net') or text.startswith('http://www.ebi.ac.uk/efo'):
             p = text.split('/')[-1].split('_')
             return ':'.join( p )
+        if text.startswith('https://omim.org/'):
+            ident = text.split("/")[-1]
+            if ident.startswith('PS'):
+                return f'{OMIMPS}:{ident[2:]}'
+            return f'{OMIM}:{ident}'
         if text.startswith('http://linkedlifedata.com/resource/umls'):
-            return f'UMLS:{text.split("/")[-1]}'
+            return f'{UMLS}:{text.split("/")[-1]}'
         if text.startswith('http://identifiers.org/'):
             p = text.split("/")
             return f'{p[-2].upper()}:{p[-1]}'
         if text.startswith('http://en.wikipedia.org/wiki'):
             return f'wikipedia.en:{text.split("/")[-1]}'
+        if text.startswith('http://apps.who.int/classifications/icd10'):
+            return f'{ICD10}:{text.split("/")[-1]}'
         if text.startswith('http://www.snomedbrowser.com/'):
-            return f'SNOMEDCT:{text.split("/")[-1]}'
+            return f'{SNOMEDCT}:{text.split("/")[-1]}'
         if text.startswith('KEGG_PATHWAY'):
-            return Text.recurie(text,'KEGG.PATHWAY')
+            return Text.recurie(text,KEGGPATHWAY)
         if text.startswith('NCIt'):
-            return Text.recurie(text,'NCIT')
+            return Text.recurie(text,NCIT)
         if text.startswith('KEGG_REACTION'):
-            return Text.recurie(text,'KEGG.REACTION')
+            return Text.recurie(text,KEGGREACTION)
         return text
 
     @staticmethod

@@ -23,12 +23,18 @@ def write_umls_ids(category_map,umls_output,blacklist=set()):
 def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdict(set), acceptable_identifiers={}):
     """Given a list of umls identifiers we want to generate all the concordances
     between UMLS and that other entity"""
+    # On UMLS / MESH: we have been getting all UMLS / MESH relationships.   This has led to some clear mistakes
+    # and logical impossibilities such as cyclical subclasses.   On further review, we can sharpen these relationships
+    # by choosing the best match UMLS for each MESH.  We will make use of the TTY column (column 12) in MRCONSO.
+    # This column can have a lot of values, but every MESH has one of (and only one of): MH, NM, HT, QAB.  These
+    # will be the ones that we pull, as they correspond to the "main" name or heading of the mesh entry.
     umls_ids = set()
     with open(umls_input) as inf:
         for line in inf:
             u = line.strip().split('\t')[0].split(':')[1]
             umls_ids.add(u)
     lookfor = set(other_prefixes.keys())
+    acceptable_mesh_tty = set(["MH","NM","HT","QAB"])
     mrconso = os.path.join('input_data', 'private', 'MRCONSO.RRF')
     pairs = set()
     #test_cui = 'C0026827'
@@ -49,6 +55,9 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
             #only keep sources we're looking for
             source = x[11]
             if source not in lookfor:
+                continue
+            tty = x[12]
+            if (source == 'MSH') and (tty not in acceptable_mesh_tty):
                 continue
             #For some dippy reason, in the id column they say "HGNC:76"
             pref = other_prefixes[source]
