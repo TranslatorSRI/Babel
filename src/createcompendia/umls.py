@@ -30,6 +30,11 @@ def write_leftover_umls(compendia, mrconso, umls_compendium, report, done):
     # of some sort).
     referenced_umls = set()
 
+    # If we were interested in keeping all UMLS labels, we would create an identifier file as described in
+    # babel_utils.read_identifier_file() and then glom them with babel_utils.glom(). However, for this initial
+    # run, it's probably okay to just pick the first label for each code.
+    umls_ids_already_included = set()
+
     with open(umls_compendium, 'w') as compendiumf:
         for compendium in compendia:
             logging.info(f"Starting compendium: {compendium}")
@@ -56,7 +61,10 @@ def write_leftover_umls(compendia, mrconso, umls_compendium, report, done):
                 cui = x[0]
                 umls_id = f"{UMLS}:{cui}"
                 if umls_id in referenced_umls:
-                    logging.debug(f"UMLS ID {umls_id} is in referenced_umls, skipping")
+                    logging.debug(f"UMLS ID {umls_id} is in referenced_umls, skipping.")
+                    continue
+                if umls_id in umls_ids_already_included:
+                    logging.debug(f"UMLS ID {umls_id} has already been included, skipping.")
                     continue
                 lang = x[1]
 
@@ -90,6 +98,7 @@ def write_leftover_umls(compendia, mrconso, umls_compendium, report, done):
                     }]
                 }
                 compendiumf.write(json.dumps(cluster) + "\n")
+                umls_ids_already_included.add(umls_id)
                 # logging.info(f"Writing {cluster} to {outf}")
 
                 # if (source == 'MSH') and (tty not in acceptable_mesh_tty):
@@ -116,6 +125,7 @@ def write_leftover_umls(compendia, mrconso, umls_compendium, report, done):
     # TODO: write out reports on unreferenced UMLS.
     with open(report, 'w') as outf:
         outf.write("TODO report goes here")
+        outf.write(f"Wrote out {len(umls_ids_already_included)} UMLS IDs into the leftover UMLS compendium.")
 
     # TODO: write out `done` file.
     with open(done, 'w') as outf:
