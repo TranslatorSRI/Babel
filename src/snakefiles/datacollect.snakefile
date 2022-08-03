@@ -42,7 +42,7 @@ import src.prefixes as prefixes
 
 rule get_complexportal:
     output:
-        config['download_directory']+'/ComplexPortal'+'/yeast_complexes/1235996.tsv'
+        config['download_directory']+'/ComplexPortal'+'/yeast_complexes/559292.tsv'
     run:
         complexportal.pull_complexportal()
 
