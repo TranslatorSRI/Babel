@@ -506,7 +506,3 @@ rule get_chebi:
         config['download_directory'] + '/CHEBI/database_accession.tsv',
     run:
         chebi.pull_chebi()
-
-
-
-
