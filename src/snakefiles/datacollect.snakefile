@@ -27,6 +27,7 @@ import src.datahandlers.ncbitaxon as ncbitaxon
 import src.datahandlers.chebi as chebi
 import src.datahandlers.hgncfamily as hgncfamily
 import src.datahandlers.pantherfamily as pantherfamily
+import src.datahandlers.complexportal as complexportal
 
 import src.prefixes as prefixes
 
@@ -35,6 +36,15 @@ import src.prefixes as prefixes
 # Data sets: pull data sets, and parse them to get labels and synonyms
 #
 ####
+
+### Complex Portal
+# https://www.ebi.ac.uk/complexportal/
+
+rule get_complexportal:
+    output:
+        config['download_directory']+'/ComplexPortal'+'/yeast_complexes/1235996.tsv'
+    run:
+        complexportal.pull_complexportal()
 
 ### MODS
 
@@ -496,3 +506,7 @@ rule get_chebi:
         config['download_directory'] + '/CHEBI/database_accession.tsv',
     run:
         chebi.pull_chebi()
+
+
+
+
