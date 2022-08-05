@@ -42,9 +42,26 @@ import src.prefixes as prefixes
 
 rule get_complexportal:
     output:
-        config['download_directory']+'/ComplexPortal'+'/yeast_complexes/559292.tsv'
+        config['download_directory']+'/ComplexPortal'+'/559292.tsv'
     run:
         complexportal.pull_complexportal()
+
+rule get_complexportal_labels:
+    input:
+        infile = config['download_directory']+'/ComplexPortal'+'/559292.tsv'
+    output:
+        lfile = config['download_directory']+'/ComplexPortal'+'/559292_labels.tsv',
+        sfile = config['download_directory']+'/ComplexPortal'+'/559292_synonyms.tsv'
+    run:
+        complexportal.make_labels_and_synonyms(input.infile, output.lfile, output.sfile)
+
+rule get_complexportal_synonyms:
+    input:
+        config['download_directory']+'/ComplexPortal'+'/559292_labels.tsv'
+    output:
+        sfile = config['download_directory']+'/ComplexPortal'+'/559292_synonyms.tsv'
+    shell:
+        "touch {output.syns}"
 
 ### MODS
 
