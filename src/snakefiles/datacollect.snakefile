@@ -46,7 +46,7 @@ rule get_complexportal:
     run:
         complexportal.pull_complexportal()
 
-rule get_complexportal_labels:
+rule get_complexportal_labels_and_synonyms:
     input:
         infile = config['download_directory']+'/ComplexPortal'+'/559292.tsv'
     output:
@@ -54,14 +54,6 @@ rule get_complexportal_labels:
         sfile = config['download_directory']+'/ComplexPortal'+'/559292_synonyms.tsv'
     run:
         complexportal.make_labels_and_synonyms(input.infile, output.lfile, output.sfile)
-
-rule get_complexportal_synonyms:
-    input:
-        config['download_directory']+'/ComplexPortal'+'/559292_labels.tsv'
-    output:
-        sfile = config['download_directory']+'/ComplexPortal'+'/559292_synonyms.tsv'
-    shell:
-        "touch {output.syns}"
 
 ### MODS
 
