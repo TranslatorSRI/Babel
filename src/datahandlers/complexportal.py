@@ -5,12 +5,10 @@ def pull_complexportal():
     pull_via_urllib('http://ftp.ebi.ac.uk/pub/databases/intact/complex/current/complextab/',f'559292.tsv', decompress=False, subpath=COMPLEXPORTAL)
 
 def make_labels_and_synonyms(infile, labelfile, synfile):
-    infile = open(infile, 'r')
-    lines = infile.readlines()[1:]
     usedsyns = set()
-
-    with open(labelfile, 'w') as outl, open(synfile, 'w') as outsyn:
-        for line in lines:
+    with open(infile, 'r') as inf, open(labelfile, 'w') as outl, open(synfile, 'w') as outsyn:
+        next(inf) # skip header
+        for line in inf:
             sline = line.split("\t")
             id = sline[0]
             label = sline[1] # recommended name
@@ -22,10 +20,3 @@ def make_labels_and_synonyms(infile, labelfile, synfile):
                     if not syn in usedsyns:
                         outsyn.write(f'Complex ac:{id}\t{syn}\n')
                         usedsyns.add(syn)
-
-# test
-# path = "/Users/shalkishrivastava/renci/creativity-hub/yeast-kop/Babel/babel_downloads/"
-# infile = path + "559292.tsv"
-# labels = path + "labels.tsv"
-# synonyms = path + "synonyms.tsv"
-# make_labels_and_synonyms(infile, labels, synonyms)
