@@ -12,7 +12,7 @@ def make_labels_and_synonyms(infile, labelfile, synfile):
             sline = line.split("\t")
             id = sline[0]
             label = sline[1] # recommended name
-            outl.write(f'Complex ac:{id}\t{label}\n')
+            outl.write(f'ComplexPortal:{id}\t{label}\n')
             synonyms_str = sline[2] # aliases
             if not synonyms_str == "-":
                 synonyms = synonyms_str.split('|')
