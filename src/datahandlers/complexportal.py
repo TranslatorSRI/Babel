@@ -18,5 +18,5 @@ def make_labels_and_synonyms(infile, labelfile, synfile):
                 synonyms = synonyms_str.split('|')
                 for syn in synonyms:
                     if not syn in usedsyns:
-                        outsyn.write(f'Complex ac:{id}\t{syn}\n')
+                        outsyn.write(f'ComplexPortal:{id}\t{syn}\n')
                         usedsyns.add(syn)
