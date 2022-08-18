@@ -27,6 +27,7 @@ import src.datahandlers.ncbitaxon as ncbitaxon
 import src.datahandlers.chebi as chebi
 import src.datahandlers.hgncfamily as hgncfamily
 import src.datahandlers.pantherfamily as pantherfamily
+import src.datahandlers.complexportal as complexportal
 
 import src.prefixes as prefixes
 
@@ -35,6 +36,24 @@ import src.prefixes as prefixes
 # Data sets: pull data sets, and parse them to get labels and synonyms
 #
 ####
+
+### Complex Portal
+# https://www.ebi.ac.uk/complexportal/
+
+rule get_complexportal:
+    output:
+        config['download_directory']+'/ComplexPortal'+'/559292.tsv'
+    run:
+        complexportal.pull_complexportal()
+
+rule get_complexportal_labels_and_synonyms:
+    input:
+        infile = config['download_directory']+'/ComplexPortal'+'/559292.tsv'
+    output:
+        lfile = config['download_directory']+'/ComplexPortal'+'/559292_labels.tsv',
+        sfile = config['download_directory']+'/ComplexPortal'+'/559292_synonyms.tsv'
+    run:
+        complexportal.make_labels_and_synonyms(input.infile, output.lfile, output.sfile)
 
 ### MODS
 
