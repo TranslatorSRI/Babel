@@ -180,8 +180,8 @@ rule chemical_unichem_concordia:
 
 rule untyped_chemical_compendia:
     input:
-        labels=expand("{dd}/{ap}/labels",dd=config['intermediate_directory'],ap=config['chemical_labels']),
-        synonyms=expand("{dd}/{ap}/synonyms",dd=config['intermediate_directory'],ap=config['chemical_synonyms']),
+        labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['chemical_labels']),
+        synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['chemical_synonyms']),
         unichemgroup = config['intermediate_directory']+'/chemicals/partials/UNICHEM',
         concords = expand('{dd}/chemicals/concords/{cc}',dd=config['intermediate_directory'], cc=config['chemical_concords'] ),
         idlists=expand("{dd}/chemicals/ids/{ap}",dd=config['intermediate_directory'],ap=config['chemical_ids']),
