@@ -5,7 +5,7 @@ rule taxon_ncbi_ids:
     input:
         infile=config['download_directory']+'/NCBITaxon/labels'
     output:
-        outfile=config['download_directory']+'/taxon/ids/NCBITaxon'
+        outfile=config['intermediate_directory']+'/taxon/ids/NCBITaxon'
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:OrganismTaxon\"}}' {input.infile} > {output.outfile}"
@@ -14,16 +14,16 @@ rule taxon_mesh_ids:
     input:
         infile=config['download_directory']+'/MESH/mesh.nt'
     output:
-        outfile=config['download_directory']+"/taxon/ids/MESH"
+        outfile=config['intermediate_directory']+"/taxon/ids/MESH"
     run:
         taxon.write_mesh_ids(output.outfile)
 
 rule get_taxon_relationships:
     input:
         meshfile=config['download_directory']+"/MESH/mesh.nt",
-        meshids=config['download_directory']+"/taxon/ids/MESH",
+        meshids=config['intermediate_directory']+"/taxon/ids/MESH",
     output:
-        outfile=config['download_directory']+'/taxon/concords/NCBI_MESH'
+        outfile=config['intermediate_directory']+'/taxon/concords/NCBI_MESH'
     run:
         taxon.build_relationships(output.outfile,input.meshids)
 
@@ -31,8 +31,8 @@ rule taxon_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['taxon_labels']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['taxon_synonyms']),
-        concords=expand("{dd}/taxon/concords/{ap}",dd=config['download_directory'],ap=config['taxon_concords']),
-        idlists=expand("{dd}/taxon/ids/{ap}",dd=config['download_directory'],ap=config['taxon_ids']),
+        concords=expand("{dd}/taxon/concords/{ap}",dd=config['intermediate_directory'],ap=config['taxon_concords']),
+        idlists=expand("{dd}/taxon/ids/{ap}",dd=config['intermediate_directory'],ap=config['taxon_ids']),
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['taxon_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs'])
@@ -45,7 +45,7 @@ rule check_taxon_completeness:
     output:
         report_file = config['output_directory']+'/reports/taxon_completeness.txt'
     run:
-        assessments.assess_completeness(config['download_directory']+'/taxon/ids',input.input_compendia,output.report_file)
+        assessments.assess_completeness(config['intermediate_directory']+'/taxon/ids',input.input_compendia,output.report_file)
 
 rule check_taxon:
     input:
