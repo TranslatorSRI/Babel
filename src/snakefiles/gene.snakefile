@@ -7,7 +7,7 @@ rule gene_mods_ids:
     output:
         outfile=expand('{dd}/gene/ids/{mod}',dd=config["intermediate_directory"],mod=config['mods'])
     run:
-        gene.write_mods_ids(config['download_directory'],config['mods'])
+        gene.write_mods_ids(config['download_directory'],config["intermediate_directory"],config['mods'])
 
 rule gene_ncbi_ids:
     input:
