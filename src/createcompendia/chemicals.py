@@ -135,7 +135,7 @@ def write_chebi_ids(outfile):
 def write_unii_ids(infile,outfile):
     """UNII contains a bunch of junk like leaves.   We are going to try to clean it a bit to get things
     that are actually chemicals.  In biolink 2.0 we cn revisit exactly what happens here."""
-    with open(infile,'r') as inf, open(outfile,'w') as outf:
+    with open(infile,'r', encoding='windows-1252') as inf, open(outfile,'w') as outf:
         h = inf.readline().strip().split('\t')
         bad_cols = ['NCBI','PLANTS','GRIN','MPNS']
         bad_colnos = [ h.index(bc) for bc in bad_cols ]
