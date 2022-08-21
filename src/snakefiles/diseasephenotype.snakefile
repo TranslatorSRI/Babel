@@ -10,7 +10,7 @@ import src.assess_compendia as assessments
 
 rule disease_mondo_ids:
     output:
-        outfile=config['download_directory']+"/disease/ids/MONDO"
+        outfile=config['intermediate_directory']+"/disease/ids/MONDO"
     run:
         diseasephenotype.write_mondo_ids(output.outfile)
 
@@ -18,7 +18,7 @@ rule disease_doid_ids:
     input:
         infile=config['download_directory']+'/DOID/labels'
     output:
-        outfile=config['download_directory']+"/disease/ids/DOID"
+        outfile=config['intermediate_directory']+"/disease/ids/DOID"
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:Disease\"}}' {input.infile} > {output.outfile}"
@@ -27,20 +27,20 @@ rule disease_orphanet_ids:
     input:
         infile=config['download_directory']+'/Orphanet/labels'
     output:
-        outfile=config['download_directory']+"/disease/ids/Orphanet"
+        outfile=config['intermediate_directory']+"/disease/ids/Orphanet"
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:Disease\"}}' {input.infile} > {output.outfile}"
 
 rule disease_efo_ids:
     output:
-        outfile=config['download_directory']+"/disease/ids/EFO"
+        outfile=config['intermediate_directory']+"/disease/ids/EFO"
     run:
         diseasephenotype.write_efo_ids(output.outfile)
 
 rule disease_ncit_ids:
     output:
-        outfile=config['download_directory']+"/disease/ids/NCIT"
+        outfile=config['intermediate_directory']+"/disease/ids/NCIT"
     run:
         diseasephenotype.write_ncit_ids(output.outfile)
 
@@ -48,7 +48,7 @@ rule disease_mesh_ids:
     input:
         config['download_directory']+'/MESH/mesh.nt'
     output:
-        outfile=config['download_directory']+"/disease/ids/MESH"
+        outfile=config['intermediate_directory']+"/disease/ids/MESH"
     run:
         diseasephenotype.write_mesh_ids(output.outfile)
 
@@ -57,14 +57,14 @@ rule disease_umls_ids:
     input:
         badumls = config['input_directory']+"/badumls"
     output:
-        outfile=config['download_directory']+"/disease/ids/UMLS"
+        outfile=config['intermediate_directory']+"/disease/ids/UMLS"
     run:
         diseasephenotype.write_umls_ids(output.outfile,input.badumls)
 
 rule disease_hp_ids:
     #The location of the RRFs is known to the guts, but should probably come out here.
     output:
-        outfile=config['download_directory']+"/disease/ids/HP"
+        outfile=config['intermediate_directory']+"/disease/ids/HP"
     run:
         diseasephenotype.write_hp_ids(output.outfile)
 
@@ -72,7 +72,7 @@ rule disease_omim_ids:
     input:
         infile=config['download_directory']+"/OMIM/mim2gene.txt"
     output:
-        outfile=config['download_directory']+"/disease/ids/OMIM"
+        outfile=config['intermediate_directory']+"/disease/ids/OMIM"
     run:
         diseasephenotype.write_omim_ids(input.infile,output.outfile)
 
@@ -80,20 +80,20 @@ rule disease_omim_ids:
 
 rule get_disease_obo_relationships:
     output:
-        config['download_directory']+'/disease/concords/MONDO',
-        config['download_directory']+'/disease/concords/MONDO_close',
-        config['download_directory']+'/disease/concords/HP',
-        config['download_directory']+'/disease/concords/EFO',
+        config['intermediate_directory']+'/disease/concords/MONDO',
+        config['intermediate_directory']+'/disease/concords/MONDO_close',
+        config['intermediate_directory']+'/disease/concords/HP',
+        config['intermediate_directory']+'/disease/concords/EFO',
     run:
-        diseasephenotype.build_disease_obo_relationships(config['download_directory']+'/disease/concords')
+        diseasephenotype.build_disease_obo_relationships(config['intermediate_directory']+'/disease/concords')
 
 rule get_disease_umls_relationships:
     input:
-        infile=config['download_directory']+"/disease/ids/UMLS",
-        omim=config['download_directory']+'/disease/ids/OMIM',
-        ncit=config['download_directory'] + '/disease/ids/NCIT'
+        infile=config['intermediate_directory']+"/disease/ids/UMLS",
+        omim=config['intermediate_directory']+'/disease/ids/OMIM',
+        ncit=config['intermediate_directory'] + '/disease/ids/NCIT'
     output:
-        outfile=config['download_directory']+'/disease/concords/UMLS',
+        outfile=config['intermediate_directory']+'/disease/concords/UMLS',
     run:
         diseasephenotype.build_disease_umls_relationships(input.infile,output.outfile,input.omim,input.ncit)
 
@@ -101,7 +101,7 @@ rule get_disease_doid_relationships:
     input:
         infile = config['download_directory']+'/DOID/doid.json'
     output:
-        outfile=config['download_directory']+'/disease/concords/DOID',
+        outfile=config['intermediate_directory']+'/disease/concords/DOID',
     run:
         diseasephenotype.build_disease_doid_relationships(input.infile,output.outfile)
 
@@ -110,11 +110,11 @@ rule disease_compendia:
         bad_hpo_xrefs = "input_data/badHPx.txt",
         bad_mondo_xrefs = "input_data/mondo_badxrefs.txt",
         bad_umls_xrefs = "input_data/umls_badxrefs.txt",
-        close_matches = config['download_directory']+"/disease/concords/MONDO_close",
+        close_matches = config['intermediate_directory']+"/disease/concords/MONDO_close",
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['disease_labelsandsynonyms']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['disease_labelsandsynonyms']),
-        concords=expand("{dd}/disease/concords/{ap}",dd=config['download_directory'],ap=config['disease_concords']),
-        idlists=expand("{dd}/disease/ids/{ap}",dd=config['download_directory'],ap=config['disease_ids']),
+        concords=expand("{dd}/disease/concords/{ap}",dd=config['intermediate_directory'],ap=config['disease_concords']),
+        idlists=expand("{dd}/disease/ids/{ap}",dd=config['intermediate_directory'],ap=config['disease_ids']),
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['disease_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['disease_outputs'])
@@ -129,7 +129,7 @@ rule check_disease_completeness:
     output:
         report_file = config['output_directory']+'/reports/disease_completeness.txt'
     run:
-        assessments.assess_completeness(config['download_directory']+'/disease/ids',input.input_compendia,output.report_file)
+        assessments.assess_completeness(config['intermediate_directory']+'/disease/ids',input.input_compendia,output.report_file)
 
 rule check_disease:
     input:

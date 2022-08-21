@@ -7,7 +7,7 @@ rule geneprotein_uniprot_relationships:
     input:
         infile = config['download_directory'] + '/UniProtKB/idmapping.dat'
     output:
-        outfile_concords = config['download_directory'] + '/geneprotein/concords/UniProtNCBI'
+        outfile_concords = config['intermediate_directory'] + '/geneprotein/concords/UniProtNCBI'
     run:
         geneprotein.build_uniprotkb_ncbigene_relationships(input.infile,output.outfile_concords)
 
@@ -15,7 +15,7 @@ rule geneprotein_conflation:
     input:
         gene_compendium=config['output_directory']+'/compendia/'+'Gene.txt',
         protein_compendium=config['output_directory']+'/compendia/'+'Protein.txt',
-        geneprotein_concord=config['download_directory']+'/geneprotein/concords/UniProtNCBI'
+        geneprotein_concord=config['intermediate_directory']+'/geneprotein/concords/UniProtNCBI'
     output:
         outfile=config['output_directory']+'/conflation/GeneProtein.txt'
     run:
@@ -35,7 +35,7 @@ rule geneprotein:
 #    output:
 #        report_file = config['output_directory']+'/reports/geneprotein_completeness.txt'
 #    run:
-#        assessments.assess_completeness(config['download_directory']+'/protein/ids',input.input_compendia,output.report_file)
+#        assessments.assess_completeness(config['intermediate_directory']+'/protein/ids',input.input_compendia,output.report_file)
 #
 #rule check_geneprotein:
 #    input:

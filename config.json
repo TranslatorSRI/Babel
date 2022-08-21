@@ -1,6 +1,7 @@
 {
   "input_directory": "input_data",
   "download_directory": "babel_downloads",
+  "intermediate_directory": "babel_outputs/intermediate",
   "output_directory": "babel_outputs",
   "biolink_version": "2.2.7",
 
