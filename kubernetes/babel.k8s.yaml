@@ -33,10 +33,10 @@ spec:
     resources:
       requests:
         memory: "500G"
-        cpu: "3"
+        cpu: "4"
       limits:
         memory: "500G"
-        cpu: "3"
+        cpu: "4"
   volumes:
     - name: babel-private
       persistentVolumeClaim:
