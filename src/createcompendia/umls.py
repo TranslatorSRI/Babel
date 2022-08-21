@@ -2,11 +2,12 @@ from datetime import datetime
 import json
 
 from snakemake.logging import Logger
+from bmt import Toolkit
 
 from src.prefixes import UMLS
 
 
-def write_leftover_umls(compendia, mrconso, umls_compendium, report, done):
+def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done):
     """
     Search for "leftover" UMLS concepts, i.e. those that are defined and valid in MRCONSO but are not
     mapped to a concept in Babel.
@@ -36,6 +37,13 @@ def write_leftover_umls(compendia, mrconso, umls_compendium, report, done):
     umls_ids_already_included = set()
 
     with open(umls_compendium, 'w') as compendiumf:
+        # Write something to this file so that Snakemake knows we've started.
+        compendiumf.write("\n")
+        compendiumf.flush()
+
+        # TODO: make the Biolink version changeable.
+        biolink_toolkit = Toolkit(f'https://raw.githubusercontent.com/biolink/biolink-model/v2.4.7/biolink-model.yaml')
+
         for compendium in compendia:
             logging.info(f"Starting compendium: {compendium}")
             umls_ids = set()
@@ -52,6 +60,34 @@ def write_leftover_umls(compendia, mrconso, umls_compendium, report, done):
 
         logging.info(f"Completed all compendia with {len(referenced_umls)} UMLS IDs")
         print(referenced_umls)
+
+        # Load all the semantic types.
+        types_by_id = dict()
+        types_by_tui = dict()
+        with open(mrsty, 'r') as inf:
+            for line in inf:
+                x = line.strip().split('|')
+                umls_id = f"{UMLS}:{x[0]}"
+                tui = x[1]
+                # stn = x[2]
+                sty = x[3]
+
+                if umls_id not in types_by_id:
+                    types_by_id[umls_id] = dict()
+                if tui not in types_by_id[umls_id]:
+                    types_by_id[umls_id][tui] = set()
+                types_by_id[umls_id][tui].add(sty)
+
+                if tui not in types_by_tui:
+                    types_by_tui[tui] = set()
+                types_by_tui[tui].add(sty)
+
+        logging.info(f"Completed loading {len(types_by_id.keys())} UMLS IDs from MRSTY.RRF.")
+
+        with open('babel_outputs/reports/umls-types.tsv', 'w') as outf:
+            for tui in sorted(types_by_tui.keys()):
+                for sty in sorted(list(types_by_tui[tui])):
+                    outf.write(f"{tui}\t{sty}\n")
 
         # Create a compendium that consists solely of all MRCONSO entries that haven't been referenced.
         # Code aparted from datahandlers.umls.build_sets()
@@ -81,17 +117,26 @@ def write_leftover_umls(compendia, mrconso, umls_compendium, report, done):
                 source = x[11]
                 # if source not in lookfor:
                 #     continue
-                tty = x[12]
+                # tty = x[12]
 
                 # The STR value should be the label.
                 str = x[14]
 
-                # TODO: map UMLS type to Biolink type.
-                biolink_type = 'biolink:NamedThing'
+                # Lookup type.
+                def umls_type_to_biolink_type(umls_tui):
+                    biolink_type = biolink_toolkit.get_element_by_mapping(f'STY:{umls_tui}', most_specific=True, formatted=True, mixin=True)
+                    if biolink_type is None:
+                        logging.warning(f"No Biolink type found for UMLS TUI {umls_tui}")
+                    return biolink_type
+
+                umls_type_results = types_by_id.get(umls_id, {'biolink:NamedThing': {'Named thing'}})
+                biolink_types = list(map(umls_type_to_biolink_type, umls_type_results.keys()))
+                if len(biolink_types) > 1:
+                    logging.warning(f"Multiple UMLS types not yet supported, e.g. {umls_type_results} -> {biolink_types}")
 
                 # Write this UMLS term to UMLS.txt as a single-identifier term.
                 cluster = {
-                    'type': biolink_type,
+                    'type': biolink_types,
                     'identifiers': [{
                         'i': umls_id,
                         'l': str
@@ -99,7 +144,7 @@ def write_leftover_umls(compendia, mrconso, umls_compendium, report, done):
                 }
                 compendiumf.write(json.dumps(cluster) + "\n")
                 umls_ids_already_included.add(umls_id)
-                # logging.info(f"Writing {cluster} to {outf}")
+                logging.info(f"Writing {cluster} to {compendiumf}")
 
                 # if (source == 'MSH') and (tty not in acceptable_mesh_tty):
                 #     continue

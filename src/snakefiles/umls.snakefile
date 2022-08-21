@@ -23,10 +23,11 @@ all_compendia = glob_wildcards(config['output_directory'] + "/compendia/{compend
 rule leftover_umls:
     input:
         input_compendia = expand("{output}/compendia/{compendium}.txt", output=config['output_directory'], compendium=all_compendia),
-        mrconso = config['input_directory'] + '/private/MRCONSO.RRF'
+        mrconso = config['input_directory'] + '/private/MRCONSO.RRF',
+        mrsty = config['input_directory'] + '/private/MRSTY.RRF'
     output:
         umls_compendium = config['output_directory'] + "/compendia/UMLS.txt",
         report = config['output_directory'] + "/reports/UMLS.txt",
         done = config['output_directory'] + "/reports/umls_done"
     run:
-        umls.write_leftover_umls(input.input_compendia, input.mrconso, output.umls_compendium, output.report, output.done)
+        umls.write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, output.umls_compendium, output.report, output.done)
