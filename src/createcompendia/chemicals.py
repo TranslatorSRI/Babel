@@ -352,7 +352,7 @@ def make_gtopdb_relations(infile,outfile):
         if h.startswith('"## GtoPdb Version'):
             h = inf.readline()
         h = h.strip().split('\t')
-        gid_index = h.index('"Ligand id"')
+        gid_index = h.index('"Ligand ID"')
         inchi_index = h.index('"InChIKey"')
         for line in inf:
             x = line.strip().split('\t')
