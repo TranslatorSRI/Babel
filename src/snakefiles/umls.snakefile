@@ -18,7 +18,9 @@ from src.createcompendia import umls
 
 configfile: "config.json"
 
-all_compendia = glob_wildcards(config['output_directory'] + "/compendia/{compendia}.txt").compendia
+# Process all the compendia, except for umls.txt itself.
+all_compendia = filter(lambda x: x != 'umls.txt',
+    glob_wildcards(config['output_directory'] + "/compendia/{compendia}.txt").compendia)
 
 rule leftover_umls:
     input:
