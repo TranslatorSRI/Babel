@@ -139,7 +139,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
 
                 # How to deal with multiple Biolink types? We currently only have the following multiple
                 # types, so we can resolve these manually:
-                biolink_types_as_str = map(lambda t: "(None)" if t is None else t, sorted(list(biolink_types)))
+                biolink_types_as_str = '|'.join(sorted(map(lambda t: "(None)" if t is None else t, list(biolink_types))))
                 if None in biolink_types:
                     # One of the TUIs couldn't be converted; let's delete all of them so that we can report this.
                     biolink_types = list()
@@ -151,7 +151,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
                     continue
                 if len(biolink_types) > 1:
                     logging.debug(f"Multiple UMLS types not yet supported for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
-                    reportf.write(f"MULTIPLE_UMLS_TYPES [{umls_id}]\t{'|'.join(biolink_types_as_str)}\t{umls_type_results} -> {biolink_types}\n")
+                    reportf.write(f"MULTIPLE_UMLS_TYPES [{umls_id}]\t{biolink_types_as_str}\t{umls_type_results} -> {biolink_types}\n")
                     count_multiple_umls_type += 1
                     continue
 
