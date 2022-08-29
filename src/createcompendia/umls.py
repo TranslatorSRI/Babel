@@ -59,8 +59,8 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
             logging.info(f"Completed compendium {compendium} with {len(umls_ids)} UMLS IDs")
             referenced_umls.update(umls_ids)
 
-        logging.info(f"Completed all compendia with {len(referenced_umls)} UMLS IDs")
-        reportf.write(f"Completed all compendia with {len(referenced_umls)} UMLS IDs")
+        logging.info(f"Completed all compendia with {len(referenced_umls)} UMLS IDs.")
+        reportf.write(f"Completed all compendia with {len(referenced_umls)} UMLS IDs.\n")
         # print(referenced_umls)
 
         # Load all the semantic types.
@@ -85,7 +85,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
                 types_by_tui[tui].add(sty)
 
         logging.info(f"Completed loading {len(types_by_id.keys())} UMLS IDs from MRSTY.RRF.")
-        reportf.write(f"Completed loading {len(types_by_id.keys())} UMLS IDs from MRSTY.RRF.")
+        reportf.write(f"Completed loading {len(types_by_id.keys())} UMLS IDs from MRSTY.RRF.\n")
 
         with open('babel_outputs/reports/umls-types.tsv', 'w') as outf:
             for tui in sorted(types_by_tui.keys()):
@@ -138,13 +138,13 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
                 biolink_types = list(map(umls_type_to_biolink_type, umls_type_results.keys()))
                 if len(biolink_types) == 0:
                     logging.debug(f"No UMLS type found for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
-                    reportf.write(f"NO_UMLS_TYPE [{umls_id}]: {umls_type_results} -> {biolink_types}")
+                    reportf.write(f"NO_UMLS_TYPE [{umls_id}]: {umls_type_results} -> {biolink_types}\n")
                     count_no_umls_type += 1
                     continue
                 if len(biolink_types) > 1:
                     logging.debug(f"Multiple UMLS types not yet supported for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
                     biolink_types_as_str = map(lambda t: "(None)" if t is None else t, biolink_types)
-                    reportf.write(f"MULTIPLE_UMLS_TYPES [{umls_id}]: {'|'.join(biolink_types_as_str)}")
+                    reportf.write(f"MULTIPLE_UMLS_TYPES [{umls_id}]: {'|'.join(biolink_types_as_str)}\n")
                     count_multiple_umls_type += 1
                     continue
 
@@ -181,14 +181,14 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
                 #     concordfile.write(f'{tup[0]}\teq\t{tup[1]}\n')
                 #     pairs.add(tup)
 
-        reportf.write(f"Wrote out {len(umls_ids_already_included)} UMLS IDs into the leftover UMLS compendium.")
         logging.info(f"Wrote out {len(umls_ids_already_included)} UMLS IDs into the leftover UMLS compendium.")
+        reportf.write(f"Wrote out {len(umls_ids_already_included)} UMLS IDs into the leftover UMLS compendium.\n")
 
         logging.info(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.")
-        reportf.write(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.")
+        reportf.write(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.\n")
 
     # Write out `done` file.
     with open(done, 'w') as outf:
-        outf.write(f"done\n{datetime.now()}")
+        outf.write(f"done\n{datetime.now()}\n")
 
     logging.info("Complete")
