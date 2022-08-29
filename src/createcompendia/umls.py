@@ -14,16 +14,17 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
 
     As described in https://github.com/TranslatorSRI/NodeNormalization/issues/119#issuecomment-1154751451
 
-    :param mrconso:
-    :param umls_compendium:
-    :param compendia:
-    :param report:
-    :param done:
-    :return:
+    :param compendia: A list of compendia to collect.
+    :param mrconso: MRCONSO.RRF file path
+    :param mrsty: MRSTY.RRF file path
+    :param umls_compendium: The UMLS compendium file to write out.
+    :param report: The report file to write out.
+    :param done: The done file to write out.
+    :return: Nothing.
     """
 
     logging = Logger()
-    logging.info(f"write_leftover_umls({compendia}, {mrconso}, {umls_compendium}, {report}, {done})")
+    logging.info(f"write_leftover_umls({compendia}, {mrconso}, {mrsty}, {umls_compendium}, {report}, {done})")
 
     # For now, we have many more UMLS entities in MRCONSO than in the compendia, so
     # we'll make an in-memory list of those first. Once that flips, this should be
