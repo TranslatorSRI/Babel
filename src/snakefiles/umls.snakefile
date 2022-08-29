@@ -26,8 +26,8 @@ rule leftover_umls:
         mrconso = config['input_directory'] + '/private/MRCONSO.RRF',
         mrsty = config['input_directory'] + '/private/MRSTY.RRF'
     output:
-        umls_compendium = config['output_directory'] + "/compendia/UMLS.txt",
-        report = config['output_directory'] + "/reports/UMLS.txt",
+        umls_compendium = config['output_directory'] + "/compendia/umls.txt",
+        report = config['output_directory'] + "/reports/umls.txt",
         done = config['output_directory'] + "/reports/umls_done"
     run:
         umls.write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, output.umls_compendium, output.report, output.done)
