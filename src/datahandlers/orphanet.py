@@ -11,7 +11,7 @@ def pull_orphanet():
 def pull_orphanet_labels_and_synonyms(infile,labelfile,synonymfile):
     #Everything in DOID is a disease.
     with ZipFile(infile, 'r') as myzip:
-        bytes = myzip.read('Orphanet_Nomenclature_Pack_EN/ORPHAnomenclature_en.xml')
+        bytes = myzip.read('Orphanet_Nomenclature_Pack_en/ORPHAnomenclature_en.xml')
         print(len(bytes))
     root=ET.fromstring(bytes)
     with open(labelfile,'w') as labels, open(synonymfile,'w') as syns:

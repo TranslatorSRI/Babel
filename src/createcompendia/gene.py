@@ -13,9 +13,9 @@ import logging
 from src.util import LoggingUtil
 logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
-def write_mods_ids(dd,modlist):
+def write_mods_ids(dd,id,modlist):
     for mod in modlist:
-        with open(f'{dd}/{mod}/labels','r') as inf, open(f'{dd}/gene/ids/{mod}','w') as outf:
+        with open(f'{dd}/{mod}/labels','r') as inf, open(f'{id}/gene/ids/{mod}','w') as outf:
             for line in inf:
                 x = line.split('\t')[0]
                 outf.write(f'{x}\n')

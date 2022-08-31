@@ -5,7 +5,7 @@ import src.assess_compendia as assessments
 
 rule process_go_ids:
     output:
-        outfile=config['download_directory']+"/process/ids/GO"
+        outfile=config['intermediate_directory']+"/process/ids/GO"
     run:
         pap.write_go_ids(output.outfile)
 
@@ -13,7 +13,7 @@ rule process_reactome_ids:
     input:
         infile=config['download_directory']+'/REACT/Events.json'
     output:
-        outfile=config['download_directory']+"/process/ids/REACT"
+        outfile=config['intermediate_directory']+"/process/ids/REACT"
     run:
         pap.write_react_ids(input.infile,output.outfile)
 
@@ -21,14 +21,14 @@ rule process_rhea_ids:
     input:
         infile=config['download_directory']+'/RHEA/labels'
     output:
-        outfile=config['download_directory']+"/process/ids/RHEA"
+        outfile=config['intermediate_directory']+"/process/ids/RHEA"
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:MolecularActivity\"}}' {input.infile} > {output.outfile}"
 
 rule process_ec_ids:
     output:
-        outfile=config['download_directory']+"/process/ids/EC"
+        outfile=config['intermediate_directory']+"/process/ids/EC"
     run:
         pap.write_ec_ids(output.outfile)
 
@@ -36,7 +36,7 @@ rule process_smpdb_ids:
     input:
         infile=config['download_directory']+'/SMPDB/labels'
     output:
-        outfile=config['download_directory']+"/process/ids/SMPDB"
+        outfile=config['intermediate_directory']+"/process/ids/SMPDB"
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:Pathway\"}}' {input.infile} > {output.outfile}"
@@ -45,7 +45,7 @@ rule process_panther_ids:
     input:
         infile=config['download_directory']+'/PANTHER.PATHWAY/labels'
     output:
-        outfile=config['download_directory']+"/process/ids/PANTHER.PATHWAY"
+        outfile=config['intermediate_directory']+"/process/ids/PANTHER.PATHWAY"
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:Pathway\"}}' {input.infile} > {output.outfile}"
@@ -54,15 +54,15 @@ rule process_panther_ids:
 
 rule get_process_go_relationships:
     output:
-        config['download_directory']+'/process/concords/GO',
+        config['intermediate_directory']+'/process/concords/GO',
     run:
-        pap.build_process_obo_relationships(config['download_directory']+'/process/concords')
+        pap.build_process_obo_relationships(config['intermediate_directory']+'/process/concords')
 
 rule get_process_rhea_relationships:
     input:
         infile=config['download_directory']+"/RHEA/rhea.rdf",
     output:
-        outfile=config['download_directory']+'/process/concords/RHEA',
+        outfile=config['intermediate_directory']+'/process/concords/RHEA',
     run:
         pap.build_process_rhea_relationships(output.outfile)
 
@@ -70,8 +70,8 @@ rule process_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['process_labels']),
         #synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['process_labelsandsynonyms']),
-        concords=expand("{dd}/process/concords/{ap}",dd=config['download_directory'],ap=config['process_concords']),
-        idlists=expand("{dd}/process/ids/{ap}",dd=config['download_directory'],ap=config['process_ids']),
+        concords=expand("{dd}/process/concords/{ap}",dd=config['intermediate_directory'],ap=config['process_concords']),
+        idlists=expand("{dd}/process/ids/{ap}",dd=config['intermediate_directory'],ap=config['process_ids']),
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['process_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs'])
@@ -84,7 +84,7 @@ rule check_process_completeness:
     output:
         report_file = config['output_directory']+'/reports/process_completeness.txt'
     run:
-        assessments.assess_completeness(config['download_directory']+'/process/ids',input.input_compendia,output.report_file)
+        assessments.assess_completeness(config['intermediate_directory']+'/process/ids',input.input_compendia,output.report_file)
 
 rule check_process:
     input:

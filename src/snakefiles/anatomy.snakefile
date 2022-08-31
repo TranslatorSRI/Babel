@@ -5,25 +5,25 @@ import src.assess_compendia as assessments
 
 rule anatomy_uberon_ids:
     output:
-        outfile=config['download_directory']+"/anatomy/ids/UBERON"
+        outfile=config['intermediate_directory']+"/anatomy/ids/UBERON"
     run:
         anatomy.write_uberon_ids(output.outfile)
 
 rule anatomy_cl_ids:
     output:
-        outfile=config['download_directory']+"/anatomy/ids/CL"
+        outfile=config['intermediate_directory']+"/anatomy/ids/CL"
     run:
         anatomy.write_cl_ids(output.outfile)
 
 rule anatomy_go_ids:
     output:
-        outfile=config['download_directory']+"/anatomy/ids/GO"
+        outfile=config['intermediate_directory']+"/anatomy/ids/GO"
     run:
         anatomy.write_go_ids(output.outfile)
 
 rule anatomy_ncit_ids:
     output:
-        outfile=config['download_directory']+"/anatomy/ids/NCIT"
+        outfile=config['intermediate_directory']+"/anatomy/ids/NCIT"
     run:
         anatomy.write_ncit_ids(output.outfile)
 
@@ -31,30 +31,30 @@ rule anatomy_mesh_ids:
     input:
         config['download_directory']+'/MESH/mesh.nt'
     output:
-        outfile=config['download_directory']+"/anatomy/ids/MESH"
+        outfile=config['intermediate_directory']+"/anatomy/ids/MESH"
     run:
         anatomy.write_mesh_ids(output.outfile)
 
 rule anatomy_umls_ids:
     #The location of the RRFs is known to the guts, but should probably come out here.
     output:
-        outfile=config['download_directory']+"/anatomy/ids/UMLS"
+        outfile=config['intermediate_directory']+"/anatomy/ids/UMLS"
     run:
         anatomy.write_umls_ids(output.outfile)
 
 rule get_anatomy_obo_relationships:
     output:
-        config['download_directory']+'/anatomy/concords/UBERON',
-        config['download_directory']+'/anatomy/concords/CL',
-        config['download_directory']+'/anatomy/concords/GO',
+        config['intermediate_directory']+'/anatomy/concords/UBERON',
+        config['intermediate_directory']+'/anatomy/concords/CL',
+        config['intermediate_directory']+'/anatomy/concords/GO',
     run:
-        anatomy.build_anatomy_obo_relationships(config['download_directory']+'/anatomy/concords')
+        anatomy.build_anatomy_obo_relationships(config['intermediate_directory']+'/anatomy/concords')
 
 rule get_anatomy_umls_relationships:
     input:
-        infile=config['download_directory']+"/anatomy/ids/UMLS"
+        infile=config['intermediate_directory']+"/anatomy/ids/UMLS"
     output:
-        outfile=config['download_directory']+'/anatomy/concords/UMLS',
+        outfile=config['intermediate_directory']+'/anatomy/concords/UMLS',
     run:
         anatomy.build_anatomy_umls_relationships(input.infile,output.outfile)
 
@@ -62,8 +62,8 @@ rule anatomy_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['anatomy_prefixes']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['anatomy_prefixes']),
-        concords=expand("{dd}/anatomy/concords/{ap}",dd=config['download_directory'],ap=config['anatomy_concords']),
-        idlists=expand("{dd}/anatomy/ids/{ap}",dd=config['download_directory'],ap=config['anatomy_ids']),
+        concords=expand("{dd}/anatomy/concords/{ap}",dd=config['intermediate_directory'],ap=config['anatomy_concords']),
+        idlists=expand("{dd}/anatomy/ids/{ap}",dd=config['intermediate_directory'],ap=config['anatomy_ids']),
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs'])
@@ -76,7 +76,7 @@ rule check_anatomy_completeness:
     output:
         report_file = config['output_directory']+'/reports/anatomy_completeness.txt'
     run:
-        assessments.assess_completeness(config['download_directory']+'/anatomy/ids',input.input_compendia,output.report_file)
+        assessments.assess_completeness(config['intermediate_directory']+'/anatomy/ids',input.input_compendia,output.report_file)
 
 rule check_anatomical_entity:
     input:
