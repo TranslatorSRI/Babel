@@ -10,6 +10,7 @@ include: "src/snakefiles/process.snakefile"
 include: "src/snakefiles/chemical.snakefile"
 include: "src/snakefiles/taxon.snakefile"
 include: "src/snakefiles/genefamily.snakefile"
+include: "src/snakefiles/macromolecular_complex.snakefile"
 
 rule all:
     input:
