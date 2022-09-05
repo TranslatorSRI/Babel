@@ -65,7 +65,7 @@ class InformationContentFactory:
 
 class NodeFactory:
     def __init__(self,label_dir,biolink_version):
-        self.toolkit = Toolkit(f'https://raw.githubusercontent.com/biolink/biolink-model/v{biolink_version}/biolink-model.yaml')
+        self.toolkit = Toolkit()
         self.ancestor_map = {}
         self.prefix_map = {}
         self.ignored_prefixes = set()
