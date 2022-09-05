@@ -18,7 +18,7 @@ rule macromolecular_complex_compendia:
         config['output_directory']+'/compendia/MacromolecularComplexMixin.txt',
         config['output_directory']+'/synonyms/MacromolecularComplexMixin.txt'
     run:
-        macromolecular_complex.build_compendia(input.idlists)
+        macromolecular_complex.build_compendia([input.idlists])
 
 rule check_macromolecular_complex_completeness:
     input:
