@@ -24,6 +24,14 @@ rule taxon_umls_ids:
     run:
         taxon.write_umls_ids(output.outfile)
 
+rule get_taxon_umls_relationships:
+    input:
+        infile=config['intermediate_directory']+"/taxon/ids/UMLS"
+    output:
+        outfile=config['intermediate_directory']+'/taxon/concords/UMLS',
+    run:
+        taxon.build_taxon_umls_relationships(input.infile,output.outfile)
+
 rule get_taxon_relationships:
     input:
         meshfile=config['download_directory']+"/MESH/mesh.nt",

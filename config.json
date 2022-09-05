@@ -46,8 +46,8 @@
 
   "taxon_labels": ["NCBITaxon","MESH"],
   "taxon_synonyms": ["NCBITaxon"],
-  "taxon_ids": ["NCBITaxon","MESH"],
-  "taxon_concords": ["NCBI_MESH"],
+  "taxon_ids": ["NCBITaxon","MESH","UMLS"],
+  "taxon_concords": ["NCBI_MESH", "UMLS"],
   "taxon_outputs": ["OrganismTaxon.txt"],
 
   "genefamily_labels": ["PANTHER.FAMILY","HGNC.FAMILY"],
