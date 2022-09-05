@@ -61,6 +61,9 @@ def write_umls_ids(outfile):
     ]}
     umls.write_umls_ids(umlsmap,outfile)
 
+def build_taxon_umls_relationships(idfile,outfile):
+    umls.build_sets(idfile, outfile, {'MSH': MESH, 'NCBITaxon': NCBITAXON})
+
 def build_relationships(outfile,mesh_ids):
     regis = mesh.pull_mesh_registry()
     with open(mesh_ids,'r') as inf:
