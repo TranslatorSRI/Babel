@@ -11,9 +11,9 @@ rule macromolecular_complex_ids:
 
 rule macromolecular_complex_compendia:
     input:
-        labels = config['download_directory']+'/ComplexPortal/559292_labels.tsv'
-        synonyms = config['download_directory']+'/ComplexPortal/559292_synonyms.tsv'
-        idlists = config['intermediate_directory']+'/macromolecular_complex/ids/ComplexPortal'
+        labels = config['download_directory']+'/ComplexPortal/559292_labels.tsv',
+        synonyms = config['download_directory']+'/ComplexPortal/559292_synonyms.tsv',
+        idlists = config['intermediate_directory']+'/macromolecular_complex/ids/ComplexPortal',
     output:
         config['output_directory']+'/compendia/MacromolecularComplexMixin.txt',
         config['output_directory']+'/synonyms/MacromolecularComplexMixin.txt'
