@@ -1,4 +1,4 @@
-from src.prefixes import NCBITAXON,MESH
+from src.prefixes import NCBITAXON,MESH,UMLS
 from src.categories import ORGANISM_TAXON
 
 import src.datahandlers.mesh as mesh
@@ -87,7 +87,7 @@ def build_compendia(concordances, identifiers):
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
     types = {}
-    uniques = [NCBITAXON,MESH]
+    uniques = [NCBITAXON,MESH,UMLS]
     for ifile in identifiers:
         print('loading',ifile)
         new_identifiers, new_types = read_identifier_file(ifile)
