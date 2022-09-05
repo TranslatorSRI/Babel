@@ -2,6 +2,7 @@ from src.prefixes import NCBITAXON,MESH
 from src.categories import ORGANISM_TAXON
 
 import src.datahandlers.mesh as mesh
+import src.datahandlers.umls as umls
 
 from src.babel_utils import read_identifier_file,glom,write_compendium
 import src.eutil as eutil
@@ -20,6 +21,45 @@ def write_mesh_ids(outfile):
     meshmap = { f'B{str(i).zfill(2)}': ORGANISM_TAXON for i in range(1, 6)}
     #Also add anything from SCR_Chemical, if it doesn't have a tree map
     mesh.write_ids(meshmap,outfile,order=[ORGANISM_TAXON],extra_vocab={'SCR_Organism':ORGANISM_TAXON})
+
+def write_umls_ids(outfile):
+    # UMLS categories that should be classified as taxa:
+    # - A1.1.3: Eukaryote (https://uts.nlm.nih.gov/uts/umls/semantic-network/T204)
+    # - A1.1.2: Bacterium (https://uts.nlm.nih.gov/uts/umls/semantic-network/T007)
+    # - A1.1.3.3: Plant (https://uts.nlm.nih.gov/uts/umls/semantic-network/T002)
+    # - A1.1.3.2: Fungus (https://uts.nlm.nih.gov/uts/umls/semantic-network/T004)
+    # - A1.1.3.1.1.3: Fish (https://uts.nlm.nih.gov/uts/umls/semantic-network/T013)
+    # - A1.1.3.1.1.2: Bird (https://uts.nlm.nih.gov/uts/umls/semantic-network/T012)
+    # - A1.1.4: Virus (https://uts.nlm.nih.gov/uts/umls/semantic-network/T005)
+    # - A1.1.3.1.1.4: Mammal (https://uts.nlm.nih.gov/uts/umls/semantic-network/T015)
+    # - A1.1.3.1.1.5: Reptile (https://uts.nlm.nih.gov/uts/umls/semantic-network/T014)
+    # - A1.1.3.1.1.1: Amphibian (https://uts.nlm.nih.gov/uts/umls/semantic-network/T011)
+    # - A1.1.1: Archaeon (https://uts.nlm.nih.gov/uts/umls/semantic-network/T194)
+    # - A1.1.3.1: Animal (https://uts.nlm.nih.gov/uts/umls/semantic-network/T008)
+    # - A1.1: Organism (https://uts.nlm.nih.gov/uts/umls/semantic-network/T001)
+    # - A1.1.3.1.1: Vertebrate (https://uts.nlm.nih.gov/uts/umls/semantic-network/T010)
+    #
+    # Not clear if these should be included, so left out for now:
+    # - A1.1.3.1.1.4.1: Human (https://uts.nlm.nih.gov/uts/umls/semantic-network/T016)
+    #   (presumably the human taxon is represented as _Homo sapiens_, which is http://id.nlm.nih.gov/mesh/D006801)
+
+    umlsmap = {x: ORGANISM_TAXON for x in [
+        'A1.1.3',
+        'A1.1.2',
+        'A1.1.3.3',
+        'A1.1.3.2',
+        'A1.1.3.1.1.3',
+        'A1.1.3.1.1.2',
+        'A1.1.4',
+        'A1.1.3.1.1.4',
+        'A1.1.3.1.1.5',
+        'A1.1.3.1.1.1',
+        'A1.1.1',
+        'A1.1.3.1',
+        'A1.1',
+        'A1.1.3.1.1'
+    ]}
+    umls.write_umls_ids(umlsmap,outfile)
 
 def build_relationships(outfile,mesh_ids):
     regis = mesh.pull_mesh_registry()
