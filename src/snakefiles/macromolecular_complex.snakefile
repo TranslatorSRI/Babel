@@ -7,7 +7,7 @@ rule macromolecular_complex_ids:
     output:
         outfile = config['intermediate_directory']+'/macromolecular_complex/ids/ComplexPortal'
     shell:
-        "awk '{{print $1\"\tbolink:MacroMolecularComplexMixin\"}}' {input.infile} > {output.outfile}"
+        "awk '{{print $1\"\tbiolink:MacromolecularComplexMixin\"}}' {input.infile} > {output.outfile}"
 
 rule macromolecular_complex_compendia:
     input:
