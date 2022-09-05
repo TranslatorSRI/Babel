@@ -23,10 +23,10 @@ rule macromolecular_complex_compendia:
 rule check_macromolecular_complex_completeness:
     input:
         input_compendia = config['output_directory']+'/compendia/MacromolecularComplexMixin.txt'
-        output:
-            report_file = config['output_directory']+'/reports/macromolecular_complex_completeness.txt'
-        run:
-            assessments.assess_completeness(config['intermediate_directory']+'/macromolecular_complex/ids', input.input_compendia, output.report_file)
+    output:
+        report_file = config['output_directory']+'/reports/macromolecular_complex_completeness.txt'
+    run:
+        assessments.assess_completeness(config['intermediate_directory']+'/macromolecular_complex/ids', input.input_compendia, output.report_file)
 
 rule check_macromolecular_complex:
     input:
