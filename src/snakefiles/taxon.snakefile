@@ -36,7 +36,6 @@ rule get_taxon_relationships:
     input:
         meshfile=config['download_directory']+"/MESH/mesh.nt",
         meshids=config['intermediate_directory']+"/taxon/ids/MESH",
-        # TODO: do I need to generate a NCBI_MESH_UMLS concord here?
     output:
         outfile=config['intermediate_directory']+'/taxon/concords/NCBI_MESH'
     run:
