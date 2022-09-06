@@ -18,13 +18,17 @@ from src.createcompendia import umls
 
 configfile: "config.json"
 
-# Process all the compendia, except for umls.txt itself.
-all_compendia = filter(lambda x: x != 'umls.txt',
-    glob_wildcards(config['output_directory'] + "/compendia/{compendia}.txt").compendia)
-
 rule leftover_umls:
     input:
-        input_compendia = expand("{output}/compendia/{compendium}.txt", output=config['output_directory'], compendium=all_compendia),
+        input_compendia = expand("{output}/compendia/{compendium}", output=config['output_directory'],
+            compendium=config['anatomy_outputs'] +
+                config['gene_outputs'] +
+                config['protein_outputs'] +
+                config['disease_outputs'] +
+                config['process_outputs'] +
+                config['chemical_outputs'] +
+                config['taxon_outputs'] +
+                config['genefamily_outputs']),
         mrconso = config['input_directory'] + '/private/MRCONSO.RRF',
         mrsty = config['input_directory'] + '/private/MRSTY.RRF'
     output:
