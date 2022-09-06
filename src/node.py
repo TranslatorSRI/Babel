@@ -172,12 +172,12 @@ class NodeFactory:
                     labeled_list.append(iid)
         return labeled_list
 
-    def create_node(self,input_identifiers,node_type,labels={}):
+    def create_node(self,input_identifiers,node_type,labels={},extra_prefixes=[]):
         #This is where we will normalize, i.e. choose the best id, and add types in accord with BL.
         #we should also include provenance and version information for the node set build.
         #ancestors = self.get_ancestors(node_type)
         #ancestors.reverse()
-        prefixes = self.get_prefixes(node_type)
+        prefixes = self.get_prefixes(node_type) + extra_prefixes
         if len(input_identifiers) == 0:
             return None
         if len(input_identifiers) > 1000:

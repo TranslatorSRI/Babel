@@ -199,17 +199,26 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None
     # return the filename to the caller
     return out_file_name
 
-def write_compendium(synonym_list,ofname,node_type,labels={}):
+def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
+    """
+    :param synonym_list:
+    :param ofname:
+    :param node_type:
+    :param labels:
+    :param extra_prefixes: We default to only allowing the prefixes allowed for a particular type in Biolink.
+        If you want to allow additional prefixes, list them here.
+    :return:
+    """
     config = get_config()
     cdir = config['output_directory']
     biolink_version = config['biolink_version']
     node_factory = NodeFactory(make_local_name(''),biolink_version)
     synonym_factory = SynonymFactory(make_local_name(''))
     ic_factory = InformationContentFactory(f'{get_config()["input_directory"]}/icRDF.tsv')
-    node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={})
+    node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={},extra_prefixes = extra_prefixes)
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
-            node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels)
+            node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
             if node is not None:
                 nw = {"type": node['type']}
                 ic = ic_factory.get_ic(node)
