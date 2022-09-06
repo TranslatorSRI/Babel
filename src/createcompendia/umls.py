@@ -144,6 +144,26 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
                     # One of the TUIs couldn't be converted; let's delete all of them so that we can report this.
                     biolink_types = list()
 
+                # Some Biolink multiple types we handle manually.
+                if biolink_types_as_str == 'biolink:Device|biolink:Drug':
+                    biolink_types = ['biolink:Drug']
+                    biolink_types_as_str = 'biolink:Drug'
+                elif biolink_types_as_str == 'biolink:Drug|biolink:SmallMolecule':
+                    biolink_types = ['biolink:SmallMolecule']
+                    biolink_types_as_str = 'biolink:SmallMolecule'
+                elif biolink_types_as_str == 'biolink:Agent|biolink:PhysicalEntity':
+                    biolink_types = ['biolink:Agent']
+                    biolink_types_as_str = 'biolink:Agent'
+                elif biolink_types_as_str == 'biolink:PhysicalEntity|biolink:Publication':
+                    biolink_types = ['biolink:Publication']
+                    biolink_types_as_str = 'biolink:Publication'
+                elif biolink_types_as_str == 'biolink:Activity|biolink:Procedure':
+                    biolink_types = ['biolink:Procedure']
+                    biolink_types_as_str = 'biolink:Procedure'
+                elif biolink_types_as_str == 'biolink:Drug|biolink:Food':
+                    biolink_types = ['biolink:Food']
+                    biolink_types_as_str = 'biolink:Food'
+
                 if len(biolink_types) == 0:
                     logging.debug(f"No UMLS type found for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
                     reportf.write(f"NO_UMLS_TYPE [{umls_id}]: {umls_type_results} -> {biolink_types}\n")
