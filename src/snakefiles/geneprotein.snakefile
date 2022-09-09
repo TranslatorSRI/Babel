@@ -21,9 +21,20 @@ rule geneprotein_conflation:
     run:
         geneprotein.build_conflation(input.geneprotein_concord,input.gene_compendium,input.protein_compendium,output.outfile)
 
+rule geneprotein_conflated_compendium:
+    input:
+        gene_compendium=config['output_directory']+'/compendia/'+'Gene.txt',
+        protein_compendium=config['output_directory']+'/compendia/'+'Protein.txt',
+        geneprotein_conflation=config['output_directory']+'/conflation/GeneProtein.txt'
+    output:
+        outfile=config['output_directory']+'/conflated_compendia/GeneProtein.txt'
+    run:
+        geneprotein.build_compendium(input.gene_compendium,input.protein_compendium,input.geneprotein_conflation,output.outfile)
+
 rule geneprotein:
     input:
         config['output_directory']+'/conflation/GeneProtein.txt'
+        config['output_directory']+'/conflated_compendia/GeneProtein.txt'
     output:
         x=config['output_directory']+'/reports/geneprotein_done'
     shell:
