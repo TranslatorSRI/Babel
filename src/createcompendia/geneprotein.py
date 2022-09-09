@@ -1,6 +1,7 @@
 from src.prefixes import UNIPROTKB, NCBIGENE
 from src.babel_utils import glom
 from collections import defaultdict
+import ast
 
 import jsonlines
 
@@ -94,9 +95,11 @@ def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, o
     ncbi2uniprot = defaultdict(list)
     with open(geneprotein_concord, 'r') as inf:
         for line in inf:
-            x = line.strip().split('\t')
-            uniprot2ncbi[x[0]] = x[2]
-            ncbi2uniprot[x[2]].append(x[0])
+            x = ast.literal_eval(line.strip())
+            ncbi_id = x[0]
+            for uniprot_id in x[1:]:
+                uniprot2ncbi[uniprot_id] = ncbi_id
+                ncbi2uniprot[ncbi_id].append(uniprot_id)
     mappable_gene_ids = set(uniprot2ncbi.values())
     mappable_genes = defaultdict(list)
     with jsonlines.open(outfile,'w') as outf:

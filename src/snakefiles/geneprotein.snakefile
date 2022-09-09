@@ -33,7 +33,7 @@ rule geneprotein_conflated_compendium:
 
 rule geneprotein:
     input:
-        config['output_directory']+'/conflation/GeneProtein.txt'
+        config['output_directory']+'/conflation/GeneProtein.txt',
         config['output_directory']+'/conflated_compendia/GeneProtein.txt'
     output:
         x=config['output_directory']+'/reports/geneprotein_done'
