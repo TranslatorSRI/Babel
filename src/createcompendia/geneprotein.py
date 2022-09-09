@@ -105,14 +105,14 @@ def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, o
     with jsonlines.open(outfile,'w') as outf:
         with jsonlines.open(gene_compendium,'r') as infile:
             for gene in infile:
-                best_id = gene['id']['identifier']
+                best_id = gene['identifiers'][0]['i']
                 if best_id not in mappable_gene_ids:
                     outf.write(gene)
                 else:
                     mappable_genes[best_id].append( gene )
         with jsonlines.open(protein_compendium,'r') as infile:
             for protein in infile:
-                uniprot_id = protein['id']['identifier']
+                uniprot_id = protein['identifiers'][0]['i']
                 if uniprot_id not in uniprot2ncbi:
                     outf.write(protein)
                 else:
