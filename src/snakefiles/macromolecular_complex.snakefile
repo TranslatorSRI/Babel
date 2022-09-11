@@ -22,7 +22,7 @@ rule macromolecular_complex_compendia:
 
 rule check_macromolecular_complex_completeness:
     input:
-        input_compendia = config['output_directory']+'/compendia/MacromolecularComplexMixin.txt'
+        input_compendia = [config['output_directory']+'/compendia/MacromolecularComplexMixin.txt']
     output:
         report_file = config['output_directory']+'/reports/macromolecular_complex_completeness.txt'
     run:
