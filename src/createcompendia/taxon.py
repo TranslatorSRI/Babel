@@ -63,5 +63,5 @@ def build_compendia(concordances, identifiers):
     baretype = ORGANISM_TAXON.split(':')[-1]
     # We need to use extra_prefixes since UMLS is not listed as an identifier prefix at
     # https://biolink.github.io/biolink-model/docs/OrganismTaxon.html
-    write_compendium(gene_sets, f'{baretype}.txt', ORGANISM_TAXON, {}, extra_prefixes=[UMLS])
+    write_compendium(gene_sets, f'{baretype}.txt', ORGANISM_TAXON, {})
 
