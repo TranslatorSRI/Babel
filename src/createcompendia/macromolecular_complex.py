@@ -17,7 +17,7 @@ def build_compendia(identifiers):
         types.update(new_types)
     sets = set([frozenset(x) for x in dicts.values()])
     type = MACROMOLECULAR_COMPLEX.split(':')[-1]
-    write_compendium(sets, f'{type}.txt', MACROMOLECULAR_COMPLEX, {})
+    write_compendium(sets, f'{type}.txt', MACROMOLECULAR_COMPLEX, {}, extra_prefixes=[COMPLEXPORTAL])
 
 
 
