@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+from pathlib import Path
 
 from snakemake.logging import Logger
 from bmt import Toolkit
@@ -37,11 +38,10 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
     # run, it's probably okay to just pick the first label for each code.
     umls_ids_already_included = set()
 
-    with open(umls_compendium, 'w') as compendiumf, open(report, 'w') as reportf:
-        # Write something to the compendium file so that Snakemake knows we've started.
-        compendiumf.write("\n")
-        compendiumf.flush()
+    # Write something to the compendium file so that Snakemake knows we've started.
+    Path(umls_compendium).touch()
 
+    with open(umls_compendium, 'w') as compendiumf, open(report, 'w') as reportf:
         # This defaults to the version of the Biolink model that is included with this BMT.
         biolink_toolkit = Toolkit()
 
