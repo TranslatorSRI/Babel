@@ -44,8 +44,8 @@
   "chemical_ids": ["CHEMBL.COMPOUND","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral","DRUGBANK","MESH","UMLS"],
   "chemical_outputs": ["MolecularMixture.txt", "SmallMolecule.txt", "Polypeptide.txt", "ComplexMolecularMixture.txt",  "ChemicalEntity.txt", "ChemicalMixture.txt"],
 
-  "taxon_labels": ["NCBITaxon","MESH"],
-  "taxon_synonyms": ["NCBITaxon"],
+  "taxon_labels": ["NCBITaxon","MESH","UMLS"],
+  "taxon_synonyms": ["NCBITaxon","UMLS"],
   "taxon_ids": ["NCBITaxon","MESH","UMLS"],
   "taxon_concords": ["NCBI_MESH", "UMLS"],
   "taxon_outputs": ["OrganismTaxon.txt"],
