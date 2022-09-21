@@ -34,11 +34,11 @@ def merge(geneproteinlist):
     #Use the gene's ID.
     #The gene should be first in the list by construction
     gene = geneproteinlist[0]
-    geneprotein['id'] = gene['id']
-    geneprotein['equivalent_identifiers'] = gene['equivalent_identifiers']
+    geneprotein['identifiers'] = gene['identifiers']
+    #geneprotein['equivalent_identifiers'] = gene['equivalent_identifiers']
     for protein in geneproteinlist[1:]:
         #there shouldn't be any overlap here, so we can just concatenate
-        geneprotein['equivalent_identifiers'] += protein['equivalent_identifiers']
+        geneprotein['identifiers'] += protein['identifiers']
     #Now, we need to slightly modify the types. Not sure this is good, but maybe it is?
     geneprotein['type'] = ['biolink:Gene'] + protein['type']
     return geneprotein
@@ -101,6 +101,9 @@ def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, o
                 uniprot2ncbi[uniprot_id] = ncbi_id
                 ncbi2uniprot[ncbi_id].append(uniprot_id)
     mappable_gene_ids = set(uniprot2ncbi.values())
+    if "NCBIGene:43839524" in mappable_gene_ids:
+        print('good')
+
     mappable_genes = defaultdict(list)
     with jsonlines.open(outfile,'w') as outf:
         with jsonlines.open(gene_compendium,'r') as infile:
