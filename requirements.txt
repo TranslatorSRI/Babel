@@ -11,12 +11,9 @@ pytest-cov
 apybiomart
 datrie
 snakemake
+bmt
 pyoxigraph~=0.2.5
 psycopg2-binary
 
 # Added by Gaurav, Jan 2022
 xmltodict
-
-# bmt is pinned to a particular version based on biolink_version.
-# bmt==0.8.10 # corresponds to Biolink 3.0.0
-bmt==0.8.8
