@@ -8,7 +8,7 @@ from bmt import Toolkit
 from src.prefixes import UMLS
 
 
-def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done):
+def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, umls_synonyms, report, done):
     """
     Search for "leftover" UMLS concepts, i.e. those that are defined and valid in MRCONSO but are not
     mapped to a concept in Babel.
@@ -18,25 +18,27 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
     :param compendia: A list of compendia to collect.
     :param mrconso: MRCONSO.RRF file path
     :param mrsty: MRSTY.RRF file path
+    :param synonyms: synonyms file for UMLS
     :param umls_compendium: The UMLS compendium file to write out.
+    :param umls_synonyms: The synonyms file to generate for this compendium.
     :param report: The report file to write out.
     :param done: The done file to write out.
     :return: Nothing.
     """
 
     logging = Logger()
-    logging.info(f"write_leftover_umls({compendia}, {mrconso}, {mrsty}, {umls_compendium}, {report}, {done})")
+    logging.info(f"write_leftover_umls({compendia}, {mrconso}, {mrsty}, {synonyms}, {umls_compendium}, {umls_synonyms}, {report}, {done})")
 
     # For now, we have many more UMLS entities in MRCONSO than in the compendia, so
     # we'll make an in-memory list of those first. Once that flips, this should be
     # switched to the other way around (or perhaps written into an in-memory database
     # of some sort).
-    referenced_umls = set()
+    umls_ids_in_other_compendia = set()
 
     # If we were interested in keeping all UMLS labels, we would create an identifier file as described in
     # babel_utils.read_identifier_file() and then glom them with babel_utils.glom(). However, for this initial
     # run, it's probably okay to just pick the first label for each code.
-    umls_ids_already_included = set()
+    umls_ids_in_this_compendium = set()
 
     # Write something to the compendium file so that Snakemake knows we've started.
     Path(umls_compendium).touch()
@@ -57,11 +59,11 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
                             umls_ids.add(id['i'])
 
             logging.info(f"Completed compendium {compendium} with {len(umls_ids)} UMLS IDs")
-            referenced_umls.update(umls_ids)
+            umls_ids_in_other_compendia.update(umls_ids)
 
-        logging.info(f"Completed all compendia with {len(referenced_umls)} UMLS IDs.")
-        reportf.write(f"Completed all compendia with {len(referenced_umls)} UMLS IDs.\n")
-        # print(referenced_umls)
+        logging.info(f"Completed all compendia with {len(umls_ids_in_other_compendia)} UMLS IDs.")
+        reportf.write(f"Completed all compendia with {len(umls_ids_in_other_compendia)} UMLS IDs.\n")
+        # print(umls_ids_in_other_compendia)
 
         # Load all the semantic types.
         types_by_id = dict()
@@ -101,11 +103,11 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
                 x = line.strip().split('|')
                 cui = x[0]
                 umls_id = f"{UMLS}:{cui}"
-                if umls_id in referenced_umls:
-                    logging.debug(f"UMLS ID {umls_id} is in referenced_umls, skipping.")
+                if umls_id in umls_ids_in_other_compendia:
+                    logging.debug(f"UMLS ID {umls_id} is in another compendium, skipping.")
                     continue
-                if umls_id in umls_ids_already_included:
-                    logging.debug(f"UMLS ID {umls_id} has already been included, skipping.")
+                if umls_id in umls_ids_in_this_compendium:
+                    logging.debug(f"UMLS ID {umls_id} has already been included in this compendium, skipping.")
                     continue
                 lang = x[1]
 
@@ -185,7 +187,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
                     }]
                 }
                 compendiumf.write(json.dumps(cluster) + "\n")
-                umls_ids_already_included.add(umls_id)
+                umls_ids_in_this_compendium.add(umls_id)
                 logging.debug(f"Writing {cluster} to {compendiumf}")
 
                 # if (source == 'MSH') and (tty not in acceptable_mesh_tty):
@@ -209,11 +211,25 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
                 #     concordfile.write(f'{tup[0]}\teq\t{tup[1]}\n')
                 #     pairs.add(tup)
 
-        logging.info(f"Wrote out {len(umls_ids_already_included)} UMLS IDs into the leftover UMLS compendium.")
-        reportf.write(f"Wrote out {len(umls_ids_already_included)} UMLS IDs into the leftover UMLS compendium.\n")
+        logging.info(f"Wrote out {len(umls_ids_in_this_compendium)} UMLS IDs into the leftover UMLS compendium.")
+        reportf.write(f"Wrote out {len(umls_ids_in_this_compendium)} UMLS IDs into the leftover UMLS compendium.\n")
 
         logging.info(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.")
         reportf.write(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.\n")
+
+    # Write out synonyms for all IDs in this compendium.
+    synonym_ids = set()
+    count_synonyms = 0
+    with open(synonyms, 'r') as synonymsf, open(umls_synonyms, 'w') as umls_synonymsf:
+        for line in synonymsf:
+            id, synonym = line.split('\t')
+            if id in umls_ids_in_this_compendium:
+                synonym_ids.add(id)
+                count_synonyms += 1
+                umls_synonymsf.write(f"{id}\t{synonym}\n")
+
+    logging.info(f"Wrote {count_synonyms} synonyms for {len(synonym_ids)} UMLS IDs into the leftover UMLS synonyms file.")
+    reportf.write(f"Wrote {count_synonyms} synonyms for {len(synonym_ids)} UMLS IDs into the leftover UMLS synonyms file.\n")
 
     # Write out `done` file.
     with open(done, 'w') as outf:

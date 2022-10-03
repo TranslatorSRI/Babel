@@ -30,10 +30,12 @@ rule leftover_umls:
                 config['taxon_outputs'] +
                 config['genefamily_outputs']),
         mrconso = config['input_directory'] + '/private/MRCONSO.RRF',
-        mrsty = config['input_directory'] + '/private/MRSTY.RRF'
+        mrsty = config['input_directory'] + '/private/MRSTY.RRF',
+        synonyms = config['download_directory'] + '/UMLS/synonyms'
     output:
         umls_compendium = config['output_directory'] + "/compendia/umls.txt",
+        umls_synonyms = config['output_directory'] + "/synonyms/umls.txt",
         report = config['output_directory'] + "/reports/umls.txt",
         done = config['output_directory'] + "/reports/umls_done"
     run:
-        leftover_umls.write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, output.umls_compendium, output.report, output.done)
+        leftover_umls.write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, input.synonyms, output.umls_compendium, output.umls_synonyms, output.report, output.done)
