@@ -1,4 +1,4 @@
-from src.createcompendia import umls
+from src.createcompendia import leftover_umls
 
 ##
 ## This Snakefile implements the algorithm proposed in
@@ -36,4 +36,4 @@ rule leftover_umls:
         report = config['output_directory'] + "/reports/umls.txt",
         done = config['output_directory'] + "/reports/umls_done"
     run:
-        umls.write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, output.umls_compendium, output.report, output.done)
+        leftover_umls.write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, output.umls_compendium, output.report, output.done)

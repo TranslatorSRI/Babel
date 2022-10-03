@@ -1,6 +1,6 @@
 import src.datahandlers.mesh as mesh
 import src.datahandlers.obo as obo
-import src.datahandlers.umls as umls_data
+import src.datahandlers.umls as umls
 import src.datahandlers.ncbigene as ncbigene
 import src.datahandlers.ensembl as ensembl
 import src.datahandlers.hgnc as hgnc
@@ -122,7 +122,7 @@ rule get_umls_labels_and_synonyms:
         config['download_directory']+'/SNOMEDCT/labels',
         config['download_directory']+'/SNOMEDCT/synonyms'
     run:
-        umls_data.pull_umls()
+        umls.pull_umls()
 
 ### OBO Ontologies
 
