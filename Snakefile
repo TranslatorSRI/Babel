@@ -10,7 +10,7 @@ include: "src/snakefiles/process.snakefile"
 include: "src/snakefiles/chemical.snakefile"
 include: "src/snakefiles/taxon.snakefile"
 include: "src/snakefiles/genefamily.snakefile"
-include: "src/snakefiles/umls.snakefile"
+include: "src/snakefiles/leftover_umls.snakefile"
 
 rule all:
     input:
