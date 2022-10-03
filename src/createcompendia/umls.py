@@ -174,10 +174,11 @@ def write_leftover_umls(compendia, mrconso, mrsty, umls_compendium, report, done
                     reportf.write(f"MULTIPLE_UMLS_TYPES [{umls_id}]\t{biolink_types_as_str}\t{umls_type_results} -> {biolink_types}\n")
                     count_multiple_umls_type += 1
                     continue
+                biolink_type = list(biolink_types)[0]
 
                 # Write this UMLS term to UMLS.txt as a single-identifier term.
                 cluster = {
-                    'type': list(biolink_types),
+                    'type': biolink_type,
                     'identifiers': [{
                         'i': umls_id,
                         'l': str
