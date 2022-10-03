@@ -3,7 +3,7 @@
   "download_directory": "babel_downloads",
   "intermediate_directory": "babel_outputs/intermediate",
   "output_directory": "babel_outputs",
-  "biolink_version": "2.2.7",
+  "biolink_version": "3.0.3",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
   "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","PATO","PR","RO","UBPROP"],
@@ -44,10 +44,10 @@
   "chemical_ids": ["CHEMBL.COMPOUND","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral","DRUGBANK","MESH","UMLS"],
   "chemical_outputs": ["MolecularMixture.txt", "SmallMolecule.txt", "Polypeptide.txt", "ComplexMolecularMixture.txt",  "ChemicalEntity.txt", "ChemicalMixture.txt"],
 
-  "taxon_labels": ["NCBITaxon","MESH"],
-  "taxon_synonyms": ["NCBITaxon"],
-  "taxon_ids": ["NCBITaxon","MESH"],
-  "taxon_concords": ["NCBI_MESH"],
+  "taxon_labels": ["NCBITaxon","MESH","UMLS"],
+  "taxon_synonyms": ["NCBITaxon","UMLS"],
+  "taxon_ids": ["NCBITaxon","MESH","UMLS"],
+  "taxon_concords": ["NCBI_MESH", "UMLS"],
   "taxon_outputs": ["OrganismTaxon.txt"],
 
   "genefamily_labels": ["PANTHER.FAMILY","HGNC.FAMILY"],
