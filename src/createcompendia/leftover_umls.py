@@ -217,19 +217,20 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
         logging.info(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.")
         reportf.write(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.\n")
 
-    # Write out synonyms for all IDs in this compendium.
-    synonym_ids = set()
-    count_synonyms = 0
-    with open(synonyms, 'r') as synonymsf, open(umls_synonyms, 'w') as umls_synonymsf:
-        for line in synonymsf:
-            id, synonym = line.split('\t')
-            if id in umls_ids_in_this_compendium:
-                synonym_ids.add(id)
-                count_synonyms += 1
-                umls_synonymsf.write(f"{id}\t{synonym}\n")
+        # Write out synonyms for all IDs in this compendium.
+        synonym_ids = set()
+        count_synonyms = 0
+        with open(synonyms, 'r') as synonymsf, open(umls_synonyms, 'w') as umls_synonymsf:
+            for line in synonymsf:
+                id, relation, synonym = line.rstrip().split('\t')
+                # TODO: we ignore the relation for now, since UMLS only uses oboInOwl:hasExactSynonym
+                if id in umls_ids_in_this_compendium:
+                    synonym_ids.add(id)
+                    count_synonyms += 1
+                    umls_synonymsf.write(f"{id}\t{synonym}\n")
 
-    logging.info(f"Wrote {count_synonyms} synonyms for {len(synonym_ids)} UMLS IDs into the leftover UMLS synonyms file.")
-    reportf.write(f"Wrote {count_synonyms} synonyms for {len(synonym_ids)} UMLS IDs into the leftover UMLS synonyms file.\n")
+        logging.info(f"Wrote {count_synonyms} synonyms for {len(synonym_ids)} UMLS IDs into the leftover UMLS synonyms file.")
+        reportf.write(f"Wrote {count_synonyms} synonyms for {len(synonym_ids)} UMLS IDs into the leftover UMLS synonyms file.\n")
 
     # Write out `done` file.
     with open(done, 'w') as outf:
