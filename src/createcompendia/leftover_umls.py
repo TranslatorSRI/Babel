@@ -100,7 +100,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
         count_multiple_umls_type = 0
         with open(mrconso, 'r') as inf:
             for line in inf:
-                if not umls.check_umls_line(line):
+                if not umls.check_mrconso_line(line):
                     continue
 
                 x = line.strip().split('|')
@@ -172,27 +172,6 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
                 compendiumf.write(json.dumps(cluster) + "\n")
                 umls_ids_in_this_compendium.add(umls_id)
                 logging.debug(f"Writing {cluster} to {compendiumf}")
-
-                # if (source == 'MSH') and (tty not in acceptable_mesh_tty):
-                #     continue
-                # #For some dippy reason, in the id column they say "HGNC:76"
-                # pref = other_prefixes[source]
-                # if ':' in x[13]:
-                #     other_id = f'{pref}:{x[13].split(":")[-1]}'
-                # else:
-                #     other_id = f'{pref}:{x[13]}'
-                # #I don't know why this is in here, but it is not an identifier equivalent to anything
-                # if other_id == 'NCIT:TCGA':
-                #     continue
-                # tup = (f'{UMLS}:{cui}',other_id)
-                # #Don't include bad mappings or bad ids
-                # if tup[1] in bad_mappings[tup[0]]:
-                #     continue
-                # if (pref in acceptable_identifiers) and (not tup[1] in acceptable_identifiers[pref]):
-                #     continue
-                # if tup not in pairs:
-                #     concordfile.write(f'{tup[0]}\teq\t{tup[1]}\n')
-                #     pairs.add(tup)
 
         logging.info(f"Wrote out {len(umls_ids_in_this_compendium)} UMLS IDs into the leftover UMLS compendium.")
         reportf.write(f"Wrote out {len(umls_ids_in_this_compendium)} UMLS IDs into the leftover UMLS compendium.\n")

@@ -3,7 +3,7 @@ from src.prefixes import UMLS
 from collections import defaultdict
 import os
 
-def check_umls_line(line):
+def check_mrconso_line(line):
     """
     This function can be used to filter lines from MRCONSO.RRF with a
     standard set of criteria that we apply across all of Babel:
@@ -71,7 +71,7 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
     #test_cui = 'C0026827'
     with open(mrconso,'r') as inf, open(umls_output,'w') as concordfile:
         for line in inf:
-            if not check_umls_line(line):
+            if not check_mrconso_line(line):
                 continue
 
             x = line.strip().split('|')
