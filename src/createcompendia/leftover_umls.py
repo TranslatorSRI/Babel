@@ -6,6 +6,7 @@ from snakemake.logging import Logger
 from bmt import Toolkit
 
 from src.prefixes import UMLS
+from src.categories import ACTIVITY, AGENT, DEVICE, DRUG, FOOD, SMALL_MOLECULE, PHYSICAL_ENTITY, PUBLICATION, PROCEDURE
 
 
 def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, umls_synonyms, report, done):
@@ -141,30 +142,26 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
 
                 # How to deal with multiple Biolink types? We currently only have the following multiple
                 # types, so we can resolve these manually:
-                biolink_types_as_str = '|'.join(sorted(map(lambda t: "(None)" if t is None else t, list(biolink_types))))
+                biolink_types_as_set = set(map(lambda t: "(None)" if t is None else t, list(biolink_types)))
+                biolink_types_as_str = '|'.join(sorted(list(biolink_types_as_set)))
+
                 if None in biolink_types:
                     # One of the TUIs couldn't be converted; let's delete all of them so that we can report this.
                     biolink_types = list()
 
                 # Some Biolink multiple types we handle manually.
-                if biolink_types_as_str == 'biolink:Device|biolink:Drug':
-                    biolink_types = ['biolink:Drug']
-                    biolink_types_as_str = 'biolink:Drug'
-                elif biolink_types_as_str == 'biolink:Drug|biolink:SmallMolecule':
-                    biolink_types = ['biolink:SmallMolecule']
-                    biolink_types_as_str = 'biolink:SmallMolecule'
-                elif biolink_types_as_str == 'biolink:Agent|biolink:PhysicalEntity':
-                    biolink_types = ['biolink:Agent']
-                    biolink_types_as_str = 'biolink:Agent'
-                elif biolink_types_as_str == 'biolink:PhysicalEntity|biolink:Publication':
-                    biolink_types = ['biolink:Publication']
-                    biolink_types_as_str = 'biolink:Publication'
-                elif biolink_types_as_str == 'biolink:Activity|biolink:Procedure':
-                    biolink_types = ['biolink:Procedure']
-                    biolink_types_as_str = 'biolink:Procedure'
-                elif biolink_types_as_str == 'biolink:Drug|biolink:Food':
-                    biolink_types = ['biolink:Food']
-                    biolink_types_as_str = 'biolink:Food'
+                if biolink_types_as_set == {DEVICE, DRUG}:
+                    biolink_types = [DRUG]
+                elif biolink_types_as_set == {DRUG, SMALL_MOLECULE}:
+                    biolink_types = [SMALL_MOLECULE]
+                elif biolink_types_as_set == {AGENT, PHYSICAL_ENTITY}:
+                    biolink_types = [AGENT]
+                elif biolink_types_as_set == {PHYSICAL_ENTITY, PUBLICATION}:
+                    biolink_types = [PUBLICATION]
+                elif biolink_types_as_set == {ACTIVITY, PROCEDURE}:
+                    biolink_types = [PROCEDURE]
+                elif biolink_types_as_set == {DRUG, FOOD}:
+                    biolink_types = [FOOD]
 
                 if len(biolink_types) == 0:
                     logging.debug(f"No UMLS type found for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
