@@ -5,9 +5,9 @@ from pathlib import Path
 from snakemake.logging import Logger
 from bmt import Toolkit
 
+from src.datahandlers import umls
 from src.prefixes import UMLS
 from src.categories import ACTIVITY, AGENT, DEVICE, DRUG, FOOD, SMALL_MOLECULE, PHYSICAL_ENTITY, PUBLICATION, PROCEDURE
-
 
 def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, umls_synonyms, report, done):
     """
@@ -96,11 +96,13 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
                     outf.write(f"{tui}\t{sty}\n")
 
         # Create a compendium that consists solely of all MRCONSO entries that haven't been referenced.
-        # Code adapted from datahandlers.umls.build_sets()
         count_no_umls_type = 0
         count_multiple_umls_type = 0
         with open(mrconso, 'r') as inf:
             for line in inf:
+                if not umls.check_umls_line(line):
+                    continue
+
                 x = line.strip().split('|')
                 cui = x[0]
                 umls_id = f"{UMLS}:{cui}"
@@ -110,25 +112,9 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
                 if umls_id in umls_ids_in_this_compendium:
                     logging.debug(f"UMLS ID {umls_id} has already been included in this compendium, skipping.")
                     continue
-                lang = x[1]
-
-                # TODO: note that this technically skips terms that don't have any English labels.
-                #Only keep english terms
-                if lang != 'ENG':
-                    continue
-
-                #only keep unsuppressed rows
-                suppress = x[16]
-                if suppress == 'O' or suppress == 'E':
-                    continue
-                #only keep sources we're looking for
-                source = x[11]
-                # if source not in lookfor:
-                #     continue
-                # tty = x[12]
 
                 # The STR value should be the label.
-                str = x[14]
+                label = x[14]
 
                 # Lookup type.
                 def umls_type_to_biolink_type(umls_tui):
@@ -180,7 +166,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
                     'type': biolink_type,
                     'identifiers': [{
                         'i': umls_id,
-                        'l': str
+                        'l': label,
                     }]
                 }
                 compendiumf.write(json.dumps(cluster) + "\n")

@@ -3,6 +3,37 @@ from src.prefixes import UMLS
 from collections import defaultdict
 import os
 
+def check_umls_line(line):
+    """
+    This function can be used to filter lines from MRCONSO.RRF with a
+    standard set of criteria that we apply across all of Babel:
+    1. We only use English terms (this skips terms that don't have any English labels).
+    2. We skip obsolete content on the basis of the SUPPRESS flag.
+
+    :param line: A line from MRCONSO.RRF.
+    :return: True if the line passes checks and should be tested, false if the line fails checks and should be skipped.
+    """
+
+    x = line.strip().split('|')
+    lang = x[1]
+
+    # Note that this skips terms that don't have any English labels.
+    #Only keep english terms
+    if lang != 'ENG':
+        return False
+
+    # Use the SUPPRESS flag (https://www.ncbi.nlm.nih.gov/books/NBK9685/table/ch03.T.concept_names_and_sources_file_mr/)
+    # - O:  All obsolete content, whether they are obsolesced by the source or by NLM. These will include all atoms
+    #       having obsolete TTYs, and other atoms becoming obsolete that have not acquired an obsolete TTY (e.g. RxNorm
+    #       SCDs no longer associated with current drugs, LNC atoms derived from obsolete LNC concepts).
+    # - E:  Non-obsolete content marked suppressible by an editor. These do not have a suppressible SAB/TTY combination.
+    #only keep unsuppressed rows
+    suppress = x[16]
+    if suppress == 'O' or suppress == 'E':
+        return False
+
+    return True
+
 def write_umls_ids(category_map,umls_output,blacklist=set()):
     categories = set(category_map.keys())
     mrsty = os.path.join('input_data', 'private', 'MRSTY.RRF')
@@ -40,18 +71,14 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
     #test_cui = 'C0026827'
     with open(mrconso,'r') as inf, open(umls_output,'w') as concordfile:
         for line in inf:
+            if not check_umls_line(line):
+                continue
+
             x = line.strip().split('|')
             cui = x[0]
             if cui not in umls_ids:
                 continue
-            lang = x[1]
-            #Only keep english terms
-            if lang != 'ENG':
-                continue
-            #only keep unsuppressed rows
-            suppress = x[16]
-            if suppress == 'O' or suppress == 'E':
-                continue
+
             #only keep sources we're looking for
             source = x[11]
             if source not in lookfor:
