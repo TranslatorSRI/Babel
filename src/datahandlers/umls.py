@@ -130,16 +130,13 @@ def pull_umls():
     snomed_syn_name = make_local_name('synonyms', subpath='SNOMEDCT')
     with open(mrcon, 'r') as inf, open(snomed_label_name,'w') as snolabels, open(snomed_syn_name,'w') as snosyns:
         for line in inf:
+            if not check_mrconso_line(line):
+                continue
+
             x = line.strip().split('|')
             cui = x[0]
             lang = x[1]
-            #Only keep english terms
-            if lang != 'ENG':
-                continue
-            #only keep unsuppressed rows
             suppress = x[16]
-            if suppress == 'O' or suppress == 'E':
-                continue
             source = x[11]
             termtype = x[12]
             term = x[14]
