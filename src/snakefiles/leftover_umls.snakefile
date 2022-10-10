@@ -27,8 +27,8 @@ rule leftover_umls:
                 config['disease_outputs'] +
                 config['process_outputs'] +
                 config['chemical_outputs'] +
-                config['taxon_outputs'] +
-                config['genefamily_outputs']),
+                config['genefamily_outputs'] +
+                config['taxon_outputs']),
         mrconso = config['input_directory'] + '/private/MRCONSO.RRF',
         mrsty = config['input_directory'] + '/private/MRSTY.RRF',
         synonyms = config['download_directory'] + '/UMLS/synonyms'
