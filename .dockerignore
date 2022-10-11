@@ -1,11 +1,15 @@
-# Babel downloads shouldn't be included in the Docker.
-babel_downloads
+# Babel downloads and outputs shouldn't be included in the Docker.
+babel_downloads/
+babel_outputs/
 
 # The private input data directory should not be included in the Docker image.
-input_data/private
+input_data/private/
 
 # The venv is generated from requirements.txt when the Docker image is created.
-venv
+venv/
 
 # No need to store Snakemake files.
 .snakemake
+
+# No need to store __pycache__ files.
+*/__py_cache__/
