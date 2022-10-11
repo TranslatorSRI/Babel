@@ -106,7 +106,7 @@ You can also run Babel with [Docker](https://www.docker.com/). There are
 two directories you need to bind or mount from outside the container:
 
 ```
-$ docker build -t ggvaidya/babel .
+$ docker build -t ggvaidya/babel:latest .
 $ docker run -it --rm --mount type=bind,source=...,target=/home/runner/babel/input_data/private --mount type=bind,source=...,target=/home/runner/babel/babel_downloads --entrypoint /bin/bash ggvaidya/babel
 ```
 
@@ -143,6 +143,9 @@ create three resources:
   
      Ideally, this should produce the entire Babel output in a single run. You can also add `--rerun-incomplete` if you
      need to restart a partially completed job.
+
+     To help with debugging, the Babel image includes .git information. You can switch branches, or fetch new branches
+     from GitHub by running `git fetch origin-https`.
  
   3. Press `Ctrl+A D` to "detach" the screen. You can reconnect to a detached screen by running `screen -r`.
      You can also see a list of all running screens by running `screen -l`.
