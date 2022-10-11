@@ -131,17 +131,19 @@ create three resources:
   the data generation automatically, you are expected to SSH into this pod and start the build process by:
   1. Creating a [screen](https://www.gnu.org/software/screen/) to run the program in. You can start a Screen by
      running:
-     
+
      ```shell
      $ screen
      ```
   2. Starting the Babel build process by running:
-    ```shell
-    $ snakemake -c5 --verbose
-    ```
+    
+     ```shell
+     $ snakemake -c5 --verbose
+     ```
   
-    Ideally, this should produce the entire Babel output in a single run. You can also add `--rerun-incomplete` if you
-    need to restart a partially completed job.
+     Ideally, this should produce the entire Babel output in a single run. You can also add `--rerun-incomplete` if you
+     need to restart a partially completed job.
  
   3. Press `Ctrl+A D` to "detach" the screen. You can reconnect to a detached screen by running `screen -r`.
      You can also see a list of all running screens by running `screen -l`.
+  4. Once the generation completes, all output files should be in the `babel_outputs` directory.
