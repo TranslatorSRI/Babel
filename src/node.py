@@ -181,8 +181,7 @@ class NodeFactory:
         if len(input_identifiers) == 0:
             return None
         if len(input_identifiers) > 1000:
-            print('this seems like a lot')
-            print(len(input_identifiers))
+            print(f'this seems like a lot of input_identifiers in node.create_node() [{len(input_identifiers)}]: {input_identifiers}')
         cleaned = self.apply_labels(input_identifiers,labels)
         try:
             idmap = defaultdict(list)
