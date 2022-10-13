@@ -109,10 +109,10 @@ def build_protein_uniprotkb_ensemble_relationships(infile,outfile):
                 # then we should indicate that this is identical to the non-versioned string
                 # as well.
                 # See https://github.com/TranslatorSRI/Babel/issues/72 for details.
-                res = re.match(r"^([A-Z]+\d+)\.\d+")
+                res = re.match(r"^([A-Z]+\d+)\.\d+", x[2])
                 if res:
                     ensembl_id_without_version = res.group(1)
-                    outf.write(f'{ensembl_id}\teq\t{ensembl_id_without_version}\n')
+                    outf.write(f'{ensembl_id}\teq\t{ENSEMBL}:{ensembl_id_without_version}\n')
 
 
 def build_ncit_uniprot_relationships(infile,outfile):
