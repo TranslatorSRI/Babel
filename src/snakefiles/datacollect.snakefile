@@ -476,12 +476,6 @@ rule pubchem_synonyms:
 
 # DRUGCENTRAL
 
-rule get_drugcentralx:
-    output:
-        config['download_directory'] + '/DrugCentral/structures.smiles.tsv'
-    run:
-        drugcentral.pull_drugcentralx()
-
 rule get_drugcentral:
     output:
         structfile = config['download_directory'] + '/DrugCentral/structures',
