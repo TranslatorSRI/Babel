@@ -173,6 +173,15 @@ def build_gene_ncbi_ensembl_relationships(infile,ncbi_idfile,outfile):
             outf.write(f'{ncbigene_id}\teq\t{ensembl_id}\n')
             last=new
 
+            # If the ENSEMBL ID is a version string (e.g. ENSEMBL:ENSP00000263368.3),
+            # then we should indicate that this is identical to the non-versioned string
+            # as well.
+            # See https://github.com/TranslatorSRI/Babel/issues/72 for details.
+            res = re.match(r"^([A-Z]+\d+)\.\d+", x[2])
+            if res:
+                ensembl_id_without_version = res.group(1)
+                outf.write(f'{ncbigene_id}\teq\t{ENSEMBL}:{ensembl_id_without_version}\n')
+
 def build_gene_ncbigene_xrefs(infile,ncbi_idfile,outfile):
     mappings = {'WormBase': WORMBASE, 'FLYBASE': FLYBASE, 'ZFIN': ZFIN,
                 'HGNC': HGNC, 'MGI': MGI, 'RGD': RGD, 'dictyBase': DICTYBASE,
