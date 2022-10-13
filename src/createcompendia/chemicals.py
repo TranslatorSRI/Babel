@@ -141,11 +141,16 @@ def write_unii_ids(infile,outfile):
         bad_colnos = [ h.index(bc) for bc in bad_cols ]
         for line in inf:
             x = line.strip().split('\t')
+
+            flag_skip = False
             for bcn in bad_colnos:
                 if len(x[bcn]) > 0:
                     #This is a plant or an eye of newt or something
-                    continue
-            outf.write(f'{UNII}:{x[0]}\t{CHEMICAL_ENTITY}\n')
+                    flag_skip = True
+                    break
+
+            if not flag_skip:
+                outf.write(f'{UNII}:{x[0]}\t{CHEMICAL_ENTITY}\n')
 
 def write_drugbank_ids(infile,outfile):
     """We don't have a good drugbank source, so we're going to dig through unichem and get out drugbank ids."""
