@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 import jsonlines
 import requests
@@ -534,6 +535,8 @@ def create_typed_sets(eqsets, types):
                         mytype = types[prefixes[prefix][0]]
                         typed_sets[mytype].add(equivalent_ids)
                         found = True
+                    else:
+                        logging.warning(f"An unexpected number of PUBCHEM types found for ${equivalent_ids} (${len(pctypes)}): ${pctypes}")
                 except:
                     pass
         if not found:
