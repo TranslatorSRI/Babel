@@ -536,7 +536,7 @@ def create_typed_sets(eqsets, types):
                         typed_sets[mytype].add(equivalent_ids)
                         found = True
                     else:
-                        logging.warning(f"An unexpected number of PUBCHEM types found for ${equivalent_ids} (${len(pctypes)}): ${pctypes}")
+                        logging.warning(f"An unexpected number of PUBCHEM types found for {equivalent_ids} ({len(pctypes)}): {pctypes}")
                 except:
                     pass
         if not found:
