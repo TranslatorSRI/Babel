@@ -124,7 +124,7 @@ def build_disease_umls_relationships(idfile,outfile,omimfile,ncitfile):
             for line in inf:
                 x = line.split()[0]
                 good_ids[prefix].add(x)
-    umls.build_sets(idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM},acceptable_identifiers=good_ids)
+    umls.build_sets(idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM, 'EFO': EFO},acceptable_identifiers=good_ids)
 
 def build_disease_doid_relationships(idfile,outfile):
     doid.build_xrefs(idfile, outfile, other_prefixes={'ICD10CM':ICD10, 'ICD9CM':ICD9, 'ICDO': ICD0, 'NCI': NCIT,
