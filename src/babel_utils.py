@@ -355,6 +355,10 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
             conc_set[element] = newset
 
 def get_prefixes(idlist):
+    """ Return a dictionary of identifiers from idlist with their prefix as the key.
+
+    :param idlist: A list of identifiers. Should NOT contain any LabeledIDs.
+    """
     prefs = defaultdict(list)
     for ident in idlist:
         if isinstance(ident,LabeledID):

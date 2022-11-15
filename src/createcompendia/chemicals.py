@@ -518,7 +518,10 @@ def build_compendia(type_file,untyped_compendia_file):
 def create_typed_sets(eqsets, types):
     """
     Given a set of sets of equivalent identifiers, we want to type each one into
-    being a subclass of ChemicalEntity
+    being a subclass of ChemicalEntity.
+
+    :param eqsets: A list of identifiers (should NOT be a list of LabeledIDs, but a list of strings).
+    :param types: A dictionary of known types for each identifier. (I'm guessing some identifiers don't have known types.)
     """
     order = [MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
     typed_sets = defaultdict(set)
@@ -534,6 +537,33 @@ def create_typed_sets(eqsets, types):
                     if len(pctypes) == 1:
                         mytype = types[prefixes[prefix][0]]
                         typed_sets[mytype].add(equivalent_ids)
+                        found = True
+                    elif pctypes == {'biolink:SmallMolecule', 'biolink:MolecularMixture'}:
+                        # This is a common case (8,178 cases in 2022oct13) which occurs in cases where the InChI for
+                        # e.g. water (SMILES: O) and hydron;hydroxide ([H+].[OH-]) are identical, causing them to be
+                        # merged. (They may also be merged if we combine two identifiers into a single clique that is
+                        # linked to two PubChem entries.)
+                        #
+                        # The comprehensive solution would be to use SMILES or molecular formula or per-database
+                        # type information to split these cliques. Instead, as a temporary solution, we will split
+                        # everything we're _sure_ is a biolink:MolecularMixture into a separate clique, and leave all
+                        # the other identifiers as a biolink:SmallMolecule.
+                        molecular_mixture_ids = set()
+                        all_other_ids = set()
+                        for eq_id in equivalent_ids:
+                            if 'biolink:MolecularMixture' in types[eq_id]:
+                                molecular_mixture_ids.update(eq_id)
+                            else:
+                                all_other_ids.update(eq_id)
+
+                        logging.info(
+                            f"Found a clique that that contains PUBCHEM types " +
+                            f"({'biolink:SmallMolecule', 'biolink:MolecularMixture'}). This clique will be split " +
+                            f"into a biolink:MolecularMixture ({molecular_mixture_ids}) and " +
+                            f"a biolink:SmallMolecule ({all_other_ids})"
+                        )
+                        typed_sets['biolink:MolecularMixture'].add(molecular_mixture_ids)
+                        typed_sets['biolink:SmallMolecule'].add(all_other_ids)
                         found = True
                     else:
                         logging.warning(f"An unexpected number of PUBCHEM types found for {equivalent_ids} ({len(pctypes)}): {pctypes}")
