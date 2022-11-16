@@ -558,9 +558,9 @@ def create_typed_sets(eqsets, types):
                     all_other_ids = set()
                     for eq_id in equivalent_ids:
                         if 'biolink:MolecularMixture' in types[eq_id]:
-                            molecular_mixture_ids.update(eq_id)
+                            molecular_mixture_ids.add(eq_id)
                         else:
-                            all_other_ids.update(eq_id)
+                            all_other_ids.add(eq_id)
 
                     logging.info(
                         f"Found a clique that that contains PUBCHEM types " +
