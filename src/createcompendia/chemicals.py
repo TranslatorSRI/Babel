@@ -535,9 +535,10 @@ def create_typed_sets(eqsets, types):
                 pctypes = set()
                 for x in prefixes[prefix]:
                     if x in types:
-                        pctypes.update(types[x])
+                        pctypes.update([types[x]])
                     else:
-                        logging.warning(f"No type found for {x}, skipping.")
+                        # logging.warning(f"No type found for {x}, skipping.")
+                        pass
 
                 if len(pctypes) == 1:
                     mytype = types[prefixes[prefix][0]]
