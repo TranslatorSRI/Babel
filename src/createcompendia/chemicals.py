@@ -520,7 +520,7 @@ def create_typed_sets(eqsets, types):
     Given a set of sets of equivalent identifiers, we want to type each one into
     being a subclass of ChemicalEntity.
 
-    :param eqsets: A list of identifiers (should NOT be a list of LabeledIDs, but a list of strings).
+    :param eqsets: A list of lists of identifiers (should NOT be a list of LabeledIDs, but a list of strings).
     :param types: A dictionary of known types for each identifier. (I'm guessing some identifiers don't have known types.)
     """
     order = [MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
@@ -557,7 +557,7 @@ def create_typed_sets(eqsets, types):
                     molecular_mixture_ids = set()
                     all_other_ids = set()
                     for eq_id in equivalent_ids:
-                        if 'biolink:MolecularMixture' in types[eq_id]:
+                        if eq_id in types and 'biolink:MolecularMixture' in types[eq_id]:
                             molecular_mixture_ids.add(eq_id)
                         else:
                             all_other_ids.add(eq_id)
