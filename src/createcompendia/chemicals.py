@@ -531,44 +531,47 @@ def create_typed_sets(eqsets, types):
         found = False
         for prefix in [PUBCHEMCOMPOUND]:
             if prefix in prefixes and not found:
-                try:
-                    #I only want to accept the type if all pubchems agree on it.
-                    pctypes = set([types[x] for x in prefixes[prefix]])
-                    if len(pctypes) == 1:
-                        mytype = types[prefixes[prefix][0]]
-                        typed_sets[mytype].add(equivalent_ids)
-                        found = True
-                    elif pctypes == {'biolink:SmallMolecule', 'biolink:MolecularMixture'}:
-                        # This is a common case (8,178 cases in 2022oct13) which occurs in cases where the InChI for
-                        # e.g. water (SMILES: O) and hydron;hydroxide ([H+].[OH-]) are identical, causing them to be
-                        # merged. (They may also be merged if we combine two identifiers into a single clique that is
-                        # linked to two PubChem entries.)
-                        #
-                        # The comprehensive solution would be to use SMILES or molecular formula or per-database
-                        # type information to split these cliques. Instead, as a temporary solution, we will split
-                        # everything we're _sure_ is a biolink:MolecularMixture into a separate clique, and leave all
-                        # the other identifiers as a biolink:SmallMolecule.
-                        molecular_mixture_ids = set()
-                        all_other_ids = set()
-                        for eq_id in equivalent_ids:
-                            if 'biolink:MolecularMixture' in types[eq_id]:
-                                molecular_mixture_ids.update(eq_id)
-                            else:
-                                all_other_ids.update(eq_id)
-
-                        logging.info(
-                            f"Found a clique that that contains PUBCHEM types " +
-                            f"({'biolink:SmallMolecule', 'biolink:MolecularMixture'}). This clique will be split " +
-                            f"into a biolink:MolecularMixture ({molecular_mixture_ids}) and " +
-                            f"a biolink:SmallMolecule ({all_other_ids})"
-                        )
-                        typed_sets['biolink:MolecularMixture'].add(molecular_mixture_ids)
-                        typed_sets['biolink:SmallMolecule'].add(all_other_ids)
-                        found = True
+                #I only want to accept the type if all pubchems agree on it.
+                pctypes = set()
+                for x in prefixes[prefix]:
+                    if x in types:
+                        pctypes.update(types[x])
                     else:
-                        logging.warning(f"An unexpected number of PUBCHEM types found for {equivalent_ids} ({len(pctypes)}): {pctypes}")
-                except:
-                    pass
+                        logging.warning(f"No type found for {x}, skipping.")
+
+                if len(pctypes) == 1:
+                    mytype = types[prefixes[prefix][0]]
+                    typed_sets[mytype].add(equivalent_ids)
+                    found = True
+                elif pctypes == {'biolink:SmallMolecule', 'biolink:MolecularMixture'}:
+                    # This is a common case (8,178 cases in 2022oct13) which occurs in cases where the InChI for
+                    # e.g. water (SMILES: O) and hydron;hydroxide ([H+].[OH-]) are identical, causing them to be
+                    # merged. (They may also be merged if we combine two identifiers into a single clique that is
+                    # linked to two PubChem entries.)
+                    #
+                    # The comprehensive solution would be to use SMILES or molecular formula or per-database
+                    # type information to split these cliques. Instead, as a temporary solution, we will split
+                    # everything we're _sure_ is a biolink:MolecularMixture into a separate clique, and leave all
+                    # the other identifiers as a biolink:SmallMolecule.
+                    molecular_mixture_ids = set()
+                    all_other_ids = set()
+                    for eq_id in equivalent_ids:
+                        if 'biolink:MolecularMixture' in types[eq_id]:
+                            molecular_mixture_ids.update(eq_id)
+                        else:
+                            all_other_ids.update(eq_id)
+
+                    logging.info(
+                        f"Found a clique that that contains PUBCHEM types " +
+                        f"({'biolink:SmallMolecule', 'biolink:MolecularMixture'}). This clique will be split " +
+                        f"into a biolink:MolecularMixture ({molecular_mixture_ids}) and " +
+                        f"a biolink:SmallMolecule ({all_other_ids})"
+                    )
+                    typed_sets['biolink:MolecularMixture'].add(molecular_mixture_ids)
+                    typed_sets['biolink:SmallMolecule'].add(all_other_ids)
+                    found = True
+                else:
+                    logging.warning(f"An unexpected number of PUBCHEM types found for {equivalent_ids} ({len(pctypes)}): {pctypes}")
         if not found:
             typecounts = defaultdict(int)
             for eid in equivalent_ids:
