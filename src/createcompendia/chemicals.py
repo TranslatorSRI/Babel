@@ -525,7 +525,9 @@ def create_typed_sets(eqsets, types):
     """
     order = [MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
     typed_sets = defaultdict(set)
+    logging.warning(f"create_typed_sets: eqsets={eqsets}, types=...")
     for equivalent_ids in eqsets:
+        logging.warning(f"Processing equivalent_ids={equivalent_ids}.")
         # prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
         prefixes = get_prefixes(equivalent_ids)
         found = False
