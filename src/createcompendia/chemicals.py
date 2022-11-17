@@ -554,13 +554,13 @@ def create_typed_sets(eqsets, types):
                     # type information to split these cliques. Instead, as a temporary solution, we will split
                     # everything we're _sure_ is a biolink:MolecularMixture into a separate clique, and leave all
                     # the other identifiers as a biolink:SmallMolecule.
-                    molecular_mixture_ids = set()
-                    all_other_ids = set()
+                    molecular_mixture_ids = list()
+                    all_other_ids = list()
                     for eq_id in equivalent_ids:
                         if eq_id in types and types[eq_id] == 'biolink:MolecularMixture':
-                            molecular_mixture_ids.add(eq_id)
+                            molecular_mixture_ids.append(eq_id)
                         else:
-                            all_other_ids.add(eq_id)
+                            all_other_ids.append(eq_id)
 
                     logging.info(
                         f"Found a clique that that contains PUBCHEM types " +
