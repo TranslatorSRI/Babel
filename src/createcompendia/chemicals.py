@@ -541,8 +541,7 @@ def create_typed_sets(eqsets, types):
                         pass
 
                 if len(pctypes) == 1:
-                    mytype = types[prefixes[prefix][0]]
-                    typed_sets[mytype].add(equivalent_ids)
+                    typed_sets[list(pctypes)[0]].add(equivalent_ids)
                     found = True
                 elif pctypes == {'biolink:SmallMolecule', 'biolink:MolecularMixture'}:
                     # This is a common case (8,178 cases in 2022oct13) which occurs in cases where the InChI for
