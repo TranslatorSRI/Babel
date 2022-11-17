@@ -525,9 +525,9 @@ def create_typed_sets(eqsets, types):
     """
     order = [MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
     typed_sets = defaultdict(set)
-    logging.warning(f"create_typed_sets: eqsets={eqsets}, types=...")
+    # logging.warning(f"create_typed_sets: eqsets={eqsets}, types=...")
     for equivalent_ids in eqsets:
-        logging.warning(f"Processing equivalent_ids={equivalent_ids}.")
+        # logging.warning(f"Processing equivalent_ids={equivalent_ids}.")
         # prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
         prefixes = get_prefixes(equivalent_ids)
         found = False
@@ -555,13 +555,13 @@ def create_typed_sets(eqsets, types):
                     # type information to split these cliques. Instead, as a temporary solution, we will split
                     # everything we're _sure_ is a biolink:MolecularMixture into a separate clique, and leave all
                     # the other identifiers as a biolink:SmallMolecule.
-                    molecular_mixture_ids = list()
-                    all_other_ids = list()
+                    molecular_mixture_ids = set()
+                    all_other_ids = set()
                     for eq_id in equivalent_ids:
                         if eq_id in types and types[eq_id] == 'biolink:MolecularMixture':
-                            molecular_mixture_ids.append(eq_id)
+                            molecular_mixture_ids.add(eq_id)
                         else:
-                            all_other_ids.append(eq_id)
+                            all_other_ids.add(eq_id)
 
                     logging.info(
                         f"Found a clique that that contains PUBCHEM types " +
@@ -569,8 +569,8 @@ def create_typed_sets(eqsets, types):
                         f"into a biolink:MolecularMixture ({molecular_mixture_ids}) and " +
                         f"a biolink:SmallMolecule ({all_other_ids})"
                     )
-                    typed_sets['biolink:MolecularMixture'].add(molecular_mixture_ids)
-                    typed_sets['biolink:SmallMolecule'].add(all_other_ids)
+                    typed_sets['biolink:MolecularMixture'].add(frozenset(molecular_mixture_ids))
+                    typed_sets['biolink:SmallMolecule'].add(frozenset(all_other_ids))
                     found = True
                 else:
                     logging.warning(f"An unexpected number of PUBCHEM types found for {equivalent_ids} ({len(pctypes)}): {pctypes}")
