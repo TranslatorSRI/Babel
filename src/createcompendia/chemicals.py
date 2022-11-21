@@ -521,7 +521,7 @@ def create_typed_sets(eqsets, types):
     being a subclass of ChemicalEntity.
 
     :param eqsets: A list of lists of identifiers (should NOT be a list of LabeledIDs, but a list of strings).
-    :param types: A dictionary of known types for each identifier. (I'm guessing some identifiers don't have known types.)
+    :param types: A dictionary of known types for each identifier. (Some identifiers don't have known types.)
     """
     order = [MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
     typed_sets = defaultdict(set)
@@ -555,6 +555,8 @@ def create_typed_sets(eqsets, types):
                     # type information to split these cliques. Instead, as a temporary solution, we will split
                     # everything we're _sure_ is a biolink:MolecularMixture into a separate clique, and leave all
                     # the other identifiers as a biolink:SmallMolecule.
+                    #
+                    # First reported in https://github.com/TranslatorSRI/Babel/issues/83
                     molecular_mixture_ids = set()
                     all_other_ids = set()
                     for eq_id in equivalent_ids:
