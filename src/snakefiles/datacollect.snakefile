@@ -411,7 +411,7 @@ rule get_unii:
         config['download_directory']+'/UNII/Latest_UNII_Names.txt',
         config['download_directory']+'/UNII/Latest_UNII_Records.txt'
     run:
-        unii.pull_unii(config['download_directory'] + '/UNII')
+        unii.pull_unii()
 
 rule unii_labels_and_synonyms:
     input:
