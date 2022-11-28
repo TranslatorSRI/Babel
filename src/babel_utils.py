@@ -162,9 +162,12 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None
     else:
         dl_file_name = os.path.join(download_dir,subpath,in_file_name)
 
+    # Add support for redirects
+    opener = urllib.request.build_opener(urllib.request.HTTPRedirectHandler())
+
     # get a handle to the ftp file
     print(url+in_file_name)
-    handle = urllib.request.urlopen(url + in_file_name)
+    handle = opener.open(url + in_file_name)
 
     # create the compressed file
     with open(dl_file_name, 'wb') as compressed_file:
