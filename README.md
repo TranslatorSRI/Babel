@@ -117,3 +117,6 @@ These two directories should be set up as following:
     * `UNII/UNIIs.zip` and `UNII/UNII_Data.zip`: needs to be downloaded from [the FDA UNII download website](https://precision.fda.gov/uniisearch/archive).
     * These can be copied into the Docker image using the bash script `scripts/copy-babel-private.sh`.
 * `babel/babel_downloads` is used to store data files downloaded during Babel assembly.
+
+The script `scripts/build-babel.sh` can be used to run `snakemake` with a few useful settings (although just running
+`snakemake --cores 5` should work just fine.)
