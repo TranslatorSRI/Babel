@@ -115,6 +115,7 @@ These two directories should be set up as following:
   that you will need to download yourself:
     * `MRCONSO.RRF` and `MRSTY.RRF`: parts of the UMLS release, need to be downloaded from [the UMLS download website](https://www.nlm.nih.gov/research/umls/licensedcontent/umlsknowledgesources.html).
     * `UNII/UNIIs.zip` and `UNII/UNII_Data.zip`: needs to be downloaded from [the FDA UNII download website](https://precision.fda.gov/uniisearch/archive).
+    * These can be copied into the Docker image using the bash script `scripts/copy-babel-private.sh`.
 * `babel/babel_downloads` is used to store data files downloaded during Babel assembly.
 
 ## Deploying with Kubernetes
