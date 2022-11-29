@@ -355,7 +355,7 @@ def make_gtopdb_relations(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         h = inf.readline()
         # We might have a header/version line. If so, skip to the next line.
-        if h.startswith('"## GtoPdb Version'):
+        if h.startswith('"# GtoPdb Version'):
             h = inf.readline()
         h = h.strip().split('\t')
         gid_index = h.index('"Ligand ID"')
