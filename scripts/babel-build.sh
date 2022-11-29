@@ -25,14 +25,14 @@ export KEEP_INCOMPLETE=
 export UNTIL=
 
 # Determine the location of this script, so we can change to the right directory before running this script.
-export SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd "$SCRIPT_DIR/.." || exit
 snakemake \
   --cores ${CORES} \
-  "$([[ $DRY_RUN ]] && echo "--dry-run")" \
-  "$([[ $VERBOSE ]] && echo "--verbose")" \
-  "$([[ $KEEP_GOING ]] && echo "--keep-going")" \
-  "$([[ $RERUN_INCOMPLETE ]] && echo "--rerun-incomplete")" \
-  "$([[ $KEEP_INCOMPLETE ]] && echo "--keep-incomplete")" \
-  "$([[ $UNTIL ]] && echo "--until ${UNTIL}")"
+  $([[ $DRY_RUN ]] && echo '--dry-run') \
+  $([[ $VERBOSE ]] && echo '--verbose') \
+  $([[ $KEEP_GOING ]] && echo '--keep-going') \
+  $([[ $RERUN_INCOMPLETE ]] && echo '--rerun-incomplete') \
+  $([[ $KEEP_INCOMPLETE ]] && echo '--keep-incomplete') \
+  $([[ $UNTIL ]] && echo "--until ${UNTIL}")
