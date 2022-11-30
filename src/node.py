@@ -100,15 +100,13 @@ class NodeFactory:
             prefs = prefs + self.get_prefixes('biolink:SmallMolecule')
         # The pref are in a particular order, but apparently they can have dups (ugh)
         # We de-duplicate those here.
-        prefixes_already_included = set()
         prefixes_deduplicated = list()
         for pref in prefs:
             # Don't add a prefix that we've already added.
-            if pref in prefixes_already_included:
+            if pref in prefixes_deduplicated:
                 continue
 
             prefixes_deduplicated.append(pref)
-            prefixes_already_included.add(pref)
 
         self.prefix_map[input_type] = prefixes_deduplicated
         return prefixes_deduplicated
