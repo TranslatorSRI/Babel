@@ -1,3 +1,5 @@
+import re
+
 from src.prefixes import ENSEMBL, UMLS, PR, UNIPROTKB, NCIT
 from src.categories import PROTEIN
 
@@ -102,6 +104,15 @@ def build_protein_uniprotkb_ensemble_relationships(infile,outfile):
                 uniprot_id = f'{UNIPROTKB}:{x[0]}'
                 ensembl_id = f'{ENSEMBL}:{x[2]}'
                 outf.write(f'{uniprot_id}\teq\t{ensembl_id}\n')
+
+                # If the ENSEMBL ID is a version string (e.g. ENSEMBL:ENSP00000263368.3),
+                # then we should indicate that this is identical to the non-versioned string
+                # as well.
+                # See https://github.com/TranslatorSRI/Babel/issues/72 for details.
+                res = re.match(r"^([A-Z]+\d+)\.\d+", x[2])
+                if res:
+                    ensembl_id_without_version = res.group(1)
+                    outf.write(f'{ensembl_id}\teq\t{ENSEMBL}:{ensembl_id_without_version}\n')
 
 
 def build_ncit_uniprot_relationships(infile,outfile):

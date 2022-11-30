@@ -1,3 +1,5 @@
+import re
+
 from src.prefixes import OMIM,ENSEMBL,NCBIGENE,WORMBASE, MGI, ZFIN, DICTYBASE, FLYBASE, RGD, SGD, HGNC, UMLS
 from src.categories import GENE
 
@@ -55,11 +57,21 @@ def build_gene_ensembl_relationships(ensembl_dir, outfile):
                             #Protein coding is not actually relevant.
                             #if x[protein_column] == '':
                             #    continue
-                            gid = f'{ENSEMBL}:{x[gene_column]}'
+                            gene_id = x[gene_column]
+                            gid = f'{ENSEMBL}:{gene_id}'
                             for cno,pref in columnno_to_prefix.items():
                                 value = x[cno]
                                 if len(value) > 0:
                                     outf.write(f'{gid}\teq\t{pref}:{value}\n')
+
+                                    # If the ENSEMBL ID is a version string (e.g. ENSEMBL:ENSP00000263368.3),
+                                    # then we should indicate that this is identical to the non-versioned string
+                                    # as well.
+                                    # See https://github.com/TranslatorSRI/Babel/issues/72 for details.
+                                    res = re.match(r"^([A-Z]+\d+)\.\d+", gene_id)
+                                    if res:
+                                        ensembl_id_without_version = res.group(1)
+                                        outf.write(f'{ENSEMBL}:{ensembl_id_without_version}\teq\t{gid}\n')
 
 def write_zfin_ids(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
@@ -160,6 +172,15 @@ def build_gene_ncbi_ensembl_relationships(infile,ncbi_idfile,outfile):
                 continue
             outf.write(f'{ncbigene_id}\teq\t{ensembl_id}\n')
             last=new
+
+            # If the ENSEMBL ID is a version string (e.g. ENSEMBL:ENSP00000263368.3),
+            # then we should indicate that this is identical to the non-versioned string
+            # as well.
+            # See https://github.com/TranslatorSRI/Babel/issues/72 for details.
+            res = re.match(r"^([A-Z]+\d+)\.\d+", x[2])
+            if res:
+                ensembl_id_without_version = res.group(1)
+                outf.write(f'{ncbigene_id}\teq\t{ENSEMBL}:{ensembl_id_without_version}\n')
 
 def build_gene_ncbigene_xrefs(infile,ncbi_idfile,outfile):
     mappings = {'WormBase': WORMBASE, 'FLYBASE': FLYBASE, 'ZFIN': ZFIN,
