@@ -24,6 +24,10 @@ export KEEP_INCOMPLETE=
 # Until: run until a particular rule or file.
 export UNTIL=
 
+# Latency wait: number of seconds to wait for a job to produce output files.
+# (default: 5)
+export LATENCY_WAIT=100
+
 # Determine the location of this script, so we can change to the right directory before running this script.
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -35,4 +39,5 @@ snakemake \
   $([[ $KEEP_GOING ]] && echo '--keep-going') \
   $([[ $RERUN_INCOMPLETE ]] && echo '--rerun-incomplete') \
   $([[ $KEEP_INCOMPLETE ]] && echo '--keep-incomplete') \
-  $([[ $UNTIL ]] && echo "--until ${UNTIL}")
+  $([[ $UNTIL ]] && echo "--until ${UNTIL}") \
+  --latency-wait $LATENCY_WAIT
