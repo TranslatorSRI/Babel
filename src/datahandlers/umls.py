@@ -2,6 +2,8 @@ from src.babel_utils import make_local_name, pull_via_ftp
 from src.prefixes import UMLS
 from collections import defaultdict
 import os
+import re
+import logging
 
 def check_mrconso_line(line):
     """
@@ -158,11 +160,16 @@ def pull_umls():
             rows[cui].append( (pri,term,line) )
     lname = make_local_name('labels', subpath='UMLS')
     sname = make_local_name('synonyms', subpath='UMLS')
+    re_numerical = re.compile(r"^\s*[+-]*[\d\.]+\s*$")
     with open(lname,'w') as labels, open(sname,'w') as synonyms:
         for cui,crows in rows.items():
             crows.sort()
             labels.write(f'{UMLS}:{cui}\t{crows[0][1]}\n')
             syns = set( [crow[1] for crow in crows])
             for s in syns:
+                # Skip any synonyms that are purely numerical, since those are unlikely to be useful.
+                if re_numerical.fullmatch(s):
+                    logging.debug(f"Found numerical synonym '{s}' in UMLS, skipping")
+                    continue
                 synonyms.write(f'{UMLS}:{cui}\thttp://www.geneontology.org/formats/oboInOwl#hasExactSynonym\t{s}\n')
 
