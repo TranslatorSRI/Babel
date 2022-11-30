@@ -1,4 +1,3 @@
-import re
 from datetime import datetime
 import json
 from pathlib import Path
@@ -184,14 +183,10 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
         # Write out synonyms for all IDs in this compendium.
         synonym_ids = set()
         count_synonyms = 0
-        re_numerical = re.compile(r"^\s*[+-]*\d+\s*$")
         with open(synonyms, 'r') as synonymsf, open(umls_synonyms, 'w') as umls_synonymsf:
             for line in synonymsf:
                 id, relation, synonym = line.rstrip().split('\t')
                 if id in umls_ids_in_this_compendium:
-                    if re_numerical.fullmatch(synonym):
-                        logging.debug(f"Found numerical synonym '{synonym}', skipping")
-                        continue
                     synonym_ids.add(id)
                     count_synonyms += 1
                     umls_synonymsf.write(f"{id}\t{relation}\t{synonym}\n")
