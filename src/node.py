@@ -94,19 +94,22 @@ class NodeFactory:
             print('no prefixes for', input_type, 'Using small molecules')
             prefs = self.get_prefixes("biolink:SmallMolecule")
         elif input_type == 'biolink:Polypeptide':
-            prefs = list(set(prefs + self.get_prefixes('biolink:SmallMolecule')))
+            prefs = prefs + self.get_prefixes('biolink:SmallMolecule')
         elif input_type == 'biolink:ChemicalEntity':
             #This just has to be here for now
-            prefs = list(set(prefs + self.get_prefixes('biolink:SmallMolecule')))
-        #The pref are in a particular order, but apparently it can have dups (ugh)
-        # The particular dups are gone now, but the code remains in case they come back...
-        newprefs = ['']
+            prefs = prefs + self.get_prefixes('biolink:SmallMolecule')
+        # The pref are in a particular order, but apparently they can have dups (ugh)
+        # We de-duplicate those here.
+        prefixes_deduplicated = list()
         for pref in prefs:
-            if not pref  == newprefs[-1]:
-                newprefs.append(pref)
-        prefs = newprefs[1:]
-        self.prefix_map[input_type] = prefs
-        return prefs
+            # Don't add a prefix that we've already added.
+            if pref in prefixes_deduplicated:
+                continue
+
+            prefixes_deduplicated.append(pref)
+
+        self.prefix_map[input_type] = prefixes_deduplicated
+        return prefixes_deduplicated
 
     def make_json_id(self,input):
         if isinstance(input,LabeledID):
