@@ -13,9 +13,7 @@ export DRY_RUN=1
 export VERBOSE=1
 
 # Keep going: if set, then keep going if one job errors out.
-# export KEEP_GOING=1
-# TODO: this might cause Babel to break, should test this thoroughly before
-# uncommenting.
+export KEEP_GOING=1
 
 # Rerun incomplete: if set, then rerun any jobs that are incomplete.
 export RERUN_INCOMPLETE=1
