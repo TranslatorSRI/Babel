@@ -2,6 +2,10 @@
 #
 # This script can be used to configure and run snakemake.
 #
+# It accepts up to 9 additional arguments, which are passed
+# to the snakemake invocation, e.g.
+#   bash scripts/babel-build.sh --keep-incomplete anatomy_uberon_ids
+#
 
 # Number of cores to use.
 export CORES=5
@@ -40,4 +44,5 @@ snakemake \
   $([[ $RERUN_INCOMPLETE ]] && echo '--rerun-incomplete') \
   $([[ $KEEP_INCOMPLETE ]] && echo '--keep-incomplete') \
   $([[ $UNTIL ]] && echo "--until ${UNTIL}") \
-  --latency-wait $LATENCY_WAIT
+  --latency-wait $LATENCY_WAIT \
+  $1 $2 $3 $4 $5 $6 $7 $8 $9
