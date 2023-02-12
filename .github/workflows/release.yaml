@@ -1,0 +1,42 @@
+# Based on the NameRes release.yaml file at
+# https://github.com/TranslatorSRI/NameResolution/blob/a4f72e3c283dcb40a7280b55650dae63c5625e82/.github/workflows/release.yml
+
+name: 'Release a new version to Github Packages'
+
+on:
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  push_to_registry:
+    name: Push Docker image to GitHub Packages tagged with "latest" and version number.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images:
+            ghcr.io/${{ github.repository }}
+      - name: Login to ghcr
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: BRANCH_NAME=${{ github.event.release.target_commitish }}
