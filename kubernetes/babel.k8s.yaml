@@ -19,7 +19,7 @@ spec:
   restartPolicy: Never
   containers:
   - name: babel
-    image: ggvaidya/babel:latest
+    image: ghcr.io/translatorsri/babel:latest
     # I just need something to run while I figure out how to make this work
     command: [ "/bin/bash", "-c", "--" ]
     args: [ "while true; echo Running; do sleep 30; done;" ]
