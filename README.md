@@ -102,11 +102,21 @@ compendia.  The compendia are further assessed to locate large cliques and displ
 
 ## Building with Docker
 
+You can build this repository by running the following Docker command:
+
+```
+$ docker build .
+```
+
+It is also set up with a GitHub Action that will automatically generate and publish
+Docker images to https://github.com/TranslatorSRI/Babel/pkgs/container/babel.
+
+## Running with Docker
+
 You can also run Babel with [Docker](https://www.docker.com/). There are
 two directories you need to bind or mount from outside the container:
 
 ```
-$ docker build -t ggvaidya/babel:latest .
 $ docker run -it --rm --mount type=bind,source=...,target=/home/runner/babel/input_data/private --mount type=bind,source=...,target=/home/runner/babel/babel_downloads --entrypoint /bin/bash ggvaidya/babel
 ```
 
