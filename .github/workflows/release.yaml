@@ -16,7 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        # When debugging/bugfixing Babel, it's helpful to have the entire Git history
+        # with you. This also makes it possible to fetch additional branches if you
+        # need to.
+        with:
+          fetch-depth: 0
       - name: Get the version
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
