@@ -1,3 +1,6 @@
+# This GitHub Action generates and publishes a Docker image of this repository
+# to the GitHub Packages repository. It is triggered when a new package is released.
+#
 # Based on the NameRes release.yaml file at
 # https://github.com/TranslatorSRI/NameResolution/blob/a4f72e3c283dcb40a7280b55650dae63c5625e82/.github/workflows/release.yml
 
