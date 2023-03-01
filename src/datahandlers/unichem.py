@@ -16,7 +16,7 @@ def pull_unichem():
     ref_filtered = os.path.join(ref_path, 'reference.filtered.tsv.gz')
 
     srclist = [str(k) for k in data_sources.keys()]
-    with gzip.open(ref_file, "bt") as rf, open(ref_filtered, "wt") as ref_filtered:
+    with gzip.open(ref_file, "rt") as rf, open(ref_filtered, "wt") as ref_filtered:
         header_line = rf.readline()
         assert(header_line == "UCI	SRC_ID	SRC_COMPOUND_ID	ASSIGNMENT")
         ref_filtered.writelines([header_line])
