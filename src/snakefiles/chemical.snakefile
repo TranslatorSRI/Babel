@@ -128,7 +128,7 @@ rule get_chemical_mesh_relationships:
 #This is about a 2 hour step and requires something more than 256G of RAM.  512G works.
 rule get_chemical_unichem_relationships:
     input:
-        structfile = config['download_directory'] + '/UNICHEM/structure.txt.gz',
+        structfile = config['download_directory'] + '/UNICHEM/structure.tsv.gz',
         reffile = config['download_directory'] + '/UNICHEM/reference.filtered.tsv'
     output:
         outfiles = expand('{dd}/chemicals/concords/UNICHEM/UNICHEM_{ucc}',dd=config['intermediate_directory'], ucc=config['unichem_datasources'] )
