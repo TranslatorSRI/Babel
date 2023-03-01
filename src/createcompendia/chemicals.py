@@ -1,3 +1,4 @@
+import gzip
 import logging
 from collections import defaultdict
 import jsonlines
@@ -162,6 +163,7 @@ def write_drugbank_ids(infile,outfile):
     # 6'lastupdated', 7'userstamp', 8'aux_src', 9'uci'])
     written = set()
     with open(infile,'r') as inf, open(outfile,'w') as outf:
+        assert(inf.readline() == "UCI	SRC_ID	SRC_COMPOUND_ID	ASSIGNMENT")
         for line in inf:
             x = line.split('\t')
             if x[1] == drugbank_id:
@@ -226,30 +228,27 @@ def write_unichem_concords(structfile,reffile,outdir):
         concname = f'{outdir}/UNICHEM_{name}'
         print(concname)
         concfiles[num] = open(concname,'w')
-    with open(reffile,'r') as inf:
-        # The columns are: [0'uci_old', 1'src_id', 2'src_compound_id', 3'assignment', 4'last_release_u_when_current', 5 'created ',
-        # 6'lastupdated', 7'userstamp', 8'aux_src', 9'uci'])
+    with open(reffile,'rt') as inf:
+        assert(inf.readline() == "UCI	SRC_ID	SRC_COMPOUND_ID	ASSIGNMENT")
         for line in inf:
             x = line[:-1].split('\t')
-            if len(x) < 10:
-                print(line)
-                continue
             outf = concfiles[x[1]]
-            outf.write(f'{unichem_data_sources[x[1]]}:{x[2]}\toio:equivalent\t{inchikeys[x[9]]}\n')
+            assert(x[3] == '1') # Only '1' (current) assignments should be in this file
+                                # (see https://chembl.gitbook.io/unichem/definitions/what-is-an-assignment).
+            outf.write(f'{unichem_data_sources[x[1]]}:{x[2]}\toio:equivalent\t{inchikeys[x[0]]}\n')
     for outf in concfiles.values():
         outf.close()
 
 def read_inchikeys(struct_file):
-    #struct header [0'uci_old', 1'standardinchi', 2'standardinchikey', 3'created', 4'username', 5'fikhb', 6'uci', 'parent_smiles'],
+    #struct header [0'uci', 1'standardinchi', 2'standardinchikey'],
     inchikeys = {}
     with open(struct_file,'r') as inf:
+        assert(inf.readline() == "UCI	STANDARDINCHI	STANDARDINCHIKEY")
         for sline in inf:
             line = sline[:-1].split('\t')
             if len(line) == 0:
                 continue
-            if len(line) < 7:
-                print(line)
-            uci = line[6]
+            uci = line[0]
             inchikeys[uci] = f'{INCHIKEY}:{line[2]}'
     return inchikeys
 
