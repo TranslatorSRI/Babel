@@ -1,4 +1,3 @@
-import gzip
 import logging
 from collections import defaultdict
 import jsonlines
