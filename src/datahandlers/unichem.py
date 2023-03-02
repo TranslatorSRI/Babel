@@ -18,10 +18,10 @@ def pull_unichem():
     srclist = [str(k) for k in data_sources.keys()]
     with gzip.open(ref_file, "rt") as rf, open(ref_filtered, "wt") as ref_filtered:
         header_line = rf.readline()
-        assert(header_line == "UCI	SRC_ID	SRC_COMPOUND_ID	ASSIGNMENT")
+        assert(header_line == "UCI\tSRC_ID\tSRC_COMPOUND_ID\tASSIGNMENT\n")
         ref_filtered.writelines([header_line])
         for line in rf:
-            x = line.split('\t')
+            x = line.rstrip().split('\t')
             if x[1] in srclist and x[3] == '1':
                 # Only use rows with assignment == 1 (current), not 0 (obsolete)
                 # As per https://chembl.gitbook.io/unichem/definitions/what-is-an-assignment
