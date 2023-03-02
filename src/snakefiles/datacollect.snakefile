@@ -351,11 +351,11 @@ rule get_unichem:
 
 rule filter_unichem:
     input:
-	reffile=config['download_directory'] + '/UNICHEM/reference.tsv.gz',
+        reffile=config['download_directory'] + '/UNICHEM/reference.tsv.gz',
     output:
-	filteredreffile=config['download_directory'] + '/UNICHEM/reference.filtered.tsv',
+        filteredreffile=config['download_directory'] + '/UNICHEM/reference.filtered.tsv',
     run:
-        unichem.filter_unichem(reffile, filteredreffile):
+        unichem.filter_unichem(reffile, filteredreffile)
 
 ### CHEMBL
 
