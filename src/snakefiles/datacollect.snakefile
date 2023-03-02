@@ -355,7 +355,7 @@ rule filter_unichem:
     output:
         filteredreffile=config['download_directory'] + '/UNICHEM/reference.filtered.tsv',
     run:
-        unichem.filter_unichem(reffile, filteredreffile)
+        unichem.filter_unichem(input.reffile, output.filteredreffile)
 
 ### CHEMBL
 
