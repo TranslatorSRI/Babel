@@ -344,8 +344,8 @@ rule get_panther_pathway_labels:
 
 rule get_unichem:
     output:
-        config['download_directory'] + '/UNICHEM/reference.filtered.tsv',
         config['download_directory'] + '/UNICHEM/structure.tsv.gz',
+        config['download_directory'] + '/UNICHEM/reference.tsv.gz',
     run:
         unichem.pull_unichem()
 
