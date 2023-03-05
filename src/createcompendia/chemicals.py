@@ -231,7 +231,7 @@ def write_unichem_concords(structfile,reffile,outdir):
         header_line = inf.readline()
         assert(header_line == "UCI\tSRC_ID\tSRC_COMPOUND_ID\tASSIGNMENT\n", f"Incorrect header line in {reffile}: {header_line}")
         for line in inf:
-            x = line.rsplit().split('\t')
+            x = line.rstrip().split('\t')
             outf = concfiles[x[1]]
             assert(x[3] == '1') # Only '1' (current) assignments should be in this file
                                 # (see https://chembl.gitbook.io/unichem/definitions/what-is-an-assignment).
