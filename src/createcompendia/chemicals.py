@@ -3,6 +3,7 @@ from collections import defaultdict
 import jsonlines
 import requests
 import ast
+import gzip
 from gzip import GzipFile
 
 from src.ubergraph import UberGraph
