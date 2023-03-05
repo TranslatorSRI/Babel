@@ -241,7 +241,7 @@ def write_unichem_concords(structfile,reffile,outdir):
 def read_inchikeys(struct_file):
     #struct header [0'uci', 1'standardinchi', 2'standardinchikey'],
     inchikeys = {}
-    with open(struct_file,'r') as inf:
+    with gzip.open(struct_file, 'rt') as inf:
         header_line = inf.readline()
         assert(header_line == "UCI\tSTANDARDINCHI\tSTANDARDINCHIKEY\n", f"Unexpected header line in {struct_file}: {header_line}")
         for sline in inf:
