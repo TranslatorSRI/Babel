@@ -216,7 +216,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
     synonym_factory = SynonymFactory(make_local_name(''))
     ic_factory = InformationContentFactory(f'{get_config()["input_directory"]}/icRDF.tsv')
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={},extra_prefixes = extra_prefixes)
-    with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
+    with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
             if node is not None:
@@ -227,9 +227,12 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
                 nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
                 outf.write( nw )
                 synonyms = synonym_factory.get_synonyms(node)
-                if len(synonyms) > 0:
-                    for p,o in synonyms:
-                        sfile.write(f'{node["identifiers"][0]["identifier"]}\t{p}\t{o}\n')
+                synonyms.sort(key=lambda x:len(x))
+                document = {"curie": node["identifiers"][0]["identifier"],
+                            "preferred_name": node["identifiers"][0]["label"],
+                            "name": synonyms,
+                            "types": [ t[8:] for t in node_factory.get_ancestors(node["type"])]} #remove biolink:
+                sfile.write( document )
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.
