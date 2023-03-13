@@ -227,12 +227,18 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
                 nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
                 outf.write( nw )
                 synonyms = synonym_factory.get_synonyms(node)
-                synonyms.sort(key=lambda x:len(x))
-                document = {"curie": node["identifiers"][0]["identifier"],
-                            "preferred_name": node["identifiers"][0]["label"],
-                            "name": synonyms,
-                            "types": [ t[8:] for t in node_factory.get_ancestors(node["type"])]} #remove biolink:
-                sfile.write( document )
+                synonyms_list = sorted(synonyms,key=lambda x:len(x))
+                try:
+                    document = {"curie": node["identifiers"][0]["identifier"],
+                                "preferred_name": node["identifiers"][0]["label"],
+                                "names": synonyms_list,
+                                "types": [ t[8:] for t in node_factory.get_ancestors(node["type"])]} #remove biolink:
+                    sfile.write( document )
+                except Exception:
+                    print('Hey')
+                    print(node["type"])
+                    print(node_factory.get_ancestors(node["type"]))
+                    exit()
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.
