@@ -41,7 +41,6 @@ rule macromolecular_complex:
     input:
         config['output_directory']+'/synonyms/MacromolecularComplex.txt',
         config['output_directory']+'/reports/macromolecular_complex_completeness.txt',
-        config['output_directory']+'/synonyms/MacromolecularComplex.txt',
         reports = config['output_directory']+'/reports/MacromolecularComplex.txt'
     output:
         x = config['output_directory']+'/reports/macromolecular_complex_done'
