@@ -235,8 +235,8 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
                     if "label" in node["identifiers"][0]:
                         document["preferred_name"] = node["identifiers"][0]["label"]
                     sfile.write( document )
-                except Exception:
-                    print('Hey')
+                except Exception as ex:
+                    print(f"Exception thrown while write_compendium() was generating {ofname}: {ex}")
                     print(node["type"])
                     print(node_factory.get_ancestors(node["type"]))
                     exit()
