@@ -30,16 +30,16 @@ rule check_macromolecular_complex_completeness:
 
 rule check_macromolecular_complex:
     input:
-        infile = config['output_directory']+'/compendia/MacromolecularComplexMixin.txt'
+        infile = config['output_directory']+'/compendia/MacromolecularComplex.txt'
     output:
-        outfile = config['output_directory']+'/reports/MacromolecularComplexMixin.txt'
+        outfile = config['output_directory']+'/reports/MacromolecularComplex.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 
 rule macromolecular_complex:
     input:
         config['output_directory']+'/reports/macromolecular_complex_completeness.txt',
-        reports = config['output_directory']+'/reports/MacromolecularComplexMixin.txt'
+        reports = config['output_directory']+'/reports/MacromolecularComplex.txt'
     output:
         x = config['output_directory']+'/reports/macromolecular_complex_done'
     shell:
