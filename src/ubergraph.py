@@ -149,7 +149,7 @@ class UberGraph:
         select distinct ?descendent ?descendentLabel
         from <http://reasoner.renci.org/ontology>
         where {
-            graph <http://reasoner.renci.org/ontology/closure> {
+            graph <http://reasoner.renci.org/redundant> {
                 ?descendent rdfs:subClassOf $sourcedefclass .
             }
             OPTIONAL {
@@ -186,7 +186,7 @@ class UberGraph:
         select distinct ?descendent ?descendentSmiles
         from <http://reasoner.renci.org/ontology>
         where {
-            graph <http://reasoner.renci.org/ontology/closure> {
+            graph <http://reasoner.renci.org/redundant> {
                 ?descendent rdfs:subClassOf $sourcedefclass .
             }
             OPTIONAL {
@@ -226,7 +226,7 @@ class UberGraph:
         from <http://reasoner.renci.org/nonredundant>
         from <http://reasoner.renci.org/ontology>
         where {
-          graph <http://reasoner.renci.org/ontology/closure> {
+          graph <http://reasoner.renci.org/redundant> {
                 ?descendent rdfs:subClassOf $sourcedefclass .
           }
           ?descendent <http://www.geneontology.org/formats/oboInOwl#hasDbXref> ?xref .
@@ -265,7 +265,7 @@ class UberGraph:
         SELECT DISTINCT ?descendent ?match
         FROM <http://reasoner.renci.org/ontology>
         WHERE {{
-            graph <http://reasoner.renci.org/ontology/closure> {{
+            graph <http://reasoner.renci.org/redundant> {{
                 ?descendent rdfs:subClassOf $identifier .
             }}
             OPTIONAL {{
@@ -319,7 +319,7 @@ class UberGraph:
         SELECT DISTINCT ?descendent ?match
         FROM <http://reasoner.renci.org/ontology>
         WHERE {{
-            graph <http://reasoner.renci.org/ontology/closure> {{
+            graph <http://reasoner.renci.org/redundant> {{
                 ?descendent rdfs:subClassOf $identifier .
             }}
             OPTIONAL {{
