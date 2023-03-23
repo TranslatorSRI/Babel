@@ -230,9 +230,10 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
                 synonyms_list = sorted(synonyms,key=lambda x:len(x))
                 try:
                     document = {"curie": node["identifiers"][0]["identifier"],
-                                "preferred_name": node["identifiers"][0]["label"],
                                 "names": synonyms_list,
                                 "types": [ t[8:] for t in node_factory.get_ancestors(node["type"])]} #remove biolink:
+                    if "label" in node["identifiers"][0]:
+                        document["preferred_name"] = node["identifiers"][0]["label"]
                     sfile.write( document )
                 except Exception:
                     print('Hey')
