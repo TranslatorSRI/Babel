@@ -7,7 +7,7 @@ rule macromolecular_complex_ids:
     output:
         outfile = config['intermediate_directory']+'/macromolecular_complex/ids/ComplexPortal'
     shell:
-        "awk '{{print $1\"\tbiolink:MacromolecularComplexMixin\"}}' {input.infile} > {output.outfile}"
+        "awk '{{print $1\"\tbiolink:MacromolecularComplex\"}}' {input.infile} > {output.outfile}"
 
 rule macromolecular_complex_compendia:
     input:
@@ -38,8 +38,8 @@ rule check_macromolecular_complex:
 
 rule macromolecular_complex:
     input:
-        config['output_directory']+'/reports/macromolecular_complex_completeness.txt',
         config['output_directory']+'/synonyms/MacromolecularComplex.txt',
+        config['output_directory']+'/reports/macromolecular_complex_completeness.txt',
         reports = config['output_directory']+'/reports/MacromolecularComplex.txt'
     output:
         x = config['output_directory']+'/reports/macromolecular_complex_done'
