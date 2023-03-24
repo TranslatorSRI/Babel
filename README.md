@@ -109,6 +109,10 @@ $ docker build .
 It is also set up with a GitHub Action that will automatically generate and publish
 Docker images to https://github.com/TranslatorSRI/Babel/pkgs/container/babel.
 
+**Known issue**: if you want to use `git fetch` from this Docker image, you need
+to manually remote the Basic authentication command from `.git/config` before it
+will work. We're tracking this at https://github.com/TranslatorSRI/Babel/issues/119.
+
 ## Running with Docker
 
 You can also run Babel with [Docker](https://www.docker.com/). There are
