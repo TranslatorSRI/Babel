@@ -15,14 +15,14 @@ rule macromolecular_complex_compendia:
         synonyms = config['download_directory']+'/ComplexPortal/559292_synonyms.tsv',
         idlists = config['intermediate_directory']+'/macromolecular_complex/ids/ComplexPortal',
     output:
-        config['output_directory']+'/compendia/MacromolecularComplexMixin.txt',
-        config['output_directory']+'/synonyms/MacromolecularComplexMixin.txt'
+        config['output_directory']+'/compendia/MacromolecularComplex.txt',
+        config['output_directory']+'/synonyms/MacromolecularComplex.txt'
     run:
         macromolecular_complex.build_compendia([input.idlists])
 
 rule check_macromolecular_complex_completeness:
     input:
-        input_compendia = [config['output_directory']+'/compendia/MacromolecularComplexMixin.txt']
+        input_compendia = [config['output_directory']+'/compendia/MacromolecularComplex.txt']
     output:
         report_file = config['output_directory']+'/reports/macromolecular_complex_completeness.txt'
     run:
@@ -30,16 +30,16 @@ rule check_macromolecular_complex_completeness:
 
 rule check_macromolecular_complex:
     input:
-        infile = config['output_directory']+'/compendia/MacromolecularComplexMixin.txt'
+        infile = config['output_directory']+'/compendia/MacromolecularComplex.txt'
     output:
-        outfile = config['output_directory']+'/reports/MacromolecularComplexMixin.txt'
+        outfile = config['output_directory']+'/reports/MacromolecularComplex.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 
 rule macromolecular_complex:
     input:
         config['output_directory']+'/reports/macromolecular_complex_completeness.txt',
-        reports = config['output_directory']+'/reports/MacromolecularComplexMixin.txt'
+        reports = config['output_directory']+'/reports/MacromolecularComplex.txt'
     output:
         x = config['output_directory']+'/reports/macromolecular_complex_done'
     shell:
