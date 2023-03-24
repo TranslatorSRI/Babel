@@ -62,6 +62,7 @@ ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 # Install requirements from the lockfile.
 # RUN pip3 install -r requirements.lock
 RUN pip3 install -r requirements.txt
+RUN pip3 freeze -r requirements.txt > requirements.lock
 
 # Our default entrypoint is to start the Babel run.
 ENTRYPOINT bash -c 'snakemake --cores ${CORES}'
