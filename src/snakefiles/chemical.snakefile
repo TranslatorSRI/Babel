@@ -85,7 +85,7 @@ rule chemical_chebi_ids:
 
 rule chemical_drugbank_ids:
     input:
-        infile=config['download_directory']+"/UNICHEM/UC_XREF.srcfiltered.txt"
+        infile=config['download_directory']+"/UNICHEM/reference.filtered.tsv"
     output:
         outfile=config['intermediate_directory']+"/chemicals/ids/DRUGBANK"
     run:
@@ -128,8 +128,8 @@ rule get_chemical_mesh_relationships:
 #This is about a 2 hour step and requires something more than 256G of RAM.  512G works.
 rule get_chemical_unichem_relationships:
     input:
-        structfile = config['download_directory'] + '/UNICHEM/UC_STRUCTURE.txt',
-        reffile = config['download_directory'] + '/UNICHEM/UC_XREF.srcfiltered.txt'
+        structfile = config['download_directory'] + '/UNICHEM/structure.tsv.gz',
+        reffile = config['download_directory'] + '/UNICHEM/reference.filtered.tsv'
     output:
         outfiles = expand('{dd}/chemicals/concords/UNICHEM/UNICHEM_{ucc}',dd=config['intermediate_directory'], ucc=config['unichem_datasources'] )
     run:

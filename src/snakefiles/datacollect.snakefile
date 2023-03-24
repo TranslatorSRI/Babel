@@ -344,18 +344,18 @@ rule get_panther_pathway_labels:
 
 rule get_unichem:
     output:
-        config['download_directory'] + '/UNICHEM/UC_XREF.txt.gz',
-        config['download_directory'] + '/UNICHEM/UC_STRUCTURE.txt',
+        config['download_directory'] + '/UNICHEM/structure.tsv.gz',
+        config['download_directory'] + '/UNICHEM/reference.tsv.gz',
     run:
         unichem.pull_unichem()
 
 rule filter_unichem:
     input:
-        infile= config ['download_directory'] + '/UNICHEM/UC_XREF.txt.gz'
+        reffile=config['download_directory'] + '/UNICHEM/reference.tsv.gz',
     output:
-        outfile=config['download_directory']+'/UNICHEM/UC_XREF.srcfiltered.txt'
+        filteredreffile=config['download_directory'] + '/UNICHEM/reference.filtered.tsv',
     run:
-        unichem.filter_xrefs_by_srcid(input.infile,output.outfile)
+        unichem.filter_unichem(input.reffile, output.filteredreffile)
 
 ### CHEMBL
 
