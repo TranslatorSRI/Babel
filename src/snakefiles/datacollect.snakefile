@@ -129,7 +129,8 @@ rule get_umls_labels_and_synonyms:
 rule get_ontology_labels_and_synonyms:
     output:
         expand("{download_directory}/{onto}/labels", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
-        expand("{download_directory}/{onto}/synonyms", download_directory = config['download_directory'], onto = config['ubergraph_ontologies'])
+        expand("{download_directory}/{onto}/synonyms", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
+        expand("{download_directory}/{onto}/descriptions", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
     run:
         obo.pull_uber(config['ubergraph_ontologies'])
 
