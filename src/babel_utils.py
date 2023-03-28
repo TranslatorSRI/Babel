@@ -255,6 +255,12 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
 
                     nw['identifiers'].append(id_info)
 
+                nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
+
+                descs = description_factory.get_descriptions(node)
+                if len(descs) > 0:
+                    nw['descriptions'] = descs
+
                 outf.write( nw )
 
                 # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
