@@ -126,7 +126,7 @@ rule get_umls_labels_and_synonyms:
 
 ### OBO Ontologies
 
-rule get_ontology_labels_and_synonyms:
+rule get_ontology_labels_descriptions_and_synonyms:
     output:
         expand("{download_directory}/{onto}/labels", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
         expand("{download_directory}/{onto}/synonyms", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
