@@ -226,6 +226,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     description_factory = DescriptionFactory(make_local_name(''))
     ic_factory = InformationContentFactory(f'{get_config()["input_directory"]}/icRDF.tsv')
     ic_factory = InformationContentFactory(f'{get_config()["download_directory"]}/icRDF.tsv')
+    description_factory = DescriptionFactory(make_local_name(''))
 
     # Create an InformationContentFactory based on the specified icRDF.tsv file. Default to the one in the download
     # directory.
@@ -256,6 +257,12 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                         id_info['d'] = list(sorted(descs[id_info['i']], key=lambda x: len(x)))
 
                     nw['identifiers'].append(id_info)
+
+                nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
+
+                descs = description_factory.get_descriptions(node)
+                if len(descs) > 0:
+                    nw['descriptions'] = descs
 
                 outf.write( nw )
 
