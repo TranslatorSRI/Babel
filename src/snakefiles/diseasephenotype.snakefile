@@ -83,9 +83,16 @@ rule get_disease_obo_relationships:
         config['intermediate_directory']+'/disease/concords/MONDO',
         config['intermediate_directory']+'/disease/concords/MONDO_close',
         config['intermediate_directory']+'/disease/concords/HP',
-        config['intermediate_directory']+'/disease/concords/EFO',
     run:
         diseasephenotype.build_disease_obo_relationships(config['intermediate_directory']+'/disease/concords')
+
+rule get_disease_efo_relationships:
+    input:
+        infile=config['intermediate_directory']+"/disease/ids/EFO",
+    output:
+        outfile=config['intermediate_directory']+'/disease/concords/EFO'
+    run:
+        diseasephenotype.build_disease_efo_relationships(input.infile,output.outfile)
 
 rule get_disease_umls_relationships:
     input:

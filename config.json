@@ -3,7 +3,7 @@
   "download_directory": "babel_downloads",
   "intermediate_directory": "babel_outputs/intermediate",
   "output_directory": "babel_outputs",
-  "biolink_version": "3.0.3",
+  "biolink_version": "3.2.0",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
   "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","PATO","PR","RO","UBPROP"],
@@ -27,9 +27,9 @@
 
   "geneprotein_output": "GeneProtein.txt",
 
-  "disease_labelsandsynonyms": ["MONDO","DOID","Orphanet","HP","MESH","NCIT","UMLS","SNOMEDCT"],
-  "disease_ids": ["MONDO","DOID","Orphanet","HP","MESH","NCIT","UMLS","OMIM"],
-  "disease_concords": ["HP","MONDO","UMLS","DOID"],
+  "disease_labelsandsynonyms": ["MONDO","DOID","Orphanet","HP","MESH","NCIT","UMLS","SNOMEDCT","EFO"],
+  "disease_ids": ["MONDO","DOID","Orphanet","HP","MESH","NCIT","UMLS","OMIM","EFO"],
+  "disease_concords": ["HP","MONDO","UMLS","DOID","EFO"],
   "disease_outputs": ["Disease.txt", "PhenotypicFeature.txt"],
 
   "process_labels": ["GO","REACT","RHEA","EC","SMPDB","PANTHER.PATHWAY"],

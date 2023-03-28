@@ -9,6 +9,7 @@ from src.ubergraph import build_sets
 import src.datahandlers.umls as umls
 import src.datahandlers.doid as doid
 import src.datahandlers.mesh as mesh
+import src.datahandlers.efo as efo
 
 from src.babel_utils import read_identifier_file, glom, remove_overused_xrefs, get_prefixes, write_compendium
 
@@ -27,17 +28,11 @@ def write_mondo_ids(outfile):
     write_obo_ids([(disease_id, DISEASE),(disease_sus_id,DISEASE)],outfile)
 
 def write_efo_ids(outfile):
-    # Disease
     disease_id='EFO:0000408'
     phenotype_id='EFO:0000651'
     measurement_id='EFO:0001444'
-    #There is a problem with EFO / Ubergraph: https://github.com/INCATools/ubergraph/issues/21
-    #Until it is resolved, I have to add in some extra roots
     efos = [(disease_id, DISEASE), (phenotype_id, PHENOTYPIC_FEATURE), (measurement_id, PHENOTYPIC_FEATURE)]
-    roots = [9676,43707,10285,319,405,9663,24458,1379,5803,540,618,684,6960]
-    for eroot in roots:
-        efos.append((f'{EFO}:{eroot:07}',DISEASE))
-    write_obo_ids(efos,outfile)
+    efo.make_ids(efos,outfile)
 
 def write_hp_ids(outfile):
     #Phenotype
@@ -105,14 +100,10 @@ def build_disease_obo_relationships(outdir):
     with open(f'{outdir}/{MONDO}_close', 'w') as outfile:
         build_sets('MONDO:0000001', {MONDO:outfile}, set_type='close', other_prefixes={'ORPHANET':ORPHANET})
         build_sets('MONDO:0042489', {MONDO:outfile}, set_type='close', other_prefixes={'ORPHANET':ORPHANET})
-    with open(f'{outdir}/{EFO}', 'w') as outfile:
-        build_sets('EFO:0000408', {EFO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
-        build_sets('EFO:0000651', {EFO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
-        build_sets('EFO:0001444', {EFO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
-        #This is to deal with the ubergraph issue discussed in the efo_id function
-        roots = [9676, 43707, 10285, 319, 405, 9663, 24458, 1379, 5803, 540, 618, 684, 6960]
-        for eroot in roots:
-            build_sets(f'{EFO}:{eroot:07}', {EFO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
+
+def build_disease_efo_relationships(idfile,outfile):
+    efo.make_concords(idfile, outfile)
+
 
 def build_disease_umls_relationships(idfile,outfile,omimfile,ncitfile):
     #UMLS contains xrefs between a disease UMLS and a gene OMIM. So here we are saying: if you are going to link to
