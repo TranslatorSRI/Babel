@@ -113,6 +113,7 @@ rule check_pathway:
 rule process:
     input:
         config['output_directory']+'/reports/process_completeness.txt',
+        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['process_outputs'])
     output:
         x=config['output_directory']+'/reports/process_done'

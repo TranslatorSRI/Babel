@@ -48,6 +48,7 @@ rule check_genefamily:
 rule genefamily:
     input:
         config['output_directory']+'/reports/genefamily_completeness.txt',
+        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['genefamily_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['genefamily_outputs'])
     output:
         x=config['output_directory']+'/reports/genefamily_done'

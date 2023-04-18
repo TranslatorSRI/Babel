@@ -262,6 +262,7 @@ rule check_chemical_mixture:
 rule chemical:
     input:
         config['output_directory']+'/reports/chemical_completeness.txt',
+        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['chemical_outputs'])
     output:
         x=config['output_directory']+'/reports/chemicals_done'
