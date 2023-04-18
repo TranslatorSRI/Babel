@@ -216,7 +216,11 @@ class NodeFactory:
                     jid = self.make_json_id(newid)
                     newids.append( (jid['identifier'],jid) )
                     accepted_ids.add(v)
-                newids.sort()
+                try:
+                    newids.sort()
+                except TypeError as e:
+                    print(newids)
+                    raise e
                 if pupper == PUBCHEMCOMPOUND.upper() and len(newids) > 1:
                     newids = pubchemsort(newids,cleaned)
                 identifiers += [ nid[1] for nid in newids ]

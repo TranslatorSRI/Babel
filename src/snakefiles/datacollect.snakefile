@@ -2,6 +2,7 @@ import src.datahandlers.mesh as mesh
 import src.datahandlers.obo as obo
 import src.datahandlers.umls as umls
 import src.datahandlers.ncbigene as ncbigene
+import src.datahandlers.efo as efo
 import src.datahandlers.ensembl as ensembl
 import src.datahandlers.hgnc as hgnc
 import src.datahandlers.omim as omim
@@ -36,6 +37,23 @@ import src.prefixes as prefixes
 # Data sets: pull data sets, and parse them to get labels and synonyms
 #
 ####
+
+### EFO
+
+rule get_EFO:
+    output:
+        config['download_directory'] + '/EFO' + '/efo.owl'
+    run:
+        efo.pull_efo()
+
+rule get_EFO_labels:
+    input:
+        infile=config['download_directory'] + '/EFO/efo.owl'
+    output:
+        labelfile=config['download_directory'] + '/EFO/labels',
+        synonymfile =config['download_directory'] + '/EFO/synonyms'
+    run:
+        efo.make_labels(output.labelfile,output.synonymfile)
 
 ### Complex Portal
 # https://www.ebi.ac.uk/complexportal/
