@@ -1,7 +1,8 @@
 # Kubernetes file for setting up a volume to use for Babel outputs.
 #
-# As of April 2022, Babel outputs take up around 95G, so a default
-# of 200 Gi is probably good enough for the near future.
+# As of April 2023, Babel outputs take up around 200G, including
+# intermediate files (~50G), compendia (~30G) and synonyms (over 100 GB).
+# So 300G is probably enough.
 
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -14,5 +15,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 200Gi
+      storage: 300Gi
   storageClassName: basic
