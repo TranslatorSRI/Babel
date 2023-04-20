@@ -226,7 +226,10 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
                     nw['ic'] = ic
                 nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
                 outf.write( nw )
-                synonyms = synonym_factory.get_synonyms(node)
+
+                # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
+                # But we're only interested in the synonyms themselves, so we can skip the relationship for now.
+                synonyms = [result[1] for result in synonym_factory.get_synonyms(node)]
                 synonyms_list = sorted(synonyms,key=lambda x:len(x))
                 try:
                     document = {"curie": node["identifiers"][0]["identifier"],
