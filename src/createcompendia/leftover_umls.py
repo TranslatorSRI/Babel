@@ -187,30 +187,30 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
         reportf.write(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.\n")
 
         # Collected synonyms for all IDs in this compendium.
-        synonyms = dict()
+        synonyms_by_id = dict()
         with open(synonyms, 'r') as synonymsf:
             for line in synonymsf:
                 id, relation, synonym = line.rstrip().split('\t')
                 if id in umls_ids_in_this_compendium:
                     # Add this synonym to the set of synonyms for this identifier.
                     if id not in synonyms:
-                        synonyms[id] = set()
-                    synonyms[id].add(synonym)
+                        synonyms_by_id[id] = set()
+                    synonyms_by_id[id].add(synonym)
 
                     # We don't record the synonym relation (https://github.com/TranslatorSRI/Babel/pull/113#issuecomment-1516450124),
                     # so we don't need to write that out now.
 
-        logging.info(f"Collected synonyms for {len(synonyms)} UMLS IDs into the leftover UMLS synonyms file.")
-        reportf.write(f"Collected synonyms for {len(synonyms)} UMLS IDs into the leftover UMLS synonyms file.\n")
+        logging.info(f"Collected synonyms for {len(synonyms_by_id)} UMLS IDs into the leftover UMLS synonyms file.")
+        reportf.write(f"Collected synonyms for {len(synonyms_by_id)} UMLS IDs into the leftover UMLS synonyms file.\n")
 
         # Write out synonyms to synonym file.
         node_factory = NodeFactory('babel_downloads/UMLS/labels', biolink_version)
         count_synonym_objs = 0
         with jsonlines.open(umls_synonyms, 'w') as umls_synonymsf:
-            for id in synonyms:
+            for id in synonyms_by_id:
                 document = {
                     "curie": id,
-                    "names": [synonyms[id]],
+                    "names": [synonyms_by_id[id]],
                     "types": [ t[8:] for t in node_factory.get_ancestors(umls_type_by_id[id])]
                 }
 
