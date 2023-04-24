@@ -210,7 +210,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
             for id in synonyms_by_id:
                 document = {
                     "curie": id,
-                    "names": [synonyms_by_id[id]],
+                    "names": list(synonyms_by_id[id]),
                     "types": [ t[8:] for t in node_factory.get_ancestors(umls_type_by_id[id])]
                 }
 
