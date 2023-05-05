@@ -406,6 +406,22 @@ class UberGraph:
             results[k] = list(filter(lambda x: ':' in x, v))
         return results
 
+    def write_normalized_information_content(self, filename):
+        """
+        Download the normalized information content and write it to the specified filename.
+
+        :param filename: The filename to write the normalized information content to -- we write them as `IRI\tNIC`.
+        :return: The number of normalized information content entries downloaded.
+        """
+        query = "SELECT * WHERE { ?iri <http://reasoner.renci.org/vocab/normalizedInformationContent> ?nic }"
+        resultmap = self.triplestore.query(query, ['iri', 'nic'])
+
+        with open(filename, "w") as ftsv:
+            for row in resultmap:
+                ftsv.write(f"{row['iri']}\t{row['nic']}\n")
+
+        print(f"Wrote {len(resultmap)} information content values into {filename}.")
+        return len(resultmap)
 
 def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={}, hop_ontologies=False ):
     """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
@@ -432,6 +448,7 @@ def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={},
                 p = Text.get_curie(k)
                 if p in concordfiles:
                     concordfiles[p].write(f'{k}\t{types2relations[set_type]}\t{x}\n')
+
 
 if __name__ == '__main__':
     ug = UberGraph()

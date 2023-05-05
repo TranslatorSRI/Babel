@@ -1,11 +1,18 @@
 from src.ubergraph import UberGraph
-from src.babel_utils import make_local_name, pull_via_ftp
+from src.babel_utils import make_local_name, pull_via_ftp, get_config
 from collections import defaultdict
 import os, gzip
 from json import loads,dumps
 
 from src.util import Text
 
+def pull_uber_icRDF():
+    """
+    Download the icRDF.tsv file that contains normalizedInformationContent for all the entities in UberGraph.
+    """
+    uber = UberGraph()
+    config = get_config()
+    _ = uber.write_normalized_information_content(os.path.join(config['download_directory'], 'icRDF.tsv'))
 
 def pull_uber_labels(expected):
     uber = UberGraph()
@@ -56,6 +63,7 @@ def pull_uber_synonyms(expected):
                     outf.write(f'{unit[0]}\t{unit[1]}\t{unit[2]}\n')
 
 def pull_uber(expected_ontologies):
+    pull_uber_icRDF()
     pull_uber_labels(expected_ontologies)
     pull_uber_descriptions(expected_ontologies)
     pull_uber_synonyms(expected_ontologies)

@@ -219,6 +219,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
     synonym_factory = SynonymFactory(make_local_name(''))
     description_factory = DescriptionFactory(make_local_name(''))
     ic_factory = InformationContentFactory(f'{get_config()["input_directory"]}/icRDF.tsv')
+    ic_factory = InformationContentFactory(f'{get_config()["download_directory"]}/icRDF.tsv')
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={},extra_prefixes = extra_prefixes)
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
