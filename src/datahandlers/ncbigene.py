@@ -34,6 +34,6 @@ def pull_ncbigene_labels_and_synonyms():
             others = set(x[13].split('|'))
             syns.update(others)
             for syn in syns:
-                synfile.write(f'{gene_id}\t{syn}\n')
+                synfile.write(f'{gene_id}\thttp://www.geneontology.org/formats/oboInOwl#hasSynonym\t{syn}\n')
 
 
