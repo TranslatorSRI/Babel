@@ -193,7 +193,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
                 id, relation, synonym = line.rstrip().split('\t')
                 if id in umls_ids_in_this_compendium:
                     # Add this synonym to the set of synonyms for this identifier.
-                    if id not in synonyms:
+                    if id not in synonyms_by_id:
                         synonyms_by_id[id] = set()
                     synonyms_by_id[id].add(synonym)
 
