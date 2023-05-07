@@ -40,7 +40,7 @@ class SynonymFactory():
         node_synonyms = set()
         for ident in node['identifiers']:
             thisid = ident['identifier']
-            pref = Text.get_curie(thisid)
+            pref = Text.get_prefix(thisid)
             if not pref in self.synonyms:
                 self.load_synonyms(pref)
             node_synonyms.update( self.synonyms[pref][thisid] )
