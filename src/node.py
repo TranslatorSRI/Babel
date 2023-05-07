@@ -10,6 +10,7 @@ class SynonymFactory():
     def __init__(self,syndir):
         self.synonym_dir = syndir
         self.synonyms = {}
+        print(f"Created SynonymFactory for directory {syndir}")
 
     def load_synonyms(self,prefix):
         lbs = defaultdict(set)
