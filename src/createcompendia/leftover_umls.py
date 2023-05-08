@@ -1,16 +1,18 @@
 from datetime import datetime
 import json
+import jsonlines
 from pathlib import Path
 
 from snakemake.logging import Logger
 from bmt import Toolkit
 
+from src.node import NodeFactory
 from src.datahandlers import umls
 from src.prefixes import UMLS
 from src.categories import ACTIVITY, AGENT, DEVICE, DRUG, FOOD, SMALL_MOLECULE, PHYSICAL_ENTITY, PUBLICATION, PROCEDURE
 
 
-def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, umls_synonyms, report, done):
+def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, umls_synonyms, report, done, biolink_version):
     """
     Search for "leftover" UMLS concepts, i.e. those that are defined and valid in MRCONSO but are not
     mapped to a concept in Babel.
@@ -68,6 +70,8 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
         # print(umls_ids_in_other_compendia)
 
         # Load all the semantic types.
+        umls_type_by_id = dict()
+        preferred_name_by_id = dict()
         types_by_id = dict()
         types_by_tui = dict()
         with open(mrsty, 'r') as inf:
@@ -161,6 +165,8 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
                     count_multiple_umls_type += 1
                     continue
                 biolink_type = list(biolink_types)[0]
+                umls_type_by_id[umls_id] = biolink_type
+                preferred_name_by_id[umls_id] = label
 
                 # Write this UMLS term to UMLS.txt as a single-identifier term.
                 cluster = {
@@ -180,19 +186,43 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
         logging.info(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.")
         reportf.write(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.\n")
 
-        # Write out synonyms for all IDs in this compendium.
-        synonym_ids = set()
-        count_synonyms = 0
-        with open(synonyms, 'r') as synonymsf, open(umls_synonyms, 'w') as umls_synonymsf:
+        # Collected synonyms for all IDs in this compendium.
+        synonyms_by_id = dict()
+        with open(synonyms, 'r') as synonymsf:
             for line in synonymsf:
                 id, relation, synonym = line.rstrip().split('\t')
                 if id in umls_ids_in_this_compendium:
-                    synonym_ids.add(id)
-                    count_synonyms += 1
-                    umls_synonymsf.write(f"{id}\t{relation}\t{synonym}\n")
+                    # Add this synonym to the set of synonyms for this identifier.
+                    if id not in synonyms_by_id:
+                        synonyms_by_id[id] = set()
+                    synonyms_by_id[id].add(synonym)
 
-        logging.info(f"Wrote {count_synonyms} synonyms for {len(synonym_ids)} UMLS IDs into the leftover UMLS synonyms file.")
-        reportf.write(f"Wrote {count_synonyms} synonyms for {len(synonym_ids)} UMLS IDs into the leftover UMLS synonyms file.\n")
+                    # We don't record the synonym relation (https://github.com/TranslatorSRI/Babel/pull/113#issuecomment-1516450124),
+                    # so we don't need to write that out now.
+
+        logging.info(f"Collected synonyms for {len(synonyms_by_id)} UMLS IDs into the leftover UMLS synonyms file.")
+        reportf.write(f"Collected synonyms for {len(synonyms_by_id)} UMLS IDs into the leftover UMLS synonyms file.\n")
+
+        # Write out synonyms to synonym file.
+        node_factory = NodeFactory('babel_downloads/UMLS/labels', biolink_version)
+        count_synonym_objs = 0
+        with jsonlines.open(umls_synonyms, 'w') as umls_synonymsf:
+            for id in synonyms_by_id:
+                document = {
+                    "curie": id,
+                    "names": list(sorted(list(synonyms_by_id[id]), key=lambda syn:len(syn))),
+                    "types": [ t[8:] for t in node_factory.get_ancestors(umls_type_by_id[id])]
+                }
+
+                if id in preferred_name_by_id:
+                    document["preferred_name"] = preferred_name_by_id[id]
+
+                umls_synonymsf.write(document)
+                count_synonym_objs += 1
+
+        logging.info(f"Wrote out {count_synonym_objs} synonym objects into the leftover UMLS synonyms file.")
+        reportf.write(f"Wrote out {count_synonym_objs} synonym objects into the leftover UMLS synonyms file.\n")
+
 
     # Write out `done` file.
     with open(done, 'w') as outf:
