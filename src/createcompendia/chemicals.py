@@ -197,7 +197,7 @@ def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
             if line.startswith('"Ligand ID"'):
                 # Header line! Check, then skip.
                 header = line.strip().split('\t')
-                print("header: ", header)
+                # print("header: ", header)
                 assert header == [
                     '"Ligand ID"', '"Name"', '"Species"', '"Type"', '"Approved"', '"Withdrawn"',
                     '"Labelled"', '"Radioactive"', '"PubChem SID"', '"PubChem CID"', '"UniProt ID"',
