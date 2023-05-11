@@ -196,7 +196,12 @@ def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
                 continue
             if line.startswith('"Ligand ID"'):
                 # Header line! Check, then skip.
-                assert line == '"Ligand ID"	"Name"	"Species"	"Type"	"Approved"	"Withdrawn"	"Labelled"Radioactive"	"PubChem SID"	"PubChem CID"	"UniProt ID"	"Ensembl ID"	"Ligand Subunit IDs"	"Ligand Subunit Name"	"Ligand Subunit UniProt IDs"	"Ligand Subunit Ensembl IDs"	"IUPAC name"	"INN"	"Synonyms"	"SMILES"	"InChIKey"	"InChI"	"GtoImmuPdb"	"GtoMPdb"	"Antibacterial"'
+                assert line.strip() == '"Ligand ID"	"Name"	"Species"	"Type"	"Approved"	"Withdrawn"	' \
+                                       '"Labelled"Radioactive"	"PubChem SID"	"PubChem CID"	"UniProt ID"	' \
+                                       '"Ensembl ID"	"Ligand Subunit IDs"	"Ligand Subunit Name"	"Ligand ' \
+                                       'Subunit UniProt IDs"	"Ligand Subunit Ensembl IDs"	"IUPAC name"	' \
+                                       '"INN"	"Synonyms"	"SMILES"	"InChIKey"	"InChI"	"GtoImmuPdb"	' \
+                                       '"GtoMPdb"	"Antibacterial"'
                 continue
             x = line.split('\t')
             if stripquotes:
