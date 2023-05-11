@@ -10,16 +10,20 @@ class SynonymFactory():
     def __init__(self,syndir):
         self.synonym_dir = syndir
         self.synonyms = {}
+        print(f"Created SynonymFactory for directory {syndir}")
 
     def load_synonyms(self,prefix):
-        print(f'Loading {prefix}')
         lbs = defaultdict(set)
         labelfname = os.path.join(self.synonym_dir, prefix, 'labels')
+        print(f'Loading synonyms for {prefix} from {labelfname}')
+        count_labels = 0
+        count_synonyms = 0
         if os.path.exists(labelfname):
             with open(labelfname, 'r') as inf:
                 for line in inf:
                     x = line.strip().split('\t')
                     lbs[x[0]].add( ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym',x[1]) )
+                    count_labels += 1
         synfname = os.path.join(self.synonym_dir, prefix, 'synonyms')
         if os.path.exists(synfname):
             with open(synfname, 'r') as inf:
@@ -28,14 +32,15 @@ class SynonymFactory():
                     if len(x) < 3:
                         continue
                     lbs[x[0]].add( (x[1], x[2]) )
+                    count_synonyms += 1
         self.synonyms[prefix] = lbs
-        print(f'Loaded')
+        print(f'Loaded {count_labels} labels and {count_synonyms} synonyms for {prefix} from {labelfname}')
 
     def get_synonyms(self,node):
         node_synonyms = set()
         for ident in node['identifiers']:
             thisid = ident['identifier']
-            pref = Text.get_curie(thisid)
+            pref = Text.get_prefix(thisid)
             if not pref in self.synonyms:
                 self.load_synonyms(pref)
             node_synonyms.update( self.synonyms[pref][thisid] )
