@@ -228,7 +228,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
                 nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
 
                 descs = description_factory.get_descriptions(node)
-                if len(descs) > 0:
+                if descs:
                     nw['descriptions'] = descs
 
                 outf.write( nw )

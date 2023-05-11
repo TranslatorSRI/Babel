@@ -63,14 +63,14 @@ class DescriptionFactory:
         print(f'Loaded')
 
     def get_descriptions(self,node):
-        node_descriptions = set()
+        node_descriptions = defaultdict(set)
         for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = Text.get_curie(thisid)
             if not pref in self.descriptions:
                 self.load_descriptions(pref)
-            node_descriptions.update( self.descriptions[pref][thisid] )
-        return list(node_descriptions)
+            node_descriptions[thisid].update( self.descriptions[pref][thisid] )
+        return node_descriptions
 
 class InformationContentFactory:
     def __init__(self,ic_file):
