@@ -2,6 +2,7 @@ import src.datahandlers.mesh as mesh
 import src.datahandlers.obo as obo
 import src.datahandlers.umls as umls
 import src.datahandlers.ncbigene as ncbigene
+import src.datahandlers.efo as efo
 import src.datahandlers.ensembl as ensembl
 import src.datahandlers.hgnc as hgnc
 import src.datahandlers.omim as omim
@@ -36,6 +37,23 @@ import src.prefixes as prefixes
 # Data sets: pull data sets, and parse them to get labels and synonyms
 #
 ####
+
+### EFO
+
+rule get_EFO:
+    output:
+        config['download_directory'] + '/EFO' + '/efo.owl'
+    run:
+        efo.pull_efo()
+
+rule get_EFO_labels:
+    input:
+        infile=config['download_directory'] + '/EFO/efo.owl'
+    output:
+        labelfile=config['download_directory'] + '/EFO/labels',
+        synonymfile =config['download_directory'] + '/EFO/synonyms'
+    run:
+        efo.make_labels(output.labelfile,output.synonymfile)
 
 ### Complex Portal
 # https://www.ebi.ac.uk/complexportal/
@@ -344,18 +362,18 @@ rule get_panther_pathway_labels:
 
 rule get_unichem:
     output:
-        config['download_directory'] + '/UNICHEM/UC_XREF.txt.gz',
-        config['download_directory'] + '/UNICHEM/UC_STRUCTURE.txt',
+        config['download_directory'] + '/UNICHEM/structure.tsv.gz',
+        config['download_directory'] + '/UNICHEM/reference.tsv.gz',
     run:
         unichem.pull_unichem()
 
 rule filter_unichem:
     input:
-        infile= config ['download_directory'] + '/UNICHEM/UC_XREF.txt.gz'
+        reffile=config['download_directory'] + '/UNICHEM/reference.tsv.gz',
     output:
-        outfile=config['download_directory']+'/UNICHEM/UC_XREF.srcfiltered.txt'
+        filteredreffile=config['download_directory'] + '/UNICHEM/reference.filtered.tsv',
     run:
-        unichem.filter_xrefs_by_srcid(input.infile,output.outfile)
+        unichem.filter_unichem(input.reffile, output.filteredreffile)
 
 ### CHEMBL
 

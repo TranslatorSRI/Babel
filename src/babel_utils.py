@@ -219,7 +219,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
     synonym_factory = SynonymFactory(make_local_name(''))
     ic_factory = InformationContentFactory(f'{get_config()["input_directory"]}/icRDF.tsv')
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={},extra_prefixes = extra_prefixes)
-    with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
+    with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
             if node is not None:
@@ -229,10 +229,23 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
                     nw['ic'] = ic
                 nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
                 outf.write( nw )
-                synonyms = synonym_factory.get_synonyms(node)
-                if len(synonyms) > 0:
-                    for p,o in synonyms:
-                        sfile.write(f'{node["identifiers"][0]["identifier"]}\t{p}\t{o}\n')
+
+                # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
+                # But we're only interested in the synonyms themselves, so we can skip the relationship for now.
+                synonyms = [result[1] for result in synonym_factory.get_synonyms(node)]
+                synonyms_list = sorted(synonyms,key=lambda x:len(x))
+                try:
+                    document = {"curie": node["identifiers"][0]["identifier"],
+                                "names": synonyms_list,
+                                "types": [ t[8:] for t in node_factory.get_ancestors(node["type"])]} #remove biolink:
+                    if "label" in node["identifiers"][0]:
+                        document["preferred_name"] = node["identifiers"][0]["label"]
+                    sfile.write( document )
+                except Exception as ex:
+                    print(f"Exception thrown while write_compendium() was generating {ofname}: {ex}")
+                    print(node["type"])
+                    print(node_factory.get_ancestors(node["type"]))
+                    exit()
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.

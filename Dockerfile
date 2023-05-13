@@ -3,7 +3,7 @@
 # Use the RENCI Python image to make it easier to work with other
 # RENCI Docker packages and to make sure we have an up to date image.
 # (https://github.com/TranslatorSRI/RENCI-Python-image)
-FROM renciorg/renci-python-image:v0.0.1
+FROM renciorg/renci-python-image:latest
 
 # Configuration options:
 # - ${ROOT} is where Babel source code will be copied.

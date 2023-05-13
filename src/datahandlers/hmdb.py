@@ -16,7 +16,14 @@ def handle_metabolite(metabolite,lfile,synfile,smifile):
     lfile.write(f'{hmdbident}\t{label}\n')
     syns = metabolite['synonyms']
     if (syns is not None) and ('synonym' in syns):
-        for sname in syns['synonym']:
+
+        # In some cases, syns['synonym'] may be a single string.
+        # If so, we turn it into a single-element list.
+        synonyms_list = syns['synonym']
+        if not isinstance(synonyms_list, list):
+            synonyms_list = [synonyms_list]
+
+        for sname in synonyms_list:
             synfile.write(f'{hmdbident}\toio:exact\t{sname}\n')
     if 'smiles' in metabolite:
         smifile.write(f'{hmdbident}\t{metabolite["smiles"]}\n')

@@ -94,6 +94,7 @@ rule check_protein:
 rule protein:
     input:
         config['output_directory']+'/reports/protein_completeness.txt',
+        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['protein_outputs'])
     output:
         x=config['output_directory']+'/reports/protein_done'

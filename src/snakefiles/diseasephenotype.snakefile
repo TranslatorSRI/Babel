@@ -83,9 +83,16 @@ rule get_disease_obo_relationships:
         config['intermediate_directory']+'/disease/concords/MONDO',
         config['intermediate_directory']+'/disease/concords/MONDO_close',
         config['intermediate_directory']+'/disease/concords/HP',
-        config['intermediate_directory']+'/disease/concords/EFO',
     run:
         diseasephenotype.build_disease_obo_relationships(config['intermediate_directory']+'/disease/concords')
+
+rule get_disease_efo_relationships:
+    input:
+        infile=config['intermediate_directory']+"/disease/ids/EFO",
+    output:
+        outfile=config['intermediate_directory']+'/disease/concords/EFO'
+    run:
+        diseasephenotype.build_disease_efo_relationships(input.infile,output.outfile)
 
 rule get_disease_umls_relationships:
     input:
@@ -150,6 +157,7 @@ rule check_phenotypic_feature:
 rule disease:
     input:
         config['output_directory']+'/reports/disease_completeness.txt',
+        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['disease_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['disease_outputs'])
     output:
         x=config['output_directory']+'/reports/disease_done'

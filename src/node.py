@@ -10,16 +10,20 @@ class SynonymFactory():
     def __init__(self,syndir):
         self.synonym_dir = syndir
         self.synonyms = {}
+        print(f"Created SynonymFactory for directory {syndir}")
 
     def load_synonyms(self,prefix):
-        print(f'Loading {prefix}')
         lbs = defaultdict(set)
         labelfname = os.path.join(self.synonym_dir, prefix, 'labels')
+        print(f'Loading synonyms for {prefix} from {labelfname}')
+        count_labels = 0
+        count_synonyms = 0
         if os.path.exists(labelfname):
             with open(labelfname, 'r') as inf:
                 for line in inf:
                     x = line.strip().split('\t')
                     lbs[x[0]].add( ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym',x[1]) )
+                    count_labels += 1
         synfname = os.path.join(self.synonym_dir, prefix, 'synonyms')
         if os.path.exists(synfname):
             with open(synfname, 'r') as inf:
@@ -28,14 +32,15 @@ class SynonymFactory():
                     if len(x) < 3:
                         continue
                     lbs[x[0]].add( (x[1], x[2]) )
+                    count_synonyms += 1
         self.synonyms[prefix] = lbs
-        print(f'Loaded')
+        print(f'Loaded {count_labels} labels and {count_synonyms} synonyms for {prefix} from {labelfname}')
 
     def get_synonyms(self,node):
         node_synonyms = set()
         for ident in node['identifiers']:
             thisid = ident['identifier']
-            pref = Text.get_curie(thisid)
+            pref = Text.get_prefix(thisid)
             if not pref in self.synonyms:
                 self.load_synonyms(pref)
             node_synonyms.update( self.synonyms[pref][thisid] )
@@ -94,19 +99,22 @@ class NodeFactory:
             print('no prefixes for', input_type, 'Using small molecules')
             prefs = self.get_prefixes("biolink:SmallMolecule")
         elif input_type == 'biolink:Polypeptide':
-            prefs = list(set(prefs + self.get_prefixes('biolink:SmallMolecule')))
+            prefs = prefs + self.get_prefixes('biolink:SmallMolecule')
         elif input_type == 'biolink:ChemicalEntity':
             #This just has to be here for now
-            prefs = list(set(prefs + self.get_prefixes('biolink:SmallMolecule')))
-        #The pref are in a particular order, but apparently it can have dups (ugh)
-        # The particular dups are gone now, but the code remains in case they come back...
-        newprefs = ['']
+            prefs = prefs + self.get_prefixes('biolink:SmallMolecule')
+        # The pref are in a particular order, but apparently they can have dups (ugh)
+        # We de-duplicate those here.
+        prefixes_deduplicated = list()
         for pref in prefs:
-            if not pref  == newprefs[-1]:
-                newprefs.append(pref)
-        prefs = newprefs[1:]
-        self.prefix_map[input_type] = prefs
-        return prefs
+            # Don't add a prefix that we've already added.
+            if pref in prefixes_deduplicated:
+                continue
+
+            prefixes_deduplicated.append(pref)
+
+        self.prefix_map[input_type] = prefixes_deduplicated
+        return prefixes_deduplicated
 
     def make_json_id(self,input):
         if isinstance(input,LabeledID):
@@ -181,8 +189,7 @@ class NodeFactory:
         if len(input_identifiers) == 0:
             return None
         if len(input_identifiers) > 1000:
-            print('this seems like a lot')
-            print(len(input_identifiers))
+            print(f'this seems like a lot of input_identifiers in node.create_node() [{len(input_identifiers)}]: {input_identifiers}')
         cleaned = self.apply_labels(input_identifiers,labels)
         try:
             idmap = defaultdict(list)
@@ -214,7 +221,11 @@ class NodeFactory:
                     jid = self.make_json_id(newid)
                     newids.append( (jid['identifier'],jid) )
                     accepted_ids.add(v)
-                newids.sort()
+                try:
+                    newids.sort()
+                except TypeError as e:
+                    print(newids)
+                    raise e
                 if pupper == PUBCHEMCOMPOUND.upper() and len(newids) > 1:
                     newids = pubchemsort(newids,cleaned)
                 identifiers += [ nid[1] for nid in newids ]

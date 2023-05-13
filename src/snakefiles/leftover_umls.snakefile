@@ -38,4 +38,4 @@ rule leftover_umls:
         report = config['output_directory'] + "/reports/umls.txt",
         done = config['output_directory'] + "/reports/umls_done"
     run:
-        leftover_umls.write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, input.synonyms, output.umls_compendium, output.umls_synonyms, output.report, output.done)
+        leftover_umls.write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, input.synonyms, output.umls_compendium, output.umls_synonyms, output.report, output.done, config['biolink_version'])
