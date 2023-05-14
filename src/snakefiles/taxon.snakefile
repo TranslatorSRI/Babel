@@ -19,10 +19,12 @@ rule taxon_mesh_ids:
         taxon.write_mesh_ids(output.outfile)
 
 rule taxon_umls_ids:
+    input:
+        mrsty=config['download_directory'] + "/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/taxon/ids/UMLS"
     run:
-        taxon.write_umls_ids(output.outfile)
+        taxon.write_umls_ids(input.mrsty, output.outfile)
 
 rule get_taxon_umls_relationships:
     input:

@@ -29,8 +29,8 @@ rule leftover_umls:
                 config['chemical_outputs'] +
                 config['genefamily_outputs'] +
                 config['taxon_outputs']),
-        mrconso = config['input_directory'] + '/private/MRCONSO.RRF',
-        mrsty = config['input_directory'] + '/private/MRSTY.RRF',
+        mrconso = config['download_directory'] + '/UMLS/MRCONSO.RRF',
+        mrsty = config['download_directory'] + '/UMLS/MRSTY.RRF',
         synonyms = config['download_directory'] + '/UMLS/synonyms'
     output:
         umls_compendium = config['output_directory'] + "/compendia/umls.txt",

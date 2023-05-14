@@ -43,10 +43,13 @@ rule gene_hgnc_ids:
         gene.write_hgnc_ids(input.infile,output.outfile)
 
 rule gene_umls_ids:
+    input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
+        mrsty=config['download_directory']+"/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/gene/ids/UMLS"
     run:
-        gene.write_umls_ids(output.outfile)
+        gene.write_umls_ids(input.mrconso, input.mrsty, output.outfile)
 
 rule get_gene_ncbigene_ensembl_relationships:
     input:

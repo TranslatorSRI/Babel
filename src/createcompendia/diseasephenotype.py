@@ -54,7 +54,7 @@ def write_mesh_ids(outfile):
     meshmap['C23'] = PHENOTYPIC_FEATURE
     mesh.write_ids(meshmap,outfile,order=[DISEASE,PHENOTYPIC_FEATURE])
 
-def write_umls_ids(outfile,badumlsfile):
+def write_umls_ids(mrsty, outfile,badumlsfile):
     badumls=set()
     with open(badumlsfile,'r') as inf:
         for line in inf:
@@ -81,7 +81,7 @@ def write_umls_ids(outfile,badumlsfile):
     #A2.2.2 Sign or Symptom
     umlsmap['A2.2.1'] = PHENOTYPIC_FEATURE
     umlsmap['A2.2.2'] = PHENOTYPIC_FEATURE
-    umls.write_umls_ids(umlsmap,outfile,blacklist=badumls)
+    umls.write_umls_ids(mrsty, umlsmap, outfile, blacklist=badumls)
 
 
 def build_disease_obo_relationships(outdir):

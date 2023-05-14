@@ -23,7 +23,7 @@ def get_type_from_smiles(smiles):
     else:
         return SMALL_MOLECULE
 
-def write_umls_ids(outfile):
+def write_umls_ids(mrsty, outfile):
     groups = ['A1.4.1.1.1.1', #antibiotic
               'A1.4.1.1.3.2', # Hormone
               'A1.4.1.1.3.3',# Enzyme
@@ -40,7 +40,7 @@ def write_umls_ids(outfile):
     #'A1.4.1.1.3.6',# Receptor
     #'A1.4.1.2.1.7 Amino Acid, Peptide, or Protein
     umlsmap = {a:CHEMICAL_ENTITY for a in groups}
-    umls.write_umls_ids(umlsmap, outfile)
+    umls.write_umls_ids(mrsty, umlsmap, outfile)
 
 
 def build_chemical_umls_relationships(idfile,outfile):

@@ -62,7 +62,7 @@ def write_mesh_ids(outfile):
     meshmap['A11.284'] = CELLULAR_COMPONENT
     mesh.write_ids(meshmap,outfile)
 
-def write_umls_ids(outfile):
+def write_umls_ids(mrsty, outfile):
     #UMLS categories:
     #A1.2 Anatomical Structure
     #A1.2.1 Embryonic Structure
@@ -77,7 +77,7 @@ def write_umls_ids(outfile):
     umlsmap = {x: ANATOMICAL_ENTITY for x in ['A1.2', 'A1.2.1', 'A1.2.3.1', 'A1.2.3.2', 'A2.1.4.1', 'A2.1.5.1', 'A2.1.5.2']}
     umlsmap['A1.2.3.3'] = CELL
     umlsmap['A1.2.3.4'] = CELLULAR_COMPONENT
-    umls.write_umls_ids(umlsmap,outfile)
+    umls.write_umls_ids(mrsty, umlsmap, outfile)
 
 #Ignore list notes:
 #The BTO and BAMs and HTTP (braininfo) identifiers promote over-glommed nodes
