@@ -1,4 +1,9 @@
-from src.babel_utils import make_local_name, pull_via_ftp
+import shutil
+from zipfile import ZipFile
+
+import requests
+
+from src.babel_utils import make_local_name, pull_via_ftp, pull_via_urllib
 from src.prefixes import UMLS
 from collections import defaultdict
 import os
@@ -123,7 +128,53 @@ def read_umls_priority():
     prid = { x:i for i,x in enumerate(pris) }
     return prid
 
-def pull_umls():
+
+def download_umls(umls_version, download_dir):
+    """
+    Download the latest UMLS into the specified download directory. In addition to downloading
+    and unzipping UMLS, this will move the files we use into the main directory.
+
+    :param umls_version: The version of UMLS to download (e.g. `2023AA`).
+    :param download_dir: The directory to download UMLS to (e.g. `babel_downloads/UMLS`)
+    """
+    umls_api_key = os.environ.get('UMLS_API_KEY')
+    if not umls_api_key:
+        print("The environmental variable UMLS_API_KEY needs to be set to a valid UMLS API key.")
+        print("See instructions at https://documentation.uts.nlm.nih.gov/rest/authentication.html")
+        exit(1)
+
+    # Download umls-{umls_version}-metathesaurus-full.zip
+    # As described at https://documentation.uts.nlm.nih.gov/automating-downloads.html
+    umls_url = f"https://uts-ws.nlm.nih.gov/download"
+    req = requests.get(umls_url, {
+        "url": f"https://download.nlm.nih.gov/umls/kss/{umls_version}/umls-{umls_version}-metathesaurus-full.zip",
+        "apiKey": umls_api_key
+    }, stream=True)
+    if not req.ok:
+        print(f"Unable to download UMLS from ${umls_url}: ${req}")
+        exit(1)
+
+    # Write file to {download_dir}/umls-{umls_version}-metathesaurus-full.zip
+    logging.info(f"Downloading umls-{umls_version}-metathesaurus-full.zip to {download_dir}")
+    os.makedirs(download_dir, exist_ok=True)
+    umls_download_zip = os.path.join(download_dir, f"umls-{umls_version}-metathesaurus-full.zip")
+    with open(umls_download_zip, 'wb') as fd:
+        for chunk in req.iter_content(chunk_size=128):
+            fd.write(chunk)
+
+    # Unzip file.
+    logging.info(f"Uncompressing {umls_download_zip}")
+    with ZipFile(umls_download_zip, 'r') as zipObj:
+        zipObj.extractall(download_dir)
+
+    # Move files we use to the main download directory.
+    # - MRCONSO.RRF
+    shutil.copy2(os.path.join(download_dir, umls_version, 'MRCONSO.RRF'), download_dir)
+    # - MRSTY.RRF
+    shutil.copy2(os.path.join(download_dir, umls_version, 'MRSTY.RRF'), download_dir)
+
+
+def pull_umls(mrconso):
     """Run through MRCONSO.RRF creating label and synonym files for UMLS and SNOMEDCT"""
     mrcon = os.path.join('input_data', 'private', 'MRCONSO.RRF')
     rows = defaultdict(list)
