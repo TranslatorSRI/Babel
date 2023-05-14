@@ -22,6 +22,8 @@ strong dependencies against the Babel code.
 
 ## Configuration
 
+Babel requires Python 3.11 or later.
+
 Before running, edit `config.json` and set the `babel_downloads` and `babel_output` directories.  Do not edit the
 remaining items, which are used to control the build process.
 
@@ -126,7 +128,6 @@ These two directories should be set up as following:
 * `babel/input_data/private` is used to store some input files
   that you will need to download yourself:
     * `MRCONSO.RRF` and `MRSTY.RRF`: parts of the UMLS release, need to be downloaded from [the UMLS download website](https://www.nlm.nih.gov/research/umls/licensedcontent/umlsknowledgesources.html).
-    * `UNII/UNIIs.zip` and `UNII/UNII_Data.zip`: needs to be downloaded from [the FDA UNII download website](https://precision.fda.gov/uniisearch/archive).
 * `babel/babel_downloads` is used to store data files downloaded during Babel assembly.
 
 ## Deploying with Kubernetes

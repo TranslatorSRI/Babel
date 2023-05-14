@@ -17,3 +17,5 @@ sparqlwrapper
 # Added by Gaurav, Jan 2022
 xmltodict
 wheel
+# Added by Gaurav, May 2023
+oaklib==0.5.1

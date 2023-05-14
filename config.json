@@ -3,7 +3,7 @@
   "download_directory": "babel_downloads",
   "intermediate_directory": "babel_outputs/intermediate",
   "output_directory": "babel_outputs",
-  "biolink_version": "3.2.0",
+  "biolink_version": "3.3.3",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
   "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","PATO","PR","RO","UBPROP"],
