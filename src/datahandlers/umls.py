@@ -57,7 +57,7 @@ def write_umls_ids(mrsty, category_map,umls_output,blacklist=set()):
 # One is to keep from having to pass through the umls file more than once, but that's a bad reason
 # The second is because I want to use the UMLS as a source for some terminologies (SNOMED) even if there's another
 #  way.  I'm going to modify this to do one thing at a time, and if it takes a little longer, then so be it.
-def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdict(set), acceptable_identifiers={}):
+def build_sets(mrconso, umls_input, umls_output , other_prefixes, bad_mappings=defaultdict(set), acceptable_identifiers={}):
     """Given a list of umls identifiers we want to generate all the concordances
     between UMLS and that other entity"""
     # On UMLS / MESH: we have been getting all UMLS / MESH relationships.   This has led to some clear mistakes
@@ -72,7 +72,6 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
             umls_ids.add(u)
     lookfor = set(other_prefixes.keys())
     acceptable_mesh_tty = set(["MH","NM","HT","QAB"])
-    mrconso = os.path.join('input_data', 'private', 'MRCONSO.RRF')
     pairs = set()
     #test_cui = 'C0026827'
     with open(mrconso,'r') as inf, open(umls_output,'w') as concordfile:

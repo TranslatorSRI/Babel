@@ -96,13 +96,14 @@ rule get_disease_efo_relationships:
 
 rule get_disease_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+"/disease/ids/UMLS",
         omim=config['intermediate_directory']+'/disease/ids/OMIM',
         ncit=config['intermediate_directory'] + '/disease/ids/NCIT'
     output:
         outfile=config['intermediate_directory']+'/disease/concords/UMLS',
     run:
-        diseasephenotype.build_disease_umls_relationships(input.infile,output.outfile,input.omim,input.ncit)
+        diseasephenotype.build_disease_umls_relationships(input.mrconso, input.infile,output.outfile,input.omim,input.ncit)
 
 rule get_disease_doid_relationships:
     input:

@@ -96,8 +96,8 @@ def build_anatomy_obo_relationships(outdir):
         build_sets(f'{UBERON}:0001062', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
         build_sets(f'{GO}:0005575', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
 
-def build_anatomy_umls_relationships(idfile,outfile):
-    umls.build_sets(idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT})
+def build_anatomy_umls_relationships(mrconso, idfile,outfile):
+    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT})
 
 def build_compendia(concordances, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships

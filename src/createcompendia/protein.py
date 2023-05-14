@@ -130,8 +130,8 @@ def build_ncit_uniprot_relationships(infile,outfile):
             uniprot_id = f'{UNIPROTKB}:{x[1]}'
             outf.write(f'{ncit_id}\teq\t{uniprot_id}\n')
 
-def build_umls_ncit_relationships(idfile,outfile):
-    umls.build_sets(idfile, outfile, {'NCI': NCIT})
+def build_umls_ncit_relationships(mrconso, idfile, outfile):
+    umls.build_sets(mrconso, idfile, outfile, {'NCI': NCIT})
 
 def build_protein_compendia(concordances, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships

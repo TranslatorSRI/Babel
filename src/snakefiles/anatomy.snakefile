@@ -53,11 +53,12 @@ rule get_anatomy_obo_relationships:
 
 rule get_anatomy_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+"/anatomy/ids/UMLS"
     output:
         outfile=config['intermediate_directory']+'/anatomy/concords/UMLS',
     run:
-        anatomy.build_anatomy_umls_relationships(input.infile,output.outfile)
+        anatomy.build_anatomy_umls_relationships(input.mrconso, input.infile, output.outfile)
 
 rule anatomy_compendia:
     input:

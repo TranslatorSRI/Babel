@@ -106,11 +106,12 @@ rule get_chemical_drugcentral_relationships:
 
 rule get_chemical_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+"/chemicals/ids/UMLS",
     output:
         outfile=config['intermediate_directory']+'/chemicals/concords/UMLS',
     run:
-        chemicals.build_chemical_umls_relationships(input.infile,output.outfile)
+        chemicals.build_chemical_umls_relationships(input.mrconso, input.infile, output.outfile)
 
 rule get_chemical_wikipedia_relationships:
     output:
