@@ -119,14 +119,10 @@ You can also run Babel with [Docker](https://www.docker.com/). There are
 two directories you need to bind or mount from outside the container:
 
 ```
-$ docker run -it --rm --mount type=bind,source=...,target=/home/runner/babel/input_data/private --mount type=bind,source=...,target=/home/runner/babel/babel_downloads --entrypoint /bin/bash ggvaidya/babel
+$ docker run -it --rm --mount type=bind,source=...,target=/home/runner/babel/babel_downloads --entrypoint /bin/bash ggvaidya/babel
 ```
 
-These two directories should be set up as following:
-* `babel/input_data/private` is used to store some input files
-  that you will need to download yourself:
-    * `MRCONSO.RRF` and `MRSTY.RRF`: parts of the UMLS release, need to be downloaded from [the UMLS download website](https://www.nlm.nih.gov/research/umls/licensedcontent/umlsknowledgesources.html).
-* `babel/babel_downloads` is used to store data files downloaded during Babel assembly.
+The download directory (`babel/babel_downloads`) is used to store data files downloaded during Babel assembly.
 
 The script `scripts/build-babel.sh` can be used to run `snakemake` with a few useful settings (although just running
 `snakemake --cores 5` should work just fine.)
