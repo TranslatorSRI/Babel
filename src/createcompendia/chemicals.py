@@ -43,8 +43,8 @@ def write_umls_ids(mrsty, outfile):
     umls.write_umls_ids(mrsty, umlsmap, outfile)
 
 
-def build_chemical_umls_relationships(idfile,outfile):
-    umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK})
+def build_chemical_umls_relationships(mrconso, idfile, outfile):
+    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK})
 
 
 def write_pubchem_ids(labelfile,smilesfile,outfile):

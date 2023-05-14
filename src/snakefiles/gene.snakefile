@@ -88,11 +88,12 @@ rule get_gene_medgen_relationships:
 
 rule get_gene_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+'/gene/ids/UMLS'
     output:
         outfile=config['intermediate_directory']+'/gene/concords/UMLS'
     run:
-        gene.build_gene_umls_hgnc_relationships(input.infile, output.outfile)
+        gene.build_gene_umls_hgnc_relationships(input.mrconso, input.infile, output.outfile)
 
 rule gene_compendia:
     input:

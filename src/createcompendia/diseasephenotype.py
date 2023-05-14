@@ -105,7 +105,7 @@ def build_disease_efo_relationships(idfile,outfile):
     efo.make_concords(idfile, outfile)
 
 
-def build_disease_umls_relationships(idfile,outfile,omimfile,ncitfile):
+def build_disease_umls_relationships(mrconso, idfile, outfile, omimfile, ncitfile):
     #UMLS contains xrefs between a disease UMLS and a gene OMIM. So here we are saying: if you are going to link to
     # an omim identifier, make sure it's a disease omim, not some other thing.
     good_ids = {}
@@ -115,7 +115,7 @@ def build_disease_umls_relationships(idfile,outfile,omimfile,ncitfile):
             for line in inf:
                 x = line.split()[0]
                 good_ids[prefix].add(x)
-    umls.build_sets(idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM},acceptable_identifiers=good_ids)
+    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM},acceptable_identifiers=good_ids)
 
 def build_disease_doid_relationships(idfile,outfile):
     doid.build_xrefs(idfile, outfile, other_prefixes={'ICD10CM':ICD10, 'ICD9CM':ICD9, 'ICDO': ICD0, 'NCI': NCIT,
