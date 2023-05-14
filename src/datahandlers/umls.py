@@ -41,9 +41,8 @@ def check_mrconso_line(line):
 
     return True
 
-def write_umls_ids(category_map,umls_output,blacklist=set()):
+def write_umls_ids(mrsty, category_map,umls_output,blacklist=set()):
     categories = set(category_map.keys())
-    mrsty = os.path.join('input_data', 'private', 'MRSTY.RRF')
     umls_keepers = set()
     with open(mrsty,'r') as inf, open(umls_output,'w') as outf:
         for line in inf:
@@ -176,7 +175,6 @@ def download_umls(umls_version, download_dir):
 
 def pull_umls(mrconso):
     """Run through MRCONSO.RRF creating label and synonym files for UMLS and SNOMEDCT"""
-    mrcon = os.path.join('input_data', 'private', 'MRCONSO.RRF')
     rows = defaultdict(list)
     priority = read_umls_priority()
     snomed_label_name = make_local_name('labels', subpath='SNOMEDCT')

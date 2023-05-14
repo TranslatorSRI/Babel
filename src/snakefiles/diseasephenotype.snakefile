@@ -53,13 +53,13 @@ rule disease_mesh_ids:
         diseasephenotype.write_mesh_ids(output.outfile)
 
 rule disease_umls_ids:
-    #The location of the RRFs is known to the guts, but should probably come out here.
     input:
-        badumls = config['input_directory']+"/badumls"
+        badumls = config['input_directory']+"/badumls",
+        mrsty = config['download_directory'] + "/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/disease/ids/UMLS"
     run:
-        diseasephenotype.write_umls_ids(output.outfile,input.badumls)
+        diseasephenotype.write_umls_ids(input.mrsty, output.outfile, input.badumls)
 
 rule disease_hp_ids:
     #The location of the RRFs is known to the guts, but should probably come out here.

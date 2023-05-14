@@ -141,13 +141,15 @@ rule download_umls:
         umls.download_umls(config['umls_version'], config['download_directory'] + '/UMLS')
 
 rule get_umls_labels_and_synonyms:
+    input:
+        mrconso=config['download_directory']+'/UMLS/MRCONSO.RRF'
     output:
         config['download_directory']+'/UMLS/labels',
         config['download_directory']+'/UMLS/synonyms',
         config['download_directory']+'/SNOMEDCT/labels',
         config['download_directory']+'/SNOMEDCT/synonyms'
     run:
-        umls.pull_umls()
+        umls.pull_umls(input.mrconso)
 
 ### OBO Ontologies
 

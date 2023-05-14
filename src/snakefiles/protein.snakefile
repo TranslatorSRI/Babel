@@ -20,10 +20,12 @@ rule protein_uniprotkb_ids:
         "awk '{{print $1}}' {input.infile} > {output.outfile}"
 
 rule protein_umls_ids:
+    input:
+        mrsty=config['download_directory']+"/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/protein/ids/UMLS"
     run:
-        protein.write_umls_ids(output.outfile)
+        protein.write_umls_ids(input.mrsty, output.outfile)
 
 rule protein_ensembl_ids:
     input:
