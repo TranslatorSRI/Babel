@@ -150,7 +150,7 @@ rule get_ontology_labels_and_synonyms:
         expand("{download_directory}/{onto}/synonyms", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
         icrdf_filename = config['download_directory']+'/icRDF.tsv'
     run:
-        obo.pull_uber(config['ubergraph_ontologies'], icrdf_filename)
+        obo.pull_uber(config['ubergraph_ontologies'], output.icrdf_filename)
 
 ### NCBIGene
 
