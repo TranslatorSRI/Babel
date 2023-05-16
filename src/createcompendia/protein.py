@@ -133,7 +133,7 @@ def build_ncit_uniprot_relationships(infile,outfile):
 def build_umls_ncit_relationships(idfile,outfile):
     umls.build_sets(idfile, outfile, {'NCI': NCIT})
 
-def build_protein_compendia(concordances, identifiers):
+def build_protein_compendia(concordances, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
@@ -168,5 +168,5 @@ def build_protein_compendia(concordances, identifiers):
     # only then generate the compendium from those input files.
 
     baretype = PROTEIN.split(':')[-1]
-    write_compendium(gene_sets, f'{baretype}.txt', PROTEIN, {})
+    write_compendium(gene_sets, f'{baretype}.txt', PROTEIN, {}, icrdf_filename)
 

@@ -47,11 +47,12 @@ rule taxon_compendia:
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['taxon_synonyms']),
         concords=expand("{dd}/taxon/concords/{ap}",dd=config['intermediate_directory'],ap=config['taxon_concords']),
         idlists=expand("{dd}/taxon/ids/{ap}",dd=config['intermediate_directory'],ap=config['taxon_ids']),
+        icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['taxon_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs'])
     run:
-        taxon.build_compendia(input.concords,input.idlists)
+        taxon.build_compendia(input.concords,input.idlists, input.icrdf_filename)
 
 rule check_taxon_completeness:
     input:
