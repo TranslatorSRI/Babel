@@ -64,11 +64,12 @@ rule anatomy_compendia:
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['anatomy_prefixes']),
         concords=expand("{dd}/anatomy/concords/{ap}",dd=config['intermediate_directory'],ap=config['anatomy_concords']),
         idlists=expand("{dd}/anatomy/ids/{ap}",dd=config['intermediate_directory'],ap=config['anatomy_ids']),
+        icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs'])
     run:
-        anatomy.build_compendia(input.concords,input.idlists)
+        anatomy.build_compendia(input.concords, input.idlists, input.icrdf_filename)
 
 rule check_anatomy_completeness:
     input:
