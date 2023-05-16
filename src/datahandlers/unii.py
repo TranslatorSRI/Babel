@@ -20,7 +20,7 @@ def pull_unii():
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
         ddir = path.dirname(local_filename)
-        with ZipFile(dname, 'r') as zipObj:
+        with ZipFile(local_filename, 'r') as zipObj:
             zipObj.extractall(ddir)
         #this zip file unzips into a readme and a file named something like "UNII_Names_<date>.txt" and we need to rename it for make
         files = listdir(ddir)
