@@ -154,7 +154,7 @@ rule get_ontology_labels_descriptions_and_synonyms:
         # This would make sense if we had descriptions for every ontology, but since we don't, we can't make these outputs explicit.
         # expand("{download_directory}/{onto}/descriptions", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
     run:
-        obo.pull_uber(config['ubergraph_ontologies'], icrdf_filename)
+        obo.pull_uber(config['ubergraph_ontologies'], output.icrdf_filename)
 
 ### NCBIGene
 
