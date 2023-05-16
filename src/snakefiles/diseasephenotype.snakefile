@@ -122,13 +122,14 @@ rule disease_compendia:
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['disease_labelsandsynonyms']),
         concords=expand("{dd}/disease/concords/{ap}",dd=config['intermediate_directory'],ap=config['disease_concords']),
         idlists=expand("{dd}/disease/ids/{ap}",dd=config['intermediate_directory'],ap=config['disease_ids']),
+        icrdf_filename = config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['disease_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['disease_outputs'])
     run:
         diseasephenotype.build_compendium(input.concords,input.idlists,input.close_matches,{'HP':input.bad_hpo_xrefs,
                                                                         'MONDO':input.bad_mondo_xrefs,
-                                                                        'UMLS':input.bad_umls_xrefs} )
+                                                                        'UMLS':input.bad_umls_xrefs}, input.icrdf_filename )
 
 rule check_disease_completeness:
     input:
