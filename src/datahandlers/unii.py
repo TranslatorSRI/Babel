@@ -1,14 +1,25 @@
 from zipfile import ZipFile
 from os import path,listdir,rename
+
+import requests
+
 from src.prefixes import UNII
-from src.babel_utils import pull_via_urllib
+from src.babel_utils import pull_via_urllib, get_config
+
 
 def pull_unii():
     for (pullfile,originalprefix,finalname) in [('UNIIs.zip','UNII_Names','Latest_UNII_Names.txt'),
                                                 ('UNII_Data.zip','UNII_Records','Latest_UNII_Records.txt')]:
         # Downloads also available from https://precision.fda.gov/uniisearch/archive
-        dname = pull_via_urllib('https://precision.fda.gov/uniisearch/archive/latest/',pullfile,decompress=False,subpath='UNII')
-        ddir = path.dirname(dname)
+        url = f"https://precision.fda.gov/uniisearch/archive/latest/{pullfile}"
+        response = requests.get(url, stream=True)
+        if not response.ok:
+            raise RuntimeError(f"Could not download {url}: {response}")
+        local_filename = path.join(get_config()['download_directory'], 'UNII', pullfile)
+        with open(local_filename, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        ddir = path.dirname(local_filename)
         with ZipFile(dname, 'r') as zipObj:
             zipObj.extractall(ddir)
         #this zip file unzips into a readme and a file named something like "UNII_Names_<date>.txt" and we need to rename it for make
