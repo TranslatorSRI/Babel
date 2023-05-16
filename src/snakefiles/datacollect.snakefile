@@ -148,7 +148,7 @@ rule get_ontology_labels_and_synonyms:
     output:
         expand("{download_directory}/{onto}/labels", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
         expand("{download_directory}/{onto}/synonyms", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
-        icrdf_filename = config['download_directory']+'/icRDF.tsv'
+        icrdf_filename = config['download_directory']+'/icRDF.tsv',
     run:
         obo.pull_uber(config['ubergraph_ontologies'], output.icrdf_filename)
 
