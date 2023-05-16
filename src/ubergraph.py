@@ -413,15 +413,28 @@ class UberGraph:
         :param filename: The filename to write the normalized information content to -- we write them as `IRI\tNIC`.
         :return: The number of normalized information content entries downloaded.
         """
-        query = "SELECT * WHERE { ?iri <http://reasoner.renci.org/vocab/normalizedInformationContent> ?nic }"
-        resultmap = self.triplestore.query(query, ['iri', 'nic'])
+        count_query = "SELECT (COUNT(*) AS ?count) WHERE { ?iri <http://reasoner.renci.org/vocab/normalizedInformationContent> ?nic }"
+        count_result = self.triplestore.query(count_query, ['count'])
+        total_count = int(count_result[0]['count'])
 
+        assert total_count > 0
+
+        write_count = 0
         with open(filename, "w") as ftsv:
-            for row in resultmap:
-                ftsv.write(f"{row['iri']}\t{row['nic']}\n")
+            for start in range(0, total_count, UberGraph.QUERY_BATCH_SIZE):
+                print(f"Querying write_normalized_information_content() offset {start} limit {UberGraph.QUERY_BATCH_SIZE} (total count: {total_count})")
 
-        print(f"Wrote {len(resultmap)} information content values into {filename}.")
-        return len(resultmap)
+                query = "SELECT ?iri ?nic WHERE " \
+                        "{ ?iri <http://reasoner.renci.org/vocab/normalizedInformationContent> ?nic }" \
+                        f"ORDER BY ASC(?iri) OFFSET {start} LIMIT {UberGraph.QUERY_BATCH_SIZE}"
+                results = self.triplestore.query(query, ['iri', 'nic'])
+
+                for row in results:
+                    ftsv.write(f"{row['iri']}\t{row['nic']}\n")
+                    write_count += 1
+
+        print(f"Wrote {write_count} information content values into {filename}.")
+        return write_count
 
 def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={}, hop_ontologies=False ):
     """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
