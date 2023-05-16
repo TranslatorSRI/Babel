@@ -162,7 +162,7 @@ def write_drugbank_ids(infile,outfile):
     written = set()
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         header_line = inf.readline()
-        assert(header_line == "UCI\tSRC_ID\tSRC_COMPOUND_ID\tASSIGNMENT\n", f"Incorrect header line in {infile}: {header_line}")
+        assert header_line == "UCI\tSRC_ID\tSRC_COMPOUND_ID\tASSIGNMENT\n", f"Incorrect header line in {infile}: {header_line}"
         for line in inf:
             x = line.rstrip().split('\t')
             if x[1] == drugbank_id:
@@ -229,11 +229,11 @@ def write_unichem_concords(structfile,reffile,outdir):
         concfiles[num] = open(concname,'w')
     with open(reffile,'rt') as inf:
         header_line = inf.readline()
-        assert(header_line == "UCI\tSRC_ID\tSRC_COMPOUND_ID\tASSIGNMENT\n", f"Incorrect header line in {reffile}: {header_line}")
+        assert header_line == "UCI\tSRC_ID\tSRC_COMPOUND_ID\tASSIGNMENT\n", f"Incorrect header line in {reffile}: {header_line}"
         for line in inf:
             x = line.rstrip().split('\t')
             outf = concfiles[x[1]]
-            assert(x[3] == '1') # Only '1' (current) assignments should be in this file
+            assert x[3] == '1'  # Only '1' (current) assignments should be in this file
                                 # (see https://chembl.gitbook.io/unichem/definitions/what-is-an-assignment).
             outf.write(f'{unichem_data_sources[x[1]]}:{x[2]}\toio:equivalent\t{inchikeys[x[0]]}\n')
     for outf in concfiles.values():
@@ -244,7 +244,7 @@ def read_inchikeys(struct_file):
     inchikeys = {}
     with gzip.open(struct_file, 'rt') as inf:
         header_line = inf.readline()
-        assert(header_line == "UCI\tSTANDARDINCHI\tSTANDARDINCHIKEY\n", f"Unexpected header line in {struct_file}: {header_line}")
+        assert header_line == "UCI\tSTANDARDINCHI\tSTANDARDINCHIKEY\n", f"Unexpected header line in {struct_file}: {header_line}"
         for sline in inf:
             line = sline.rstrip().split('\t')
             if len(line) == 0:
