@@ -225,11 +225,18 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
                 ic = ic_factory.get_ic(node)
                 if ic is not None:
                     nw['ic'] = ic
-                nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
 
                 descs = description_factory.get_descriptions(node)
-                if descs:
-                    nw['descriptions'] = descs
+                nw['identifiers'] = []
+                for nids in node['identifiers']:
+                    print(f"FOUND NIDS: {nids}")
+                    id_info = {}
+                    id_info['i'] = nids['identifier']
+                    id_info['l'] = nids['label']
+                    if id_info['i'] in descs:
+                        # Sort from the shortest description to the longest.
+                        id_info['d'] = sorted(list(descs[id_info['i']]), key=lambda x: len(x))
+                    nw['identifiers'].append(id_info)
 
                 outf.write( nw )
                 synonyms = synonym_factory.get_synonyms(node)
