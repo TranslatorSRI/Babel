@@ -178,7 +178,7 @@ def pull_umls(mrconso):
     priority = read_umls_priority()
     snomed_label_name = make_local_name('labels', subpath='SNOMEDCT')
     snomed_syn_name = make_local_name('synonyms', subpath='SNOMEDCT')
-    with open(mrcon, 'r') as inf, open(snomed_label_name,'w') as snolabels, open(snomed_syn_name,'w') as snosyns:
+    with open(mrconso, 'r') as inf, open(snomed_label_name,'w') as snolabels, open(snomed_syn_name,'w') as snosyns:
         for line in inf:
             if not check_mrconso_line(line):
                 continue
