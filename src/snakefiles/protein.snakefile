@@ -69,11 +69,12 @@ rule protein_compendia:
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['protein_synonyms']),
         concords=expand("{dd}/protein/concords/{ap}",dd=config['intermediate_directory'],ap=config['protein_concords']),
         idlists=expand("{dd}/protein/ids/{ap}",dd=config['intermediate_directory'],ap=config['protein_ids']),
+        icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs'])
     run:
-        protein.build_protein_compendia(input.concords,input.idlists)
+        protein.build_protein_compendia(input.concords,input.idlists, input.icrdf_filename)
 
 rule check_protein_completeness:
     input:
