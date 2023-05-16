@@ -167,9 +167,9 @@ def download_umls(umls_version, download_dir):
 
     # Move files we use to the main download directory.
     # - MRCONSO.RRF
-    shutil.copy2(os.path.join(download_dir, umls_version, 'MRCONSO.RRF'), download_dir)
+    shutil.copy2(os.path.join(download_dir, umls_version, 'META', 'MRCONSO.RRF'), download_dir)
     # - MRSTY.RRF
-    shutil.copy2(os.path.join(download_dir, umls_version, 'MRSTY.RRF'), download_dir)
+    shutil.copy2(os.path.join(download_dir, umls_version, 'META', 'MRSTY.RRF'), download_dir)
 
 
 def pull_umls(mrconso):
