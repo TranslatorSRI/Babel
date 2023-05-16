@@ -19,7 +19,7 @@ rule macromolecular_complex_compendia:
         config['output_directory']+'/compendia/MacromolecularComplex.txt',
         config['output_directory']+'/synonyms/MacromolecularComplex.txt'
     run:
-        macromolecular_complex.build_compendia([input.idlists], icrdf_filename=icrdf_filename)
+        macromolecular_complex.build_compendia([input.idlists], icrdf_filename=input.icrdf_filename)
 
 rule check_macromolecular_complex_completeness:
     input:
