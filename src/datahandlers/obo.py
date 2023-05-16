@@ -6,13 +6,12 @@ from json import loads,dumps
 
 from src.util import Text
 
-def pull_uber_icRDF():
+def pull_uber_icRDF(icrdf_filename):
     """
     Download the icRDF.tsv file that contains normalizedInformationContent for all the entities in UberGraph.
     """
     uber = UberGraph()
-    config = get_config()
-    _ = uber.write_normalized_information_content(os.path.join(config['download_directory'], 'icRDF.tsv'))
+    _ = uber.write_normalized_information_content(icrdf_filename)
 
 def pull_uber_labels(expected):
     uber = UberGraph()
@@ -46,8 +45,8 @@ def pull_uber_synonyms(expected):
                 for unit in ldict[p]:
                     outf.write(f'{unit[0]}\t{unit[1]}\t{unit[2]}\n')
 
-def pull_uber(expected_ontologies):
-    pull_uber_icRDF()
+def pull_uber(expected_ontologies, icrdf_filename):
+    pull_uber_icRDF(icrdf_filename)
     pull_uber_labels(expected_ontologies)
     pull_uber_synonyms(expected_ontologies)
 
