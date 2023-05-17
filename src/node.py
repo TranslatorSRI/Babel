@@ -54,13 +54,15 @@ class DescriptionFactory:
         print(f'Loading descriptions for {prefix}')
         descs = defaultdict(set)
         descfname = os.path.join(self.root_dir, prefix, 'descriptions')
+        desc_count = 0
         if os.path.exists(descfname):
             with open(descfname, 'r') as inf:
                 for line in inf:
                     x = line.strip().split('\t')
                     descs[x[0]].add("\t".join(x[1:]))
+                    desc_count += 1
         self.descriptions[prefix] = descs
-        print(f'Loaded')
+        print(f'Loaded {desc_count} descriptions for {prefix}')
 
     def get_descriptions(self,node):
         node_descriptions = defaultdict(set)
