@@ -161,5 +161,5 @@ def build_protein_compendia(concordances, identifiers, icrdf_filename):
     # only then generate the compendium from those input files.
 
     baretype = PROTEIN.split(':')[-1]
-    write_compendium(gene_sets, f'{baretype}.txt', PROTEIN, {}, icrdf_filename)
+    write_compendium(gene_sets, f'{baretype}.txt', PROTEIN, {}, icrdf_filename=icrdf_filename)
 
