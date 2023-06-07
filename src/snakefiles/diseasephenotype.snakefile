@@ -157,6 +157,7 @@ rule check_phenotypic_feature:
 rule disease:
     input:
         config['output_directory']+'/reports/disease_completeness.txt',
+        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['disease_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['disease_outputs'])
     output:
         x=config['output_directory']+'/reports/disease_done'

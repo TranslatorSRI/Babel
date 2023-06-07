@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/TranslatorIIPrototypes/Babel.svg?branch=master)](https://travis-ci.com/TranslatorIIPrototypes/Babel)
-
 # Babel
 
 ## Introduction
@@ -23,6 +21,8 @@ more advanced probabilistic procedures, so caution should be taken in building
 strong dependencies against the Babel code.
 
 ## Configuration
+
+Babel requires Python 3.11 or later.
 
 Before running, edit `config.json` and set the `babel_downloads` and `babel_output` directories.  Do not edit the
 remaining items, which are used to control the build process.
@@ -102,11 +102,25 @@ compendia.  The compendia are further assessed to locate large cliques and displ
 
 ## Building with Docker
 
+You can build this repository by running the following Docker command:
+
+```
+$ docker build .
+```
+
+It is also set up with a GitHub Action that will automatically generate and publish
+Docker images to https://github.com/TranslatorSRI/Babel/pkgs/container/babel.
+
+**Known issue**: if you want to use `git fetch` from this Docker image, you need
+to manually remote the Basic authentication command from `.git/config` before it
+will work. We're tracking this at https://github.com/TranslatorSRI/Babel/issues/119.
+
+## Running with Docker
+
 You can also run Babel with [Docker](https://www.docker.com/). There are
 two directories you need to bind or mount from outside the container:
 
 ```
-$ docker build -t ggvaidya/babel .
 $ docker run -it --rm --mount type=bind,source=...,target=/home/runner/babel/input_data/private --mount type=bind,source=...,target=/home/runner/babel/babel_downloads --entrypoint /bin/bash ggvaidya/babel
 ```
 
@@ -114,8 +128,6 @@ These two directories should be set up as following:
 * `babel/input_data/private` is used to store some input files
   that you will need to download yourself:
     * `MRCONSO.RRF` and `MRSTY.RRF`: parts of the UMLS release, need to be downloaded from [the UMLS download website](https://www.nlm.nih.gov/research/umls/licensedcontent/umlsknowledgesources.html).
-    * `UNII/UNIIs.zip` and `UNII/UNII_Data.zip`: needs to be downloaded from [the FDA UNII download website](https://precision.fda.gov/uniisearch/archive).
-    * These can be copied into the Docker image using the bash script `scripts/copy-babel-private.sh`.
 * `babel/babel_downloads` is used to store data files downloaded during Babel assembly.
 
 The script `scripts/build-babel.sh` can be used to run `snakemake` with a few useful settings (although just running

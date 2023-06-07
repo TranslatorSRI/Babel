@@ -122,6 +122,7 @@ rule check_gene:
 rule gene:
     input:
         config['output_directory']+'/reports/gene_completeness.txt',
+        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['gene_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['gene_outputs'])
     output:
         x=config['output_directory']+'/reports/gene_done'
