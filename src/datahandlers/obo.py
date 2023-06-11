@@ -22,6 +22,22 @@ def pull_uber_labels(expected):
                 for unit in ldict[p]:
                     outf.write(f'{unit[0]}\t{unit[1]}\n')
 
+def pull_uber_descriptions(expected):
+    uber = UberGraph()
+    labels = uber.get_all_descriptions()
+    ldict = defaultdict(set)
+    for unit in labels:
+        iri = unit['iri']
+        p = iri.split(':')[0]
+        ldict[p].add( ( unit['iri'], unit['description'] ) )
+    for p in ldict:
+        if p not in ['http','ro'] and not p.startswith('t') and not '#' in p:
+            fname = make_local_name('descriptions',subpath=p)
+            with open(fname,'w') as outf:
+                for unit in ldict[p]:
+                    outf.write(f'{unit[0]}\t{unit[1]}\n')
+
+
 def pull_uber_synonyms(expected):
     uber = UberGraph()
     labels = uber.get_all_synonyms()
@@ -41,6 +57,7 @@ def pull_uber_synonyms(expected):
 
 def pull_uber(expected_ontologies):
     pull_uber_labels(expected_ontologies)
+    pull_uber_descriptions(expected_ontologies)
     pull_uber_synonyms(expected_ontologies)
 
 
