@@ -269,8 +269,6 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                         # Sort from the shortest description to the longest.
                         id_info['d'] = sorted(list(descs[id_info['i']]), key=lambda x: len(x))
                     nw['identifiers'].append(id_info)
-                if len(descs) > 0:
-                    nw['descriptions'] = descs
 
                 outf.write( nw )
 
