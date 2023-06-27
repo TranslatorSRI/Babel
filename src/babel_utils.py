@@ -260,7 +260,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 descs = description_factory.get_descriptions(node)
                 nw['identifiers'] = []
                 for nids in node['identifiers']:
-                    print(f"FOUND NIDS: {nids}")
+                    # print(f"FOUND NIDS: {nids}")
                     id_info = {}
                     id_info['i'] = nids['identifier']
                     if 'label' in nids:
