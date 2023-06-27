@@ -224,9 +224,6 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     node_factory = NodeFactory(make_local_name(''),biolink_version)
     synonym_factory = SynonymFactory(make_local_name(''))
     description_factory = DescriptionFactory(make_local_name(''))
-    ic_factory = InformationContentFactory(f'{get_config()["input_directory"]}/icRDF.tsv')
-    ic_factory = InformationContentFactory(f'{get_config()["download_directory"]}/icRDF.tsv')
-    description_factory = DescriptionFactory(make_local_name(''))
 
     # Create an InformationContentFactory based on the specified icRDF.tsv file. Default to the one in the download
     # directory.
