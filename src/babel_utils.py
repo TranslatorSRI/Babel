@@ -263,7 +263,8 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     print(f"FOUND NIDS: {nids}")
                     id_info = {}
                     id_info['i'] = nids['identifier']
-                    id_info['l'] = nids['label']
+                    if 'label' in nids:
+                        id_info['l'] = nids['label']
                     if id_info['i'] in descs:
                         # Sort from the shortest description to the longest.
                         id_info['d'] = sorted(list(descs[id_info['i']]), key=lambda x: len(x))
