@@ -208,14 +208,28 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
         count_synonym_objs = 0
         with jsonlines.open(umls_synonyms, 'w') as umls_synonymsf:
             for id in synonyms_by_id:
+                synonyms_list = list(sorted(list(synonyms_by_id[id]), key=lambda syn:len(syn)))
+
                 document = {
                     "curie": id,
-                    "names": list(sorted(list(synonyms_by_id[id]), key=lambda syn:len(syn))),
+                    "names": synonyms_list,
                     "types": [ t[8:] for t in node_factory.get_ancestors(umls_type_by_id[id])]
                 }
 
                 if id in preferred_name_by_id:
                     document["preferred_name"] = preferred_name_by_id[id]
+
+                # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
+                # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
+                # more interesting one for users. I'm not sure if there's a better way to do that -- for instance,
+                # could we consider the information content values? -- but in the interests of getting something
+                # working quickly, this code restores that previous method.
+
+                # Since synonyms_list is sorted,
+                if len(synonyms_list) == 0:
+                    logging.warning(f"Synonym list for UMLS entry {id} is empty: no valid name.")
+                else:
+                    document["shortest_name_length"] = len(synonyms_list[0])
 
                 umls_synonymsf.write(document)
                 count_synonym_objs += 1
