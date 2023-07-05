@@ -22,8 +22,6 @@ strong dependencies against the Babel code.
 
 ## Configuration
 
-Babel requires Python 3.11 or later.
-
 Before running, edit `config.json` and set the `babel_downloads` and `babel_output` directories.  Do not edit the
 remaining items, which are used to control the build process.
 
