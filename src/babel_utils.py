@@ -259,15 +259,21 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
 
                 # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
                 # But we're only interested in the synonyms themselves, so we can skip the relationship for now.
+                curie = node["identifiers"][0]["identifier"]
                 synonyms = [result[1] for result in synonym_factory.get_synonyms(node)]
                 synonyms_list = sorted(synonyms,key=lambda x:len(x))
                 try:
-                    document = {"curie": node["identifiers"][0]["identifier"],
+                    document = {"curie": curie,
                                 "names": synonyms_list,
                                 "types": [ t[8:] for t in node_factory.get_ancestors(node["type"])]} #remove biolink:
 
                     if "label" in node["identifiers"][0]:
                         document["preferred_name"] = node["identifiers"][0]["label"]
+
+                    # Warn about very short names.
+                    short_names = list(filter(lambda s: len(s) <= config['warn_on_short_names'], synonyms_list))
+                    if len(short_names) > 0:
+                        logging.warning(f"CURIE {curie} has very short names: {short_names}")
 
                     # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
                     # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
