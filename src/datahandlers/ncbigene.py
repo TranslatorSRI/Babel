@@ -56,4 +56,6 @@ def pull_ncbigene_labels_and_synonyms():
             others = set(row[header.index("Other_designations")].split('|'))
             syns.update(others)
             for syn in syns:
+                if syn == '-':
+                    raise RuntimeError(f"Synonym '-' should not be present in NCBIGene output!")
                 synfile.write(f'{gene_id}\thttp://www.geneontology.org/formats/oboInOwl#hasSynonym\t{syn}\n')
