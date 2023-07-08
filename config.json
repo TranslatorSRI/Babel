@@ -42,7 +42,7 @@
   "chemical_synonyms": ["GTOPDB","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","UMLS"],
   "chemical_concords": ["wikipedia_mesh_chebi","PUBCHEM_MESH","mesh_cas","mesh_unii","PUBCHEM_CAS","GTOPDB","CHEBI","UMLS","DrugCentral","RXNORM"],
   "chemical_ids": ["CHEMBL.COMPOUND","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral","DRUGBANK","MESH","UMLS","RXNORM"],
-  "chemical_outputs": ["MolecularMixture.txt", "SmallMolecule.txt", "Polypeptide.txt", "ComplexMolecularMixture.txt",  "ChemicalEntity.txt", "ChemicalMixture.txt"],
+  "chemical_outputs": ["MolecularMixture.txt", "SmallMolecule.txt", "Polypeptide.txt", "ComplexMolecularMixture.txt",  "ChemicalEntity.txt", "ChemicalMixture.txt", "Drug.txt"],
 
   "taxon_labels": ["NCBITaxon","MESH","UMLS"],
   "taxon_synonyms": ["NCBITaxon","UMLS"],
