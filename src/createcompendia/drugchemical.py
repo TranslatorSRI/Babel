@@ -1,9 +1,7 @@
 from src.prefixes import RXCUI
 from src.babel_utils import glom
 from collections import defaultdict
-import os
-
-import jsonlines
+import os,json
 
 import logging
 from src.util import LoggingUtil
@@ -146,108 +144,61 @@ def build_rxnorm_relationships(outfile):
                     continue
                 outf.write(f"{RXCUI}:{subject}\t{x[7]}\t{RXCUI}:{object}\n")
 
-def merge(geneproteinlist):
-    """We have a gene and one or more proteins.  We want to create a combined something."""
-    geneprotein = {}
-    #Use the gene's ID.
-    #The gene should be first in the list by construction
-    gene = geneproteinlist[0]
-    geneprotein['id'] = gene['id']
-    geneprotein['equivalent_identifiers'] = gene['equivalent_identifiers']
-    for protein in geneproteinlist[1:]:
-        #there shouldn't be any overlap here, so we can just concatenate
-        geneprotein['equivalent_identifiers'] += protein['equivalent_identifiers']
-    #Now, we need to slightly modify the types. Not sure this is good, but maybe it is?
-    geneprotein['type'] = ['biolink:Gene'] + protein['type']
-    return geneprotein
 
-kl={'NCBIGene':0, 'UniProtKB':1}
-def gpkey(curie):
-    """There are only NCBIGene and UniProtKB.  I want all the NCBI first and UniProt second, and after that, lexically sorted"""
-    pref = curie.split(':')[0]
-    return (kl[pref], curie)
+def load_cliques(compendium):
+    rx_to_clique = {}
+    with open(compendium,"r") as infile:
+        for line in infile:
+            if RXCUI not in line:
+                continue
+            j = json.loads(line)
+            clique = j["identifiers"][0]["i"]
+            for terms in j["identifiers"]:
+               if terms["i"].startswith(RXCUI):
+                   rx_to_clique[terms["i"]] = clique
+    return rx_to_clique
 
-def collect_valid_ids(compendium_file, idset):
-    with jsonlines.open(compendium_file,'r') as inf:
-        for line in inf:
-            ids = [x['i'] for x in line['identifiers']]
-            idset.update(ids)
-
-def build_conflation(geneprotein_concord, gene_compendium, protein_compendium, outfile):
-    """
-    Fortunately our concord is in terms of the two preferred ids.
-    All we should have to do is load that in, glom it up, and write out the groups
-    But, there are some things in the concord that don't exist in at least the gene (maybe in the protein as well)
-    """
-    all_ids = set()
-    collect_valid_ids(gene_compendium,all_ids)
-    collect_valid_ids(protein_compendium,all_ids)
-    conf = {}
-    pairs= []
-    with open(geneprotein_concord, 'r') as inf:
-        for line in inf:
+def build_conflation(rxn_concord,drug_compendium,chemical_compendia,outfilename):
+    """RXN_concord contains relationshps between rxcuis that can be used to conflate
+    Now we don't want all of them.  We want the ones that are between drugs and chemicals,
+    and the ones between drugs and drugs.
+    To determine which those are, we're going to have to dig around in all the compendia.
+    We also want to get all the clique leaders as well.  For those, we only need to worry if there are RXCUIs
+    in the clique."""
+    drug_rxcui_to_clique = load_cliques(drug_compendium)
+    chemical_rxcui_to_clique = {}
+    for chemical_compendium in chemical_compendia:
+        if chemical_compendium == drug_compendium:
+            continue
+        chemical_rxcui_to_clique.update(load_cliques(chemical_compendium))
+    pairs = []
+    with open(rxn_concord,"r") as infile:
+        for line in infile:
             x = line.strip().split('\t')
-            if (x[0] in all_ids) and (x[2] in all_ids):
-                pairs.append( (x[0], x[2]) )
-    glom(conf,pairs)
-    conf_sets = set([frozenset(x) for x in conf.values()])
-    with jsonlines.open(outfile,'w') as outf:
-        for cs in conf_sets:
-            lc = list(cs)
-            lc.sort(key=gpkey)
-            outf.write(lc)
+            subject = x[0]
+            object = x[2]
+            if subject in drug_rxcui_to_clique and object in chemical_rxcui_to_clique:
+                subject = drug_rxcui_to_clique[subject]
+                object = chemical_rxcui_to_clique[object]
+                pairs.append( (subject,object) )
+            elif subject in chemical_rxcui_to_clique and object in drug_rxcui_to_clique:
+                subject = chemical_rxcui_to_clique[subject]
+                object = drug_rxcui_to_clique[object]
+                pairs.append( (subject,object) )
+            else:
+                print(subject,object)
+                if subject in drug_rxcui_to_clique:
+                    print("subject is a drug")
+                if subject in chemical_rxcui_to_clique:
+                    print("subject is a chemical")
+                if object in drug_rxcui_to_clique:
+                    print("object is a drug")
+                if object in chemical_rxcui_to_clique:
+                    print("object is a chemical")
+                exit()
+        gloms = []
+        glom(gloms,pairs)
+        with open(outfilename,"w") as outfile:
+            for clique in gloms:
+                outfile.write(f"{clique}\n")
 
-def build_compendium(gene_compendium, protein_compendium, geneprotein_concord, outfile):
-    """Gene and Protein are both pretty big, and we want this to happen somewhat easily.
-    Fortunately our concord is in terms of the two preferred ids.
-    So first we load in that concord.
-    Then we load in the genes.  If we don't have the gene in our concord, we immediately just dump it to the outfile
-    Then we load in the proteins.  If we don't have the protein in our concord we immediately dump it to the outfile
-    If we do have the protein, then we merge it with the gene version and dump that to the file.
-    So at most, we only have the genes that map to proteins in memory at the same time.
-
-    There is one complication- the gene/protein links are not 1:1.  There are multiple UniProts associated with
-    the same gene.  So we need to read until we have all of the proteins for a gene before we merge/write.
-    """
-    uniprot2ncbi={}
-    ncbi2uniprot = defaultdict(list)
-    with open(geneprotein_concord, 'r') as inf:
-        for line in inf:
-            x = line.strip().split('\t')
-            uniprot2ncbi[x[0]] = x[2]
-            ncbi2uniprot[x[2]].append(x[0])
-    mappable_gene_ids = set(uniprot2ncbi.values())
-    mappable_genes = defaultdict(list)
-    with jsonlines.open(outfile,'w') as outf:
-        with jsonlines.open(gene_compendium,'r') as infile:
-            for gene in infile:
-                best_id = gene['id']['identifier']
-                if best_id not in mappable_gene_ids:
-                    outf.write(gene)
-                else:
-                    mappable_genes[best_id].append( gene )
-        with jsonlines.open(protein_compendium,'r') as infile:
-            for protein in infile:
-                uniprot_id = protein['id']['identifier']
-                if uniprot_id not in uniprot2ncbi:
-                    outf.write(protein)
-                else:
-                    #Found a match!
-                    try:
-                        ncbi_id = uniprot2ncbi[uniprot_id]
-                        mappable_genes[ncbi_id].append(protein)
-                        if len(mappable_genes[ncbi_id]) == len(ncbi2uniprot[ncbi_id]) + 1:
-                            newnode = merge(mappable_genes[ncbi_id])
-                            outf.write(newnode)
-                            #Remove once we've written so we can make sure to clean up at the end
-                            del mappable_genes[ncbi_id]
-                    except:
-                        #What can happen is that there is an NCBI that gets discontinued, but that information hasn't
-                        # made its way into the gene/protein concord. So we might try to look up a gene record
-                        # that no longer exists
-                        outf.write(protein)
-            #It can happen that there is a protein-gene link where the gene doesn't exist in our data.
-            #Then we end up with proteins left over in mappable_genes that need to be written out.
-            for missing_gene in mappable_genes:
-                for protein in mappable_genes[missing_gene]:
-                    outf.write(protein)
