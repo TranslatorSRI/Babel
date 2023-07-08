@@ -1,5 +1,6 @@
 from src.babel_utils import make_local_name, pull_via_ftp
-from src.prefixes import UMLS
+from src.prefixes import UMLS, RXCUI
+from src.categories import DRUG, CHEMICAL_ENTITY
 from collections import defaultdict
 import os
 import re
@@ -36,24 +37,54 @@ def check_mrconso_line(line):
 
     return True
 
-def write_umls_ids(category_map,umls_output,blacklist=set()):
+def write_umls_ids(category_map,umls_output,prefix=UMLS,styfile="MRSTY.RRF",blacklist=set()):
     categories = set(category_map.keys())
-    mrsty = os.path.join('input_data', 'private', 'MRSTY.RRF')
-    umls_keepers = set()
+    mrsty = os.path.join('input_data', 'private', styfile)
     with open(mrsty,'r') as inf, open(umls_output,'w') as outf:
         for line in inf:
             x = line.strip().split('|')
             cat = x[2]
             if cat in categories:
                 if not x[0] in blacklist:
-                    outf.write(f'{UMLS}:{x[0]}\t{category_map[cat]}\n')
+                    outf.write(f'{prefix}:{x[0]}\t{category_map[cat]}\n')
+
+def write_rxnorm_ids(category_map, bad_categories, outfile,prefix=RXCUI,styfile="RXNSTY.RRF",blacklist=set()):
+    rxnsty = os.path.join('input_data', 'private', styfile)
+    with open(rxnsty,'r') as inf, open(outfile,'w') as outf:
+        current_id = None
+        current_types = set()
+        for line in inf:
+            x = line.strip().split('|')
+            if x[0] in blacklist:
+                continue
+            if x[0] != current_id:
+                if current_id is not None:
+                    rxn_conditional_write(prefix,current_id, current_types, outf, category_map, bad_categories)
+                current_id = x[0]
+                current_types = set()
+            current_types.add(x[2])
+        rxn_conditional_write(prefix, current_id, current_types, outf, category_map, bad_categories)
+
+
+def rxn_conditional_write(prefix,current_id, current_types, outf, category_map, bad_categories):
+    type_sort = {DRUG: 1, CHEMICAL_ENTITY: 2}
+    out_types = set()
+    for t in current_types:
+        if t in bad_categories:
+            return
+        if t in category_map:
+            out_types.add(category_map[t])
+    out_types = sorted(list(out_types), key=lambda x: type_sort[x])
+    if len(out_types) > 0:
+        outf.write(f"{prefix}:{current_id}\t{out_types[0]}\n")
 
 
 #I've made this more complicated than it ought to be for 2 reasons:
 # One is to keep from having to pass through the umls file more than once, but that's a bad reason
 # The second is because I want to use the UMLS as a source for some terminologies (SNOMED) even if there's another
 #  way.  I'm going to modify this to do one thing at a time, and if it takes a little longer, then so be it.
-def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdict(set), acceptable_identifiers={}):
+def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdict(set), acceptable_identifiers={},
+               conso = "MRCONSO.RRF", cui_prefix = UMLS):
     """Given a list of umls identifiers we want to generate all the concordances
     between UMLS and that other entity"""
     # On UMLS / MESH: we have been getting all UMLS / MESH relationships.   This has led to some clear mistakes
@@ -68,7 +99,7 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
             umls_ids.add(u)
     lookfor = set(other_prefixes.keys())
     acceptable_mesh_tty = set(["MH","NM","HT","QAB"])
-    mrconso = os.path.join('input_data', 'private', 'MRCONSO.RRF')
+    mrconso = os.path.join('input_data', 'private', conso)
     pairs = set()
     #test_cui = 'C0026827'
     with open(mrconso,'r') as inf, open(umls_output,'w') as concordfile:
@@ -97,7 +128,7 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
             #I don't know why this is in here, but it is not an identifier equivalent to anything
             if other_id == 'NCIT:TCGA':
                 continue
-            tup = (f'{UMLS}:{cui}',other_id)
+            tup = (f'{cui_prefix}:{cui}',other_id)
             #Don't include bad mappings or bad ids
             if tup[1] in bad_mappings[tup[0]]:
                 continue

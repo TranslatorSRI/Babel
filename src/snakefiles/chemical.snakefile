@@ -7,6 +7,12 @@ rule chemical_umls_ids:
     run:
         chemicals.write_umls_ids(output.outfile)
 
+rule chemical_rxnorm_ids:
+    output:
+        outfile=config['intermediate_directory']+"/chemicals/ids/RXNORM"
+    run:
+        chemicals.write_rxnorm_ids(output.outfile)
+
 rule chemical_mesh_ids:
     input:
         infile=config['download_directory']+'/MESH/mesh.nt'
@@ -109,6 +115,14 @@ rule get_chemical_umls_relationships:
         outfile=config['intermediate_directory']+'/chemicals/concords/UMLS',
     run:
         chemicals.build_chemical_umls_relationships(input.infile,output.outfile)
+
+rule get_chemical_rxnorm_relationships:
+    input:
+        infile=config['intermediate_directory']+"/chemicals/ids/RXNORM",
+    output:
+        outfile=config['intermediate_directory']+'/chemicals/concords/RXNORM',
+    run:
+        chemicals.build_chemical_rxnorm_relationships(input.infile,output.outfile)
 
 rule get_chemical_wikipedia_relationships:
     output:

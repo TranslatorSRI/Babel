@@ -7,8 +7,8 @@ import gzip
 from gzip import GzipFile
 
 from src.ubergraph import UberGraph
-from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS
-from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE
+from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
+from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, DRUG
 from src.sdfreader import read_sdf
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
@@ -42,10 +42,35 @@ def write_umls_ids(outfile):
     umlsmap = {a:CHEMICAL_ENTITY for a in groups}
     umls.write_umls_ids(umlsmap, outfile)
 
+def write_rxnorm_ids(outfile):
+    groups = ['A1.4.1.1.1.1', #antibiotic
+              'A1.4.1.1.3.2', # Hormone
+              'A1.4.1.1.3.3',# Enzyme
+              'A1.4.1.1.3.4',# Vitamin
+              'A1.4.1.1.3.5',# Immunologic Factor
+              'A1.4.1.1.4',# Indicator, Reagent, or Diagnostic Aid
+              'A1.4.1.2',# Chemical Viewed Structurally
+              'A1.4.1.2.1',# Organic Chemical
+              'A1.4.1.2.1.5',# Nucleic Acid, Nucleoside, or Nucleotide
+              'A1.4.1.2.2',# Inorganic Chemical
+              'A1.4.1.2.3', # Element, Ion, or Isotope
+              "A1.4", # Substance
+              "A1.3.3",  # Clinical Drug
+              "A1.4.1.1.1", #Pharmacologic Substance
+             ]
+    #Leaving out these ones:
+    filter_types=['A1.4.1.1.3.6', # Receptor
+                  'A1.4.1.2.1.7'] #Amino Acid, Peptide, or Protein
+    umlsmap = {a:CHEMICAL_ENTITY for a in groups}
+    umlsmap ["A1.3.3"] = DRUG
+    umlsmap ["A1.4.1.1.1"] = DRUG
+    umls.write_rxnorm_ids(umlsmap, filter_types, outfile, prefix=RXCUI, styfile="RXNSTY.RRF")
 
 def build_chemical_umls_relationships(idfile,outfile):
     umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK})
 
+def build_chemical_rxnorm_relationships(idfile,outfile):
+    umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, conso="RXNCONSO.RRF", cui_prefix=RXCUI)
 
 def write_pubchem_ids(labelfile,smilesfile,outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
