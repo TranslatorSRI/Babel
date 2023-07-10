@@ -14,6 +14,23 @@ def make_labels_and_synonyms(infile,labelfile,synfile):
         for line in l:
             sline = line.decode('utf-8').strip().split('|')
             parts = [x.strip() for x in sline]
+
+            name_class = parts[3]
+            # name_class can be one of the following values (counts from May 1 release of NCBITaxon,
+            # possibly -- from https://github.com/TranslatorSRI/NameResolution/issues/71#issuecomment-1618909473):
+            #      25 	genbank acronym
+            #     230 	blast name
+            #     667 	in-part
+            #    2086 	acronym
+            #   14641 	common name
+            #   30328 	genbank common name
+            #   56575 	equivalent name
+            #   75081 	includes
+            #  220185 	type material
+            #  245827 	synonym
+            #  670412 	authority
+            # 2503930 	scientific name
+
             if 'scientific name' == parts[3]:
                 outf.write(f'NCBITaxon:{parts[0]}\t{parts[1]}\n')
             elif 'synonym' == parts[3]:

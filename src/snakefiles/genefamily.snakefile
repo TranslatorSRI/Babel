@@ -23,11 +23,12 @@ rule genefamily_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['genefamily_labels']),
         idlists=expand("{dd}/genefamily/ids/{ap}",dd=config['intermediate_directory'],ap=config['genefamily_ids']),
+        icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['genefamily_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['genefamily_outputs'])
     run:
-        genefamily.build_compendia(input.idlists)
+        genefamily.build_compendia(input.idlists, input.icrdf_filename)
 
 rule check_genefamily_completeness:
     input:

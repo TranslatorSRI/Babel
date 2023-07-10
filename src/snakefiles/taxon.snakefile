@@ -19,18 +19,21 @@ rule taxon_mesh_ids:
         taxon.write_mesh_ids(output.outfile)
 
 rule taxon_umls_ids:
+    input:
+        mrsty=config['download_directory'] + "/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/taxon/ids/UMLS"
     run:
-        taxon.write_umls_ids(output.outfile)
+        taxon.write_umls_ids(input.mrsty, output.outfile)
 
 rule get_taxon_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+"/taxon/ids/UMLS"
     output:
         outfile=config['intermediate_directory']+'/taxon/concords/UMLS',
     run:
-        taxon.build_taxon_umls_relationships(input.infile,output.outfile)
+        taxon.build_taxon_umls_relationships(input.mrconso, input.infile, output.outfile)
 
 rule get_taxon_relationships:
     input:
@@ -47,11 +50,12 @@ rule taxon_compendia:
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['taxon_synonyms']),
         concords=expand("{dd}/taxon/concords/{ap}",dd=config['intermediate_directory'],ap=config['taxon_concords']),
         idlists=expand("{dd}/taxon/ids/{ap}",dd=config['intermediate_directory'],ap=config['taxon_ids']),
+        icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['taxon_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs'])
     run:
-        taxon.build_compendia(input.concords,input.idlists)
+        taxon.build_compendia(input.concords,input.idlists, input.icrdf_filename)
 
 rule check_taxon_completeness:
     input:

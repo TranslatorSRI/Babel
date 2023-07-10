@@ -43,7 +43,7 @@ def build_process_rhea_relationships(outfile):
     rhea.make_concord(outfile)
 
 
-def build_compendia(concordances, identifiers):
+def build_compendia(concordances, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     #These are concords that cause problems and are being special cased out.  In disease/process we put these in some
@@ -77,7 +77,7 @@ def build_compendia(concordances, identifiers):
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]),types)
     for biotype,sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
-        write_compendium(sets,f'{baretype}.txt',biotype,{})
+        write_compendium(sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
 
 def create_typed_sets(eqsets,types):
     """Given a set of sets of equivalent identifiers, we want to type each one into

@@ -36,11 +36,12 @@ rule anatomy_mesh_ids:
         anatomy.write_mesh_ids(output.outfile)
 
 rule anatomy_umls_ids:
-    #The location of the RRFs is known to the guts, but should probably come out here.
+    input:
+        mrsty=config['download_directory'] + "/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/anatomy/ids/UMLS"
     run:
-        anatomy.write_umls_ids(output.outfile)
+        anatomy.write_umls_ids(input.mrsty, output.outfile)
 
 rule get_anatomy_obo_relationships:
     output:
@@ -52,11 +53,12 @@ rule get_anatomy_obo_relationships:
 
 rule get_anatomy_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+"/anatomy/ids/UMLS"
     output:
         outfile=config['intermediate_directory']+'/anatomy/concords/UMLS',
     run:
-        anatomy.build_anatomy_umls_relationships(input.infile,output.outfile)
+        anatomy.build_anatomy_umls_relationships(input.mrconso, input.infile, output.outfile)
 
 rule anatomy_compendia:
     input:
@@ -64,11 +66,12 @@ rule anatomy_compendia:
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['anatomy_prefixes']),
         concords=expand("{dd}/anatomy/concords/{ap}",dd=config['intermediate_directory'],ap=config['anatomy_concords']),
         idlists=expand("{dd}/anatomy/ids/{ap}",dd=config['intermediate_directory'],ap=config['anatomy_ids']),
+        icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs'])
     run:
-        anatomy.build_compendia(input.concords,input.idlists)
+        anatomy.build_compendia(input.concords, input.idlists, input.icrdf_filename)
 
 rule check_anatomy_completeness:
     input:

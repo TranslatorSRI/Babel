@@ -72,11 +72,12 @@ rule process_compendia:
         #synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['process_labelsandsynonyms']),
         concords=expand("{dd}/process/concords/{ap}",dd=config['intermediate_directory'],ap=config['process_concords']),
         idlists=expand("{dd}/process/ids/{ap}",dd=config['intermediate_directory'],ap=config['process_ids']),
+        icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['process_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs'])
     run:
-        pap.build_compendia(input.concords,input.idlists)
+        pap.build_compendia(input.concords,input.idlists,input.icrdf_filename)
 
 rule check_process_completeness:
     input:

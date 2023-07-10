@@ -43,10 +43,13 @@ rule gene_hgnc_ids:
         gene.write_hgnc_ids(input.infile,output.outfile)
 
 rule gene_umls_ids:
+    input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
+        mrsty=config['download_directory']+"/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/gene/ids/UMLS"
     run:
-        gene.write_umls_ids(output.outfile)
+        gene.write_umls_ids(input.mrconso, input.mrsty, output.outfile)
 
 rule get_gene_ncbigene_ensembl_relationships:
     input:
@@ -85,11 +88,12 @@ rule get_gene_medgen_relationships:
 
 rule get_gene_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+'/gene/ids/UMLS'
     output:
         outfile=config['intermediate_directory']+'/gene/concords/UMLS'
     run:
-        gene.build_gene_umls_hgnc_relationships(input.infile, output.outfile)
+        gene.build_gene_umls_hgnc_relationships(input.mrconso, input.infile, output.outfile)
 
 rule gene_compendia:
     input:
@@ -97,11 +101,12 @@ rule gene_compendia:
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['gene_labels']),
         concords=expand("{dd}/gene/concords/{ap}",dd=config['intermediate_directory'],ap=config['gene_concords']),
         idlists=expand("{dd}/gene/ids/{ap}",dd=config['intermediate_directory'],ap=config['gene_ids']),
+        icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['gene_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['gene_outputs'])
     run:
-        gene.build_gene_compendia(input.concords,input.idlists)
+        gene.build_gene_compendia(input.concords,input.idlists, input.icrdf_filename)
 
 rule check_gene_completeness:
     input:

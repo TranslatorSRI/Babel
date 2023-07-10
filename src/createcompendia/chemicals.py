@@ -23,7 +23,7 @@ def get_type_from_smiles(smiles):
     else:
         return SMALL_MOLECULE
 
-def write_umls_ids(outfile):
+def write_umls_ids(mrsty, outfile):
     groups = ['A1.4.1.1.1.1', #antibiotic
               'A1.4.1.1.3.2', # Hormone
               'A1.4.1.1.3.3',# Enzyme
@@ -40,11 +40,11 @@ def write_umls_ids(outfile):
     #'A1.4.1.1.3.6',# Receptor
     #'A1.4.1.2.1.7 Amino Acid, Peptide, or Protein
     umlsmap = {a:CHEMICAL_ENTITY for a in groups}
-    umls.write_umls_ids(umlsmap, outfile)
+    umls.write_umls_ids(mrsty, umlsmap, outfile)
 
 
-def build_chemical_umls_relationships(idfile,outfile):
-    umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK})
+def build_chemical_umls_relationships(mrconso, idfile, outfile):
+    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK})
 
 
 def write_pubchem_ids(labelfile,smilesfile,outfile):
@@ -511,7 +511,7 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
         for s in untyped_sets:
             outf.write(f'{set(s)}\n')
 
-def build_compendia(type_file,untyped_compendia_file):
+def build_compendia(type_file, untyped_compendia_file, icrdf_filename):
     types = {}
     with open(type_file,'r') as inf:
         for line in inf:
@@ -525,7 +525,7 @@ def build_compendia(type_file,untyped_compendia_file):
     typed_sets = create_typed_sets(untyped_sets, types)
     for biotype, sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
-        write_compendium(sets, f'{baretype}.txt', biotype, {})
+        write_compendium(sets, f'{baretype}.txt', biotype, {}, icrdf_filename=icrdf_filename)
 
 def create_typed_sets(eqsets, types):
     """

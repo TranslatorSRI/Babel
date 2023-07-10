@@ -46,10 +46,10 @@ def write_ensembl_ids(ensembl_dir, outfile):
                             wrote.add(gid)
                             outf.write(f'{gid}\n')
 
-def write_umls_ids(outfile):
+def write_umls_ids(mrsty, outfile):
     umlsmap = {}
     umlsmap['A1.4.1.2.1.7'] = PROTEIN
-    umls.write_umls_ids(umlsmap, outfile)
+    umls.write_umls_ids(mrsty, umlsmap, outfile)
 
 def write_pr_ids(outfile):
     protein_id   = f'{PR}:000000001'
@@ -130,10 +130,10 @@ def build_ncit_uniprot_relationships(infile,outfile):
             uniprot_id = f'{UNIPROTKB}:{x[1]}'
             outf.write(f'{ncit_id}\teq\t{uniprot_id}\n')
 
-def build_umls_ncit_relationships(idfile,outfile):
-    umls.build_sets(idfile, outfile, {'NCI': NCIT})
+def build_umls_ncit_relationships(mrconso, idfile, outfile):
+    umls.build_sets(mrconso, idfile, outfile, {'NCI': NCIT})
 
-def build_protein_compendia(concordances, identifiers):
+def build_protein_compendia(concordances, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
@@ -168,5 +168,5 @@ def build_protein_compendia(concordances, identifiers):
     # only then generate the compendium from those input files.
 
     baretype = PROTEIN.split(':')[-1]
-    write_compendium(gene_sets, f'{baretype}.txt', PROTEIN, {})
+    write_compendium(gene_sets, f'{baretype}.txt', PROTEIN, {}, icrdf_filename=icrdf_filename)
 
