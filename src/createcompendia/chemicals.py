@@ -67,7 +67,7 @@ def write_rxnorm_ids(outfile):
     umls.write_rxnorm_ids(umlsmap, filter_types, outfile, prefix=RXCUI, styfile="RXNSTY.RRF")
 
 def build_chemical_umls_relationships(idfile,outfile):
-    umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK})
+    umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK, 'RXNORM': RXCUI })
 
 def build_chemical_rxnorm_relationships(idfile,outfile):
     umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, conso="RXNCONSO.RRF", cui_prefix=RXCUI)
@@ -550,7 +550,7 @@ def build_compendia(type_file,untyped_compendia_file):
     typed_sets = create_typed_sets(untyped_sets, types)
     for biotype, sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
-        write_compendium(sets, f'{baretype}.txt', biotype, {})
+        write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[RXCUI])
 
 def create_typed_sets(eqsets, types):
     """

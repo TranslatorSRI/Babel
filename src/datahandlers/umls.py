@@ -49,21 +49,29 @@ def write_umls_ids(category_map,umls_output,prefix=UMLS,styfile="MRSTY.RRF",blac
                     outf.write(f'{prefix}:{x[0]}\t{category_map[cat]}\n')
 
 def write_rxnorm_ids(category_map, bad_categories, outfile,prefix=RXCUI,styfile="RXNSTY.RRF",blacklist=set()):
+    """It's surprising, but not everything in here has an RXCUI.
+    Just because there's a row and it has an id in the first column, it doesn't mean pretty much anything.
+    It's only ones that have an RXNORM in their row somewhere that count.   They are the ones that show up
+    in MRCONSO.RRF.  It's not yet clear if there are relations that go through them though."""
     rxnsty = os.path.join('input_data', 'private', styfile)
     with open(rxnsty,'r') as inf, open(outfile,'w') as outf:
         current_id = None
         current_types = set()
+        is_rxnorm = False
         for line in inf:
             x = line.strip().split('|')
+            if x[11] == 'RXNORM':
+                is_rxnorm = True
             if x[0] in blacklist:
                 continue
             if x[0] != current_id:
-                if current_id is not None:
+                if current_id is not None and is_rxnorm:
                     rxn_conditional_write(prefix,current_id, current_types, outf, category_map, bad_categories)
                 current_id = x[0]
                 current_types = set()
             current_types.add(x[2])
-        rxn_conditional_write(prefix, current_id, current_types, outf, category_map, bad_categories)
+        if is_rxnorm:
+            rxn_conditional_write(prefix, current_id, current_types, outf, category_map, bad_categories)
 
 
 def rxn_conditional_write(prefix,current_id, current_types, outf, category_map, bad_categories):
@@ -92,6 +100,8 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
     # by choosing the best match UMLS for each MESH.  We will make use of the TTY column (column 12) in MRCONSO.
     # This column can have a lot of values, but every MESH has one of (and only one of): MH, NM, HT, QAB.  These
     # will be the ones that we pull, as they correspond to the "main" name or heading of the mesh entry.
+    # Because drugbank IDs are for active ingredients, we only want the UMLS IDs that map to a TTY of IN (ingredient)
+    # Otherwise, you get the same DBID mapping to multiple UMLS IDs in a loose way.
     umls_ids = set()
     with open(umls_input) as inf:
         for line in inf:
@@ -99,6 +109,7 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
             umls_ids.add(u)
     lookfor = set(other_prefixes.keys())
     acceptable_mesh_tty = set(["MH","NM","HT","QAB"])
+    acceptable_drugbank_tty = set(["IN"])
     mrconso = os.path.join('input_data', 'private', conso)
     pairs = set()
     #test_cui = 'C0026827'
