@@ -273,6 +273,15 @@ rule check_chemical_mixture:
         assessments.assess(input.infile, output.outfile)
 
 
+rule check_drug:
+    input:
+        infile=config['output_directory']+'/compendia/Drug.txt'
+    output:
+        outfile=config['output_directory']+'/reports/Drug.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+
 rule chemical:
     input:
         config['output_directory']+'/reports/chemical_completeness.txt',
