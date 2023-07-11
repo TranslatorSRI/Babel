@@ -278,6 +278,11 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     if len(short_names) > 0:
                         logging.warning(f"CURIE {curie} has very short names: {short_names}")
 
+                    # The information content value may be useful in generating synonyms. Let's integrate
+                    # that into the synonym information.
+                    if 'ic' in node:
+                        document["ic"] = node["ic"]
+
                     # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
                     # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
                     # more interesting one for users. I'm not sure if there's a better way to do that -- for instance,
