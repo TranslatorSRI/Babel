@@ -52,26 +52,33 @@ def write_rxnorm_ids(category_map, bad_categories, outfile,prefix=RXCUI,styfile=
     """It's surprising, but not everything in here has an RXCUI.
     Just because there's a row and it has an id in the first column, it doesn't mean pretty much anything.
     It's only ones that have an RXNORM in their row somewhere that count.   They are the ones that show up
-    in MRCONSO.RRF.  It's not yet clear if there are relations that go through them though."""
+    in MRCONSO.RRF.  It's not yet clear if there are relations that go through them though. So first we gotta
+    go through RXNCONSO to find the ones that have an RXNORM, then back through STY to get the categories."""
+    rxnconso = os.path.join('input_data', 'private', "RXNCONSO.RRF")
+    with open(rxnconso,'r') as inf:
+        rxn_ids = set()
+        for line in inf:
+            x = line.strip().split('|')
+            if x[11] == 'RXNORM':
+                rxn_ids.add(x[0])
+
     rxnsty = os.path.join('input_data', 'private', styfile)
     with open(rxnsty,'r') as inf, open(outfile,'w') as outf:
         current_id = None
         current_types = set()
-        is_rxnorm = False
         for line in inf:
             x = line.strip().split('|')
-            if x[11] == 'RXNORM':
-                is_rxnorm = True
+            if x[0] not in rxn_ids:
+                continue
             if x[0] in blacklist:
                 continue
             if x[0] != current_id:
-                if current_id is not None and is_rxnorm:
+                if current_id is not None:
                     rxn_conditional_write(prefix,current_id, current_types, outf, category_map, bad_categories)
                 current_id = x[0]
                 current_types = set()
             current_types.add(x[2])
-        if is_rxnorm:
-            rxn_conditional_write(prefix, current_id, current_types, outf, category_map, bad_categories)
+        rxn_conditional_write(prefix, current_id, current_types, outf, category_map, bad_categories)
 
 
 def rxn_conditional_write(prefix,current_id, current_types, outf, category_map, bad_categories):
