@@ -1,6 +1,6 @@
 from src.babel_utils import make_local_name, pull_via_ftp
 from src.prefixes import UMLS, RXCUI
-from src.categories import DRUG, CHEMICAL_ENTITY
+from src.categories import DRUG, CHEMICAL_ENTITY, MOLECULAR_MIXTURE
 from collections import defaultdict
 import os
 import re
@@ -105,6 +105,8 @@ def write_rxnorm_ids(category_map, bad_categories, outfile,prefix=RXCUI,styfile=
         if has_rxnorm:
             if "IN" in current_ttys or "PIN" in current_ttys:
                 outf.write(f"{prefix}:{current_id}\t{CHEMICAL_ENTITY}\n")
+            elif "MIN" in current_ttys:
+                outf.write(f"{prefix}:{current_id}\t{MOLECULAR_MIXTURE}\n")
             else:
                 outf.write(f"{prefix}:{current_id}\t{DRUG}\n")
 
