@@ -53,45 +53,60 @@ def write_rxnorm_ids(category_map, bad_categories, outfile,prefix=RXCUI,styfile=
     Just because there's a row and it has an id in the first column, it doesn't mean pretty much anything.
     It's only ones that have an RXNORM in their row somewhere that count.   They are the ones that show up
     in MRCONSO.RRF.  It's not yet clear if there are relations that go through them though. So first we gotta
-    go through RXNCONSO to find the ones that have an RXNORM, then back through STY to get the categories."""
-    rxnconso = os.path.join('input_data', 'private', "RXNCONSO.RRF")
-    with open(rxnconso,'r') as inf:
-        rxn_ids = set()
-        for line in inf:
-            x = line.strip().split('|')
-            if x[11] == 'RXNORM':
-                rxn_ids.add(x[0])
+    go through RXNCONSO to find the ones that have an RXNORM, then back through STY to get the categories.
 
-    rxnsty = os.path.join('input_data', 'private', styfile)
-    with open(rxnsty,'r') as inf, open(outfile,'w') as outf:
+    Here is a response from the RXNORM folks about this (slightly reformatted):
+    ---
+    You are correct that some RXCUIs do not appear in the UMLS MRCONSO file.
+    If there isn't a SAB='RXNORM' row in RxNorm for a particular RXCUI, there won't be one in the UMLS MRCONSO file.
+    But you can still link RxNorm to the UMLS Metathesaurus in this case.
+    Join RXNCONSO and MRCONSO on the the SAB fields (12th column in both RXNCONSO and MRCONSO) and CODE fields (14th column in both).
+    So for your example of RXCUI 3, you can link RXNCONSO and MRCONSO on the SNOMEDCT_US code.
+
+    Or you can also look up the RXCUI in the UMLS MRSAT file.
+    For example, if you want to look up RXCUI 3, find rows where ATN (9th column) = 'RXCUI' and ATV (11th column) = '3'.
+
+    Note that the UMLS is only updated twice a year, so new content in RxNorm will not appear in the UMLS until it is updated in May and November.
+
+    Many RXCUIs do not have a SAB='RXNORM' row. There are a few reasons why an RXCUI would not have an associated RxNorm normalized name.
+    Out of scope – Some information provided by source vocabularies is out of scope for RxNorm. While this information is grouped into concepts and given RXCUIs, RxNorm normalized names are not created for this information.
+    Ambiguous – Some information provided by source vocabularies are too vague and for a specific RxNorm normalized name to be assigned.
+    Base atom – A Base atom often lacks an RxNorm normalized name because a Base atom contains NDCs representing several different drug products. For more information about Base atoms, see Section 9: Duplicating Source Asserted Atoms (with NDC conflicts) of the RxNorm Technical Documentation.
+    See our FAQ for more information: https://www.nlm.nih.gov/research/umls/rxnorm/faq.html
+    ---
+    Based on this response, I think that there are probably good reasons to leave out the RXCUIs without an RXNORM row.
+    From what I can tell, RxNav also leaves these out.  So I'll leave them out for the moment.  If we find that we need
+    them later, we can add them back in following the instructions above.
+
+    After gorking around with STY for a while, I've realized that the best way to get the types is from RXNCONSO.
+    If there is an IN or PIN TTY, then it's a ChemicalEntity, otherwise a Drug.
+    """
+    rxnconso = os.path.join('input_data', 'private', "RXNCONSO.RRF")
+    with open(rxnconso,'r') as inf, open(outfile,'w') as outf:
         current_id = None
-        current_types = set()
+        current_ttys = set()
+        has_rxnorm = False
         for line in inf:
             x = line.strip().split('|')
-            if x[0] not in rxn_ids:
-                continue
             if x[0] in blacklist:
                 continue
             if x[0] != current_id:
-                if current_id is not None:
-                    rxn_conditional_write(prefix,current_id, current_types, outf, category_map, bad_categories)
+                if (current_id is not None) and has_rxnorm:
+                    if "IN" in current_ttys or "PIN" in current_ttys:
+                        outf.write(f"{prefix}:{current_id}\t{CHEMICAL_ENTITY}\n")
+                    else:
+                        outf.write(f"{prefix}:{current_id}\t{DRUG}\n")
                 current_id = x[0]
-                current_types = set()
-            current_types.add(x[2])
-        rxn_conditional_write(prefix, current_id, current_types, outf, category_map, bad_categories)
-
-
-def rxn_conditional_write(prefix,current_id, current_types, outf, category_map, bad_categories):
-    type_sort = {DRUG: 1, CHEMICAL_ENTITY: 2}
-    out_types = set()
-    for t in current_types:
-        if t in bad_categories:
-            return
-        if t in category_map:
-            out_types.add(category_map[t])
-    out_types = sorted(list(out_types), key=lambda x: type_sort[x])
-    if len(out_types) > 0:
-        outf.write(f"{prefix}:{current_id}\t{out_types[0]}\n")
+                current_ttys = set()
+                has_rxnorm = False
+            if x[11] == 'RXNORM':
+                has_rxnorm = True
+                current_ttys.add(x[12])
+        if has_rxnorm:
+            if "IN" in current_ttys or "PIN" in current_ttys:
+                outf.write(f"{prefix}:{current_id}\t{CHEMICAL_ENTITY}\n")
+            else:
+                outf.write(f"{prefix}:{current_id}\t{DRUG}\n")
 
 
 #I've made this more complicated than it ought to be for 2 reasons:
