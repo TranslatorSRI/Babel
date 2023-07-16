@@ -550,7 +550,7 @@ def build_compendia(type_file,untyped_compendia_file):
     typed_sets = create_typed_sets(untyped_sets, types)
     for biotype, sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
-        if baretype == DRUG:
+        if biotype == DRUG:
             write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[MESH,UNII])
         else:
             write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[RXCUI])
