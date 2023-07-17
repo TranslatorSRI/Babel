@@ -41,6 +41,7 @@ def write_umls_ids(outfile):
     #'A1.4.1.1.3.6',# Receptor
     #'A1.4.1.2.1.7 Amino Acid, Peptide, or Protein
     umlsmap = {a:CHEMICAL_ENTITY for a in groups}
+    umlsmap["A1.3.3"] = DRUG
     umls.write_umls_ids(umlsmap, outfile)
 
 def write_rxnorm_ids(outfile):
