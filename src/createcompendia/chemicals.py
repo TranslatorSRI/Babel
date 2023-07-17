@@ -34,7 +34,8 @@ def write_umls_ids(outfile):
               'A1.4.1.2.1',# Organic Chemical
               'A1.4.1.2.1.5',# Nucleic Acid, Nucleoside, or Nucleotide
               'A1.4.1.2.2',# Inorganic Chemical
-              'A1.4.1.2.3'# Element, Ion, or Isotope
+              'A1.4.1.2.3',# Element, Ion, or Isotope
+              'A1.3.3' #Clinical Drug
              ]
     #Leaving out these ones:
     #'A1.4.1.1.3.6',# Receptor

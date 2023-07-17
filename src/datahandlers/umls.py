@@ -135,7 +135,7 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
             umls_ids.add(u)
     lookfor = set(other_prefixes.keys())
     acceptable_mesh_tty = set(["MH","NM","HT","QAB"])
-    acceptable_drugbank_tty = set(["IN"])
+    acceptable_drugbank_tty = set(["IN","PIN","MIN"])
     mrconso = os.path.join('input_data', 'private', conso)
     pairs = set()
     #test_cui = 'C0026827'
@@ -155,6 +155,8 @@ def build_sets(umls_input, umls_output , other_prefixes, bad_mappings=defaultdic
                 continue
             tty = x[12]
             if (source == 'MSH') and (tty not in acceptable_mesh_tty):
+                continue
+            if (source == 'DRUGBANK') and (tty not in acceptable_drugbank_tty):
                 continue
             #For some dippy reason, in the id column they say "HGNC:76"
             pref = other_prefixes[source]
