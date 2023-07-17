@@ -87,6 +87,9 @@ def write_rxnorm_ids(category_map, bad_categories, outfile,prefix=RXCUI,styfile=
         current_ttys = set()
         has_rxnorm = False
         for line in inf:
+            #THis will remove obsolete and non-english lines
+            if not check_mrconso_line(line):
+                continue
             x = line.strip().split('|')
             if x[0] in blacklist:
                 continue
