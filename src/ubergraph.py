@@ -6,6 +6,9 @@ from src.babel_utils import norm
 class UberGraph:
     #Some of these get_subclass_and_whatever things can/should be merged...
 
+    # UberGraph stored descriptions with the RDF property IAO:0000115 ("definition")
+    RDF_DESCRIPTION_PROPERTY = "http://purl.obolibrary.org/obo/IAO_0000115"
+
     # When the query needs to be queried in batches -- such as, for example, get_all_labels() -- this
     # constant controls how large each batch should be.
     QUERY_BATCH_SIZE = 200_000
@@ -63,6 +66,59 @@ class UberGraph:
                 results.append(y)
 
         return results
+
+
+    def get_all_descriptions(self):
+        # Since this is a very large query, we do this in chunks.
+        query_count = """
+                      prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+                      select (count (distinct *) as ?count)
+                      from <http://reasoner.renci.org/ontology>
+                      where {
+                        ?thing rdfs:label ?label .
+                      }
+                      """
+        rr = self.triplestore.query_template(
+            inputs={},
+            outputs=['count'],
+            template_text=query_count
+        )
+        if len(rr) == 0:
+            raise RuntimeError("get_all_descriptions() count failed: no counts returned")
+        if len(rr) > 1:
+            raise RuntimeError("get_all_descriptions() count failed: too many counts returned")
+
+        total_count = int(rr[0]['count'])
+
+        results = []
+        for start in range(0, total_count, UberGraph.QUERY_BATCH_SIZE):
+            # end = start + UberGraph.QUERY_BATCH_SIZE if UberGraph.QUERY_BATCH_SIZE < total_count else UberGraph.QUERY_BATCH_SIZE
+            print(f"Querying get_all_descriptions() offset {start} limit {UberGraph.QUERY_BATCH_SIZE} (total count: {total_count})")
+
+            text = """
+                   prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                   select distinct ?thing ?description
+                   from <http://reasoner.renci.org/ontology>
+                   where {
+                     ?thing <""" + UberGraph.RDF_DESCRIPTION_PROPERTY + """> ?description .
+                   }
+                   order by ?thing ?description
+                   """ + f"offset {start} limit {UberGraph.QUERY_BATCH_SIZE}"
+
+            rr = self.triplestore.query_template(
+                inputs={}, \
+                outputs=['thing', 'description'], \
+                template_text=text \
+                )
+            for x in rr:
+                y = {}
+                y['iri'] = Text.opt_to_curie(x['thing'])
+                y['description'] = x['description']
+                results.append(y)
+
+        return results
+
 
     def get_all_synonyms(self):
         # Since this is a very large query, we do this in chunks.

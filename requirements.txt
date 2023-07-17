@@ -4,7 +4,7 @@ bmt
 datrie
 jsonlines
 pandas
-more-itertools==8.13.0
+more-itertools
 pyoxigraph~=0.2.5
 psycopg2-binary
 pytest

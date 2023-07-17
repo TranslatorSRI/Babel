@@ -118,7 +118,14 @@ def build_protein_uniprotkb_ensemble_relationships(infile,outfile):
 def build_ncit_uniprot_relationships(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
-            x = line.strip().split()
+            # These lines are sometimes empty (I think because the
+            # input file can have DOS line endings). If so, we can
+            # skip those.
+            stripped_line = line.strip()
+            if stripped_line == '':
+                logger.info(f"Skipping empty line in {infile}")
+                continue
+            x = stripped_line.split()
             ncit_id = f'{NCIT}:{x[0]}'
             uniprot_id = f'{UNIPROTKB}:{x[1]}'
             outf.write(f'{ncit_id}\teq\t{uniprot_id}\n')

@@ -22,8 +22,6 @@ strong dependencies against the Babel code.
 
 ## Configuration
 
-Babel requires Python 3.11 or later.
-
 Before running, edit `config.json` and set the `babel_downloads` and `babel_output` directories.  Do not edit the
 remaining items, which are used to control the build process.
 
@@ -129,6 +127,9 @@ These two directories should be set up as following:
   that you will need to download yourself:
     * `MRCONSO.RRF` and `MRSTY.RRF`: parts of the UMLS release, need to be downloaded from [the UMLS download website](https://www.nlm.nih.gov/research/umls/licensedcontent/umlsknowledgesources.html).
 * `babel/babel_downloads` is used to store data files downloaded during Babel assembly.
+
+The script `scripts/build-babel.sh` can be used to run `snakemake` with a few useful settings (although just running
+`snakemake --cores 5` should work just fine.)
 
 ## Deploying with Kubernetes
 

@@ -9,7 +9,7 @@ import requests
 import os
 import urllib
 import jsonlines
-from src.node import NodeFactory, SynonymFactory, InformationContentFactory
+from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory
 from src.util import Text
 from src.LabeledID import LabeledID
 from json import load
@@ -230,6 +230,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
         raise RuntimeError("No icrdf_filename parameter provided to write_compendium() -- this is required!")
     ic_factory = InformationContentFactory(icrdf_filename)
 
+    description_factory = DescriptionFactory(make_local_name(''))
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={},extra_prefixes = extra_prefixes)
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
@@ -239,7 +240,21 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 ic = ic_factory.get_ic(node)
                 if ic is not None:
                     nw['ic'] = ic
-                nw['identifiers'] = [ {k[0]:v for k,v in nids.items()} for nids in node['identifiers']]
+
+                descs = description_factory.get_descriptions(node)
+                nw['identifiers'] = []
+                for nids in node['identifiers']:
+                    id_info = {'i': nids['identifier']}
+
+                    if 'label' in nids:
+                        id_info['l'] = nids['label']
+
+                    if id_info['i'] in descs:
+                        # Sort from the shortest description to the longest.
+                        id_info['d'] = list(sorted(descs[id_info['i']], key=lambda x: len(x)))
+
+                    nw['identifiers'].append(id_info)
+
                 outf.write( nw )
 
                 # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
