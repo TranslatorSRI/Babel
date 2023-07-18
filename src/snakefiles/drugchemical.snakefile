@@ -22,8 +22,8 @@ rule drugchemical_conflation:
 
 rule drugchemical:
     input:
-        config['output_directory']+'/conflation/GeneProtein.txt'
+        config['output_directory']+'/conflation/DrugChemical.txt'
     output:
-        x=config['output_directory']+'/reports/geneprotein_done'
+        x=config['output_directory']+'/reports/drugchemical_done'
     shell:
         "echo 'done' >> {output.x}"
