@@ -14,11 +14,11 @@ rule drugchemical_conflation:
     input:
         drug_compendium=config['output_directory']+'/compendia/'+'Drug.txt',
         chemical_compendia=expand("{do}/compendia/{co}", do=config['output_directory'], co=config['chemical_outputs']),
-        drug_chemical_compendia=config['intermediate_directory']+'/drugchemical/concords/RXNORM'
+        drug_chemical_concord=config['intermediate_directory']+'/drugchemical/concords/RXNORM'
     output:
         outfile=config['output_directory']+'/conflation/DrugChemical.txt'
     run:
-        drugchemical.build_conflation(input.drugchemical_concord,input.drug_compendium,input.chemical_compendia,output.outfile)
+        drugchemical.build_conflation(input.drug_chemical_concord,input.drug_compendium,input.chemical_compendia,output.outfile)
 
 rule drugchemical:
     input:
