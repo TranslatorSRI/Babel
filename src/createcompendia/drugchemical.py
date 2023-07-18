@@ -185,18 +185,15 @@ def build_conflation(rxn_concord,drug_compendium,chemical_compendia,outfilename)
                 subject = chemical_rxcui_to_clique[subject]
                 object = drug_rxcui_to_clique[object]
                 pairs.append( (subject,object) )
-            else:
-                #This can happen if the RXN ID from REL is not a good one, i.e. it doesn't have an RXNORM row in RXNCONSO
-                print(subject,object)
-                if subject in drug_rxcui_to_clique:
-                    print("subject is a drug")
-                if subject in chemical_rxcui_to_clique:
-                    print("subject is a chemical")
-                if object in drug_rxcui_to_clique:
-                    print("object is a drug")
-                if object in chemical_rxcui_to_clique:
-                    print("object is a chemical")
-                #exit()
+            # OK, this is possible, and it's OK, as long as we get real clique leaders
+            elif subject in drug_rxcui_to_clique and object in drug_rxcui_to_clique:
+                subject = drug_rxcui_to_clique[subject]
+                object = drug_rxcui_to_clique[object]
+                pairs.append( (subject,object) )
+            elif subject in chemical_rxcui_to_clique and object in chemical_rxcui_to_clique:
+                subject = chemical_rxcui_to_clique[subject]
+                object = chemical_rxcui_to_clique[object]
+                pairs.append( (subject,object) )
         gloms = []
         glom(gloms,pairs)
         with open(outfilename,"w") as outfile:
