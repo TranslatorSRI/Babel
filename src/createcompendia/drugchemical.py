@@ -194,9 +194,9 @@ def build_conflation(rxn_concord,drug_compendium,chemical_compendia,outfilename)
                 subject = chemical_rxcui_to_clique[subject]
                 object = chemical_rxcui_to_clique[object]
                 pairs.append( (subject,object) )
-        gloms = {}
-        glom(gloms,pairs)
-        with open(outfilename,"w") as outfile:
-            for clique in gloms:
-                outfile.write(f"{clique}\n")
+    gloms = {}
+    glom(gloms,pairs)
+    with open(outfilename,"w") as outfile:
+        for clique in gloms:
+            outfile.write(f"{clique}\n")
 
