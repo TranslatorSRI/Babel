@@ -165,13 +165,16 @@ def build_conflation(rxn_concord,drug_compendium,chemical_compendia,outfilename)
     To determine which those are, we're going to have to dig around in all the compendia.
     We also want to get all the clique leaders as well.  For those, we only need to worry if there are RXCUIs
     in the clique."""
+    print("load drugs")
     drug_rxcui_to_clique = load_cliques(drug_compendium)
     chemical_rxcui_to_clique = {}
     for chemical_compendium in chemical_compendia:
         if chemical_compendium == drug_compendium:
             continue
+        print(f"load {chemical_compendium}")
         chemical_rxcui_to_clique.update(load_cliques(chemical_compendium))
     pairs = []
+    print("load concord")
     with open(rxn_concord,"r") as infile:
         for line in infile:
             x = line.strip().split('\t')
@@ -194,9 +197,13 @@ def build_conflation(rxn_concord,drug_compendium,chemical_compendia,outfilename)
                 subject = chemical_rxcui_to_clique[subject]
                 object = chemical_rxcui_to_clique[object]
                 pairs.append( (subject,object) )
+    print("glom")
     gloms = {}
     glom(gloms,pairs)
+    written = set()
     with open(outfilename,"w") as outfile:
-        for clique in gloms:
-            outfile.write(f"{clique}\n")
+        for clique_member,clique in gloms:
+            if clique in written:
+                continue
+            outfile.write(f"{list(clique)}\n")
 
