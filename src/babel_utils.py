@@ -273,6 +273,7 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     bad = 0
     shit_prefixes=set(['KEGG','PUBCHEM'])
     test_id = 'xUBERON:0002262'
+    debugit = False
     excised = set()
     for xgroup in newgroups:
         if isinstance(xgroup,frozenset):
@@ -285,7 +286,8 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
             print('nope nope nope')
             raise ValueError
         n+=1
-        print("new group",group)
+        if debugit:
+            print("new group",group)
         if test_id in group:
             print('higroup',group)
         #Find all the equivalence sets that already correspond to any of the identifiers in the new set.
@@ -294,7 +296,8 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
         existing_sets = [ es[0] for es in existing_sets_w_x ]
         x =  [ es[1] for es in existing_sets_w_x ]
         newset=set().union(*existing_sets)
-        print("merges:",existing_sets)
+        if debugit:
+            print("merges:",existing_sets)
         #put all the new stuff in it.  Do it element-wise, cause we don't know the type of the new group
         for element in group:
             newset.add(element)
@@ -310,7 +313,8 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
                 print(prefix)
                 print(check_element)
                 raise Exception('garbage')
-        print("final set",newset)
+        if debugit:
+            print("final set",newset)
         #make sure we didn't combine anything we want to keep separate
         setok = True
         if test_id in group:
@@ -338,11 +342,12 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
             #Previously we did a lot of fooling around at this point.  But now we're just going to say, I have a
             # pairwise concordance.  That can at most link two groups.  just don't link them. In other words,
             # we are simply ignoring this concordance.
-            l = sorted(list(newset))
-            print("bad")
-            for li in l:
-                print(li)
-            exit()
+            if debugit:
+                l = sorted(list(newset))
+                print("bad")
+                for li in l:
+                    print(li)
+                exit()
             continue
             #Let's figure out the culprit(s) and excise them
             #counts = defaultdict(int)
