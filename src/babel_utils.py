@@ -271,7 +271,6 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     with which we want to update conc_set."""
     n = 0
     bad = 0
-    unique_prefixes.append("PUBCHEM.COMPOUND")
     shit_prefixes=set(['KEGG','PUBCHEM'])
     test_id = 'xUBERON:0002262'
     excised = set()
@@ -338,7 +337,10 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
             #Previously we did a lot of fooling around at this point.  But now we're just going to say, I have a
             # pairwise concordance.  That can at most link two groups.  just don't link them. In other words,
             # we are simply ignoring this concordance.
-            print("bad set",newset)
+            l = sorted(list(newset))
+            print("bad")
+            for li in l:
+                print(li)
             exit()
             continue
             #Let's figure out the culprit(s) and excise them
