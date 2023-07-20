@@ -332,7 +332,7 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
                 #for preset in wrote:
                 #    print(f'{killer}\t{set(group).intersection(preset)}\t{preset}\n')
                 #print('------------')
-        if (not setok) or (len(newset) > 100):
+        if (not setok) or (len(newset) > 500):
             #Our new group created a new set that merged stuff we didn't want to merge.
             #Previously we did a lot of fooling around at this point.  But now we're just going to say, I have a
             # pairwise concordance.  That can at most link two groups.  just don't link them. In other words,
