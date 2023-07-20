@@ -131,9 +131,19 @@ def build_rxnorm_relationships(outfile):
     """RXNREL is a lousy file.
     The subject and object can sometimes be a CUI and sometimes an AUI and you have to use
     CONSO to figure out how to go back and forth.
-    Some of them are using SDUIs are you joking?"""
+    Some of them are using SDUIs are you joking?
+
+    Another issue: there are things like this:
+    RXCUI:214199	has_active_ingredient	RXCUI:435
+    RXCUI:214199	has_active_ingredient	RXCUI:7213
+    In this case, what we have is a single drug that has two active ingredients.
+    We don't want to glom in this case, because it unifies the two ingredients at the conflation level,
+    which leads to everything is everything.
+    So we're going to need to collect has_active_ingredients as we go and only export ones that are singular
+    """
     aui_to_cui, sdui_to_cui = get_aui_to_cui()
     relfile = os.path.join('input_data', 'private', "RXNREL.RRF")
+    active_ingredients = defaultdict(list)
     with open(relfile, 'r') as inf, open(outfile, 'w') as outf:
         for line in inf:
             x = line.strip().split('|')
@@ -142,7 +152,15 @@ def build_rxnorm_relationships(outfile):
             if subject is not None:
                 if subject == object:
                     continue
-                outf.write(f"{RXCUI}:{subject}\t{x[7]}\t{RXCUI}:{object}\n")
+                predicate = x[7]
+                if predicate == "has_active_ingredient":
+                    active_ingredients[subject].append(object)
+                else:
+                    outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{object}\n")
+        for subject,objects in active_ingredients.items():
+            if len(objects) > 1:
+                continue
+            outf.write(f"{RXCUI}:{subject}\thas_active_ingredient\t{RXCUI}:{objects[0]}\n")
 
 
 def load_cliques(compendium):
