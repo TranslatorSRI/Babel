@@ -82,7 +82,7 @@ useful_relationships = [
 "consists_of",
 "has_dose_form",
 "isa",
-"ingredient_of",
+"has_ingredient",
 "has_active_ingredient"]
 
 def get_aui_to_cui():
@@ -140,10 +140,18 @@ def build_rxnorm_relationships(outfile):
     We don't want to glom in this case, because it unifies the two ingredients at the conflation level,
     which leads to everything is everything.
     So we're going to need to collect has_active_ingredients as we go and only export ones that are singular
+
+    What's more, the same thing happens with has_precise_active_ingredient, and maybe has_ingredient.
+    Also, the same subject and object will have the more general term as well.  so both a has_precise_active_ingredient
+    and a has_ingredient will be between the same set of subject and object.  Also there's consists of, which will hav
+    similar issues. So, we're going to do a lot of catching here
     """
     aui_to_cui, sdui_to_cui = get_aui_to_cui()
     relfile = os.path.join('input_data', 'private', "RXNREL.RRF")
-    active_ingredients = defaultdict(list)
+    single_use_relations = {"has_active_ingredient": defaultdict(list),
+                            "has_precise_active_ingredient": defaultdict(list),
+                            "has_ingredient": defaultdict(list),
+                            "consists_of": defaultdict(list)}
     with open(relfile, 'r') as inf, open(outfile, 'w') as outf:
         for line in inf:
             x = line.strip().split('|')
@@ -153,14 +161,15 @@ def build_rxnorm_relationships(outfile):
                 if subject == object:
                     continue
                 predicate = x[7]
-                if predicate == "has_active_ingredient":
-                    active_ingredients[subject].append(object)
+                if predicate in single_use_relations:
+                    single_use_relations[predicate][subject].append(object)
                 else:
                     outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{object}\n")
-        for subject,objects in active_ingredients.items():
-            if len(objects) > 1:
-                continue
-            outf.write(f"{RXCUI}:{subject}\thas_active_ingredient\t{RXCUI}:{objects[0]}\n")
+        for predicate in single_use_relations:
+            for subject,objects in single_use_relations[predicate].items():
+                if len(objects) > 1:
+                    continue
+                outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{objects[0]}\n")
 
 
 def load_cliques(compendium):
