@@ -108,7 +108,11 @@ def write_rxnorm_ids(category_map, bad_categories, outfile,prefix=RXCUI,styfile=
                 has_rxnorm = True
                 current_ttys.add(x[12])
         if has_rxnorm:
-            if "IN" in current_ttys or "PIN" in current_ttys:
+            if "DF" in current_ttys:
+                #These are dose forms.  Things like "Bottle" and "Tablet". Leads to all sorts of overglomming.
+                # Following is a hard pass.
+                pass
+            elif "IN" in current_ttys or "PIN" in current_ttys:
                 outf.write(f"{prefix}:{current_id}\t{CHEMICAL_ENTITY}\n")
             elif "MIN" in current_ttys:
                 outf.write(f"{prefix}:{current_id}\t{MOLECULAR_MIXTURE}\n")
