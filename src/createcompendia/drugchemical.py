@@ -148,6 +148,7 @@ def build_rxnorm_relationships(outfile):
     relfile = os.path.join('input_data', 'private', "RXNREL.RRF")
     single_use_relations = {"has_active_ingredient": defaultdict(list),
                             "has_precise_active_ingredient": defaultdict(list),
+                            "has_precise_ingredient": defaultdict(list),
                             "has_ingredient": defaultdict(list),
                             "consists_of": defaultdict(list)}
     with open(relfile, 'r') as inf, open(outfile, 'w') as outf:
