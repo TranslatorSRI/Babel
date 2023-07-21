@@ -80,7 +80,6 @@ useful_relationships = [
 "has_precise_ingredient",
 "has_tradename",
 "consists_of",
-"isa",
 "has_ingredient",
 "has_active_ingredient"]
 
