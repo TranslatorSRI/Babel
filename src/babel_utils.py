@@ -337,17 +337,18 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
                 #    print(f'{killer}\t{set(group).intersection(preset)}\t{preset}\n')
                 #print('------------')
         NPC = sum(1 for s in newset if s.startswith("PUBCHEM.COMPOUND:"))
-        if (not setok) or (len(newset) > 500) or (("CHEBI:50114" not in newset) and (NPC > 3)):
-            #Our new group created a new set that merged stuff we didn't want to merge.
-            #Previously we did a lot of fooling around at this point.  But now we're just going to say, I have a
-            # pairwise concordance.  That can at most link two groups.  just don't link them. In other words,
-            # we are simply ignoring this concordance.
+        if (("PUBCHEM.COMPOUND:3100" in newset) and (NPC > 3)):
             if debugit:
                 l = sorted(list(newset))
                 print("bad")
                 for li in l:
                     print(li)
                 exit()
+        if (not setok):
+            #Our new group created a new set that merged stuff we didn't want to merge.
+            #Previously we did a lot of fooling around at this point.  But now we're just going to say, I have a
+            # pairwise concordance.  That can at most link two groups.  just don't link them. In other words,
+            # we are simply ignoring this concordance.
             continue
             #Let's figure out the culprit(s) and excise them
             #counts = defaultdict(int)
