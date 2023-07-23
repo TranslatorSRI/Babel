@@ -150,6 +150,7 @@ def build_rxnorm_relationships(outfile):
                             "has_precise_active_ingredient": defaultdict(list),
                             "has_precise_ingredient": defaultdict(list),
                             "has_ingredient": defaultdict(list),
+                            "has_tradename": defaultdict(list),
                             "consists_of": defaultdict(list)}
     with open(relfile, 'r') as inf, open(outfile, 'w') as outf:
         for line in inf:
