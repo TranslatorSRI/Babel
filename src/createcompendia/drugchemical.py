@@ -246,4 +246,5 @@ def build_conflation(rxn_concord,drug_compendium,chemical_compendia,outfilename)
             if clique in written:
                 continue
             outfile.write(f"{list(clique)}\n")
+            written.add(clique)
 
