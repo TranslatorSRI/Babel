@@ -20,10 +20,12 @@ rule protein_uniprotkb_ids:
         "awk '{{print $1}}' {input.infile} > {output.outfile}"
 
 rule protein_umls_ids:
+    input:
+        mrsty=config['download_directory']+"/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/protein/ids/UMLS"
     run:
-        protein.write_umls_ids(output.outfile)
+        protein.write_umls_ids(input.mrsty, output.outfile)
 
 rule protein_ensembl_ids:
     input:
@@ -57,11 +59,12 @@ rule get_protein_ncit_uniprotkb_relationships:
 
 rule get_protein_ncit_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+"/protein/ids/UMLS"
     output:
         outfile=config['intermediate_directory']+'/protein/concords/NCIT_UMLS',
     run:
-        protein.build_umls_ncit_relationships(input.infile,output.outfile)
+        protein.build_umls_ncit_relationships(input.mrconso, input.infile, output.outfile)
 
 rule protein_compendia:
     input:

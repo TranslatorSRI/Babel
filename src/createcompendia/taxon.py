@@ -22,7 +22,7 @@ def write_mesh_ids(outfile):
     #Also add anything from SCR_Chemical, if it doesn't have a tree map
     mesh.write_ids(meshmap,outfile,order=[ORGANISM_TAXON],extra_vocab={'SCR_Organism':ORGANISM_TAXON})
 
-def write_umls_ids(outfile):
+def write_umls_ids(mrsty, outfile):
     # UMLS categories that should be classified as taxa:
     # - A1.1.3: Eukaryote (https://uts.nlm.nih.gov/uts/umls/semantic-network/T204)
     # - A1.1.2: Bacterium (https://uts.nlm.nih.gov/uts/umls/semantic-network/T007)
@@ -59,10 +59,10 @@ def write_umls_ids(outfile):
         'A1.1',
         'A1.1.3.1.1'
     ]}
-    umls.write_umls_ids(umlsmap,outfile)
+    umls.write_umls_ids(mrsty, umlsmap,outfile)
 
-def build_taxon_umls_relationships(idfile,outfile):
-    umls.build_sets(idfile, outfile, {'MSH': MESH, 'NCBITaxon': NCBITAXON})
+def build_taxon_umls_relationships(mrconso, idfile, outfile):
+    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH, 'NCBITaxon': NCBITAXON})
 
 def build_relationships(outfile,mesh_ids):
     regis = mesh.pull_mesh_registry()

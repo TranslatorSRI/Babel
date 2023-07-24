@@ -36,11 +36,12 @@ rule anatomy_mesh_ids:
         anatomy.write_mesh_ids(output.outfile)
 
 rule anatomy_umls_ids:
-    #The location of the RRFs is known to the guts, but should probably come out here.
+    input:
+        mrsty=config['download_directory'] + "/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/anatomy/ids/UMLS"
     run:
-        anatomy.write_umls_ids(output.outfile)
+        anatomy.write_umls_ids(input.mrsty, output.outfile)
 
 rule get_anatomy_obo_relationships:
     output:
@@ -52,11 +53,12 @@ rule get_anatomy_obo_relationships:
 
 rule get_anatomy_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+"/anatomy/ids/UMLS"
     output:
         outfile=config['intermediate_directory']+'/anatomy/concords/UMLS',
     run:
-        anatomy.build_anatomy_umls_relationships(input.infile,output.outfile)
+        anatomy.build_anatomy_umls_relationships(input.mrconso, input.infile, output.outfile)
 
 rule anatomy_compendia:
     input:
