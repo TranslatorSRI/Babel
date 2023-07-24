@@ -1,3 +1,4 @@
+import logging
 from ftplib import FTP
 from io import BytesIO
 import gzip
@@ -202,7 +203,7 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None
     # return the filename to the caller
     return out_file_name
 
-def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
+def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],icrdf_filename=None):
     """
     :param synonym_list:
     :param ofname:
@@ -210,6 +211,11 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
     :param labels:
     :param extra_prefixes: We default to only allowing the prefixes allowed for a particular type in Biolink.
         If you want to allow additional prefixes, list them here.
+    :param icrdf_filename: (REQUIRED) The file to read the information content from (icRDF.tsv). Although this is a
+        named parameter to make it easier to specify this when calling write_compendium(), it is REQUIRED, and
+        write_compendium() will throw a RuntimeError if it is not specified. This is to ensure that it has been
+        properly specified as a prerequisite in a Snakemake file, so that write_compendium() is not run until after
+        icRDF.tsv has been generated.
     :return:
     """
     config = get_config()
@@ -217,8 +223,14 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
     biolink_version = config['biolink_version']
     node_factory = NodeFactory(make_local_name(''),biolink_version)
     synonym_factory = SynonymFactory(make_local_name(''))
+
+    # Create an InformationContentFactory based on the specified icRDF.tsv file. Default to the one in the download
+    # directory.
+    if not icrdf_filename:
+        raise RuntimeError("No icrdf_filename parameter provided to write_compendium() -- this is required!")
+    ic_factory = InformationContentFactory(icrdf_filename)
+
     description_factory = DescriptionFactory(make_local_name(''))
-    ic_factory = InformationContentFactory(f'{get_config()["input_directory"]}/icRDF.tsv')
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={},extra_prefixes = extra_prefixes)
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:

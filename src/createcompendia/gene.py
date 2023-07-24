@@ -251,7 +251,7 @@ def build_gene_umls_hgnc_relationships(mrconso, umls_idfile, outfile):
     #Could also add MESH, if that were a valid gene prefix
     umls.build_sets(mrconso, umls_idfile, outfile, {'HGNC':HGNC})
 
-def build_gene_compendia(concordances, identifiers):
+def build_gene_compendia(concordances, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
@@ -273,5 +273,5 @@ def build_gene_compendia(concordances, identifiers):
         glom(dicts, pairs, unique_prefixes=uniques)
     gene_sets = set([frozenset(x) for x in dicts.values()])
     baretype = GENE.split(':')[-1]
-    write_compendium(gene_sets, f'{baretype}.txt', GENE, {})
+    write_compendium(gene_sets, f'{baretype}.txt', GENE, {}, icrdf_filename=icrdf_filename)
 
