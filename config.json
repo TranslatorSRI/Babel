@@ -1,6 +1,4 @@
 {
-  "warn_on_short_names": 3,
-
   "input_directory": "input_data",
   "download_directory": "babel_downloads",
   "intermediate_directory": "babel_outputs/intermediate",

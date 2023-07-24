@@ -270,11 +270,6 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     if "label" in node["identifiers"][0]:
                         document["preferred_name"] = node["identifiers"][0]["label"]
 
-                    # Warn about very short names.
-                    short_names = list(filter(lambda s: len(s) <= config['warn_on_short_names'], synonyms_list))
-                    if len(short_names) > 0:
-                        logging.warning(f"CURIE {curie} has very short names: {short_names}")
-
                     # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
                     # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
                     # more interesting one for users. I'm not sure if there's a better way to do that -- for instance,
