@@ -59,37 +59,6 @@ class DescriptionFactory:
         print(f'Loading descriptions for {prefix}')
         descs = defaultdict(set)
         descfname = os.path.join(self.root_dir, prefix, 'descriptions')
-        if os.path.exists(descfname):
-            with open(descfname, 'r') as inf:
-                for line in inf:
-                    x = line.strip().split('\t')
-                    descs[x[0]].add("\t".join(x[1:]))
-        self.descriptions[prefix] = descs
-        print(f'Loaded')
-
-    def get_descriptions(self,node):
-        node_descriptions = set()
-        for ident in node['identifiers']:
-            thisid = ident['identifier']
-            pref = Text.get_curie(thisid)
-            if not pref in self.descriptions:
-                self.load_descriptions(pref)
-            node_descriptions.update( self.descriptions[pref][thisid] )
-        return node_descriptions
-
-
-class DescriptionFactory:
-    """ A factory for loading descriptions where available.
-    """
-
-    def __init__(self,rootdir):
-        self.root_dir = rootdir
-        self.descriptions = {}
-
-    def load_descriptions(self,prefix):
-        print(f'Loading descriptions for {prefix}')
-        descs = defaultdict(set)
-        descfname = os.path.join(self.root_dir, prefix, 'descriptions')
         desc_count = 0
         if os.path.exists(descfname):
             with open(descfname, 'r') as inf:
@@ -109,6 +78,7 @@ class DescriptionFactory:
                 self.load_descriptions(pref)
             node_descriptions[thisid].update( self.descriptions[pref][thisid] )
         return node_descriptions
+
 
 class InformationContentFactory:
     def __init__(self,ic_file):
