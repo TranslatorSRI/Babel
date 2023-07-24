@@ -143,6 +143,8 @@ def build_rxnorm_relationships(outfile):
     Also, the same subject and object will have the more general term as well.  so both a has_precise_active_ingredient
     and a has_ingredient will be between the same set of subject and object.  Also there's consists of, which will hav
     similar issues. So, we're going to do a lot of catching here
+
+    has_tradename is even worse - it needs to be 1:1 to be useable
     """
     aui_to_cui, sdui_to_cui = get_aui_to_cui()
     relfile = os.path.join('input_data', 'private', "RXNREL.RRF")
@@ -150,8 +152,9 @@ def build_rxnorm_relationships(outfile):
                             "has_precise_active_ingredient": defaultdict(list),
                             "has_precise_ingredient": defaultdict(list),
                             "has_ingredient": defaultdict(list),
-                            "has_tradename": defaultdict(list),
                             "consists_of": defaultdict(list)}
+    one_to_one_relations = {"has_tradename": {"subject": defaultdict(list),
+                                              "object": defaultdict(list)}}
     with open(relfile, 'r') as inf, open(outfile, 'w') as outf:
         for line in inf:
             x = line.strip().split('|')
@@ -163,11 +166,21 @@ def build_rxnorm_relationships(outfile):
                 predicate = x[7]
                 if predicate in single_use_relations:
                     single_use_relations[predicate][subject].append(object)
+                elif predicate in one_to_one_relations:
+                    one_to_one_relations[predicate]["subject"][subject].append(object)
+                    one_to_one_relations[predicate]["object"][object].append(subject)
                 else:
                     outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{object}\n")
         for predicate in single_use_relations:
             for subject,objects in single_use_relations[predicate].items():
                 if len(objects) > 1:
+                    continue
+                outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{objects[0]}\n")
+        for predicate in one_to_one_relations:
+            for subject,objects in one_to_one_relations[predicate]["subject"].items():
+                if len(objects) > 1:
+                    continue
+                if len(one_to_one_relations[predicate]["object"][objects[0]]) > 1:
                     continue
                 outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{objects[0]}\n")
 
