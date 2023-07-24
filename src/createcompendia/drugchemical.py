@@ -243,8 +243,9 @@ def build_conflation(rxn_concord,drug_compendium,chemical_compendia,outfilename)
     written = set()
     with open(outfilename,"w") as outfile:
         for clique_member,clique in gloms.items():
-            if clique in written:
+            fs = frozenset(clique)
+            if fs in written:
                 continue
             outfile.write(f"{list(clique)}\n")
-            written.add(clique)
+            written.add(fs)
 
