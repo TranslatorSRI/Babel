@@ -406,6 +406,35 @@ class UberGraph:
             results[k] = list(filter(lambda x: ':' in x, v))
         return results
 
+    def write_normalized_information_content(self, filename):
+        """
+        Download the normalized information content and write it to the specified filename.
+
+        :param filename: The filename to write the normalized information content to -- we write them as `IRI\tNIC`.
+        :return: The number of normalized information content entries downloaded.
+        """
+        count_query = "SELECT (COUNT(*) AS ?count) WHERE { ?iri <http://reasoner.renci.org/vocab/normalizedInformationContent> ?nic }"
+        count_result = self.triplestore.query(count_query, ['count'])
+        total_count = int(count_result[0]['count'])
+
+        assert total_count > 0
+
+        write_count = 0
+        with open(filename, "w") as ftsv:
+            for start in range(0, total_count, UberGraph.QUERY_BATCH_SIZE):
+                print(f"Querying write_normalized_information_content() offset {start} limit {UberGraph.QUERY_BATCH_SIZE} (total count: {total_count})")
+
+                query = "SELECT ?iri ?nic WHERE " \
+                        "{ ?iri <http://reasoner.renci.org/vocab/normalizedInformationContent> ?nic }" \
+                        f"ORDER BY ASC(?iri) OFFSET {start} LIMIT {UberGraph.QUERY_BATCH_SIZE}"
+                results = self.triplestore.query(query, ['iri', 'nic'])
+
+                for row in results:
+                    ftsv.write(f"{row['iri']}\t{row['nic']}\n")
+                    write_count += 1
+
+        print(f"Wrote {write_count} information content values into {filename}.")
+        return write_count
 
 def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={}, hop_ontologies=False ):
     """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
@@ -432,6 +461,7 @@ def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={},
                 p = Text.get_curie(k)
                 if p in concordfiles:
                     concordfiles[p].write(f'{k}\t{types2relations[set_type]}\t{x}\n')
+
 
 if __name__ == '__main__':
     ug = UberGraph()

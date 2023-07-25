@@ -20,10 +20,12 @@ rule protein_uniprotkb_ids:
         "awk '{{print $1}}' {input.infile} > {output.outfile}"
 
 rule protein_umls_ids:
+    input:
+        mrsty=config['download_directory']+"/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/protein/ids/UMLS"
     run:
-        protein.write_umls_ids(output.outfile)
+        protein.write_umls_ids(input.mrsty, output.outfile)
 
 rule protein_ensembl_ids:
     input:
@@ -57,11 +59,12 @@ rule get_protein_ncit_uniprotkb_relationships:
 
 rule get_protein_ncit_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+"/protein/ids/UMLS"
     output:
         outfile=config['intermediate_directory']+'/protein/concords/NCIT_UMLS',
     run:
-        protein.build_umls_ncit_relationships(input.infile,output.outfile)
+        protein.build_umls_ncit_relationships(input.mrconso, input.infile, output.outfile)
 
 rule protein_compendia:
     input:
@@ -69,11 +72,12 @@ rule protein_compendia:
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['protein_synonyms']),
         concords=expand("{dd}/protein/concords/{ap}",dd=config['intermediate_directory'],ap=config['protein_concords']),
         idlists=expand("{dd}/protein/ids/{ap}",dd=config['intermediate_directory'],ap=config['protein_ids']),
+        icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs'])
     run:
-        protein.build_protein_compendia(input.concords,input.idlists)
+        protein.build_protein_compendia(input.concords,input.idlists, input.icrdf_filename)
 
 rule check_protein_completeness:
     input:

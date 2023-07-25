@@ -2,10 +2,12 @@ import src.createcompendia.chemicals as chemicals
 import src.assess_compendia as assessments
 
 rule chemical_umls_ids:
+    input:
+        mrsty=config['download_directory'] + "/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/chemicals/ids/UMLS"
     run:
-        chemicals.write_umls_ids(output.outfile)
+        chemicals.write_umls_ids(input.mrsty, output.outfile)
 
 rule chemical_rxnorm_ids:
     output:
@@ -110,11 +112,12 @@ rule get_chemical_drugcentral_relationships:
 
 rule get_chemical_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+"/chemicals/ids/UMLS",
     output:
         outfile=config['intermediate_directory']+'/chemicals/concords/UMLS',
     run:
-        chemicals.build_chemical_umls_relationships(input.infile,output.outfile)
+        chemicals.build_chemical_umls_relationships(input.mrconso, input.infile, output.outfile)
 
 rule get_chemical_rxnorm_relationships:
     input:
@@ -210,11 +213,12 @@ rule chemical_compendia:
     input:
         typesfile    = config['intermediate_directory'] + '/chemicals/partials/types',
         untyped_file = config['intermediate_directory'] + '/chemicals/partials/untyped_compendium',
+        icrdf_filename = config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs'])
     run:
-        chemicals.build_compendia(input.typesfile,input.untyped_file)
+        chemicals.build_compendia(input.typesfile,input.untyped_file, input.icrdf_filename)
 
 rule check_chemical_completeness:
     input:

@@ -1,3 +1,4 @@
+import logging
 from ftplib import FTP
 from io import BytesIO
 import gzip
@@ -202,7 +203,7 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None
     # return the filename to the caller
     return out_file_name
 
-def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
+def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],icrdf_filename=None):
     """
     :param synonym_list:
     :param ofname:
@@ -210,6 +211,11 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
     :param labels:
     :param extra_prefixes: We default to only allowing the prefixes allowed for a particular type in Biolink.
         If you want to allow additional prefixes, list them here.
+    :param icrdf_filename: (REQUIRED) The file to read the information content from (icRDF.tsv). Although this is a
+        named parameter to make it easier to specify this when calling write_compendium(), it is REQUIRED, and
+        write_compendium() will throw a RuntimeError if it is not specified. This is to ensure that it has been
+        properly specified as a prerequisite in a Snakemake file, so that write_compendium() is not run until after
+        icRDF.tsv has been generated.
     :return:
     """
     config = get_config()
@@ -217,8 +223,14 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
     biolink_version = config['biolink_version']
     node_factory = NodeFactory(make_local_name(''),biolink_version)
     synonym_factory = SynonymFactory(make_local_name(''))
+
+    # Create an InformationContentFactory based on the specified icRDF.tsv file. Default to the one in the download
+    # directory.
+    if not icrdf_filename:
+        raise RuntimeError("No icrdf_filename parameter provided to write_compendium() -- this is required!")
+    ic_factory = InformationContentFactory(icrdf_filename)
+
     description_factory = DescriptionFactory(make_local_name(''))
-    ic_factory = InformationContentFactory(f'{get_config()["input_directory"]}/icRDF.tsv')
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={},extra_prefixes = extra_prefixes)
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
@@ -247,14 +259,32 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[]):
 
                 # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
                 # But we're only interested in the synonyms themselves, so we can skip the relationship for now.
+                curie = node["identifiers"][0]["identifier"]
                 synonyms = [result[1] for result in synonym_factory.get_synonyms(node)]
-                synonyms_list = sorted(synonyms,key=lambda x:len(x))
+                # Why are we running the synonym list through set() again? Because get_synonyms returns unique pairs of (relation, synonym).
+                # So multiple identical synonyms may be returned as long they have a different relation. But since we don't care about the
+                # relation, we should get rid of any duplicated synonyms here.
+                synonyms_list = sorted(set(synonyms), key=lambda x:len(x))
                 try:
-                    document = {"curie": node["identifiers"][0]["identifier"],
+                    document = {"curie": curie,
                                 "names": synonyms_list,
                                 "types": [ t[8:] for t in node_factory.get_ancestors(node["type"])]} #remove biolink:
+
                     if "label" in node["identifiers"][0]:
                         document["preferred_name"] = node["identifiers"][0]["label"]
+
+                    # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
+                    # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
+                    # more interesting one for users. I'm not sure if there's a better way to do that -- for instance,
+                    # could we consider the information content values? -- but in the interests of getting something
+                    # working quickly, this code restores that previous method.
+
+                    # Since synonyms_list is sorted,
+                    if len(synonyms_list) == 0:
+                        logging.warning(f"Synonym list for {node} is empty: no valid name.")
+                    else:
+                        document["shortest_name_length"] = len(synonyms_list[0])
+
                     sfile.write( document )
                 except Exception as ex:
                     print(f"Exception thrown while write_compendium() was generating {ofname}: {ex}")

@@ -53,13 +53,13 @@ rule disease_mesh_ids:
         diseasephenotype.write_mesh_ids(output.outfile)
 
 rule disease_umls_ids:
-    #The location of the RRFs is known to the guts, but should probably come out here.
     input:
-        badumls = config['input_directory']+"/badumls"
+        badumls = config['input_directory']+"/badumls",
+        mrsty = config['download_directory'] + "/UMLS/MRSTY.RRF"
     output:
         outfile=config['intermediate_directory']+"/disease/ids/UMLS"
     run:
-        diseasephenotype.write_umls_ids(output.outfile,input.badumls)
+        diseasephenotype.write_umls_ids(input.mrsty, output.outfile, input.badumls)
 
 rule disease_hp_ids:
     #The location of the RRFs is known to the guts, but should probably come out here.
@@ -96,13 +96,14 @@ rule get_disease_efo_relationships:
 
 rule get_disease_umls_relationships:
     input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+"/disease/ids/UMLS",
         omim=config['intermediate_directory']+'/disease/ids/OMIM',
         ncit=config['intermediate_directory'] + '/disease/ids/NCIT'
     output:
         outfile=config['intermediate_directory']+'/disease/concords/UMLS',
     run:
-        diseasephenotype.build_disease_umls_relationships(input.infile,output.outfile,input.omim,input.ncit)
+        diseasephenotype.build_disease_umls_relationships(input.mrconso, input.infile,output.outfile,input.omim,input.ncit)
 
 rule get_disease_doid_relationships:
     input:
@@ -122,13 +123,14 @@ rule disease_compendia:
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['disease_labelsandsynonyms']),
         concords=expand("{dd}/disease/concords/{ap}",dd=config['intermediate_directory'],ap=config['disease_concords']),
         idlists=expand("{dd}/disease/ids/{ap}",dd=config['intermediate_directory'],ap=config['disease_ids']),
+        icrdf_filename = config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['disease_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['disease_outputs'])
     run:
         diseasephenotype.build_compendium(input.concords,input.idlists,input.close_matches,{'HP':input.bad_hpo_xrefs,
                                                                         'MONDO':input.bad_mondo_xrefs,
-                                                                        'UMLS':input.bad_umls_xrefs} )
+                                                                        'UMLS':input.bad_umls_xrefs}, input.icrdf_filename )
 
 rule check_disease_completeness:
     input:

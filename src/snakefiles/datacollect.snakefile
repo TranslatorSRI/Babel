@@ -133,14 +133,23 @@ rule get_mesh_synonyms:
 
 ### UMLS / SNOMEDCT
 
+rule download_umls:
+    output:
+        config['download_directory']+'/UMLS/MRCONSO.RRF',
+        config['download_directory']+'/UMLS/MRSTY.RRF',
+    run:
+        umls.download_umls(config['umls_version'], config['download_directory'] + '/UMLS')
+
 rule get_umls_labels_and_synonyms:
+    input:
+        mrconso=config['download_directory']+'/UMLS/MRCONSO.RRF'
     output:
         config['download_directory']+'/UMLS/labels',
         config['download_directory']+'/UMLS/synonyms',
         config['download_directory']+'/SNOMEDCT/labels',
         config['download_directory']+'/SNOMEDCT/synonyms'
     run:
-        umls.pull_umls()
+        umls.pull_umls(input.mrconso)
 
 ### OBO Ontologies
 
@@ -148,10 +157,11 @@ rule get_ontology_labels_descriptions_and_synonyms:
     output:
         expand("{download_directory}/{onto}/labels", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
         expand("{download_directory}/{onto}/synonyms", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
+        icrdf_filename = config['download_directory']+'/icRDF.tsv',
         # This would make sense if we had descriptions for every ontology, but since we don't, we can't make these outputs explicit.
         # expand("{download_directory}/{onto}/descriptions", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
     run:
-        obo.pull_uber(config['ubergraph_ontologies'])
+        obo.pull_uber(config['ubergraph_ontologies'], output.icrdf_filename)
 
 ### NCBIGene
 

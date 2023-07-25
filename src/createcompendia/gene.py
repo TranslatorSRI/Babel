@@ -1,5 +1,6 @@
 import re
 
+from src import babel_utils
 from src.prefixes import OMIM,ENSEMBL,NCBIGENE,WORMBASE, MGI, ZFIN, DICTYBASE, FLYBASE, RGD, SGD, HGNC, UMLS
 from src.categories import GENE
 
@@ -97,7 +98,7 @@ def write_omim_ids(infile,outfile):
             if chunks[1] == 'gene':
                 outf.write(f'{OMIM}:{chunks[0]}\n')
 
-def write_umls_ids(outfile):
+def write_umls_ids(mrconso, mrsty, outfile):
     """Find the UMLS entities that are genes.  This is complicated by the fact that UMLS  semantic type doesn't
     have a corresponding GENE class.  It has something (A1.2.3.5) which includes genes, but also includes genomes and
     variants and gene properties and gene families.  We can do some filtering by looking around in the MRCONSO as well
@@ -111,7 +112,6 @@ def write_umls_ids(outfile):
     blacklist=set(['C0017361', #recessive genes
                    'C0017346', #Gag viral gene family
                     ])
-    mrsty = os.path.join('input_data', 'private', 'MRSTY.RRF')
     umls_keepers = set()
     with open(mrsty, 'r') as inf:
         for line in inf:
@@ -121,7 +121,6 @@ def write_umls_ids(outfile):
                 umls_keepers.add(x[0])
     umls_keepers.difference_update(blacklist)
     #Now filter out OMIM variants
-    mrconso = os.path.join('input_data', 'private', 'MRCONSO.RRF')
     with open(mrconso,'r') as inf:
         for line in inf:
             x = line.strip().split('|')
@@ -248,11 +247,11 @@ def write_ensembl_ids(ensembl_dir, outfile):
                             outf.write(f'{gid}\n')
 
 
-def build_gene_umls_hgnc_relationships(umls_idfile,outfile):
+def build_gene_umls_hgnc_relationships(mrconso, umls_idfile, outfile):
     #Could also add MESH, if that were a valid gene prefix
-    umls.build_sets(umls_idfile, outfile, {'HGNC':HGNC})
+    umls.build_sets(mrconso, umls_idfile, outfile, {'HGNC':HGNC})
 
-def build_gene_compendia(concordances, identifiers):
+def build_gene_compendia(concordances, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
@@ -274,5 +273,5 @@ def build_gene_compendia(concordances, identifiers):
         glom(dicts, pairs, unique_prefixes=uniques)
     gene_sets = set([frozenset(x) for x in dicts.values()])
     baretype = GENE.split(':')[-1]
-    write_compendium(gene_sets, f'{baretype}.txt', GENE, {})
+    write_compendium(gene_sets, f'{baretype}.txt', GENE, {}, icrdf_filename=icrdf_filename)
 

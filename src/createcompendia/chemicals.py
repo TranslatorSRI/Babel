@@ -23,7 +23,7 @@ def get_type_from_smiles(smiles):
     else:
         return SMALL_MOLECULE
 
-def write_umls_ids(outfile):
+def write_umls_ids(mrsty, outfile):
     groups = ['A1.4.1.1.1.1', #antibiotic
               'A1.4.1.1.3.2', # Hormone
               'A1.4.1.1.3.3',# Enzyme
@@ -42,7 +42,7 @@ def write_umls_ids(outfile):
     #'A1.4.1.2.1.7 Amino Acid, Peptide, or Protein
     umlsmap = {a:CHEMICAL_ENTITY for a in groups}
     umlsmap["A1.3.3"] = DRUG
-    umls.write_umls_ids(umlsmap, outfile)
+    umls.write_umls_ids(mrsty, umlsmap, outfile)
 
 def write_rxnorm_ids(outfile):
     groups = ['A1.4.1.1.1.1', #antibiotic
@@ -68,8 +68,8 @@ def write_rxnorm_ids(outfile):
     umlsmap ["A1.4.1.1.1"] = DRUG
     umls.write_rxnorm_ids(umlsmap, filter_types, outfile, prefix=RXCUI, styfile="RXNSTY.RRF")
 
-def build_chemical_umls_relationships(idfile,outfile):
-    umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK, 'RXNORM': RXCUI })
+def build_chemical_umls_relationships(mrconso, idfile,outfile):
+    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK, 'RXNORM': RXCUI })
 
 def build_chemical_rxnorm_relationships(idfile,outfile):
     umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, conso="RXNCONSO.RRF", cui_prefix=RXCUI)
@@ -189,7 +189,7 @@ def write_drugbank_ids(infile,outfile):
     written = set()
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         header_line = inf.readline()
-        assert(header_line == "UCI\tSRC_ID\tSRC_COMPOUND_ID\tASSIGNMENT\n", f"Incorrect header line in {infile}: {header_line}")
+        assert header_line == "UCI\tSRC_ID\tSRC_COMPOUND_ID\tASSIGNMENT\n", f"Incorrect header line in {infile}: {header_line}"
         for line in inf:
             x = line.rstrip().split('\t')
             if x[1] == drugbank_id:
@@ -268,11 +268,11 @@ def write_unichem_concords(structfile,reffile,outdir):
         concfiles[num] = open(concname,'w')
     with open(reffile,'rt') as inf:
         header_line = inf.readline()
-        assert(header_line == "UCI\tSRC_ID\tSRC_COMPOUND_ID\tASSIGNMENT\n", f"Incorrect header line in {reffile}: {header_line}")
+        assert header_line == "UCI\tSRC_ID\tSRC_COMPOUND_ID\tASSIGNMENT\n", f"Incorrect header line in {reffile}: {header_line}"
         for line in inf:
             x = line.rstrip().split('\t')
             outf = concfiles[x[1]]
-            assert(x[3] == '1') # Only '1' (current) assignments should be in this file
+            assert x[3] == '1'  # Only '1' (current) assignments should be in this file
                                 # (see https://chembl.gitbook.io/unichem/definitions/what-is-an-assignment).
             outf.write(f'{unichem_data_sources[x[1]]}:{x[2]}\toio:equivalent\t{inchikeys[x[0]]}\n')
     for outf in concfiles.values():
@@ -283,7 +283,7 @@ def read_inchikeys(struct_file):
     inchikeys = {}
     with gzip.open(struct_file, 'rt') as inf:
         header_line = inf.readline()
-        assert(header_line == "UCI\tSTANDARDINCHI\tSTANDARDINCHIKEY\n", f"Unexpected header line in {struct_file}: {header_line}")
+        assert header_line == "UCI\tSTANDARDINCHI\tSTANDARDINCHIKEY\n", f"Unexpected header line in {struct_file}: {header_line}"
         for sline in inf:
             line = sline.rstrip().split('\t')
             if len(line) == 0:
@@ -538,7 +538,7 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
         for s in untyped_sets:
             outf.write(f'{set(s)}\n')
 
-def build_compendia(type_file,untyped_compendia_file):
+def build_compendia(type_file, untyped_compendia_file, icrdf_filename):
     types = {}
     with open(type_file,'r') as inf:
         for line in inf:
@@ -553,9 +553,9 @@ def build_compendia(type_file,untyped_compendia_file):
     for biotype, sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
         if biotype == DRUG:
-            write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[MESH,UNII])
+            write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[MESH,UNII], icrdf_filename=icrdf_filename)
         else:
-            write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[RXCUI])
+            write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[RXCUI], icrdf_filename=icrdf_filename)
 
 def create_typed_sets(eqsets, types):
     """
