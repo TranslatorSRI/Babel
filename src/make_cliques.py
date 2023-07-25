@@ -11,6 +11,11 @@ def get_conflation_ids(conffilename):
     with open(conffilename,'r') as inf:
         for line in inf:
             ids.update(ast.literal_eval(line.strip()))
+    if "RXCUI:1092396" in ids:
+        print("OK")
+    else:
+        print("Wha?")
+        exit()
     return ids
 
 def get_compendia_names(cdir,compendia, ids):
@@ -34,6 +39,10 @@ def get_compendia_names(cdir,compendia, ids):
                         if 'l' in identifier:
                             id2name[identifier['i']] = identifier['l']
                             break
+            if "RXCUI:1092396" in id2name:
+                print(id2name["RXCUI:1092396"])
+            else:
+                print("not yet")
     return id2name
 
 def label_cliques(conflation_fname,id2name):
