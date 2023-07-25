@@ -21,7 +21,6 @@ def get_compendia_names(cdir,compendia, ids):
     Not every element will have a label or description.
     If the identifier is in the set of ids, add the first available label to a dictionary between the identifier and the label.
     """
-    print(len(ids))
     id2name = {}
     for compendium in compendia:
         with open(f"{cdir}/{compendium}",'r') as inf:
@@ -30,7 +29,6 @@ def get_compendia_names(cdir,compendia, ids):
                 row = json.loads(line)
                 clique_leader = row['identifiers'][0]['i']
                 if clique_leader in ids:
-                    print(clique_leader)
                     #Get the first available label
                     for identifier in row['identifiers']:
                         if 'l' in identifier:
