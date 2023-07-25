@@ -43,7 +43,6 @@ def check_mrconso_line(line):
 
 def write_umls_ids(mrsty, category_map,umls_output,prefix=UMLS,blacklist=set()):
     categories = set(category_map.keys())
-    mrsty = os.path.join('input_data', 'private', styfile)
     with open(mrsty,'r') as inf, open(umls_output,'w') as outf:
         for line in inf:
             x = line.strip().split('|')
