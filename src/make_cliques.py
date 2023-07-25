@@ -41,17 +41,21 @@ def label_cliques(conflation_fname,id2name):
     Write a new file "labeled.txt" where each row looks like:
     [{"i": "RXCUI:1092396", "l": "Acetinophem"}, {"i": "RXCUI:849078", "l": "100 mg Tylenol"}, ...]
     """
+    print(len(id2name))
     with open('labeled.txt','w') as outf, open(conflation_fname,'r') as conflation:
         for line in conflation:
             clique = []
             for identifier in line:
                 if identifier in id2name:
                     clique.append({'i':identifier,'l':id2name[identifier]})
+                else:
+                    print(identifier)
+                    exit()
             outf.write(json.dumps(clique)+'\n')
 
 def main():
-    conflation_fname = '/scratch/bizon/babel_output/conflations/DrugChemical.txt'
+    conflation_fname = '/scratch/bizon/babel_outputs/conflation/DrugChemical.txt'
     compendia = ["ChemicalEntity.txt","ComplexMolecularMixture.txt","MolecularMixture.txt","SmallMolecule.txt","ChemicalMixture.txt","Drug.txt","Polypeptide.txt"]
     ids = get_conflation_ids(conflation_fname)
-    id2name = get_compendia_names('/scratch/bizon/babel_output/compendia',compendia,ids)
+    id2name = get_compendia_names('/scratch/bizon/babel_outputs/compendia',compendia,ids)
     label_cliques(conflation_fname,id2name)
