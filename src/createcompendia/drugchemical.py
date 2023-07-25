@@ -1,4 +1,4 @@
-from src.prefixes import RXCUI
+from src.prefixes import RXCUI, PUBCHEMCOMPOUND
 from src.babel_utils import glom
 from collections import defaultdict
 import os,json
@@ -198,7 +198,17 @@ def load_cliques(compendium):
                    rx_to_clique[terms["i"]] = clique
     return rx_to_clique
 
-def build_conflation(rxn_concord,drug_compendium,chemical_compendia,outfilename):
+def build_pubchem_relationships(infile,outfile):
+    with open(infile,"r") as inf:
+        document = json.load(inf)
+    with open(outfile,"w") as outf:
+        for annotation in document["Annotations"]["Annotation"]:
+            rxnid = annotation["SourceID"]
+            cids = annotation.get("LinkedRecords",{}).get("CID",[])
+            for cid in cids:
+                outf.write(f"{RXCUI}:{rxnid}\tlinked\t{PUBCHEMCOMPOUND}:{cid}\n")
+
+def build_conflation(rxn_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
     """RXN_concord contains relationshps between rxcuis that can be used to conflate
     Now we don't want all of them.  We want the ones that are between drugs and chemicals,
     and the ones between drugs and drugs.
@@ -214,29 +224,30 @@ def build_conflation(rxn_concord,drug_compendium,chemical_compendia,outfilename)
         print(f"load {chemical_compendium}")
         chemical_rxcui_to_clique.update(load_cliques(chemical_compendium))
     pairs = []
-    print("load concord")
-    with open(rxn_concord,"r") as infile:
-        for line in infile:
-            x = line.strip().split('\t')
-            subject = x[0]
-            object = x[2]
-            if subject in drug_rxcui_to_clique and object in chemical_rxcui_to_clique:
-                subject = drug_rxcui_to_clique[subject]
-                object = chemical_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
-            elif subject in chemical_rxcui_to_clique and object in drug_rxcui_to_clique:
-                subject = chemical_rxcui_to_clique[subject]
-                object = drug_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
-            # OK, this is possible, and it's OK, as long as we get real clique leaders
-            elif subject in drug_rxcui_to_clique and object in drug_rxcui_to_clique:
-                subject = drug_rxcui_to_clique[subject]
-                object = drug_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
-            elif subject in chemical_rxcui_to_clique and object in chemical_rxcui_to_clique:
-                subject = chemical_rxcui_to_clique[subject]
-                object = chemical_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
+    for conc in [rxn_concord,pubchem_rxn_concord]:
+        print(f"load {conc}")
+        with open(conc,"r") as infile:
+            for line in infile:
+                x = line.strip().split('\t')
+                subject = x[0]
+                object = x[2]
+                if subject in drug_rxcui_to_clique and object in chemical_rxcui_to_clique:
+                    subject = drug_rxcui_to_clique[subject]
+                    object = chemical_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
+                elif subject in chemical_rxcui_to_clique and object in drug_rxcui_to_clique:
+                    subject = chemical_rxcui_to_clique[subject]
+                    object = drug_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
+                # OK, this is possible, and it's OK, as long as we get real clique leaders
+                elif subject in drug_rxcui_to_clique and object in drug_rxcui_to_clique:
+                    subject = drug_rxcui_to_clique[subject]
+                    object = drug_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
+                elif subject in chemical_rxcui_to_clique and object in chemical_rxcui_to_clique:
+                    subject = chemical_rxcui_to_clique[subject]
+                    object = chemical_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
     print("glom")
     gloms = {}
     glom(gloms,pairs)

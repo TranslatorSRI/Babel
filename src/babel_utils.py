@@ -273,7 +273,7 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     bad = 0
     shit_prefixes=set(['KEGG','PUBCHEM'])
     test_id = 'xUBERON:0002262'
-    debugit = False
+    debugit = True
     excised = set()
     for xgroup in newgroups:
         if isinstance(xgroup,frozenset):

@@ -494,6 +494,12 @@ rule pubchem_synonyms:
     run:
         pubchem.make_labels_or_synonyms(input.infile,output.outfile)
 
+rule pubchem_rxnorm_annotations:
+    output:
+        outfile = config['download_directory'] + '/PUBCHEM.COMPOUND/RXNORM.json',
+    run:
+        pubchem.pull_rxnorm_annotations(output.outfile)
+
 # DRUGCENTRAL
 
 rule get_drugcentral:
