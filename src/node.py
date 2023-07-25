@@ -79,6 +79,7 @@ class DescriptionFactory:
             node_descriptions[thisid].update( self.descriptions[pref][thisid] )
         return node_descriptions
 
+
 class InformationContentFactory:
     def __init__(self,ic_file):
         self.ic = {}

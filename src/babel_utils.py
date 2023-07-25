@@ -259,14 +259,29 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
 
                 # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
                 # But we're only interested in the synonyms themselves, so we can skip the relationship for now.
+                curie = node["identifiers"][0]["identifier"]
                 synonyms = [result[1] for result in synonym_factory.get_synonyms(node)]
                 synonyms_list = sorted(synonyms,key=lambda x:len(x))
                 try:
-                    document = {"curie": node["identifiers"][0]["identifier"],
+                    document = {"curie": curie,
                                 "names": synonyms_list,
                                 "types": [ t[8:] for t in node_factory.get_ancestors(node["type"])]} #remove biolink:
+
                     if "label" in node["identifiers"][0]:
                         document["preferred_name"] = node["identifiers"][0]["label"]
+
+                    # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
+                    # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
+                    # more interesting one for users. I'm not sure if there's a better way to do that -- for instance,
+                    # could we consider the information content values? -- but in the interests of getting something
+                    # working quickly, this code restores that previous method.
+
+                    # Since synonyms_list is sorted,
+                    if len(synonyms_list) == 0:
+                        logging.warning(f"Synonym list for {node} is empty: no valid name.")
+                    else:
+                        document["shortest_name_length"] = len(synonyms_list[0])
+
                     sfile.write( document )
                 except Exception as ex:
                     print(f"Exception thrown while write_compendium() was generating {ofname}: {ex}")
