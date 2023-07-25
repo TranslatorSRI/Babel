@@ -9,7 +9,7 @@ def get_conflation_ids(conffilename):
     ids = set()
     with open(conffilename,'r') as inf:
         for line in inf:
-            ids.update(line.strip().split('\t'))
+            ids.update(json.loads(line))
     return ids
 
 def get_compendia_names(cdir,compendia, ids):
