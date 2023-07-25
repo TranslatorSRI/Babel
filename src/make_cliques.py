@@ -47,7 +47,8 @@ def label_cliques(conflation_fname,id2name):
     with open('labeled.txt','w') as outf, open(conflation_fname,'r') as conflation:
         for line in conflation:
             clique = []
-            for identifier in line:
+            ids = ast.literal_eval(line)
+            for identifier in ids:
                 if identifier in id2name:
                     clique.append({'i':identifier,'l':id2name[identifier]})
                 else:
