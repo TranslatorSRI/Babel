@@ -62,7 +62,7 @@ def label_cliques(conflation_fname,id2name):
                     clique.append({'i':identifier,'l':id2name[identifier]})
                 else:
                     clique.append({'i':identifier,'l':"?"})
-            outf.write(json.dumps(clique)+'\n')
+            outf.write(json.dumps(clique,indent=2))
 
 def main():
     conflation_fname = '/scratch/bizon/babel_outputs/conflation/DrugChemical.txt'
