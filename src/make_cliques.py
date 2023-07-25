@@ -61,8 +61,7 @@ def label_cliques(conflation_fname,id2name):
                 if identifier in id2name:
                     clique.append({'i':identifier,'l':id2name[identifier]})
                 else:
-                    print(identifier)
-                    exit()
+                    clique.append({'i':identifier,'l':"?"})
             outf.write(json.dumps(clique)+'\n')
 
 def main():
