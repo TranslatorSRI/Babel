@@ -37,7 +37,7 @@ def get_compendia_names(cdir,compendia, ids):
                     #Get the first available label
                     for identifier in row['identifiers']:
                         if 'l' in identifier:
-                            id2name[identifier['i']] = identifier['l']
+                            id2name[clique_leader] = identifier['l']
                             break
             if "RXCUI:1092396" in id2name:
                 print(id2name["RXCUI:1092396"])
