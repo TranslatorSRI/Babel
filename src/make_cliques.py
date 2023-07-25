@@ -59,3 +59,6 @@ def main():
     ids = get_conflation_ids(conflation_fname)
     id2name = get_compendia_names('/scratch/bizon/babel_outputs/compendia',compendia,ids)
     label_cliques(conflation_fname,id2name)
+
+if __name__ == '__main__':
+    main()
