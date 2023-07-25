@@ -1,4 +1,5 @@
 import json
+import ast
 # Starting with a conflation file, and a set of compendia, create a new compendium merging conflated cliques.
 
 def get_conflation_ids(conffilename):
@@ -9,7 +10,7 @@ def get_conflation_ids(conffilename):
     ids = set()
     with open(conffilename,'r') as inf:
         for line in inf:
-            ids.update(json.loads(line.strip()))
+            ids.update(ast.literal_eval(line.strip()))
     return ids
 
 def get_compendia_names(cdir,compendia, ids):
