@@ -122,10 +122,11 @@ rule get_chemical_umls_relationships:
 rule get_chemical_rxnorm_relationships:
     input:
         infile=config['intermediate_directory']+"/chemicals/ids/RXNORM",
+        conso="input_data/private/RXNCONSO.RRF"
     output:
         outfile=config['intermediate_directory']+'/chemicals/concords/RXNORM',
     run:
-        chemicals.build_chemical_rxnorm_relationships(input.infile,output.outfile)
+        chemicals.build_chemical_rxnorm_relationships(input.conso, input.infile,output.outfile)
 
 rule get_chemical_wikipedia_relationships:
     output:

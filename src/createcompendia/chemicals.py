@@ -71,8 +71,8 @@ def write_rxnorm_ids(outfile):
 def build_chemical_umls_relationships(mrconso, idfile,outfile):
     umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK, 'RXNORM': RXCUI })
 
-def build_chemical_rxnorm_relationships(idfile,outfile):
-    umls.build_sets(idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, conso="RXNCONSO.RRF", cui_prefix=RXCUI)
+def build_chemical_rxnorm_relationships(conso, idfile,outfile):
+    umls.build_sets(conso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, cui_prefix=RXCUI)
 
 def write_pubchem_ids(labelfile,smilesfile,outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
