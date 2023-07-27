@@ -15,6 +15,7 @@ from src.LabeledID import LabeledID
 from json import load
 from collections import defaultdict
 import sqlite3
+from typing import List, Tuple
 
 def make_local_name(fname,subpath=None):
     config = get_config()
@@ -503,7 +504,7 @@ def read_identifier_file(infile):
     return identifiers,types
 
 
-def remove_overused_xrefs(pairlist,bothways=False):
+def remove_overused_xrefs(pairlist: List[Tuple], bothways:bool = False):
     """Given a list of tuples (id1, id2) meaning id1-[xref]->id2, remove any id2 that are associated with more
     than one id1.  The idea is that if e.g. id1 is made up of UBERONS and 2 of those have an xref to say a UMLS
     then it doesn't mean that all of those should be identified.  We don't really know what it means, so remove it."""
