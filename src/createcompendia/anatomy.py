@@ -116,9 +116,10 @@ def build_compendia(concordances, identifiers, icrdf_filename):
         with open(infile,'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
-                pairs.append( set([x[0], x[2]]))
+                pairs.append( ([x[0], x[2]]) )
         newpairs = remove_overused_xrefs(pairs)
-        glom(dicts, newpairs, unique_prefixes=[UBERON, GO])
+        setpairs = [ set(x) for x in newpairs]
+        glom(dicts, setpairs, unique_prefixes=[UBERON, GO])
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]),types)
     for biotype,sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
