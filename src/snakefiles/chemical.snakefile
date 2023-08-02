@@ -10,10 +10,12 @@ rule chemical_umls_ids:
         chemicals.write_umls_ids(input.mrsty, output.outfile)
 
 rule chemical_rxnorm_ids:
+    input:
+        infile=config['download_directory']+"/RxNorm/RXNCONSO.RRF"
     output:
         outfile=config['intermediate_directory']+"/chemicals/ids/RXNORM"
     run:
-        chemicals.write_rxnorm_ids(output.outfile)
+        chemicals.write_rxnorm_ids(input.infile, output.outfile)
 
 rule chemical_mesh_ids:
     input:

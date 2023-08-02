@@ -44,7 +44,7 @@ def write_umls_ids(mrsty, outfile):
     umlsmap["A1.3.3"] = DRUG
     umls.write_umls_ids(mrsty, umlsmap, outfile)
 
-def write_rxnorm_ids(outfile):
+def write_rxnorm_ids(infile, outfile):
     groups = ['A1.4.1.1.1.1', #antibiotic
               'A1.4.1.1.3.2', # Hormone
               'A1.4.1.1.3.3',# Enzyme
@@ -66,7 +66,7 @@ def write_rxnorm_ids(outfile):
     umlsmap = {a:CHEMICAL_ENTITY for a in groups}
     umlsmap ["A1.3.3"] = DRUG
     umlsmap ["A1.4.1.1.1"] = DRUG
-    umls.write_rxnorm_ids(umlsmap, filter_types, outfile, prefix=RXCUI, styfile="RXNSTY.RRF")
+    umls.write_rxnorm_ids(umlsmap, filter_types, infile, outfile, prefix=RXCUI, styfile="RXNSTY.RRF")
 
 def build_chemical_umls_relationships(mrconso, idfile,outfile):
     umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK, 'RXNORM': RXCUI })

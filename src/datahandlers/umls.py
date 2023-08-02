@@ -51,7 +51,7 @@ def write_umls_ids(mrsty, category_map,umls_output,prefix=UMLS,blacklist=set()):
                 if not x[0] in blacklist:
                     outf.write(f'{prefix}:{x[0]}\t{category_map[cat]}\n')
 
-def write_rxnorm_ids(category_map, bad_categories, outfile,prefix=RXCUI,styfile="RXNSTY.RRF",blacklist=set()):
+def write_rxnorm_ids(category_map, bad_categories, infile, outfile,prefix=RXCUI,styfile="RXNSTY.RRF",blacklist=set()):
     """It's surprising, but not everything in here has an RXCUI.
     Just because there's a row and it has an id in the first column, it doesn't mean pretty much anything.
     It's only ones that have an RXNORM in their row somewhere that count.   They are the ones that show up
@@ -84,7 +84,7 @@ def write_rxnorm_ids(category_map, bad_categories, outfile,prefix=RXCUI,styfile=
     After gorking around with STY for a while, I've realized that the best way to get the types is from RXNCONSO.
     If there is an IN or PIN TTY, then it's a ChemicalEntity, otherwise a Drug.
     """
-    rxnconso = os.path.join('input_data', 'private', "RXNCONSO.RRF")
+    rxnconso = infile # os.path.join('input_data', 'private', "RXNCONSO.RRF")
     with open(rxnconso,'r') as inf, open(outfile,'w') as outf:
         current_id = None
         current_ttys = set()
