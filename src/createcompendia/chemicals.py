@@ -301,9 +301,10 @@ def combine_unichem(concordances,output):
         with open(infile,'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
-                pairs.append( set([x[0], x[2]]))
+                pairs.append( ([x[0], x[2]]) )
         newpairs = remove_overused_xrefs(pairs)
-        glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
+        setpairs = [ set(x) for x in newpairs ]
+        glom(dicts, setpairs, unique_prefixes=[INCHIKEY])
     chem_sets = set([frozenset(x) for x in dicts.values()])
     with jsonlines.open(output, mode='w') as writer:
         for chemset in chem_sets:
@@ -510,7 +511,7 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
         with open(infile,'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
-                pairs.append( set([x[0], x[2]]))
+                pairs.append( ([x[0], x[2]]) )
         p = False
         if DRUGCENTRAL in [ n.split(':')[0] for n in pairs[0] ]:
             p = True
@@ -521,12 +522,13 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
                 if i in pair:
                     print(pair)
         newpairs = remove_overused_xrefs(pairs)
+        setpairs = [ set(x) for x in newpairs ]
         if p:
             print('after filtering:')
             for pair in newpairs:
                 if i in pair:
                     print(pair)
-        glom(dicts, newpairs, unique_prefixes=[INCHIKEY])
+        glom(dicts, setpairs, unique_prefixes=[INCHIKEY])
         if p:
             print('after glomming:')
             print(dicts[i])
