@@ -294,6 +294,9 @@ def download_rxnorm(rxnorm_version, download_dir):
     # Move files we use to the main download directory.
     # - RXNCONSO.RRF
     shutil.copy2(os.path.join(download_dir, 'rrf', 'RXNCONSO.RRF'), download_dir)
+    # - RXNREL.RRF
+    shutil.copy2(os.path.join(download_dir, 'rrf', 'RXNREL.RRF'), download_dir)
+
 
 
 def pull_umls(mrconso):

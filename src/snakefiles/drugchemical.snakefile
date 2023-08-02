@@ -4,11 +4,13 @@ import src.assess_compendia as assessments
 ### Drug / Chemical
 
 rule rxnorm_relationships:
-    #Expects input_data/private/RXNREL.RRF to exist
+    input:
+        rxnconso = config['download_directory'] + "/RxNorm/RXNCONSO.RRF",
+        rxnrel = config['download_directory'] + "/RxNorm/RXNREL.RRF",
     output:
         outfile_concords = config['intermediate_directory'] + '/drugchemical/concords/RXNORM'
     run:
-        drugchemical.build_rxnorm_relationships(output.outfile_concords)
+        drugchemical.build_rxnorm_relationships(input.rxnconso, input.rxnrel, output.outfile_concords)
 
 rule pubchem_rxnorm_relationships:
     input:

@@ -124,7 +124,7 @@ rule get_chemical_umls_relationships:
 rule get_chemical_rxnorm_relationships:
     input:
         infile=config['intermediate_directory']+"/chemicals/ids/RXNORM",
-        conso="input_data/private/RXNCONSO.RRF"
+        conso=config['download_directory'] + "/RxNorm/RXNCONSO.RRF"
     output:
         outfile=config['intermediate_directory']+'/chemicals/concords/RXNORM',
     run:

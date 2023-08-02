@@ -507,6 +507,7 @@ rule pubchem_synonyms:
 rule download_rxnorm:
     output:
         config['download_directory']+'/RxNorm/RXNCONSO.RRF',
+        config['download_directory']+'/RxNorm/RXNREL.RRF',
     run:
         umls.download_rxnorm(config['rxnorm_version'], config['download_directory'] + '/RxNorm')
 

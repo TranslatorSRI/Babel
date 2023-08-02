@@ -83,11 +83,11 @@ useful_relationships = [
 "has_ingredient",
 "has_active_ingredient"]
 
-def get_aui_to_cui():
+def get_aui_to_cui(consofile):
     """Get a mapping from AUI to CUI"""
     aui_to_cui = {}
     sdui_to_cui = defaultdict(set)
-    consofile = os.path.join('input_data', 'private', "RXNCONSO.RRF")
+    # consofile = os.path.join('input_data', 'private', "RXNCONSO.RRF")
     with open(consofile, 'r') as inf:
         for line in inf:
             x = line.strip().split('|')
@@ -125,7 +125,7 @@ def get_cui(x,indicator_column,cui_column,aui_column,aui_to_cui,sdui_to_cui):
         print(x)
         exit()
 
-def build_rxnorm_relationships(outfile):
+def build_rxnorm_relationships(conso, relfile, outfile):
     """RXNREL is a lousy file.
     The subject and object can sometimes be a CUI and sometimes an AUI and you have to use
     CONSO to figure out how to go back and forth.
@@ -146,8 +146,8 @@ def build_rxnorm_relationships(outfile):
 
     has_tradename is even worse - it needs to be 1:1 to be useable
     """
-    aui_to_cui, sdui_to_cui = get_aui_to_cui()
-    relfile = os.path.join('input_data', 'private', "RXNREL.RRF")
+    aui_to_cui, sdui_to_cui = get_aui_to_cui(conso)
+    # relfile = os.path.join('input_data', 'private', "RXNREL.RRF")
     single_use_relations = {"has_active_ingredient": defaultdict(list),
                             "has_precise_active_ingredient": defaultdict(list),
                             "has_precise_ingredient": defaultdict(list),
