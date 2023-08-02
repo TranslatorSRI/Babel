@@ -271,7 +271,7 @@ def download_rxnorm(rxnorm_version, download_dir):
     # As described at https://documentation.uts.nlm.nih.gov/automating-downloads.html
     rxnorm_url = f"https://uts-ws.nlm.nih.gov/download"
     req = requests.get(rxnorm_url, {
-        "url": f"https://download.nlm.nih.gov/umls/kss/rxnorm/RxNorm_full_{umls_version}.zip",
+        "url": f"https://download.nlm.nih.gov/umls/kss/rxnorm/RxNorm_full_{rxnorm_version}.zip",
         "apiKey": umls_api_key
     }, stream=True)
     if not req.ok:
