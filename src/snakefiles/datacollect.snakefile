@@ -504,6 +504,12 @@ rule pubchem_synonyms:
     run:
         pubchem.make_labels_or_synonyms(input.infile,output.outfile)
 
+rule download_rxnorm:
+    output:
+        config['download_directory']+'/RxNorm/RXNCONSO.RRF',
+    run:
+        umls.download_rxnorm(config['rxnorm_version'], config['download_directory'] + '/RxNorm')
+
 rule pubchem_rxnorm_annotations:
     output:
         outfile = config['download_directory'] + '/PUBCHEM.COMPOUND/RXNORM.json',

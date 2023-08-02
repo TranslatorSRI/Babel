@@ -252,6 +252,50 @@ def download_umls(umls_version, download_dir):
     shutil.copy2(os.path.join(download_dir, umls_version, 'META', 'MRSTY.RRF'), download_dir)
 
 
+def download_rxnorm(rxnorm_version, download_dir):
+    """
+    Download the specified RxNorm version into the specified download directory. In addition to
+    downloading and unzipping RxNorm, this will move the files we use into the main directory.
+
+    :param rxnorm_version: The version of RxNorm to download (e.g. `07032023`).
+        Look for the latest download at https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html
+    :param download_dir: The directory to download UMLS to (e.g. `babel_downloads/RxNORM`)
+    """
+    umls_api_key = os.environ.get('UMLS_API_KEY')
+    if not umls_api_key:
+        print("The environmental variable UMLS_API_KEY needs to be set to a valid UMLS API key.")
+        print("See instructions at https://documentation.uts.nlm.nih.gov/rest/authentication.html")
+        exit(1)
+
+    # Download RxNorm_full_{rxnorm_version}.zip
+    # As described at https://documentation.uts.nlm.nih.gov/automating-downloads.html
+    rxnorm_url = f"https://uts-ws.nlm.nih.gov/download"
+    req = requests.get(rxnorm_url, {
+        "url": f"https://download.nlm.nih.gov/umls/kss/rxnorm/RxNorm_full_{umls_version}.zip",
+        "apiKey": umls_api_key
+    }, stream=True)
+    if not req.ok:
+        print(f"Unable to download RxNorm from ${rxnorm_url}: ${req}")
+        exit(1)
+
+    # Write file to {download_dir}/RxNorm_full_{rxnorm_version}.zip
+    logging.info(f"Downloading RxNorm_full_{rxnorm_version}.zip to {download_dir}")
+    os.makedirs(download_dir, exist_ok=True)
+    rxnorm_download_zip = os.path.join(download_dir, f"RxNorm_full_{rxnorm_version}.zip")
+    with open(rxnorm_download_zip, 'wb') as fd:
+        for chunk in req.iter_content(chunk_size=128):
+            fd.write(chunk)
+
+    # Unzip file.
+    logging.info(f"Uncompressing {rxnorm_download_zip}")
+    with ZipFile(rxnorm_download_zip, 'r') as zipObj:
+        zipObj.extractall(download_dir)
+
+    # Move files we use to the main download directory.
+    # - RXNCONSO.RRF
+    shutil.copy2(os.path.join(download_dir, 'rrf', 'RXNCONSO.RRF'), download_dir)
+
+
 def pull_umls(mrconso):
     """Run through MRCONSO.RRF creating label and synonym files for UMLS and SNOMEDCT"""
     rows = defaultdict(list)
