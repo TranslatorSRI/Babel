@@ -286,6 +286,16 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     else:
                         document["shortest_name_length"] = len(synonyms_list[0])
 
+                    # We want to see if we can use the CURIE suffix to sort concepts with similar identifiers.
+                    # We want to sort this numerically, so we only do this if the CURIE suffix is numerical.
+                    curie_parts = curie.split(':', 1)
+                    if len(curie_parts) > 0:
+                        # Try to cast the CURIE suffix to an integer. If we get a ValueError, don't worry about it.
+                        try:
+                            document["curie_suffix"] = int(curie_parts[1])
+                        except ValueError:
+                            pass
+
                     sfile.write( document )
                 except Exception as ex:
                     print(f"Exception thrown while write_compendium() was generating {ofname}: {ex}")
