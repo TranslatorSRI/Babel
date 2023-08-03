@@ -26,7 +26,8 @@ rule all:
         config['output_directory'] + '/reports/protein_done',
         config['output_directory'] + '/reports/taxon_done',
         config['output_directory'] + '/reports/umls_done',
-        config['output_directory'] + '/reports/macromolecular_complex_done'
+        config['output_directory'] + '/reports/macromolecular_complex_done',
+        config['output_directory'] + '/reports/drugchemical_done',
     output:
         x = config['output_directory'] + '/reports/all_done'
     shell:
