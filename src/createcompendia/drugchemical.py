@@ -266,6 +266,6 @@ def build_conflation(rxn_concord,pubchem_rxn_concord,drug_compendium,chemical_co
             fs = frozenset(clique)
             if fs in written:
                 continue
-            outfile.write(f"{list(clique)}\n")
+            outfile.write(f"{json.dumps(list(clique))}\n")
             written.add(fs)
 
