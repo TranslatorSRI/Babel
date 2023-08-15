@@ -1,4 +1,4 @@
-from src.prefixes import RXCUI, PUBCHEMCOMPOUND
+from src.prefixes import RXCUI, PUBCHEMCOMPOUND, CHEMBLCOMPOUND, UNII, DRUGBANK, MESH, UMLS, CHEBI
 from src.babel_utils import glom
 from collections import defaultdict
 import os,json
@@ -266,6 +266,16 @@ def build_conflation(rxn_concord,pubchem_rxn_concord,drug_compendium,chemical_co
             fs = frozenset(clique)
             if fs in written:
                 continue
-            outfile.write(f"{json.dumps(list(clique))}\n")
+            lc = list(clique)
+            lc.sort(key=cdkey)
+            outfile.write(f"{lc}\n")
             written.add(fs)
 
+
+#We want the chemical first, then the drug.  For MESH/UMLS we don't really know which they are. THe idea in this one
+# is that we're unlikely to have a chemical with a clique leader of MESH/UMLS.  (Wrong sometimes....)
+kl={PUBCHEMCOMPOUND:0, CHEMBLCOMPOUND: 1, UNII: 2, CHEBI: 3, DRUGBANK: 4, RXCUI: 5, MESH: 6, UMLS: 7}
+def cdkey(curie):
+    # A real solution here would keep track of whether each id came from chemicals or drugs...
+    pref = curie.split(':')[0]
+    return (kl[pref], curie)
