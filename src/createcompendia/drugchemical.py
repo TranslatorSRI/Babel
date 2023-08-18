@@ -268,7 +268,7 @@ def build_conflation(rxn_concord,pubchem_rxn_concord,drug_compendium,chemical_co
                 continue
             lc = list(clique)
             lc.sort(key=cdkey)
-            outfile.write(f"{lc}\n")
+            outfile.write(f"{json.dumps(lc)}\n")
             written.add(fs)
 
 
