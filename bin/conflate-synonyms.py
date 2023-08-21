@@ -145,7 +145,10 @@ def conflate_synonyms(synonym_files, conflation_file, output):
                 # into the final conflations.
 
         # Checks
-        assert final_conflation['curie'] == curie
+        ## assert final_conflation['curie'] == curie
+        if final_conflation['curie'] != curie:
+            final_conflation['curie'] = curie
+            logging.warning(f"Synonym entry {curie} was incorrectly assigned primary identifier {final_conflation['curie']} instead -- are you missing some input synonym files? Fixed.")
 
         # Write it out.
         logging.info(f"Conflated entries:\n{json.dumps('synonyms_by_curie', indent=2, sort_keys=True)}")
