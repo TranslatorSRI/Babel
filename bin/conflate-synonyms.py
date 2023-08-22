@@ -71,8 +71,8 @@ def conflate_synonyms(synonym_files, conflation_file, output):
             curie = synonym['curie']
             bl_type = 'biolink:' + synonym.get('types', ['Entity'])[0]
             if curie not in conflation_index:
-                # No known conflation. We can ignore.
-                # json.dump(synonym, sort_keys=True, fp=output)
+                # No known conflation. We can just write it out.
+                print(json.dumps(synonym), file=output)
                 logging.debug(f"Ignoring synonym {curie}, no known conflation.")
             else:
                 # We need to conflate this. Add this to the synonyms_to_conflate list.
@@ -151,8 +151,9 @@ def conflate_synonyms(synonym_files, conflation_file, output):
             logging.warning(f"Synonym entry {curie} was incorrectly assigned primary identifier {final_conflation['curie']} instead -- are you missing some input synonym files? Fixed.")
 
         # Write it out.
-        logging.info(f"Conflated entries:\n{json.dumps('synonyms_by_curie', indent=2, sort_keys=True)}")
-        logging.info(f"Into entry: {json.dumps(final_conflation)}")
+        logging.debug(f"Conflated entries:\n{json.dumps(synonyms_by_curie, indent=2, sort_keys=True)}")
+        logging.debug(f"Into entry: {json.dumps(final_conflation)}")
+        print(json.dumps(final_conflation), file=output)
 
 
 if __name__ == '__main__':
