@@ -7,8 +7,8 @@ import gzip
 from gzip import GzipFile
 
 from src.ubergraph import UberGraph
-from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS
-from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE
+from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
+from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, DRUG
 from src.sdfreader import read_sdf
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
@@ -34,18 +34,45 @@ def write_umls_ids(mrsty, outfile):
               'A1.4.1.2.1',# Organic Chemical
               'A1.4.1.2.1.5',# Nucleic Acid, Nucleoside, or Nucleotide
               'A1.4.1.2.2',# Inorganic Chemical
-              'A1.4.1.2.3'# Element, Ion, or Isotope
+              'A1.4.1.2.3',# Element, Ion, or Isotope
+              'A1.3.3' #Clinical Drug
              ]
     #Leaving out these ones:
     #'A1.4.1.1.3.6',# Receptor
     #'A1.4.1.2.1.7 Amino Acid, Peptide, or Protein
     umlsmap = {a:CHEMICAL_ENTITY for a in groups}
+    umlsmap["A1.3.3"] = DRUG
     umls.write_umls_ids(mrsty, umlsmap, outfile)
 
+def write_rxnorm_ids(infile, outfile):
+    groups = ['A1.4.1.1.1.1', #antibiotic
+              'A1.4.1.1.3.2', # Hormone
+              'A1.4.1.1.3.3',# Enzyme
+              'A1.4.1.1.3.4',# Vitamin
+              'A1.4.1.1.3.5',# Immunologic Factor
+              'A1.4.1.1.4',# Indicator, Reagent, or Diagnostic Aid
+              'A1.4.1.2',# Chemical Viewed Structurally
+              'A1.4.1.2.1',# Organic Chemical
+              'A1.4.1.2.1.5',# Nucleic Acid, Nucleoside, or Nucleotide
+              'A1.4.1.2.2',# Inorganic Chemical
+              'A1.4.1.2.3', # Element, Ion, or Isotope
+              "A1.4", # Substance
+              "A1.3.3",  # Clinical Drug
+              "A1.4.1.1.1", #Pharmacologic Substance
+             ]
+    #Leaving out these ones:
+    filter_types=['A1.4.1.1.3.6', # Receptor
+                  'A1.4.1.2.1.7'] #Amino Acid, Peptide, or Protein
+    umlsmap = {a:CHEMICAL_ENTITY for a in groups}
+    umlsmap ["A1.3.3"] = DRUG
+    umlsmap ["A1.4.1.1.1"] = DRUG
+    umls.write_rxnorm_ids(umlsmap, filter_types, infile, outfile, prefix=RXCUI, styfile="RXNSTY.RRF")
 
-def build_chemical_umls_relationships(mrconso, idfile, outfile):
-    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK})
+def build_chemical_umls_relationships(mrconso, idfile,outfile):
+    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK, 'RXNORM': RXCUI })
 
+def build_chemical_rxnorm_relationships(conso, idfile,outfile):
+    umls.build_sets(conso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, cui_prefix=RXCUI)
 
 def write_pubchem_ids(labelfile,smilesfile,outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
@@ -527,7 +554,10 @@ def build_compendia(type_file, untyped_compendia_file, icrdf_filename):
     typed_sets = create_typed_sets(untyped_sets, types)
     for biotype, sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
-        write_compendium(sets, f'{baretype}.txt', biotype, {}, icrdf_filename=icrdf_filename)
+        if biotype == DRUG:
+            write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[MESH,UNII], icrdf_filename=icrdf_filename)
+        else:
+            write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[RXCUI], icrdf_filename=icrdf_filename)
 
 def create_typed_sets(eqsets, types):
     """
@@ -537,7 +567,7 @@ def create_typed_sets(eqsets, types):
     :param eqsets: A list of lists of identifiers (should NOT be a list of LabeledIDs, but a list of strings).
     :param types: A dictionary of known types for each identifier. (Some identifiers don't have known types.)
     """
-    order = [MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
+    order = [DRUG, MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
     typed_sets = defaultdict(set)
     # logging.warning(f"create_typed_sets: eqsets={eqsets}, types=...")
     for equivalent_ids in eqsets:

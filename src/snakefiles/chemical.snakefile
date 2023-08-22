@@ -9,6 +9,14 @@ rule chemical_umls_ids:
     run:
         chemicals.write_umls_ids(input.mrsty, output.outfile)
 
+rule chemical_rxnorm_ids:
+    input:
+        infile=config['download_directory']+"/RxNorm/RXNCONSO.RRF"
+    output:
+        outfile=config['intermediate_directory']+"/chemicals/ids/RXNORM"
+    run:
+        chemicals.write_rxnorm_ids(input.infile, output.outfile)
+
 rule chemical_mesh_ids:
     input:
         infile=config['download_directory']+'/MESH/mesh.nt'
@@ -112,6 +120,15 @@ rule get_chemical_umls_relationships:
         outfile=config['intermediate_directory']+'/chemicals/concords/UMLS',
     run:
         chemicals.build_chemical_umls_relationships(input.mrconso, input.infile, output.outfile)
+
+rule get_chemical_rxnorm_relationships:
+    input:
+        infile=config['intermediate_directory']+"/chemicals/ids/RXNORM",
+        conso=config['download_directory'] + "/RxNorm/RXNCONSO.RRF"
+    output:
+        outfile=config['intermediate_directory']+'/chemicals/concords/RXNORM',
+    run:
+        chemicals.build_chemical_rxnorm_relationships(input.conso, input.infile,output.outfile)
 
 rule get_chemical_wikipedia_relationships:
     output:
@@ -259,6 +276,15 @@ rule check_chemical_mixture:
         infile=config['output_directory']+'/compendia/ChemicalMixture.txt'
     output:
         outfile=config['output_directory']+'/reports/ChemicalMixture.txt'
+    run:
+        assessments.assess(input.infile, output.outfile)
+
+
+rule check_drug:
+    input:
+        infile=config['output_directory']+'/compendia/Drug.txt'
+    output:
+        outfile=config['output_directory']+'/reports/Drug.txt'
     run:
         assessments.assess(input.infile, output.outfile)
 

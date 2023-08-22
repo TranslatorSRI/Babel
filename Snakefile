@@ -8,6 +8,7 @@ include: "src/snakefiles/geneprotein.snakefile"
 include: "src/snakefiles/diseasephenotype.snakefile"
 include: "src/snakefiles/process.snakefile"
 include: "src/snakefiles/chemical.snakefile"
+include: "src/snakefiles/drugchemical.snakefile"
 include: "src/snakefiles/taxon.snakefile"
 include: "src/snakefiles/genefamily.snakefile"
 include: "src/snakefiles/leftover_umls.snakefile"
@@ -25,7 +26,8 @@ rule all:
         config['output_directory'] + '/reports/protein_done',
         config['output_directory'] + '/reports/taxon_done',
         config['output_directory'] + '/reports/umls_done',
-        config['output_directory'] + '/reports/macromolecular_complex_done'
+        config['output_directory'] + '/reports/macromolecular_complex_done',
+        config['output_directory'] + '/reports/drugchemical_done',
     output:
         x = config['output_directory'] + '/reports/all_done'
     shell:

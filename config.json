@@ -6,6 +6,7 @@
 
   "biolink_version": "3.3.3",
   "umls_version": "2023AA",
+  "rxnorm_version": "07032023",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
   "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","PATO","PR","RO","UBPROP"],
@@ -42,9 +43,9 @@
   "unichem_datasources": ["CHEMBL.COMPOUND","DRUGBANK","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral"],
   "chemical_labels": ["CHEMBL.COMPOUND","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral","UMLS"],
   "chemical_synonyms": ["GTOPDB","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","UMLS"],
-  "chemical_concords": ["wikipedia_mesh_chebi","PUBCHEM_MESH","mesh_cas","mesh_unii","PUBCHEM_CAS","GTOPDB","CHEBI","UMLS","DrugCentral"],
-  "chemical_ids": ["CHEMBL.COMPOUND","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral","DRUGBANK","MESH","UMLS"],
-  "chemical_outputs": ["MolecularMixture.txt", "SmallMolecule.txt", "Polypeptide.txt", "ComplexMolecularMixture.txt",  "ChemicalEntity.txt", "ChemicalMixture.txt"],
+  "chemical_concords": ["wikipedia_mesh_chebi","PUBCHEM_MESH","mesh_cas","mesh_unii","PUBCHEM_CAS","GTOPDB","CHEBI","UMLS","DrugCentral","RXNORM"],
+  "chemical_ids": ["CHEMBL.COMPOUND","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral","DRUGBANK","MESH","UMLS","RXNORM"],
+  "chemical_outputs": ["MolecularMixture.txt", "SmallMolecule.txt", "Polypeptide.txt", "ComplexMolecularMixture.txt",  "ChemicalEntity.txt", "ChemicalMixture.txt", "Drug.txt"],
 
   "taxon_labels": ["NCBITaxon","MESH","UMLS"],
   "taxon_synonyms": ["NCBITaxon","UMLS"],
