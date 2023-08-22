@@ -15,10 +15,10 @@ import click
 logging.basicConfig(level=logging.INFO)
 
 
-@click.command()
-@click.option('--conflation-file', multiple=True, type=click.Path(exists=True))
-@click.option('--output', type=click.Path(exists=False), default='-')
-@click.argument("synonym_files", nargs=-1, type=click.Path(exists=True))
+#click.command()
+#click.option('--conflation-file', multiple=True, type=click.Path(exists=True))
+#click.option('--output', type=click.Path(exists=False), default='-')
+#click.argument("synonym_files", nargs=-1, type=click.Path(exists=True))
 def conflate_synonyms(synonym_files, conflation_file, output):
     """
     Generate a synonym file based on a single input synonym, the conflation described in the input conflation files,
@@ -45,7 +45,7 @@ def conflate_synonyms(synonym_files, conflation_file, output):
     # Step 1. Load all the conflations. We only need to work on these identifiers, so that simplifies our work.
     for conflation_filename in conflation_file:
         logging.info(f"Reading conflation file {conflation_filename}")
-        with open(click.format_filename(conflation_filename), "r") as conflationf:
+        with open(conflation_filename, "r") as conflationf:
             count_primary = 0
             count_secondary = 0
             for line in conflationf:
@@ -66,12 +66,12 @@ def conflate_synonyms(synonym_files, conflation_file, output):
     logging.info(f"Loaded all conflation files, found {len(conflation_index):,} identifiers in total.")
 
     logging.info(f"Writing output to {output}.")
-    with open(click.format_filename(output), 'w') as outputf:
+    with open(output, 'w') as outputf:
         # Step 2. Conflate the synonyms.
         synonyms_to_conflate = defaultdict(lambda: defaultdict(list))
         for synonym_filename in synonym_files:
             logging.info(f"Reading synonym file {synonym_filename}")
-            with open(click.format_filename(synonym_filename), "r") as synonymsf:
+            with open(synonym_filename, "r") as synonymsf:
                 for synonym_text in synonymsf:
                     synonym = json.loads(synonym_text)
 
