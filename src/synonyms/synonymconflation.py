@@ -30,6 +30,8 @@ def conflate_synonyms(synonym_files, conflation_file, output):
     :return:
     """
 
+    logging.info(f"conflate_synonyms({synonym_files}, {conflation_file}, {output})")
+
     # Some common code to manage the conflation index.
     # This is simply a large dictionary, where every key is an identifier and the value is the identifier to map it to.
     conflation_index = dict()
