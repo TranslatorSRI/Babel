@@ -63,6 +63,7 @@ def conflate_synonyms(synonym_files, conflation_file, output):
 
     logging.info(f"Loaded all conflation files, found {len(conflation_index):,} identifiers in total.")
 
+    logging.info(f"Writing output to {output}.")
     with open(click.format_filename(output), 'w') as outputf:
         # Step 2. Conflate the synonyms.
         synonyms_to_conflate = defaultdict(lambda: defaultdict(list))
