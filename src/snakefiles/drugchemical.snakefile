@@ -39,7 +39,7 @@ rule drugchemical_conflated_synonyms:
     output:
         drugchemical_conflated=config['output_directory']+'/synonyms/DrugChemicalConflated.txt',
     run:
-        synonymconflation.conflate_synonyms([input.drugchemical_conflation], input.chemical_synonyms, output.drugchemical_conflated)
+        synonymconflation.conflate_synonyms(input.chemical_synonyms, [input.drugchemical_conflation], output.drugchemical_conflated)
 
 rule drugchemical:
     input:
