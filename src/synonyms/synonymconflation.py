@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 
 @click.command()
 @click.option('--conflation-file', multiple=True, type=click.Path(exists=True))
-@click.option('--output', type=click.Path(exists=False), default=sys.stdout)
+@click.option('--output', type=click.Path(exists=False), default='-')
 @click.argument("synonym_files", nargs=-1, type=click.Path(exists=True))
 def conflate_synonyms(synonym_files, conflation_file, output):
     """
