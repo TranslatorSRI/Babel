@@ -104,6 +104,7 @@ def conflate_synonyms(synonym_files, conflation_file, output):
 
         names_included = set()
         types_included = set()
+        types_to_ignore = set('OntologyClass')
         for conflation_id in conflation_order:
             logging.info(f"Looking into {conflation_id}.")
             for synonym in synonyms_by_curie[conflation_id]:
@@ -136,6 +137,10 @@ def conflate_synonyms(synonym_files, conflation_file, output):
                     final_conflation['types'] = list()
 
                 for typ in synonym['types']:
+                    # Ignore types to be ignored.
+                    if typ in types_to_ignore:
+                        continue
+
                     # Don't repeat types that are already in the final conflation.
                     if typ not in types_included:
                         final_conflation['types'].append(typ)
