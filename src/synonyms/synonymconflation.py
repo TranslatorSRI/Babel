@@ -93,7 +93,7 @@ def conflate_synonyms(synonym_files, conflation_file, output):
                         for synonym_list in synonyms:
                             for synonym in synonym_list:
                                 bl_types.add('biolink:' + synonym.get('types', ['Entity'])[0])
-                        logging.info(f"Conflating synonym {curie} ({bl_type}) to {conflated_id} ({bl_types}).")
+                        logging.debug(f"Conflating synonym {curie} ({bl_type}) to {conflated_id} ({bl_types}).")
 
         logging.info(f"Identified {len(synonyms_to_conflate)} conflated cliques that need to be synonymized.")
         logging.debug(f"Conflated cliques: {json.dumps(synonyms_to_conflate, sort_keys=True)}")
