@@ -174,8 +174,13 @@ def build_rxnorm_relationships(conso, relfile, outfile):
     with open(relfile, 'r') as inf, open(outfile, 'w') as outf:
         for line in inf:
             x = line.strip().split('|')
-            object = get_cui(x,2,0,1,aui_to_cui,sdui_to_cui)
-            subject = get_cui(x,6,4,5,aui_to_cui,sdui_to_cui)
+            #UMLS always has the CUI in it, while RXNORM does not.
+            if outfile == "UMLS":
+                object = x[0]
+                subject = x[4]
+            else:
+                object = get_cui(x,2,0,1,aui_to_cui,sdui_to_cui)
+                subject = get_cui(x,6,4,5,aui_to_cui,sdui_to_cui)
             if (subject is not None) and (object is not None):
                 if subject == object:
                     continue
