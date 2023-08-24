@@ -14,8 +14,8 @@ rule rxnorm_relationships:
 
 rule umls_relationships:
     input:
-        umlsconso = config['download_directory'] + "/UMLS/RXNCONSO.RRF",
-        umlsrel = config['download_directory'] + "/UMLS/RXNREL.RRF",
+        umlsconso = config['download_directory'] + "/UMLS/MRCONSO.RRF",
+        umlsrel = config['download_directory'] + "/UMLS/MRREL.RRF",
     output:
         outfile_concords = config['intermediate_directory'] + '/drugchemical/concords/UMLS'
     run:
