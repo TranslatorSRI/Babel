@@ -150,6 +150,11 @@ def build_rxnorm_relationships(conso, relfile, outfile):
     by the fact that auis and sduis are used in the file.  This happens when the effective triple comes from multiple
     sources. That's why the collections below need to be sets rather than lists
     """
+    #This is maybe relying on convention a bit too much.
+    if outfile == "UMLS":
+        prefix = UMLS
+    else:
+        prefix = RXCUI
     aui_to_cui, sdui_to_cui = get_aui_to_cui(conso)
     # relfile = os.path.join('input_data', 'private', "RXNREL.RRF")
     single_use_relations = {"has_active_ingredient": defaultdict(set),
@@ -174,19 +179,19 @@ def build_rxnorm_relationships(conso, relfile, outfile):
                     one_to_one_relations[predicate]["subject"][subject].add(object)
                     one_to_one_relations[predicate]["object"][object].add(subject)
                 else:
-                    outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{object}\n")
+                    outf.write(f"{prefix}:{subject}\t{predicate}\t{prefix}:{object}\n")
         for predicate in single_use_relations:
             for subject,objects in single_use_relations[predicate].items():
                 if len(objects) > 1:
                     continue
-                outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{next(iter(objects))}\n")
+                outf.write(f"{prefix}:{subject}\t{predicate}\t{prefix}:{next(iter(objects))}\n")
         for predicate in one_to_one_relations:
             for subject,objects in one_to_one_relations[predicate]["subject"].items():
                 if len(objects) > 1:
                     continue
                 if len(one_to_one_relations[predicate]["object"][next(iter(objects))]) > 1:
                     continue
-                outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{next(iter(objects))}\n")
+                outf.write(f"{prefix}:{subject}\t{predicate}\t{prefix}:{next(iter(objects))}\n")
 
 
 def load_cliques(compendium):
