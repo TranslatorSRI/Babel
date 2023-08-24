@@ -224,7 +224,7 @@ def build_pubchem_relationships(infile,outfile):
             for cid in cids:
                 outf.write(f"{RXCUI}:{rxnid}\tlinked\t{PUBCHEMCOMPOUND}:{cid}\n")
 
-def build_conflation(rxn_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
+def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
     """RXN_concord contains relationshps between rxcuis that can be used to conflate
     Now we don't want all of them.  We want the ones that are between drugs and chemicals,
     and the ones between drugs and drugs.
@@ -240,28 +240,29 @@ def build_conflation(rxn_concord,pubchem_rxn_concord,drug_compendium,chemical_co
         print(f"load {chemical_compendium}")
         chemical_rxcui_to_clique.update(load_cliques(chemical_compendium))
     pairs = []
-    with open(rxn_concord,"r") as infile:
-        for line in infile:
-            x = line.strip().split('\t')
-            subject = x[0]
-            object = x[2]
-            if subject in drug_rxcui_to_clique and object in chemical_rxcui_to_clique:
-                subject = drug_rxcui_to_clique[subject]
-                object = chemical_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
-            elif subject in chemical_rxcui_to_clique and object in drug_rxcui_to_clique:
-                subject = chemical_rxcui_to_clique[subject]
-                object = drug_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
-            # OK, this is possible, and it's OK, as long as we get real clique leaders
-            elif subject in drug_rxcui_to_clique and object in drug_rxcui_to_clique:
-                subject = drug_rxcui_to_clique[subject]
-                object = drug_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
-            elif subject in chemical_rxcui_to_clique and object in chemical_rxcui_to_clique:
-                subject = chemical_rxcui_to_clique[subject]
-                object = chemical_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
+    for concfile in [rxn_concord,umls_concord]:
+        with open(concfile,"r") as infile:
+            for line in infile:
+                x = line.strip().split('\t')
+                subject = x[0]
+                object = x[2]
+                if subject in drug_rxcui_to_clique and object in chemical_rxcui_to_clique:
+                    subject = drug_rxcui_to_clique[subject]
+                    object = chemical_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
+                elif subject in chemical_rxcui_to_clique and object in drug_rxcui_to_clique:
+                    subject = chemical_rxcui_to_clique[subject]
+                    object = drug_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
+                # OK, this is possible, and it's OK, as long as we get real clique leaders
+                elif subject in drug_rxcui_to_clique and object in drug_rxcui_to_clique:
+                    subject = drug_rxcui_to_clique[subject]
+                    object = drug_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
+                elif subject in chemical_rxcui_to_clique and object in chemical_rxcui_to_clique:
+                    subject = chemical_rxcui_to_clique[subject]
+                    object = chemical_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
     with open(pubchem_rxn_concord,"r") as infile:
         for line in infile:
             x = line.strip().split('\t')
