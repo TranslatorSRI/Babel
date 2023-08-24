@@ -137,6 +137,7 @@ rule download_umls:
     output:
         config['download_directory']+'/UMLS/MRCONSO.RRF',
         config['download_directory']+'/UMLS/MRSTY.RRF',
+        config['download_directory']+'/UMLS/MRREL.RRF',
     run:
         umls.download_umls(config['umls_version'], config['download_directory'] + '/UMLS')
 
