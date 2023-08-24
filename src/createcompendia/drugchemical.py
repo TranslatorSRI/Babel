@@ -121,6 +121,9 @@ def get_cui(x,indicator_column,cui_column,aui_column,aui_to_cui,sdui_to_cui):
             print(x)
             print(cuis)
             exit()
+        elif x[indicator_column] == "SCUI":
+            #SCUI is source cui, i.e. what the source calls it.  We might be able to pull this out of CONSO if we have to.
+            return None
         print("cmon man")
         print(x)
         exit()
@@ -169,7 +172,7 @@ def build_rxnorm_relationships(conso, relfile, outfile):
             x = line.strip().split('|')
             object = get_cui(x,2,0,1,aui_to_cui,sdui_to_cui)
             subject = get_cui(x,6,4,5,aui_to_cui,sdui_to_cui)
-            if subject is not None:
+            if (subject is not None) and (object is not None):
                 if subject == object:
                     continue
                 predicate = x[7]
