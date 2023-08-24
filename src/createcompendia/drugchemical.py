@@ -112,7 +112,11 @@ def get_cui(x,indicator_column,cui_column,aui_column,aui_to_cui,sdui_to_cui):
         if x[indicator_column] == "CUI":
             return x[cui_column]
         elif x[indicator_column] == "AUI":
-            return aui_to_cui[x[aui_column]]
+            try:
+                return aui_to_cui[x[aui_column]]
+            except:
+                #this really shouldn't happen.  But it seems to occur for the UMLS files?
+                return None
         elif x[indicator_column] == "SDUI":
             cuis = sdui_to_cui[(x[source_column],x[aui_column])]
             if len(cuis) == 1:
