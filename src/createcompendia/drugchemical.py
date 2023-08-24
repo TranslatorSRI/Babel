@@ -145,16 +145,20 @@ def build_rxnorm_relationships(conso, relfile, outfile):
     similar issues. So, we're going to do a lot of catching here
 
     has_tradename is even worse - it needs to be 1:1 to be useable
+
+    Also, the same (cui) subject/object/predicate triple can be on multiple lines, obscured
+    by the fact that auis and sduis are used in the file.  This happens when the effective triple comes from multiple
+    sources. That's why the collections below need to be sets rather than lists
     """
     aui_to_cui, sdui_to_cui = get_aui_to_cui(conso)
     # relfile = os.path.join('input_data', 'private', "RXNREL.RRF")
-    single_use_relations = {"has_active_ingredient": defaultdict(list),
-                            "has_precise_active_ingredient": defaultdict(list),
-                            "has_precise_ingredient": defaultdict(list),
-                            "has_ingredient": defaultdict(list),
-                            "consists_of": defaultdict(list)}
-    one_to_one_relations = {"has_tradename": {"subject": defaultdict(list),
-                                              "object": defaultdict(list)}}
+    single_use_relations = {"has_active_ingredient": defaultdict(set),
+                            "has_precise_active_ingredient": defaultdict(set),
+                            "has_precise_ingredient": defaultdict(set),
+                            "has_ingredient": defaultdict(set),
+                            "consists_of": defaultdict(set)}
+    one_to_one_relations = {"has_tradename": {"subject": defaultdict(set),
+                                              "object": defaultdict(set)}}
     with open(relfile, 'r') as inf, open(outfile, 'w') as outf:
         for line in inf:
             x = line.strip().split('|')
@@ -165,24 +169,24 @@ def build_rxnorm_relationships(conso, relfile, outfile):
                     continue
                 predicate = x[7]
                 if predicate in single_use_relations:
-                    single_use_relations[predicate][subject].append(object)
+                    single_use_relations[predicate][subject].add(object)
                 elif predicate in one_to_one_relations:
-                    one_to_one_relations[predicate]["subject"][subject].append(object)
-                    one_to_one_relations[predicate]["object"][object].append(subject)
+                    one_to_one_relations[predicate]["subject"][subject].add(object)
+                    one_to_one_relations[predicate]["object"][object].add(subject)
                 else:
                     outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{object}\n")
         for predicate in single_use_relations:
             for subject,objects in single_use_relations[predicate].items():
                 if len(objects) > 1:
                     continue
-                outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{objects[0]}\n")
+                outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{next(iter(objects))}\n")
         for predicate in one_to_one_relations:
             for subject,objects in one_to_one_relations[predicate]["subject"].items():
                 if len(objects) > 1:
                     continue
-                if len(one_to_one_relations[predicate]["object"][objects[0]]) > 1:
+                if len(one_to_one_relations[predicate]["object"][next(iter(objects))]) > 1:
                     continue
-                outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{objects[0]}\n")
+                outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{next(iter(objects))}\n")
 
 
 def load_cliques(compendium):
