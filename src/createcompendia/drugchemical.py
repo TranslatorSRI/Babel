@@ -169,9 +169,11 @@ def build_rxnorm_relationships(conso, relfile, outfile):
                             "has_precise_active_ingredient": defaultdict(set),
                             "has_precise_ingredient": defaultdict(set),
                             "has_ingredient": defaultdict(set),
-                            "consists_of": defaultdict(set)}
-    one_to_one_relations = {"has_tradename": {"subject": defaultdict(set),
-                                              "object": defaultdict(set)}}
+                            "consists_of": defaultdict(set),
+                            "tradename_of": defaultdict(set)}
+    #one_to_one_relations = {"has_tradename": {"subject": defaultdict(set),
+    #                                          "object": defaultdict(set)}}
+    one_to_one_relations = {}
     with open(relfile, 'r') as inf, open(outfile, 'w') as outf:
         for line in inf:
             x = line.strip().split('|')
