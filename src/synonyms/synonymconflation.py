@@ -37,11 +37,6 @@ def conflate_synonyms(synonym_files, conflation_file, output):
     conflation_index = dict()
     conflations = defaultdict(list)
 
-    def add_conflation(primary_id, secondary_id):
-        if secondary_id in conflation_index and conflation_index[secondary_id] != primary_id:
-            logging.warning(f"Secondary identifier {secondary_id} is mapped to both {conflation_index[secondary_id]} and {primary_id}, the latter will be used.")
-        conflation_index[secondary_id] = primary_id
-
     # Step 1. Load all the conflations. We only need to work on these identifiers, so that simplifies our work.
     for conflation_filename in conflation_file:
         logging.info(f"Reading conflation file {conflation_filename}")
@@ -54,9 +49,15 @@ def conflate_synonyms(synonym_files, conflation_file, output):
                 # The conflation line is a list of identifiers, e.g. `["ID1", "ID2", "ID3"]`
                 # Note that we map the primary identifier to itself.
                 for ident in conflation:
-                    add_conflation(conflation[0], ident)
+                    if ident in conflation_index and conflation_index[ident] != conflation[0]:
+                        logging.error(f"Secondary ID {ident} is mapped to both {conflation_index[ident]} and " +
+                                        f"{conflation[0]}, the latter will be used.")
+                    conflation_index[ident] = conflation[0]
                     count_secondary += 1
 
+                # Store the conflation for later use.
+                if conflation[0] in conflations:
+                    logging.error(f"Two conflations have the same primary ID: {conflation} and {conflations[conflation[0]]}")
                 conflations[conflation[0]] = conflation
                 count_primary += 1
 
