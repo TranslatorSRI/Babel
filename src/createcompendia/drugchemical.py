@@ -189,8 +189,12 @@ def build_rxnorm_relationships(conso, relfile, outfile):
                 if debug_entity in [subject,object]:
                     print(f"{subject}\t{predicate}\t{object}")
                 if predicate in single_use_relations:
+                    if debug_entity in [subject, object]:
+                        print(f" Added to single use")
                     single_use_relations[predicate][subject].add(object)
                 elif predicate in one_to_one_relations:
+                    if debug_entity in [subject, object]:
+                        print(f" Added to one to one")
                     one_to_one_relations[predicate]["subject"][subject].add(object)
                     one_to_one_relations[predicate]["object"][object].add(subject)
                 else:
@@ -200,24 +204,20 @@ def build_rxnorm_relationships(conso, relfile, outfile):
         for predicate in single_use_relations:
             for subject,objects in single_use_relations[predicate].items():
                 if len(objects) > 1:
-                    if debug_entity in [subject, object]:
+                    if (debug_entity == subject) or (debug_entity in objects):
                         print(f" {predicate}: too many objects.")
                     continue
-                if debug_entity in [subject, object]:
-                    print(f" {predicate}: wrote.")
                 outf.write(f"{prefix}:{subject}\t{predicate}\t{prefix}:{next(iter(objects))}\n")
         for predicate in one_to_one_relations:
             for subject,objects in one_to_one_relations[predicate]["subject"].items():
                 if len(objects) > 1:
-                    if debug_entity in [subject, object]:
+                    if (debug_entity == subject) or (debug_entity in objects):
                         print(f" {predicate}: too many objects.")
                     continue
                 if len(one_to_one_relations[predicate]["object"][next(iter(objects))]) > 1:
-                    if debug_entity in [subject, object]:
+                    if (debug_entity in one_to_one_relations[predicate]["object"][next(iter(objects))]) or (debug_entity == object):
                         print(f" {predicate}: too many subjects.")
                     continue
-                if debug_entity in [subject, object]:
-                    print(f" {predicate}: wrote.")
                 outf.write(f"{prefix}:{subject}\t{predicate}\t{prefix}:{next(iter(objects))}\n")
 
 
