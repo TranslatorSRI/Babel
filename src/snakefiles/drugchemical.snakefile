@@ -1,5 +1,6 @@
 import src.createcompendia.drugchemical as drugchemical
 import src.assess_compendia as assessments
+import src.synonyms.synonymconflation as synonymconflation
 
 ### Drug / Chemical
 
@@ -41,9 +42,19 @@ rule drugchemical_conflation:
     run:
         drugchemical.build_conflation(input.rxnorm_concord,input.umls_concord,input.pubchem_concord,input.drug_compendium,input.chemical_compendia,output.outfile)
 
+rule drugchemical_conflated_synonyms:
+    input:
+        drugchemical_conflation=[config['output_directory']+'/conflation/DrugChemical.txt'],
+        chemical_synonyms=expand("{do}/synonyms/{co}", do=config['output_directory'], co=config['chemical_outputs']),
+    output:
+        drugchemical_conflated=config['output_directory']+'/synonyms/DrugChemicalConflated.txt',
+    run:
+        synonymconflation.conflate_synonyms(input.chemical_synonyms, input.drugchemical_conflation, output.drugchemical_conflated)
+
 rule drugchemical:
     input:
-        config['output_directory']+'/conflation/DrugChemical.txt'
+        config['output_directory']+'/conflation/DrugChemical.txt',
+        config['output_directory']+'/synonyms/DrugChemicalConflated.txt'
     output:
         x=config['output_directory']+'/reports/drugchemical_done'
     shell:

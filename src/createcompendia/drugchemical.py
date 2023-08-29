@@ -289,15 +289,31 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             if fs in written:
                 continue
             lc = list(clique)
-            lc.sort(key=cdkey)
+            lc.sort(key=conflation_curie_sort_key)
             outfile.write(f"{json.dumps(lc)}\n")
             written.add(fs)
-
 
 #We want the chemical first, then the drug.  For MESH/UMLS we don't really know which they are. THe idea in this one
 # is that we're unlikely to have a chemical with a clique leader of MESH/UMLS.  (Wrong sometimes....)
 kl={PUBCHEMCOMPOUND:0, CHEMBLCOMPOUND: 1, UNII: 2, CHEBI: 3, DRUGBANK: 4, RXCUI: 5, MESH: 6, UMLS: 7}
-def cdkey(curie):
+def conflation_curie_sort_key(curie):
+    """
+    Produce a sort key for CURIEs to be sorted when generating conflations. Our search criteria is:
+    1. Sort by CURIE prefix based on the rankings in the kl list above. If another prefix is included,
+       we produce a KeyError.
+    2. Sort numerically by increasing CURIE suffix (so the smallest numerical value should be first).
+       Non-numerical CURIE suffixes are sorted together at the end of the list.
+    3. Sort lexically by CURIE.
+
+    :param curie: A CURIE to generate a sort key for.
+    :return: A tuple that includes the search parameters in the correct order.
+    """
+
     # A real solution here would keep track of whether each id came from chemicals or drugs...
-    pref = curie.split(':')[0]
-    return (kl[pref], curie)
+    prefix, suffix = curie.split(':', 1)
+    try:
+        return kl[prefix], int(suffix), curie
+    except ValueError:
+        # We could sort these alphabetically, but CURIE suffix sorting is bad enough.
+        # Let's sort non-numerical values to the end of the list.
+        return kl[prefix], float('inf'), curie
