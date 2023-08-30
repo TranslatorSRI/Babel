@@ -4,9 +4,9 @@
   "intermediate_directory": "babel_outputs/intermediate",
   "output_directory": "babel_outputs",
 
-  "biolink_version": "3.3.3",
+  "biolink_version": "3.5.4",
   "umls_version": "2023AA",
-  "rxnorm_version": "07032023",
+  "rxnorm_version": "08072023",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
   "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","PATO","PR","RO","UBPROP"],
