@@ -29,7 +29,7 @@ rule geneprotein_conflated_synonyms:
     output:
         geneprotein_conflated_synonyms=config['output_directory']+'/synonyms/GeneProteinConflated.txt'
     run:
-        synonymconflation.conflate_synonyms(input.gene_outputs + input.protein_outputs, input.geneprotein_conflation, output=geneprotein_conflated_synonyms)
+        synonymconflation.conflate_synonyms(input.gene_outputs + input.protein_outputs, input.geneprotein_conflation, output.geneprotein_conflated_synonyms)
 
 rule geneprotein:
     input:
