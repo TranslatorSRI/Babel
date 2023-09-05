@@ -27,9 +27,9 @@ rule geneprotein_conflated_synonyms:
         gene_outputs=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['gene_outputs']),
         protein_outputs=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
     output:
-        geneprotein_conflated=config['output_directory']+'/synonyms/GeneProteinConflated.txt'
+        geneprotein_conflated_synonyms=config['output_directory']+'/synonyms/GeneProteinConflated.txt'
     run:
-        synonymconflation.conflate_synonyms(input.gene_outputs + input.protein_outputs, input.geneprotein_conflation, output=geneprotein_conflated)
+        synonymconflation.conflate_synonyms(input.gene_outputs + input.protein_outputs, input.geneprotein_conflation, output=geneprotein_conflated_synonyms)
 
 rule geneprotein:
     input:
