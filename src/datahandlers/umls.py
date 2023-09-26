@@ -250,6 +250,8 @@ def download_umls(umls_version, download_dir):
     shutil.copy2(os.path.join(download_dir, umls_version, 'META', 'MRCONSO.RRF'), download_dir)
     # - MRSTY.RRF
     shutil.copy2(os.path.join(download_dir, umls_version, 'META', 'MRSTY.RRF'), download_dir)
+    # - MRREL.RRF
+    shutil.copy2(os.path.join(download_dir, umls_version, 'META', 'MRREL.RRF'), download_dir)
 
 
 def download_rxnorm(rxnorm_version, download_dir):

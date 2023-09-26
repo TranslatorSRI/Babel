@@ -112,7 +112,11 @@ def get_cui(x,indicator_column,cui_column,aui_column,aui_to_cui,sdui_to_cui):
         if x[indicator_column] == "CUI":
             return x[cui_column]
         elif x[indicator_column] == "AUI":
-            return aui_to_cui[x[aui_column]]
+            try:
+                return aui_to_cui[x[aui_column]]
+            except:
+                #this really shouldn't happen.  But it seems to occur for the UMLS files?
+                return None
         elif x[indicator_column] == "SDUI":
             cuis = sdui_to_cui[(x[source_column],x[aui_column])]
             if len(cuis) == 1:
@@ -121,6 +125,9 @@ def get_cui(x,indicator_column,cui_column,aui_column,aui_to_cui,sdui_to_cui):
             print(x)
             print(cuis)
             exit()
+        elif x[indicator_column] == "SCUI":
+            #SCUI is source cui, i.e. what the source calls it.  We might be able to pull this out of CONSO if we have to.
+            return None
         print("cmon man")
         print(x)
         exit()
@@ -145,44 +152,58 @@ def build_rxnorm_relationships(conso, relfile, outfile):
     similar issues. So, we're going to do a lot of catching here
 
     has_tradename is even worse - it needs to be 1:1 to be useable
+
+    Also, the same (cui) subject/object/predicate triple can be on multiple lines, obscured
+    by the fact that auis and sduis are used in the file.  This happens when the effective triple comes from multiple
+    sources. That's why the collections below need to be sets rather than lists
     """
+    #This is maybe relying on convention a bit too much.
+    if outfile == "UMLS":
+        prefix = UMLS
+    else:
+        prefix = RXCUI
     aui_to_cui, sdui_to_cui = get_aui_to_cui(conso)
     # relfile = os.path.join('input_data', 'private', "RXNREL.RRF")
-    single_use_relations = {"has_active_ingredient": defaultdict(list),
-                            "has_precise_active_ingredient": defaultdict(list),
-                            "has_precise_ingredient": defaultdict(list),
-                            "has_ingredient": defaultdict(list),
-                            "consists_of": defaultdict(list)}
-    one_to_one_relations = {"has_tradename": {"subject": defaultdict(list),
-                                              "object": defaultdict(list)}}
+    single_use_relations = {"has_active_ingredient": defaultdict(set),
+                            "has_precise_active_ingredient": defaultdict(set),
+                            "has_precise_ingredient": defaultdict(set),
+                            "has_ingredient": defaultdict(set),
+                            "consists_of": defaultdict(set)}
+    one_to_one_relations = {"has_tradename": {"subject": defaultdict(set),
+                                              "object": defaultdict(set)}}
     with open(relfile, 'r') as inf, open(outfile, 'w') as outf:
         for line in inf:
             x = line.strip().split('|')
-            object = get_cui(x,2,0,1,aui_to_cui,sdui_to_cui)
-            subject = get_cui(x,6,4,5,aui_to_cui,sdui_to_cui)
-            if subject is not None:
+            #UMLS always has the CUI in it, while RXNORM does not.
+            if outfile == "UMLS":
+                object = x[0]
+                subject = x[4]
+            else:
+                object = get_cui(x,2,0,1,aui_to_cui,sdui_to_cui)
+                subject = get_cui(x,6,4,5,aui_to_cui,sdui_to_cui)
+            if (subject is not None) and (object is not None):
                 if subject == object:
                     continue
                 predicate = x[7]
                 if predicate in single_use_relations:
-                    single_use_relations[predicate][subject].append(object)
+                    single_use_relations[predicate][subject].add(object)
                 elif predicate in one_to_one_relations:
-                    one_to_one_relations[predicate]["subject"][subject].append(object)
-                    one_to_one_relations[predicate]["object"][object].append(subject)
+                    one_to_one_relations[predicate]["subject"][subject].add(object)
+                    one_to_one_relations[predicate]["object"][object].add(subject)
                 else:
-                    outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{object}\n")
+                    outf.write(f"{prefix}:{subject}\t{predicate}\t{prefix}:{object}\n")
         for predicate in single_use_relations:
             for subject,objects in single_use_relations[predicate].items():
                 if len(objects) > 1:
                     continue
-                outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{objects[0]}\n")
+                outf.write(f"{prefix}:{subject}\t{predicate}\t{prefix}:{next(iter(objects))}\n")
         for predicate in one_to_one_relations:
             for subject,objects in one_to_one_relations[predicate]["subject"].items():
                 if len(objects) > 1:
                     continue
-                if len(one_to_one_relations[predicate]["object"][objects[0]]) > 1:
+                if len(one_to_one_relations[predicate]["object"][next(iter(objects))]) > 1:
                     continue
-                outf.write(f"{RXCUI}:{subject}\t{predicate}\t{RXCUI}:{objects[0]}\n")
+                outf.write(f"{prefix}:{subject}\t{predicate}\t{prefix}:{next(iter(objects))}\n")
 
 
 def load_cliques(compendium):
@@ -208,7 +229,7 @@ def build_pubchem_relationships(infile,outfile):
             for cid in cids:
                 outf.write(f"{RXCUI}:{rxnid}\tlinked\t{PUBCHEMCOMPOUND}:{cid}\n")
 
-def build_conflation(rxn_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
+def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
     """RXN_concord contains relationshps between rxcuis that can be used to conflate
     Now we don't want all of them.  We want the ones that are between drugs and chemicals,
     and the ones between drugs and drugs.
@@ -224,28 +245,29 @@ def build_conflation(rxn_concord,pubchem_rxn_concord,drug_compendium,chemical_co
         print(f"load {chemical_compendium}")
         chemical_rxcui_to_clique.update(load_cliques(chemical_compendium))
     pairs = []
-    with open(rxn_concord,"r") as infile:
-        for line in infile:
-            x = line.strip().split('\t')
-            subject = x[0]
-            object = x[2]
-            if subject in drug_rxcui_to_clique and object in chemical_rxcui_to_clique:
-                subject = drug_rxcui_to_clique[subject]
-                object = chemical_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
-            elif subject in chemical_rxcui_to_clique and object in drug_rxcui_to_clique:
-                subject = chemical_rxcui_to_clique[subject]
-                object = drug_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
-            # OK, this is possible, and it's OK, as long as we get real clique leaders
-            elif subject in drug_rxcui_to_clique and object in drug_rxcui_to_clique:
-                subject = drug_rxcui_to_clique[subject]
-                object = drug_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
-            elif subject in chemical_rxcui_to_clique and object in chemical_rxcui_to_clique:
-                subject = chemical_rxcui_to_clique[subject]
-                object = chemical_rxcui_to_clique[object]
-                pairs.append( (subject,object) )
+    for concfile in [rxn_concord,umls_concord]:
+        with open(concfile,"r") as infile:
+            for line in infile:
+                x = line.strip().split('\t')
+                subject = x[0]
+                object = x[2]
+                if subject in drug_rxcui_to_clique and object in chemical_rxcui_to_clique:
+                    subject = drug_rxcui_to_clique[subject]
+                    object = chemical_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
+                elif subject in chemical_rxcui_to_clique and object in drug_rxcui_to_clique:
+                    subject = chemical_rxcui_to_clique[subject]
+                    object = drug_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
+                # OK, this is possible, and it's OK, as long as we get real clique leaders
+                elif subject in drug_rxcui_to_clique and object in drug_rxcui_to_clique:
+                    subject = drug_rxcui_to_clique[subject]
+                    object = drug_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
+                elif subject in chemical_rxcui_to_clique and object in chemical_rxcui_to_clique:
+                    subject = chemical_rxcui_to_clique[subject]
+                    object = chemical_rxcui_to_clique[object]
+                    pairs.append( (subject,object) )
     with open(pubchem_rxn_concord,"r") as infile:
         for line in infile:
             x = line.strip().split('\t')
