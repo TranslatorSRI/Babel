@@ -279,14 +279,22 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             elif subject in chemical_rxcui_to_clique:
                 subject = chemical_rxcui_to_clique[subject]
             else:
-                raise RuntimeError(f"Unknown identifier in drugchemical conflation as subject: {subject}")
+                logging.warning(
+                    f"Skipping subject-object pair ({subject}, {object}) because the subject isn't mapped to a RxCUI"
+                )
+                continue
+                # raise RuntimeError(f"Unknown identifier in drugchemical conflation as subject: {subject}")
 
             if object in drug_rxcui_to_clique:
                 object = drug_rxcui_to_clique[object]
             elif object in chemical_rxcui_to_clique:
                 object = chemical_rxcui_to_clique[object]
             else:
-                raise RuntimeError(f"Unknown identifier in drugchemical conflation as object: {object}")
+                logging.warning(
+                    f"Skipping subject-object pair ({subject}, {object}) because the object isn't mapped to a RxCUI"
+                )
+                continue
+                # raise RuntimeError(f"Unknown identifier in drugchemical conflation as object: {object}")
 
             pairs.append((subject, object))
     print("glom")
