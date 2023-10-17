@@ -26,6 +26,7 @@ def pull_ensembl(complete_file):
         atts = find_attributes(ds)
         existingatts = set(atts['Attribute_ID'].to_list())
         attsIcanGet = cols.intersection(existingatts)
+        print(f"Querying {ds} for attributes {attsIcanGet}.")
         df = query(attributes=list(attsIcanGet), filters={}, dataset=ds)
         df.to_csv(outfile, index=False, sep='\t')
     with open(complete_file, 'w') as outf:
