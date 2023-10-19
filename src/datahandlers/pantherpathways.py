@@ -2,7 +2,7 @@ from src.prefixes import PANTHERPATHWAY
 from src.babel_utils import pull_via_urllib
 
 def pull_panther_pathways():
-    pull_via_urllib('http://data.pantherdb.org/ftp/pathway/current_release/', 'SequenceAssociationPathway3.6.6.txt', decompress=False, subpath='PANTHER.PATHWAY')
+    pull_via_urllib('http://data.pantherdb.org/ftp/pathway/current_release/', 'SequenceAssociationPathway3.6.7.txt', decompress=False, subpath='PANTHER.PATHWAY')
 
 def make_pathway_labels(infile,outfile):
     with open(infile,'r') as inf:
