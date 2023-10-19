@@ -368,7 +368,7 @@ rule get_panther_pathways:
     output:
         outfile = config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.7.txt'
     run:
-        pantherpathways.pull_panther_pathways()
+        pantherpathways.pull_panther_pathways(output.outfile)
 
 rule get_panther_pathway_labels:
     input:
