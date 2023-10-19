@@ -359,13 +359,13 @@ rule get_SMPDB_labels:
 
 rule get_panther_pathways:
     output:
-        outfile = config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.6.txt'
+        outfile = config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.7.txt'
     run:
-        pantherpathways.pull_panther_pathways()
+        pantherpathways.pull_panther_pathways(output.outfile)
 
 rule get_panther_pathway_labels:
     input:
-        infile=config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.6.txt'
+        infile=config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.7.txt'
     output:
         labelfile=config['download_directory'] + '/PANTHER.PATHWAY/labels'
     run:
