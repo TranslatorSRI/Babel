@@ -1,7 +1,5 @@
 from src.babel_utils import pull_via_urllib, make_local_name
 
-def pull_one_uniprotkb(which):
-    pull_via_urllib('ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/',f'uniprot_{which}.fasta.gz',subpath='UniProtKB')
 
 def readlabels(which):
     swissname = make_local_name(f'UniProtKB/uniprot_{which}.fasta')
@@ -16,11 +14,6 @@ def readlabels(which):
                 name = x[2].split(' OS=')[0]
                 swissprot_labels[uniprotid] = f'{name} ({which})'
     return swissprot_labels
-
-def pull_uniprotkb():
-    pull_via_urllib('https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/',f'idmapping.dat.gz',subpath='UniProtKB')
-    for which in ['sprot','trembl']:
-        pull_via_urllib('https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/',f'uniprot_{which}.fasta.gz',subpath='UniProtKB')
 
 def pull_uniprot_labels(sprotfile,tremblfile,fname):
     slabels = readlabels('sprot')
