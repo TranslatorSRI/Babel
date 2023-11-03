@@ -143,9 +143,6 @@ def create_typed_sets(eqsets,types):
         found  = False
         for prefix in [GO, CL, UBERON]:
             if prefix in prefixes and not found:
-                if prefixes[prefix][0] not in types:
-                    logging.warning(f"Could not find prefix {prefixes[prefix][0]} in {types}, skipping.")
-                    continue
                 mytype = types[prefixes[prefix][0]]
                 typed_sets[mytype].add(equivalent_ids)
                 found = True
