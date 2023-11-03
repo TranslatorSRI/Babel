@@ -227,7 +227,8 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
 
                 # Since synonyms_list is sorted,
                 if len(synonyms_list) == 0:
-                    logging.warning(f"Synonym list for UMLS entry {id} is empty: no valid name.")
+                    logging.warning(f"Synonym list for UMLS entry {id} is empty: no valid name. Skipping.")
+                    continue
                 else:
                     document["shortest_name_length"] = len(synonyms_list[0])
 
