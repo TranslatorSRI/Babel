@@ -9,11 +9,10 @@ def build_compendia(identifiers, icrdf_filename):
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
     types = {}
-    uniques = [COMPLEXPORTAL]
     for ifile in identifiers:
         print('loading ', ifile)
         new_identifiers, new_types = read_identifier_file(ifile)
-        glom(dicts, new_identifiers, unique_prefixes=uniques)
+        glom(dicts, new_identifiers)
         types.update(new_types)
     sets = set([frozenset(x) for x in dicts.values()])
     type = MACROMOLECULAR_COMPLEX.split(':')[-1]
