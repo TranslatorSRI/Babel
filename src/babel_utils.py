@@ -282,7 +282,8 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
 
                     # Since synonyms_list is sorted,
                     if len(synonyms_list) == 0:
-                        logging.warning(f"Synonym list for {node} is empty: no valid name.")
+                        logging.warning(f"Synonym list for {node} is empty: no valid name. Skipping.")
+                        continue
                     else:
                         document["shortest_name_length"] = len(synonyms_list[0])
 
