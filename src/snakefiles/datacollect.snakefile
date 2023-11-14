@@ -91,13 +91,20 @@ rule get_mods_labels:
 
 ### UniProtKB
 
-rule get_uniprotkb:
+rule get_uniprotkb_idmapping:
     output:
-        config['download_directory']+'/UniProtKB/uniprot_sprot.fasta',
-        config['download_directory']+'/UniProtKB/uniprot_trembl.fasta',
-        config['download_directory']+'/UniProtKB/idmapping.dat'
-    run:
-        uniprotkb.pull_uniprotkb()
+        idmapping = config['download_directory']+'/UniProtKB/idmapping.dat'
+    shell: """wget --continue --tries=10 "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/idmapping.dat.gz" -O {output.idmapping}.gz && gunzip -k {output.idmapping}.gz"""
+
+rule get_uniprotkb_sprot:
+    output:
+        uniprot_sprot = config['download_directory']+'/UniProtKB/uniprot_sprot.fasta'
+    shell: """wget --continue --tries=10 "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz" -O {output.uniprot_sprot}.gz && gunzip -k {output.uniprot_sprot}.gz"""
+
+rule get_uniprotkb_trembl:
+    output:
+        uniprot_trembl = config['download_directory']+'/UniProtKB/uniprot_trembl.fasta'
+    shell: """wget --continue --tries=10 "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz" -O {output.uniprot_trembl}.gz && gunzip -k {output.uniprot_trembl}.gz"""
 
 rule get_uniprotkb_labels:
     input:
@@ -361,7 +368,7 @@ rule get_panther_pathways:
     output:
         outfile = config['download_directory'] + '/PANTHER.PATHWAY/SequenceAssociationPathway3.6.7.txt'
     run:
-        pantherpathways.pull_panther_pathways(output.outfile)
+        pantherpathways.pull_panther_pathways()
 
 rule get_panther_pathway_labels:
     input:

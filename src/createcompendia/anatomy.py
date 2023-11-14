@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 
 import src.datahandlers.obo as obo
