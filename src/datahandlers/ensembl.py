@@ -16,6 +16,8 @@ def pull_ensembl(complete_file):
             "external_synonym", "chromosome_name", "source", "gene_biotype", "entrezgene_id", "zfin_id_id", 'mgi_id',
             'rgd_id', 'flybase_gene_id', 'sgd_gene', 'wormbase_gene'}
     for ds in f['Dataset_ID']:
+        if ds == 'hgfemale_gene_ensembl':
+            continue
         print(ds)
         outfile = make_local_name('BioMart.tsv', subpath=f'ENSEMBL/{ds}')
         # Really, we should let snakemake handle this, but then we would need to put a list of all the 200+ sets in our
