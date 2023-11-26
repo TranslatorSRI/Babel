@@ -1,9 +1,9 @@
-from src.babel_utils import make_local_name, pull_via_ftp
+from src.babel_utils import make_local_name, pull_via_ftp, pull_via_urllib
 import json
 
 def pull_hgnc():
     outfile='HGNC/hgnc_complete_set.json'
-    pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/genenames/new/json', 'hgnc_complete_set.json',outfilename=outfile)
+    pull_via_urllib('ftp.ebi.ac.uk', '/pub/databases/genenames/new/json', 'hgnc_complete_set.json',outfilename=outfile)
 
 def pull_hgnc_labels_and_synonyms(infile):
     with open(infile,'r') as data:
