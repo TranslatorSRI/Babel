@@ -12,11 +12,17 @@ import os
 # just what we need.
 def pull_ensembl(complete_file):
     f = find_datasets()
+
+    skip_dataset_ids = {'hgfemale_gene_ensembl'}
+
     cols = {"ensembl_gene_id", "ensembl_peptide_id", "description", "external_gene_name", "external_gene_source",
             "external_synonym", "chromosome_name", "source", "gene_biotype", "entrezgene_id", "zfin_id_id", 'mgi_id',
             'rgd_id', 'flybase_gene_id', 'sgd_gene', 'wormbase_gene'}
     for ds in f['Dataset_ID']:
         print(ds)
+        if ds in skip_dataset_ids:
+            print(f'Skipping {ds} as it is included in skip_dataset_ids: {skip_dataset_ids}')
+            continue
         outfile = make_local_name('BioMart.tsv', subpath=f'ENSEMBL/{ds}')
         # Really, we should let snakemake handle this, but then we would need to put a list of all the 200+ sets in our
         # config, and keep it up to date.  Maybe you could have a job that gets the datasets and writes a dataset file,
