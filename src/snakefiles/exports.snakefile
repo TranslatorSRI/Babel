@@ -1,21 +1,19 @@
+from src.snakefiles.util import get_all_compendia
 import src.exporters.kgx as kgx
 import os
 
 ### Export compendia/synonyms into downstream outputs
-
-# List of all the compendia files that need to be converted.
-compendia_filenames = config['anatomy_outputs']
 
 # Export all compendia to KGX, then create `babel_outputs/kgx/done` to signal that we're done.
 rule export_all_to_kgx:
     input:
         nodes_files=expand("{od}/kgx/{fn}",
             od=config['output_directory'],
-            fn=map(lambda fn: os.path.splitext(fn)[0] + '_nodes.jsonl', compendia_filenames)
+            fn=map(lambda fn: os.path.splitext(fn)[0] + '_nodes.jsonl', get_all_compendia(config))
         ),
         edges_files=expand("{od}/kgx/{fn}",
             od=config['output_directory'],
-            fn=map(lambda fn: os.path.splitext(fn)[0] + '_edges.jsonl', compendia_filenames)
+            fn=map(lambda fn: os.path.splitext(fn)[0] + '_edges.jsonl', get_all_compendia(config))
         )
     output:
         x = config['output_directory'] + '/kgx/done',
