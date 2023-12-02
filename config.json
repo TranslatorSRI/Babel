@@ -55,5 +55,8 @@
 
   "genefamily_labels": ["PANTHER.FAMILY","HGNC.FAMILY"],
   "genefamily_ids": ["PANTHER.FAMILY","HGNC.FAMILY"],
-  "genefamily_outputs": ["GeneFamily.txt"]
+  "genefamily_outputs": ["GeneFamily.txt"],
+
+  "umls_outputs": ["umls.txt"],
+  "macromolecularcomplex_outputs": ["MacromolecularComplex.txt"]
 }
