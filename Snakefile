@@ -29,6 +29,8 @@ rule all:
         config['output_directory'] + '/reports/umls_done',
         config['output_directory'] + '/reports/macromolecular_complex_done',
         config['output_directory'] + '/reports/drugchemical_done',
+        # Check if we have exported the compendia as KGX.
+        config['output_directory'] + '/kgx/done',
     output:
         x = config['output_directory'] + '/reports/all_done'
     shell:
