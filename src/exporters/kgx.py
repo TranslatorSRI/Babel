@@ -5,6 +5,7 @@
 
 import hashlib
 import json
+import os
 from itertools import combinations
 
 import logging
@@ -12,6 +13,7 @@ from src.util import LoggingUtil
 
 # Default logger for this file.
 logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
+
 
 def convert_compendium_to_kgx(compendium_filename, kgx_nodes_filename, kgx_edges_filename):
     """
@@ -24,6 +26,8 @@ def convert_compendium_to_kgx(compendium_filename, kgx_nodes_filename, kgx_edges
     :param kgx_edges_filename: The KGX edges file to write out.
     """
 
+    logger.info(f"convert_compendium_to_kgx({compendium_filename}, {kgx_nodes_filename}, {kgx_edges_filename})")
+
     # Set up data structures.
     nodes: list = []
     edges: list = []
@@ -32,6 +36,14 @@ def convert_compendium_to_kgx(compendium_filename, kgx_nodes_filename, kgx_edges
     count_lines = 0
     count_nodes = 0
     count_edges = 0
+
+    # Used to count batches of 10000 lines to process together.
+    batch_size = 10000
+    line_counter = 0
+
+    # Make the output directories if they don't exist.
+    os.makedirs(os.path.dirname(kgx_nodes_filename), exist_ok=True)
+    os.makedirs(os.path.dirname(kgx_edges_filename), exist_ok=True)
 
     # Open the compendium file for reading.
     with open(compendium_filename, "r", encoding="utf-8") as compendium:
@@ -99,7 +111,7 @@ def convert_compendium_to_kgx(compendium_filename, kgx_nodes_filename, kgx_edges
                 nodes.extend(pass_nodes)
 
                 # did we reach the write threshold
-                if line_counter == 10000:
+                if line_counter == batch_size:
                     # first time in doesn't get a leading comma
                     if first:
                         prefix = ""
