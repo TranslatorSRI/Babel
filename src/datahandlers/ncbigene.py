@@ -8,13 +8,17 @@ def pull_ncbigene(filenames):
         pull_via_ftp('ftp.ncbi.nih.gov', '/gene/DATA', fn, decompress_data=False, outfilename=f'NCBIGene/{fn}')
 
 
-def pull_ncbigene_labels_and_synonyms():
+def pull_ncbigene_labels_synonyms_and_taxa():
     # File format described here: https://ftp.ncbi.nih.gov/gene/DATA/README
     ifname = make_local_name('gene_info.gz', subpath='NCBIGene')
     labelname = make_local_name('labels', subpath='NCBIGene')
     synname = make_local_name('synonyms', subpath='NCBIGene')
+    taxaname = make_local_name('taxa', subpath='NCBIGene')
     bad_gene_types = set(['biological-region', 'other', 'unknown'])
-    with gzip.open(ifname, 'r') as inf, open(labelname, 'w') as labelfile, open(synname, 'w') as synfile:
+    with (gzip.open(ifname, 'r') as inf,
+          open(labelname, 'w') as labelfile,
+          open(synname, 'w') as synfile,
+          open(taxaname, 'w') as taxafile):
 
         # Make sure the gene_info.gz columns haven't changed from under us.
         header = inf.readline().decode('utf-8').strip().split("\t")
@@ -60,6 +64,8 @@ def pull_ncbigene_labels_and_synonyms():
             if gene_type in bad_gene_types:
                 continue
             labelfile.write(f'{gene_id}\t{symbol}\n')
+            taxafile.write(f'{gene_id}\t{get_field(row, "#tax_id")}\n')
+
             syns = set(get_field(row, "Synonyms").split('|'))
             syns.add(symbol)
             description = get_field(row, "description")

@@ -183,14 +183,15 @@ rule get_ncbigene:
     run:
         ncbigene.pull_ncbigene(config['ncbi_files'])
 
-rule get_ncbigene_labels_and_synonyms:
+rule get_ncbigene_labels_synonyms_and_taxa:
     output:
         config['download_directory']+'/NCBIGene/labels',
-        config['download_directory']+'/NCBIGene/synonyms'
+        config['download_directory']+'/NCBIGene/synonyms',
+        config['download_directory']+'/NCBIGene/taxa'
     input:
         config['download_directory']+'/NCBIGene/gene_info.gz'
     run:
-        ncbigene.pull_ncbigene_labels_and_synonyms()
+        ncbigene.pull_ncbigene_labels_synonyms_and_taxa()
 
 ### ENSEMBL
 
