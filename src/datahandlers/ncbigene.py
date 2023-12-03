@@ -64,7 +64,7 @@ def pull_ncbigene_labels_synonyms_and_taxa():
             if gene_type in bad_gene_types:
                 continue
             labelfile.write(f'{gene_id}\t{symbol}\n')
-            taxafile.write(f'{gene_id}\t{get_field(row, "#tax_id")}\n')
+            taxafile.write(f'{gene_id}\tNCBITaxon:{get_field(row, "#tax_id")}\n')
 
             syns = set(get_field(row, "Synonyms").split('|'))
             syns.add(symbol)
