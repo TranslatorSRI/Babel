@@ -271,8 +271,17 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                                 "names": synonyms_list,
                                 "types": [ t[8:] for t in node_factory.get_ancestors(node["type"])]} #remove biolink:
 
-                    if "label" in node["identifiers"][0]:
-                        document["preferred_name"] = node["identifiers"][0]["label"]
+                    preferred_name = None
+                    for ident in node["identifiers"]:
+                        # TODO: this would be right place to implement better chemical names.
+                        if 'label' in ident:
+                            preferred_name = ident['label']
+                            break
+
+                    if preferred_name:
+                        document["preferred_name"] = preferred_name
+                    else:
+                        logging.warning(f"No preferred name for {node}")
 
                     # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
                     # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
