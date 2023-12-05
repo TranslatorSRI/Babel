@@ -21,9 +21,20 @@ rule geneprotein_conflation:
     run:
         geneprotein.build_conflation(input.geneprotein_concord,input.gene_compendium,input.protein_compendium,output.outfile)
 
+rule geneprotein_conflated_synonyms:
+    input:
+        geneprotein_conflations=[config['output_directory']+'/conflation/GeneProtein.txt'],
+        gene_outputs=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['gene_outputs']),
+        protein_outputs=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
+    output:
+        geneprotein_conflated_synonyms=config['output_directory']+'/synonyms/GeneProteinConflated.txt'
+    run:
+        synonymconflation.conflate_synonyms(input.gene_outputs + input.protein_outputs, input.geneprotein_conflations, output.geneprotein_conflated_synonyms)
+
 rule geneprotein:
     input:
-        config['output_directory']+'/conflation/GeneProtein.txt'
+        config['output_directory']+'/conflation/GeneProtein.txt',
+        config['output_directory']+'/synonyms/GeneProteinConflated.txt'
     output:
         x=config['output_directory']+'/reports/geneprotein_done'
     shell:
