@@ -24,8 +24,6 @@ spec:
     command: [ "/bin/bash", "-c", "--" ]
     args: [ "while true; echo Running; do sleep 30; done;" ]
     volumeMounts:
-    - mountPath: "/code/babel/input_data/private"
-      name: babel-private
     - mountPath: "/code/babel/babel_downloads"
       name: babel-downloads
     - mountPath: "/code/babel/babel_outputs"
@@ -38,9 +36,6 @@ spec:
         memory: "500G"
         cpu: "4"
   volumes:
-    - name: babel-private
-      persistentVolumeClaim:
-        claimName: babel-private
     - name: babel-downloads
       persistentVolumeClaim:
         claimName: babel-downloads
