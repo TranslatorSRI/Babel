@@ -366,6 +366,9 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
 
                     nw['identifiers'].append(id_info)
 
+                # Collect taxon names for this node.
+                nw['taxa'] = list(sorted(taxa.values(), key=get_curie_suffix))
+
                 outf.write( nw )
 
                 # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
@@ -445,7 +448,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                             pass
 
                     # Collect taxon names for this node.
-                    document['taxa'] = list(sorted(taxa[id_info['i']], key=get_curie_suffix))
+                    document['taxa'] = list(sorted(taxa.values(), key=get_curie_suffix))
 
                     sfile.write( document )
                 except Exception as ex:
