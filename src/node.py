@@ -11,6 +11,11 @@ from src.prefixes import PUBCHEMCOMPOUND
 
 
 def get_config():
+    """
+    Retrieve the configuration data from the 'config.json' file.
+
+    :return: The configuration data loaded from the 'config.json' file.
+    """
     cname = os.path.join(os.path.dirname(__file__),'..', 'config.json')
     with open(cname,'r') as json_file:
         data = load(json_file)
@@ -19,7 +24,10 @@ def get_config():
 
 def get_biolink_prefix_map():
     """
-    Return a [CURIE converter](https://pypi.org/project/curies/) for the configured Biolink version.
+    Get the prefix map for the BioLink Model.
+
+    :return: The prefix map for the BioLink Model.
+    :raises RuntimeError: If the BioLink version is not supported.
     """
     config = get_config()
     biolink_version = config['biolink_version']
@@ -40,6 +48,25 @@ def get_biolink_prefix_map():
 
 
 class SynonymFactory:
+    """
+    A class used to load and retrieve synonyms for given node identifiers
+
+    Attributes:
+        synonym_dir (str): The directory where the synonym files are located
+        synonyms (dict): A dictionary to store the loaded synonyms
+
+    Methods:
+        __init__(syndir)
+            Initializes the SynonymFactory with the specified directory
+
+        load_synonyms(prefix)
+            Loads the synonyms for a given prefix from the corresponding files
+
+        get_synonyms(node)
+            Retrieves the synonyms for a given node from the loaded synonyms
+
+    """
+
     def __init__(self,syndir):
         self.synonym_dir = syndir
         self.synonyms = {}
@@ -81,7 +108,8 @@ class SynonymFactory:
 
 
 class DescriptionFactory:
-    """ A factory for loading descriptions where available.
+    """
+    Class to handle loading and retrieving descriptions for nodes.
     """
 
     def __init__(self,rootdir):
@@ -114,6 +142,34 @@ class DescriptionFactory:
 
 
 class InformationContentFactory:
+    """
+
+    InformationContentFactory
+
+    A class for creating and using information content objects.
+
+    Attributes:
+        ic (dict): A dictionary containing information content values for different nodes.
+
+    Methods:
+        __init__(ic_file)
+            Initializes an InformationContentFactory object by loading information content values from a file.
+            The information content values are stored in the 'ic' attribute of the object.
+
+            Parameters:
+                ic_file (str): The path to the file containing the information content values.
+
+        get_ic(node)
+            Returns the minimum information content value for a given node.
+
+            Parameters:
+                node (dict): The node for which to retrieve the information content value.
+
+            Returns:
+                float or None: The minimum information content value for the node,
+                               or None if no information content value is found.
+    """
+
     def __init__(self,ic_file):
         self.ic = {}
         biolink_prefix_map = get_biolink_prefix_map()
