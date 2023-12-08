@@ -1,14 +1,44 @@
-import requests
+from json import load
+import os
+from collections import defaultdict
+import curies
 
-from src.babel_utils import get_biolink_prefix_map
 from src.util import Text
 from src.LabeledID import LabeledID
-from collections import defaultdict
-import os
 from bmt import Toolkit
 from src.prefixes import PUBCHEMCOMPOUND
 
-class SynonymFactory():
+
+def get_config():
+    cname = os.path.join(os.path.dirname(__file__),'..', 'config.json')
+    with open(cname,'r') as json_file:
+        data = load(json_file)
+    return data
+
+
+def get_biolink_prefix_map():
+    """
+    Return a [CURIE converter](https://pypi.org/project/curies/) for the configured Biolink version.
+    """
+    config = get_config()
+    biolink_version = config['biolink_version']
+    if biolink_version.startswith('1.') or biolink_version.startswith('2.'):
+        raise RuntimeError(f"Biolink version {biolink_version} is not supported.")
+    elif biolink_version.startswith('3.'):
+        # biolink-model v3.* releases keeps the prefix map in a different place.
+        return curies.load_prefix_map(
+            'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
+            '/prefix-map/biolink-model-prefix-map.json'
+        )
+    else:
+        # biolink-model v4.0.0 and beyond is in the /project directory.
+        return curies.load_prefix_map(
+            f'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
+            '/project/prefixmap/biolink_model_prefix_map.json'
+        )
+
+
+class SynonymFactory:
     def __init__(self,syndir):
         self.synonym_dir = syndir
         self.synonyms = {}

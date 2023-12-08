@@ -9,11 +9,9 @@ import requests
 import os
 import urllib
 import jsonlines
-import curies
-from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory
+from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, get_config
 from src.util import Text
 from src.LabeledID import LabeledID
-from json import load
 from collections import defaultdict
 import sqlite3
 from typing import List, Tuple
@@ -28,28 +26,6 @@ def make_local_name(fname,subpath=None):
     except:
         pass
     return os.path.join(odir,fname)
-
-
-def get_biolink_prefix_map():
-    """
-    Return a [CURIE converter](https://pypi.org/project/curies/) for the configured Biolink version.
-    """
-    config = get_config()
-    biolink_version = config['biolink_version']
-    if biolink_version.startswith('1.') or biolink_version.startswith('2.'):
-        raise RuntimeError(f"Biolink version {biolink_version} is not supported.")
-    elif biolink_version.startswith('3.'):
-        # biolink-model v3.* releases keeps the prefix map in a different place.
-        return curies.load_prefix_map(
-            'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
-            '/prefix-map/biolink-model-prefix-map.json'
-        )
-    else:
-        # biolink-model v4.0.0 and beyond is in the /project directory.
-        return curies.load_prefix_map(
-            f'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
-            '/project/prefixmap/biolink_model_prefix_map.json'
-        )
 
 
 class StateDB():
