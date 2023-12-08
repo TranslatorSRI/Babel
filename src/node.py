@@ -1,10 +1,11 @@
 import requests
+
+from src.babel_utils import get_biolink_prefix_map
 from src.util import Text
 from src.LabeledID import LabeledID
 from collections import defaultdict
 import os
 from bmt import Toolkit
-import curies
 from src.prefixes import PUBCHEMCOMPOUND
 
 class SynonymFactory():
@@ -84,14 +85,13 @@ class DescriptionFactory:
 class InformationContentFactory:
     def __init__(self,ic_file):
         self.ic = {}
-
-        # Load the prefix map for this version of Biolink
-        self.prefix_map =
-
+        biolink_prefix_map = get_biolink_prefix_map()
         with open(ic_file, 'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
-                node_id = Text.obo_to_curie(x[0])
+                # We talk in CURIEs, but the infores download is in URLs. We can use the Biolink
+                # prefix map to convert between them.
+                node_id = biolink_prefix_map.compress(x[0])
                 ic = x[1]
                 self.ic[node_id] = ic
             print(f"Loaded {len(self.ic)} InformationContent values")
