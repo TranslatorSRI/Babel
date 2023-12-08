@@ -295,6 +295,7 @@ def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
     )
 
 
+
 def get_curie_suffix(curie):
     curie_parts = curie.split(':', 1)
     if len(curie_parts) > 0:
@@ -367,7 +368,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     nw['identifiers'].append(id_info)
 
                 # Collect taxon names for this node.
-                nw['taxa'] = list(sorted(taxa.values(), key=get_curie_suffix))
+                nw['taxa'] = list(sorted(set().union(*taxa.values()), key=get_curie_suffix))
 
                 outf.write( nw )
 
@@ -448,7 +449,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                             pass
 
                     # Collect taxon names for this node.
-                    document['taxa'] = list(sorted(taxa.values(), key=get_curie_suffix))
+                    document['taxa'] = list(sorted(set().union(*taxa.values()), key=get_curie_suffix))
 
                     sfile.write( document )
                 except Exception as ex:
