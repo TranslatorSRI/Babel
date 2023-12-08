@@ -4,6 +4,7 @@ from src.LabeledID import LabeledID
 from collections import defaultdict
 import os
 from bmt import Toolkit
+import curies
 from src.prefixes import PUBCHEMCOMPOUND
 
 class SynonymFactory():
@@ -83,6 +84,10 @@ class DescriptionFactory:
 class InformationContentFactory:
     def __init__(self,ic_file):
         self.ic = {}
+
+        # Load the prefix map for this version of Biolink
+        self.prefix_map =
+
         with open(ic_file, 'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
