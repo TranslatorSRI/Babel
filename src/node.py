@@ -1,3 +1,4 @@
+import json
 from json import load
 import os
 from collections import defaultdict
@@ -116,6 +117,7 @@ class InformationContentFactory:
     def __init__(self,ic_file):
         self.ic = {}
         biolink_prefix_map = get_biolink_prefix_map()
+        count_by_prefix = defaultdict(int)
         with open(ic_file, 'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
@@ -124,7 +126,23 @@ class InformationContentFactory:
                 node_id = biolink_prefix_map.compress(x[0])
                 ic = x[1]
                 self.ic[node_id] = ic
-            print(f"Loaded {len(self.ic)} InformationContent values")
+
+                # Track IC values by prefix.
+                if isinstance(node_id, str):
+                    prefix = node_id.split(':')[0]
+                else:
+                    # Probably None, but we'll collect everything.
+                    prefix = str(node_id)
+                count_by_prefix[prefix] += 1
+
+        # Sort the dictionary items by value in descending order
+        sorted_by_prefix = sorted(count_by_prefix.items(), key=lambda item: item[1], reverse=True)
+
+        print(f"Loaded {len(self.ic)} InformationContent values from {len(count_by_prefix.keys())} prefixes:")
+        # Now you can print the sorted items
+        for key, value in sorted_by_prefix:
+            print(f'- {key}: {value}')
+
 
     def get_ic(self, node):
         ICs = []
