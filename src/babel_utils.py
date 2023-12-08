@@ -457,11 +457,6 @@ def get_prefixes(idlist):
             prefs[Text.get_curie(ident)].append(ident)
     return prefs
 
-def get_config():
-    cname = os.path.join(os.path.dirname(__file__),'..', 'config.json')
-    with open(cname,'r') as json_file:
-        data = load(json_file)
-    return data
 
 def clean_sets(result_dict):
     """The keys for this are unique and unmergable: Don't merge GO!
