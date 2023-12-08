@@ -134,7 +134,7 @@ class DescriptionFactory:
         node_descriptions = defaultdict(set)
         for ident in node['identifiers']:
             thisid = ident['identifier']
-            pref = Text.get_curie(thisid)
+            pref = thisid.split(':', 1)[0]
             if not pref in self.descriptions:
                 self.load_descriptions(pref)
             node_descriptions[thisid].update( self.descriptions[pref][thisid] )
@@ -167,7 +167,7 @@ class TaxonFactory:
         node_taxa = defaultdict(set)
         for ident in node['identifiers']:
             thisid = ident['identifier']
-            pref = Text.get_curie(thisid)
+            pref = thisid.split(':', 1)[0]
             if not pref in self.taxa:
                 self.load_taxa(pref)
             node_taxa[thisid].update(self.taxa[pref][thisid])

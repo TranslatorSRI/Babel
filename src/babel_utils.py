@@ -306,6 +306,7 @@ def get_curie_suffix(curie):
             pass
     return None
 
+
 def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],icrdf_filename=None):
     """
     :param synonym_list:
