@@ -316,7 +316,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                             possible_labels = map(lambda identifier: identifier.get('label', ''),
                                 sort_identifiers_with_boosted_prefixes(
                                     node["identifiers"],
-                                    preferred_name_boost_prefixes["typ"]
+                                    preferred_name_boost_prefixes[typ]
                                 ))
                             break
 
