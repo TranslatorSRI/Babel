@@ -1,4 +1,6 @@
 import logging
+import subprocess
+import traceback
 from ftplib import FTP
 from io import BytesIO
 import gzip
@@ -222,7 +224,7 @@ def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
     # Thanks to JetBrains AI.
     return sorted(
         identifiers,
-        key=lambda identifier: prefixes.index(identifier.split(':', 1)[0]) if identifier.split(':', 1)[0] in prefixes else len(prefixes)
+        key=lambda identifier: prefixes.index(identifier['identifier'].split(':', 1)[0]) if identifier['identifier'].split(':', 1)[0] in prefixes else len(prefixes)
     )
 
 
@@ -365,6 +367,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     print(f"Exception thrown while write_compendium() was generating {ofname}: {ex}")
                     print(node["type"])
                     print(node_factory.get_ancestors(node["type"]))
+                    traceback.print_exc()
                     exit()
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
