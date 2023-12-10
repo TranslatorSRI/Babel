@@ -1,12 +1,72 @@
-import requests
+import json
+from json import load
+import os
+from collections import defaultdict
+import curies
+
 from src.util import Text
 from src.LabeledID import LabeledID
-from collections import defaultdict
-import os
 from bmt import Toolkit
 from src.prefixes import PUBCHEMCOMPOUND
 
-class SynonymFactory():
+
+def get_config():
+    """
+    Retrieve the configuration data from the 'config.json' file.
+
+    :return: The configuration data loaded from the 'config.json' file.
+    """
+    cname = os.path.join(os.path.dirname(__file__),'..', 'config.json')
+    with open(cname,'r') as json_file:
+        data = load(json_file)
+    return data
+
+
+def get_biolink_prefix_map():
+    """
+    Get the prefix map for the BioLink Model.
+
+    :return: The prefix map for the BioLink Model.
+    :raises RuntimeError: If the BioLink version is not supported.
+    """
+    config = get_config()
+    biolink_version = config['biolink_version']
+    if biolink_version.startswith('1.') or biolink_version.startswith('2.'):
+        raise RuntimeError(f"Biolink version {biolink_version} is not supported.")
+    elif biolink_version.startswith('3.'):
+        # biolink-model v3.* releases keeps the prefix map in a different place.
+        return curies.load_prefix_map(
+            'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
+            '/prefix-map/biolink-model-prefix-map.json'
+        )
+    else:
+        # biolink-model v4.0.0 and beyond is in the /project directory.
+        return curies.load_prefix_map(
+            f'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
+            '/project/prefixmap/biolink_model_prefix_map.json'
+        )
+
+
+class SynonymFactory:
+    """
+    A class used to load and retrieve synonyms for given node identifiers
+
+    Attributes:
+        synonym_dir (str): The directory where the synonym files are located
+        synonyms (dict): A dictionary to store the loaded synonyms
+
+    Methods:
+        __init__(syndir)
+            Initializes the SynonymFactory with the specified directory
+
+        load_synonyms(prefix)
+            Loads the synonyms for a given prefix from the corresponding files
+
+        get_synonyms(node)
+            Retrieves the synonyms for a given node from the loaded synonyms
+
+    """
+
     def __init__(self,syndir):
         self.synonym_dir = syndir
         self.synonyms = {}
@@ -48,7 +108,8 @@ class SynonymFactory():
 
 
 class DescriptionFactory:
-    """ A factory for loading descriptions where available.
+    """
+    Class to handle loading and retrieving descriptions for nodes.
     """
 
     def __init__(self,rootdir):
@@ -81,15 +142,63 @@ class DescriptionFactory:
 
 
 class InformationContentFactory:
+    """
+
+    InformationContentFactory
+
+    A class for creating and using information content objects.
+
+    Attributes:
+        ic (dict): A dictionary containing information content values for different nodes.
+
+    Methods:
+        __init__(ic_file)
+            Initializes an InformationContentFactory object by loading information content values from a file.
+            The information content values are stored in the 'ic' attribute of the object.
+
+            Parameters:
+                ic_file (str): The path to the file containing the information content values.
+
+        get_ic(node)
+            Returns the minimum information content value for a given node.
+
+            Parameters:
+                node (dict): The node for which to retrieve the information content value.
+
+            Returns:
+                float or None: The minimum information content value for the node,
+                               or None if no information content value is found.
+    """
+
     def __init__(self,ic_file):
         self.ic = {}
+        biolink_prefix_map = get_biolink_prefix_map()
+        count_by_prefix = defaultdict(int)
         with open(ic_file, 'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
-                node_id = Text.obo_to_curie(x[0])
+                # We talk in CURIEs, but the infores download is in URLs. We can use the Biolink
+                # prefix map to convert between them.
+                node_id = biolink_prefix_map.compress(x[0])
                 ic = x[1]
                 self.ic[node_id] = ic
-            print(f"Loaded {len(self.ic)} InformationContent values")
+
+                # Track IC values by prefix.
+                if isinstance(node_id, str):
+                    prefix = node_id.split(':')[0]
+                else:
+                    # Probably None, but we'll collect everything.
+                    prefix = str(node_id)
+                count_by_prefix[prefix] += 1
+
+        # Sort the dictionary items by value in descending order
+        sorted_by_prefix = sorted(count_by_prefix.items(), key=lambda item: item[1], reverse=True)
+
+        print(f"Loaded {len(self.ic)} InformationContent values from {len(count_by_prefix.keys())} prefixes:")
+        # Now you can print the sorted items
+        for key, value in sorted_by_prefix:
+            print(f'- {key}: {value}')
+
 
     def get_ic(self, node):
         ICs = []
