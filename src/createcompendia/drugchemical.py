@@ -287,9 +287,8 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                 object = chemical_rxcui_to_clique[object]
             else:
                 logging.warning(
-                    f"Skipping subject-object pair ({subject}, {object}) because the object isn't mapped to a RxCUI"
+                    f"Object in subject-object pair ({subject}, {object}) isn't mapped to a RxCUI"
                 )
-                continue
                 # raise RuntimeError(f"Unknown identifier in drugchemical conflation as object: {object}")
 
             pairs.append((subject, object))
