@@ -404,7 +404,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     if filtered_possible_labels:
                         document["preferred_name"] = filtered_possible_labels[0]
                     else:
-                        logging.warning(f"No preferred name for {node}")
+                        logging.debug(f"No preferred name for {node}")
 
                     # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
                     # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
