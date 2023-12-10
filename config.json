@@ -58,5 +58,18 @@
   "genefamily_outputs": ["GeneFamily.txt"],
 
   "umls_outputs": ["umls.txt"],
-  "macromolecularcomplex_outputs": ["MacromolecularComplex.txt"]
+  "macromolecularcomplex_outputs": ["MacromolecularComplex.txt"],
+
+  "preferred_name_boost_prefixes": {
+    "biolink:ChemicalEntity": [
+      "DRUGBANK",
+      "GTOPDB",
+      "DrugCentral",
+      "CHEMBL.COMPOUND",
+      "RXCUI",
+      "PUBCHEM.COMPOUND",
+      "CHEBI",
+      "HMDB"
+    ]
+  }
 }

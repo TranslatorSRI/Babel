@@ -273,6 +273,28 @@ def pull_via_wget(
         raise RuntimeError(f'Expected uncompressed file {uncompressed_filename} does not exist.')
 
 
+
+def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
+    """
+    Given a list of identifiers (with `identifier` and `label` keys), sort them using
+    the following rules:
+    - Any identifier that has a prefix in prefixes is sorted based on its order in prefixes.
+    - Any identifier that does not have a prefix in prefixes is left in place.
+
+    :param identifiers: A list of identifiers to sort. This is a list of dictionaries
+        containing `identifier` and `label` keys, and possible others that we ignore.
+    :param prefixes: A list of prefixes, in the order in which they should be boosted.
+        We assume that CURIEs match these prefixes if they are in the form `{prefix}:...`.
+    :return: The list of identifiers sorted as described above.
+    """
+
+    # Thanks to JetBrains AI.
+    return sorted(
+        identifiers,
+        key=lambda identifier: prefixes.index(identifier.split(':', 1)[0]) if identifier.split(':', 1)[0] in prefixes else len(prefixes)
+    )
+
+
 def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],icrdf_filename=None):
     """
     :param synonym_list:
@@ -293,6 +315,10 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     biolink_version = config['biolink_version']
     node_factory = NodeFactory(make_local_name(''),biolink_version)
     synonym_factory = SynonymFactory(make_local_name(''))
+
+    # Load the preferred_name_boost_prefixes -- this tells us which prefixes to boost when
+    # coming up with a preferred label for a particular Biolink class.
+    preferred_name_boost_prefixes = config['preferred_name_boost_prefixes']
 
     # Create an InformationContentFactory based on the specified icRDF.tsv file. Default to the one in the download
     # directory.
@@ -334,14 +360,51 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 # Why are we running the synonym list through set() again? Because get_synonyms returns unique pairs of (relation, synonym).
                 # So multiple identical synonyms may be returned as long they have a different relation. But since we don't care about the
                 # relation, we should get rid of any duplicated synonyms here.
-                synonyms_list = sorted(set(synonyms), key=lambda x:len(x))
+                synonyms_list = sorted(set(synonyms), key=lambda x: len(x))
                 try:
+                    types = node_factory.get_ancestors(node["type"])
                     document = {"curie": curie,
                                 "names": synonyms_list,
-                                "types": [ t[8:] for t in node_factory.get_ancestors(node["type"])]} #remove biolink:
+                                "types": [t[8:] for t in types]} # remove biolink:
 
-                    if "label" in node["identifiers"][0]:
-                        document["preferred_name"] = node["identifiers"][0]["label"]
+                    # To pick a preferred label for this clique, we need to do three things:
+                    # 1. We sort all labels in the preferred-name order. By default, this should be
+                    #    the preferred CURIE order, but if this clique is in one of the Biolink classes in
+                    #    preferred_name_boost_prefixes, we boost those prefixes in that order to the top of the list.
+                    # 2. We filter out any suspicious labels.
+                    #    (If this simple filter doesn't work, and if prefixes are inconsistent, we can build upon the
+                    #    algorithm proposed by Jeff at
+                    #    https://github.com/NCATSTranslator/Feedback/issues/259#issuecomment-1605140850)
+                    # 3. We choose the first label that isn't blank. If no labels remain, we generate a warning.
+
+                    # Step 1.1. Sort labels in boosted prefix order if possible.
+                    possible_labels = []
+                    for typ in types:
+                        if typ in preferred_name_boost_prefixes:
+                            # This is the most specific matching type, so we use this.
+                            possible_labels = map(lambda identifier: identifier.get('label', ''),
+                                sort_identifiers_with_boosted_prefixes(
+                                    node["identifiers"],
+                                    preferred_name_boost_prefixes["typ"]
+                                ))
+                            break
+
+                    # Step 1.2. If we didn't have a preferred_name_boost_prefixes, just use the identifiers in their
+                    # Biolink prefix order.
+                    if not possible_labels:
+                        possible_labels = map(lambda identifier: identifier.get('label', ''), node["identifiers"])
+
+                    # Step 2. Filter out any suspicious labels.
+                    filtered_possible_labels = [l for l in possible_labels if
+                                                l and                               # Ignore blank or empty names.
+                                                not l.startswith('CHEMBL')          # Some CHEMBL names are just the identifier again.
+                                                ]
+
+                    # Step 3. Pick the first label that isn't blank.
+                    if filtered_possible_labels:
+                        document["preferred_name"] = filtered_possible_labels[0]
+                    else:
+                        logging.warning(f"No preferred name for {node}")
 
                     # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
                     # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
