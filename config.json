@@ -55,5 +55,18 @@
 
   "genefamily_labels": ["PANTHER.FAMILY","HGNC.FAMILY"],
   "genefamily_ids": ["PANTHER.FAMILY","HGNC.FAMILY"],
-  "genefamily_outputs": ["GeneFamily.txt"]
+  "genefamily_outputs": ["GeneFamily.txt"],
+
+  "preferred_name_boost_prefixes": {
+    "biolink:ChemicalEntity": [
+      "DRUGBANK",
+      "GTOPDB",
+      "DrugCentral",
+      "CHEMBL.COMPOUND",
+      "RXCUI",
+      "PUBCHEM.COMPOUND",
+      "CHEBI",
+      "HMDB"
+    ]
+  }
 }
