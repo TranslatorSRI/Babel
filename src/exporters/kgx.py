@@ -2,7 +2,7 @@
 # Knowledge Graph Exchange (KGX, https://github.com/biolink/kgx) format.
 # This file provides code for doing that, based on the code from
 # https://github.com/TranslatorSRI/NodeNormalization/blob/68096b2f16e6c2eedb699178ace71cea98dc794f/node_normalizer/loader.py#L70-L208
-
+import gzip
 import hashlib
 import json
 import os
@@ -22,8 +22,8 @@ def convert_compendium_to_kgx(compendium_filename, kgx_nodes_filename, kgx_edges
     Based on the code in https://github.com/TranslatorSRI/NodeNormalization/blob/68096b2f16e6c2eedb699178ace71cea98dc794f/node_normalizer/loader.py#L70-L208
 
     :param compendium_filename: The compendium file to convert.
-    :param kgx_nodes_filename: The KGX nodes file to write out.
-    :param kgx_edges_filename: The KGX edges file to write out.
+    :param kgx_nodes_gz_filename: The KGX nodes gzipped file to write out.
+    :param kgx_edges_gz_filename: The KGX edges gzipped file to write out.
     """
 
     logger.info(f"convert_compendium_to_kgx({compendium_filename}, {kgx_nodes_filename}, {kgx_edges_filename})")
@@ -49,8 +49,8 @@ def convert_compendium_to_kgx(compendium_filename, kgx_nodes_filename, kgx_edges
     with open(compendium_filename, "r", encoding="utf-8") as compendium:
         # Open the nodes and edges files for writing.
         with \
-            open(kgx_nodes_filename, "w", encoding="utf-8") as node_file, \
-            open(kgx_edges_filename, "w", encoding="utf-8") as edge_file:
+            gzip.open(kgx_nodes_filename, "wt", encoding="utf-8") as node_file, \
+            gzip.open(kgx_edges_filename, "wt", encoding="utf-8") as edge_file:
 
             # set the flag for suppressing the first ",\n" in the written data
             first = True
