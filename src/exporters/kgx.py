@@ -37,8 +37,8 @@ def convert_compendium_to_kgx(compendium_filename, kgx_nodes_filename, kgx_edges
     count_nodes = 0
     count_edges = 0
 
-    # Used to count batches of 10000 lines to process together.
-    batch_size = 10000
+    # Used to count batches of 100000 lines to process together.
+    batch_size = 100000
     line_counter = 0
 
     # Make the output directories if they don't exist.
@@ -139,7 +139,7 @@ def convert_compendium_to_kgx(compendium_filename, kgx_nodes_filename, kgx_edges
 
                     # Count total lines
                     count_lines += line_counter
-                    logger.info(f"Processed {count_lines} lines from {compendium_filename}")
+                    logger.debug(f"Processed {count_lines} lines from {compendium_filename}")
 
                     # reset the line counter for the next group
                     line_counter = 0
