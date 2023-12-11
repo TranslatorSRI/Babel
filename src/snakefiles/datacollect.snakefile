@@ -29,6 +29,7 @@ import src.datahandlers.chebi as chebi
 import src.datahandlers.hgncfamily as hgncfamily
 import src.datahandlers.pantherfamily as pantherfamily
 import src.datahandlers.complexportal as complexportal
+import src.datahandlers.pharmgkb as pharmgkb
 
 import src.prefixes as prefixes
 
@@ -553,3 +554,26 @@ rule get_chebi:
         config['download_directory'] + '/CHEBI/database_accession.tsv',
     run:
         chebi.pull_chebi()
+
+# PharmaGKB
+
+rule get_pharmgkb:
+    output:
+        genes_zip_filepath = config['download_directory'] + '/PharmGKB/genes.zip',
+        genes_tsv_filepath = config['download_directory'] + '/PharmGKB/genes/genes.tsv',
+        chemicals_zip_filepath = config['download_directory'] + '/PharmGKB/chemicals.zip',
+        chemicals_tsv_filepath = config['download_directory'] + '/PharmGKB/chemicals/chemicals.tsv',
+        drugs_zip_filepath = config['download_directory'] + '/PharmGKB/drugs.zip',
+        drugs_tsv_filepath = config['download_directory'] + '/PharmGKB/drugs/drugs.tsv',
+        phenotypes_zip_filepath = config['download_directory'] + '/PharmGKB/phenotypes.zip',
+        phenotypes_tsv_filepath = config['download_directory'] + '/PharmGKB/phenotypes/phenotypes.tsv',
+        variants_zip_filepath = config['download_directory'] + '/PharmGKB/variants.zip',
+        variants_tsv_filepath = config['download_directory'] + '/PharmGKB/variants/variants.tsv',
+    run:
+        pharmgkb.pull_pharmgkb(
+            output.genes_zip_filepath,
+            output.chemicals_zip_filepath,
+            output.drugs_zip_filepath,
+            output.phenotypes_zip_filepath,
+            output.variants_zip_filepath,
+        )
