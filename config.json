@@ -67,9 +67,9 @@
       "DrugCentral",
       "CHEMBL.COMPOUND",
       "RXCUI",
-      "PUBCHEM.COMPOUND",
       "CHEBI",
-      "HMDB"
+      "HMDB",
+      "PUBCHEM.COMPOUND"
     ]
   }
 }
