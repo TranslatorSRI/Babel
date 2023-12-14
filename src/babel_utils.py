@@ -1,5 +1,4 @@
 import logging
-import subprocess
 import traceback
 from ftplib import FTP
 from io import BytesIO
