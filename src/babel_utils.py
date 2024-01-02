@@ -1,5 +1,6 @@
 import logging
 import traceback
+import subprocess
 from ftplib import FTP
 from io import BytesIO
 import gzip
@@ -205,7 +206,73 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None
     # return the filename to the caller
     return out_file_name
 
+def pull_via_wget(
+        url_prefix: str,
+        in_file_name: str,
+        decompress=True,
+        subpath:str=None,
+        continue_incomplete:bool=True,
+        retries:int=10):
+    """
+    Download a file using wget. We call wget from the command line, and use command line options to
+    request continuing incomplete downloads.
 
+    :param url_prefix: The URL prefix to download.
+    :param in_file_name: The filename to download -- this will be concatenated to the URL prefix. This should include
+        the compression extension (e.g. `.gz`); we will remove that extension during decompression.
+    :param decompress: Whether this is a Gzip file that should be decompressed after download.
+    :param subpath: The subdirectory of `babel_download` where this file should be stored.
+    :param continue_incomplete: Should wget continue an incomplete download?
+    :param retries: The number of retries to attempt.
+    """
+
+    # Prepare download URL and location
+    download_dir = get_config()['download_directory']
+    url = url_prefix + in_file_name
+    if subpath:
+        dl_file_name = os.path.join(download_dir, subpath, in_file_name)
+    else:
+        dl_file_name = os.path.join(download_dir, in_file_name)
+
+    # Prepare wget options.
+    wget_command_line = [
+        'wget',
+        '--progress=bar:force:noscroll',
+    ]
+    if continue_incomplete:
+        wget_command_line.append('--continue')
+    if retries > 0:
+        wget_command_line.append(f'--tries={retries}')
+
+    # Add URL and output file.
+    wget_command_line.append(url)
+    wget_command_line.extend(['-O', dl_file_name])
+
+    # Execute wget.
+    logging.info(f"Downloading {dl_file_name} using wget: {wget_command_line}")
+    process = subprocess.run(wget_command_line)
+    if process.returncode != 0:
+        raise RuntimeError(f"Could not execute wget {wget_command_line}: {process.stderr}")
+
+    # Decompress the downloaded file if needed.
+    uncompressed_filename = None
+    if decompress:
+        if dl_file_name.endswith('.gz'):
+            uncompressed_filename = dl_file_name[:-3]
+            process = subprocess.run(['gunzip', dl_file_name])
+            if process.returncode != 0:
+                raise RuntimeError(f"Could not execute gunzip ['gunzip', {dl_file_name}]: {process.stderr}")
+        else:
+            raise RuntimeError(f"Don't know how to decompress {in_file_name}")
+
+    if os.path.isfile(uncompressed_filename):
+        file_size = os.path.getsize(uncompressed_filename)
+        if file_size > 0:
+            logging.info(f"Downloaded {uncompressed_filename} from {url}, file size {file_size} bytes.")
+    else:
+        raise RuntimeError(f'Expected uncompressed file {uncompressed_filename} does not exist.')
+
+        
 def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
     """
     Given a list of identifiers (with `identifier` and `label` keys), sort them using
@@ -225,7 +292,7 @@ def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
         identifiers,
         key=lambda identifier: prefixes.index(identifier['identifier'].split(':', 1)[0]) if identifier['identifier'].split(':', 1)[0] in prefixes else len(prefixes)
     )
-
+  
 
 def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],icrdf_filename=None):
     """
