@@ -274,7 +274,6 @@ def pull_via_wget(
         raise RuntimeError(f'Expected uncompressed file {uncompressed_filename} does not exist.')
 
 
-
 def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
     """
     Given a list of identifiers (with `identifier` and `label` keys), sort them using
