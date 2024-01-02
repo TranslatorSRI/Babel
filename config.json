@@ -4,7 +4,7 @@
   "intermediate_directory": "babel_outputs/intermediate",
   "output_directory": "babel_outputs",
 
-  "biolink_version": "3.6.0",
+  "biolink_version": "4.1.0",
   "umls_version": "2023AB",
   "rxnorm_version": "12042023",
 
