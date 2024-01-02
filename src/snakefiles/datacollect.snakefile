@@ -29,6 +29,7 @@ import src.datahandlers.chebi as chebi
 import src.datahandlers.hgncfamily as hgncfamily
 import src.datahandlers.pantherfamily as pantherfamily
 import src.datahandlers.complexportal as complexportal
+from src.babel_utils import pull_via_wget
 
 import src.prefixes as prefixes
 
@@ -91,13 +92,23 @@ rule get_mods_labels:
 
 ### UniProtKB
 
-rule get_uniprotkb:
+rule get_uniprotkb_idmapping:
     output:
-        config['download_directory']+'/UniProtKB/uniprot_sprot.fasta',
-        config['download_directory']+'/UniProtKB/uniprot_trembl.fasta',
-        config['download_directory']+'/UniProtKB/idmapping.dat'
+        idmapping = config['download_directory']+'/UniProtKB/idmapping.dat'
     run:
-        uniprotkb.pull_uniprotkb()
+        pull_via_wget("https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/", "idmapping.dat.gz", decompress=True, subpath='UniProtKB')
+
+rule get_uniprotkb_sprot:
+    output:
+        uniprot_sprot = config['download_directory']+'/UniProtKB/uniprot_sprot.fasta'
+    run:
+        pull_via_wget("https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/", "uniprot_sprot.fasta.gz", decompress=True, subpath='UniProtKB')
+
+rule get_uniprotkb_trembl:
+    output:
+        uniprot_trembl = config['download_directory']+'/UniProtKB/uniprot_trembl.fasta'
+    run:
+        pull_via_wget("https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/", "uniprot_trembl.fasta.gz", decompress=True, subpath='UniProtKB')
 
 rule get_uniprotkb_labels:
     input:
