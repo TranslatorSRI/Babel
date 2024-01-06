@@ -55,5 +55,9 @@
 
   "genefamily_labels": ["PANTHER.FAMILY","HGNC.FAMILY"],
   "genefamily_ids": ["PANTHER.FAMILY","HGNC.FAMILY"],
-  "genefamily_outputs": ["GeneFamily.txt"]
+  "genefamily_outputs": ["GeneFamily.txt"],
+
+  "ubergraph_curie_to_iri_stem": {
+
+  }
 }

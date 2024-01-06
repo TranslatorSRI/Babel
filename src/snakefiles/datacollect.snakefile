@@ -1,3 +1,4 @@
+import src.node as node
 import src.datahandlers.mesh as mesh
 import src.datahandlers.obo as obo
 import src.datahandlers.umls as umls
@@ -163,6 +164,9 @@ rule get_ontology_labels_descriptions_and_synonyms:
         # expand("{download_directory}/{onto}/descriptions", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
     run:
         obo.pull_uber(config['ubergraph_ontologies'], output.icrdf_filename)
+
+        # Try to load the icRDF.tsv file (this will produce an error if the file can't be read).
+        node.InformationContentFactory(output.icrdf_filename)
 
 ### NCBIGene
 

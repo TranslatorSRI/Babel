@@ -2,6 +2,8 @@ import json
 from json import load
 import os
 from collections import defaultdict
+from urllib.parse import urlparse
+
 import curies
 
 from src.util import Text
@@ -170,9 +172,14 @@ class InformationContentFactory:
                                or None if no information content value is found.
     """
 
-    def __init__(self,ic_file):
+    def __init__(self, ic_file):
+        config = get_config()
         self.ic = {}
+
+        unmapped_urls = []
         biolink_prefix_map = get_biolink_prefix_map()
+        ubergraph_curie_to_iri_stem_prefix_map = curies.Converter.from_reverse_prefix_map(config['ubergraph_curie_to_iri_stem'])
+
         count_by_prefix = defaultdict(int)
         with open(ic_file, 'r') as inf:
             for line in inf:
@@ -180,6 +187,14 @@ class InformationContentFactory:
                 # We talk in CURIEs, but the infores download is in URLs. We can use the Biolink
                 # prefix map to convert between them.
                 node_id = biolink_prefix_map.compress(x[0])
+                if node_id is None:
+                    # Try the ubergraph_curie_to_iri_stem_prefix_map
+                    node_id = ubergraph_curie_to_iri_stem_prefix_map.compress(x[0])
+
+                # If None, log this URL as unmapped.
+                if node_id is None:
+                    unmapped_urls.append(x[0])
+
                 ic = x[1]
                 self.ic[node_id] = ic
 
@@ -198,6 +213,26 @@ class InformationContentFactory:
         # Now you can print the sorted items
         for key, value in sorted_by_prefix:
             print(f'- {key}: {value}')
+
+        # We see a number of URLs being mapped to None (250,871 at present). Let's optionally raise an error if that
+        # happens.
+        if len(unmapped_urls) > 0:
+            # Group unmapped URLs by netloc
+            unmapped_urls_by_netloc = defaultdict(list)
+            for url in unmapped_urls:
+                netloc = urlparse(url).netloc
+                unmapped_urls_by_netloc[netloc].append(url)
+
+            # Print them in reverse count order.
+            print(f"Found {len(unmapped_urls)} unmapped URLs:")
+            netlocs_by_count = sorted(unmapped_urls_by_netloc.items(), key=lambda item: len(item[1]), reverse=True)
+            for netloc, urls in netlocs_by_count.items():
+                print(f" - {netloc}: {len(urls)}")
+                for url in sorted(urls):
+                    print(f"   - {url}")
+
+            assert None not in sorted_by_prefix, ("Found invalid CURIEs in information content values, probably "
+                                                  "because they couldn't be mapped from URLs to CURIEs.")
 
 
     def get_ic(self, node):
