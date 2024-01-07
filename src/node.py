@@ -226,8 +226,8 @@ class InformationContentFactory:
             # Print them in reverse count order.
             print(f"Found {len(unmapped_urls)} unmapped URLs:")
             netlocs_by_count = sorted(unmapped_urls_by_netloc.items(), key=lambda item: len(item[1]), reverse=True)
-            for netloc, urls in netlocs_by_count.items():
-                print(f" - {netloc}: {len(urls)}")
+            for netloc, urls in netlocs_by_count:
+                print(f" - {netloc} [{len(urls)}]")
                 for url in sorted(urls):
                     print(f"   - {url}")
 
