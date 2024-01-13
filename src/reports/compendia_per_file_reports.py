@@ -1,6 +1,7 @@
 """
 compendia_per_file_reports.py - Generate reports for the individual files in the compendia directory.
 """
+import itertools
 import json
 import logging
 import os
@@ -85,11 +86,14 @@ def generate_content_report_for_compendium(compendium_path, report_path):
                 counters[f"count_cliques_with_{len(ids)}_ids"] += 1
                 labels = list(filter(lambda x: x.strip() != '', map(lambda x: x.get('l', ''), identifiers)))
                 counters[f"count_cliques_with_{len(labels)}_labels"] += 1
-                unique_labels = list(set(labels))
-                counters[f"count_cliques_with_{len(labels)}_unique_labels"] += 1
-                descriptions = list(filter(lambda x: x.strip() != '', map(lambda x: x.get('d', ''), identifiers)))
+                unique_labels = set(labels)
+                counters[f"count_cliques_with_{len(unique_labels)}_unique_labels"] += 1
+
+                # Since descriptions are currently lists, we have to first flatten the list with
+                # itertools.chain.from_iterable() before we can count them.
+                descriptions = list(filter(lambda x: x.strip() != '', itertools.chain.from_iterable(map(lambda x: x.get('d', ''), identifiers))))
                 counters[f"count_cliques_with_{len(descriptions)}_descriptions"] += 1
-                unique_descriptions = list(set(descriptions))
+                unique_descriptions = set(descriptions)
                 counters[f"count_cliques_with_{len(unique_descriptions)}_unique_descriptions"] += 1
 
         json.dump({
@@ -99,4 +103,4 @@ def generate_content_report_for_compendium(compendium_path, report_path):
             'count_by_biolink_type': count_by_biolink_type,
             'count_by_prefix': count_by_prefix,
             'counters': counters,
-        }, report_file)
+        }, report_file, sort_keys=True, indent=2)
