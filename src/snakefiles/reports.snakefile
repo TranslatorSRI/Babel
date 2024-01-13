@@ -65,7 +65,10 @@ rule curie_prefix_counts_by_file_report:
 # Check that all the reports were built correctly.
 rule all_reports:
     input:
-        config['output_directory']+'/reports/curies_by_file.json'
+        config['output_directory']+'/reports/curies_by_file.json',
+        config['output_directory']+'/reports/check_compendia_files.done',
+        config['output_directory']+'/reports/check_synonyms_files.done',
+        config['output_directory']+'/reports/check_conflation_files.done',
     output:
         x = config['output_directory']+'/reports/reports_done',
     shell:
