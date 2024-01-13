@@ -34,7 +34,7 @@ def assert_files_in_directory(dir, files, report_file):
 
     # If we passed, write the output to the check_file.
     with open(report_file, "w") as f:
-        f.write(f"Confirmed that {dir} contains only the files {files} at {get_datetime_as_string()}")
+        f.write(f"Confirmed that {dir} contains only the files {files} at {get_datetime_as_string()}\n")
 
 
 def generate_curie_prefixes_per_file_report(compendia_dir, report_path):

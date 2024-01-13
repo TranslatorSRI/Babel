@@ -33,6 +33,7 @@ rule check_synonyms_files:
             config['anatomy_outputs'] + config['gene_outputs'] + config['protein_outputs'] +
             config['disease_outputs'] + config['process_outputs'] +
             config['chemical_outputs'] + config['taxon_outputs'] + config['genefamily_outputs'] +
+            config['drugchemicalconflated_synonym_outputs'] +
             config['umls_outputs'] + config['macromolecularcomplex_outputs'],
             output.donefile
         )
