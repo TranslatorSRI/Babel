@@ -1,6 +1,6 @@
 import os
 
-from src.reports.compendia_per_file_reports import generate_curie_prefixes_per_file_report, assert_files_in_directory, \
+from src.reports.compendia_per_file_reports import assert_files_in_directory, \
     generate_content_report_for_compendium
 
 # Some paths we will use at multiple times in these reports.
