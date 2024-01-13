@@ -1,9 +1,9 @@
 from src.reports.compendia_per_file_reports import generate_curie_prefixes_per_file_report, assert_files_in_directory
 
 # Some paths we will use at multiple times in these reports.
-compendia_path = config['output_dir'] + '/compendia'
-synonyms_path = config['output_dir'] + '/synonyms'
-conflations_path = config['output_dir'] + '/conflation'
+compendia_path = config['output_directory'] + '/compendia'
+synonyms_path = config['output_directory'] + '/synonyms'
+conflations_path = config['output_directory'] + '/conflation'
 
 # Make sure we have all the expected Compendia files.
 rule check_compendia_files:
