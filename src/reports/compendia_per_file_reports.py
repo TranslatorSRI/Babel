@@ -83,18 +83,18 @@ def generate_content_report_for_compendium(compendium_path, report_path):
 
                 # Update counts by flags.
                 counters['count_cliques'] += 1
-                counters[f"count_cliques_with_{len(ids)}_ids"] += 1
+                counters[f"count_cliques_with_{len(ids):03}_ids"] += 1
                 labels = list(filter(lambda x: x.strip() != '', map(lambda x: x.get('l', ''), identifiers)))
-                counters[f"count_cliques_with_{len(labels)}_labels"] += 1
+                counters[f"count_cliques_with_{len(labels):03}_labels"] += 1
                 unique_labels = set(labels)
-                counters[f"count_cliques_with_{len(unique_labels)}_unique_labels"] += 1
+                counters[f"count_cliques_with_{len(unique_labels):03}_unique_labels"] += 1
 
                 # Since descriptions are currently lists, we have to first flatten the list with
                 # itertools.chain.from_iterable() before we can count them.
                 descriptions = list(filter(lambda x: x.strip() != '', itertools.chain.from_iterable(map(lambda x: x.get('d', ''), identifiers))))
-                counters[f"count_cliques_with_{len(descriptions)}_descriptions"] += 1
+                counters[f"count_cliques_with_{len(descriptions):03}_descriptions"] += 1
                 unique_descriptions = set(descriptions)
-                counters[f"count_cliques_with_{len(unique_descriptions)}_unique_descriptions"] += 1
+                counters[f"count_cliques_with_{len(unique_descriptions):03}_unique_descriptions"] += 1
 
         json.dump({
             'name': os.path.splitext(os.path.basename(compendium_path))[0],
