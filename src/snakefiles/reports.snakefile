@@ -94,7 +94,6 @@ rule generate_summary_content_report_for_compendia:
 # Check that all the reports were built correctly.
 rule all_reports:
     input:
-        config['output_directory']+'/reports/curies_by_file.json',
         config['output_directory']+'/reports/content/compendia_report.json',
         config['output_directory']+'/reports/check_compendia_files.done',
         config['output_directory']+'/reports/check_synonyms_files.done',
