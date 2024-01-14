@@ -63,7 +63,8 @@ def generate_content_report_for_compendium(compendium_path, report_path):
             for line in compendium_file:
                 count_lines += 1
 
-                if count_lines % 1000000 == 0:
+                # Report updates every 10 million lines.
+                if count_lines % 10000000 == 0:
                     logging.info(f"Processed {count_lines} lines in {compendium_path}")
 
                 # Parse each line as a JSON object.
