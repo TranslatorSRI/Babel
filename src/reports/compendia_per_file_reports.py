@@ -141,7 +141,7 @@ def summarize_content_report_for_compendia(compendia_report_paths, summary_path)
 
             # We can just add up the counters, since they are per-clique.
             for counter, count in report['counters'].items():
-                prefixes[counter] = prefixes.get(counter, 0) + count
+                counters[counter] = counters.get(counter, 0) + count
 
         # Write the summary report.
         json.dump({
