@@ -1,7 +1,7 @@
 import os
 
 from src.reports.compendia_per_file_reports import assert_files_in_directory, \
-    generate_content_report_for_compendium
+    generate_content_report_for_compendium, summarize_content_report_for_compendia
 
 # Some paths we will use at multiple times in these reports.
 compendia_path = config['output_directory'] + '/compendia'
@@ -82,20 +82,20 @@ for compendium_filename in compendia_files:
             generate_content_report_for_compendium(input.compendium_file, output.report_file)
 
 
-rule generate_all_content_reports_for_compendia:
+rule generate_summary_content_report_for_compendia:
     input:
-        expected_content_reports,
+        expected_content_reports = expected_content_reports,
     output:
-        x = config['output_directory']+'/reports/content_compendia_done',
-    shell:
-        "echo 'done' >> {output.x}"
+        report_path = config['output_directory']+'/reports/compendia_content_report.json',
+    run:
+        summarize_content_report_for_compendia(input.expected_content_reports, output.report_path)
 
 
 # Check that all the reports were built correctly.
 rule all_reports:
     input:
         config['output_directory']+'/reports/curies_by_file.json',
-        config['output_directory']+'/reports/check_compendia_files.done',
+        config['output_directory']+'/reports/compendia_content_report.json',
         config['output_directory']+'/reports/check_synonyms_files.done',
         config['output_directory']+'/reports/check_conflation_files.done',
     output:
