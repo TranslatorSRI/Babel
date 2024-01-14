@@ -74,7 +74,7 @@ def generate_content_report_for_compendium(compendium_path, report_path):
                 ids = list(map(lambda x: x['i'], identifiers))
 
                 # Update counts by Biolink type.
-                count_by_biolink_type['type'] += 1
+                count_by_biolink_type[clique.get('type', '')] += 1
 
                 # Update counts by prefix.
                 for curie in ids:
