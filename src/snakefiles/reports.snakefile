@@ -19,7 +19,7 @@ synonyms_files = config['anatomy_outputs'] + config['gene_outputs'] + config['pr
     config['disease_outputs'] + config['process_outputs'] + \
     config['chemical_outputs'] + config['taxon_outputs'] + config['genefamily_outputs'] + \
     config['drugchemicalconflated_synonym_outputs'] + \
-    config['umls_outputs'] + config['macromolecularcomplex_outputs'],
+    config['umls_outputs'] + config['macromolecularcomplex_outputs']
 
 # Expected conflation files.
 conflation_files = config['geneprotein_outputs'] + config['drugchemical_outputs']
