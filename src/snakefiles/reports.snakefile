@@ -86,7 +86,7 @@ rule generate_summary_content_report_for_compendia:
     input:
         expected_content_reports = expected_content_reports,
     output:
-        report_path = config['output_directory']+'/reports/compendia_content_report.json',
+        report_path = config['output_directory']+'/reports/content/compendia_report.json',
     run:
         summarize_content_report_for_compendia(input.expected_content_reports, output.report_path)
 
@@ -95,7 +95,7 @@ rule generate_summary_content_report_for_compendia:
 rule all_reports:
     input:
         config['output_directory']+'/reports/curies_by_file.json',
-        config['output_directory']+'/reports/compendia_content_report.json',
+        config['output_directory']+'/reports/content/compendia_report.json',
         config['output_directory']+'/reports/check_synonyms_files.done',
         config['output_directory']+'/reports/check_conflation_files.done',
     output:
