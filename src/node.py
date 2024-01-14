@@ -178,7 +178,7 @@ class InformationContentFactory:
 
         unmapped_urls = []
         biolink_prefix_map = get_biolink_prefix_map()
-        ubergraph_curie_to_iri_stem_prefix_map = curies.Converter.from_reverse_prefix_map(config['ubergraph_curie_to_iri_stem'])
+        ubergraph_iri_stem_to_prefix_map = curies.Converter.from_reverse_prefix_map(config['ubergraph_iri_stem_to_prefix_map'])
 
         count_by_prefix = defaultdict(int)
         with open(ic_file, 'r') as inf:
@@ -188,8 +188,8 @@ class InformationContentFactory:
                 # prefix map to convert between them.
                 node_id = biolink_prefix_map.compress(x[0])
                 if node_id is None:
-                    # Try the ubergraph_curie_to_iri_stem_prefix_map
-                    node_id = ubergraph_curie_to_iri_stem_prefix_map.compress(x[0])
+                    # Try the ubergraph_iri_stem_to_prefix_map
+                    node_id = ubergraph_iri_stem_to_prefix_map.compress(x[0])
 
                 # If None, log this URL as unmapped.
                 if node_id is None:
