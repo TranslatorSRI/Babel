@@ -128,7 +128,7 @@ def summarize_content_report_for_compendia(compendia_report_paths, summary_path)
         # Summarized information from the reports.
         biolink_types = defaultdict(dict)
         prefixes = defaultdict(dict)
-        counters = defaultdict(int)
+        counters = {}
         count_lines = 0
 
         # Read all the summary reports -- these are small, so we can just read them all in.
@@ -147,9 +147,16 @@ def summarize_content_report_for_compendia(compendia_report_paths, summary_path)
             for prefix, count in report['count_by_prefix'].items():
                 prefixes[prefix] = prefixes.get(prefix, 0) + count
 
-            # We can just add up the counters, since they are per-clique.
-            for counter, count in report['counters'].items():
-                counters[counter] = counters.get(counter, 0) + count
+            # Every counter is either an int or a dict. If a dict, we need to add up
+            # all the counters.
+            for counter, value in report['counters'].items():
+                if type(value) is int:
+                    counters[counter] = counters.get(counter, 0) + value
+                elif type(value) is dict:
+                    for key, count in value.items():
+                        counters[counter][key] = counters[counter].get(key, 0) + count
+                else:
+                    raise ValueError(f"Counter {counter} has unexpected value in {value}.")
 
         # Write the summary report.
         json.dump({
