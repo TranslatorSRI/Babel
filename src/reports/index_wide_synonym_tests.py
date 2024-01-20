@@ -24,6 +24,7 @@ def report_on_index_wide_synonym_tests(synonym_files, sqlite_file, report_file):
     # Create a compendia table if it doesn't exist
     c.execute('''CREATE TABLE IF NOT EXISTS synonyms (
                         curie TEXT NOT NULL PRIMARY KEY UNIQUE,
+                        biolink_type TEXT,
                         preferred_name TEXT,
                         preferred_name_lc TEXT
                     ) STRICT''')
@@ -40,12 +41,14 @@ def report_on_index_wide_synonym_tests(synonym_files, sqlite_file, report_file):
                 count_entries += 1
 
                 curie = entry['curie']
+                if len(entry['type']) > 0:
+                    biolink_type = 'biolink:' + entry['type'][0]
                 preferred_name = entry['preferred_name']
                 preferred_name_lc = preferred_name.lower()
 
                 # This should give us an error if we see the same CURIE in multiple files.
-                c.execute("INSERT INTO synonyms (curie, preferred_name, preferred_name_lc) VALUES (?, ?, ?)",
-                (curie, preferred_name, preferred_name_lc))
+                c.execute("INSERT INTO synonyms (curie, biolink_type, preferred_name, preferred_name_lc) VALUES (?, ?, ?, ?)",
+                (curie, biolink_type, preferred_name, preferred_name_lc))
 
         logging.info(f"Read {count_entries} entries from {synonyms_file}.")
         conn.commit()
