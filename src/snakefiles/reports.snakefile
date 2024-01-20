@@ -94,7 +94,7 @@ rule generate_summary_content_report_for_compendia:
 
 rule test_synonyms_for_duplication:
     input:
-        synonyms_files = synonyms_files,
+        synonyms_files = expand("{synonyms_path}/{synonym_file}", synonyms_path=synonyms_path, synonym_file=synonyms_files),
     output:
         sqlite_file = config['output_directory']+'/reports/duplication/synonyms.sqlite3',
         report_path = config['output_directory']+'/reports/duplication/synonym_duplication_report.json',
