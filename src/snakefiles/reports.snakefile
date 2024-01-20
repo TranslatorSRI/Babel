@@ -91,6 +91,15 @@ rule generate_summary_content_report_for_compendia:
     run:
         summarize_content_report_for_compendia(input.expected_content_reports, output.report_path)
 
+rule test_compendia_for_duplication:
+    input:
+        compendia_files = expand("{compendia_path}/{compendium_file}", compendia_path=compendia_path, compendium_file=compendia_files),
+   output:
+        sqlite_file = config['output_directory']+'/reports/duplication/synonyms.sqlite3',
+        report_path = config['output_directory']+'/reports/duplication/synonym_duplication_report.json',
+   run:
+
+
 
 rule test_synonyms_for_duplication:
     input:

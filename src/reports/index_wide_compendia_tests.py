@@ -8,51 +8,64 @@ database to look for relevant duplication.
 import json
 import logging
 import sqlite3
+from pathlib import Path
 
 
-def report_on_index_wide_compendia_tests(compendia_files, report_file):
+def report_on_index_wide_compendia_tests(compendia_files, sqlite_file, report_file):
+    Path(sqlite_file).touch()
+    Path(report_file).touch()
+
     # Open the SQLite file that we will use to keep track of duplicates.
     # Connect to the SQLite database
-    conn = sqlite3.connect('compendia.sqlite3')
+    conn = sqlite3.connect(sqlite_file + '.db')
     c = conn.cursor()
 
     # Create a compendia table if it doesn't exist
     c.execute('''CREATE TABLE IF NOT EXISTS compendia (
-                        curie TEXT NOT NULL,
-                        label TEXT,
-                        preferred_curie TEXT NOT NULL,
-                    ) STRICT''')
+                        preferred_curie TEXT NOT NULL PRIMARY KEY,
+                        curie TEXT NOT NULL
+                    )''')
 
-    c.execute('''CREATE INDEX index_preferred_curie ON ''')
+    # Go through all the compendia files in the order provided.
+    for compendia_file_index, compendia_file in enumerate(compendia_files):
+        # Go through every entry in each compendia_file
+        logging.info(f"Reading {compendia_file} ({compendia_file_index + 1}/{len(compendia_files)})")
+
+        count_curies = 0
+        with open(compendia_file, 'r') as compendiafile:
+            for line in compendiafile:
+                entry = json.loads(line)
+                identifiers = entry['identifiers']
+
+                if len(identifiers) > 0:
+                    preferred_curie = identifiers[0]['i']
+                    for identifier in identifiers:
+                        curie = identifier['i']
+                        count_curies += 1
+                        c.execute("INSERT INTO compendia (preferred_curie, curie) VALUES (?, ?)", (preferred_curie, curie))
+
+        logging.info(f"Read {count_curies} into SQLite database {sqlite_file}.")
+
+        # Query the table to check if the data was inserted correctly
+        c.execute("SELECT COUNT(*) FROM compendia")
+        record_count = c.fetchone()
+
+        logging.info(f"SQLite database contains {record_count} records.")
 
     # Start writing the report file.
     with open(report_file, 'w') as reportfile:
-        # Go through all the compendia files in the order provided.
-        for compendia_file_index, compendia_file in enumerate(compendia_files):
-            # Go through every entry in each compendia_file
-            logging.info(f"Reading {compendia_file} ({compendia_file_index + 1}/{len(compendia_files)})")
-            with open(compendia_file, 'r') as compendiafile:
-                for line in compendiafile:
-                    entry = json.loads(line)
+        c.execute("SELECT COUNT(curie) FROM compendia")
+        curie_count = c.fetchone()
 
-                    # For each entry, we insert
+        # Look for curies mapped to multiple preferred_curies.
+        c.execute("SELECT curie, COUNT(DISTINCT preferred_curie), GROUP_CONCAT(DISTINCT preferred_curie) FROM compendia GROUP BY curie HAVING COUNT(DISTINCT preferred_curie) > 1 ORDER BY COUNT(DISTINCT preferred_curie) DESC;")
+        results = c.fetchall()
+        duplicates = [{'curie': duplicate[0], 'count': duplicate[1], 'preferred_curies': duplicate[2].split(',')} for duplicate in results]
 
+        json.dump({
+            'curie_count': curie_count,
+            'duplicates': duplicates
+        }, reportfile)
 
-            # Write the content into the report file
-            reportfile.write(content)
-
-
-
-        # Insert test data into the table
-        c.execute("INSERT INTO compendia (name, description, data) VALUES (?, ?, ?)",
-                  ('Test Compendium', 'This is a test compendium', 'Some test data'))
-
-        # Query the table to check if the data was inserted correctly
-        c.execute("SELECT * FROM compendia")
-        result = c.fetchone()
-
-        # Close the database connection
-        conn.close()
-
-        # Assert that the data was inserted correctly
-        assert result == (1, 'Test Compendium', 'This is a test compendium', 'Some test data')
+    # Close the database connection
+    conn.close()
