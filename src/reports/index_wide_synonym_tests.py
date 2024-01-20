@@ -8,13 +8,17 @@ database to look for relevant duplication.
 import json
 import logging
 import sqlite3
+from pathlib import Path
 
 
-def report_on_index_wide_compendia_tests(synonym_files, report_file):
-    
+def report_on_index_wide_synonym_tests(synonym_files, sqlite_file, report_file):
+    # Start writing to the report file so Snakemake knows we're working.
+    Path(report_file).touch()
+    Path(sqlite_file).touch()
+
     # Open the SQLite file that we will use to keep track of duplicates.
     # Connect to the SQLite database
-    conn = sqlite3.connect('synonyms.sqlite3')
+    conn = sqlite3.connect(sqlite_file + '.db')
     c = conn.cursor()
 
     # Create a compendia table if it doesn't exist
@@ -28,9 +32,12 @@ def report_on_index_wide_compendia_tests(synonym_files, report_file):
     for synonyms_file_index, synonyms_file in enumerate(synonym_files):
         # Go through every entry in each synonyms_file
         logging.info(f"Reading synonyms file {synonyms_file} ({synonyms_file_index + 1}/{len(synonym_files)})")
-        with open(synonyms_file, 'r') as compendiafile:
-            for line in compendiafile:
+
+        count_entries = 0
+        with open(synonyms_file, 'r') as synonymsfile:
+            for line in synonymsfile:
                 entry = json.loads(line)
+                count_entries += 1
 
                 curie = entry['curie']
                 preferred_name = entry['preferred_name']
@@ -40,19 +47,23 @@ def report_on_index_wide_compendia_tests(synonym_files, report_file):
                 c.execute("INSERT INTO synonyms (curie, preferred_name, preferred_name_lc) VALUES (?, ?, ?)",
                 (curie, preferred_name, preferred_name_lc))
 
+        logging.info(f"Read {count_entries} entries from {synonyms_file}.")
+        conn.commit()
 
+        # Count the number of curie values in the synonyms table in SQLite.
+        c.execute("SELECT COUNT(curie) FROM synonyms")
+        curie_count = c.fetchone()
 
+        logging.info(f"{curie_count} CURIEs loaded into {sqlite_file}")
 
-        # Insert test data into the table
-        c.execute("INSERT INTO compendia (name, description, data) VALUES (?, ?, ?)",
-                  ('Test Compendium', 'This is a test compendium', 'Some test data'))
+    with open(report_file, 'w') as reportfile:
+        # TODO: actually check for duplicate labels here.
+        c.execute("SELECT COUNT(curie) FROM synonyms")
+        curie_count = c.fetchone()
 
-        # Query the table to check if the data was inserted correctly
-        c.execute("SELECT * FROM compendia")
-        result = c.fetchone()
+        json.dump({
+            'curie_count': curie_count,
+        }, reportfile)
 
-        # Close the database connection
-        conn.close()
-
-        # Assert that the data was inserted correctly
-        assert result == (1, 'Test Compendium', 'This is a test compendium', 'Some test data')
+    # Close the database connection
+    conn.close()
