@@ -3,6 +3,7 @@ import os
 from src.reports.compendia_per_file_reports import assert_files_in_directory, \
     generate_content_report_for_compendium, summarize_content_report_for_compendia
 from src.reports.index_wide_synonym_tests import report_on_index_wide_synonym_tests
+from src.reports.index_wide_compendia_tests import report_on_index_wide_compendia_tests
 
 # Some paths we will use at multiple times in these reports.
 compendia_path = config['output_directory'] + '/compendia'
@@ -98,8 +99,7 @@ rule test_compendia_for_duplication:
         sqlite_file = config['output_directory']+'/reports/duplication/synonyms.sqlite3',
         report_path = config['output_directory']+'/reports/duplication/synonym_duplication_report.json',
    run:
-
-
+        report_on_index_wide_compendia_tests(input.compendia_files, output.sqlite_file, output.report_path)
 
 rule test_synonyms_for_duplication:
     input:
@@ -109,7 +109,6 @@ rule test_synonyms_for_duplication:
         report_path = config['output_directory']+'/reports/duplication/synonym_duplication_report.json',
     run:
         report_on_index_wide_synonym_tests(input.synonyms_files, output.sqlite_file, output.report_path)
-
 
 # Check that all the reports were built correctly.
 rule all_reports:
