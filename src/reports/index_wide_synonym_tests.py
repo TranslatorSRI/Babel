@@ -27,7 +27,7 @@ def report_on_index_wide_synonym_tests(synonym_files, sqlite_file, report_file):
                         biolink_type TEXT,
                         preferred_name TEXT,
                         preferred_name_lc TEXT
-                    ) STRICT''')
+                    )''')
 
     # Go through all the compendia files in the order provided.
     for synonyms_file_index, synonyms_file in enumerate(synonym_files):
