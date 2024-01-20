@@ -54,7 +54,14 @@ def generate_content_report_for_compendium(compendium_path, report_path):
             # Track CURIE breakdowns for this compendium.
             count_by_prefix = defaultdict(int)
             count_by_biolink_type = defaultdict(int)
-            counters = defaultdict(int)
+            counters = {
+                'clique_count': 0,
+                'cliques_by_id_count': defaultdict(int),
+                'cliques_by_label_count': defaultdict(int),
+                'cliques_by_unique_label_count': defaultdict(int),
+                'cliques_by_description_count': defaultdict(int),
+                'cliques_by_unique_description_count': defaultdict(int),
+            }
 
             # Since this is time-consuming, let's log a count as we go.
             count_lines = 0
@@ -83,19 +90,19 @@ def generate_content_report_for_compendium(compendium_path, report_path):
                     count_by_prefix[prefix] += 1
 
                 # Update counts by flags.
-                counters['count_cliques'] += 1
-                counters[f"count_cliques_with_{len(ids):03}_ids"] += 1
+                counters['clique_count'] += 1
+                counters['cliques_by_id_count'][len(ids)] += 1
                 labels = list(filter(lambda x: x.strip() != '', map(lambda x: x.get('l', ''), identifiers)))
-                counters[f"count_cliques_with_{len(labels):03}_labels"] += 1
+                counters['cliques_by_label_count'][len(labels)] += 1
                 unique_labels = set(labels)
-                counters[f"count_cliques_with_{len(unique_labels):03}_unique_labels"] += 1
+                counters['cliques_by_unique_label_count'][len(unique_labels)] += 1
 
                 # Since descriptions are currently lists, we have to first flatten the list with
                 # itertools.chain.from_iterable() before we can count them.
                 descriptions = list(filter(lambda x: x.strip() != '', itertools.chain.from_iterable(map(lambda x: x.get('d', ''), identifiers))))
-                counters[f"count_cliques_with_{len(descriptions):03}_descriptions"] += 1
+                counters['cliques_by_description_count'][len(descriptions)] += 1
                 unique_descriptions = set(descriptions)
-                counters[f"count_cliques_with_{len(unique_descriptions):03}_unique_descriptions"] += 1
+                counters['cliques_by_unique_description_count'][len(unique_descriptions)] += 1
 
         json.dump({
             'name': os.path.splitext(os.path.basename(compendium_path))[0],
