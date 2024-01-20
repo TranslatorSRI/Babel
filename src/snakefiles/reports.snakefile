@@ -99,7 +99,7 @@ rule test_synonyms_for_duplication:
         sqlite_file = config['output_directory']+'/reports/duplication/synonyms.sqlite3',
         report_path = config['output_directory']+'/reports/duplication/synonym_duplication_report.json',
     run:
-        report_on_index_wide_synonym_tests(input.synonyms_file, output.sqlite_file, output.report_path)
+        report_on_index_wide_synonym_tests(input.synonyms_files, output.sqlite_file, output.report_path)
 
 
 # Check that all the reports were built correctly.
