@@ -47,6 +47,7 @@ def report_on_index_wide_compendia_tests(compendia_files, sqlite_file, report_fi
         logging.info(f"Read {count_curies} into SQLite database {sqlite_file}.")
 
         # Query the table to check if the data was inserted correctly
+        conn.commit()
         c.execute("SELECT COUNT(*) FROM compendia")
         record_count = c.fetchone()
 
