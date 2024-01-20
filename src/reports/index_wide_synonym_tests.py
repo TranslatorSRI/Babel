@@ -60,12 +60,17 @@ def report_on_index_wide_synonym_tests(synonym_files, sqlite_file, report_file):
         logging.info(f"{curie_count} CURIEs loaded into {sqlite_file}")
 
     with open(report_file, 'w') as reportfile:
-        # TODO: actually check for duplicate labels here.
         c.execute("SELECT COUNT(curie) FROM synonyms")
         curie_count = c.fetchone()
 
+        # Look for identical preferred_name_lc values.
+        c.execute("SELECT preferred_name_lc, COUNT(preferred_name_lc), GROUP_CONCAT(DISTINCT curie) FROM synonyms GROUP BY preferred_name_lc HAVING COUNT(preferred_name_lc) > 1 ORDER BY COUNT(preferred_name_lc) DESC;")
+        results = c.fetchall()
+        duplicates = [{'preferred_name_lc': duplicate[0], 'count': duplicate[1], 'curies': duplicate[2].split(',')} for duplicate in results]
+
         json.dump({
             'curie_count': curie_count,
+            'duplicates': duplicates
         }, reportfile)
 
     # Close the database connection
