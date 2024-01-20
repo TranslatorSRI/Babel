@@ -153,6 +153,8 @@ def summarize_content_report_for_compendia(compendia_report_paths, summary_path)
                 if type(value) is int:
                     counters[counter] = counters.get(counter, 0) + value
                 elif type(value) is dict:
+                    if counter not in counters:
+                        counters[counter] = defaultdict(int)
                     for key, count in value.items():
                         counters[counter][key] = counters[counter].get(key, 0) + count
                 else:
