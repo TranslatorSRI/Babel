@@ -41,8 +41,8 @@ def report_on_index_wide_synonym_tests(synonym_files, sqlite_file, report_file):
                 count_entries += 1
 
                 curie = entry['curie']
-                if len(entry['type']) > 0:
-                    biolink_type = 'biolink:' + entry['type'][0]
+                if len(entry['types']) > 0:
+                    biolink_type = 'biolink:' + entry['types'][0]
                 preferred_name = entry['preferred_name']
                 preferred_name_lc = preferred_name.lower()
 
