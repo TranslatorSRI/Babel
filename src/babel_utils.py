@@ -1,6 +1,7 @@
 import logging
 import subprocess
 import traceback
+from enum import Enum
 from ftplib import FTP
 from io import BytesIO
 import gzip
@@ -207,12 +208,25 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None
     return out_file_name
 
 
+# Recursion options for pull_via_wget().
+# See https://www.gnu.org/software/wget/manual/html_node/Recursive-Download.html for wget's recursion options.
+Wget_Recursion_Options = Enum(
+    'Wget_Recursion_Options',
+    [
+        'NO_RECURSION',                 # Don't do any recursion
+        'RECURSE_SUBFOLDERS',           # Recurse into subfolders -- equivalent to `-np`
+        'RECURSE_DIRECTORY_ONLY',       # Recurse through a single directory only.
+    ]
+)
+
+
 def pull_via_wget(
         url_prefix: str,
         in_file_name: str,
         decompress=True,
         subpath:str=None,
         continue_incomplete:bool=True,
+        recurse:Wget_Recursion_Options = Wget_Recursion_Options.NO_RECURSION,
         retries:int=10):
     """
     Download a file using wget. We call wget from the command line, and use command line options to
@@ -224,6 +238,7 @@ def pull_via_wget(
     :param decompress: Whether this is a Gzip file that should be decompressed after download.
     :param subpath: The subdirectory of `babel_download` where this file should be stored.
     :param continue_incomplete: Should wget continue an incomplete download?
+    :param recurse: Do we want to recurse
     :param retries: The number of retries to attempt.
     """
 
