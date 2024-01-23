@@ -59,6 +59,12 @@
 
   "umls_outputs": ["umls.txt"],
   "macromolecularcomplex_outputs": ["MacromolecularComplex.txt"],
+  "ubergraph_iri_stem_to_prefix_map": {
+    "https://identifiers.org/ncbigene/": "NCBIGene",
+    "http://www.ncbi.nlm.nih.gov/gene/": "NCBIGene",
+    "http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=": "HGNC",
+    "http://www.informatics.jax.org/marker/MGI:": "MGI"
+  },
 
   "preferred_name_boost_prefixes": {
     "biolink:ChemicalEntity": [
