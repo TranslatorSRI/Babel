@@ -1,9 +1,15 @@
-from src.babel_utils import make_local_name, pull_via_ftp
+from src.babel_utils import make_local_name, pull_via_urllib
 import json
 
 def pull_hgnc():
-    outfile='HGNC/hgnc_complete_set.json'
-    pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/genenames/new/json', 'hgnc_complete_set.json',outfilename=outfile)
+    # On 2023nov26, I would get an error trying to download this file using FTP on Python (although
+    # weirdly enough, I could download the file without any problem using macOS Finder). So I changed
+    # it to use HTTP instead.
+    pull_via_urllib(
+        'https://ftp.ebi.ac.uk/pub/databases/genenames/new/json/',
+        'hgnc_complete_set.json',
+        decompress=False,
+        subpath="HGNC")
 
 def pull_hgnc_labels_and_synonyms(infile):
     with open(infile,'r') as data:

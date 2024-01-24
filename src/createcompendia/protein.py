@@ -65,6 +65,7 @@ def write_ensembl_ids(ensembl_dir, outfile):
             dlpath = os.path.join(ensembl_dir, dl)
             if os.path.isdir(dlpath):
                 infname = os.path.join(dlpath, 'BioMart.tsv')
+                print(f'write_ensembl_ids for input filename {infname}')
                 if os.path.exists(infname):
                     # open each ensembl file, find the id column, and put it in the output
                     with open(infname, 'r') as inf:

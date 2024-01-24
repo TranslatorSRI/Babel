@@ -13,6 +13,7 @@ include: "src/snakefiles/taxon.snakefile"
 include: "src/snakefiles/genefamily.snakefile"
 include: "src/snakefiles/leftover_umls.snakefile"
 include: "src/snakefiles/macromolecular_complex.snakefile"
+include: "src/snakefiles/exports.snakefile"
 
 rule all:
     input:
@@ -28,6 +29,8 @@ rule all:
         config['output_directory'] + '/reports/umls_done',
         config['output_directory'] + '/reports/macromolecular_complex_done',
         config['output_directory'] + '/reports/drugchemical_done',
+        # Check if we have exported the compendia as KGX.
+        config['output_directory'] + '/kgx/done',
     output:
         x = config['output_directory'] + '/reports/all_done'
     shell:

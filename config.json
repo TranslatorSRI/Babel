@@ -4,9 +4,9 @@
   "intermediate_directory": "babel_outputs/intermediate",
   "output_directory": "babel_outputs",
 
-  "biolink_version": "3.5.4",
-  "umls_version": "2023AA",
-  "rxnorm_version": "08072023",
+  "biolink_version": "3.6.0",
+  "umls_version": "2023AB",
+  "rxnorm_version": "01022024",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
   "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","PATO","PR","RO","UBPROP"],
@@ -57,10 +57,25 @@
   "genefamily_ids": ["PANTHER.FAMILY","HGNC.FAMILY"],
   "genefamily_outputs": ["GeneFamily.txt"],
 
+  "umls_outputs": ["umls.txt"],
+  "macromolecularcomplex_outputs": ["MacromolecularComplex.txt"],
   "ubergraph_iri_stem_to_prefix_map": {
     "https://identifiers.org/ncbigene/": "NCBIGene",
     "http://www.ncbi.nlm.nih.gov/gene/": "NCBIGene",
     "http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=": "HGNC",
     "http://www.informatics.jax.org/marker/MGI:": "MGI"
+  },
+
+  "preferred_name_boost_prefixes": {
+    "biolink:ChemicalEntity": [
+      "DRUGBANK",
+      "GTOPDB",
+      "DrugCentral",
+      "CHEMBL.COMPOUND",
+      "RXCUI",
+      "CHEBI",
+      "HMDB",
+      "PUBCHEM.COMPOUND"
+    ]
   }
 }
