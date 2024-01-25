@@ -1,3 +1,4 @@
+from src.snakefiles.util import get_all_compendia, get_all_synonyms_with_drugchemicalconflated
 import os
 
 from src.reports.compendia_per_file_reports import assert_files_in_directory, \
@@ -9,17 +10,10 @@ synonyms_path = config['output_directory'] + '/synonyms'
 conflations_path = config['output_directory'] + '/conflation'
 
 # Expected compendia files.
-compendia_files = config['anatomy_outputs'] + config['gene_outputs'] + config['protein_outputs'] + \
-    config['disease_outputs'] + config['process_outputs'] + \
-    config['chemical_outputs'] + config['taxon_outputs'] + config['genefamily_outputs'] + \
-    config['umls_outputs'] + config['macromolecularcomplex_outputs']
+compendia_files = get_all_compendia(config)
 
 # Expected synonym files.
-synonyms_files = config['anatomy_outputs'] + config['gene_outputs'] + config['protein_outputs'] + \
-    config['disease_outputs'] + config['process_outputs'] + \
-    config['chemical_outputs'] + config['taxon_outputs'] + config['genefamily_outputs'] + \
-    config['drugchemicalconflated_synonym_outputs'] + \
-    config['umls_outputs'] + config['macromolecularcomplex_outputs']
+synonyms_files = get_all_synonyms_with_drugchemicalconflated(config)
 
 # Expected conflation files.
 conflation_files = config['geneprotein_outputs'] + config['drugchemical_outputs']
