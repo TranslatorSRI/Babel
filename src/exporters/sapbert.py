@@ -24,6 +24,8 @@ logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 # Configuration options
 # Include up to 50 synonym pairs for each synonym.
 MAX_SYNONYM_PAIRS = 50
+# Should we lowercase all the names?
+LOWERCASE_ALL_NAMES = True
 
 
 def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename):
@@ -53,6 +55,8 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename):
             curie = entry['curie']
             preferred_name = entry['preferred_name']
             names = entry['names']
+            if LOWERCASE_ALL_NAMES:
+                names = [name.lower() for name in names]
             types = entry['types']
             if len(types) == 0:
                 biolink_type = 'NamedThing'
