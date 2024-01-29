@@ -21,3 +21,5 @@ wheel
 oaklib~=0.5.1
 # Added by Gaurav, Sep 2023
 beautifulsoup4
+# Added by Gaurav, Dec 2023
+curies

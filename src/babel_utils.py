@@ -11,10 +11,9 @@ import requests
 import os
 import urllib
 import jsonlines
-from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory
+from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, get_config
 from src.util import Text
 from src.LabeledID import LabeledID
-from json import load
 from collections import defaultdict
 import sqlite3
 from typing import List, Tuple
@@ -29,6 +28,7 @@ def make_local_name(fname,subpath=None):
     except:
         pass
     return os.path.join(odir,fname)
+
 
 class StateDB():
     def __init__(self,fname):
@@ -206,6 +206,7 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None
     # return the filename to the caller
     return out_file_name
 
+
 def pull_via_wget(
         url_prefix: str,
         in_file_name: str,
@@ -272,7 +273,7 @@ def pull_via_wget(
     else:
         raise RuntimeError(f'Expected uncompressed file {uncompressed_filename} does not exist.')
 
-        
+
 def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
     """
     Given a list of identifiers (with `identifier` and `label` keys), sort them using
@@ -292,7 +293,7 @@ def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
         identifiers,
         key=lambda identifier: prefixes.index(identifier['identifier'].split(':', 1)[0]) if identifier['identifier'].split(':', 1)[0] in prefixes else len(prefixes)
     )
-  
+
 
 def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],icrdf_filename=None):
     """
@@ -592,11 +593,6 @@ def get_prefixes(idlist):
             prefs[Text.get_curie(ident)].append(ident)
     return prefs
 
-def get_config():
-    cname = os.path.join(os.path.dirname(__file__),'..', 'config.json')
-    with open(cname,'r') as json_file:
-        data = load(json_file)
-    return data
 
 def clean_sets(result_dict):
     """The keys for this are unique and unmergable: Don't merge GO!

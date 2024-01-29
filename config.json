@@ -4,9 +4,9 @@
   "intermediate_directory": "babel_outputs/intermediate",
   "output_directory": "babel_outputs",
 
-  "biolink_version": "3.5.4",
-  "umls_version": "2023AA",
-  "rxnorm_version": "08072023",
+  "biolink_version": "3.6.0",
+  "umls_version": "2023AB",
+  "rxnorm_version": "01022024",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
   "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","PATO","PR","RO","UBPROP"],
@@ -28,8 +28,6 @@
   "protein_concords": ["UniProtKB","PR","NCIT_UniProtKB","NCIT_UMLS"],
   "protein_outputs": ["Protein.txt"],
 
-  "geneprotein_output": "GeneProtein.txt",
-
   "disease_labelsandsynonyms": ["MONDO","DOID","Orphanet","HP","MESH","NCIT","UMLS","SNOMEDCT","EFO"],
   "disease_ids": ["MONDO","DOID","Orphanet","HP","MESH","NCIT","UMLS","OMIM","EFO"],
   "disease_concords": ["HP","MONDO","UMLS","DOID","EFO"],
@@ -46,6 +44,7 @@
   "chemical_concords": ["wikipedia_mesh_chebi","PUBCHEM_MESH","mesh_cas","mesh_unii","PUBCHEM_CAS","GTOPDB","CHEBI","UMLS","DrugCentral","RXNORM"],
   "chemical_ids": ["CHEMBL.COMPOUND","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral","DRUGBANK","MESH","UMLS","RXNORM"],
   "chemical_outputs": ["MolecularMixture.txt", "SmallMolecule.txt", "Polypeptide.txt", "ComplexMolecularMixture.txt",  "ChemicalEntity.txt", "ChemicalMixture.txt", "Drug.txt"],
+  "drugchemicalconflated_synonym_outputs": ["DrugChemicalConflated.txt"],
 
   "taxon_labels": ["NCBITaxon","MESH","UMLS"],
   "taxon_synonyms": ["NCBITaxon","UMLS"],
@@ -57,6 +56,18 @@
   "genefamily_ids": ["PANTHER.FAMILY","HGNC.FAMILY"],
   "genefamily_outputs": ["GeneFamily.txt"],
 
+  "umls_outputs": ["umls.txt"],
+  "macromolecularcomplex_outputs": ["MacromolecularComplex.txt"],
+  "ubergraph_iri_stem_to_prefix_map": {
+    "https://identifiers.org/ncbigene/": "NCBIGene",
+    "http://www.ncbi.nlm.nih.gov/gene/": "NCBIGene",
+    "http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=": "HGNC",
+    "http://www.informatics.jax.org/marker/MGI:": "MGI"
+  },
+
+  "geneprotein_outputs": ["GeneProtein.txt"],
+  "drugchemical_outputs": ["DrugChemical.txt"],
+
   "preferred_name_boost_prefixes": {
     "biolink:ChemicalEntity": [
       "DRUGBANK",
@@ -64,9 +75,9 @@
       "DrugCentral",
       "CHEMBL.COMPOUND",
       "RXCUI",
-      "PUBCHEM.COMPOUND",
       "CHEBI",
-      "HMDB"
+      "HMDB",
+      "PUBCHEM.COMPOUND"
     ]
   }
 }

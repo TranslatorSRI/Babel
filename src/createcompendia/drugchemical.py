@@ -273,11 +273,24 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             x = line.strip().split('\t')
             subject = x[0]
             object = x[2]
-            #object is a PUBCHEM.  It's by definition a clique_leader.
+
             if subject in drug_rxcui_to_clique:
                 subject = drug_rxcui_to_clique[subject]
             elif subject in chemical_rxcui_to_clique:
                 subject = chemical_rxcui_to_clique[subject]
+            else:
+                raise RuntimeError(f"Unknown identifier in drugchemical conflation as subject: {subject}")
+
+            if object in drug_rxcui_to_clique:
+                object = drug_rxcui_to_clique[object]
+            elif object in chemical_rxcui_to_clique:
+                object = chemical_rxcui_to_clique[object]
+            else:
+                logging.warning(
+                    f"Object in subject-object pair ({subject}, {object}) isn't mapped to a RxCUI"
+                )
+                # raise RuntimeError(f"Unknown identifier in drugchemical conflation as object: {object}")
+
             pairs.append((subject, object))
     print("glom")
     gloms = {}

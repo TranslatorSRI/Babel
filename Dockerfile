@@ -28,6 +28,7 @@ RUN apt-get install -y htop
 RUN apt-get install -y screen
 RUN apt-get install -y vim
 RUN apt-get install -y rsync
+RUN apt-get install -y jq
 
 # Copy directory into Docker.
 COPY --chown=nru . ${ROOT}
