@@ -28,25 +28,25 @@ MAX_SYNONYM_PAIRS = 50
 LOWERCASE_ALL_NAMES = True
 
 
-def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename):
+def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
     """
     Convert a synonyms file to the training format for SAPBERT (https://github.com/RENCI-NER/sapbert).
 
     Based on the code in https://github.com/TranslatorSRI/babel-validation/blob/f21b1b308e54ec0af616f2c24f7e2738ac4c261c/src/main/scala/org/renci/babel/utils/converter/Converter.scala#L107-L207
 
     :param synonym_filename: The compendium file to convert.
-    :param sapbert_filename: The SAPBERT training file to generate.
+    :param sapbert_filename_gzipped: The SAPBERT training file to generate.
     """
 
-    logger.info(f"convert_synonyms_to_sapbert({synonym_filename}, {sapbert_filename})")
+    logger.info(f"convert_synonyms_to_sapbert({synonym_filename}, {sapbert_filename_gzipped})")
 
     # Make the output directories if they don't exist.
-    os.makedirs(os.path.dirname(sapbert_filename), exist_ok=True)
+    os.makedirs(os.path.dirname(sapbert_filename_gzipped), exist_ok=True)
 
     # Go through all the synonyms in the input file.
     count_entry = 0
     count_training_text = 0
-    with open(synonym_filename, "r", encoding="utf-8") as synonymf, gzip.open(sapbert_filename, "wt", encoding="utf-8") as sapbertf:
+    with open(synonym_filename, "r", encoding="utf-8") as synonymf, gzip.open(sapbert_filename_gzipped, "wt", encoding="utf-8") as sapbertf:
         for line in synonymf:
             count_entry += 1
             entry = json.loads(line)

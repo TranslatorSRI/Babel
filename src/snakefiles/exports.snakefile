@@ -36,7 +36,7 @@ rule generate_kgx:
 # Export all synonym files to SAPBERT export, then create `babel_outputs/sapbert-training-data/done` to signal that we're done.
 rule export_all_to_sapbert_training:
     input:
-        sapbert_training_file=expand("{od}/sapbert-training-data/{fn}",
+        sapbert_training_file=expand("{od}/sapbert-training-data/{fn}.gz",
             od=config['output_directory'],
             fn=get_all_synonyms_with_drugchemicalconflated(config)
         )
@@ -51,6 +51,6 @@ rule generate_sapbert_training_data:
     input:
         synonym_file=config['output_directory'] + "/synonyms/{filename}",
     output:
-        sapbert_training_data_file=config['output_directory'] + "/sapbert-training-data/{filename}",
+        sapbert_training_data_file=config['output_directory'] + "/sapbert-training-data/{filename}.gz",
     run:
         sapbert.convert_synonyms_to_sapbert(input.synonym_file, output.sapbert_training_data_file)
