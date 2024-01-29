@@ -53,7 +53,10 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename):
 
             # Read fields from the synonym.
             curie = entry['curie']
-            preferred_name = entry['preferred_name']
+            preferred_name = entry.get('preferred_name', '')
+            if not preferred_name:
+                logging.warning(f"Unable to convert synonym entry for curie {curie}, skipping: {entry}")
+                continue
             names = entry['names']
             if LOWERCASE_ALL_NAMES:
                 names = [name.lower() for name in names]
