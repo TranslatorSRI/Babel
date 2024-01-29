@@ -136,11 +136,44 @@ class DescriptionFactory:
         node_descriptions = defaultdict(set)
         for ident in node['identifiers']:
             thisid = ident['identifier']
-            pref = Text.get_curie(thisid)
+            pref = thisid.split(':', 1)[0]
             if not pref in self.descriptions:
                 self.load_descriptions(pref)
             node_descriptions[thisid].update( self.descriptions[pref][thisid] )
         return node_descriptions
+
+
+class TaxonFactory:
+    """ A factory for loading taxa for CURIEs where available.
+    """
+
+    def __init__(self,rootdir):
+        self.root_dir = rootdir
+        self.taxa = {}
+
+    def load_taxa(self, prefix):
+        print(f'Loading taxa for {prefix}')
+        taxa_per_prefix = defaultdict(set)
+        taxafilename = os.path.join(self.root_dir, prefix, 'taxa')
+        taxon_count = 0
+        if os.path.exists(taxafilename):
+            with open(taxafilename, 'r') as inf:
+                for line in inf:
+                    x = line.strip().split('\t')
+                    taxa_per_prefix[x[0]].add("\t".join(x[1:]))
+                    taxon_count += 1
+        self.taxa[prefix] = taxa_per_prefix
+        print(f'Loaded {taxon_count} taxon-CURIE mappings for {prefix}')
+
+    def get_taxa(self, node):
+        node_taxa = defaultdict(set)
+        for ident in node['identifiers']:
+            thisid = ident['identifier']
+            pref = thisid.split(':', 1)[0]
+            if not pref in self.taxa:
+                self.load_taxa(pref)
+            node_taxa[thisid].update(self.taxa[pref][thisid])
+        return node_taxa
 
 
 class InformationContentFactory:

@@ -11,7 +11,7 @@ import requests
 import os
 import urllib
 import jsonlines
-from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, get_config
+from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory, get_config
 from src.util import Text
 from src.LabeledID import LabeledID
 from collections import defaultdict
@@ -295,6 +295,18 @@ def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
     )
 
 
+
+def get_curie_suffix(curie):
+    curie_parts = curie.split(':', 1)
+    if len(curie_parts) > 0:
+        # Try to cast the CURIE suffix to an integer. If we get a ValueError, don't worry about it.
+        try:
+            return int(curie_parts[1])
+        except ValueError:
+            pass
+    return None
+
+
 def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],icrdf_filename=None):
     """
     :param synonym_list:
@@ -327,6 +339,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     ic_factory = InformationContentFactory(icrdf_filename)
 
     description_factory = DescriptionFactory(make_local_name(''))
+    taxon_factory = TaxonFactory(make_local_name(''))
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={},extra_prefixes = extra_prefixes)
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
@@ -338,6 +351,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     nw['ic'] = ic
 
                 descs = description_factory.get_descriptions(node)
+                taxa = taxon_factory.get_taxa(node)
                 nw['identifiers'] = []
                 for nids in node['identifiers']:
                     id_info = {'i': nids['identifier']}
@@ -346,10 +360,16 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                         id_info['l'] = nids['label']
 
                     if id_info['i'] in descs:
-                        # Sort from the shortest description to the longest.
+                        # Sort descriptions from the shortest to the longest.
                         id_info['d'] = list(sorted(descs[id_info['i']], key=lambda x: len(x)))
 
+                        # Sort taxa by CURIE suffix.
+                        id_info['t'] = list(sorted(taxa[id_info['i']], key=get_curie_suffix))
+
                     nw['identifiers'].append(id_info)
+
+                # Collect taxon names for this node.
+                nw['taxa'] = list(sorted(set().union(*taxa.values()), key=get_curie_suffix))
 
                 outf.write( nw )
 
@@ -428,6 +448,9 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                             document["curie_suffix"] = int(curie_parts[1])
                         except ValueError:
                             pass
+
+                    # Collect taxon names for this node.
+                    document['taxa'] = list(sorted(set().union(*taxa.values()), key=get_curie_suffix))
 
                     sfile.write( document )
                 except Exception as ex:
