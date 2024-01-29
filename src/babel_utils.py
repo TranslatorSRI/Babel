@@ -424,7 +424,10 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     if filtered_possible_labels:
                         document["preferred_name"] = filtered_possible_labels[0]
                     else:
-                        logging.debug(f"No preferred name for {node}")
+                        logging.warning(
+                            f"No preferred name for {node}, probably because all names were filtered out. Skipping."
+                        )
+                        continue
 
                     # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
                     # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
@@ -434,7 +437,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
 
                     # Since synonyms_list is sorted,
                     if len(synonyms_list) == 0:
-                        logging.debug(f"Synonym list for {node} is empty: no valid name. Skipping.")
+                        logging.warning(f"Synonym list for {node} is empty: no valid name. Skipping.")
                         continue
                     else:
                         document["shortest_name_length"] = len(synonyms_list[0])
