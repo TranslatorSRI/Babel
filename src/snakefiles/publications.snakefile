@@ -6,7 +6,26 @@ rule download_pubmed:
     output:
         done_file = config['download_directory'] + '/PubMed/downloaded',
     run:
-        publications.download_pubmed(done_file=output.done_file, )
+        publications.download_pubmed(output.done_file)
+
+rule parse_pubmed_into_tsvs:
+    input:
+        config['download_directory'] + '/PubMed/downloaded',
+        baseline_dir = config['download_directory'] + '/PubMed/baseline',
+        updatefiles_dir = config['download_directory'] + '/PubMed/updatefiles',
+    output:
+        titles_file = config['download_directory'] + '/PubMed/titles',
+        status_file = config['download_directory'] + '/PubMed/statuses',
+        pmid_doi_concord_file = config['intermediate_directory'] + '/publications/concords/PMID',
+    run:
+        publications.parse_pubmed_into_tsvs(
+            input.baseline_dir,
+            input.updatefiles_dir,
+            output.titles_file,
+            output.status_file,
+            output.pmid_doi_concord_file)
+
+
 #
 # rule anatomy_uberon_ids:
 #     output:
