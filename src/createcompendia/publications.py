@@ -1,5 +1,6 @@
 import gzip
 import json
+import logging
 import os
 from collections import defaultdict
 from pathlib import Path
@@ -58,33 +59,53 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
         pmid_status = defaultdict(str)
 
         # Read every file in the baseline directory.
-        for baseline_filename in os.listdir(baseline_dir):
+        for baseline_filename in sorted(os.listdir(baseline_dir)):
             if baseline_filename.endswith(".xml.gz"):
                 file_path = os.path.join(baseline_dir, baseline_filename)
                 with gzip.open(file_path, 'rt') as baselinef:
+                    logging.info(f"Parsing PubMed Baseline {file_path}")
+
+                    count_articles = 0
+                    count_pmids = 0
+                    count_dois = 0
+                    count_titles = 0
+
                     parser = ET.XMLPullParser(['end'])
                     for line in baselinef:
                         parser.feed(line)
                         for event, elem in parser.read_events():
                             if event == 'end' and elem.tag == 'PubmedArticle':
-                                pmids = elem.findall("//PubmedData/ArticleIdList/ArticleId[@IdType='pubmed']")
-                                dois = elem.findall("//PubmedData/ArticleIdList/ArticleId[@IdType='doi']")
-                                pub_statuses = elem.findall("//PubmedData/PublicationStatus")
+                                count_articles += 1
+
+                                pmids = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pubmed']")
+                                dois = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='doi']")
+                                pub_statuses = elem.findall("./PubmedData/PublicationStatus")
                                 titles = elem.findall('.//ArticleTitle')
 
                                 # Write concord.
                                 for pmid in pmids:
+                                    count_pmids += 1
+
                                     for pub_status in pub_statuses:
-                                        pmid_status['PMID:' + pmid] = pub_status
+                                        pmid_status['PMID:' + pmid.text] = pub_status.text
 
                                     for title in titles:
+                                        count_titles += 1
                                         # Convert newlines into '\n'.
-                                        title = title.replace('\n', '\\n')
+                                        title_text = title.text
+                                        if not title_text:
+                                            continue
+                                        title_text = title_text.replace('\n', '\\n')
 
-                                        titlesf.write(f"PMID:{pmid}\t{title}\n")
+                                        titlesf.write(f"PMID:{pmid.text}\t{title_text}\n")
 
                                     for doi in dois:
-                                        concordf.write(f"PMID:{pmid}\teq\tdoi:{doi}\n")
+                                        count_dois += 1
+                                        concordf.write(f"PMID:{pmid.text}\teq\tdoi:{doi.text}\n")
+
+                    logging.info(
+                        f"Parsed {count_articles} articles from PubMed Baseline {file_path}: {count_pmids} PMIDs, " +
+                        f"{count_dois} DOIs, {count_titles} titles.")
 
     with open(status_file, 'w') as statusf:
         json.dump(pmid_status, statusf, indent=2, sort_keys=True)
