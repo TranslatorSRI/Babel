@@ -2,6 +2,7 @@ import gzip
 import json
 import logging
 import os
+import time
 from collections import defaultdict
 from pathlib import Path
 import xml.etree.ElementTree as ET
@@ -65,6 +66,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                 with gzip.open(file_path, 'rt') as baselinef:
                     logging.info(f"Parsing PubMed Baseline {file_path}")
 
+                    start_time = time.time_ns()
                     count_articles = 0
                     count_pmids = 0
                     count_dois = 0
@@ -103,9 +105,11 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                                         count_dois += 1
                                         concordf.write(f"PMID:{pmid.text}\teq\tdoi:{doi.text}\n")
 
+                    time_taken_in_seconds = float(time.time_ns() - start_time) / 1_000_000_000
                     logging.info(
-                        f"Parsed {count_articles} articles from PubMed Baseline {file_path}: {count_pmids} PMIDs, " +
-                        f"{count_dois} DOIs, {count_titles} titles.")
+                        f"Parsed {count_articles} articles from PubMed Baseline {file_path} in " +
+                        f"{time_taken_in_seconds:.4f} seconds: {count_pmids} PMIDs, {count_dois} DOIs, " +
+                        f"{count_titles} titles.")
 
     with open(status_file, 'w') as statusf:
         json.dump(pmid_status, statusf, indent=2, sort_keys=True)
