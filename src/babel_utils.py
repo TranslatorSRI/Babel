@@ -221,6 +221,7 @@ def pull_via_wget(
         in_file_name: str,
         decompress=True,
         subpath:str=None,
+        outpath:str=None,
         continue_incomplete:bool=True,
         recurse:WgetRecursionOptions = WgetRecursionOptions.NO_RECURSION,
         retries:int=10):
@@ -230,9 +231,11 @@ def pull_via_wget(
 
     :param url_prefix: The URL prefix to download.
     :param in_file_name: The filename to download -- this will be concatenated to the URL prefix. This should include
-        the compression extension (e.g. `.gz`); we will remove that extension during decompression.
+        the compression extension (e.g. `.gz`); we will remove that extension during decompression. If recursion is
+        turned on, in_file_name refers to the directory where the recursive content will be downloaded.
     :param decompress: Whether this is a Gzip file that should be decompressed after download.
     :param subpath: The subdirectory of `babel_download` where this file should be stored.
+    :param outpath: The full output directory to write this file to. Both subpath and outpath cannot be set at the same time.
     :param continue_incomplete: Should wget continue an incomplete download?
     :param recurse: Do we want to download recursively? Should be from Wget_Recursion_Options, such as Wget_Recursion_Options.NO_RECURSION.
     :param retries: The number of retries to attempt.
@@ -241,7 +244,11 @@ def pull_via_wget(
     # Prepare download URL and location
     download_dir = get_config()['download_directory']
     url = url_prefix + in_file_name
-    if subpath:
+    if subpath and outpath:
+        raise RuntimeError("pull_via_wget() cannot be called with both subpath and outpath set.")
+    elif outpath:
+        dl_file_name = outpath
+    elif subpath:
         dl_file_name = os.path.join(download_dir, subpath, in_file_name)
     else:
         dl_file_name = os.path.join(download_dir, in_file_name)
@@ -256,18 +263,20 @@ def pull_via_wget(
     if retries > 0:
         wget_command_line.append(f'--tries={retries}')
 
+    # Add URL and output file.
+    wget_command_line.append(url)
+
     # Handle recursion options
     match recurse:
         case WgetRecursionOptions.NO_RECURSION:
-            pass
+            # Write to a single file, dl_file_name
+            wget_command_line.extend(['-O', dl_file_name])
         case WgetRecursionOptions.RECURSE_SUBFOLDERS:
-            wget_command_line.append('-np')
+            # dl_file_name should be a directory name.
+            wget_command_line.extend(['--recursive', '--no-parent', '--no-directories', '--directory-prefix=' + dl_file_name])
         case WgetRecursionOptions.RECURSE_DIRECTORY_ONLY:
-            wget_command_line.append('-np -l1')
-
-    # Add URL and output file.
-    wget_command_line.append(url)
-    wget_command_line.extend(['-O', dl_file_name])
+            # dl_file_name should be a directory name.
+            wget_command_line.extend(['--recursive', '--no-parent', '--no-directories', '--level=1', '--directory-prefix=' + dl_file_name])
 
     # Execute wget.
     logging.info(f"Downloading {dl_file_name} using wget: {wget_command_line}")
@@ -286,12 +295,21 @@ def pull_via_wget(
         else:
             raise RuntimeError(f"Don't know how to decompress {in_file_name}")
 
-    if os.path.isfile(uncompressed_filename):
-        file_size = os.path.getsize(uncompressed_filename)
-        if file_size > 0:
+        if os.path.isfile(uncompressed_filename):
+            file_size = os.path.getsize(uncompressed_filename)
             logging.info(f"Downloaded {uncompressed_filename} from {url}, file size {file_size} bytes.")
+        else:
+            raise RuntimeError(f'Expected uncompressed file {uncompressed_filename} does not exist.')
     else:
-        raise RuntimeError(f'Expected uncompressed file {uncompressed_filename} does not exist.')
+        if os.path.isfile(dl_file_name):
+            file_size = os.path.getsize(dl_file_name)
+            logging.info(f"Downloaded {dl_file_name} from {url}, file size {file_size} bytes.")
+        elif os.path.isdir(dl_file_name):
+            # Count the number of files in directory dl_file_name
+            dir_size = sum(os.path.getsize(os.path.join(dl_file_name, f)) for f in os.listdir(dl_file_name) if os.path.isfile(os.path.join(dl_file_name, f)))
+            logging.info(f"Downloaded {dir_size} files from {url} to {dl_file_name}.")
+        else:
+            raise RuntimeError(f'Unknown file type {dl_file_name}')
 
 
 def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
