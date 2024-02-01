@@ -13,6 +13,7 @@ import itertools
 import json
 import os
 import random
+import re
 from itertools import combinations
 
 import logging
@@ -57,9 +58,18 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
             if not preferred_name:
                 logging.warning(f"Unable to convert synonym entry for curie {curie}, skipping: {entry}")
                 continue
+
+            # Collect and process the list of names.
             names = entry['names']
             if LOWERCASE_ALL_NAMES:
                 names = [name.lower() for name in names]
+
+            # We use '||' as a delimiter, so any occurrences of more than one pipe character
+            # should be changed to a single pipe character in the SAPBERT output, so we don't
+            # confuse it up with our delimiter.
+            names = [re.sub(r'\|\|+', '|', name) for name in names]
+
+            # Figure out the Biolink type to report.
             types = entry['types']
             if len(types) == 0:
                 biolink_type = 'NamedThing'
