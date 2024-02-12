@@ -79,11 +79,15 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
             # How many names do we have?
             if len(names) == 0:
                 # This shouldn't happen, but let's anticipate this anyway.
-                sapbertf.write(f"biolink:{biolink_type}||{curie}||{preferred_name}||{preferred_name}||{preferred_name}\n")
+                sapbertf.write(
+                    f"biolink:{biolink_type}||{curie}||{preferred_name}||{preferred_name.lower()}||{preferred_name.lower()}\n"
+                )
                 count_training_text += 1
             elif len(names) == 1:
                 # If we have less than two names, we don't have anything to randomize.
-                sapbertf.write(f"biolink:{biolink_type}||{curie}||{preferred_name}||{preferred_name}||{names[0]}\n")
+                sapbertf.write(
+                    f"biolink:{biolink_type}||{curie}||{preferred_name}||{preferred_name.lower()}||{names[0]}\n"
+                )
                 count_training_text += 1
             else:
                 name_pairs = list(itertools.combinations(set(names), 2))
