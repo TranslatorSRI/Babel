@@ -424,7 +424,10 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     if filtered_possible_labels:
                         document["preferred_name"] = filtered_possible_labels[0]
                     else:
-                        logging.debug(f"No preferred name for {node}")
+                        logging.debug(
+                            f"No preferred name for {node}, probably because all names were filtered out. Skipping."
+                        )
+                        continue
 
                     # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
                     # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
@@ -618,7 +621,7 @@ def clean_sets(result_dict):
     """The keys for this are unique and unmergable: Don't merge GO!
     But there are values that are showing up in multiple GOs (could be
     MetaCycs or RHEAs or Reactomes).  It's just how GO is mapping.  Now,
-    the right answer here is probably to kboom this whole mess.  But 
+    the right answer here is probably to kboom this whole mess.  But
     for prototype, we're just going to filter out garbage merge values).
     Note that this isn't limited to GO. Even MONDO include some #exactMatch
     to the same MESH from two different MONDO ids"""
