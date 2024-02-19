@@ -8,7 +8,7 @@ rule download_pubmed:
     run:
         publications.download_pubmed(output.done_file)
 
-rule parse_pubmed_into_tsvs:
+rule generate_pubmed_concords:
     input:
         config['download_directory'] + '/PubMed/downloaded',
         baseline_dir = config['download_directory'] + '/PubMed/baseline',
@@ -16,15 +16,31 @@ rule parse_pubmed_into_tsvs:
     output:
         titles_file = config['download_directory'] + '/PubMed/titles',
         status_file = config['download_directory'] + '/PubMed/statuses',
-        pmid_doi_concord_file = config['intermediate_directory'] + '/publications/concords/PMID',
+        pmid_id_file = config['intermediate_directory'] + '/publications/ids/PMID',
+        pmid_doi_concord_file = config['intermediate_directory'] + '/publications/concords/PMID_DOI',
     run:
         publications.parse_pubmed_into_tsvs(
             input.baseline_dir,
             input.updatefiles_dir,
             output.titles_file,
             output.status_file,
+            output.pmid_id_file,
             output.pmid_doi_concord_file)
 
+rule generate_pubmed_compendia:
+    input:
+        pmid_id_file = config['intermediate_directory'] + '/publications/ids/PMID',
+        pmid_doi_concord_file = config['intermediate_directory'] + '/publications/concords/PMID_DOI',
+        icrdf_filename=config['download_directory'] + '/icRDF.tsv',
+    output:
+        publication_compendium = config['output_directory'] + '/compendia/Publication.txt',
+    run:
+        publications.generate_compendium(
+            [input.pmid_doi_concord_file],
+            [input.pmid_id_file],
+            output.publication_compendium,
+            input.icrdf_filename
+        )
 
 #
 # rule anatomy_uberon_ids:

@@ -7,7 +7,9 @@ from collections import defaultdict
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
-from src.babel_utils import pull_via_wget, WgetRecursionOptions
+from src.babel_utils import pull_via_wget, WgetRecursionOptions, glom, read_identifier_file, write_compendium
+from src.categories import JOURNAL_ARTICLE, PUBLICATION
+from src.prefixes import PMID
 
 
 def download_pubmed(download_file,
@@ -43,7 +45,7 @@ def download_pubmed(download_file,
     Path.touch(download_file)
 
 
-def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_file, pmid_doi_concord_file):
+def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_file, pmid_id_file, pmid_doi_concord_file):
     """
     Read through the PubMed files in the baseline_dir and updatefiles_dir, and writes out label and status information.
 
@@ -55,7 +57,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
     """
 
     # We can write labels and concords as we go.
-    with open(titles_file, 'w') as titlesf, open(pmid_doi_concord_file, 'w') as concordf:
+    with open(titles_file, 'w') as titlesf, open(pmid_id_file, 'w') as pmidf, open(pmid_doi_concord_file, 'w') as concordf:
         # However, we will need to track statuses in memory.
         pmid_status = defaultdict(str)
 
@@ -88,8 +90,10 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                                 for pmid in pmids:
                                     count_pmids += 1
 
+                                    pmidf.write(f"{PMID}:{pmid.text}\t{JOURNAL_ARTICLE}\n")
+
                                     for pub_status in pub_statuses:
-                                        pmid_status['PMID:' + pmid.text] = pub_status.text
+                                        pmid_status[f'{PMID}:' + pmid.text] = pub_status.text
 
                                     for title in titles:
                                         count_titles += 1
@@ -99,11 +103,11 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                                             continue
                                         title_text = title_text.replace('\n', '\\n')
 
-                                        titlesf.write(f"PMID:{pmid.text}\t{title_text}\n")
+                                        titlesf.write(f"{PMID}:{pmid.text}\t{title_text}\n")
 
                                     for doi in dois:
                                         count_dois += 1
-                                        concordf.write(f"PMID:{pmid.text}\teq\tdoi:{doi.text}\n")
+                                        concordf.write(f"{PMID}:{pmid.text}\teq\tdoi:{doi.text}\n")
 
                     time_taken_in_seconds = float(time.time_ns() - start_time) / 1_000_000_000
                     logging.info(
@@ -114,5 +118,36 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
     with open(status_file, 'w') as statusf:
         json.dump(pmid_status, statusf, indent=2, sort_keys=True)
 
+
+def generate_compendium(concordances, identifiers, publication_compendium, icrdf_filename):
+    """
+    Generate a Publication compendium using the ID and Concord files provided.
+
+    :param concordances: A list of concordances to use.
+    :param identifiers: A list of identifiers to use.
+    :param publication_compendium: The publication concord file to produce.
+    :param icrdf_filename: The ICRDF file.
+    """
+
+    dicts = {}
+    types = {}
+    uniques = [PMID]
+    for ifile in identifiers:
+        print('loading', ifile)
+        new_identifiers, new_types = read_identifier_file(ifile)
+        glom(dicts, new_identifiers, unique_prefixes=uniques)
+        types.update(new_types)
+    for infile in concordances:
+        print(infile)
+        print('loading', infile)
+        pairs = []
+        with open(infile, 'r') as inf:
+            for line in inf:
+                x = line.strip().split('\t')
+                pairs.append({x[0], x[2]})
+        glom(dicts, pairs, unique_prefixes=uniques)
+    gene_sets = set([frozenset(x) for x in dicts.values()])
+    baretype = PUBLICATION.split(':')[-1]
+    write_compendium(gene_sets, os.path.basename(publication_compendium), PUBLICATION, {}, icrdf_filename=icrdf_filename)
 
 
