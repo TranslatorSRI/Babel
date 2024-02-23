@@ -383,6 +383,12 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     description_factory = DescriptionFactory(make_local_name(''))
     taxon_factory = TaxonFactory(make_local_name(''))
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={},extra_prefixes = extra_prefixes)
+
+    # Create compendia and synonyms directories, just in case they haven't been created yet.
+    os.makedirs(os.path.join(cdir, 'compendia'), exist_ok=True)
+    os.makedirs(os.path.join(cdir, 'synonyms'), exist_ok=True)
+    
+    # Write compendium and synonym files.
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
