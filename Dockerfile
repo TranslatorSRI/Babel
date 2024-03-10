@@ -34,6 +34,9 @@ RUN apt-get install -y vim
 RUN apt-get install -y rsync
 RUN apt-get install -y jq
 
+# Create a non-root-user.
+RUN adduser --home ${ROOT} --uid 1000 nru
+
 # Copy directory into Docker.
 COPY --chown=nru . ${ROOT}
 
