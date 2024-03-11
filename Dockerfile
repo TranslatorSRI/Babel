@@ -3,7 +3,11 @@
 # Use the RENCI Python image to make it easier to work with other
 # RENCI Docker packages and to make sure we have an up to date image.
 # (https://github.com/TranslatorSRI/RENCI-Python-image)
-FROM renciorg/renci-python-image:latest
+# FROM renciorg/renci-python-image:latest
+#
+# This is still at Python 3.9, so I'm going to use Python Latest, which
+# should give us a Debian with Python 3.12+.
+FROM python:latest
 
 # Configuration options:
 # - ${ROOT} is where Babel source code will be copied.
@@ -29,6 +33,9 @@ RUN apt-get install -y screen
 RUN apt-get install -y vim
 RUN apt-get install -y rsync
 RUN apt-get install -y jq
+
+# Create a non-root-user.
+RUN adduser --home ${ROOT} --uid 1000 nru
 
 # Copy directory into Docker.
 COPY --chown=nru . ${ROOT}
