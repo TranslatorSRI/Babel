@@ -3,13 +3,13 @@ import gzip
 
 
 def pull_ncbigene(filenames):
-    remotedir = 'https://ftp.ncbi.nih.gov/gene/DATA/'
+    remotedir = 'https://ftp.ncbi.nlm.nih.gov/gene/DATA/'
     for fn in filenames:
-        pull_via_ftp('ftp.ncbi.nih.gov', '/gene/DATA', fn, decompress_data=False, outfilename=f'NCBIGene/{fn}')
+        pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/gene/DATA', fn, decompress_data=False, outfilename=f'NCBIGene/{fn}')
 
 
 def pull_ncbigene_labels_synonyms_and_taxa():
-    # File format described here: https://ftp.ncbi.nih.gov/gene/DATA/README
+    # File format described here: https://ftp.ncbi.nlm.nih.gov/gene/DATA/README
     ifname = make_local_name('gene_info.gz', subpath='NCBIGene')
     labelname = make_local_name('labels', subpath='NCBIGene')
     synname = make_local_name('synonyms', subpath='NCBIGene')
