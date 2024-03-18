@@ -35,6 +35,8 @@ def conflate_synonyms(synonym_files, conflation_file, output):
     # Some common code to manage the conflation index.
     # This is simply a large dictionary, where every key is an identifier and the value is the identifier to map it to.
     conflation_index = dict()
+
+    # This is a map of primary IDs to the list of conflation IDs. This allows us to conflate terms in the correct order.
     conflations = defaultdict(list)
 
     # Step 1. Load all the conflations. We only need to work on these identifiers, so that simplifies our work.
@@ -55,7 +57,7 @@ def conflate_synonyms(synonym_files, conflation_file, output):
                     conflation_index[ident] = conflation[0]
                     count_secondary += 1
 
-                # Store the conflation for later use.
+                # Store the entire conflation list for later use.
                 if conflation[0] in conflations:
                     logging.error(f"Two conflations have the same primary ID: {conflation} and {conflations[conflation[0]]}")
                 conflations[conflation[0]] = conflation
