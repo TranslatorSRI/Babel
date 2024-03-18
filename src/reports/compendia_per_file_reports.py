@@ -31,7 +31,7 @@ def assert_files_in_directory(dir, files, report_file):
     """
 
     logging.info(f"Expect files in directory {dir} to be equal to {files}")
-    file_list = os.listdir(dir)
+    file_list = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
     assert set(file_list) == set(files)
 
     # If we passed, write the output to the check_file.
