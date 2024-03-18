@@ -151,7 +151,7 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
                     conflation_ids = [conflation_id_not_normalized]
                 logging.info(f"Expanded {conflation_id_not_normalized} into {conflation_ids}.")
                 for conflation_id in conflation_ids:
-                    logging.info(f"Looking into conflation ID: {conflation_id}.")
+                    logging.info(f"Looking into conflation ID {conflation_id} for {conflation_id_not_normalized}.")
                     for synonym in synonyms_by_curie[conflation_id]:
                         logging.info(f"conflation_order = {conflation_order}, synonyms_by_curie[{conflation_id}] = {synonyms_by_curie[conflation_id]}")
                         if 'curie' not in final_conflation:
