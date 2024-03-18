@@ -45,7 +45,7 @@ rule drugchemical_conflation:
 rule drugchemical_conflated_synonyms:
     input:
         drugchemical_conflation=[config['output_directory']+'/conflation/DrugChemical.txt'],
-        chemical_synonyms=expand("{do}/synonyms/{co}", do=config['output_directory'], co=config['chemical_outputs']),
+        chemical_synonyms=expand("{do}/synonyms/drugchemicals/{co}", do=config['output_directory'], co=config['chemical_outputs']),
     output:
         drugchemical_conflated=config['output_directory']+'/synonyms/DrugChemicalConflated.txt',
     run:
