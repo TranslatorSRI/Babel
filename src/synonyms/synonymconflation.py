@@ -146,7 +146,10 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
             types_to_ignore = set('OntologyClass')
             for conflation_id_not_normalized in conflation_order:
                 if conflation_id_not_normalized in cliques_with_conflations:
-                    conflation_ids = list(map(lambda i: i['i'], cliques_with_conflations.get('identifiers', [])))
+                    conflation_ids = []
+                    for clique in cliques_with_conflations:
+                        for ident in clique.get('identifiers', []):
+                            conflation_ids.append(ident['i'])
                 else:
                     conflation_ids = [conflation_id_not_normalized]
                 logging.info(f"Expanded {conflation_id_not_normalized} into {conflation_ids}.")
