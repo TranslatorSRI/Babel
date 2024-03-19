@@ -82,17 +82,21 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
                 ids = map(lambda i: i['i'], identifiers)
 
                 # Is this clique being conflated? If not, we can just ignore it.
-                for conflated_id in ids:
-                    if conflated_id in conflation_index:
-                        # Yes, this clique is mentioned in the conflation index!
-                        cliques_with_conflations[conflated_id].append(clique)
+                for id in ids:
+                    if id in conflation_index:
+                        # Yes, this clique is mentioned in the conflation index! Associate all of its
+                        # IDs with this clique so that we can load it later.
                         for id_inner in ids:
                             # We add all the other identifiers in this clique to the conflation index. That way,
                             # if someone refers to PUBCHEM.COMPOUND:962 when the preferred ID is CHEBI:15377, we will
-                            # pull in synonyms from CHEBI:15377.
+                            # pull in synonyms from CHEBI:15377 as well.
+                            cliques_with_conflations[id_inner].append(clique)
                             if id_inner not in conflation_index:
-                                conflation_index[id_inner] = conflation_index[conflated_id]
+                                conflation_index[id_inner] = conflation_index[id]
                                 count_clique_ids_added += 1
+
+                        # Once we've done this for one of the identifiers, we don't need to do it for any others.
+                        break
 
     logging.info(f"Added {count_clique_ids_added} IDs from {len(cliques_with_conflations)} cliques involved in conflation.")
 
