@@ -147,7 +147,7 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
             for conflation_id_not_normalized in conflation_order:
                 if conflation_id_not_normalized in cliques_with_conflations:
                     conflation_ids = []
-                    for clique in cliques_with_conflations:
+                    for clique in cliques_with_conflations[conflation_id_not_normalized]:
                         for ident in clique.get('identifiers', []):
                             conflation_ids.append(ident['i'])
                 else:
