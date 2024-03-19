@@ -195,10 +195,15 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
                         # into the final conflations.
 
             # Checks
-            ## assert final_conflation['curie'] == curie
-            if final_conflation['curie'] != curie:
+            if 'curie' not in final_conflation:
+                logging.warning(f"Conflated synonym entry missing CURIE entirely! Using primary CURIE {curie} for: " +
+                                f"{final_conflation}")
                 final_conflation['curie'] = curie
-                logging.warning(f"Synonym entry {curie} was incorrectly assigned primary identifier {final_conflation['curie']} instead -- are you missing some input synonym files? Fixed.")
+
+            if final_conflation['curie'] != curie:
+                logging.warning(f"Synonym entry {curie} has a different CURIE from {final_conflation['curie']}, is " +
+                                f"the conflation file not normalized? {final_conflation}")
+                # final_conflation['curie'] = curie
 
             # Write it out.
             logging.debug(f"Conflated entries:\n{json.dumps(synonyms_by_curie, indent=2, sort_keys=True)}")
