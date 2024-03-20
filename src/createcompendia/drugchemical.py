@@ -332,28 +332,41 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             # Turn the conflation CURIE list into a prefix map.
             prefix_map = defaultdict(list)
             for curie in conflation_id_list:
-                curie_prefix = curie.split(':')[0].upper()
+                curie_prefix = curie.split(':')[0]
                 prefix_map[curie_prefix].append(curie)
 
             # Go through the prefixes for this type, and use it to order the identifiers in this conflation ID list.
             final_conflation_id_list = []
-            type_for_leading_id = type_for_preferred_curie[conflation_id_list[0]]
-            prefixes_for_type = nodefactory.get_prefixes(type_for_leading_id)
-            ids_already_added = set()
-            for prefix in prefixes_for_type:
-                if prefix in prefix_map:
-                    for id in prefix_map[prefix]:
-                        # Just for kicks, let's make sure that this ID is normalized.
-                        if preferred_curie_for_curie[id] != id:
-                            logger.error(f"CURIE {id} in conflation list is not normalized: {preferred_curie_for_curie[id]} should be used instead.")
-
-                        ids_already_added.add(id)
-                        final_conflation_id_list.append(id)
+            leading_id = conflation_id_list[0]
+            if leading_id not in preferred_curie_for_curie:
+                logger.error(f"Unable to normalize leading CURIE {leading_id} in conflation list {conflation_id_list}")
+            else:
+                normalized_leading_id = preferred_curie_for_curie[leading_id]
+                type_for_leading_id = type_for_preferred_curie[normalized_leading_id]
+                prefixes_for_type = nodefactory.get_prefixes(type_for_leading_id)
+                logger.info(f"Normalized leading ID {leading_id} to normalized leading ID {normalized_leading_id} " +
+                            f"(type {type_for_leading_id}) with prefixes: {prefixes_for_type}")
+                ids_already_added = set()
+                for prefix in prefixes_for_type:
+                    if prefix in prefix_map:
+                        for id in prefix_map[prefix]:
+                            ids_already_added.add(id)
+                            final_conflation_id_list.append(id)
 
             # Add any identifiers that weren't in the prefix_map.
             for id in conflation_id_list:
                 if id not in ids_already_added:
                     final_conflation_id_list.append(id)
 
-            outfile.write(f"{json.dumps(final_conflation_id_list)}\n")
+            # Let's normalize all the identifiers.
+            logger.info(f"Ordered DrugChemical conflation leading with {leading_id}: {final_conflation_id_list}")
+            final_normalized_conflation_id_list = []
+            for id in final_conflation_id_list:
+                preferred_id = preferred_curie_for_curie[id]
+                final_normalized_conflation_id_list.append(preferred_id)
+
+                if preferred_id != id:
+                    logger.warning(f"Conflation contains non-normalized ID {id}. Normalized to {preferred_id}.")
+
+            outfile.write(f"{json.dumps(final_normalized_conflation_id_list)}\n")
             written.add(fs)
