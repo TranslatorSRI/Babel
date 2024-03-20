@@ -337,6 +337,10 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                     # Drug has RXCUI rated highly as a prefix, but that's not a good ID for Babel, so let's skip
                     # this for now.
                     continue
+                if curie_prefix == UMLS:
+                    # UMLS is a particularly bad identifier for us because we tend not to conflate on it, so let's
+                    # skip this for now.
+                    continue
                 prefix_map[curie_prefix].append(curie)
 
             # Go through the prefixes for this type, and use it to order the identifiers in this conflation ID list.
