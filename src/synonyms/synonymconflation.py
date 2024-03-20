@@ -203,7 +203,10 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
             if final_conflation['curie'] != curie:
                 logging.warning(f"Synonym entry {curie} has a different CURIE from {final_conflation['curie']}, is " +
                                 f"the conflation file not normalized? {final_conflation}")
-                # final_conflation['curie'] = curie
+                logging.warning(
+                    f"CURIE {curie} will be used instead of the actual preferred CURIE, {final_conflation['curie']}, "
+                    "in order to be consistent with conflation file.")
+                final_conflation['curie'] = curie
 
             # Recalculate the CURIE suffix.
             curie_suffix = get_curie_suffix(final_conflation['curie'])
