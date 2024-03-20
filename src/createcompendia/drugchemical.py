@@ -6,7 +6,7 @@ import os,json
 
 import logging
 from src.util import LoggingUtil
-logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
+logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 
 # RXNORM has lots of relationships.
 # RXNREL contains both directions of each relationship, just to make the file bigger
@@ -243,6 +243,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
     type_for_preferred_curie = {}
     for chemical_compendium in chemical_compendia:
         with open(chemical_compendium, 'r') as compendiumf:
+            logger.info(f" - Loading {chemical_compendium}")
             for line in compendiumf:
                 clique = json.loads(line)
                 preferred_id = clique['identifiers'][0]['i']
@@ -306,7 +307,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             elif object in chemical_rxcui_to_clique:
                 object = preferred_curie_for_curie[chemical_rxcui_to_clique[object]]
             else:
-                logging.warning(
+                logger.warning(
                     f"Object in subject-object pair ({subject}, {object}) isn't mapped to a RxCUI"
                 )
                 # raise RuntimeError(f"Unknown identifier in drugchemical conflation as object: {object}")
