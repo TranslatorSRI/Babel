@@ -1,6 +1,6 @@
 from src.node import NodeFactory, get_config
 from src.prefixes import RXCUI, PUBCHEMCOMPOUND, CHEMBLCOMPOUND, UNII, DRUGBANK, MESH, UMLS, CHEBI
-from src.babel_utils import glom, get_curie_suffix
+from src.babel_utils import glom, get_numerical_curie_suffix
 from collections import defaultdict
 import os,json
 
@@ -397,5 +397,5 @@ def sort_by_curie_suffix(curie):
     :param curie: The CURIE to sort.
     :return: A tuple of either (False, None) if the CURIE doesn't have a numerical suffix or (True, suffix) if it does.
     """
-    suffix = get_curie_suffix(curie)
+    suffix = get_numerical_curie_suffix(curie)
     return suffix is None, suffix

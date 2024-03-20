@@ -11,7 +11,7 @@ from collections import defaultdict
 
 import click
 
-from src.babel_utils import get_curie_suffix
+from src.babel_utils import get_numerical_curie_suffix
 
 # Set up default logging.
 logging.basicConfig(level=logging.INFO)
@@ -209,7 +209,7 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
                 final_conflation['curie'] = curie
 
             # Recalculate the CURIE suffix.
-            curie_suffix = get_curie_suffix(final_conflation['curie'])
+            curie_suffix = get_numerical_curie_suffix(final_conflation['curie'])
             if curie_suffix:
                 final_conflation['curie_suffix'] = curie_suffix
 
