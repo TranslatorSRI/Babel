@@ -246,7 +246,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             for line in compendiumf:
                 clique = json.loads(line)
                 preferred_id = clique['identifiers'][0]['i']
-                type_for_preferred_curie[preferred_id] = clique['types'][0]
+                type_for_preferred_curie[preferred_id] = clique['type']
                 for ident in clique['identifiers']:
                     id = ident['i']
                     preferred_curie_for_curie[id] = preferred_id
