@@ -1,3 +1,4 @@
+from src.node import NodeFactory, get_config
 from src.prefixes import RXCUI, PUBCHEMCOMPOUND, CHEMBLCOMPOUND, UNII, DRUGBANK, MESH, UMLS, CHEBI
 from src.babel_utils import glom
 from collections import defaultdict
@@ -236,6 +237,22 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
     To determine which those are, we're going to have to dig around in all the compendia.
     We also want to get all the clique leaders as well.  For those, we only need to worry if there are RXCUIs
     in the clique."""
+
+    print("load all chemical conflations so we can normalize identifiers")
+    preferred_curie_for_curie = {}
+    type_for_preferred_curie = {}
+    for chemical_compendium in chemical_compendia:
+        with open(chemical_compendium, 'r') as compendiumf:
+            for line in compendiumf:
+                clique = json.loads(line)
+                preferred_id = clique['identifiers'][0]['i']
+                type_for_preferred_curie[preferred_id] = clique['types'][0]
+                for ident in clique['identifiers']:
+                    id = ident['i']
+                    preferred_curie_for_curie[id] = preferred_id
+
+    print(f"Loaded preferred CURIEs for {len(preferred_curie_for_curie)} CURIEs from the chemical compendia.")
+
     print("load drugs")
     drug_rxcui_to_clique = load_cliques(drug_compendium)
     chemical_rxcui_to_clique = {}
@@ -244,6 +261,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             continue
         print(f"load {chemical_compendium}")
         chemical_rxcui_to_clique.update(load_cliques(chemical_compendium))
+
     pairs = []
     for concfile in [rxn_concord,umls_concord]:
         with open(concfile,"r") as infile:
@@ -251,22 +269,24 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                 x = line.strip().split('\t')
                 subject = x[0]
                 object = x[2]
+
+                # While we do this, we will also normalize all chemicals to their preferred clique IDs.
                 if subject in drug_rxcui_to_clique and object in chemical_rxcui_to_clique:
-                    subject = drug_rxcui_to_clique[subject]
-                    object = chemical_rxcui_to_clique[object]
+                    subject = preferred_curie_for_curie[drug_rxcui_to_clique[subject]]
+                    object = preferred_curie_for_curie[chemical_rxcui_to_clique[object]]
                     pairs.append( (subject,object) )
                 elif subject in chemical_rxcui_to_clique and object in drug_rxcui_to_clique:
-                    subject = chemical_rxcui_to_clique[subject]
-                    object = drug_rxcui_to_clique[object]
+                    subject = preferred_curie_for_curie[chemical_rxcui_to_clique[subject]]
+                    object = preferred_curie_for_curie[drug_rxcui_to_clique[object]]
                     pairs.append( (subject,object) )
                 # OK, this is possible, and it's OK, as long as we get real clique leaders
                 elif subject in drug_rxcui_to_clique and object in drug_rxcui_to_clique:
-                    subject = drug_rxcui_to_clique[subject]
-                    object = drug_rxcui_to_clique[object]
+                    subject = preferred_curie_for_curie[drug_rxcui_to_clique[subject]]
+                    object = preferred_curie_for_curie[drug_rxcui_to_clique[object]]
                     pairs.append( (subject,object) )
                 elif subject in chemical_rxcui_to_clique and object in chemical_rxcui_to_clique:
-                    subject = chemical_rxcui_to_clique[subject]
-                    object = chemical_rxcui_to_clique[object]
+                    subject = preferred_curie_for_curie[chemical_rxcui_to_clique[subject]]
+                    object = preferred_curie_for_curie[chemical_rxcui_to_clique[object]]
                     pairs.append( (subject,object) )
     with open(pubchem_rxn_concord,"r") as infile:
         for line in infile:
@@ -275,16 +295,16 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             object = x[2]
 
             if subject in drug_rxcui_to_clique:
-                subject = drug_rxcui_to_clique[subject]
+                subject = preferred_curie_for_curie[drug_rxcui_to_clique[subject]]
             elif subject in chemical_rxcui_to_clique:
-                subject = chemical_rxcui_to_clique[subject]
+                subject = preferred_curie_for_curie[chemical_rxcui_to_clique[subject]]
             else:
                 raise RuntimeError(f"Unknown identifier in drugchemical conflation as subject: {subject}")
 
             if object in drug_rxcui_to_clique:
-                object = drug_rxcui_to_clique[object]
+                object = preferred_curie_for_curie[drug_rxcui_to_clique[object]]
             elif object in chemical_rxcui_to_clique:
-                object = chemical_rxcui_to_clique[object]
+                object = preferred_curie_for_curie[chemical_rxcui_to_clique[object]]
             else:
                 logging.warning(
                     f"Object in subject-object pair ({subject}, {object}) isn't mapped to a RxCUI"
@@ -292,6 +312,11 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                 # raise RuntimeError(f"Unknown identifier in drugchemical conflation as object: {object}")
 
             pairs.append((subject, object))
+
+    # Set up a NodeFactory.
+    nodefactory = NodeFactory('', get_config()['biolink_version'])
+
+    # Glommin' time
     print("glom")
     gloms = {}
     glom(gloms,pairs)
@@ -301,32 +326,33 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             fs = frozenset(clique)
             if fs in written:
                 continue
-            lc = list(clique)
-            lc.sort(key=conflation_curie_sort_key)
-            outfile.write(f"{json.dumps(lc)}\n")
+            conflation_id_list = list(clique)
+
+            # Turn the conflation CURIE list into a prefix map.
+            prefix_map = defaultdict(list)
+            for curie in conflation_id_list:
+                curie_prefix = curie.split(':')[0].upper()
+                prefix_map[curie_prefix].append(curie_prefix)
+
+            # Go through the prefixes for this type, and use it to order the identifiers in this conflation ID list.
+            final_conflation_id_list = []
+            type_for_leading_id = type_for_preferred_curie[conflation_id_list[0]]
+            prefixes_for_type = nodefactory.get_prefixes(type_for_leading_id)
+            ids_already_added = set()
+            for prefix in prefixes_for_type:
+                if prefix in prefix_map:
+                    for id in prefix_map[prefix]:
+                        # Just for kicks, let's make sure that this ID is normalized.
+                        if preferred_curie_for_curie[id] != id:
+                            logger.error(f"CURIE {id} in conflation list is not normalized: {preferred_curie_for_curie[id]} should be used instead.")
+
+                        ids_already_added.add(id)
+                        final_conflation_id_list.append(id)
+
+            # Add any identifiers that weren't in the prefix_map.
+            for id in conflation_id_list:
+                if id not in ids_already_added:
+                    final_conflation_id_list.append(id)
+
+            outfile.write(f"{json.dumps(final_conflation_id_list)}\n")
             written.add(fs)
-
-#We want the chemical first, then the drug.  For MESH/UMLS we don't really know which they are. THe idea in this one
-# is that we're unlikely to have a chemical with a clique leader of MESH/UMLS.  (Wrong sometimes....)
-kl={PUBCHEMCOMPOUND:0, CHEMBLCOMPOUND: 1, UNII: 2, CHEBI: 3, DRUGBANK: 4, RXCUI: 5, MESH: 6, UMLS: 7}
-def conflation_curie_sort_key(curie):
-    """
-    Produce a sort key for CURIEs to be sorted when generating conflations. Our search criteria is:
-    1. Sort by CURIE prefix based on the rankings in the kl list above. If another prefix is included,
-       we produce a KeyError.
-    2. Sort numerically by increasing CURIE suffix (so the smallest numerical value should be first).
-       Non-numerical CURIE suffixes are sorted together at the end of the list.
-    3. Sort lexically by CURIE.
-
-    :param curie: A CURIE to generate a sort key for.
-    :return: A tuple that includes the search parameters in the correct order.
-    """
-
-    # A real solution here would keep track of whether each id came from chemicals or drugs...
-    prefix, suffix = curie.split(':', 1)
-    try:
-        return kl[prefix], int(suffix), curie
-    except ValueError:
-        # We could sort these alphabetically, but CURIE suffix sorting is bad enough.
-        # Let's sort non-numerical values to the end of the list.
-        return kl[prefix], float('inf'), curie
