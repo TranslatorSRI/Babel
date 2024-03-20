@@ -333,7 +333,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             prefix_map = defaultdict(list)
             for curie in conflation_id_list:
                 curie_prefix = curie.split(':')[0].upper()
-                prefix_map[curie_prefix].append(curie_prefix)
+                prefix_map[curie_prefix].append(curie)
 
             # Go through the prefixes for this type, and use it to order the identifiers in this conflation ID list.
             final_conflation_id_list = []
