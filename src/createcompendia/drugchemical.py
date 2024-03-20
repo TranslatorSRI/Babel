@@ -273,21 +273,21 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
 
                 # While we do this, we will also normalize all chemicals to their preferred clique IDs.
                 if subject in drug_rxcui_to_clique and object in chemical_rxcui_to_clique:
-                    subject = preferred_curie_for_curie[drug_rxcui_to_clique[subject]]
-                    object = preferred_curie_for_curie[chemical_rxcui_to_clique[object]]
+                    subject = drug_rxcui_to_clique[subject]
+                    object = chemical_rxcui_to_clique[object]
                     pairs.append( (subject,object) )
                 elif subject in chemical_rxcui_to_clique and object in drug_rxcui_to_clique:
-                    subject = preferred_curie_for_curie[chemical_rxcui_to_clique[subject]]
-                    object = preferred_curie_for_curie[drug_rxcui_to_clique[object]]
+                    subject = chemical_rxcui_to_clique[subject]
+                    object = drug_rxcui_to_clique[object]
                     pairs.append( (subject,object) )
                 # OK, this is possible, and it's OK, as long as we get real clique leaders
                 elif subject in drug_rxcui_to_clique and object in drug_rxcui_to_clique:
-                    subject = preferred_curie_for_curie[drug_rxcui_to_clique[subject]]
-                    object = preferred_curie_for_curie[drug_rxcui_to_clique[object]]
+                    subject = drug_rxcui_to_clique[subject]
+                    object = drug_rxcui_to_clique[object]
                     pairs.append( (subject,object) )
                 elif subject in chemical_rxcui_to_clique and object in chemical_rxcui_to_clique:
-                    subject = preferred_curie_for_curie[chemical_rxcui_to_clique[subject]]
-                    object = preferred_curie_for_curie[chemical_rxcui_to_clique[object]]
+                    subject = chemical_rxcui_to_clique[subject]
+                    object = chemical_rxcui_to_clique[object]
                     pairs.append( (subject,object) )
     with open(pubchem_rxn_concord,"r") as infile:
         for line in infile:
