@@ -1,6 +1,6 @@
 from src.node import NodeFactory, get_config
 from src.prefixes import RXCUI, PUBCHEMCOMPOUND, CHEMBLCOMPOUND, UNII, DRUGBANK, MESH, UMLS, CHEBI
-from src.babel_utils import glom
+from src.babel_utils import glom, get_curie_suffix
 from collections import defaultdict
 import os,json
 
@@ -333,6 +333,10 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             prefix_map = defaultdict(list)
             for curie in conflation_id_list:
                 curie_prefix = curie.split(':')[0]
+                if curie_prefix == RXCUI:
+                    # Drug has RXCUI rated highly as a prefix, but that's not a good ID for Babel, so let's skip
+                    # this for now.
+                    continue
                 prefix_map[curie_prefix].append(curie)
 
             # Go through the prefixes for this type, and use it to order the identifiers in this conflation ID list.
@@ -349,14 +353,22 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                 ids_already_added = set()
                 for prefix in prefixes_for_type:
                     if prefix in prefix_map:
+                        prefixes_to_add = []
                         for id in prefix_map[prefix]:
                             ids_already_added.add(id)
-                            final_conflation_id_list.append(id)
+                            prefixes_to_add.append(id)
+
+                        # Sort this final category of prefixes by smallest ID.
+                        final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=get_curie_suffix)))
 
             # Add any identifiers that weren't in the prefix_map.
+            prefixes_to_add = []
             for id in conflation_id_list:
                 if id not in ids_already_added:
-                    final_conflation_id_list.append(id)
+                    prefixes_to_add.append(id)
+
+            # Sort this final category of prefixes by smallest ID.
+            final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=get_curie_suffix)))
 
             # Let's normalize all the identifiers.
             logger.info(f"Ordered DrugChemical conflation leading with {leading_id}: {final_conflation_id_list}")
