@@ -363,7 +363,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                             prefixes_to_add.append(id)
 
                         # Sort this final category of prefixes by smallest ID.
-                        final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=get_curie_suffix)))
+                        final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
 
             # Add any identifiers that weren't in the prefix_map.
             prefixes_to_add = []
@@ -372,7 +372,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                     prefixes_to_add.append(id)
 
             # Sort this final category of prefixes by smallest ID.
-            final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=get_curie_suffix)))
+            final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
 
             # Let's normalize all the identifiers.
             logger.info(f"Ordered DrugChemical conflation leading with {leading_id}: {final_conflation_id_list}")
@@ -386,3 +386,16 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
 
             outfile.write(f"{json.dumps(final_normalized_conflation_id_list)}\n")
             written.add(fs)
+
+
+def sort_by_curie_suffix(curie):
+    """
+    Sort function to sort by curie suffix. We can't just use get_curie_suffix() because it returns None for CURIEs
+    without a suffix. However, we can return a tuple with either a True or False as the first value to sort Nones
+    after non-None values. As suggested by https://stackoverflow.com/a/72138073/27310
+
+    :param curie: The CURIE to sort.
+    :return: A tuple of either (False, None) if the CURIE doesn't have a numerical suffix or (True, suffix) if it does.
+    """
+    suffix = get_curie_suffix(curie)
+    return suffix is None, suffix
