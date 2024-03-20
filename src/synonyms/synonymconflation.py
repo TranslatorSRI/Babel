@@ -11,6 +11,8 @@ from collections import defaultdict
 
 import click
 
+from src.babel_utils import get_curie_suffix
+
 # Set up default logging.
 logging.basicConfig(level=logging.INFO)
 
@@ -164,15 +166,6 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
                         if 'curie' not in final_conflation:
                             final_conflation['curie'] = synonym['curie']
 
-                        # Calculate the CURIE suffix, if applicable.
-                        curie_parts = curie.split(':', 1)
-                        if len(curie_parts) > 0:
-                            # Try to cast the CURIE suffix to an integer. If we get a ValueError, don't worry about it.
-                            try:
-                                final_conflation['curie_suffix'] = int(curie_parts[1])
-                            except ValueError:
-                                pass
-
                         if 'preferred_name' not in final_conflation and 'preferred_name' in synonym:
                             final_conflation['preferred_name'] = synonym['preferred_name']
 
@@ -211,6 +204,11 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
                 logging.warning(f"Synonym entry {curie} has a different CURIE from {final_conflation['curie']}, is " +
                                 f"the conflation file not normalized? {final_conflation}")
                 # final_conflation['curie'] = curie
+
+            # Recalculate the CURIE suffix.
+            curie_suffix = get_curie_suffix(final_conflation['curie'])
+            if curie_suffix:
+                final_conflation['curie_suffix'] = curie_suffix
 
             # Write it out.
             logging.debug(f"Conflated entries:\n{json.dumps(synonyms_by_curie, indent=2, sort_keys=True)}")
