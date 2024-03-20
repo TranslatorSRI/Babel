@@ -204,7 +204,7 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
                 logging.warning(f"Synonym entry {curie} has a different CURIE from {final_conflation['curie']}, is " +
                                 f"the conflation file not normalized? {final_conflation}")
                 logging.warning(
-                    f"CURIE {curie} will be used instead of the actual preferred CURIE, {final_conflation['curie']}, "
+                    f"CURIE {curie} will be used instead of the actual normalized CURIE, {final_conflation['curie']}, "
                     "in order to be consistent with conflation file.")
                 final_conflation['curie'] = curie
 
