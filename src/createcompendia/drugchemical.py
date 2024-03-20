@@ -243,7 +243,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
     type_for_preferred_curie = {}
     for chemical_compendium in chemical_compendia:
         with open(chemical_compendium, 'r') as compendiumf:
-            logger.info(f" - Loading {chemical_compendium}")
+            logger.info(f"Loading {chemical_compendium}")
             for line in compendiumf:
                 clique = json.loads(line)
                 preferred_id = clique['identifiers'][0]['i']
