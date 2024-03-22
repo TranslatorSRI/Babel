@@ -361,7 +361,12 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                 # Skip CURIE prefixes that aren't good conflation list leaders and ignore duplicates.
                 prefix_map = defaultdict(list)
                 ids_already_added = set()
-                for curie in normalized_conflation_id_list:
+                for index, curie in enumerate(normalized_conflation_id_list):
+                    # Remove Nones, which are IDs that could not be normalized.
+                    if curie is None:
+                        logger.warning(f"Could not normalize CURIE {conflation_id_list[index]} in conflation {conflation_id_list}, skipping.")
+                        continue
+
                     # Remove duplicates
                     if curie in ids_already_added:
                         continue
