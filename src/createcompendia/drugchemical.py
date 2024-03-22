@@ -314,13 +314,28 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
 
             pairs.append((subject, object))
 
-    # Set up a NodeFactory.
-    nodefactory = NodeFactory('', get_config()['biolink_version'])
+    # Normalize the pairs to be glommed. We need to do this here because it may be that multiple conflations will be
+    # merged together because they share a normalized identifier. We can do this by adding pairs to indicate that every
+    # subject and object is associated with its normalized identifier.
+    additional_pairs = []
+    for (subj, obj) in pairs:
+        # If the subject is not normalized, add a pair indicating the normalized ID.
+        if preferred_curie_for_curie[subj] != subj:
+            additional_pairs.append((subj, preferred_curie_for_curie[subj]))
+        # If the object is not normalized, add a pair indicating the normalized ID.
+        if preferred_curie_for_curie[obj] != obj:
+            additional_pairs.append((obj, preferred_curie_for_curie[obj]))
+    pairs.extend(additional_pairs)
 
     # Glommin' time
     print("glom")
     gloms = {}
     glom(gloms,pairs)
+
+    # Set up a NodeFactory.
+    nodefactory = NodeFactory('', get_config()['biolink_version'])
+
+    # Write out all the resulting cliques.
     written = set()
     with open(outfilename,"w") as outfile:
         for clique_member,clique in gloms.items():
@@ -329,31 +344,51 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                 continue
             conflation_id_list = list(clique)
 
-            # Turn the conflation CURIE list into a prefix map.
-            prefix_map = defaultdict(list)
-            for curie in conflation_id_list:
-                curie_prefix = curie.split(':')[0]
-                if curie_prefix == RXCUI:
-                    # Drug has RXCUI rated highly as a prefix, but that's not a good ID for Babel, so let's skip
-                    # this for now.
-                    continue
-                if curie_prefix == UMLS:
-                    # UMLS is a particularly bad identifier for us because we tend not to conflate on it, so let's
-                    # skip this for now.
-                    continue
-                prefix_map[curie_prefix].append(curie)
-
-            # Go through the prefixes for this type, and use it to order the identifiers in this conflation ID list.
-            final_conflation_id_list = []
+            # Normalize the leading ID.
             leading_id = conflation_id_list[0]
             if leading_id not in preferred_curie_for_curie:
-                logger.error(f"Unable to normalize leading CURIE {leading_id} in conflation list {conflation_id_list}")
+                logger.error(f"Unable to normalize leading CURIE {leading_id}, skipping conflation list: {conflation_id_list}")
             else:
+                # Determine a type for this conflation list.
                 normalized_leading_id = preferred_curie_for_curie[leading_id]
                 type_for_leading_id = type_for_preferred_curie[normalized_leading_id]
+
+                # Normalize all the identifiers. Any IDs that couldn't be normalized will show up as None.
+                normalized_conflation_id_list = [preferred_curie_for_curie.get(id) for id in conflation_id_list]
+
+                # Turn the conflation CURIE list into a prefix map, which maps prefixes to lists of CURIEs.
+                # This allows us to sort each prefix separately.
+                # Skip CURIE prefixes that aren't good conflation list leaders and ignore duplicates.
+                prefix_map = defaultdict(list)
+                ids_already_added = set()
+                for curie in normalized_conflation_id_list:
+                    # Remove duplicates
+                    if curie in ids_already_added:
+                        continue
+
+                    # Group by prefix.
+                    curie_prefix = curie.split(':')[0]
+                    if curie_prefix == RXCUI:
+                        # Drug has RXCUI rated highly as a prefix, but that's not a good ID for Babel, so let's skip
+                        # this for now.
+                        continue
+
+                    if curie_prefix == UMLS:
+                        # UMLS is a particularly bad identifier for us because we tend not to conflate on it, so let's
+                        # skip this for now.
+                        continue
+
+                    prefix_map[curie_prefix].append(curie)
+                    ids_already_added.add(curie)
+
+                # Determine the prefixes to be used for this conflation list based on the prefixes from the NodeFactory
+                # (which gets them from Biolink Model).
                 prefixes_for_type = nodefactory.get_prefixes(type_for_leading_id)
-                logger.info(f"Normalized leading ID {leading_id} to normalized leading ID {normalized_leading_id} " +
+                logger.info(f"Leading ID {leading_id} normalized to {normalized_leading_id} " +
                             f"(type {type_for_leading_id}) with prefixes: {prefixes_for_type}")
+
+                # Produce a final conflation list in the prefix order specified for the type of the conflation leader.
+                final_conflation_id_list = []
                 ids_already_added = set()
                 for prefix in prefixes_for_type:
                     if prefix in prefix_map:
@@ -362,30 +397,25 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                             ids_already_added.add(id)
                             prefixes_to_add.append(id)
 
-                        # Sort this final category of prefixes by smallest ID.
+                        # Sort this set of CURIEs from the numerically smallest CURIE suffix to the largest, with
+                        # non-numerical CURIE suffixes sorted to the end.
                         final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
 
-            # Add any identifiers that weren't in the prefix_map.
-            prefixes_to_add = []
-            for id in conflation_id_list:
-                if id not in ids_already_added:
-                    prefixes_to_add.append(id)
+                # Add any identifiers that weren't in the prefix_map in the original order (which is not significant).
+                prefixes_to_add = []
+                for id in normalized_conflation_id_list:
+                    if id not in ids_already_added:
+                        prefixes_to_add.append(id)
 
-            # Sort this final category of prefixes by smallest ID.
-            final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
+                # Sort this final set of CURIEs from the numerically smallest CURIE suffix to the largest, with
+                # non-numerical CURIE suffixes sorted to the end.
+                final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
 
-            # Let's normalize all the identifiers.
-            logger.info(f"Ordered DrugChemical conflation leading with {leading_id}: {final_conflation_id_list}")
-            final_normalized_conflation_id_list = []
-            for id in final_conflation_id_list:
-                preferred_id = preferred_curie_for_curie[id]
-                final_normalized_conflation_id_list.append(preferred_id)
+                # Let's normalize all the identifiers.
+                logger.info(f"Ordered DrugChemical conflation leading with {leading_id}: {final_conflation_id_list}")
 
-                if preferred_id != id:
-                    logger.warning(f"Conflation contains non-normalized ID {id}. Normalized to {preferred_id}.")
-
-            outfile.write(f"{json.dumps(final_normalized_conflation_id_list)}\n")
-            written.add(fs)
+                outfile.write(f"{json.dumps(final_conflation_id_list)}\n")
+                written.add(fs)
 
 
 def sort_by_curie_suffix(curie):
