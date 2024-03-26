@@ -5,6 +5,8 @@ import src.createcompendia.publications as publications
 rule download_pubmed:
     output:
         done_file = config['download_directory'] + '/PubMed/downloaded',
+        baseline_dir = config['download_directory'] + '/PubMed/baseline',
+        updatefiles_dir = config['download_directory'] + '/PubMed/updatefiles',
     run:
         publications.download_pubmed(output.done_file)
 
