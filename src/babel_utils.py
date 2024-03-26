@@ -435,12 +435,16 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     # could we consider the information content values? -- but in the interests of getting something
                     # working quickly, this code restores that previous method.
 
-                    # Since synonyms_list is sorted,
+                    # Since synonyms_list is sorted, we can use the length of the first term as the synonym.
                     if len(synonyms_list) == 0:
                         logging.debug(f"Synonym list for {node} is empty: no valid name. Skipping.")
                         continue
                     else:
                         document["shortest_name_length"] = len(synonyms_list[0])
+
+                    # Cliques with more identifiers might be better than cliques with smaller identifiers.
+                    # So let's try to incorporate that here.
+                    document["clique_identifier_count"] = len(node["identifiers"])
 
                     # We want to see if we can use the CURIE suffix to sort concepts with similar identifiers.
                     # We want to sort this numerically, so we only do this if the CURIE suffix is numerical.
