@@ -5,16 +5,16 @@ import src.createcompendia.publications as publications
 rule download_pubmed:
     output:
         done_file = config['download_directory'] + '/PubMed/downloaded',
-        baseline_dir = config['download_directory'] + '/PubMed/baseline',
-        updatefiles_dir = config['download_directory'] + '/PubMed/updatefiles',
+        baseline_dir = directory(config['download_directory'] + '/PubMed/baseline'),
+        updatefiles_dir = directory(config['download_directory'] + '/PubMed/updatefiles'),
     run:
         publications.download_pubmed(output.done_file)
 
 rule generate_pubmed_concords:
     input:
         config['download_directory'] + '/PubMed/downloaded',
-        baseline_dir = config['download_directory'] + '/PubMed/baseline',
-        updatefiles_dir = config['download_directory'] + '/PubMed/updatefiles',
+        baseline_dir = directory(config['download_directory'] + '/PubMed/baseline'),
+        updatefiles_dir = directory(config['download_directory'] + '/PubMed/updatefiles'),
     output:
         titles_file = config['download_directory'] + '/PubMed/titles',
         status_file = config['download_directory'] + '/PubMed/statuses',
