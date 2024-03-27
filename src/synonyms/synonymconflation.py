@@ -191,8 +191,31 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
                                 final_conflation['types'].append(typ)
                                 types_included.add(typ)
 
-                        # Since we no longer use shortest_name_length, I'm just not going to bother writing it
-                        # into the final conflations.
+                    # Handle shortest_name_length.
+                    if 'shortest_name_length' in synonym:
+                        # If we don't have a shortest_name_length in final_conflation OR if
+                        # it is smaller than synonym['shortest_name_length'], use that instead.
+                        if 'shortest_name_length' not in final_conflation or \
+                                synonym['shortest_name_length'] < final_conflation['shortest_name_length']:
+                            final_conflation['shortest_name_length'] = synonym['shortest_name_length']
+
+                    # Handle clique_identifier_count.
+                    if 'clique_identifier_count' in synonym:
+                        if 'clique_identifier_count' not in final_conflation:
+                            # If we don't have a clique_identifier_count in final_conflation, set it to zero.
+                            final_conflation['clique_identifier_count'] = 0
+
+                        # If we do have a clique_identifier_count in final_conflation, add the count from this synonym.
+                        final_conflation['clique_identifier_count'] += synonym['clique_identifier_count']
+
+                    # Handle taxa.
+                    if 'taxa' in synonym:
+                        if 'taxa' not in final_conflation:
+                            final_conflation['taxa'] = set()
+                        final_conflation.update(synonym['taxa'])
+
+            # Convert the taxa into a list.
+            final_conflation['taxa'] = sorted(final_conflation['taxa'])
 
             # Checks
             if 'curie' not in final_conflation:
