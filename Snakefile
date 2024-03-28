@@ -13,6 +13,7 @@ include: "src/snakefiles/taxon.snakefile"
 include: "src/snakefiles/genefamily.snakefile"
 include: "src/snakefiles/leftover_umls.snakefile"
 include: "src/snakefiles/macromolecular_complex.snakefile"
+include: "src/snakefiles/publications.snakefile"
 
 include: "src/snakefiles/reports.snakefile"
 include: "src/snakefiles/exports.snakefile"
