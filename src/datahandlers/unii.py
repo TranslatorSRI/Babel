@@ -38,7 +38,7 @@ def make_labels_and_synonyms(inputfile,labelfile,synfile):
     syncol = 0
     wrotelabels = set()
     wrotesyns = set()
-    with open(inputfile,'r') as inf, open(labelfile,'w') as lf, open(synfile,'w') as sf:
+    with open(inputfile,'r', encoding='latin-1') as inf, open(labelfile,'w') as lf, open(synfile,'w') as sf:
         h = inf.readline()
         for line in inf:
             parts = line.strip().split('\t')
