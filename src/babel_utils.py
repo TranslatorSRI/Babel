@@ -354,7 +354,8 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     :param synonym_list:
     :param ofname:
     :param node_type:
-    :param labels:
+    :param labels: A map of identifiers
+        Not needed if each identifier will have a label in the correct directory (i.e. downloads/PMID/labels for PMID:xxx).
     :param extra_prefixes: We default to only allowing the prefixes allowed for a particular type in Biolink.
         If you want to allow additional prefixes, list them here.
     :param icrdf_filename: (REQUIRED) The file to read the information content from (icRDF.tsv). Although this is a

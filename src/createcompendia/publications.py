@@ -119,7 +119,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
         json.dump(pmid_status, statusf, indent=2, sort_keys=True)
 
 
-def generate_compendium(concordances, identifiers, publication_compendium, icrdf_filename):
+def generate_compendium(concordances, identifiers, titles, publication_compendium, icrdf_filename):
     """
     Generate a Publication compendium using the ID and Concord files provided.
 
@@ -146,8 +146,19 @@ def generate_compendium(concordances, identifiers, publication_compendium, icrdf
                 x = line.strip().split('\t')
                 pairs.append({x[0], x[2]})
         glom(dicts, pairs, unique_prefixes=uniques)
-    gene_sets = set([frozenset(x) for x in dicts.values()])
+    # Publications have titles, not labels. We load them here.
+    labels = dict()
+    for title_filename in titles:
+        print('loading titles from', title_filename)
+        with open(title_filename, 'r') as titlef:
+            for line in titlef:
+                id, title = line.strip().split('\t')
+                if id in labels:
+                    logging.warning(f"Duplicate title for {id}: ignoring previous title '{labels[id]}', using new title '{title}'.")
+                labels[id] = title
+
+    publication_sets = set([frozenset(x) for x in dicts.values()])
     baretype = PUBLICATION.split(':')[-1]
-    write_compendium(gene_sets, os.path.basename(publication_compendium), PUBLICATION, {}, icrdf_filename=icrdf_filename)
+    write_compendium(publication_sets, os.path.basename(publication_compendium), PUBLICATION, labels, icrdf_filename=icrdf_filename)
 
 
