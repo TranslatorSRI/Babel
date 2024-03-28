@@ -1,4 +1,4 @@
-from src.snakefiles.util import get_all_compendia, get_all_synonyms_with_drugchemicalconflated
+from src.snakefiles.util import get_all_compendia, get_all_synonyms
 import os
 
 from src.reports.compendia_per_file_reports import assert_files_in_directory, \
@@ -13,7 +13,7 @@ conflations_path = config['output_directory'] + '/conflation'
 compendia_files = get_all_compendia(config)
 
 # Expected synonym files.
-synonyms_files = get_all_synonyms_with_drugchemicalconflated(config)
+synonyms_files = get_all_synonyms(config)
 
 # Expected conflation files.
 conflation_files = config['geneprotein_outputs'] + config['drugchemical_outputs']
