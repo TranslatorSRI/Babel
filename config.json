@@ -65,6 +65,8 @@
     "http://www.informatics.jax.org/marker/MGI:": "MGI"
   },
 
+  "publication_outputs": ["Publication.txt"],
+
   "geneprotein_outputs": ["GeneProtein.txt"],
   "drugchemical_outputs": ["DrugChemical.txt"],
 

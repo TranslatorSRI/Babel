@@ -11,7 +11,8 @@ def get_all_compendia(config):
             config['protein_outputs'] +
             config['taxon_outputs'] +
             config['umls_outputs'] +
-            config['macromolecularcomplex_outputs'])
+            config['macromolecularcomplex_outputs'] +
+            config['publication_outputs'])
 
 
 def get_all_synonyms(config):
