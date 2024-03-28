@@ -14,7 +14,7 @@ export CORES=5
 export DRY_RUN=1
 
 # Verbose: if set, produce verbose output.
-export VERBOSE=1
+export VERBOSE=
 
 # Keep going: if set, then keep going if one job errors out.
 export KEEP_GOING=1
