@@ -11,6 +11,8 @@ from collections import defaultdict
 
 import click
 
+from src.babel_utils import get_numerical_curie_suffix
+
 # Set up default logging.
 logging.basicConfig(level=logging.INFO)
 
@@ -19,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 #click.option('--conflation-file', multiple=True, type=click.Path(exists=True))
 #click.option('--output', type=click.Path(exists=False), default='-')
 #click.argument("synonym_files", nargs=-1, type=click.Path(exists=True))
-def conflate_synonyms(synonym_files, conflation_file, output):
+def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
     """
     Generate a synonym file based on a single input synonym, the conflation described in the input conflation files,
     and any cross-references present in the input compendia files.
@@ -30,11 +32,13 @@ def conflate_synonyms(synonym_files, conflation_file, output):
     :return:
     """
 
-    logging.info(f"conflate_synonyms({synonym_files}, {conflation_file}, {output})")
+    logging.info(f"conflate_synonyms({synonym_files}, {compendia_files}, {conflation_file}, {output})")
 
     # Some common code to manage the conflation index.
     # This is simply a large dictionary, where every key is an identifier and the value is the identifier to map it to.
     conflation_index = dict()
+
+    # This is a map of primary IDs to the list of conflation IDs. This allows us to conflate terms in the correct order.
     conflations = defaultdict(list)
 
     # Step 1. Load all the conflations. We only need to work on these identifiers, so that simplifies our work.
@@ -55,7 +59,7 @@ def conflate_synonyms(synonym_files, conflation_file, output):
                     conflation_index[ident] = conflation[0]
                     count_secondary += 1
 
-                # Store the conflation for later use.
+                # Store the entire conflation list for later use.
                 if conflation[0] in conflations:
                     logging.error(f"Two conflations have the same primary ID: {conflation} and {conflations[conflation[0]]}")
                 conflations[conflation[0]] = conflation
@@ -65,6 +69,38 @@ def conflate_synonyms(synonym_files, conflation_file, output):
                          f"from conflation file {conflationf.name}.")
 
     logging.info(f"Loaded all conflation files, found {len(conflation_index):,} identifiers in total.")
+
+    # Step 1.1. What if we have synonyms connected with identifiers that are not primary identifiers? To solve that
+    # problem, we further enrich these identifiers with information from the compendia files.
+    cliques_with_conflations = defaultdict(list)
+    count_clique_ids_added = 0
+
+    for compendium_filename in compendia_files:
+        logging.info(f"Reading compendium file {compendium_filename}")
+        with open(compendium_filename, "r") as compendiumf:
+            for line in compendiumf:
+                clique = json.loads(line)
+                identifiers = clique.get('identifiers', [])
+                ids = map(lambda i: i['i'], identifiers)
+
+                # Is this clique being conflated? If not, we can just ignore it.
+                for id in ids:
+                    if id in conflation_index:
+                        # Yes, this clique is mentioned in the conflation index! Associate all of its
+                        # IDs with this clique so that we can load it later.
+                        for id_inner in ids:
+                            # We add all the other identifiers in this clique to the conflation index. That way,
+                            # if someone refers to PUBCHEM.COMPOUND:962 when the preferred ID is CHEBI:15377, we will
+                            # pull in synonyms from CHEBI:15377 as well.
+                            cliques_with_conflations[id_inner].append(clique)
+                            if id_inner not in conflation_index:
+                                conflation_index[id_inner] = conflation_index[id]
+                                count_clique_ids_added += 1
+
+                        # Once we've done this for one of the identifiers, we don't need to do it for any others.
+                        break
+
+    logging.info(f"Added {count_clique_ids_added} IDs from {len(cliques_with_conflations)} cliques involved in conflation.")
 
     logging.info(f"Writing output to {output}.")
     with open(output, 'w') as outputf:
@@ -85,16 +121,16 @@ def conflate_synonyms(synonym_files, conflation_file, output):
                         logging.debug(f"Ignoring synonym {curie}, no known conflation.")
                     else:
                         # We need to conflate this. Add this to the synonyms_to_conflate list.
-                        conflated_id = conflation_index[curie]
-                        if curie in synonyms_to_conflate[conflated_id]:
-                            logging.warning(f"Duplicate CURIE in conflation: {conflated_id} appears multiple times in {curie}")
-                        synonyms_to_conflate[conflated_id][curie].append(synonym)
-                        synonyms = synonyms_to_conflate[conflated_id].values()
+                        preferred_id = conflation_index[curie]
+                        if curie in synonyms_to_conflate[preferred_id]:
+                            logging.warning(f"Duplicate CURIE in conflation: {preferred_id} appears multiple times in {curie}")
+                        synonyms_to_conflate[preferred_id][curie].append(synonym)
+                        synonyms = synonyms_to_conflate[preferred_id].values()
                         bl_types = set()
                         for synonym_list in synonyms:
                             for synonym in synonym_list:
                                 bl_types.add('biolink:' + synonym.get('types', ['Entity'])[0])
-                        logging.debug(f"Conflating synonym {curie} ({bl_type}) to {conflated_id} ({bl_types}).")
+                        logging.debug(f"Conflating synonym {curie} ({bl_type}) to {preferred_id} ({bl_types}).")
 
         logging.info(f"Identified {len(synonyms_to_conflate)} conflated cliques that need to be synonymized.")
         logging.debug(f"Conflated cliques: {json.dumps(synonyms_to_conflate, sort_keys=True)}")
@@ -114,78 +150,91 @@ def conflate_synonyms(synonym_files, conflation_file, output):
             names_included = set()
             types_included = set()
             types_to_ignore = set('OntologyClass')
-            for conflation_id in conflation_order:
-                logging.info(f"Looking into {conflation_id}.")
-                for synonym in synonyms_by_curie[conflation_id]:
-                    logging.info(f"conflation_order = {conflation_order}, synonyms_by_curie[{conflation_id}] = {synonyms_by_curie[conflation_id]}")
-                    if 'curie' not in final_conflation:
-                        final_conflation['curie'] = synonym['curie']
+            for conflation_id_not_normalized in conflation_order:
+                if conflation_id_not_normalized in cliques_with_conflations:
+                    conflation_ids = []
+                    for clique in cliques_with_conflations[conflation_id_not_normalized]:
+                        for ident in clique.get('identifiers', []):
+                            conflation_ids.append(ident['i'])
+                else:
+                    conflation_ids = [conflation_id_not_normalized]
+                logging.info(f"Expanded {conflation_id_not_normalized} into {conflation_ids}.")
+                for conflation_id in conflation_ids:
+                    logging.info(f"Looking into conflation ID {conflation_id} for {conflation_id_not_normalized}.")
+                    for synonym in synonyms_by_curie[conflation_id]:
+                        logging.info(f"conflation_order = {conflation_order}, synonyms_by_curie[{conflation_id}] = {synonyms_by_curie[conflation_id]}")
+                        if 'curie' not in final_conflation:
+                            final_conflation['curie'] = synonym['curie']
 
-                    # Calculate the CURIE suffix, if applicable.
-                    curie_parts = curie.split(':', 1)
-                    if len(curie_parts) > 0:
-                        # Try to cast the CURIE suffix to an integer. If we get a ValueError, don't worry about it.
-                        try:
-                            final_conflation['curie_suffix'] = int(curie_parts[1])
-                        except ValueError:
-                            pass
+                        if 'preferred_name' not in final_conflation and 'preferred_name' in synonym:
+                            final_conflation['preferred_name'] = synonym['preferred_name']
 
-                    if 'preferred_name' not in final_conflation and 'preferred_name' in synonym:
-                        final_conflation['preferred_name'] = synonym['preferred_name']
+                        if 'names' not in final_conflation:
+                            final_conflation['names'] = list()
 
-                    if 'names' not in final_conflation:
-                        final_conflation['names'] = list()
+                        for name in synonym['names']:
+                            # Don't repeat names that are already in the final conflation.
+                            if name not in names_included:
+                                final_conflation['names'].append(name)
+                                names_included.add(name)
 
-                    for name in synonym['names']:
-                        # Don't repeat names that are already in the final conflation.
-                        if name not in names_included:
-                            final_conflation['names'].append(name)
-                            names_included.add(name)
+                        if 'types' not in final_conflation:
+                            final_conflation['types'] = list()
 
-                    if 'types' not in final_conflation:
-                        final_conflation['types'] = list()
+                        for typ in synonym['types']:
+                            # Ignore types to be ignored.
+                            if typ in types_to_ignore:
+                                continue
 
-                    for typ in synonym['types']:
-                        # Ignore types to be ignored.
-                        if typ in types_to_ignore:
-                            continue
+                            # Don't repeat types that are already in the final conflation.
+                            if typ not in types_included:
+                                final_conflation['types'].append(typ)
+                                types_included.add(typ)
 
-                        # Don't repeat types that are already in the final conflation.
-                        if typ not in types_included:
-                            final_conflation['types'].append(typ)
-                            types_included.add(typ)
+                        # Handle shortest_name_length.
+                        if 'shortest_name_length' in synonym:
+                            # If we don't have a shortest_name_length in final_conflation OR if
+                            # it is smaller than synonym['shortest_name_length'], use that instead.
+                            if 'shortest_name_length' not in final_conflation or \
+                                    synonym['shortest_name_length'] < final_conflation['shortest_name_length']:
+                                final_conflation['shortest_name_length'] = synonym['shortest_name_length']
 
-                    # Handle shortest_name_length.
-                    if 'shortest_name_length' in synonym:
-                        # If we don't have a shortest_name_length in final_conflation OR if
-                        # it is smaller than synonym['shortest_name_length'], use that instead.
-                        if 'shortest_name_length' not in final_conflation or \
-                                synonym['shortest_name_length'] < final_conflation['shortest_name_length']:
-                            final_conflation['shortest_name_length'] = synonym['shortest_name_length']
+                        # Handle clique_identifier_count.
+                        if 'clique_identifier_count' in synonym:
+                            if 'clique_identifier_count' not in final_conflation:
+                                # If we don't have a clique_identifier_count in final_conflation, set it to zero.
+                                final_conflation['clique_identifier_count'] = 0
 
-                    # Handle clique_identifier_count.
-                    if 'clique_identifier_count' in synonym:
-                        if 'clique_identifier_count' not in final_conflation:
-                            # If we don't have a clique_identifier_count in final_conflation, set it to zero.
-                            final_conflation['clique_identifier_count'] = 0
+                            # If we do have a clique_identifier_count in final_conflation, add the count from this synonym.
+                            final_conflation['clique_identifier_count'] += synonym['clique_identifier_count']
 
-                        # If we do have a clique_identifier_count in final_conflation, add the count from this synonym.
-                        final_conflation['clique_identifier_count'] += synonym['clique_identifier_count']
-
-                    # Handle taxa.
-                    if 'taxa' in synonym:
-                        if 'taxa' not in final_conflation:
-                            final_conflation['taxa'] = set()
-                        final_conflation.update(synonym['taxa'])
+                        # Handle taxa.
+                        if 'taxa' in synonym:
+                            if 'taxa' not in final_conflation:
+                                final_conflation['taxa'] = set()
+                            final_conflation.update(synonym['taxa'])
 
             # Convert the taxa into a list.
             final_conflation['taxa'] = sorted(final_conflation['taxa'])
 
             # Checks
-            ## assert final_conflation['curie'] == curie
-            if final_conflation['curie'] != curie:
+            if 'curie' not in final_conflation:
+                logging.warning(f"Conflated synonym entry missing CURIE entirely! Using primary CURIE {curie} for: " +
+                                f"{final_conflation}")
                 final_conflation['curie'] = curie
-                logging.warning(f"Synonym entry {curie} was incorrectly assigned primary identifier {final_conflation['curie']} instead -- are you missing some input synonym files? Fixed.")
+
+            if final_conflation['curie'] != curie:
+                logging.warning(f"Synonym entry {curie} has a different CURIE from {final_conflation['curie']}, is " +
+                                f"the conflation file not normalized? {final_conflation}")
+                logging.warning(
+                    f"CURIE {curie} will be used instead of the actual normalized CURIE, {final_conflation['curie']}, "
+                    "in order to be consistent with conflation file.")
+                final_conflation['curie'] = curie
+
+            # Recalculate the CURIE suffix.
+            curie_suffix = get_numerical_curie_suffix(final_conflation['curie'])
+            if curie_suffix:
+                final_conflation['curie_suffix'] = curie_suffix
 
             # Write it out.
             logging.debug(f"Conflated entries:\n{json.dumps(synonyms_by_curie, indent=2, sort_keys=True)}")

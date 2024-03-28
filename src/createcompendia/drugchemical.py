@@ -1,11 +1,12 @@
+from src.node import NodeFactory, get_config
 from src.prefixes import RXCUI, PUBCHEMCOMPOUND, CHEMBLCOMPOUND, UNII, DRUGBANK, MESH, UMLS, CHEBI
-from src.babel_utils import glom
+from src.babel_utils import glom, get_numerical_curie_suffix
 from collections import defaultdict
 import os,json
 
 import logging
 from src.util import LoggingUtil
-logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
+logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 
 # RXNORM has lots of relationships.
 # RXNREL contains both directions of each relationship, just to make the file bigger
@@ -236,6 +237,23 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
     To determine which those are, we're going to have to dig around in all the compendia.
     We also want to get all the clique leaders as well.  For those, we only need to worry if there are RXCUIs
     in the clique."""
+
+    print("load all chemical conflations so we can normalize identifiers")
+    preferred_curie_for_curie = {}
+    type_for_preferred_curie = {}
+    for chemical_compendium in chemical_compendia:
+        with open(chemical_compendium, 'r') as compendiumf:
+            logger.info(f"Loading {chemical_compendium}")
+            for line in compendiumf:
+                clique = json.loads(line)
+                preferred_id = clique['identifiers'][0]['i']
+                type_for_preferred_curie[preferred_id] = clique['type']
+                for ident in clique['identifiers']:
+                    id = ident['i']
+                    preferred_curie_for_curie[id] = preferred_id
+
+    print(f"Loaded preferred CURIEs for {len(preferred_curie_for_curie)} CURIEs from the chemical compendia.")
+
     print("load drugs")
     drug_rxcui_to_clique = load_cliques(drug_compendium)
     chemical_rxcui_to_clique = {}
@@ -244,6 +262,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             continue
         print(f"load {chemical_compendium}")
         chemical_rxcui_to_clique.update(load_cliques(chemical_compendium))
+
     pairs = []
     for concfile in [rxn_concord,umls_concord]:
         with open(concfile,"r") as infile:
@@ -251,6 +270,8 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                 x = line.strip().split('\t')
                 subject = x[0]
                 object = x[2]
+
+                # While we do this, we will also normalize all chemicals to their preferred clique IDs.
                 if subject in drug_rxcui_to_clique and object in chemical_rxcui_to_clique:
                     subject = drug_rxcui_to_clique[subject]
                     object = chemical_rxcui_to_clique[object]
@@ -286,47 +307,130 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             elif object in chemical_rxcui_to_clique:
                 object = chemical_rxcui_to_clique[object]
             else:
-                logging.warning(
+                logger.warning(
                     f"Object in subject-object pair ({subject}, {object}) isn't mapped to a RxCUI"
                 )
                 # raise RuntimeError(f"Unknown identifier in drugchemical conflation as object: {object}")
 
             pairs.append((subject, object))
+
+    # Normalize the pairs to be glommed. We need to do this here because it may be that multiple conflations will be
+    # merged together because they share a normalized identifier. We can do this by adding pairs to indicate that every
+    # subject and object is associated with its normalized identifier.
+    additional_pairs = []
+    for (subj, obj) in pairs:
+        # If the subject is not normalized, add a pair indicating the normalized ID.
+        if preferred_curie_for_curie[subj] != subj:
+            additional_pairs.append((subj, preferred_curie_for_curie[subj]))
+        # If the object is not normalized, add a pair indicating the normalized ID.
+        if preferred_curie_for_curie[obj] != obj:
+            additional_pairs.append((obj, preferred_curie_for_curie[obj]))
+    pairs.extend(additional_pairs)
+
+    # Glommin' time
     print("glom")
     gloms = {}
     glom(gloms,pairs)
+
+    # Set up a NodeFactory.
+    nodefactory = NodeFactory('', get_config()['biolink_version'])
+
+    # Write out all the resulting cliques.
     written = set()
     with open(outfilename,"w") as outfile:
         for clique_member,clique in gloms.items():
             fs = frozenset(clique)
             if fs in written:
                 continue
-            lc = list(clique)
-            lc.sort(key=conflation_curie_sort_key)
-            outfile.write(f"{json.dumps(lc)}\n")
-            written.add(fs)
+            conflation_id_list = list(clique)
 
-#We want the chemical first, then the drug.  For MESH/UMLS we don't really know which they are. THe idea in this one
-# is that we're unlikely to have a chemical with a clique leader of MESH/UMLS.  (Wrong sometimes....)
-kl={PUBCHEMCOMPOUND:0, CHEMBLCOMPOUND: 1, UNII: 2, CHEBI: 3, DRUGBANK: 4, RXCUI: 5, MESH: 6, UMLS: 7}
-def conflation_curie_sort_key(curie):
+            # Normalize the leading ID.
+            leading_id = conflation_id_list[0]
+            if leading_id not in preferred_curie_for_curie:
+                logger.error(f"Unable to normalize leading CURIE {leading_id}, skipping conflation list: {conflation_id_list}")
+            else:
+                # Determine a type for this conflation list.
+                normalized_leading_id = preferred_curie_for_curie[leading_id]
+                type_for_leading_id = type_for_preferred_curie[normalized_leading_id]
+
+                # Normalize all the identifiers. Any IDs that couldn't be normalized will show up as None.
+                normalized_conflation_id_list = [preferred_curie_for_curie.get(id) for id in conflation_id_list]
+
+                # Turn the conflation CURIE list into a prefix map, which maps prefixes to lists of CURIEs.
+                # This allows us to sort each prefix separately.
+                # Skip CURIE prefixes that aren't good conflation list leaders and ignore duplicates.
+                prefix_map = defaultdict(list)
+                ids_already_added = set()
+                for index, curie in enumerate(normalized_conflation_id_list):
+                    # Remove Nones, which are IDs that could not be normalized.
+                    if curie is None:
+                        logger.warning(f"Could not normalize CURIE {conflation_id_list[index]} in conflation {conflation_id_list}, skipping.")
+                        continue
+
+                    # Remove duplicates
+                    if curie in ids_already_added:
+                        continue
+
+                    # Group by prefix.
+                    curie_prefix = curie.split(':')[0]
+                    if curie_prefix == RXCUI:
+                        # Drug has RXCUI rated highly as a prefix, but that's not a good ID for Babel, so let's skip
+                        # this for now.
+                        continue
+
+                    if curie_prefix == UMLS:
+                        # UMLS is a particularly bad identifier for us because we tend not to conflate on it, so let's
+                        # skip this for now.
+                        continue
+
+                    prefix_map[curie_prefix].append(curie)
+                    ids_already_added.add(curie)
+
+                # Determine the prefixes to be used for this conflation list based on the prefixes from the NodeFactory
+                # (which gets them from Biolink Model).
+                prefixes_for_type = nodefactory.get_prefixes(type_for_leading_id)
+                logger.info(f"Leading ID {leading_id} normalized to {normalized_leading_id} " +
+                            f"(type {type_for_leading_id}) with prefixes: {prefixes_for_type}")
+
+                # Produce a final conflation list in the prefix order specified for the type of the conflation leader.
+                final_conflation_id_list = []
+                ids_already_added = set()
+                for prefix in prefixes_for_type:
+                    if prefix in prefix_map:
+                        prefixes_to_add = []
+                        for id in prefix_map[prefix]:
+                            ids_already_added.add(id)
+                            prefixes_to_add.append(id)
+
+                        # Sort this set of CURIEs from the numerically smallest CURIE suffix to the largest, with
+                        # non-numerical CURIE suffixes sorted to the end.
+                        final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
+
+                # Add any identifiers that weren't in the prefix_map in the original order (which is not significant).
+                prefixes_to_add = []
+                for id in normalized_conflation_id_list:
+                    if id not in ids_already_added:
+                        prefixes_to_add.append(id)
+
+                # Sort this final set of CURIEs from the numerically smallest CURIE suffix to the largest, with
+                # non-numerical CURIE suffixes sorted to the end.
+                final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
+
+                # Let's normalize all the identifiers.
+                logger.info(f"Ordered DrugChemical conflation leading with {leading_id}: {final_conflation_id_list}")
+
+                outfile.write(f"{json.dumps(final_conflation_id_list)}\n")
+                written.add(fs)
+
+
+def sort_by_curie_suffix(curie):
     """
-    Produce a sort key for CURIEs to be sorted when generating conflations. Our search criteria is:
-    1. Sort by CURIE prefix based on the rankings in the kl list above. If another prefix is included,
-       we produce a KeyError.
-    2. Sort numerically by increasing CURIE suffix (so the smallest numerical value should be first).
-       Non-numerical CURIE suffixes are sorted together at the end of the list.
-    3. Sort lexically by CURIE.
+    Sort function to sort by curie suffix. We can't just use get_curie_suffix() because it returns None for CURIEs
+    without a suffix. However, we can return a tuple with either a True or False as the first value to sort Nones
+    after non-None values. As suggested by https://stackoverflow.com/a/72138073/27310
 
-    :param curie: A CURIE to generate a sort key for.
-    :return: A tuple that includes the search parameters in the correct order.
+    :param curie: The CURIE to sort.
+    :return: A tuple of either (False, None) if the CURIE doesn't have a numerical suffix or (True, suffix) if it does.
     """
-
-    # A real solution here would keep track of whether each id came from chemicals or drugs...
-    prefix, suffix = curie.split(':', 1)
-    try:
-        return kl[prefix], int(suffix), curie
-    except ValueError:
-        # We could sort these alphabetically, but CURIE suffix sorting is bad enough.
-        # Let's sort non-numerical values to the end of the list.
-        return kl[prefix], float('inf'), curie
+    suffix = get_numerical_curie_suffix(curie)
+    return suffix is None, suffix

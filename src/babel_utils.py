@@ -295,8 +295,12 @@ def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
     )
 
 
-
-def get_curie_suffix(curie):
+def get_numerical_curie_suffix(curie):
+    """
+    If a CURIE has a numerical suffix, return it as an integer. Otherwise return None.
+    :param curie: A CURIE.
+    :return: An integer if the CURIE suffix is castable to int, otherwise None.
+    """
     curie_parts = curie.split(':', 1)
     if len(curie_parts) > 0:
         # Try to cast the CURIE suffix to an integer. If we get a ValueError, don't worry about it.
@@ -364,12 +368,12 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                         id_info['d'] = list(sorted(descs[id_info['i']], key=lambda x: len(x)))
 
                         # Sort taxa by CURIE suffix.
-                        id_info['t'] = list(sorted(taxa[id_info['i']], key=get_curie_suffix))
+                        id_info['t'] = list(sorted(taxa[id_info['i']], key=get_numerical_curie_suffix))
 
                     nw['identifiers'].append(id_info)
 
                 # Collect taxon names for this node.
-                nw['taxa'] = list(sorted(set().union(*taxa.values()), key=get_curie_suffix))
+                nw['taxa'] = list(sorted(set().union(*taxa.values()), key=get_numerical_curie_suffix))
 
                 outf.write( nw )
 
@@ -457,7 +461,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                             pass
 
                     # Collect taxon names for this node.
-                    document['taxa'] = list(sorted(set().union(*taxa.values()), key=get_curie_suffix))
+                    document['taxa'] = list(sorted(set().union(*taxa.values()), key=get_numerical_curie_suffix))
 
                     sfile.write( document )
                 except Exception as ex:
