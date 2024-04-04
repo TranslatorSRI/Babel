@@ -75,4 +75,4 @@ COMPLEXPORTAL='ComplexPortal'
 
 PMID = 'PMID'
 DOI = 'doi'
-PMCID = 'PMCID'
+PMC = 'PMC'
