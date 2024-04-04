@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 
 from src.babel_utils import pull_via_wget, WgetRecursionOptions, glom, read_identifier_file, write_compendium
 from src.categories import JOURNAL_ARTICLE, PUBLICATION
-from src.prefixes import PMID
+from src.prefixes import PMID, DOI, PMCID
 
 
 def download_pubmed(download_file,
@@ -76,6 +76,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                 count_articles = 0
                 count_pmids = 0
                 count_dois = 0
+                count_pmcids = 0
                 count_titles = 0
                 file_pubstatuses = set()
 
@@ -88,6 +89,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
 
                             pmids = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pubmed']")
                             dois = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='doi']")
+                            pmcids = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pmc']")
                             titles = elem.findall('.//ArticleTitle')
 
                             pubdates_with_pubstatus = elem.findall("./PubmedData/History/PubMedPubDate[@PubStatus]")
@@ -117,12 +119,17 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
 
                                 for doi in dois:
                                     count_dois += 1
-                                    concordf.write(f"{PMID}:{pmid.text}\teq\tdoi:{doi.text}\n")
+                                    concordf.write(f"{PMID}:{pmid.text}\teq\t{DOI}:{doi.text}\n")
+
+                                for pmcid in pmcids:
+                                    count_pmcids += 1
+                                    concordf.write(f"{PMID}:{pmid.text}\teq\t{PMCID}:{pmcid.text}")
 
                 time_taken_in_seconds = float(time.time_ns() - start_time) / 1_000_000_000
                 logging.info(
                     f"Parsed {count_articles} articles from PubMed {pubmed_filename} in " +
                     f"{time_taken_in_seconds:.4f} seconds: {count_pmids} PMIDs, {count_dois} DOIs, " +
+                    f"{count_pmcids} PMCIDs, " +
                     f"{count_titles} titles with the following PubStatuses: {sorted(file_pubstatuses)}.")
 
     with open(status_file, 'w') as statusf:
