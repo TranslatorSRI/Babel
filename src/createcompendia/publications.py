@@ -77,6 +77,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                 count_pmids = 0
                 count_dois = 0
                 count_titles = 0
+                file_pubstatuses = set()
 
                 parser = ET.XMLPullParser(['end'])
                 for line in pubmedf:
@@ -102,6 +103,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
 
                                 pmidf.write(f"{PMID}:{pmid.text}\t{JOURNAL_ARTICLE}\n")
                                 pmid_status[f'{PMID}:' + pmid.text].update(pubstatuses)
+                                file_pubstatuses.update(pubstatuses)
 
                                 for title in titles:
                                     count_titles += 1
@@ -121,7 +123,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                 logging.info(
                     f"Parsed {count_articles} articles from PubMed {pubmed_filename} in " +
                     f"{time_taken_in_seconds:.4f} seconds: {count_pmids} PMIDs, {count_dois} DOIs, " +
-                    f"{count_titles} titles.")
+                    f"{count_titles} titles with the following PubStatuses: {sorted(file_pubstatuses)}.")
 
     with open(status_file, 'w') as statusf:
         # pmid_status is a dict of str -> set, so we need to turn it into lists to write it out.
