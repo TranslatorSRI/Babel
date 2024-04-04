@@ -65,60 +65,63 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
         baseline_filenames = list(map(lambda fn: os.path.join(baseline_dir, fn), sorted(os.listdir(baseline_dir))))
         updatefiles_filenames = list(map(lambda fn: os.path.join(updatefiles_dir, fn), sorted(os.listdir(updatefiles_dir))))
         for pubmed_filename in (baseline_filenames + updatefiles_filenames):
-            if pubmed_filename.endswith(".xml.gz"):
-                with gzip.open(pubmed_filename, 'rt') as pubmedf:
-                    logging.info(f"Parsing PubMed Baseline {pubmed_filename}")
+            if not pubmed_filename.endswith(".xml.gz"):
+                logging.warning(f"Skipping non-gzipped-XML file {pubmed_filename} in PubMed files.")
+                continue
 
-                    start_time = time.time_ns()
-                    count_articles = 0
-                    count_pmids = 0
-                    count_dois = 0
-                    count_titles = 0
+            with gzip.open(pubmed_filename, 'rt') as pubmedf:
+                logging.info(f"Parsing PubMed Baseline {pubmed_filename}")
 
-                    parser = ET.XMLPullParser(['end'])
-                    for line in pubmedf:
-                        parser.feed(line)
-                        for event, elem in parser.read_events():
-                            if event == 'end' and elem.tag == 'PubmedArticle':
-                                count_articles += 1
+                start_time = time.time_ns()
+                count_articles = 0
+                count_pmids = 0
+                count_dois = 0
+                count_titles = 0
 
-                                pmids = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pubmed']")
-                                dois = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='doi']")
-                                titles = elem.findall('.//ArticleTitle')
+                parser = ET.XMLPullParser(['end'])
+                for line in pubmedf:
+                    parser.feed(line)
+                    for event, elem in parser.read_events():
+                        if event == 'end' and elem.tag == 'PubmedArticle':
+                            count_articles += 1
 
-                                # I assume that pubstatuses are always in chronological order, i.e. we can ignore
-                                # the dates in the history, and just use the last pubstatus we see.
-                                pubstatuses = elem.findall("./PubmedData/History/PubMedPubDate/@PubStatus")
-                                pubstatus = 'unknown'
-                                if pubstatuses and len(pubstatuses) > 0:
-                                    pubstatus = pubstatuses[-1]
+                            pmids = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pubmed']")
+                            dois = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='doi']")
+                            titles = elem.findall('.//ArticleTitle')
 
-                                # Write concord.
-                                for pmid in pmids:
-                                    count_pmids += 1
+                            # I assume that pubstatuses are always in chronological order, i.e. we can ignore
+                            # the dates in the history, and just use the last pubstatus we see.
+                            pubstatuses = elem.findall("./PubmedData/History/PubMedPubDate/@PubStatus")
+                            pubstatus = 'unknown'
+                            if pubstatuses and len(pubstatuses) > 0:
+                                pubstatus = pubstatuses[-1]
 
-                                    pmidf.write(f"{PMID}:{pmid.text}\t{JOURNAL_ARTICLE}\n")
-                                    pmid_status[f'{PMID}:' + pmid.text] = pubstatus
+                            # Write concord.
+                            for pmid in pmids:
+                                count_pmids += 1
 
-                                    for title in titles:
-                                        count_titles += 1
-                                        # Convert newlines into '\n'.
-                                        title_text = title.text
-                                        if not title_text:
-                                            continue
-                                        title_text = title_text.replace('\n', '\\n')
+                                pmidf.write(f"{PMID}:{pmid.text}\t{JOURNAL_ARTICLE}\n")
+                                pmid_status[f'{PMID}:' + pmid.text] = pubstatus
 
-                                        titlesf.write(f"{PMID}:{pmid.text}\t{title_text}\n")
+                                for title in titles:
+                                    count_titles += 1
+                                    # Convert newlines into '\n'.
+                                    title_text = title.text
+                                    if not title_text:
+                                        continue
+                                    title_text = title_text.replace('\n', '\\n')
 
-                                    for doi in dois:
-                                        count_dois += 1
-                                        concordf.write(f"{PMID}:{pmid.text}\teq\tdoi:{doi.text}\n")
+                                    titlesf.write(f"{PMID}:{pmid.text}\t{title_text}\n")
 
-                    time_taken_in_seconds = float(time.time_ns() - start_time) / 1_000_000_000
-                    logging.info(
-                        f"Parsed {count_articles} articles from PubMed {pubmed_filename} in " +
-                        f"{time_taken_in_seconds:.4f} seconds: {count_pmids} PMIDs, {count_dois} DOIs, " +
-                        f"{count_titles} titles.")
+                                for doi in dois:
+                                    count_dois += 1
+                                    concordf.write(f"{PMID}:{pmid.text}\teq\tdoi:{doi.text}\n")
+
+                time_taken_in_seconds = float(time.time_ns() - start_time) / 1_000_000_000
+                logging.info(
+                    f"Parsed {count_articles} articles from PubMed {pubmed_filename} in " +
+                    f"{time_taken_in_seconds:.4f} seconds: {count_pmids} PMIDs, {count_dois} DOIs, " +
+                    f"{count_titles} titles.")
 
     with open(status_file, 'w') as statusf:
         json.dump(pmid_status, statusf, indent=2, sort_keys=True)
