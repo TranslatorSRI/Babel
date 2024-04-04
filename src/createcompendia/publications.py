@@ -89,12 +89,14 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                             dois = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='doi']")
                             titles = elem.findall('.//ArticleTitle')
 
-                            # I assume that pubstatuses are always in chronological order, i.e. we can ignore
-                            # the dates in the history, and just use the last pubstatus we see.
-                            pubstatuses = elem.findall("./PubmedData/History/PubMedPubDate/@PubStatus")
+                            pubdates_with_pubstatus = elem.findall("./PubmedData/History/PubMedPubDate[@PubStatus]")
                             pubstatus = 'unknown'
-                            if pubstatuses and len(pubstatuses) > 0:
-                                pubstatus = pubstatuses[-1]
+                            for pubdate in pubdates_with_pubstatus.reverse():
+                                # I assume that pubstatuses are always in chronological order, i.e. we can ignore
+                                # the dates in the history, and just use the last pubstatus we see.
+                                if pubdate.get('PubStatus'):
+                                    pubstatus = pubdate.get('PubStatus')
+                                    break
 
                             # Write concord.
                             for pmid in pmids:
