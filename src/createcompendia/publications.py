@@ -61,12 +61,13 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
         # However, we will need to track statuses in memory.
         pmid_status = defaultdict(str)
 
-        # Read every file in the baseline directory.
-        for baseline_filename in sorted(os.listdir(baseline_dir)):
-            if baseline_filename.endswith(".xml.gz"):
-                file_path = os.path.join(baseline_dir, baseline_filename)
-                with gzip.open(file_path, 'rt') as baselinef:
-                    logging.info(f"Parsing PubMed Baseline {file_path}")
+        # Read every file in the baseline and updatefiles directories (they have the same format).
+        baseline_filenames = list(map(lambda fn: os.path.join(baseline_dir, fn), sorted(os.listdir(baseline_dir))))
+        updatefiles_filenames = list(map(lambda fn: os.path.join(updatefiles_dir, fn), sorted(os.listdir(updatefiles_dir))))
+        for pubmed_filename in (baseline_filenames + updatefiles_filenames):
+            if pubmed_filename.endswith(".xml.gz"):
+                with gzip.open(pubmed_filename, 'rt') as pubmedf:
+                    logging.info(f"Parsing PubMed Baseline {pubmed_filename}")
 
                     start_time = time.time_ns()
                     count_articles = 0
@@ -75,7 +76,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                     count_titles = 0
 
                     parser = ET.XMLPullParser(['end'])
-                    for line in baselinef:
+                    for line in pubmedf:
                         parser.feed(line)
                         for event, elem in parser.read_events():
                             if event == 'end' and elem.tag == 'PubmedArticle':
@@ -83,17 +84,21 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
 
                                 pmids = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pubmed']")
                                 dois = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='doi']")
-                                pub_statuses = elem.findall("./PubmedData/PublicationStatus")
                                 titles = elem.findall('.//ArticleTitle')
+
+                                # I assume that pubstatuses are always in chronological order, i.e. we can ignore
+                                # the dates in the history, and just use the last pubstatus we see.
+                                pubstatuses = elem.findall("./PubmedData/History/PubMedPubDate/@PubStatus")
+                                pubstatus = 'unknown'
+                                if pubstatuses and len(pubstatuses) > 0:
+                                    pubstatus = pubstatuses[-1]
 
                                 # Write concord.
                                 for pmid in pmids:
                                     count_pmids += 1
 
                                     pmidf.write(f"{PMID}:{pmid.text}\t{JOURNAL_ARTICLE}\n")
-
-                                    for pub_status in pub_statuses:
-                                        pmid_status[f'{PMID}:' + pmid.text] = pub_status.text
+                                    pmid_status[f'{PMID}:' + pmid.text] = pubstatus
 
                                     for title in titles:
                                         count_titles += 1
@@ -111,7 +116,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
 
                     time_taken_in_seconds = float(time.time_ns() - start_time) / 1_000_000_000
                     logging.info(
-                        f"Parsed {count_articles} articles from PubMed Baseline {file_path} in " +
+                        f"Parsed {count_articles} articles from PubMed {pubmed_filename} in " +
                         f"{time_taken_in_seconds:.4f} seconds: {count_pmids} PMIDs, {count_dois} DOIs, " +
                         f"{count_titles} titles.")
 
