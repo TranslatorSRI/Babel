@@ -59,7 +59,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
     # We can write labels and concords as we go.
     with open(titles_file, 'w') as titlesf, open(pmid_id_file, 'w') as pmidf, open(pmid_doi_concord_file, 'w') as concordf:
         # However, we will need to track statuses in memory.
-        pmid_status = defaultdict(str)
+        pmid_status = defaultdict(set)
 
         # Read every file in the baseline and updatefiles directories (they have the same format).
         baseline_filenames = list(map(lambda fn: os.path.join(baseline_dir, fn), sorted(os.listdir(baseline_dir))))
@@ -90,20 +90,18 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                             titles = elem.findall('.//ArticleTitle')
 
                             pubdates_with_pubstatus = elem.findall("./PubmedData/History/PubMedPubDate[@PubStatus]")
-                            pubstatus = 'unknown'
-                            for pubdate in pubdates_with_pubstatus.reverse():
-                                # I assume that pubstatuses are always in chronological order, i.e. we can ignore
-                                # the dates in the history, and just use the last pubstatus we see.
+                            pubstatuses = set()
+                            for pubdate in pubdates_with_pubstatus:
+                                # We ignore the dates, and instead record all the PubStatuses that a PMID has ever had.
                                 if pubdate.get('PubStatus'):
-                                    pubstatus = pubdate.get('PubStatus')
-                                    break
+                                    pubstatuses.add(pubdate.get('PubStatus'))
 
                             # Write concord.
                             for pmid in pmids:
                                 count_pmids += 1
 
                                 pmidf.write(f"{PMID}:{pmid.text}\t{JOURNAL_ARTICLE}\n")
-                                pmid_status[f'{PMID}:' + pmid.text] = pubstatus
+                                pmid_status[f'{PMID}:' + pmid.text].update(pubstatuses)
 
                                 for title in titles:
                                     count_titles += 1
@@ -126,7 +124,9 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                     f"{count_titles} titles.")
 
     with open(status_file, 'w') as statusf:
-        json.dump(pmid_status, statusf, indent=2, sort_keys=True)
+        # pmid_status is a dict of str -> set, so we need to turn it into lists to write it out.
+        sorted_pmid_status = {key: sorted(value) for key, value in pmid_status.items()}
+        json.dump(sorted_pmid_status, statusf, indent=2, sort_keys=True)
 
 
 def generate_compendium(concordances, identifiers, titles, publication_compendium, icrdf_filename):
