@@ -16,8 +16,8 @@ rule generate_pubmed_concords:
         baseline_dir = config['download_directory'] + '/PubMed/baseline',
         updatefiles_dir = config['download_directory'] + '/PubMed/updatefiles',
     output:
-        titles_file = config['download_directory'] + '/PubMed/titles',
-        status_file = config['download_directory'] + '/PubMed/statuses',
+        titles_file = config['download_directory'] + '/PubMed/titles.tsv',
+        status_file = config['download_directory'] + '/PubMed/statuses.jsonl.gz',
         pmid_id_file = config['intermediate_directory'] + '/publications/ids/PMID',
         pmid_doi_concord_file = config['intermediate_directory'] + '/publications/concords/PMID_DOI',
     run:
@@ -34,7 +34,7 @@ rule generate_pubmed_compendia:
         pmid_id_file = config['intermediate_directory'] + '/publications/ids/PMID',
         pmid_doi_concord_file = config['intermediate_directory'] + '/publications/concords/PMID_DOI',
         titles = [
-            config['download_directory'] + '/PubMed/titles',
+            config['download_directory'] + '/PubMed/titles.tsv',
         ],
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
