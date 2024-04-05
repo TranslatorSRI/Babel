@@ -123,7 +123,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
 
                                 for pmc in pmcs:
                                     count_pmcs += 1
-                                    concordf.write(f"{PMID}:{pmid.text}\teq\t{PMC}:{pmc.text}")
+                                    concordf.write(f"{PMID}:{pmid.text}\teq\t{PMC}:{pmc.text}\n")
 
                 time_taken_in_seconds = float(time.time_ns() - start_time) / 1_000_000_000
                 logging.info(
