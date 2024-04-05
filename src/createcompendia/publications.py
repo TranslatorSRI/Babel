@@ -132,10 +132,10 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                     f"{count_pmcs} PMCs, " +
                     f"{count_titles} titles with the following PubStatuses: {sorted(file_pubstatuses)}.")
 
-    with open(status_file, 'w') as statusf:
-        # pmid_status is a dict of str -> set, so we need to turn it into lists to write it out.
-        sorted_pmid_status = {key: sorted(value) for key, value in pmid_status.items()}
-        json.dump(sorted_pmid_status, statusf, indent=2, sort_keys=True)
+    with gzip.open(status_file, 'wt') as statusf:
+        # This will be more readable as a JSONL file, so let's write it out that way.
+        for pmid, statuses in pmid_status.items():
+            statusf.write(json.dumps({'id': pmid, 'statuses': sorted(statuses)}, sort_keys=True) + '\n')
 
 
 def generate_compendium(concordances, identifiers, titles, publication_compendium, icrdf_filename):
