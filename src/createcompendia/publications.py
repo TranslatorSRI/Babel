@@ -16,7 +16,9 @@ def download_pubmed(download_file,
                     pubmed_base='ftp://ftp.ncbi.nlm.nih.gov/pubmed/',
                     pmc_base='https://ftp.ncbi.nlm.nih.gov/pub/pmc/'):
     """
-    Download PubMed. We download both the PubMed annual baseline and the daily update files.
+    Download PubMed. We download both the PubMed annual baseline and the daily update files,
+    which are in the same format, but the baseline is set up at the start of the year and then
+    updates are included in the daily update files.
 
     :param download_file: A `done` file that should be created to indicate that we are done.
     :param pubmed_base: The PubMed base URL to download files from.
@@ -33,7 +35,8 @@ def download_pubmed(download_file,
         recurse=WgetRecursionOptions.RECURSE_SUBFOLDERS)
 
     # Step 2. Download all the files for the PubMed update files.
-    pull_via_wget(pubmed_base, 'updatefiles',
+    pull_via_wget(
+        pubmed_base, 'updatefiles',
         decompress=False,
         subpath='PubMed',
         recurse=WgetRecursionOptions.RECURSE_SUBFOLDERS)
@@ -45,25 +48,33 @@ def download_pubmed(download_file,
     Path.touch(download_file)
 
 
-def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_file, pmid_id_file, pmid_doi_concord_file):
+def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_file, pmid_id_file,
+                           pmid_doi_concord_file):
     """
     Read through the PubMed files in the baseline_dir and updatefiles_dir, and writes out label and status information.
 
     :param baseline_dir: The PubMed baseline directory to parse.
     :param updatefiles_dir: The PubMed updatefiles directory to parse.
     :param titles_file: An output TSV file in the format `<PMID>\t<TITLE>`.
-    :param status_file: A TSV file in the format `<PMID>\t<status>`, where status tells us if the publication was retracted etc.
+    :param status_file: A JSON file containing publication status information.
     :param pmid_doi_concord_file: A concord file in the format `<PMID>\teq\t<DOI>` and other identifiers.
     """
 
     # We can write labels and concords as we go.
-    with open(titles_file, 'w') as titlesf, open(pmid_id_file, 'w') as pmidf, open(pmid_doi_concord_file, 'w') as concordf:
-        # However, we will need to track statuses in memory.
+    with open(titles_file, 'w') as titlesf, open(pmid_id_file, 'w') as pmidf, open(pmid_doi_concord_file,
+                                                                                   'w') as concordf:
+        # Track PubMed article statuses. In theory the final PubMed entry should have all the dates, which should
+        # tell us the final status of a publication, but really we just want to know if the article has ever been
+        # marked as retracted, so instead we track every status that has ever been attached to any article. We
+        # don't have a way of tracking properties yet (https://github.com/TranslatorSRI/Babel/issues/155), so for now
+        # we write this out in JSON to the status_file.
         pmid_status = defaultdict(set)
 
         # Read every file in the baseline and updatefiles directories (they have the same format).
         baseline_filenames = list(map(lambda fn: os.path.join(baseline_dir, fn), sorted(os.listdir(baseline_dir))))
-        updatefiles_filenames = list(map(lambda fn: os.path.join(updatefiles_dir, fn), sorted(os.listdir(updatefiles_dir))))
+        updatefiles_filenames = list(
+            map(lambda fn: os.path.join(updatefiles_dir, fn), sorted(os.listdir(updatefiles_dir))))
+
         for pubmed_filename in (baseline_filenames + updatefiles_filenames):
             if not pubmed_filename.endswith(".xml.gz"):
                 logging.warning(f"Skipping non-gzipped-XML file {pubmed_filename} in PubMed files.")
@@ -80,6 +91,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                 count_titles = 0
                 file_pubstatuses = set()
 
+                # Read every XML entry from every PubMed file.
                 parser = ET.XMLPullParser(['end'])
                 for line in pubmedf:
                     parser.feed(line)
@@ -87,11 +99,13 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                         if event == 'end' and elem.tag == 'PubmedArticle':
                             count_articles += 1
 
+                            # Look for the pieces of information we want.
                             pmids = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pubmed']")
                             dois = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='doi']")
                             pmcs = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pmc']")
                             titles = elem.findall('.//ArticleTitle')
 
+                            # Retrieve the PubDates containing PubStatuses.
                             pubdates_with_pubstatus = elem.findall("./PubmedData/History/PubMedPubDate[@PubStatus]")
                             pubstatuses = set()
                             for pubdate in pubdates_with_pubstatus:
@@ -99,14 +113,18 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                                 if pubdate.get('PubStatus'):
                                     pubstatuses.add(pubdate.get('PubStatus'))
 
-                            # Write concord.
+                            # Write information for each PMID.
                             for pmid in pmids:
                                 count_pmids += 1
 
+                                # Write out PMID type.
                                 pmidf.write(f"{PMID}:{pmid.text}\t{JOURNAL_ARTICLE}\n")
+
+                                # Update PMID status.
                                 pmid_status[f'{PMID}:' + pmid.text].update(pubstatuses)
                                 file_pubstatuses.update(pubstatuses)
 
+                                # Write out the titles.
                                 for title in titles:
                                     count_titles += 1
                                     # Convert newlines into '\n'.
@@ -117,10 +135,12 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
 
                                     titlesf.write(f"{PMID}:{pmid.text}\t{title_text}\n")
 
+                                # Write out the DOIs to the concords file.
                                 for doi in dois:
                                     count_dois += 1
                                     concordf.write(f"{PMID}:{pmid.text}\teq\t{DOI}:{doi.text}\n")
 
+                                # Write out the PMCIDs to the concords file.
                                 for pmc in pmcs:
                                     count_pmcs += 1
                                     concordf.write(f"{PMID}:{pmid.text}\teq\t{PMC}:{pmc.text}\n")
@@ -132,6 +152,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
                     f"{count_pmcs} PMCs, " +
                     f"{count_titles} titles with the following PubStatuses: {sorted(file_pubstatuses)}.")
 
+    # Write the statuses into a gzipped JSONL file.
     with gzip.open(status_file, 'wt') as statusf:
         # This will be more readable as a JSONL file, so let's write it out that way.
         for pmid, statuses in pmid_status.items():
@@ -151,11 +172,15 @@ def generate_compendium(concordances, identifiers, titles, publication_compendiu
     dicts = {}
     types = {}
     uniques = [PMID]
+
+    # Load PMID identifiers.
     for ifile in identifiers:
         print('loading', ifile)
         new_identifiers, new_types = read_identifier_file(ifile)
         glom(dicts, new_identifiers, unique_prefixes=uniques)
         types.update(new_types)
+
+    # Load concordances.
     for infile in concordances:
         print(infile)
         print('loading', infile)
@@ -165,6 +190,7 @@ def generate_compendium(concordances, identifiers, titles, publication_compendiu
                 x = line.strip().split('\t')
                 pairs.append({x[0], x[2]})
         glom(dicts, pairs, unique_prefixes=uniques)
+
     # Publications have titles, not labels. We load them here.
     labels = dict()
     for title_filename in titles:
@@ -173,11 +199,12 @@ def generate_compendium(concordances, identifiers, titles, publication_compendiu
             for line in titlef:
                 id, title = line.strip().split('\t')
                 if id in labels:
-                    logging.warning(f"Duplicate title for {id}: ignoring previous title '{labels[id]}', using new title '{title}'.")
+                    logging.warning(
+                        f"Duplicate title for {id}: ignoring previous title '{labels[id]}', using new title '{title}'.")
                 labels[id] = title
 
+    # Write out the compendium.
     publication_sets = set([frozenset(x) for x in dicts.values()])
     baretype = PUBLICATION.split(':')[-1]
-    write_compendium(publication_sets, os.path.basename(publication_compendium), PUBLICATION, labels, icrdf_filename=icrdf_filename)
-
-
+    write_compendium(publication_sets, os.path.basename(publication_compendium), PUBLICATION, labels,
+                     icrdf_filename=icrdf_filename)
