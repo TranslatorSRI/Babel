@@ -347,7 +347,13 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
                 continue
             conflation_id_list = list(clique)
 
-            # Now we need to figure out the type of this conflation. To do this is a three step process:
+            # Now we need to figure out the type of this conflation. One possibility would be to use the
+            # clique size (number of IDs in each clique) to determine this, but this approach might fail
+            # if a conflation has one oversized clique that pulls us away from the right path. Instead,
+            # we determine a preference order of Biolink types and follow that to choose a type for each
+            # conflation.
+            #
+            # To do this is a three step process:
             # 1. Get rid of RXCUIs, which are all messy.
             conflation_ids_without_rxcuis = filter(lambda id: not id.startswith(RXCUI + ':'), conflation_id_list)
             # 2. Figure out all the possible types (of the remaining IDs).
