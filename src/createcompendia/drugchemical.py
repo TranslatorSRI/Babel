@@ -450,7 +450,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
 
             # Let's normalize all the identifiers.
-            logger.info(f"Ordered DrugChemical conflation leading with {leading_id}: {final_conflation_id_list}")
+            logger.info(f"Ordered DrugChemical conflation {final_conflation_id_list}")
 
             outfile.write(f"{json.dumps(final_conflation_id_list)}\n")
             written.add(fs)
