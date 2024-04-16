@@ -2,7 +2,7 @@ from src.node import NodeFactory, get_config
 from src.prefixes import RXCUI, PUBCHEMCOMPOUND, UMLS
 from src.categories import (CHEMICAL_ENTITY, DRUG, MOLECULAR_MIXTURE, FOOD, COMPLEX_MOLECULAR_MIXTURE,
                             SMALL_MOLECULE, NUCLEIC_ACID_ENTITY, MOLECULAR_ENTITY, FOOD_ADDITIVE,
-                            ENVIRONMENTAL_FOOD_CONTAMINANT, PROCESSED_MATERIAL, CHEMICAL_MIXTURE)
+                            ENVIRONMENTAL_FOOD_CONTAMINANT, PROCESSED_MATERIAL, CHEMICAL_MIXTURE, POLYPEPTIDE)
 from src.babel_utils import glom, get_numerical_curie_suffix
 from collections import defaultdict
 import os,json
@@ -365,10 +365,10 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             # I've also listed the number of entities as of 2024mar24 to give an idea of how common these are.
             PREFERRED_CONFLATION_TYPE_ORDER = {
                 SMALL_MOLECULE: 1,                      # 107,459,280 cliques
-                MOLECULAR_ENTITY: 2,                    # N/A
-                POLYPEPTIDE: 3,                         # 622 cliques
-                NUCLEIC_ACID_ENTITY: 4,                 # N/A
-                COMPLEX_MOLECULAR_MIXTURE: 5,            # 177 cliques
+                POLYPEPTIDE: 2,                         # 622 cliques
+                NUCLEIC_ACID_ENTITY: 3,                 # N/A
+                MOLECULAR_ENTITY: 4,                    # N/A
+                COMPLEX_MOLECULAR_MIXTURE: 5,           # 177 cliques
                 CHEMICAL_MIXTURE: 6,                    # 498 cliques
                 MOLECULAR_MIXTURE: 7,                   # 10,371,847 cliques
                 PROCESSED_MATERIAL: 8,                  # N/A
