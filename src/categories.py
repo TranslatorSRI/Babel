@@ -31,3 +31,11 @@ PROTEIN = 'biolink:Protein'
 PUBLICATION = 'biolink:Publication'
 JOURNAL_ARTICLE = 'biolink:JournalArticle'
 SMALL_MOLECULE = 'biolink:SmallMolecule'
+
+# Added by Gaurav on April 16, 2024 based on ChemicalEntity children from
+# https://biolink.github.io/biolink-model/categories.html
+NUCLEIC_ACID_ENTITY = 'biolink:NucleicAcidEntity'
+MOLECULAR_ENTITY = 'biolink:MolecularEntity'
+FOOD_ADDITIVE = 'biolink:FoodAdditive'
+ENVIRONMENTAL_FOOD_CONTAMINANT = 'biolink:EnvironmentalFoodContaminant'
+PROCESSED_MATERIAL = 'biolink:ProcessedMaterial'
