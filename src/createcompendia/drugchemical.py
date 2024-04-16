@@ -353,15 +353,13 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             # we determine a preference order of Biolink types and follow that to choose a type for each
             # conflation.
             #
-            # To do this is a three step process:
-            # 1. Get rid of RXCUIs, which are all messy.
-            conflation_ids_without_rxcuis = filter(lambda id: not id.startswith(RXCUI + ':'), conflation_id_list)
-            # 2. Figure out all the possible types (of the remaining IDs).
+            # To do this is a two-step process:
+            # 1. Figure out all the possible types (of the remaining IDs).
             conflation_possible_types = map(
                 lambda id: type_for_preferred_curie[preferred_curie_for_curie[id]],
-                conflation_ids_without_rxcuis
+                conflation_id_list
             )
-            # 3. Sort possible types in our preferred order of types.
+            # 2. Sort possible types in our preferred order of types.
             # I've also listed the number of entities as of 2024mar24 to give an idea of how common these are.
             PREFERRED_CONFLATION_TYPE_ORDER = {
                 SMALL_MOLECULE: 1,                      # 107,459,280 cliques
@@ -380,11 +378,12 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             }
             sorted_possible_types = sorted(conflation_possible_types,
                                            key=lambda typ: PREFERRED_CONFLATION_TYPE_ORDER.get(typ, 100))
-            conflation_type = sorted_possible_types[0]
-            if not conflation_type:
-                raise RuntimeError(
-                    f"Conflation {conflation_id_list} does not have any conflation type " +
-                    f"(sorted possible types = {sorted_possible_types})")
+            if len(sorted_possible_types) > 0:
+                conflation_type = sorted_possible_types[0]
+            else:
+                logger.warning(f"Could not determine type for {conflation_id_list} with " +
+                               f"conflation possible types: {conflation_possible_types}, defaulting to {CHEMICAL_ENTITY}.")
+                conflation_type = CHEMICAL_ENTITY
 
             # Determine the prefixes to be used for this conflation list based on the prefixes from the NodeFactory
             # (which gets them from Biolink Model).
