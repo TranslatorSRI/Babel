@@ -8,7 +8,7 @@ from gzip import GzipFile
 
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
-from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, DRUG
+from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_MOLECULAR_MIXTURE, CHEMICAL_MIXTURE, DRUG
 from src.sdfreader import read_sdf
 
 from src.datahandlers.unichem import data_sources as unichem_data_sources
@@ -123,9 +123,9 @@ def write_mesh_ids(outfile):
     meshmap['D12.125'] = POLYPEPTIDE
     meshmap['D12.644'] = POLYPEPTIDE
     meshmap['D13'] = POLYPEPTIDE
-    meshmap['D20'] = COMPLEX_CHEMICAL_MIXTURE
+    meshmap['D20'] = COMPLEX_MOLECULAR_MIXTURE
     #Also add anything from SCR_Chemical, if it doesn't have a tree map
-    mesh.write_ids(meshmap,outfile,order=['EXCLUDE',POLYPEPTIDE,COMPLEX_CHEMICAL_MIXTURE,CHEMICAL_ENTITY],extra_vocab={'SCR_Chemical':CHEMICAL_ENTITY})
+    mesh.write_ids(meshmap, outfile, order=['EXCLUDE', POLYPEPTIDE, COMPLEX_MOLECULAR_MIXTURE, CHEMICAL_ENTITY], extra_vocab={'SCR_Chemical':CHEMICAL_ENTITY})
 
 #def write_obo_ids(irisandtypes,outfile,exclude=[]):
 #    order = [CHEMICAL_SUBSTANCE]
@@ -567,7 +567,7 @@ def create_typed_sets(eqsets, types):
     :param eqsets: A list of lists of identifiers (should NOT be a list of LabeledIDs, but a list of strings).
     :param types: A dictionary of known types for each identifier. (Some identifiers don't have known types.)
     """
-    order = [DRUG, MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE,  COMPLEX_CHEMICAL_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
+    order = [DRUG, MOLECULAR_MIXTURE, SMALL_MOLECULE, POLYPEPTIDE, COMPLEX_MOLECULAR_MIXTURE, CHEMICAL_MIXTURE, CHEMICAL_ENTITY]
     typed_sets = defaultdict(set)
     # logging.warning(f"create_typed_sets: eqsets={eqsets}, types=...")
     for equivalent_ids in eqsets:
