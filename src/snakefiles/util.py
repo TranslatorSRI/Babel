@@ -11,7 +11,8 @@ def get_all_compendia(config):
             config['protein_outputs'] +
             config['taxon_outputs'] +
             config['umls_outputs'] +
-            config['macromolecularcomplex_outputs'])
+            config['macromolecularcomplex_outputs'] +
+            config['publication_outputs'])
 
 
 def get_all_synonyms(config):
@@ -33,7 +34,9 @@ def get_all_synonyms(config):
         config['genefamily_outputs'] +
         config['drugchemicalconflated_synonym_outputs'] +
         config['umls_outputs'] +
-        config['macromolecularcomplex_outputs']
+        config['macromolecularcomplex_outputs'] +
+        # Publication.txt is empty, but it's still created, so it needs to be here.
+        config['publication_outputs']
     )
 
 

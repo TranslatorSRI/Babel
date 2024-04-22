@@ -1,6 +1,7 @@
 import logging
 import subprocess
 import traceback
+from enum import Enum
 from ftplib import FTP
 from io import BytesIO
 import gzip
@@ -207,12 +208,22 @@ def pull_via_urllib(url: str, in_file_name: str, decompress = True, subpath=None
     return out_file_name
 
 
+# Recursion options for pull_via_wget().
+# See https://www.gnu.org/software/wget/manual/html_node/Recursive-Download.html for wget's recursion options.
+class WgetRecursionOptions(Enum):
+    NO_RECURSION = 0                 # Don't do any recursion
+    RECURSE_SUBFOLDERS = 1           # Recurse into subfolders -- equivalent to `-np`
+    RECURSE_DIRECTORY_ONLY = 2       # Recurse through a single directory only -- equivalent to `-np -l1`
+
+
 def pull_via_wget(
         url_prefix: str,
         in_file_name: str,
         decompress=True,
         subpath:str=None,
+        outpath:str=None,
         continue_incomplete:bool=True,
+        recurse:WgetRecursionOptions = WgetRecursionOptions.NO_RECURSION,
         retries:int=10):
     """
     Download a file using wget. We call wget from the command line, and use command line options to
@@ -220,17 +231,24 @@ def pull_via_wget(
 
     :param url_prefix: The URL prefix to download.
     :param in_file_name: The filename to download -- this will be concatenated to the URL prefix. This should include
-        the compression extension (e.g. `.gz`); we will remove that extension during decompression.
+        the compression extension (e.g. `.gz`); we will remove that extension during decompression. If recursion is
+        turned on, in_file_name refers to the directory where the recursive content will be downloaded.
     :param decompress: Whether this is a Gzip file that should be decompressed after download.
     :param subpath: The subdirectory of `babel_download` where this file should be stored.
+    :param outpath: The full output directory to write this file to. Both subpath and outpath cannot be set at the same time.
     :param continue_incomplete: Should wget continue an incomplete download?
+    :param recurse: Do we want to download recursively? Should be from Wget_Recursion_Options, such as Wget_Recursion_Options.NO_RECURSION.
     :param retries: The number of retries to attempt.
     """
 
     # Prepare download URL and location
     download_dir = get_config()['download_directory']
     url = url_prefix + in_file_name
-    if subpath:
+    if subpath and outpath:
+        raise RuntimeError("pull_via_wget() cannot be called with both subpath and outpath set.")
+    elif outpath:
+        dl_file_name = outpath
+    elif subpath:
         dl_file_name = os.path.join(download_dir, subpath, in_file_name)
     else:
         dl_file_name = os.path.join(download_dir, in_file_name)
@@ -247,7 +265,18 @@ def pull_via_wget(
 
     # Add URL and output file.
     wget_command_line.append(url)
-    wget_command_line.extend(['-O', dl_file_name])
+
+    # Handle recursion options
+    match recurse:
+        case WgetRecursionOptions.NO_RECURSION:
+            # Write to a single file, dl_file_name
+            wget_command_line.extend(['-O', dl_file_name])
+        case WgetRecursionOptions.RECURSE_SUBFOLDERS:
+            # dl_file_name should be a directory name.
+            wget_command_line.extend(['--recursive', '--no-parent', '--no-directories', '--directory-prefix=' + dl_file_name])
+        case WgetRecursionOptions.RECURSE_DIRECTORY_ONLY:
+            # dl_file_name should be a directory name.
+            wget_command_line.extend(['--recursive', '--no-parent', '--no-directories', '--level=1', '--directory-prefix=' + dl_file_name])
 
     # Execute wget.
     logging.info(f"Downloading {dl_file_name} using wget: {wget_command_line}")
@@ -266,12 +295,21 @@ def pull_via_wget(
         else:
             raise RuntimeError(f"Don't know how to decompress {in_file_name}")
 
-    if os.path.isfile(uncompressed_filename):
-        file_size = os.path.getsize(uncompressed_filename)
-        if file_size > 0:
+        if os.path.isfile(uncompressed_filename):
+            file_size = os.path.getsize(uncompressed_filename)
             logging.info(f"Downloaded {uncompressed_filename} from {url}, file size {file_size} bytes.")
+        else:
+            raise RuntimeError(f'Expected uncompressed file {uncompressed_filename} does not exist.')
     else:
-        raise RuntimeError(f'Expected uncompressed file {uncompressed_filename} does not exist.')
+        if os.path.isfile(dl_file_name):
+            file_size = os.path.getsize(dl_file_name)
+            logging.info(f"Downloaded {dl_file_name} from {url}, file size {file_size} bytes.")
+        elif os.path.isdir(dl_file_name):
+            # Count the number of files in directory dl_file_name
+            dir_size = sum(os.path.getsize(os.path.join(dl_file_name, f)) for f in os.listdir(dl_file_name) if os.path.isfile(os.path.join(dl_file_name, f)))
+            logging.info(f"Downloaded {dir_size} files from {url} to {dl_file_name}.")
+        else:
+            raise RuntimeError(f'Unknown file type {dl_file_name}')
 
 
 def sort_identifiers_with_boosted_prefixes(identifiers, prefixes):
@@ -316,7 +354,8 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     :param synonym_list:
     :param ofname:
     :param node_type:
-    :param labels:
+    :param labels: A map of identifiers
+        Not needed if each identifier will have a label in the correct directory (i.e. downloads/PMID/labels for PMID:xxx).
     :param extra_prefixes: We default to only allowing the prefixes allowed for a particular type in Biolink.
         If you want to allow additional prefixes, list them here.
     :param icrdf_filename: (REQUIRED) The file to read the information content from (icRDF.tsv). Although this is a
@@ -345,6 +384,12 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     description_factory = DescriptionFactory(make_local_name(''))
     taxon_factory = TaxonFactory(make_local_name(''))
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={},extra_prefixes = extra_prefixes)
+
+    # Create compendia and synonyms directories, just in case they haven't been created yet.
+    os.makedirs(os.path.join(cdir, 'compendia'), exist_ok=True)
+    os.makedirs(os.path.join(cdir, 'synonyms'), exist_ok=True)
+    
+    # Write compendium and synonym files.
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
