@@ -6,8 +6,8 @@
 Next release: _None as yet_
 
 ## New features
-* [New identifiers] 36.9 million PubMed IDs (e.g. PMID:25061375) have been added as biolink:JournalArticle, as well as
-  the mappings to PMC (e.g. PMC:PMC4109484) and DOIs (e.g. doi:10.3897/zookeys.420.7089) that are included in PubMed.
+* [New identifiers] 36.9 million PubMed IDs (e.g. `PMID:25061375`) have been added as `biolink:JournalArticle`, as well as
+  the mappings to PMC (e.g. `PMC:PMC4109484`) and DOIs (e.g. `doi:10.3897/zookeys.420.7089`) that are included in PubMed.
   Details in [TranslatorSRI/Babel#227](https://github.com/TranslatorSRI/Babel/pull/227).
 * Fixed type determination for DrugChemical conflation. Details in
   [TranslatorSRI/Babel#266](https://github.com/TranslatorSRI/Babel/pull/266).
