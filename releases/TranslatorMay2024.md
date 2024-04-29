@@ -1,4 +1,4 @@
-# NameRes Translator May 2024 Release
+# Babel Translator May 2024 Release
 
 - Babel: [2024mar24](https://stars.renci.org/var/babel_outputs/2024mar24/) (approx
   [Babel v1.5.0](https://github.com/TranslatorSRI/Babel/releases/tag/v1.5.0))
