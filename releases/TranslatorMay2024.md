@@ -2,6 +2,7 @@
 
 - Babel: [2024mar24](https://stars.renci.org/var/babel_outputs/2024mar24/) (approx
   [Babel v1.5.0](https://github.com/TranslatorSRI/Babel/releases/tag/v1.5.0))
+  - [CURIE summary](./summaries/2024mar24.json)
 
 Next release: _None as yet_
 
