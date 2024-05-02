@@ -1,3 +1,5 @@
+import re
+
 from src.prefixes import EFO,ORPHANET
 from src.babel_utils import pull_via_urllib
 from src.babel_utils import make_local_name
@@ -44,7 +46,12 @@ class EFOgraph:
                     iterm = str(row['x'])
                     label = str(row['label'])
                     if label.startswith('"'):
-                        label=label[1:-1]
+                        # If the label ends with '"@[language code]", edit that out.
+                        pattern = re.compile(r"^\"(.*)\"@\w+$")
+                        if pattern.match(label):
+                            label = re.sub(pattern, r"\1", label)
+                        else:
+                            label = label[1:-1]
                     efoid = iterm[:-1].split('/')[-1]
                     if not efoid.startswith("EFO_"):
                         continue
