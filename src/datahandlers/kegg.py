@@ -1,3 +1,5 @@
+import re
+
 import requests
 import traceback
 from more_itertools import chunked
@@ -150,7 +152,7 @@ def get_sequence(compound_id):
             raise (x)
     # OK, anything left should be a 3-letter AA string
     # remove parenthetical comments
-    regex = "\((.*?)\)"
+    regex = r"\((.*?)\)"
     xprime = re.sub(regex, "", x)
     # do a cleanup for things like Arg-NH2
     xps = xprime.split()
