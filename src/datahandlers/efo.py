@@ -25,7 +25,7 @@ class EFOgraph:
         start = dt.now()
         self.m= pyoxigraph.MemoryStore()
         with open(ifname,'rb') as inf:
-            self.m.load(inf,'application/rdf+xml',base_iri='http://nihilism.com/')
+            self.m.load(inf,'application/rdf+xml',base_iri='http://example.org/')
         end = dt.now()
         print('loading complete')
         print(f'took {end-start}')
