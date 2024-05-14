@@ -154,8 +154,7 @@ def build_compendium(concordances, identifiers, mondoclose, badxrefs, icrdf_file
             for line in inf:
                 stuff = line.strip().split('\t')
                 if len(stuff) != 3:
-                    print('Line "', line.strip(), '" is not a valid concord: ', stuff)
-                    exit()
+                    raise RuntimeError('Line "', line.strip(), '" is not a valid concord: ', stuff)
                 x = tuple([stuff[0].strip(), stuff[2].strip()])
                 if x not in bad_pairs:
                     pairs.append( x )
