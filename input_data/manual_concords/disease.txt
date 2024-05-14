@@ -1,5 +1,5 @@
 # All lines starting with '#' will be removed from this file before being used as a
-# concord. All pipes ('|') will be converted into tab characters.
+# concord. All pipes ('	') will be converted into tab characters.
 #
 # OPIOID USE DISORDER
 #
@@ -7,42 +7,42 @@
 # a bunch of opioid use order cliques.
 
 # Opioid dependence (which we combine incorrectly with opiate dependence following MONDO)
-MONDO:0005530|xref|UMLS:C4324621
+MONDO:0005530	xref	UMLS:C4324621
 # This combination is as per https://github.com/TranslatorSRI/Babel/issues/270
-UMLS:C4324621|xref|EFO:0010702
+UMLS:C4324621	xref	EFO:0010702
 
 # For these UMLS terms, we rather imprecisely connect them with:
 # - mild -> MONDO:0001225 "opioid abuse" and UMLS:C4237237 "Opioid use disorder, mild"
-MONDO:0001225|oio:closeMatch|UMLS:C4237237
-UMLS:C4237237|oio:closeMatch|UMLS:C4268215
-UMLS:C4237237|oio:closeMatch|UMLS:C4509038
-UMLS:C4237237|oio:closeMatch|UMLS:C4509039
+MONDO:0001225	oio:closeMatch	UMLS:C4237237
+UMLS:C4237237	oio:closeMatch	UMLS:C4268215
+UMLS:C4237237	oio:closeMatch	UMLS:C4509038
+UMLS:C4237237	oio:closeMatch	UMLS:C4509039
 
 
 # There are some unclear UMLS terms re: opioid induced disorders. Let's stick them into
 # "opioid abuse" for now, but we might want to petition for a new MONDO term.
-MONDO:0001225|oio:closeMatch|UMLS:C3647215
-MONDO:0001225|oio:closeMatch|UMLS:C4536271
-MONDO:0001225|oio:closeMatch|UMLS:C4237251
-MONDO:0001225|oio:closeMatch|UMLS:C4237242
-MONDO:0001225|oio:closeMatch|UMLS:C4237245
-MONDO:0001225|oio:closeMatch|UMLS:C2874460
-MONDO:0001225|oio:closeMatch|UMLS:C2874467
-MONDO:0001225|oio:closeMatch|UMLS:C2874468
-MONDO:0001225|oio:closeMatch|UMLS:C2874461
-MONDO:0001225|oio:closeMatch|UMLS:C2874469
+MONDO:0001225	oio:closeMatch	UMLS:C3647215
+MONDO:0001225	oio:closeMatch	UMLS:C4536271
+MONDO:0001225	oio:closeMatch	UMLS:C4237251
+MONDO:0001225	oio:closeMatch	UMLS:C4237242
+MONDO:0001225	oio:closeMatch	UMLS:C4237245
+MONDO:0001225	oio:closeMatch	UMLS:C2874460
+MONDO:0001225	oio:closeMatch	UMLS:C2874467
+MONDO:0001225	oio:closeMatch	UMLS:C2874468
+MONDO:0001225	oio:closeMatch	UMLS:C2874461
+MONDO:0001225	oio:closeMatch	UMLS:C2874469
 
 # For these UMLS terms, we rather imprecisely connect them with:
 # - moderate/severe -> MONDO:0005530 "opiate dependence",
 #   UMLS:C4237238 "Opioid use disorder, moderate" and UMLS:C4237239 "Opioid use disorder, severe"
-MONDO:0005530|oio:closeMatch|UMLS:C4237238
-UMLS:C4237238|oio:closeMatch|UMLS:C4268216
-UMLS:C4237238|oio:closeMatch|UMLS:C4509040
-UMLS:C4237238|oio:closeMatch|UMLS:C4509041
+MONDO:0005530	oio:closeMatch	UMLS:C4237238
+UMLS:C4237238	oio:closeMatch	UMLS:C4268216
+UMLS:C4237238	oio:closeMatch	UMLS:C4509040
+UMLS:C4237238	oio:closeMatch	UMLS:C4509041
 
-MONDO:0005530|oio:closeMatch|UMLS:C4237239
-UMLS:C4237239|oio:closeMatch|UMLS:C4509042
-UMLS:C4237239|oio:closeMatch|UMLS:C4509043
+MONDO:0005530	oio:closeMatch	UMLS:C4237239
+UMLS:C4237239	oio:closeMatch	UMLS:C4509042
+UMLS:C4237239	oio:closeMatch	UMLS:C4509043
 
 
 #
@@ -50,61 +50,61 @@ UMLS:C4237239|oio:closeMatch|UMLS:C4509043
 #
 # MONDO:0002046 "alcohol abuse" (http://purl.obolibrary.org/obo/MONDO_0002046)
 # - includes UMLS:C4236927 "Alcohol use disorder, mild"
-MONDO:0002046|xref|HP:0430037
-MONDO:0002046|oio:closeMatch|UMLS:C4236927
-MONDO:0002046|oio:closeMatch|UMLS:C4509032
-MONDO:0002046|oio:closeMatch|UMLS:C4509033
-MONDO:0002046|oio:closeMatch|UMLS:C4268203
-MONDO:0002046|oio:closeMatch|UMLS:C4268202
-MONDO:0002046|oio:closeMatch|UMLS:C4236955
-MONDO:0002046|oio:closeMatch|UMLS:C4236934
-MONDO:0002046|oio:closeMatch|UMLS:C4236949
-MONDO:0002046|oio:closeMatch|UMLS:C4236940
-MONDO:0002046|oio:closeMatch|UMLS:C4236926
-MONDO:0002046|oio:closeMatch|UMLS:C4236953
-MONDO:0002046|oio:closeMatch|UMLS:C4236932
-MONDO:0002046|oio:closeMatch|UMLS:C4236947
-MONDO:0002046|oio:closeMatch|UMLS:C4236938
-MONDO:0002046|oio:closeMatch|UMLS:C4236946
-MONDO:0002046|oio:closeMatch|UMLS:C4236924
-MONDO:0002046|oio:closeMatch|UMLS:C4236923
-MONDO:0002046|oio:closeMatch|UMLS:C2874409
-MONDO:0002046|oio:closeMatch|UMLS:C2874416
-MONDO:0002046|oio:closeMatch|UMLS:C2874418
-MONDO:0002046|oio:closeMatch|UMLS:C2874419
-MONDO:0002046|oio:closeMatch|UMLS:C2874410
-MONDO:0002046|oio:closeMatch|UMLS:C2874420
-MONDO:0002046|oio:closeMatch|UMLS:C4268214
-MONDO:0002046|oio:closeMatch|UMLS:C4236937
+MONDO:0002046	xref	HP:0430037
+MONDO:0002046	oio:closeMatch	UMLS:C4236927
+MONDO:0002046	oio:closeMatch	UMLS:C4509032
+MONDO:0002046	oio:closeMatch	UMLS:C4509033
+MONDO:0002046	oio:closeMatch	UMLS:C4268203
+MONDO:0002046	oio:closeMatch	UMLS:C4268202
+MONDO:0002046	oio:closeMatch	UMLS:C4236955
+MONDO:0002046	oio:closeMatch	UMLS:C4236934
+MONDO:0002046	oio:closeMatch	UMLS:C4236949
+MONDO:0002046	oio:closeMatch	UMLS:C4236940
+MONDO:0002046	oio:closeMatch	UMLS:C4236926
+MONDO:0002046	oio:closeMatch	UMLS:C4236953
+MONDO:0002046	oio:closeMatch	UMLS:C4236932
+MONDO:0002046	oio:closeMatch	UMLS:C4236947
+MONDO:0002046	oio:closeMatch	UMLS:C4236938
+MONDO:0002046	oio:closeMatch	UMLS:C4236946
+MONDO:0002046	oio:closeMatch	UMLS:C4236924
+MONDO:0002046	oio:closeMatch	UMLS:C4236923
+MONDO:0002046	oio:closeMatch	UMLS:C2874409
+MONDO:0002046	oio:closeMatch	UMLS:C2874416
+MONDO:0002046	oio:closeMatch	UMLS:C2874418
+MONDO:0002046	oio:closeMatch	UMLS:C2874419
+MONDO:0002046	oio:closeMatch	UMLS:C2874410
+MONDO:0002046	oio:closeMatch	UMLS:C2874420
+MONDO:0002046	oio:closeMatch	UMLS:C4268214
+MONDO:0002046	oio:closeMatch	UMLS:C4236937
 
 # MONDO:0007079 "alcohol dependence" (http://purl.obolibrary.org/obo/MONDO_0007079)
 # - includes UMLS:C0001956 "Alcohol Use Disorder"
 # - includes UMLS:C4236929 "Alcohol use disorder, severe"
 # - includes UMLS:C4236928 "Alcohol use disorder, moderate"
-MONDO:0007079|xref|HP:0030955
-MONDO:0007079|xref|UMLS:C0001956
-MONDO:0007079|oio:closeMatch|UMLS:C0679288
-MONDO:0007079|oio:closeMatch|UMLS:C4236929
-MONDO:0007079|oio:closeMatch|UMLS:C4236928
-MONDO:0007079|oio:closeMatch|UMLS:C0679289
-MONDO:0007079|oio:closeMatch|EFO:0009458
-MONDO:0007079|oio:closeMatch|UMLS:C0679290
-MONDO:0007079|oio:closeMatch|UMLS:C0841000
-MONDO:0007079|oio:closeMatch|UMLS:C0679287
-MONDO:0007079|oio:closeMatch|UMLS:C4509036
-MONDO:0007079|oio:closeMatch|UMLS:C4509034
-MONDO:0007079|oio:closeMatch|UMLS:C4509037
-MONDO:0007079|oio:closeMatch|UMLS:C4509035
-MONDO:0007079|oio:closeMatch|UMLS:C4268207
-MONDO:0007079|oio:closeMatch|UMLS:C4268205
-MONDO:0007079|oio:closeMatch|UMLS:C4268213
-MONDO:0007079|oio:closeMatch|UMLS:C4268212
-MONDO:0007079|oio:closeMatch|UMLS:C4268206
-MONDO:0007079|oio:closeMatch|UMLS:C4268204
-MONDO:0007079|oio:closeMatch|UMLS:C4268209
-MONDO:0007079|oio:closeMatch|UMLS:C4268208
-MONDO:0007079|oio:closeMatch|UMLS:C4268211
-MONDO:0007079|oio:closeMatch|UMLS:C4268210
-MONDO:0007079|oio:closeMatch|UMLS:C3650363
-MONDO:0007079|oio:closeMatch|UMLS:C4536264
+MONDO:0007079	xref	HP:0030955
+MONDO:0007079	xref	UMLS:C0001956
+MONDO:0007079	oio:closeMatch	UMLS:C0679288
+MONDO:0007079	oio:closeMatch	UMLS:C4236929
+MONDO:0007079	oio:closeMatch	UMLS:C4236928
+MONDO:0007079	oio:closeMatch	UMLS:C0679289
+MONDO:0007079	oio:closeMatch	EFO:0009458
+MONDO:0007079	oio:closeMatch	UMLS:C0679290
+MONDO:0007079	oio:closeMatch	UMLS:C0841000
+MONDO:0007079	oio:closeMatch	UMLS:C0679287
+MONDO:0007079	oio:closeMatch	UMLS:C4509036
+MONDO:0007079	oio:closeMatch	UMLS:C4509034
+MONDO:0007079	oio:closeMatch	UMLS:C4509037
+MONDO:0007079	oio:closeMatch	UMLS:C4509035
+MONDO:0007079	oio:closeMatch	UMLS:C4268207
+MONDO:0007079	oio:closeMatch	UMLS:C4268205
+MONDO:0007079	oio:closeMatch	UMLS:C4268213
+MONDO:0007079	oio:closeMatch	UMLS:C4268212
+MONDO:0007079	oio:closeMatch	UMLS:C4268206
+MONDO:0007079	oio:closeMatch	UMLS:C4268204
+MONDO:0007079	oio:closeMatch	UMLS:C4268209
+MONDO:0007079	oio:closeMatch	UMLS:C4268208
+MONDO:0007079	oio:closeMatch	UMLS:C4268211
+MONDO:0007079	oio:closeMatch	UMLS:C4268210
+MONDO:0007079	oio:closeMatch	UMLS:C3650363
+MONDO:0007079	oio:closeMatch	UMLS:C4536264
 
