@@ -129,7 +129,7 @@ rule disease_manual_concord:
                     continue
                 if '|' in lstripped_line:
                     lstripped_line = "\t".join(lstripped_line.split('|'))
-                outp.writelines([line])
+                outp.writelines([lstripped_line])
 
 rule disease_compendia:
     input:
