@@ -1,23 +1,23 @@
 # All lines starting with '#' will be removed from this file before being used as a
-# concord.
+# concord. All pipes ('|') will be converted into tab characters.
 #
 # OPIOID USE DISORDER
 #
 # As per https://github.com/TranslatorSRI/Babel/issues/265, we would like to combine
 # a bunch of opioid use order cliques.
 # Opioid abuse
-MONDO:0001225   xref    UMLS:C4237237
+MONDO:0001225|xref|UMLS:C4237237
 # Opioid dependence (which we combine incorrectly with opiate dependence following MONDO)
-MONDO:0005530   xref    UMLS:C4324621
+MONDO:0005530|xref|UMLS:C4324621
 # This combination is as per https://github.com/TranslatorSRI/Babel/issues/270
-UMLS:C4324621   xref    EFO:0010702
+UMLS:C4324621|xref|EFO:0010702
 # We also combine opioid dependence with both UMLS:C4237239 "Opioid use disorder, severe"
 # and UMLS:C4237238 "Opioid use disorder, moderate".
-MONDO:0005530   xref    UMLS:C4237238
-MONDO:0005530   xref    UMLS:C4237239
+MONDO:0005530|xref|UMLS:C4237238
+MONDO:0005530|xref|UMLS:C4237239
 
 #
 # ALCOHOL USE DISORDER
 #
-MONDO:0002046   xref    HP:0430037
-MONDO:0007079   xref    HP:0030955
+MONDO:0002046|xref|HP:0430037
+MONDO:0007079|xref|HP:0030955

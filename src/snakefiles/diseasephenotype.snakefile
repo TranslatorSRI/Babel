@@ -127,6 +127,8 @@ rule disease_manual_concord:
                 lstripped_line = line.lstrip()
                 if lstripped_line == '' or lstripped_line.startswith('#'):
                     continue
+                if '|' in lstripped_line:
+                    lstripped_line = "\t".join(lstripped_line.split('|'))
                 outp.writelines([line])
 
 rule disease_compendia:
