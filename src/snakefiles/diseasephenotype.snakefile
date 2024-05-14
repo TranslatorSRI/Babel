@@ -1,3 +1,5 @@
+import shutil
+
 import src.createcompendia.diseasephenotype as diseasephenotype
 import src.assess_compendia as assessments
 
@@ -112,6 +114,20 @@ rule get_disease_doid_relationships:
         outfile=config['intermediate_directory']+'/disease/concords/DOID',
     run:
         diseasephenotype.build_disease_doid_relationships(input.infile,output.outfile)
+
+rule disease_manual_concord:
+    input:
+        infile = 'input_data/manual_concords/disease.txt'
+    output:
+        outfile = config['intermediate_directory']+'/disease/concords/Manual'
+    run:
+        with open(input.infile, 'r') as inp, open(output.outfile, 'w') as outp:
+            for line in inp:
+                # Remove any lines starting with '#', which we treat as comments.
+                lstripped_line = line.lstrip()
+                if lstripped_line == '' or lstripped_line.startswith('#'):
+                    continue
+                outp.writelines([line])
 
 rule disease_compendia:
     input:
