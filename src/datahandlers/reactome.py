@@ -1,5 +1,5 @@
 from src.prefixes import REACT
-from src.categories import PATHWAY, BIOLOGICAL_PROCESS, MOLECULAR_ACTIVITY
+from src.categories import PATHWAY, BIOLOGICAL_PROCESS, MOLECULAR_ACTIVITY, CELL_LINE
 import requests,json
 
 #Reactome doesn't have a great download, but it does have a decent service that lets you get the files you could have
@@ -44,7 +44,8 @@ def parse_element_for_ids(e,lfile):
     rtype = e['type']
     btypes = {'Pathway':PATHWAY, 'TopLevelPathway':PATHWAY, 'BlackBoxEvent':MOLECULAR_ACTIVITY,
               'Depolymerisation': MOLECULAR_ACTIVITY, 'FailedReaction': MOLECULAR_ACTIVITY,
-              'Polymerisation': MOLECULAR_ACTIVITY, 'Reaction': MOLECULAR_ACTIVITY}
+              'Polymerisation': MOLECULAR_ACTIVITY, 'Reaction': MOLECULAR_ACTIVITY,
+              'CellLineagePath': CELL_LINE}
     lfile.write(f'{REACT}:{oid}\t{btypes[rtype]}\n')
     if 'children' in e:
         for child in e['children']:
