@@ -81,5 +81,8 @@
       "HMDB",
       "PUBCHEM.COMPOUND"
     ]
+  },
+
+  "ensembl_datasets_to_skip": {
   }
 }

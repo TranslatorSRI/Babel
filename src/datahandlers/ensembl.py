@@ -1,6 +1,6 @@
 import traceback
 
-from src.babel_utils import make_local_name
+from src.babel_utils import make_local_name, get_config
 from apybiomart import find_datasets, query, find_attributes
 import os
 
@@ -15,7 +15,7 @@ import os
 def pull_ensembl(complete_file):
     f = find_datasets()
 
-    skip_dataset_ids = {'hgfemale_gene_ensembl'}
+    skip_dataset_ids = get_config()['ensembl_datasets_to_skip']
 
     cols = {"ensembl_gene_id", "ensembl_peptide_id", "description", "external_gene_name", "external_gene_source",
             "external_synonym", "chromosome_name", "source", "gene_biotype", "entrezgene_id", "zfin_id_id", 'mgi_id',
