@@ -304,16 +304,8 @@ class NodeFactory:
         print(input_type)
         j = self.toolkit.get_element(input_type)
         prefs = j['id_prefixes']
-        if input_type == 'biolink:Protein':
-            prefs=['UniProtKB','PR','ENSEMBL','FB','UMLS']
-        elif len(prefs) == 0:
-            print('no prefixes for', input_type, 'Using small molecules')
-            prefs = self.get_prefixes("biolink:SmallMolecule")
-        elif input_type == 'biolink:Polypeptide':
-            prefs = prefs + self.get_prefixes('biolink:SmallMolecule')
-        elif input_type == 'biolink:ChemicalEntity':
-            #This just has to be here for now
-            prefs = prefs + self.get_prefixes('biolink:SmallMolecule')
+        if len(prefs) == 0:
+            raise RuntimeError(f'No Biolink prefixes for {input_type}')
         # The pref are in a particular order, but apparently they can have dups (ugh)
         # We de-duplicate those here.
         prefixes_deduplicated = list()
@@ -326,6 +318,7 @@ class NodeFactory:
 
         self.prefix_map[input_type] = prefixes_deduplicated
         return prefixes_deduplicated
+    
 
     def make_json_id(self,input):
         if isinstance(input,LabeledID):
