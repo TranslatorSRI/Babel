@@ -90,11 +90,49 @@ def identify_identically_labeled_cliques(duckdb_filename, output_filename):
     """).write_csv(output_filename)
 
 
+def get_label_distribution(duckdb_filename, output_filename):
+    db = setup_duckdb(duckdb_filename)
+
+    # Thanks, ChatGPT.
+    db.sql("""
+       WITH Lengths AS (
+            SELECT 
+                curie,
+                label, 
+                LENGTH(label) AS label_length
+            FROM 
+                Cliques
+        ), Examples AS (
+            SELECT 
+                curie,
+                label, 
+                label_length,
+                ROW_NUMBER() OVER (PARTITION BY label_length ORDER BY label) AS rn
+            FROM 
+                Lengths
+        )
+        SELECT 
+            label_length, 
+            COUNT(*) AS frequency,
+            MAX(CASE WHEN rn = 1 THEN curie ELSE NULL END) AS example_curie,
+            MAX(CASE WHEN rn = 1 THEN label ELSE NULL END) AS example_label
+        FROM 
+            Examples
+        GROUP BY 
+            label_length
+        ORDER BY 
+            label_length ASC; 
+    """).write_csv(output_filename)
+
+
 # During development, it'll be easier if we can call this directly.
 if __name__ == "__main__":
     identify_identically_labeled_cliques(
         "babel_outputs/intermediate/duckdb/AnatomicalEntity.db",
         "babel_outputs/reports/AnatomicalEntity_with_identical_labels.csv")
+    get_label_distribution(
+        "babel_outputs/intermediate/duckdb/AnatomicalEntity.db",
+        "babel_outputs/reports/AnatomicalEntity_label_distribution.csv")
     # export_synonyms_to_parquet(
     #     "babel_outputs/synonyms/DrugChemicalConflated.txt.gz",
     #     "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
