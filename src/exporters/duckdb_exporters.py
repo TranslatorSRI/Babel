@@ -45,7 +45,7 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename, cliques_parqu
         # Step 2. Create a Cliques table with all the cliques from this file.
         db.sql("CREATE TABLE Cliques (curie TEXT PRIMARY KEY, label TEXT, clique_identifier_count INT, biolink_type TEXT)")
         db.sql("INSERT INTO Cliques (curie, label, clique_identifier_count, biolink_type) " +
-               "SELECT curie, preferred_name AS label, clique_identifier_count, " +
+               "SELECT curie, json_extract_string(preferred_name, '$') AS label, clique_identifier_count, " +
                "CONCAT('biolink:', json_extract_string(types, '$[0]')) AS biolink_type FROM synonyms_jsonld")
 
         # Step 3. Create a Synonyms table with all the cliques from this file.
