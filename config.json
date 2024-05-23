@@ -84,5 +84,8 @@
   },
 
   "ensembl_datasets_to_skip": {
+  },
+
+  "duckdb_config": {
   }
 }
