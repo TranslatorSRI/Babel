@@ -34,8 +34,7 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename, cliques_parqu
 
     # Make sure that duckdb_filename doesn't exist.
     if os.path.exists(duckdb_filename):
-        # raise RuntimeError(f"Will not overwrite existing file {duckdb_filename}")
-        os.remove(duckdb_filename)
+        raise RuntimeError(f"Will not overwrite existing file {duckdb_filename}")
 
     os.makedirs(os.path.dirname(duckdb_filename), exist_ok=True)
     with setup_duckdb(duckdb_filename) as db:
@@ -127,18 +126,20 @@ def get_label_distribution(duckdb_filename, output_filename):
 
 # During development, it'll be easier if we can call this directly.
 if __name__ == "__main__":
+    os.remove("babel_outputs/intermediate/duckdb/DrugChemicalConflated.db")
+    export_synonyms_to_parquet(
+        "babel_outputs/synonyms/DrugChemicalConflated.txt.gz",
+        "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
+        "babel_outputs/intermediate/duckdb/DrugChemicalConflated_Cliques.parquet",
+        "babel_outputs/intermediate/duckdb/DrugChemicalConflated_Synonyms.parquet"
+    )
     identify_identically_labeled_cliques(
         "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
         "babel_outputs/reports/DrugChemicalConflated_with_identical_labels.csv")
     get_label_distribution(
         "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
         "babel_outputs/reports/DrugChemicalConflated_label_distribution.csv")
-    # export_synonyms_to_parquet(
-    #     "babel_outputs/synonyms/DrugChemicalConflated.txt.gz",
-    #     "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
-    #     "babel_outputs/intermediate/duckdb/DrugChemicalConflated_Cliques.parquet",
-    #     "babel_outputs/intermediate/duckdb/DrugChemicalConflated_Synonyms.parquet"
-    # )
+
     # export_synonyms_to_parquet(
     #     "babel_outputs/synonyms/AnatomicalEntity.txt",
     #     "babel_outputs/intermediate/duckdb/AnatomicalEntity.db",
