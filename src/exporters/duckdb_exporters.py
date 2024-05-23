@@ -129,10 +129,10 @@ def get_label_distribution(duckdb_filename, output_filename):
 if __name__ == "__main__":
     identify_identically_labeled_cliques(
         "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
-        "babel_outputs/reports/AnatomicalEntity_with_identical_labels.csv")
+        "babel_outputs/reports/DrugChemicalConflated_with_identical_labels.csv")
     get_label_distribution(
         "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
-        "babel_outputs/reports/AnatomicalEntity_label_distribution.csv")
+        "babel_outputs/reports/DrugChemicalConflated_label_distribution.csv")
     # export_synonyms_to_parquet(
     #     "babel_outputs/synonyms/DrugChemicalConflated.txt.gz",
     #     "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
