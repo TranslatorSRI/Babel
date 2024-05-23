@@ -60,14 +60,47 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename, cliques_parqu
         )
 
 
+def identify_identically_labeled_cliques(duckdb_filename, output_filename):
+    """
+    Identify identically labeled cliques in the specified DuckDB database.
+
+    :param duckdb_filename: The DuckDB database containing entries.
+    """
+    db = setup_duckdb(duckdb_filename)
+
+    # Thanks, ChatGPT.
+    db.sql("""
+        WITH curie_counts AS (SELECT label, COUNT(curie) AS curie_count FROM Cliques
+            GROUP BY label
+            HAVING COUNT(curie) > 1
+            ORDER BY curie_count DESC)
+        SELECT 
+            curie_counts.label,
+            curie_counts.curie_count,
+            STRING_AGG(Cliques.curie, '|') AS curies
+        FROM 
+            curie_counts
+        JOIN 
+            Cliques ON curie_counts.label = Cliques.label
+        GROUP BY 
+            curie_counts.label, 
+            curie_counts.curie_count
+        ORDER BY 
+            curie_counts.curie_count DESC;
+    """).write_csv(output_filename)
+
+
 # During development, it'll be easier if we can call this directly.
 if __name__ == "__main__":
-    export_synonyms_to_parquet(
-        "babel_outputs/synonyms/DrugChemicalConflated.txt.gz",
-        "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
-        "babel_outputs/intermediate/duckdb/DrugChemicalConflated_Cliques.parquet",
-        "babel_outputs/intermediate/duckdb/DrugChemicalConflated_Synonyms.parquet"
-    )
+    identify_identically_labeled_cliques(
+        "babel_outputs/intermediate/duckdb/AnatomicalEntity.db",
+        "babel_outputs/reports/AnatomicalEntity_with_identical_labels.csv")
+    # export_synonyms_to_parquet(
+    #     "babel_outputs/synonyms/DrugChemicalConflated.txt.gz",
+    #     "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
+    #     "babel_outputs/intermediate/duckdb/DrugChemicalConflated_Cliques.parquet",
+    #     "babel_outputs/intermediate/duckdb/DrugChemicalConflated_Synonyms.parquet"
+    # )
     # export_synonyms_to_parquet(
     #     "babel_outputs/synonyms/AnatomicalEntity.txt",
     #     "babel_outputs/intermediate/duckdb/AnatomicalEntity.db",
