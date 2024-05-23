@@ -2,6 +2,7 @@
 # in-process database engine DuckDB (https://duckdb.org) for future querying.
 import os.path
 import pathlib
+import time
 
 import duckdb
 
@@ -126,6 +127,7 @@ def get_label_distribution(duckdb_filename, output_filename):
 
 # During development, it'll be easier if we can call this directly.
 if __name__ == "__main__":
+    start_time = time.time()
     os.remove("babel_outputs/intermediate/duckdb/DrugChemicalConflated.db")
     export_synonyms_to_parquet(
         "babel_outputs/synonyms/DrugChemicalConflated.txt.gz",
@@ -133,12 +135,15 @@ if __name__ == "__main__":
         "babel_outputs/intermediate/duckdb/DrugChemicalConflated_Cliques.parquet",
         "babel_outputs/intermediate/duckdb/DrugChemicalConflated_Synonyms.parquet"
     )
+    print(f"Exported DrugChemicalConflated.db and Parquet files in ${time.time() - start_time}")
+    start_time = time.time()
     identify_identically_labeled_cliques(
         "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
         "babel_outputs/reports/DrugChemicalConflated_with_identical_labels.csv")
     get_label_distribution(
         "babel_outputs/intermediate/duckdb/DrugChemicalConflated.db",
         "babel_outputs/reports/DrugChemicalConflated_label_distribution.csv")
+    print(f"Generated reports in ${time.time() - start_time}")
 
     # export_synonyms_to_parquet(
     #     "babel_outputs/synonyms/AnatomicalEntity.txt",
