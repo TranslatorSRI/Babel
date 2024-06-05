@@ -2,8 +2,8 @@
 
 This directory contains several pieces of Babel documentation.
 
-Note that both [Node Normalization](https://github.com/TranslatorSRI/NodeNormalization) and
-[Name Resolution](https://github.com/TranslatorSRI/NameResolution) have their own GitHub repositories
+Note that both [Node Normalization (NodeNorm)](https://github.com/TranslatorSRI/NodeNormalization) and
+[Name Resolution (NameRes)](https://github.com/TranslatorSRI/NameResolution) have their own GitHub repositories
 with their own documentation, but this directory is intended to include all the basic instructions
 needed to get started with Babel and its tools.
 
@@ -33,6 +33,38 @@ There are several ways of accessing Babel cliques:
   [its GitHub repository](https://github.com/TranslatorSRI/NameResolution).
 * Members of the Translator consortium can also request access to the [Babel outputs](./BabelOutputs.md), which
   are currently available in JSONL or [KGX](https://github.com/biolink/kgx) formats.
+
+## What is the Node Normalization service (NodeNorm)?
+
+The Node Normalization service, Node Normalizer or [NodeNorm](https://github.com/TranslatorSRI/NodeNormalization) is an
+NCATS Translator web service to normalize identifiers by returning a single preferred identifier for any identifier
+provided.
+
+In addition to returning the preferred identifier and all the secondary identifiers for a clique, NodeNorm will also
+return its Biolink type and "information content" score, and optionally any descriptions we have for these identifiers.
+
+It also includes some endpoints for normalizing an entire TRAPI message and other APIs intended primarily for
+Translator users.
+
+You can find out more about NodeNorm at its [Swagger interface](https://nodenormalization-sri.renci.org/docs)
+or [in this Jupyter Notebook](https://github.com/TranslatorSRI/NodeNormalization/blob/master/documentation/NodeNormalization.ipynb).
+
+## What is the Name Resolution service (NameRes)?
+
+The Name Resolution service, Name Lookup or [NameRes](https://github.com/TranslatorSRI/NameResolution) is an
+NCATS Translator web service for looking up preferred identifiers by search text. Although it is primarily
+designed to be used to power NCATS Translator's autocomplete text fields, it has also been used for
+named-entity linkage.
+
+You can find out more about NameRes at its [Swagger interface](https://name-resolution-sri.renci.org/docs)
+or [in this Jupyter Notebook](https://github.com/TranslatorSRI/NameResolution/blob/master/documentation/NameResolution.ipynb).
+
+## What are "information content" values?
+
+Babel obtains information content values for over 3.8 million concepts from
+[Ubergraph](https://github.com/INCATools/ubergraph?tab=readme-ov-file#graph-organization) based on the number of
+terms related to the specified term as either a subclass or any existential relation. They are decimal values
+that range from 0.0 (high-level broad term with many subclasses) to 100.0 (very specific term with no subclasses).
 
 ## I've found a "split" clique: two identifiers that should be considered identical are in separate cliques.
 
