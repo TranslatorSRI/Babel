@@ -52,6 +52,14 @@ that makes it clear that these identifiers refer to the same concept, are also v
 ability to combine cliques manually if needed urgently for some application, we prefer to find a source of mappings
 that would combine the two identifiers, allowing us to improve cliquing across Babel.
 
+## How can I build Babel?
+
+Babel is difficult to build, primarily because of its inefficient memory handling -- we currently need around 500G of
+memory to build the largest compendia (Protein and DrugChemical conflated information), although the smaller
+compendia should be buildable with far less memory. We are working on reducing these restrictions as far as possible.
+You can read more about [Babel's build process](./Build.md), and please do contact us if you run into any problems or
+would like some assistance.
+
 ## Who should I contact for more information about Babel?
 
 You can find out more about Babel by [opening an issue on this repository](https://github.com/TranslatorSRI/Babel/issues),
