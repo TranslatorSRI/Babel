@@ -87,9 +87,9 @@ that would combine the two identifiers, allowing us to improve cliquing across B
 ## Where do the clique descriptions come from?
 
 Currently, all descriptions for NodeNorm concepts come from [UberGraph](https://github.com/INCATools/ubergraph/). You
-will note that descriptions are collected for every identifier within a clique, and then a combined list of unique
-descriptions is provided for the entire clique. Descriptions are not included in NameRes, but the `description` flag
-can be used to include any descriptions when returning cliques from NodeNorm.
+will note that descriptions are collected for every identifier within a clique, and then the description associated
+with the most preferred identifier is provided for the preferred identifier. Descriptions are not included in NameRes,
+but the `description` flag can be used to include any descriptions when returning cliques from NodeNorm.
 
 ## How can I build Babel?
 
