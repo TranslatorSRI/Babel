@@ -84,6 +84,13 @@ that makes it clear that these identifiers refer to the same concept, are also v
 ability to combine cliques manually if needed urgently for some application, we prefer to find a source of mappings
 that would combine the two identifiers, allowing us to improve cliquing across Babel.
 
+## Where do the clique descriptions come from?
+
+Currently, all descriptions for NodeNorm concepts come from [UberGraph](https://github.com/INCATools/ubergraph/). You
+will note that descriptions are collected for every identifier within a clique, and then a combined list of unique
+descriptions is provided for the entire clique. Descriptions are not included in NameRes, but the `description` flag
+can be used to include any descriptions when returning cliques from NodeNorm.
+
 ## How can I build Babel?
 
 Babel is difficult to build, primarily because of its inefficient memory handling -- we currently need around 500G of
