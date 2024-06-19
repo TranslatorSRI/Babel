@@ -2,10 +2,10 @@
 
 This directory contains several pieces of Babel documentation.
 
-Note that both [Node Normalization (NodeNorm)](https://github.com/TranslatorSRI/NodeNormalization) and
+Both [Node Normalization (NodeNorm)](https://github.com/TranslatorSRI/NodeNormalization) and
 [Name Resolution (NameRes)](https://github.com/TranslatorSRI/NameResolution) have their own GitHub repositories
 with their own documentation, but this directory is intended to include all the basic instructions
-needed to get started with Babel and its tools.
+needed to work with Babel and its tools.
 
 ## What does Babel do?
 
@@ -15,17 +15,22 @@ refer to the same concept, such as [CHEBI:15377 "water"](https://www.ebi.ac.uk/c
 [PUBCHEM.COMPOUND:962 "water"](https://pubchem.ncbi.nlm.nih.gov/compound/962). Babel downloads many online 
 databases of identifiers and uses their cross-reference information to identify _cliques_ of identifiers
 that refer to the same concept. Each clique has a type taken from the
-[Biolink Model](https://github.com/biolink/biolink-model), which controls which identifier prefixes are allowed
-and the order in which the identifiers are sorted. While generating these clique, Babel also tracks the synonyms
-for each clique, and collects this information to allow the cliques to be looked up by name for autocomplete or
-named entity linkage purposes. Finally, we produce [conflation](./Conflation.md) files that allows cliques to
-be combined on the basis of various criteria.
+[Biolink Model](https://github.com/biolink/biolink-model), which determines which identifier prefixes are allowed
+and the order in which the identifiers are presented. It also gives every clique a _preferred identifier_, which can
+be used in place of any of the identifiers in that clique. Within Translator, this information is made available by the
+[Node Normalization service](https://github.com/TranslatorSRI/NodeNormalization).
+
+An important function of Babel is to provide various [conflations](./Conflation.md) that group cliques on the basis of various
+criteria. One of Babel's outputs is the list of various conflations.
+
+While generating these cliques, Babel also collects all known synonyms for every clique, which can then be used by
+tools like [Name Resolution (NameRes)](https://github.com/TranslatorSRI/NameResolution) to provide name-based lookup of concepts.
 
 ## How can I access Babel cliques?
 
 There are several ways of accessing Babel cliques:
 * The NCATS Translator project provides the [Node Normalization](https://nodenorm.transltr.io/docs) frontend to
-  "normalize" identifiers -- any member of a particular clique will be normalized to the same _preferred identifier_,
+  "normalize" identifiers -- any member of a particular clique will be normalized to the same preferred identifier,
   allowing identifiers referring to the same concept to be merged. You can find out more about this frontend in
   [its GitHub repository](https://github.com/TranslatorSRI/NodeNormalization).
 * The NCATS Translator project also provides the [Name Lookup (Name Resolution)](https://name-lookup.transltr.io/)
