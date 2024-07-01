@@ -70,6 +70,12 @@ rule disease_hp_ids:
     run:
         diseasephenotype.write_hp_ids(output.outfile)
 
+rule mammalian_phenotype_ids:
+    output:
+        outfile=config['intermediate_directory']+"/disease/ids/MP"
+    run:
+        diseasephenotype.write_mp_ids(output.outfile)
+
 rule disease_omim_ids:
     input:
         infile=config['download_directory']+"/OMIM/mim2gene.txt"
