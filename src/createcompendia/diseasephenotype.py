@@ -3,7 +3,8 @@ from collections import defaultdict
 
 import src.datahandlers.obo as obo
 
-from src.prefixes import MESH, NCIT, MONDO, OMIM, HP, SNOMEDCT, MEDDRA, EFO, ORPHANET, ICD0, ICD9, ICD10, UMLS, KEGGDISEASE
+from src.prefixes import (MESH, NCIT, MONDO, OMIM, HP, SNOMEDCT, MEDDRA, EFO, ORPHANET, ICD0, ICD9, ICD10, UMLS,
+                          KEGGDISEASE, MP)
 from src.categories import DISEASE, PHENOTYPIC_FEATURE
 from src.ubergraph import build_sets
 import src.datahandlers.umls as umls
@@ -38,6 +39,14 @@ def write_hp_ids(outfile):
     #Phenotype
     phenotype_id = 'HP:0000118'
     write_obo_ids([(phenotype_id,PHENOTYPIC_FEATURE)],outfile)
+
+
+def write_mp_ids(outfile):
+    # Write terms from the Mammalian Phenotype Ontology
+    # https://github.com/TranslatorSRI/Babel/issues/240
+    phenotype_id = 'MP:0000001'
+    write_obo_ids([(phenotype_id,PHENOTYPIC_FEATURE)],outfile)
+
 
 def write_omim_ids(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
@@ -115,7 +124,9 @@ def build_disease_umls_relationships(mrconso, idfile, outfile, omimfile, ncitfil
             for line in inf:
                 x = line.split()[0]
                 good_ids[prefix].add(x)
-    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM},acceptable_identifiers=good_ids)
+    umls.build_sets(mrconso, idfile, outfile, {
+        'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MP': MP, 'MDR':MEDDRA, 'OMIM': OMIM
+    },acceptable_identifiers=good_ids)
 
 def build_disease_doid_relationships(idfile,outfile):
     doid.build_xrefs(idfile, outfile, other_prefixes={'ICD10CM':ICD10, 'ICD9CM':ICD9, 'ICDO': ICD0, 'NCI': NCIT,
@@ -131,7 +142,7 @@ def build_compendium(concordances, identifiers, mondoclose, badxrefs, icrdf_file
     for ifile in identifiers:
         print(ifile)
         new_identifiers,new_types = read_identifier_file(ifile)
-        glom(dicts, new_identifiers, unique_prefixes=[MONDO, HP])
+        glom(dicts, new_identifiers, unique_prefixes=[MONDO, HP, MP])
         types.update(new_types)
     #Load close Mondos
     with open(mondoclose, 'r') as inf:
@@ -162,7 +173,7 @@ def build_compendium(concordances, identifiers, mondoclose, badxrefs, icrdf_file
             newpairs = remove_overused_xrefs(pairs)
         else:
             newpairs = pairs
-        glom(dicts, newpairs, unique_prefixes=[MONDO, HP], close={MONDO:close_mondos})
+        glom(dicts, newpairs, unique_prefixes=[MONDO, HP, MP], close={MONDO:close_mondos})
         try:
             print(dicts['OMIM:607644'])
         except:
@@ -187,7 +198,7 @@ def create_typed_sets(eqsets,types):
         #prefixes = set([ Text.get_curie(x) for x in equivalent_ids])
         prefixes = get_prefixes(equivalent_ids)
         found  = False
-        for prefix in [MONDO, HP]:
+        for prefix in [MONDO, HP, MP]:
             if prefix in prefixes and not found:
                 try:
                     mytype = types[prefixes[prefix][0]]
