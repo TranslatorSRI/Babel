@@ -326,6 +326,19 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
     # subject and object is associated with its normalized identifier.
     additional_pairs = []
     for (subj, obj) in pairs:
+        # If either the subject or the object cannot be normalized, skip this pair entirely.
+        #
+        # This appears to happen very rarely when we have a PUBCHEM.COMPOUND that is referenced from RxNorm but
+        # hasn't made it into wherever we get PUBCHEM.COMPOUND IDs from. Not super-surprising since RxNorm is
+        # updated every month, but still, it's only happened to be once that I've noticed.
+        if subj not in preferred_curie_for_curie:
+            logger.warning(f"Pair ({subj}, {obj}) has a subject that cannot be normalized, skipping pair.")
+            continue
+
+        if obj not in preferred_curie_for_curie:
+            logger.warning(f"Pair ({subj}, {obj}) has an object that cannot be normalized, skipping pair.")
+            continue
+
         # If the subject is not normalized, add a pair indicating the normalized ID.
         if preferred_curie_for_curie[subj] != subj:
             additional_pairs.append((subj, preferred_curie_for_curie[subj]))
