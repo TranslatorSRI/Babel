@@ -133,7 +133,11 @@ rule disease_manual_concord:
                 lstripped_line = line.lstrip()
                 if lstripped_line == '' or lstripped_line.startswith('#'):
                     continue
-                outp.writelines([lstripped_line])
+                # Make sure the line has three tab-delimited values, and fail otherwise.
+                elements = lstripped_line.split('\t')
+                if len(elements) != 3:
+                    raise RuntimeError(f"Found {len(elements)} elements on line {lstripped_line}, expected 3: {elements}")
+                outp.writelines(["\t".join(elements)])
 
 rule disease_compendia:
     input:
