@@ -1,5 +1,9 @@
+import logging
 from os import path
 from collections import defaultdict
+
+import requests
+from sssom import parsers
 
 import src.datahandlers.obo as obo
 
@@ -112,6 +116,42 @@ def build_disease_obo_relationships(outdir):
 
 def build_disease_efo_relationships(idfile,outfile):
     efo.make_concords(idfile, outfile)
+
+
+def build_hp_mp_concords(hp_mp_sssom_urls, outfile, threshold=0.8, acceptable_predicates=['skos:exactMatch']):
+    # We rely on the files from the
+    # Mouse-Human Ontology Mapping Initiative (https://github.com/mapping-commons/mh_mapping_initiative)
+
+    if not hp_mp_sssom_urls:
+        raise RuntimeError("build_hp_mp_concords() called without any hp_mp_sssom_urls")
+
+    with open(outfile, "w") as fout:
+        for hp_mp_sssom_url in hp_mp_sssom_urls:
+            count_mappings = 0
+            result = parsers.parse_sssom_table(hp_mp_sssom_url)
+
+            df = result.df
+            if 'confidence' in df.columns:
+                df_filtered = df[(df['confidence'] > threshold)]
+                logging.info(f"Filtered {df.size} to {df_filtered.size} by filtering by confidence > {threshold}")
+            else:
+                df_filtered = df
+
+            for index in df_filtered.index:
+                subject_id = df_filtered['subject_id'][index]
+                object_id = df_filtered['object_id'][index]
+                predicate_id = df_filtered['predicate_id'][index]
+
+                if subject_id == 'sssom:NoTermFound' or object_id == 'sssom:NoTermFound':
+                    continue
+
+                if predicate_id not in acceptable_predicates:
+                    continue
+
+                print(f"{subject_id}\t{predicate_id}\t{object_id}", file=fout)
+                count_mappings += 1
+
+            logging.info(f"Extracted {count_mappings} mappings from {hp_mp_sssom_url}")
 
 
 def build_disease_umls_relationships(mrconso, idfile, outfile, omimfile, ncitfile):
