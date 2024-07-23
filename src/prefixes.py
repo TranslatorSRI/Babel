@@ -76,3 +76,7 @@ COMPLEXPORTAL='ComplexPortal'
 PMID = 'PMID'
 DOI = 'doi'
 PMC = 'PMC'
+
+# Mammalian Phenotype Ontology (https://www.informatics.jax.org/vocab/mp_ontology,
+# e.g. http://purl.obolibrary.org/obo/MP_0001672)
+MP = 'MP'
