@@ -1,4 +1,4 @@
-# Babel Translator July 2024 Release
+# Babel Translator "Fugu" July 2024 Release
 
 - Babel: [2024jul13](https://stars.renci.org/var/babel_outputs/2024jul13/) (approx
   [Babel 2024jul13](https://github.com/TranslatorSRI/Babel/releases/tag/2024jul13))
