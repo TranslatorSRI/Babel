@@ -38,12 +38,11 @@ def pull_ensembl(complete_file):
             df = query(attributes=list(attsIcanGet), filters={}, dataset=ds)
             df.to_csv(outfile, index=False, sep='\t')
         except Exception as exc:
-            print(f'Exception raised while downloading BioMart records for dataset {ds}: {str(exc)}')
-            traceback.print_exc()
-
             biomart_dir = os.path.dirname(outfile)
             print(f'Deleting BioMart directory {biomart_dir} so its clear it needs to be downloaded again.')
             os.rmdir(biomart_dir)
+
+            raise exc
     with open(complete_file, 'w') as outf:
         outf.write(f'Downloaded gene sets for {len(f)} data sets.')
 
