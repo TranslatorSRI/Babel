@@ -84,6 +84,7 @@
   },
 
   "ensembl_datasets_to_skip": [
-    "elucius_gene_ensembl"
+    "elucius_gene_ensembl",
+    "hgfemale_gene_ensembl"
   ]
 }
