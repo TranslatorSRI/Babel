@@ -1,4 +1,6 @@
-from src.babel_utils import make_local_name
+import traceback
+
+from src.babel_utils import make_local_name, get_config
 from apybiomart import find_datasets, query, find_attributes
 import os
 
@@ -13,7 +15,7 @@ import os
 def pull_ensembl(complete_file):
     f = find_datasets()
 
-    skip_dataset_ids = {'hgfemale_gene_ensembl'}
+    skip_dataset_ids = set(get_config()['ensembl_datasets_to_skip'])
 
     cols = {"ensembl_gene_id", "ensembl_peptide_id", "description", "external_gene_name", "external_gene_source",
             "external_synonym", "chromosome_name", "source", "gene_biotype", "entrezgene_id", "zfin_id_id", 'mgi_id',
@@ -29,11 +31,18 @@ def pull_ensembl(complete_file):
         # but then updates the config? That sounds bogus.
         if os.path.exists(outfile):
             continue
-        atts = find_attributes(ds)
-        existingatts = set(atts['Attribute_ID'].to_list())
-        attsIcanGet = cols.intersection(existingatts)
-        df = query(attributes=list(attsIcanGet), filters={}, dataset=ds)
-        df.to_csv(outfile, index=False, sep='\t')
+        try:
+            atts = find_attributes(ds)
+            existingatts = set(atts['Attribute_ID'].to_list())
+            attsIcanGet = cols.intersection(existingatts)
+            df = query(attributes=list(attsIcanGet), filters={}, dataset=ds)
+            df.to_csv(outfile, index=False, sep='\t')
+        except Exception as exc:
+            biomart_dir = os.path.dirname(outfile)
+            print(f'Deleting BioMart directory {biomart_dir} so its clear it needs to be downloaded again.')
+            os.rmdir(biomart_dir)
+
+            raise exc
     with open(complete_file, 'w') as outf:
         outf.write(f'Downloaded gene sets for {len(f)} data sets.')
 

@@ -108,3 +108,6 @@ MONDO:0007079	oio:closeMatch	UMLS:C4268210
 MONDO:0007079	oio:closeMatch	UMLS:C3650363
 MONDO:0007079	oio:closeMatch	UMLS:C4536264
 
+# Not sure why MONDO:0005799 isn't connecting with MONDO:0005799, but we can connect it manually here.
+# See https://github.com/NCATSTranslator/Tests/issues/92
+MONDO:0005799	xref	MESH:D006725
