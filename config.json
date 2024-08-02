@@ -83,7 +83,7 @@
     ]
   },
 
-  "ensembl_datasets_to_skip": {
+  "ensembl_datasets_to_skip": [
     "elucius_gene_ensembl"
-  }
+  ]
 }

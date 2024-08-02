@@ -15,7 +15,7 @@ import os
 def pull_ensembl(complete_file):
     f = find_datasets()
 
-    skip_dataset_ids = get_config()['ensembl_datasets_to_skip']
+    skip_dataset_ids = set(get_config()['ensembl_datasets_to_skip'])
 
     cols = {"ensembl_gene_id", "ensembl_peptide_id", "description", "external_gene_name", "external_gene_source",
             "external_synonym", "chromosome_name", "source", "gene_biotype", "entrezgene_id", "zfin_id_id", 'mgi_id',
