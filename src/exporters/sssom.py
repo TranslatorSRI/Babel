@@ -16,7 +16,7 @@ from src.util import LoggingUtil
 logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 
 
-def convert_compendium_to_sssom(compendium_filename, sssom_filename):
+def convert_compendium_to_sssom(compendium_filename, sssom_filename, flag_export_every_clique=False):
     """
     Convert a compendium file to SSSOM format (https://mapping-commons.github.io/sssom/).
 
@@ -24,6 +24,8 @@ def convert_compendium_to_sssom(compendium_filename, sssom_filename):
 
     :param compendium_filename: The compendium file to convert.
     :param sssom_filename: The SSSOM gzipped file to write out.
+    :param flag_export_every_clique: If true, export every clique, even those with only a single identifier (which
+        we model as a mapping from that identifier to itself).
     """
 
     logger.info(f"convert_compendium_to_sssom({compendium_filename}, {sssom_filename})")
@@ -62,10 +64,10 @@ def convert_compendium_to_sssom(compendium_filename, sssom_filename):
             preferred_identifier = identifiers[0]
             secondary_identifiers = identifiers[1:]
 
-            # If we don't have any secondary identifiers, we add the clique by mapping the preferred identifier to
-            # itself.
-            if len(secondary_identifiers) == 0:
-                secondary_identifier = [preferred_identifier]
+            # If we don't have any secondary identifiers and flag_export_every_clique is true, we add the clique by
+            # mapping the preferred identifier to itself.
+            if len(secondary_identifiers) == 0 and flag_export_every_clique:
+                secondary_identifiers = [preferred_identifier]
 
             # Write out identifier mappings.
             for secondary_identifier in secondary_identifiers:
