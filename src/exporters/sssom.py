@@ -45,8 +45,8 @@ def convert_compendium_to_sssom(compendium_filename, sssom_filename):
         'object_label',
         'mapping_justification'
     ]
-    with (open(compendium_filename, "r") as fin, gzip.open(sssom_filename, "wt") as fout,
-          csv.DictWriter(fout, header, dialect=csv.excel_tab) as csvfile):
+    with open(compendium_filename, "r") as fin, gzip.open(sssom_filename, "wt") as fout:
+        csvfile = csv.DictWriter(fout, header, dialect=csv.excel_tab)
         csvfile.writeheader()
         for line in fin:
             clique = json.loads(line.strip())
