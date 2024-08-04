@@ -40,9 +40,11 @@ def convert_compendium_to_sssom(compendium_filename, sssom_filename):
     header = [
         'subject_id',
         'subject_label',
+        'subject_category',
         'predicate_id',
         'object_id',
         'object_label',
+        'object_category',
         'mapping_justification'
     ]
     with open(compendium_filename, "r") as fin, gzip.open(sssom_filename, "wt") as fout:
