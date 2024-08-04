@@ -54,7 +54,7 @@ rule generate_sssom:
     output:
         sssom_file=config['output_directory'] + "/sssom/{filename}.tsv.gz",
     run:
-        sssom.convert_compendium_to_kgx(input.compendium_file, output.sssom_file)
+        sssom.convert_compendium_to_sssom(input.compendium_file, output.sssom_file)
 
 
 # Export all synonym files to SAPBERT export, then create `babel_outputs/sapbert-training-data/done` to signal that we're done.
@@ -70,7 +70,7 @@ rule export_all_to_sapbert_training:
         "echo 'done' >> {output.x}"
 
 
-# Generic rule for generating the KGX files for a particular compendia file.
+# Generic rule for generating the SAPBERT training files for a particular compendia file.
 rule generate_sapbert_training_data:
     input:
         synonym_file=config['output_directory'] + "/synonyms/{filename}",
