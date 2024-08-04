@@ -1,5 +1,6 @@
 from src.snakefiles.util import get_all_compendia, get_all_synonyms_with_drugchemicalconflated
 import src.exporters.kgx as kgx
+import src.exporters.sssom as sssom
 import src.exporters.sapbert as sapbert
 import os
 
@@ -31,6 +32,29 @@ rule generate_kgx:
         edges_file=config['output_directory'] + "/kgx/{filename}_edges.jsonl.gz",
     run:
         kgx.convert_compendium_to_kgx(input.compendium_file, output.nodes_file, output.edges_file)
+
+
+# Export all compendia to SSSOM, then create `babel_outputs/sssom/done` to signal that we're done.
+rule export_all_to_sssom:
+    input:
+        sssom_files=expand("{od}/sssom/{fn}",
+            od=config['output_directory'],
+            fn=map(lambda fn: os.path.splitext(fn)[0] + '.tsv.gz', get_all_compendia(config))
+        ),
+    output:
+        x = config['output_directory'] + '/sssom/done',
+    shell:
+        "echo 'done' >> {output.x}"
+
+
+# Generic rule for generating the KGX files for a particular compendia file.
+rule generate_sssom:
+    input:
+        compendium_file=config['output_directory'] + "/compendia/{filename}.txt",
+    output:
+        sssom_file=config['output_directory'] + "/sssom/{filename}.tsv.gz",
+    run:
+        sssom.convert_compendium_to_kgx(input.compendium_file, output.sssom_file)
 
 
 # Export all synonym files to SAPBERT export, then create `babel_outputs/sapbert-training-data/done` to signal that we're done.
