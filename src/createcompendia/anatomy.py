@@ -97,7 +97,7 @@ def build_anatomy_obo_relationships(outdir):
         build_sets(f'{UBERON}:0001062', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
         build_sets(f'{GO}:0005575', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
 
-def build_anatomy_wikidata_relationships(outdir):
+def build_wikidata_cell_relationships(outdir):
     #This sparql returns all the wikidata items that have a UMLS identifier and a CL identifier
     sparql = """PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wdtn: <http://www.wikidata.org/prop/direct-normalized/>
