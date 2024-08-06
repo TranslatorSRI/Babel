@@ -53,7 +53,7 @@ rule get_anatomy_obo_relationships:
 
 rule get_wikidata_cell_relationships:
     output:
-        config['intermediate_directory']+'/anatomy/concords/Wikidata',
+        config['intermediate_directory']+'/anatomy/concords/WIKIDATA',
     run:
         anatomy.build_wikidata_cell_relationships(config['intermediate_directory']+'/anatomy/concords')
 
