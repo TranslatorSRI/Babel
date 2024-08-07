@@ -101,14 +101,13 @@ def build_anatomy_obo_relationships(outdir):
 def build_wikidata_cell_relationships(outdir):
     #This sparql returns all the wikidata items that have a UMLS identifier and a CL identifier
     sparql = """PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wdtn: <http://www.wikidata.org/prop/direct-normalized/>
-SELECT * WHERE {
-  ?wd wdtn:P7963 ?cl .
-  ?wd wdt:P2892 ?umls .
-}
-"""
+        PREFIX wdtn: <http://www.wikidata.org/prop/direct-normalized/>
+        SELECT * WHERE {
+          ?wd wdtn:P7963 ?cl .
+          ?wd wdt:P2892 ?umls .
+        }"""
     frink_wikidata_url = "https://frink.apps.renci.org/federation/sparql"
-    response = requests.get(f"{frink_wikidata_url}?query={sparql}")
+    response = requests.post(frink_wikidata_url, params={'query': sparql})
     results = response.json()
     rows = results["results"]["bindings"]
     # If one wikidata entry has either more than one CL or more than one UMLS, then we end up with problems
