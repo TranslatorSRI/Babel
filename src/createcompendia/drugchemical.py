@@ -324,20 +324,35 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
     # Normalize the pairs to be glommed. We need to do this here because it may be that multiple conflations will be
     # merged together because they share a normalized identifier. We can do this by adding pairs to indicate that every
     # subject and object is associated with its normalized identifier.
-    additional_pairs = []
+    pairs_to_be_glommed = []
     for (subj, obj) in pairs:
+        # If either the subject or the object cannot be normalized, skip this pair entirely.
+        #
+        # This appears to happen very rarely when we have a PUBCHEM.COMPOUND that is referenced from RxNorm but
+        # hasn't made it into wherever we get PUBCHEM.COMPOUND IDs from. Not super-surprising since RxNorm is
+        # updated every month, but still, it's only happened to be once that I've noticed.
+        if subj not in preferred_curie_for_curie:
+            logger.warning(f"Pair ({subj}, {obj}) has a subject that cannot be normalized, skipping pair.")
+            continue
+
+        if obj not in preferred_curie_for_curie:
+            logger.warning(f"Pair ({subj}, {obj}) has an object that cannot be normalized, skipping pair.")
+            continue
+
+        # Add this tuple to the pairs to be glommed.
+        pairs_to_be_glommed.append((subj, obj))
+
         # If the subject is not normalized, add a pair indicating the normalized ID.
         if preferred_curie_for_curie[subj] != subj:
-            additional_pairs.append((subj, preferred_curie_for_curie[subj]))
+            pairs_to_be_glommed.append((subj, preferred_curie_for_curie[subj]))
         # If the object is not normalized, add a pair indicating the normalized ID.
         if preferred_curie_for_curie[obj] != obj:
-            additional_pairs.append((obj, preferred_curie_for_curie[obj]))
-    pairs.extend(additional_pairs)
+            pairs_to_be_glommed.append((obj, preferred_curie_for_curie[obj]))
 
     # Glommin' time
     print("glom")
     gloms = {}
-    glom(gloms,pairs)
+    glom(gloms, pairs_to_be_glommed)
 
     # Set up a NodeFactory.
     nodefactory = NodeFactory('', get_config()['biolink_version'])
