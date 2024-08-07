@@ -436,7 +436,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                                 "names": synonyms_list,
                                 "types": [t[8:] for t in types]} # remove biolink:
 
-                    # To pick a preferred label for this clique, we need to do three things:
+                    # To pick a preferred label for this clique, we need to do four things:
                     # 1. We sort all labels in the preferred-name order. By default, this should be
                     #    the preferred CURIE order, but if this clique is in one of the Biolink classes in
                     #    preferred_name_boost_prefixes, we boost those prefixes in that order to the top of the list.
@@ -444,7 +444,9 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     #    (If this simple filter doesn't work, and if prefixes are inconsistent, we can build upon the
                     #    algorithm proposed by Jeff at
                     #    https://github.com/NCATSTranslator/Feedback/issues/259#issuecomment-1605140850)
-                    # 3. We choose the first label that isn't blank. If no labels remain, we generate a warning.
+                    # 3. We filter out any labels longer than config['demote_labels_longer_than'], but only if there is
+                    #    at least one label shorter than this limit.
+                    # 4. We choose the first label that isn't blank. If no labels remain, we generate a warning.
 
                     # Step 1.1. Sort labels in boosted prefix order if possible.
                     possible_labels = []
@@ -469,7 +471,13 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                                                 not l.startswith('CHEMBL')          # Some CHEMBL names are just the identifier again.
                                                 ]
 
-                    # Step 3. Pick the first label that isn't blank.
+                    # Step 3. Filter out labels longer than config['demote_labels_longer_than'], but only if there is at
+                    # least one label shorter than this limit.
+                    labels_shorter_than_limit = [l for l in possible_labels if l and len(l) < config['demote_labels_longer_than']]
+                    if labels_shorter_than_limit:
+                        filtered_possible_labels = labels_shorter_than_limit
+
+                    # Step 4. Pick the first label that isn't blank.
                     if filtered_possible_labels:
                         document["preferred_name"] = filtered_possible_labels[0]
                     else:

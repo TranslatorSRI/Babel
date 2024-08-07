@@ -87,5 +87,7 @@
   },
 
   "duckdb_config": {
-  }
+  },
+
+  "demote_labels_longer_than": 50
 }
