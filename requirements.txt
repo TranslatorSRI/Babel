@@ -23,3 +23,5 @@ oaklib~=0.5.1
 beautifulsoup4
 # Added by Gaurav, Dec 2023
 curies
+# Added by Gaurav, May 2024
+duckdb
