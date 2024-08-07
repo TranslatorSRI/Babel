@@ -2,6 +2,7 @@ from collections import defaultdict
 import requests
 
 import src.datahandlers.obo as obo
+from src.util import Text
 
 from src.prefixes import MESH, NCIT, CL, GO, UBERON, SNOMEDCT, WIKIDATA, UMLS
 from src.categories import ANATOMICAL_ENTITY, GROSS_ANATOMICAL_STRUCTURE, CELL, CELLULAR_COMPONENT
@@ -115,17 +116,20 @@ SELECT * WHERE {
     # Loop over the rows, transform each row into curies, and filter out any wikidata entry that occurs more than once.
     # Double check that the UMLS and CL are unique.  Then write out the now-unique UMLS/CL mappings
     counts = defaultdict(int)
+    pairs = []
     for row in rows:
         umls_curie = f'{UMLS}:{row["umls"]["value"]}'
         wd_curie = f'{WIKIDATA}:{row["wd"]["value"]}'
-        cl_curie = f'{CL}:{row["cl"]["value"]}'
-        pairs = (umls_curie, cl_curie)
+        cl_curie = Text.obo_to_curie(row["cl"]["value"])
+        pairs.append( (umls_curie, cl_curie) )
         counts[umls_curie] += 1
         counts[cl_curie] += 1
     with open(f'{outdir}/{WIKIDATA}', 'w') as wd:
         for pair in pairs:
             if (counts[pair[0]] == 1) and (counts[pair[1]] == 1):
                 wd.write(f'{pair[0]}\teq\t{pair[1]}\n')
+            else:
+                print(f'Pair {pair} is not unique {counts[pair[0]]} {counts[pair[1]]}')
 
 def build_anatomy_umls_relationships(mrconso, idfile,outfile):
     umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT})
