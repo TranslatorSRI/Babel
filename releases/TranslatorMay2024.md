@@ -4,7 +4,7 @@
   [Babel v1.5.0](https://github.com/TranslatorSRI/Babel/releases/tag/v1.5.0))
   - [CURIE summary](./summaries/2024mar24.json)
 
-Next release: _None as yet_
+Next release: [Translator "Fugu" July 2024](TranslatorFuguJuly2024.md)
 
 ## New features
 * [New identifiers] 36.9 million PubMed IDs (e.g. `PMID:25061375`) have been added as `biolink:JournalArticle`, as well as
@@ -16,6 +16,12 @@ Next release: _None as yet_
 * Minor fixes.
 
 ## Releases since [December 2023](TranslatorDecember2023)
+* [Babel v1.5.0](https://github.com/TranslatorSRI/Babel/releases/tag/v1.5.0):
+  * Normalize DrugChemical conflation IDs by @gaurav in #250
+  * Fix DrugChemical conflation typing by @gaurav in #266
+  * Add PubMed IDs by @gaurav in #227
+  * Added clique identifier count to synonyms by @gaurav in #228
+  * Minor fixes
 * [Babel v1.4.0](https://github.com/TranslatorSRI/Babel/releases/tag/v1.4.0):
   * Upgraded Biolink Model to v4.1.6.
   * Upgraded RxNorm to 03042024.

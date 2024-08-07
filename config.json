@@ -4,9 +4,9 @@
   "intermediate_directory": "babel_outputs/intermediate",
   "output_directory": "babel_outputs",
 
-  "biolink_version": "4.1.6",
-  "umls_version": "2023AB",
-  "rxnorm_version": "03042024",
+  "biolink_version": "4.2.1",
+  "umls_version": "2024AA",
+  "rxnorm_version": "07012024",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
   "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","PATO","PR","RO","UBPROP"],
@@ -83,8 +83,13 @@
     ]
   },
 
-  "ensembl_datasets_to_skip": {
-  },
+  "ensembl_datasets_to_skip": [
+    "elucius_gene_ensembl",
+    "hgfemale_gene_ensembl",
+    "charengus_gene_ensembl",
+    "otshawytscha_gene_ensembl",
+    "aocellaris_gene_ensembl"
+  ],
 
   "duckdb_config": {
   }
