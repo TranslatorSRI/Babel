@@ -8,6 +8,8 @@ from zipfile import ZipFile
 from src.node import get_config
 import requests
 
+from src.prefixes import DRUGBANK
+
 
 def download_drugbank_vocabulary(outfile):
     """ Download a particular version of the DrugBank vocabulary."""
@@ -41,7 +43,7 @@ def extract_drugbank_labels_and_synonyms(drugbank_vocab_csv, labels, synonyms):
         assert 'Common name' in reader.fieldnames
         assert 'Synonyms' in reader.fieldnames
         for line in reader:
-            drugbank_id = f"DRUGBANK:{line['DrugBank ID']}"
+            drugbank_id = f"{DRUGBANK}:{line['DrugBank ID']}"
             if 'Common name' in line and line['Common name'].strip() != '':
                 labelsf.write(f"{drugbank_id}\t{line['Common name']}\n")
             if 'Synonyms' in line and line['Synonyms'].strip() != '':
