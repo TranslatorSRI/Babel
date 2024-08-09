@@ -17,6 +17,8 @@ import re
 from itertools import combinations
 
 import logging
+
+from src.node import get_config
 from src.util import LoggingUtil
 
 # Default logger for this file.
@@ -39,14 +41,29 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
     :param sapbert_filename_gzipped: The SAPBERT training file to generate.
     """
 
+    config = get_config()
+
     logger.info(f"convert_synonyms_to_sapbert({synonym_filename}, {sapbert_filename_gzipped})")
+
+    # For now, the simplest way to identify the DrugChemicalConflated file is by name.
+    # In this case we still generate DrugChemicalConflated.txt, but we also generate
+    # DrugChemicalConflatedSmaller.txt, which ignores labels longer than config['demote_labels_longer_than'].
+    generate_smaller_filename = None
+    if synonym_filename.endswith('/DrugChemicalConflated.txt'):
+        generate_smaller_filename = sapbert_filename_gzipped.replace('.txt.gz', 'Smaller.txt.gz')
 
     # Make the output directories if they don't exist.
     os.makedirs(os.path.dirname(sapbert_filename_gzipped), exist_ok=True)
 
+    # Open SmallerFile for writing if needed.
+    generate_smaller_file = None
+    if generate_smaller_filename:
+        generate_smaller_file = gzip.open(generate_smaller_filename, 'wt', encoding='utf-8')
+
     # Go through all the synonyms in the input file.
     count_entry = 0
-    count_training_text = 0
+    count_training_rows = 0
+    count_smaller_rows = 0
     with open(synonym_filename, "r", encoding="utf-8") as synonymf, gzip.open(sapbert_filename_gzipped, "wt", encoding="utf-8") as sapbertf:
         for line in synonymf:
             count_entry += 1
@@ -58,6 +75,9 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
             if not preferred_name:
                 logging.warning(f"Unable to convert synonym entry for curie {curie}, skipping: {entry}")
                 continue
+
+            # Is the preferred name small enough that we should ignore it from generate_smaller_file?
+            is_preferred_name_short = len(preferred_name) <= config['demote_labels_longer_than']
 
             # Collect and process the list of names.
             names = entry['names']
@@ -79,26 +99,47 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
             # How many names do we have?
             if len(names) == 0:
                 # This shouldn't happen, but let's anticipate this anyway.
-                sapbertf.write(
-                    f"biolink:{biolink_type}||{curie}||{preferred_name}||{preferred_name.lower()}||{preferred_name.lower()}\n"
-                )
-                count_training_text += 1
+                line = f"biolink:{biolink_type}||{curie}||{preferred_name}||{preferred_name.lower()}||{preferred_name.lower()}\n"
+                sapbertf.write(line)
+                count_training_rows += 1
+                if generate_smaller_file and is_preferred_name_short:
+                    generate_smaller_file.write(line)
+                    count_smaller_rows += 1
             elif len(names) == 1:
                 # If we have less than two names, we don't have anything to randomize.
                 sapbertf.write(
                     f"biolink:{biolink_type}||{curie}||{preferred_name}||{preferred_name.lower()}||{names[0]}\n"
                 )
-                count_training_text += 1
+                count_training_rows += 1
+                if generate_smaller_file and is_preferred_name_short:
+                    generate_smaller_file.write(line)
+                    count_smaller_rows += 1
             else:
                 name_pairs = list(itertools.combinations(set(names), 2))
+                is_any_name_short = any(map(lambda name: len(name) >= config['demote_labels_longer_than'], names))
 
                 if len(name_pairs) > MAX_SYNONYM_PAIRS:
                     # Randomly select 50 pairs.
                     name_pairs = random.sample(name_pairs, MAX_SYNONYM_PAIRS)
 
                 for name_pair in name_pairs:
-                    sapbertf.write(f"biolink:{biolink_type}||{curie}||{preferred_name}||{name_pair[0]}||{name_pair[1]}\n")
-                    count_training_text += 1
+                    line = f"biolink:{biolink_type}||{curie}||{preferred_name}||{name_pair[0]}||{name_pair[1]}\n"
+                    sapbertf.write(line)
+                    count_training_rows += 1
+
+                    # As long as any of the names is short enough, we should use this for training.
+                    if generate_smaller_file and is_any_name_short:
+                        generate_smaller_file.write(line)
+                        count_smaller_rows += 1
 
     logger.info(f"Converted {synonym_filename} to SAPBERT training file {synonym_filename}: " +
-                f"read {count_entry} entries and wrote out {count_training_text} training rows.")
+                f"read {count_entry} entries and wrote out {count_training_rows} training rows.")
+
+    # Close SmallerFile if needed.
+    if generate_smaller_file:
+        generate_smaller_file.close()
+        percentage = count_smaller_rows / float(count_training_rows) * 100
+        logger.info(f"Converted {synonym_filename} to smaller SAPBERT training file {generate_smaller_filename}: " +
+                    f"read {count_entry} entries and wrote out {count_smaller_rows} training rows ({percentage:.2f}%).")
+
+
