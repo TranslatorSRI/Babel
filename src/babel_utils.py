@@ -446,7 +446,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     #    https://github.com/NCATSTranslator/Feedback/issues/259#issuecomment-1605140850)
                     # 3. We filter out any labels longer than config['demote_labels_longer_than'], but only if there is
                     #    at least one label shorter than this limit.
-                    # 4. We choose the first label that isn't blank. If no labels remain, we generate a warning.
+                    # 4. We choose the first label that isn't blank (that allows us to use our rule of smallest-prefix-first to find the broadest name for this concept). If no labels remain, we generate a warning.
 
                     # Step 1.1. Sort labels in boosted prefix order if possible.
                     possible_labels = []
