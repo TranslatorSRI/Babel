@@ -30,6 +30,7 @@ import src.datahandlers.chebi as chebi
 import src.datahandlers.hgncfamily as hgncfamily
 import src.datahandlers.pantherfamily as pantherfamily
 import src.datahandlers.complexportal as complexportal
+import src.datahandlers.drugbank as drugbank
 from src.babel_utils import pull_via_wget
 
 import src.prefixes as prefixes
@@ -423,7 +424,16 @@ rule chembl_labels_and_smiles:
     run:
         chembl.pull_chembl_labels_and_smiles(input.infile,input.ccofile,output.outfile,output.smifile)
 
-### DrugBank requires a login... not sure how to handle
+### DrugBank requires a login... but only for
+rule get_drugbank_labels_and_synonyms:
+    output:
+        outfile=config['download_directory']+'/DRUGBANK/drugbank vocabulary.csv',
+        labels=config['download_directory']+'/DRUGBANK/labels',
+        synonyms=config['download_directory']+'/DRUGBANK/synonyms',
+    run:
+        drugbank.download_drugbank_vocabulary(output.outfile)
+        drugbank.extract_drugbank_labels_and_synonyms(output.outfile, output.labels, output.synonyms)
+
 
 ### GTOPDB We're only pulling ligands.  Maybe one day we'll want the whole db?
 
