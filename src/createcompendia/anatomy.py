@@ -108,7 +108,7 @@ def build_wikidata_cell_relationships(outdir):
         }"""
     frink_wikidata_url = "https://frink.apps.renci.org/federation/sparql"
     response = requests.post(frink_wikidata_url, params={'query': sparql})
-    if not response.ok():
+    if not response.ok:
         raise RuntimeError(f"Could not query {frink_wikidata_url}: {response.status_code} {response.reason}")
     results = response.json()
     rows = results["results"]["bindings"]
