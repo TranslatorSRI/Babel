@@ -37,13 +37,13 @@ def get_biolink_prefix_map():
         raise RuntimeError(f"Biolink version {biolink_version} is not supported.")
     elif biolink_version.startswith('3.'):
         # biolink-model v3.* releases keeps the prefix map in a different place.
-        return curies.load_prefix_map(
+        return curies.Converter.from_prefix_map(
             'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
             '/prefix-map/biolink-model-prefix-map.json'
         )
     else:
         # biolink-model v4.0.0 and beyond is in the /project directory.
-        return curies.load_prefix_map(
+        return curies.Converter.from_prefix_map(
             f'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
             '/project/prefixmap/biolink_model_prefix_map.json'
         )
