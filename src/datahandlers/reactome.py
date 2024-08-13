@@ -42,9 +42,11 @@ def write_ids(infile,idfile):
 def parse_element_for_ids(e,lfile):
     oid = e['stId']
     rtype = e['type']
+    # For CellDevelopmentStep, see discussion at https://github.com/TranslatorSRI/Babel/issues/277
     btypes = {'Pathway':PATHWAY, 'TopLevelPathway':PATHWAY, 'BlackBoxEvent':MOLECULAR_ACTIVITY,
               'Depolymerisation': MOLECULAR_ACTIVITY, 'FailedReaction': MOLECULAR_ACTIVITY,
-              'Polymerisation': MOLECULAR_ACTIVITY, 'Reaction': MOLECULAR_ACTIVITY}
+              'Polymerisation': MOLECULAR_ACTIVITY, 'Reaction': MOLECULAR_ACTIVITY,
+              'CellLineagePath': PATHWAY, 'CellDevelopmentStep': BIOLOGICAL_PROCESS}
     lfile.write(f'{REACT}:{oid}\t{btypes[rtype]}\n')
     if 'children' in e:
         for child in e['children']:
