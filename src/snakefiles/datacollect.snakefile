@@ -424,14 +424,14 @@ rule chembl_labels_and_smiles:
     run:
         chembl.pull_chembl_labels_and_smiles(input.infile,input.ccofile,output.outfile,output.smifile)
 
-### DrugBank requires a login... but only for
+### DrugBank requires a login... but not for basic vocabulary information.
 rule get_drugbank_labels_and_synonyms:
     output:
         outfile=config['download_directory']+'/DRUGBANK/drugbank vocabulary.csv',
         labels=config['download_directory']+'/DRUGBANK/labels',
         synonyms=config['download_directory']+'/DRUGBANK/synonyms',
     run:
-        drugbank.download_drugbank_vocabulary(output.outfile)
+        drugbank.download_drugbank_vocabulary(config['drugbank_version'], output.outfile)
         drugbank.extract_drugbank_labels_and_synonyms(output.outfile, output.labels, output.synonyms)
 
 

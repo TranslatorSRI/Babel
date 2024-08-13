@@ -11,13 +11,12 @@ import requests
 from src.prefixes import DRUGBANK
 
 
-def download_drugbank_vocabulary(outfile):
+def download_drugbank_vocabulary(drugbank_version, outfile):
     """ Download a particular version of the DrugBank vocabulary."""
-    config = get_config()
 
     # Download from URL using Requests.
     response = requests.get(
-        f"https://go.drugbank.com/releases/{config['drugbank_version']}/downloads/all-drugbank-vocabulary",
+        f"https://go.drugbank.com/releases/{drugbank_version}/downloads/all-drugbank-vocabulary",
         stream=True)
 
     with open(outfile + '.zip', 'wb') as fout:
