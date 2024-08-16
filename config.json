@@ -6,7 +6,7 @@
 
   "biolink_version": "4.2.2",
   "umls_version": "2024AA",
-  "rxnorm_version": "07012024",
+  "rxnorm_version": "08052024",
   "drugbank_version": "5-1-12",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
