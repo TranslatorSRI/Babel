@@ -436,9 +436,9 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
 
                 # Step 3. Pick the first label that isn't blank.
                 if filtered_possible_labels:
-                    preferred_label = filtered_possible_labels[0]
+                    preferred_name = filtered_possible_labels[0]
                 else:
-                    preferred_label = ''
+                    preferred_name = ''
 
                 # Generate the node.
                 descs = description_factory.get_descriptions(node)
@@ -458,6 +458,10 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                         id_info['t'] = list(sorted(taxa[id_info['i']], key=get_numerical_curie_suffix))
 
                     nw['identifiers'].append(id_info)
+
+                # Write out the preferred name, if we have one.
+                if preferred_name:
+                    nw['preferred_name'] = preferred_name
 
                 # Collect taxon names for this node.
                 nw['taxa'] = list(sorted(set().union(*taxa.values()), key=get_numerical_curie_suffix))
@@ -479,8 +483,8 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                                 "types": [t[8:] for t in types]} # remove biolink:
 
                     # Write out the preferred name.
-                    if preferred_label:
-                        document["preferred_name"] = preferred_label
+                    if preferred_name:
+                        document["preferred_name"] = preferred_name
                     else:
                         logging.debug(
                             f"No preferred name for {node}, probably because all names were filtered out, skipping."
