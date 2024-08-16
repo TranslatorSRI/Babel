@@ -399,6 +399,48 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 if ic is not None:
                     nw['ic'] = ic
 
+                # Generate a preferred label for this clique.
+                #
+                # To pick a preferred label for this clique, we need to do three things:
+                # 1. We sort all labels in the preferred-name order. By default, this should be
+                #    the preferred CURIE order, but if this clique is in one of the Biolink classes in
+                #    preferred_name_boost_prefixes, we boost those prefixes in that order to the top of the list.
+                # 2. We filter out any suspicious labels.
+                #    (If this simple filter doesn't work, and if prefixes are inconsistent, we can build upon the
+                #    algorithm proposed by Jeff at
+                #    https://github.com/NCATSTranslator/Feedback/issues/259#issuecomment-1605140850)
+                # 3. We choose the first label that isn't blank. If no labels remain, we generate a warning.
+
+                # Step 1.1. Sort labels in boosted prefix order if possible.
+                possible_labels = []
+                for typ in types:
+                    if typ in preferred_name_boost_prefixes:
+                        # This is the most specific matching type, so we use this.
+                        possible_labels = map(lambda identifier: identifier.get('label', ''),
+                                              sort_identifiers_with_boosted_prefixes(
+                                                  node["identifiers"],
+                                                  preferred_name_boost_prefixes[typ]
+                                              ))
+                        break
+
+                # Step 1.2. If we didn't have a preferred_name_boost_prefixes, just use the identifiers in their
+                # Biolink prefix order.
+                if not possible_labels:
+                    possible_labels = map(lambda identifier: identifier.get('label', ''), node["identifiers"])
+
+                # Step 2. Filter out any suspicious labels.
+                filtered_possible_labels = [l for l in possible_labels if
+                                            l and                               # Ignore blank or empty names.
+                                            not l.startswith('CHEMBL')          # Some CHEMBL names are just the identifier again.
+                                            ]
+
+                # Step 3. Pick the first label that isn't blank.
+                if filtered_possible_labels:
+                    preferred_label = filtered_possible_labels[0]
+                else:
+                    preferred_label = ''
+
+                # Generate the node.
                 descs = description_factory.get_descriptions(node)
                 taxa = taxon_factory.get_taxa(node)
                 nw['identifiers'] = []
@@ -436,45 +478,12 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                                 "names": synonyms_list,
                                 "types": [t[8:] for t in types]} # remove biolink:
 
-                    # To pick a preferred label for this clique, we need to do three things:
-                    # 1. We sort all labels in the preferred-name order. By default, this should be
-                    #    the preferred CURIE order, but if this clique is in one of the Biolink classes in
-                    #    preferred_name_boost_prefixes, we boost those prefixes in that order to the top of the list.
-                    # 2. We filter out any suspicious labels.
-                    #    (If this simple filter doesn't work, and if prefixes are inconsistent, we can build upon the
-                    #    algorithm proposed by Jeff at
-                    #    https://github.com/NCATSTranslator/Feedback/issues/259#issuecomment-1605140850)
-                    # 3. We choose the first label that isn't blank. If no labels remain, we generate a warning.
-
-                    # Step 1.1. Sort labels in boosted prefix order if possible.
-                    possible_labels = []
-                    for typ in types:
-                        if typ in preferred_name_boost_prefixes:
-                            # This is the most specific matching type, so we use this.
-                            possible_labels = map(lambda identifier: identifier.get('label', ''),
-                                sort_identifiers_with_boosted_prefixes(
-                                    node["identifiers"],
-                                    preferred_name_boost_prefixes[typ]
-                                ))
-                            break
-
-                    # Step 1.2. If we didn't have a preferred_name_boost_prefixes, just use the identifiers in their
-                    # Biolink prefix order.
-                    if not possible_labels:
-                        possible_labels = map(lambda identifier: identifier.get('label', ''), node["identifiers"])
-
-                    # Step 2. Filter out any suspicious labels.
-                    filtered_possible_labels = [l for l in possible_labels if
-                                                l and                               # Ignore blank or empty names.
-                                                not l.startswith('CHEMBL')          # Some CHEMBL names are just the identifier again.
-                                                ]
-
-                    # Step 3. Pick the first label that isn't blank.
-                    if filtered_possible_labels:
-                        document["preferred_name"] = filtered_possible_labels[0]
+                    # Write out the preferred name.
+                    if preferred_label:
+                        document["preferred_name"] = preferred_label
                     else:
                         logging.debug(
-                            f"No preferred name for {node}, probably because all names were filtered out. Skipping."
+                            f"No preferred name for {node}, probably because all names were filtered out, skipping."
                         )
                         continue
 
