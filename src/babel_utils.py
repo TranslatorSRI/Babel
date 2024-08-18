@@ -399,8 +399,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
             if node is not None:
                 nw = {"type": node['type']}
                 ic = ic_factory.get_ic(node)
-                if ic is not None:
-                    nw['ic'] = ic
+                nw['ic'] = ic
 
                 # Determine types.
                 types = node_factory.get_ancestors(node["type"])
@@ -466,8 +465,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     nw['identifiers'].append(id_info)
 
                 # Write out the preferred name, if we have one.
-                if preferred_name:
-                    nw['preferred_name'] = preferred_name
+                nw['preferred_name'] = preferred_name
 
                 # Collect taxon names for this node.
                 nw['taxa'] = list(sorted(set().union(*taxa.values()), key=get_numerical_curie_suffix))
