@@ -39,6 +39,7 @@ def export_compendia_to_parquet(compendium_filename, duckdb_filename):
     duckdb_dir = os.path.dirname(duckdb_filename)
     os.makedirs(duckdb_dir, exist_ok=True)
     clique_parquet_filename = os.path.join(duckdb_dir, 'Clique.parquet')
+    edge_parquet_filename = os.path.join(duckdb_dir, 'Edge.parquet')
     node_parquet_filename = os.path.join(duckdb_dir, 'Node.parquet')
 
     with setup_duckdb(duckdb_filename) as db:
@@ -59,11 +60,15 @@ def export_compendia_to_parquet(compendium_filename, duckdb_filename):
                         ic AS information_content
                     FROM compendium_jsonl""")
 
-        # Put:
-        #   replace(preferred_name, '\"\"\"', '\"') AS preferred_name,
-        # back in once I regenerate with preferred_name.
+        # Step 3. Create an Edge table with all the clique/CURIE relationships from this file.
+        db.sql("CREATE TABLE Edge (clique_leader STRING, curie STRING, conflation STRING)")
+        db.sql("""INSERT INTO Edge SELECT
+                json_extract_string(identifiers, '$[0].i') AS clique_leader,
+                UNNEST(json_extract_string(identifiers, '$[*].i')) AS curie,
+                'None' AS conflation
+            FROM compendium_jsonl""")
 
-        # Step 3. Create a Nodes table with all the nodes from this file.
+        # Step 4. Create a Nodes table with all the nodes from this file.
         db.sql("""CREATE TABLE Node (curie STRING, label STRING, label_lc STRING, description STRING[])""")
         db.sql("""INSERT INTO Node
             SELECT
@@ -73,9 +78,12 @@ def export_compendia_to_parquet(compendium_filename, duckdb_filename):
                 json_extract_string(identifier, '$.identifiers.d') AS description
             FROM compendium_jsonl, UNNEST(identifiers) AS identifier""")
 
-        # Step 3. Export as Parquet files.
+        # Step 5. Export as Parquet files.
         db.sql("SELECT * FROM Clique").write_parquet(
             clique_parquet_filename
+        )
+        db.sql("SELECT * FROM Edge").write_parquet(
+            edge_parquet_filename
         )
         db.sql("SELECT * FROM Node").write_parquet(
             node_parquet_filename
