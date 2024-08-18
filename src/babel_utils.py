@@ -223,6 +223,7 @@ def pull_via_wget(
         subpath:str=None,
         outpath:str=None,
         continue_incomplete:bool=True,
+        timestamping=True,
         recurse:WgetRecursionOptions = WgetRecursionOptions.NO_RECURSION,
         retries:int=10):
     """
@@ -260,6 +261,8 @@ def pull_via_wget(
     ]
     if continue_incomplete:
         wget_command_line.append('--continue')
+    if timestamping:
+        wget_command_line.append('--timestamping')
     if retries > 0:
         wget_command_line.append(f'--tries={retries}')
 
