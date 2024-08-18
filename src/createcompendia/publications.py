@@ -13,7 +13,7 @@ from src.prefixes import PMID, DOI, PMC
 
 
 def download_pubmed(download_file,
-                    pubmed_base='ftp://ftp.ncbi.nlm.nih.gov/pubmed/',
+                    pubmed_base='https://ftp.ncbi.nlm.nih.gov/pubmed/',
                     pmc_base='https://ftp.ncbi.nlm.nih.gov/pub/pmc/'):
     """
     Download PubMed. We download both the PubMed annual baseline and the daily update files,
