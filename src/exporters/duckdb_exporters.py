@@ -52,24 +52,28 @@ def export_compendia_to_parquet(compendium_filename, duckdb_filename):
                 (clique_leader STRING, preferred_name STRING, clique_identifier_count INT, biolink_type STRING,
                 information_content FLOAT)""")
         db.sql("""INSERT INTO Clique
-                        (clique_leader, preferred_name, clique_identifier_count, biolink_type, information_content) 
+                        (clique_leader, clique_identifier_count, biolink_type, information_content) 
                     SELECT
-                        json_extract_string(identifier, "$[0].i") AS clique_leader,
-                        replace(preferred_name, '\"\"\"', '\"') AS preferred_name,
+                        json_extract_string(identifiers, '$[0].i') AS clique_leader,
+                        
                         len(identifiers) AS clique_identifier_count,
-                        CONCAT('biolink:', json_extract_string(types, '$[0]')) AS biolink_type,
+                        type AS biolink_type,
                         ic AS information_content
                     FROM compendium_jsonl""")
 
+        # Put:
+        #   replace(preferred_name, '\"\"\"', '\"') AS preferred_name,
+        # back in once I regenerate with preferred_name.
+
         # Step 3. Create a Nodes table with all the nodes from this file.
-        db.sql("""CREATE TABLE Node (curie STRING, label STRING, description STRING)""")
+        db.sql("""CREATE TABLE Node (curie STRING, label STRING, label_lc STRING, description STRING[])""")
         db.sql("""INSERT INTO Node (curie, label, description)
             SELECT
-                json_extract(json, '$.identifiers') AS identifiers_json,
-                json_extract_string(identifiers_json, '$[*].i') AS curie,
-                json_extract_string(identifiers_json, '$[*].l') AS label,
-                json_extract_string(identifiers_json, '$[*].d') AS description
-            FROM compendium_jsonl""")
+                json_extract_string(identifier, '$.identifiers.i') AS curie,
+                json_extract_string(identifier, '$.identifiers.l') AS label,
+                LOWER(label) AS label_lc,
+                json_extract_string(identifier, '$.identifiers.d') AS description
+            FROM compendium_jsonl, UNNEST(identifiers) AS identifier""")
 
         # Step 3. Export as Parquet files.
         db.sql("SELECT * FROM Clique").write_parquet(
@@ -80,39 +84,40 @@ def export_compendia_to_parquet(compendium_filename, duckdb_filename):
         )
 
 
-def export_synonyms_to_parquet(synonyms_filename, duckdb_filename, cliques_parquet_filename, synonyms_parquet_filename):
+def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
     """
     Export a synonyms file to a DuckDB directory.
 
     :param synonyms_filename: The synonym file (in JSONL) to export to Parquet.
     :param duckdb_filename: A DuckDB file to temporarily store data in.
-    :param cliques_parquet_filename: The Cliques.parquet file to create.
-    :param synonyms_parquet_filename: The Synonyms.parquet file to create.
     """
 
     # Make sure that duckdb_filename doesn't exist.
     if os.path.exists(duckdb_filename):
         raise RuntimeError(f"Will not overwrite existing file {duckdb_filename}")
 
-    os.makedirs(os.path.dirname(duckdb_filename), exist_ok=True)
+    duckdb_dir = os.path.dirname(duckdb_filename)
+    os.makedirs(duckdb_dir, exist_ok=True)
+    synonyms_parquet_filename = os.path.join(duckdb_dir, f'Synonym.parquet')
+
     with setup_duckdb(duckdb_filename) as db:
         # Step 1. Load the entire synonyms file.
         synonyms_jsonl = db.read_json(synonyms_filename, format='newline_delimited')
 
         # Step 2. Create a Cliques table with all the cliques from this file.
-        db.sql("CREATE TABLE Cliques (curie TEXT PRIMARY KEY, label TEXT, clique_identifier_count INT, biolink_type TEXT)")
-        db.sql("INSERT INTO Cliques (curie, label, clique_identifier_count, biolink_type) " +
-               "SELECT curie, replace(preferred_name, '\"\"\"', '\"') AS label, clique_identifier_count, " +
-               "CONCAT('biolink:', json_extract_string(types, '$[0]')) AS biolink_type FROM synonyms_jsonl")
+        #db.sql("CREATE TABLE Cliques (curie TEXT PRIMARY KEY, label TEXT, clique_identifier_count INT, biolink_type TEXT)")
+        #db.sql("INSERT INTO Cliques (curie, label, clique_identifier_count, biolink_type) " +
+        #       "SELECT curie, replace(preferred_name, '\"\"\"', '\"') AS label, clique_identifier_count, " +
+        #       "CONCAT('biolink:', json_extract_string(types, '$[0]')) AS biolink_type FROM synonyms_jsonl")
 
         # Step 3. Create a Synonyms table with all the cliques from this file.
-        db.sql("CREATE TABLE Synonyms AS SELECT curie, unnest(names) AS label FROM synonyms_jsonl")
+        db.sql("""CREATE TABLE Synonyms AS SELECT curie AS clique_leader, preferred_name,
+            LOWER(preferred_name) AS preferred_name_lc,
+            CONCAT('biolink:', json_extract_string(types, '$[0]')) AS biolink_type,
+            unnest(names) AS label, LOWER(label) AS label_lc FROM synonyms_jsonl""")
 
         # Step 3. Export as Parquet files.
-        db.sql("SELECT curie, label, clique_identifier_count, biolink_type FROM Cliques").write_parquet(
-            cliques_parquet_filename
-        )
-        db.sql("SELECT curie, label FROM Synonyms").write_parquet(
+        db.sql("SELECT clique_leader, preferred_name, biolink_type, label, label_lc FROM Synonyms").write_parquet(
             synonyms_parquet_filename
         )
 
