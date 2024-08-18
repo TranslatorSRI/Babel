@@ -51,11 +51,9 @@ def export_compendia_to_parquet(compendium_filename, duckdb_filename):
         db.sql("""CREATE TABLE Clique
                 (clique_leader STRING, preferred_name STRING, clique_identifier_count INT, biolink_type STRING,
                 information_content FLOAT)""")
-        db.sql("""INSERT INTO Clique
-                        (clique_leader, clique_identifier_count, biolink_type, information_content) 
-                    SELECT
+        db.sql("""INSERT INTO Clique SELECT
                         json_extract_string(identifiers, '$[0].i') AS clique_leader,
-                        
+                        preferred_name,
                         len(identifiers) AS clique_identifier_count,
                         type AS biolink_type,
                         ic AS information_content
@@ -67,7 +65,7 @@ def export_compendia_to_parquet(compendium_filename, duckdb_filename):
 
         # Step 3. Create a Nodes table with all the nodes from this file.
         db.sql("""CREATE TABLE Node (curie STRING, label STRING, label_lc STRING, description STRING[])""")
-        db.sql("""INSERT INTO Node (curie, label, description)
+        db.sql("""INSERT INTO Node
             SELECT
                 json_extract_string(identifier, '$.identifiers.i') AS curie,
                 json_extract_string(identifier, '$.identifiers.l') AS label,
