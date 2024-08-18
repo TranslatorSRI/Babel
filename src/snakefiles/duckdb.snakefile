@@ -20,7 +20,7 @@ rule export_all_compendia_to_duckdb:
 # Generic rule for generating the Parquet files for a particular compendia file.
 rule export_compendia_to_duckdb:
     input:
-        compendium_file=config['output_directory'] + "/compendia/{filename}.txt",
+        compendium_file=config['output_directory'] + "/compendia/{filename}",
     output:
         duckdb_filename=config['output_directory'] + "/duckdb/parquet/filename={filename}/compendium.duckdb"
     run:
@@ -43,7 +43,7 @@ rule export_all_synonyms_to_duckdb:
 # Generic rule for generating the Parquet files for a particular compendia file.
 rule export_synonyms_to_duckdb:
     input:
-        synonyms_file=config['output_directory'] + "/synonyms/{filename}.txt",
+        synonyms_file=config['output_directory'] + "/synonyms/{filename}",
     output:
         duckdb_filename=config['output_directory'] + "/duckdb/parquet/filename={filename}/synonyms.duckdb"
     run:
