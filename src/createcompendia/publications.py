@@ -32,14 +32,16 @@ def download_pubmed(download_file,
         pubmed_base, 'baseline',
         decompress=False,
         subpath='PubMed',
-        recurse=WgetRecursionOptions.RECURSE_SUBFOLDERS)
+        recurse=WgetRecursionOptions.RECURSE_SUBFOLDERS,
+        timestamping=True)
 
     # Step 2. Download all the files for the PubMed update files.
     pull_via_wget(
         pubmed_base, 'updatefiles',
         decompress=False,
         subpath='PubMed',
-        recurse=WgetRecursionOptions.RECURSE_SUBFOLDERS)
+        recurse=WgetRecursionOptions.RECURSE_SUBFOLDERS,
+        timestamping=True)
 
     # Step 3. Download the PMC/PMID mapping file from PMC.
     pull_via_wget(pmc_base, 'PMC-ids.csv.gz', decompress=True, subpath='PubMed')
