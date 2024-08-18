@@ -399,6 +399,9 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 if ic is not None:
                     nw['ic'] = ic
 
+                # Determine types.
+                types = node_factory.get_ancestors(node["type"])
+
                 # Generate a preferred label for this clique.
                 #
                 # To pick a preferred label for this clique, we need to do three things:
@@ -477,7 +480,6 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 # relation, we should get rid of any duplicated synonyms here.
                 synonyms_list = sorted(set(synonyms), key=lambda x: len(x))
                 try:
-                    types = node_factory.get_ancestors(node["type"])
                     document = {"curie": curie,
                                 "names": synonyms_list,
                                 "types": [t[8:] for t in types]} # remove biolink:
