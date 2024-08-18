@@ -20,7 +20,7 @@ rule export_all_compendia_to_duckdb:
 # Generic rule for generating the Parquet files for a particular compendia file.
 rule export_compendia_to_duckdb:
     input:
-        compendium_file=config['output_directory'] + "/compendia/{filename}",
+        compendium_file=config['output_directory'] + "/compendia/{filename}.txt",
     output:
         duckdb_filename=config['output_directory'] + "/duckdb/parquet/filename={filename}/compendium.duckdb"
     run:
@@ -32,7 +32,7 @@ rule export_all_synonyms_to_duckdb:
     input:
         sapbert_training_file=expand("{od}/duckdb/parquet/filename={fn}/synonyms.duckdb",
             od=config['output_directory'],
-            fn=get_all_synonyms_with_drugchemicalconflated(config)
+            fn=map(lambda fn: os.path.splitext(fn)[0], get_all_synonyms_with_drugchemicalconflated(config))
         )
     output:
         x = config['output_directory'] + '/duckdb/synonyms_done',
@@ -43,7 +43,7 @@ rule export_all_synonyms_to_duckdb:
 # Generic rule for generating the Parquet files for a particular compendia file.
 rule export_synonyms_to_duckdb:
     input:
-        synonyms_file=config['output_directory'] + "/synonyms/{filename}",
+        synonyms_file=config['output_directory'] + "/synonyms/{filename}.txt",
     output:
         duckdb_filename=config['output_directory'] + "/duckdb/parquet/filename={filename}/synonyms.duckdb"
     run:
