@@ -84,6 +84,8 @@ def write_pubchem_ids(labelfile,smilesfile,outfile):
             pn = int(x.split(':')[-1])
             while sn < pn:
                 smiline = insmiles.readline().decode('utf-8').strip().split('\t')
+                if len(smiline) != 2 or smiline[0] == '':
+                    raise RuntimeError(f"Could not parse line from {smilesfile}: '{smiline}'")
                 sn = int(smiline[0])
             if sn == pn:
                 #We have a smiles for this id
