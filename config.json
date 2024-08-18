@@ -63,7 +63,15 @@
     "https://identifiers.org/ncbigene/": "NCBIGene",
     "http://www.ncbi.nlm.nih.gov/gene/": "NCBIGene",
     "http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=": "HGNC",
-    "http://www.informatics.jax.org/marker/MGI:": "MGI"
+    "http://www.informatics.jax.org/marker/MGI:": "MGI",
+    "http://www.pombase.org/spombe/result/": "PomBase",
+    "http://www.wormbase.org/species/c_elegans/gene/": "WormBase",
+    "http://flybase.org/reports/": "FB",
+    "http://www.ecogene.org/gene/": "ecogene",
+    "http://zfin.org/action/marker/view/": "ZFIN",
+    "http://birdgenenames.org/cgnc/GeneReport?id=": "cgnc",
+    "http://www.ensemblgenomes.org/id/": "ENSEMBL",
+    "http://www.ensembl.org/id/": "ENSEMBL"
   },
 
   "publication_outputs": ["Publication.txt"],
