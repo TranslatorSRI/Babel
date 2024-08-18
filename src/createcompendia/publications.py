@@ -13,12 +13,15 @@ from src.prefixes import PMID, DOI, PMC
 
 
 def download_pubmed(download_file,
-                    pubmed_base='https://ftp.ncbi.nlm.nih.gov/pubmed/',
+                    pubmed_base='ftp://ftp.ncbi.nlm.nih.gov/pubmed/',
                     pmc_base='https://ftp.ncbi.nlm.nih.gov/pub/pmc/'):
     """
     Download PubMed. We download both the PubMed annual baseline and the daily update files,
     which are in the same format, but the baseline is set up at the start of the year and then
     updates are included in the daily update files.
+
+    We would love to use HTTPS to do the downloads, but unfortunately the robots.txt
+    (https://ftp.ncbi.nlm.nih.gov/robots.txt) prevents this from working recursively.
 
     :param download_file: A `done` file that should be created to indicate that we are done.
     :param pubmed_base: The PubMed base URL to download files from.
