@@ -1,5 +1,5 @@
 from src.prefixes import PUBCHEMCOMPOUND
-from src.babel_utils import make_local_name, pull_via_ftp, pull_via_urllib
+from src.babel_utils import pull_via_wget
 import gzip
 import requests
 import json
@@ -14,7 +14,7 @@ def pull_pubchem_structures():
 
 def pull(files):
     for f in files:
-        pull_via_urllib('https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras/', f, subpath=PUBCHEMCOMPOUND)
+        pull_via_wget('https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras/', f, decompress=False, subpath=PUBCHEMCOMPOUND)
 
 def pull_rxnorm_annotations(outname):
     pagenum = 1
