@@ -10,12 +10,12 @@ def pull_pubchem():
 
 def pull_pubchem_structures():
     files = ['CID-InChI-Key.gz','CID-SMILES.gz']
-    pull(files,)
+    pull(files)
 
 def pull(files):
     for f in files:
         outfile=f'{PUBCHEMCOMPOUND}/{f}'
-        pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/pubchem/Compound/Extras', f, outfilename=outfile)
+        pull_via_urllib('https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras', f, outfilename=outfile)
 
 def pull_rxnorm_annotations(outname):
     pagenum = 1
