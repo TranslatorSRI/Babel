@@ -171,6 +171,9 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
                 # Write this UMLS term to UMLS.txt as a single-identifier term.
                 cluster = {
                     'type': biolink_type,
+                    'ic': None,
+                    'preferred_name': label,
+                    'taxa': [],
                     'identifiers': [{
                         'i': umls_id,
                         'l': label,
@@ -213,11 +216,15 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
                 document = {
                     "curie": id,
                     "names": synonyms_list,
+                    "clique_identifier_count": 1,
+                    "taxa": [],
                     "types": [ t[8:] for t in node_factory.get_ancestors(umls_type_by_id[id])]
                 }
 
                 if id in preferred_name_by_id:
                     document["preferred_name"] = preferred_name_by_id[id]
+                else:
+                    document["preferred_name"] = None
 
                 # We previously used the shortest length of a name as a proxy for how good a match it is, i.e. given
                 # two concepts that both have the word "acetaminophen" in them, we assume that the shorter one is the
@@ -227,8 +234,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
 
                 # Since synonyms_list is sorted,
                 if len(synonyms_list) == 0:
-                    logging.warning(f"Synonym list for UMLS entry {id} is empty: no valid name. Skipping.")
-                    continue
+                    document["shortest_name_length"] = 0
                 else:
                     document["shortest_name_length"] = len(synonyms_list[0])
 
