@@ -117,10 +117,14 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
         #       "CONCAT('biolink:', json_extract_string(types, '$[0]')) AS biolink_type FROM synonyms_jsonl")
 
         # Step 3. Create a Synonyms table with all the cliques from this file.
-        db.sql("""CREATE TABLE Synonyms AS SELECT curie AS clique_leader, preferred_name,
-            LOWER(preferred_name) AS preferred_name_lc,
-            CONCAT('biolink:', json_extract_string(types, '$[0]')) AS biolink_type,
-            unnest(names) AS label, LOWER(label) AS label_lc FROM synonyms_jsonl""")
+        db.sql("""CREATE TABLE Synonyms (clique_leader STRING, preferred_name STRING, preferred_name_lc STRING,
+            biolink_type STRING, label STRING, label_lc STRING)""")
+        db.sql("""INSERT INTO Synonyms
+            SELECT curie AS clique_leader, preferred_name,
+                LOWER(preferred_name) AS preferred_name_lc,
+                CONCAT('biolink:', json_extract_string(types, '$[0]')) AS biolink_type,
+                unnest(names) AS label, LOWER(label) AS label_lc
+            FROM synonyms_jsonl""")
 
         # Step 3. Export as Parquet files.
         db.sql("SELECT clique_leader, preferred_name, biolink_type, label, label_lc FROM Synonyms").write_parquet(
