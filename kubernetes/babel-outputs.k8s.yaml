@@ -15,5 +15,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 600Gi
+      storage: 700Gi
   storageClassName: basic
