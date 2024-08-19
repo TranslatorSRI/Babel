@@ -14,8 +14,7 @@ def pull_pubchem_structures():
 
 def pull(files):
     for f in files:
-        outfile=f'{PUBCHEMCOMPOUND}/{f}'
-        pull_via_urllib('https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras', f, outfilename=outfile)
+        pull_via_urllib('https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras', f, subpath=PUBCHEMCOMPOUND)
 
 def pull_rxnorm_annotations(outname):
     pagenum = 1
