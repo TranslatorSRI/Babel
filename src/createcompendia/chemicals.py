@@ -77,7 +77,7 @@ def build_chemical_rxnorm_relationships(conso, idfile,outfile):
 def write_pubchem_ids(labelfile,smilesfile,outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
     # but since they're already sorted, let's give it a shot
-    with open(labelfile,'r') as inlabels, GzipFile(smilesfile, 'rt', encoding='utf-8') as insmiles, open(outfile,'w') as outf:
+    with open(labelfile,'r') as inlabels, gzip.open(smilesfile, 'rt', encoding='utf-8') as insmiles, open(outfile,'w') as outf:
         sn = -1
         flag_file_ended = False
         for labelline in inlabels:
