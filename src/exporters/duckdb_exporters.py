@@ -162,7 +162,7 @@ def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identic
             GROUP BY preferred_name HAVING COUNT(clique_leader) > 1
             ORDER BY curie_count DESC)
         SELECT 
-            preferred_name,
+            curie_counts.preferred_name,
             curie_count,
             STRING_AGG(Cliques.clique_leader, '|') AS curies
         FROM 
