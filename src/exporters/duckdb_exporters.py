@@ -158,9 +158,8 @@ def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identic
 
     db.sql("""
         WITH curie_counts AS (SELECT preferred_name, COUNT(clique_leader) AS curie_count FROM cliques
-            GROUP BY preferred_name
             WHERE filename NOT IN ('DrugChemicalConflated')
-            HAVING COUNT(clique_leader) > 1
+            GROUP BY preferred_name HAVING COUNT(clique_leader) > 1
             ORDER BY curie_count DESC)
         SELECT 
             preferred_name,
