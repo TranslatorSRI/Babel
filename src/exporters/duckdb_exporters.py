@@ -140,6 +140,44 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
         )
 
 
+def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identically_labeled_cliques_csv):
+    """
+    Generate a list of identically labeled cliques.
+
+    :param parquet_root: The root directory for the Parquet files. We expect these to have subdirectories named
+        e.g. `filename=AnatomicalEntity/Clique.parquet`, etc.
+    :param duckdb_filename: A temporary DuckDB file to use.
+    :param identically_labeled_cliques_csv: The output file listing identically labeled cliques.
+    """
+
+    db = setup_duckdb(duckdb_filename)
+    cliques = db.read_parquet(
+        os.path.join(parquet_root, "**/Clique.parquet"),
+        hive_partitioning=True
+    )
+
+    db.sql("""
+        WITH curie_counts AS (SELECT preferred_name, COUNT(clique_leader) AS curie_count FROM cliques
+            GROUP BY preferred_name
+            WHERE filename NOT IN ('DrugChemicalConflated')
+            HAVING COUNT(clique_leader) > 1
+            ORDER BY curie_count DESC)
+        SELECT 
+            preferred_name,
+            curie_count,
+            STRING_AGG(Cliques.clique_leader, '|') AS curies
+        FROM 
+            curie_counts
+        JOIN 
+            cliques ON curie_counts.preferred_name = cliques.preferred_name
+        GROUP BY 
+            curie_counts.preferred_name, 
+            curie_counts.curie_count
+        ORDER BY 
+            curie_counts.curie_count DESC;
+    """).write_csv(identically_labeled_cliques_csv)
+
+
 def identify_identically_labeled_cliques(duckdb_filename, output_filename):
     """
     Identify identically labeled cliques in the specified DuckDB database.

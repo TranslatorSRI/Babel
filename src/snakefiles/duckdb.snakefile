@@ -61,3 +61,15 @@ rule export_all_to_duckdb:
         x = config['output_directory'] + '/duckdb/done',
     shell:
         "echo 'done' >> {output.x}"
+
+
+# There are some reports we want to run on the Parquet files that have been generated.
+rule check_for_identically_labeled_cliques:
+    input:
+        config['output_directory'] + '/duckdb/done',
+        parquet_dir = config['output_directory'] + '/duckdb/parquet/',
+    output:
+        duckdb_filename = config['output_directory'] + '/duckdb/identically_labeled_clique.duckdb',
+        identically_labeled_cliques_csv = config['output_directory'] + '/reports/duckdb/identically_labeled_cliques.csv',
+    run:
+        duckdb_exporters.check_for_identically_labeled_cliques(input.parquet_dir, output.duckdb_filename, output.identically_labeled_cliques_csv)
