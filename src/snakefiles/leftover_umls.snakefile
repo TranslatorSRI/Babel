@@ -1,4 +1,6 @@
 from src.createcompendia import leftover_umls
+from src.snakefiles.util import get_all_compendia
+
 
 ##
 ## This Snakefile implements the algorithm proposed in
@@ -21,14 +23,7 @@ configfile: "config.json"
 rule leftover_umls:
     input:
         input_compendia = expand("{output}/compendia/{compendium}", output=config['output_directory'],
-            compendium=config['anatomy_outputs'] +
-                config['gene_outputs'] +
-                config['protein_outputs'] +
-                config['disease_outputs'] +
-                config['process_outputs'] +
-                config['chemical_outputs'] +
-                config['genefamily_outputs'] +
-                config['taxon_outputs']),
+            compendium=[x for x in get_all_compendia() if x not in {'umls.txt'}],
         mrconso = config['download_directory'] + '/UMLS/MRCONSO.RRF',
         mrsty = config['download_directory'] + '/UMLS/MRSTY.RRF',
         synonyms = config['download_directory'] + '/UMLS/synonyms'
