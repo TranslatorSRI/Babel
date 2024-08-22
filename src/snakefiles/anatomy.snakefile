@@ -51,6 +51,12 @@ rule get_anatomy_obo_relationships:
     run:
         anatomy.build_anatomy_obo_relationships(config['intermediate_directory']+'/anatomy/concords')
 
+rule get_wikidata_cell_relationships:
+    output:
+        config['intermediate_directory']+'/anatomy/concords/WIKIDATA',
+    run:
+        anatomy.build_wikidata_cell_relationships(config['intermediate_directory']+'/anatomy/concords')
+
 rule get_anatomy_umls_relationships:
     input:
         mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
