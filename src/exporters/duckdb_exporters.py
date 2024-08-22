@@ -164,8 +164,9 @@ def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identic
         SELECT 
             preferred_name_lc,
             curie_count,
-            STRING_AGG(DISINCT synonyms.biolink_type, '|', ORDER BY cliques.biolink_type ASC) AS biolink_types,
-            STRING_AGG(synonyms.clique_leader, '|', ORDER BY cliques.clique_leader ASC) AS curies
+            STRING_AGG(DISINCT cliques.filename, '||', ORDER BY cliques.filename ASC) AS filenames,
+            STRING_AGG(DISINCT cliques.biolink_type, '||', ORDER BY cliques.biolink_type ASC) AS biolink_types,
+            STRING_AGG(cliques.clique_leader, '||', ORDER BY cliques.clique_leader ASC) AS curies
         FROM 
             curie_counts
         JOIN 
