@@ -140,7 +140,7 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
         )
 
 
-def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identically_labeled_cliques_csv):
+def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identically_labeled_cliques_tsv):
     """
     Generate a list of identically labeled cliques.
 
@@ -176,7 +176,7 @@ def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identic
             curie_counts.curie_count
         ORDER BY 
             curie_counts.curie_count DESC;
-    """).write_csv(identically_labeled_cliques_csv)
+    """).write_csv(identically_labeled_cliques_tsv)
 
 
 def get_label_distribution(duckdb_filename, output_filename):

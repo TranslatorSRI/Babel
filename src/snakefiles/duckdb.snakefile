@@ -70,6 +70,6 @@ rule check_for_identically_labeled_cliques:
         parquet_dir = config['output_directory'] + '/duckdb/parquet/',
     output:
         duckdb_filename = config['output_directory'] + '/duckdb/identically_labeled_clique.duckdb',
-        identically_labeled_cliques_csv = config['output_directory'] + '/reports/duckdb/identically_labeled_cliques.csv',
+        identically_labeled_cliques_tsv = config['output_directory'] + '/reports/duckdb/identically_labeled_cliques.tsv',
     run:
-        duckdb_exporters.check_for_identically_labeled_cliques(input.parquet_dir, output.duckdb_filename, output.identically_labeled_cliques_csv)
+        duckdb_exporters.check_for_identically_labeled_cliques(input.parquet_dir, output.duckdb_filename, output.identically_labeled_cliques_tsv)
