@@ -152,7 +152,7 @@ def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identic
 
     db = setup_duckdb(duckdb_filename)
     cliques = db.read_parquet(
-        os.path.join(parquet_root, "**/Cliques.parquet"),
+        os.path.join(parquet_root, "**/Clique.parquet"),
         hive_partitioning=True
     )
 
