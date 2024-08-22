@@ -177,36 +177,6 @@ def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identic
     """).write_csv(identically_labeled_cliques_csv)
 
 
-def identify_identically_labeled_cliques(duckdb_filename, output_filename):
-    """
-    Identify identically labeled cliques in the specified DuckDB database.
-
-    :param duckdb_filename: The DuckDB database containing entries.
-    """
-    db = setup_duckdb(duckdb_filename)
-
-    # Thanks, ChatGPT.
-    db.sql("""
-        WITH curie_counts AS (SELECT label, COUNT(curie) AS curie_count FROM Cliques
-            GROUP BY label
-            HAVING COUNT(curie) > 1
-            ORDER BY curie_count DESC)
-        SELECT 
-            curie_counts.label,
-            curie_counts.curie_count,
-            STRING_AGG(Cliques.curie, '|') AS curies
-        FROM 
-            curie_counts
-        JOIN 
-            Cliques ON curie_counts.label = Cliques.label
-        GROUP BY 
-            curie_counts.label, 
-            curie_counts.curie_count
-        ORDER BY 
-            curie_counts.curie_count DESC;
-    """).write_csv(output_filename)
-
-
 def get_label_distribution(duckdb_filename, output_filename):
     db = setup_duckdb(duckdb_filename)
 
