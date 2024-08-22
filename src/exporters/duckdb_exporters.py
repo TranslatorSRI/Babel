@@ -117,7 +117,7 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
         #       "CONCAT('biolink:', json_extract_string(types, '$[0]')) AS biolink_type FROM synonyms_jsonl")
 
         # Step 3. Create a Synonyms table with all the cliques from this file.
-        db.sql("""CREATE TABLE Synonyms (clique_leader STRING, preferred_name STRING, preferred_name_lc STRING,
+        db.sql("""CREATE TABLE Synonym (clique_leader STRING, preferred_name STRING, preferred_name_lc STRING,
             biolink_type STRING, label STRING, label_lc STRING)""")
 
         # We can't execute the following INSERT statement unless we have at least one row in the input data.
@@ -127,7 +127,7 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
 
         # Assuming we have data in synonyms_jsonl, write it out now.
         if row_count > 0:
-            db.sql("""INSERT INTO Synonyms
+            db.sql("""INSERT INTO Synonym
                 SELECT curie AS clique_leader, preferred_name,
                     LOWER(preferred_name) AS preferred_name_lc,
                     CONCAT('biolink:', json_extract_string(types, '$[0]')) AS biolink_type,
@@ -135,7 +135,7 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
                 FROM synonyms_jsonl""")
 
         # Step 3. Export as Parquet files.
-        db.sql("SELECT clique_leader, preferred_name, preferred_name_lc, biolink_type, label, label_lc FROM Synonyms").write_parquet(
+        db.sql("SELECT clique_leader, preferred_name, preferred_name_lc, biolink_type, label, label_lc FROM Synonym").write_parquet(
             synonyms_parquet_filename
         )
 
@@ -164,9 +164,9 @@ def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identic
         SELECT 
             preferred_name_lc,
             curie_count,
-            STRING_AGG(DISINCT cliques.filename, '||', ORDER BY cliques.filename ASC) AS filenames,
-            STRING_AGG(DISINCT cliques.biolink_type, '||', ORDER BY cliques.biolink_type ASC) AS biolink_types,
-            STRING_AGG(cliques.clique_leader, '||', ORDER BY cliques.clique_leader ASC) AS curies
+            STRING_AGG(DISINCT cliques.filename, '||' ORDER BY cliques.filename ASC) AS filenames,
+            STRING_AGG(DISINCT cliques.biolink_type, '||' ORDER BY cliques.biolink_type ASC) AS biolink_types,
+            STRING_AGG(cliques.clique_leader, '||' ORDER BY cliques.clique_leader ASC) AS curies
         FROM 
             curie_counts
         JOIN 
