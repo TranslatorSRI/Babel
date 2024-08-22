@@ -135,7 +135,7 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
                 FROM synonyms_jsonl""")
 
         # Step 3. Export as Parquet files.
-        db.sql("SELECT clique_leader, preferred_name, biolink_type, label, label_lc FROM Synonyms").write_parquet(
+        db.sql("SELECT clique_leader, preferred_name, preferred_name_lc, biolink_type, label, label_lc FROM Synonyms").write_parquet(
             synonyms_parquet_filename
         )
 
@@ -152,23 +152,24 @@ def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identic
 
     db = setup_duckdb(duckdb_filename)
     cliques = db.read_parquet(
-        os.path.join(parquet_root, "**/Clique.parquet"),
+        os.path.join(parquet_root, "**/Cliques.parquet"),
         hive_partitioning=True
     )
 
     db.sql("""
-        WITH curie_counts AS (SELECT preferred_name, COUNT(clique_leader) AS curie_count FROM cliques
+        WITH curie_counts AS (SELECT LOWER(preferred_name) AS preferred_name_lc, COUNT(clique_leader) AS curie_count FROM cliques
             WHERE filename NOT IN ('DrugChemicalConflated')
-            GROUP BY preferred_name HAVING COUNT(clique_leader) > 1
+            GROUP BY preferred_name_lc HAVING COUNT(clique_leader) > 1
             ORDER BY curie_count DESC)
         SELECT 
-            curie_counts.preferred_name,
+            preferred_name_lc,
             curie_count,
-            STRING_AGG(Cliques.clique_leader, '|') AS curies
+            STRING_AGG(DISINCT synonyms.biolink_type, '|', ORDER BY cliques.biolink_type DESC) AS biolink_types,
+            STRING_AGG(synonyms.clique_leader, '|', ORDER BY cliques.clique_leader ASC) AS curies
         FROM 
             curie_counts
         JOIN 
-            cliques ON curie_counts.preferred_name = cliques.preferred_name
+            cliques ON curie_counts.preferred_name_lc = LOWER(cliques.preferred_name)
         GROUP BY 
             curie_counts.preferred_name, 
             curie_counts.curie_count
