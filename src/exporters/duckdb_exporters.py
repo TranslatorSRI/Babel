@@ -176,7 +176,7 @@ def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identic
             curie_counts.curie_count
         ORDER BY 
             curie_counts.curie_count DESC;
-    """).write_csv(identically_labeled_cliques_tsv)
+    """).write_csv(identically_labeled_cliques_tsv, sep="\t")
 
 
 def get_label_distribution(duckdb_filename, output_filename):
