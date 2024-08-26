@@ -340,6 +340,7 @@ def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_r
     # merged together because they share a normalized identifier. We can do this by adding pairs to indicate that every
     # subject and object is associated with its normalized identifier.
     pairs_to_be_glommed = []
+    pairs.extend(manual_concords)
     for (subj, obj) in pairs:
         # If either the subject or the object cannot be normalized, skip this pair entirely.
         #
@@ -363,16 +364,6 @@ def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_r
         # If the object is not normalized, add a pair indicating the normalized ID.
         if preferred_curie_for_curie[obj] != obj:
             pairs_to_be_glommed.append((obj, preferred_curie_for_curie[obj]))
-
-    # Add the normalized manual concords to the gloms.
-    for (subj, obj) in manual_concords:
-        if subj not in preferred_curie_for_curie:
-            logger.warning(f"Manual concord ({subj}, {obj}) has a subject ({subj}) that cannot be normalized, skipping.")
-            continue
-        if obj not in preferred_curie_for_curie:
-            logger.warning(f"Manual concord ({subj}, {obj}) has an object ({obj}) that cannot be normalized, skipping.")
-            continue
-        pairs_to_be_glommed.extend((preferred_curie_for_curie[subj], preferred_curie_for_curie[obj]))
 
     # Glommin' time
     print("glom")
