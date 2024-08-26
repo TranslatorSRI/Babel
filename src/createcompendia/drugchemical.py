@@ -254,7 +254,7 @@ def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_r
             if row['subject'].strip() == '' or row['object'].strip() == '':
                 raise RuntimeError(f"Empty subject or object fields in {manual_concord_filename}: {row}")
             manual_concords.append((row['subject'], row['object']))
-    print("{len(manual_concords)} manual concords loaded.")
+    print(f"{len(manual_concords)} manual concords loaded.")
 
     print("load all chemical conflations so we can normalize identifiers")
     preferred_curie_for_curie = {}
