@@ -246,7 +246,7 @@ def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_r
     print("Loading manual concords ...")
     manual_concords = []
     with open(manual_concord_filename,"r") as manualf:
-        csv_reader = csv.DictReader(manualf)
+        csv_reader = csv.DictReader(manualf, dialect=csv.excel_tab)
         for row in csv_reader:
             # We're only interested in two fields, so you can add additional files ('comment', 'notes', etc.) as needed.
             if 'subject' not in row or 'object' not in row:
