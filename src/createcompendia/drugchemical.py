@@ -1,3 +1,5 @@
+import csv
+
 from src.node import NodeFactory, get_config
 from src.prefixes import RXCUI, PUBCHEMCOMPOUND, UMLS
 from src.categories import (CHEMICAL_ENTITY, DRUG, MOLECULAR_MIXTURE, FOOD, COMPLEX_MOLECULAR_MIXTURE,
@@ -233,13 +235,26 @@ def build_pubchem_relationships(infile,outfile):
             for cid in cids:
                 outf.write(f"{RXCUI}:{rxnid}\tlinked\t{PUBCHEMCOMPOUND}:{cid}\n")
 
-def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
+def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
     """RXN_concord contains relationshps between rxcuis that can be used to conflate
     Now we don't want all of them.  We want the ones that are between drugs and chemicals,
     and the ones between drugs and drugs.
     To determine which those are, we're going to have to dig around in all the compendia.
     We also want to get all the clique leaders as well.  For those, we only need to worry if there are RXCUIs
     in the clique."""
+
+    print("Loading manual concords ...")
+    manual_concords = []
+    with open(manual_concord_filename,"r") as manualf:
+        csv_reader = csv.DictReader(manualf)
+        for row in csv_reader:
+            # We're only interested in two fields, so you can add additional files ('comment', 'notes', etc.) as needed.
+            if 'subject' not in row or 'object' not in row:
+                raise RuntimeError(f"Missing subject or object fields in {manual_concord_filename}: {row}")
+            if row['subject'].strip() == '' or row['object'].strip() == '':
+                raise RuntimeError(f"Empty subject or object fields in {manual_concord_filename}: {row}")
+            manual_concords.append((row['subject'], row['object']))
+    print("{len(manual_concords)} manual concords loaded.")
 
     print("load all chemical conflations so we can normalize identifiers")
     preferred_curie_for_curie = {}
@@ -348,6 +363,14 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
         # If the object is not normalized, add a pair indicating the normalized ID.
         if preferred_curie_for_curie[obj] != obj:
             pairs_to_be_glommed.append((obj, preferred_curie_for_curie[obj]))
+
+    # Add the normalized manual concords to the gloms.
+    for (subj, obj) in manual_concords:
+        if subj not in preferred_curie_for_curie:
+            raise RuntimeError(f"Manual concord ({subj}, {obj}) has a subject ({subj}) that cannot be normalized.")
+        if obj not in preferred_curie_for_curie:
+            raise RuntimeError(f"Manual concord ({subj}, {obj}) has an object ({obj}) that cannot be normalized.")
+        pairs_to_be_glommed.extend((preferred_curie_for_curie[subj], preferred_curie_for_curie[obj]))
 
     # Glommin' time
     print("glom")

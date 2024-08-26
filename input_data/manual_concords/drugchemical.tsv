@@ -1,0 +1,14 @@
+subject	predicate	object	notes	url
+CHEMBL.COMPOUND:CHEMBL2108505	skos:relatedMatch	MESH:D043322	"Not exactly the same thing (MESH:D043322 is in the same clique as Tilactase, which is a synthetic lactase), but close enough."	https://github.com/NCATSTranslator/Feedback/issues/833
+UNII:E211KPY694	skos:closeMatch	UMLS:C0006050	“botulinum toxin type A” in UMLS	https://github.com/NCATSTranslator/Feedback/issues/395#issuecomment-2225798922
+UNII:E211KPY694	skos:closeMatch	UMLS:C5235582	“Botulinum Toxin Type A1” in UMLS	https://github.com/NCATSTranslator/Feedback/issues/395#issuecomment-2225798922
+UNII:E211KPY694	skos:closeMatch	UMLS:C5235583	“Botulinum Toxin Type A3” in UMLS	https://github.com/NCATSTranslator/Feedback/issues/395#issuecomment-2225798922
+UNII:E211KPY694	skos:closeMatch	UMLS:C5235584	“Botulinum Toxin Type A4” in UMLS	https://github.com/NCATSTranslator/Feedback/issues/395#issuecomment-2225798922
+UNII:E211KPY694	skos:closeMatch	UMLS:C5235585	“Botulinum Toxin Type A5” in UMLS	https://github.com/NCATSTranslator/Feedback/issues/395#issuecomment-2225798922
+UNII:E211KPY694	skos:closeMatch	UMLS:C5235586	“Botulinum Toxin Type A6” in UMLS	https://github.com/NCATSTranslator/Feedback/issues/395#issuecomment-2225798922
+UNII:E211KPY694	skos:closeMatch	UMLS:C5235587	“Botulinum Toxin Type A7” in UMLS	https://github.com/NCATSTranslator/Feedback/issues/395#issuecomment-2225798922
+UNII:P188ANX8CK	skos:exactMatch	CHEMBL.COMPOUND:CHEMBL1201585	"They should be combined, but they’re not — we can temporarily fix it in DrugChemical conflation, but we should figure out a comprehensive solution to this."	https://github.com/TranslatorSRI/Babel/issues/223
+MESH:D007252	skos:exactMatch	CHEMBL.COMPOUND:CHEMBL2109042	"They should be combined, but they’re not — we can temporarily fix it in DrugChemical conflation, but we should figure out a comprehensive solution to this."	https://github.com/NCATSTranslator/Feedback/issues/612||https://github.com/TranslatorSRI/Babel/issues/234
+MESH:C415772	skos:exactMatch	CHEMBL.COMPOUND:CHEMBL2108230	"They should be combined, but they’re not — we can temporarily fix it in DrugChemical conflation, but we should figure out a comprehensive solution to this."	https://github.com/TranslatorSRI/NodeNormalization/issues/224
+UNII:A1ED6W905I	skos:exactMatch	CHEMBL.COMPOUND:CHEMBL2108230	"They should be combined, but they’re not — we can temporarily fix it in DrugChemical conflation, but we should figure out a comprehensive solution to this."	https://github.com/TranslatorSRI/NodeNormalization/issues/224
+UNII:XX73205DH5	skos:exactMatch	CHEMBL.COMPOUND:CHEMBL2367706	"They should be combined, but they’re not — we can temporarily fix it in DrugChemical conflation, but we should figure out a comprehensive solution to this."	https://github.com/TranslatorSRI/Babel/issues/230
