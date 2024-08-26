@@ -367,9 +367,11 @@ def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_r
     # Add the normalized manual concords to the gloms.
     for (subj, obj) in manual_concords:
         if subj not in preferred_curie_for_curie:
-            raise RuntimeError(f"Manual concord ({subj}, {obj}) has a subject ({subj}) that cannot be normalized.")
+            logger.warning(f"Manual concord ({subj}, {obj}) has a subject ({subj}) that cannot be normalized, skipping.")
+            continue
         if obj not in preferred_curie_for_curie:
-            raise RuntimeError(f"Manual concord ({subj}, {obj}) has an object ({obj}) that cannot be normalized.")
+            logger.warning(f"Manual concord ({subj}, {obj}) has an object ({obj}) that cannot be normalized, skipping.")
+            continue
         pairs_to_be_glommed.extend((preferred_curie_for_curie[subj], preferred_curie_for_curie[obj]))
 
     # Glommin' time
