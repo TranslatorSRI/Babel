@@ -1,8 +1,10 @@
 from collections import defaultdict
+import requests
 
 import src.datahandlers.obo as obo
+from src.util import Text
 
-from src.prefixes import MESH, NCIT, CL, GO, UBERON, SNOMEDCT
+from src.prefixes import MESH, NCIT, CL, GO, UBERON, SNOMEDCT, WIKIDATA, UMLS
 from src.categories import ANATOMICAL_ENTITY, GROSS_ANATOMICAL_STRUCTURE, CELL, CELLULAR_COMPONENT
 from src.ubergraph import build_sets
 from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
@@ -95,6 +97,43 @@ def build_anatomy_obo_relationships(outdir):
     with open(f'{outdir}/{UBERON}', 'w') as uberon, open(f'{outdir}/{GO}', 'w') as go, open(f'{outdir}/{CL}', 'w') as cl:
         build_sets(f'{UBERON}:0001062', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
         build_sets(f'{GO}:0005575', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
+
+def build_wikidata_cell_relationships(outdir):
+    #This sparql returns all the wikidata items that have a UMLS identifier and a CL identifier
+    sparql = """PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+        PREFIX wdtn: <http://www.wikidata.org/prop/direct-normalized/>
+        SELECT * WHERE {
+          ?wd wdtn:P7963 ?cl .
+          ?wd wdt:P2892 ?umls .
+        }"""
+    frink_wikidata_url = "https://frink.apps.renci.org/federation/sparql"
+    response = requests.post(frink_wikidata_url, data={'query': sparql})
+    if not response.ok:
+        raise RuntimeError(f"Could not query {frink_wikidata_url}: {response.status_code} {response.reason}")
+    try:
+        results = response.json()
+    except Exception as e:
+        raise RuntimeError(f"Could not parse {frink_wikidata_url}: {e} raised when parsing response {response.content}.")
+    rows = results["results"]["bindings"]
+    # If one wikidata entry has either more than one CL or more than one UMLS, then we end up with problems
+    # (It could also be possible that the same CL is on more than one wikidata entry, but haven't seen that yet)
+    # Loop over the rows, transform each row into curies, and filter out any wikidata entry that occurs more than once.
+    # Double check that the UMLS and CL are unique.  Then write out the now-unique UMLS/CL mappings
+    counts = defaultdict(int)
+    pairs = []
+    for row in rows:
+        umls_curie = f'{UMLS}:{row["umls"]["value"]}'
+        wd_curie = f'{WIKIDATA}:{row["wd"]["value"]}'
+        cl_curie = Text.obo_to_curie(row["cl"]["value"])
+        pairs.append( (umls_curie, cl_curie) )
+        counts[umls_curie] += 1
+        counts[cl_curie] += 1
+    with open(f'{outdir}/{WIKIDATA}', 'w') as wd:
+        for pair in pairs:
+            if (counts[pair[0]] == 1) and (counts[pair[1]] == 1):
+                wd.write(f'{pair[0]}\teq\t{pair[1]}\n')
+            else:
+                print(f'Pair {pair} is not unique {counts[pair[0]]} {counts[pair[1]]}')
 
 def build_anatomy_umls_relationships(mrconso, idfile,outfile):
     umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT})
