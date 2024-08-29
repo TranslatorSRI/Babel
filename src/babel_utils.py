@@ -223,6 +223,7 @@ def pull_via_wget(
         subpath:str=None,
         outpath:str=None,
         continue_incomplete:bool=True,
+        timestamping=True,
         recurse:WgetRecursionOptions = WgetRecursionOptions.NO_RECURSION,
         retries:int=10):
     """
@@ -260,6 +261,8 @@ def pull_via_wget(
     ]
     if continue_incomplete:
         wget_command_line.append('--continue')
+    if timestamping:
+        wget_command_line.append('--timestamping')
     if retries > 0:
         wget_command_line.append(f'--tries={retries}')
 
@@ -399,6 +402,63 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 if ic is not None:
                     nw['ic'] = ic
 
+                # Determine types.
+                types = node_factory.get_ancestors(node["type"])
+
+                # Generate a preferred label for this clique.
+                #
+                # To pick a preferred label for this clique, we need to do three things:
+                # 1. We sort all labels in the preferred-name order. By default, this should be
+                #    the preferred CURIE order, but if this clique is in one of the Biolink classes in
+                #    preferred_name_boost_prefixes, we boost those prefixes in that order to the top of the list.
+                # 2. We filter out any suspicious labels.
+                #    (If this simple filter doesn't work, and if prefixes are inconsistent, we can build upon the
+                #    algorithm proposed by Jeff at
+                #    https://github.com/NCATSTranslator/Feedback/issues/259#issuecomment-1605140850)
+                # 3. We filter out any labels longer than config['demote_labels_longer_than'], but only if there is
+                #    at least one label shorter than this limit.
+                # 4. We choose the first label that isn't blank (that allows us to use our rule of smallest-prefix-first to find the broadest name for this concept). If no labels remain, we generate a warning.
+
+                # Step 1.1. Sort labels in boosted prefix order if possible.
+                possible_labels = []
+                for typ in types:
+                    if typ in preferred_name_boost_prefixes:
+                        # This is the most specific matching type, so we use this.
+                        possible_labels = map(lambda identifier: identifier.get('label', ''),
+                                              sort_identifiers_with_boosted_prefixes(
+                                                  node["identifiers"],
+                                                  preferred_name_boost_prefixes[typ]
+                                              ))
+                        break
+
+                # Step 1.2. If we didn't have a preferred_name_boost_prefixes, just use the identifiers in their
+                # Biolink prefix order.
+                if not possible_labels:
+                    possible_labels = map(lambda identifier: identifier.get('label', ''), node["identifiers"])
+
+                # Step 2. Filter out any suspicious labels.
+                filtered_possible_labels = [l for l in possible_labels if
+                                            l and                               # Ignore blank or empty names.
+                                            not l.startswith('CHEMBL')          # Some CHEMBL names are just the identifier again.
+                                            ]
+
+                # Step 3. Filter out labels longer than config['demote_labels_longer_than'], but only if there is at
+                # least one label shorter than this limit.
+                labels_shorter_than_limit = [l for l in possible_labels if l and len(l) <= config['demote_labels_longer_than']]
+                if labels_shorter_than_limit:
+                    filtered_possible_labels = labels_shorter_than_limit
+
+                # Step 4. Pick the first label that isn't blank.
+                if filtered_possible_labels:
+                    document["preferred_name"] = filtered_possible_labels[0]
+
+                # Step 5. Pick the first label that isn't blank.
+                if filtered_possible_labels:
+                    preferred_name = filtered_possible_labels[0]
+                else:
+                    preferred_name = ''
+
+                # Generate the node.
                 descs = description_factory.get_descriptions(node)
                 taxa = taxon_factory.get_taxa(node)
                 nw['identifiers'] = []
@@ -417,6 +477,9 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
 
                     nw['identifiers'].append(id_info)
 
+                # Write out the preferred name, if we have one.
+                nw['preferred_name'] = preferred_name
+
                 # Collect taxon names for this node.
                 nw['taxa'] = list(sorted(set().union(*taxa.values()), key=get_numerical_curie_suffix))
 
@@ -431,55 +494,13 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 # relation, we should get rid of any duplicated synonyms here.
                 synonyms_list = sorted(set(synonyms), key=lambda x: len(x))
                 try:
-                    types = node_factory.get_ancestors(node["type"])
                     document = {"curie": curie,
                                 "names": synonyms_list,
                                 "types": [t[8:] for t in types]} # remove biolink:
 
-                    # To pick a preferred label for this clique, we need to do four things:
-                    # 1. We sort all labels in the preferred-name order. By default, this should be
-                    #    the preferred CURIE order, but if this clique is in one of the Biolink classes in
-                    #    preferred_name_boost_prefixes, we boost those prefixes in that order to the top of the list.
-                    # 2. We filter out any suspicious labels.
-                    #    (If this simple filter doesn't work, and if prefixes are inconsistent, we can build upon the
-                    #    algorithm proposed by Jeff at
-                    #    https://github.com/NCATSTranslator/Feedback/issues/259#issuecomment-1605140850)
-                    # 3. We filter out any labels longer than config['demote_labels_longer_than'], but only if there is
-                    #    at least one label shorter than this limit.
-                    # 4. We choose the first label that isn't blank (that allows us to use our rule of smallest-prefix-first to find the broadest name for this concept). If no labels remain, we generate a warning.
-
-                    # Step 1.1. Sort labels in boosted prefix order if possible.
-                    possible_labels = []
-                    for typ in types:
-                        if typ in preferred_name_boost_prefixes:
-                            # This is the most specific matching type, so we use this.
-                            possible_labels = map(lambda identifier: identifier.get('label', ''),
-                                sort_identifiers_with_boosted_prefixes(
-                                    node["identifiers"],
-                                    preferred_name_boost_prefixes[typ]
-                                ))
-                            break
-
-                    # Step 1.2. If we didn't have a preferred_name_boost_prefixes, just use the identifiers in their
-                    # Biolink prefix order.
-                    if not possible_labels:
-                        possible_labels = map(lambda identifier: identifier.get('label', ''), node["identifiers"])
-
-                    # Step 2. Filter out any suspicious labels.
-                    filtered_possible_labels = [l for l in possible_labels if
-                                                l and                               # Ignore blank or empty names.
-                                                not l.startswith('CHEMBL')          # Some CHEMBL names are just the identifier again.
-                                                ]
-
-                    # Step 3. Filter out labels longer than config['demote_labels_longer_than'], but only if there is at
-                    # least one label shorter than this limit.
-                    labels_shorter_than_limit = [l for l in possible_labels if l and len(l) <= config['demote_labels_longer_than']]
-                    if labels_shorter_than_limit:
-                        filtered_possible_labels = labels_shorter_than_limit
-
-                    # Step 4. Pick the first label that isn't blank.
-                    if filtered_possible_labels:
-                        document["preferred_name"] = filtered_possible_labels[0]
+                    # Write out the preferred name.
+                    if preferred_name:
+                        document["preferred_name"] = preferred_name
                     else:
                         logging.debug(
                             f"No preferred name for {node}, probably because all names were filtered out. Skipping."

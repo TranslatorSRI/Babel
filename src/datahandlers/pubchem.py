@@ -1,5 +1,5 @@
 from src.prefixes import PUBCHEMCOMPOUND
-from src.babel_utils import make_local_name, pull_via_ftp, pull_via_urllib
+from src.babel_utils import pull_via_wget
 import gzip
 import requests
 import json
@@ -10,12 +10,11 @@ def pull_pubchem():
 
 def pull_pubchem_structures():
     files = ['CID-InChI-Key.gz','CID-SMILES.gz']
-    pull(files,)
+    pull(files)
 
 def pull(files):
     for f in files:
-        outfile=f'{PUBCHEMCOMPOUND}/{f}'
-        pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/pubchem/Compound/Extras', f, outfilename=outfile)
+        pull_via_wget('https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras/', f, decompress=False, subpath=PUBCHEMCOMPOUND)
 
 def pull_rxnorm_annotations(outname):
     pagenum = 1
