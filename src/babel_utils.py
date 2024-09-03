@@ -399,8 +399,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
             if node is not None:
                 nw = {"type": node['type']}
                 ic = ic_factory.get_ic(node)
-                if ic is not None:
-                    nw['ic'] = ic
+                nw['ic'] = ic
 
                 # Determine types.
                 types = node_factory.get_ancestors(node["type"])
