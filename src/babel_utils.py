@@ -498,7 +498,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                         document["preferred_name"] = preferred_name
                     else:
                         logging.debug(
-                            f"No preferred name for {node}, probably because all names were filtered out. Skipping."
+                            f"No preferred name for {node}, probably because all names were filtered out, skipping."
                         )
                         continue
 
