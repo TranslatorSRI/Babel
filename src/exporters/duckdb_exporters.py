@@ -179,6 +179,51 @@ def check_for_identically_labeled_cliques(parquet_root, duckdb_filename, identic
     """).write_csv(identically_labeled_cliques_tsv, sep="\t")
 
 
+def check_for_duplicate_curies(parquet_root, duckdb_filename, duplicate_curies_tsv):
+    """
+    Generate a list of duplicate CURIEs.
+
+    :param parquet_root: The root directory for the Parquet files. We expect these to have subdirectories named
+        e.g. `filename=AnatomicalEntity/Clique.parquet`, etc.
+    :param duckdb_filename: A temporary DuckDB file to use.
+    :param duplicate_curies_tsv: The output file listing duplicate CURIEs.
+    """
+
+    db = setup_duckdb(duckdb_filename)
+    edges = db.read_parquet(
+        os.path.join(parquet_root, "**/Edge.parquet"),
+        hive_partitioning=True
+    )
+    cliques = db.read_parquet(
+        os.path.join(parquet_root, "**/Clique.parquet"),
+        hive_partitioning=True
+    )
+
+    db.sql("""
+        WITH curie_counts AS (SELECT DISTINCT curie, COUNT(clique_leader) AS clique_leader_count FROM edges
+            WHERE conflation = 'None'
+            GROUP BY curie HAVING COUNT(clique_leader) > 1
+            ORDER BY clique_leader_count DESC
+        )
+        SELECT 
+            curie,
+            clique_leader_count,
+            STRING_AGG(DISTINCT cliques.filename, '||' ORDER BY cliques.filename ASC) AS filenames,
+            STRING_AGG(DISTINCT cliques.biolink_type, '||' ORDER BY cliques.biolink_type ASC) AS biolink_types,
+            STRING_AGG(cliques.clique_leader, '||' ORDER BY cliques.clique_leader ASC) AS curies
+        FROM 
+            curie_counts
+        JOIN edges ON edges.curie = curie_counts.curie
+        JOIN cliques ON cliques.clique_leader = edges.clique_leader
+        GROUP BY 
+            curie_counts.curie, 
+            curie_counts.curie_count
+        ORDER BY 
+            curie_counts.curie_count DESC;
+    
+    """).write_csv(duplicate_curies_tsv, sep="\t")
+
+
 def get_label_distribution(duckdb_filename, output_filename):
     db = setup_duckdb(duckdb_filename)
 
