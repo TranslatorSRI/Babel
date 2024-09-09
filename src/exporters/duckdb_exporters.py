@@ -206,11 +206,11 @@ def check_for_duplicate_curies(parquet_root, duckdb_filename, duplicate_curies_t
             ORDER BY clique_leader_count DESC
         )
         SELECT 
-            curie,
+            curie_counts.curie,
             clique_leader_count,
             STRING_AGG(DISTINCT cliques.filename, '||' ORDER BY cliques.filename ASC) AS filenames,
             STRING_AGG(DISTINCT cliques.biolink_type, '||' ORDER BY cliques.biolink_type ASC) AS biolink_types,
-            STRING_AGG(cliques.clique_leader, '||' ORDER BY cliques.clique_leader ASC) AS curies
+            STRING_AGG(cliques.clique_leader, '||' ORDER BY cliques.clique_leader ASC) AS clique_leaders
         FROM 
             curie_counts
         JOIN edges ON edges.curie = curie_counts.curie
