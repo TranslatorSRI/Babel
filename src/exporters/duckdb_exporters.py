@@ -217,9 +217,9 @@ def check_for_duplicate_curies(parquet_root, duckdb_filename, duplicate_curies_t
         JOIN cliques ON cliques.clique_leader = edges.clique_leader
         GROUP BY 
             curie_counts.curie, 
-            curie_counts.curie_count
+            curie_counts.clique_leader_count
         ORDER BY 
-            curie_counts.curie_count DESC;
+            curie_counts.clique_leader_count DESC;
     
     """).write_csv(duplicate_curies_tsv, sep="\t")
 
