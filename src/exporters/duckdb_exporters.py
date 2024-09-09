@@ -202,7 +202,7 @@ def check_for_duplicate_curies(parquet_root, duckdb_filename, duplicate_curies_t
     db.sql("""
         WITH curie_counts AS (SELECT DISTINCT curie, COUNT(clique_leader) AS clique_leader_count FROM edges
             WHERE conflation = 'None'
-            GROUP BY curie HAVING COUNT(clique_leader) > 1
+            GROUP BY curie HAVING COUNT(DISTINCT clique_leader) > 1
             ORDER BY clique_leader_count DESC
         )
         SELECT 
