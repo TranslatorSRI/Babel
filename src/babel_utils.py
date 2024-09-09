@@ -422,12 +422,21 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 possible_labels = []
                 for typ in types:
                     if typ in preferred_name_boost_prefixes:
-                        # This is the most specific matching type, so we use this.
-                        possible_labels = map(lambda identifier: identifier.get('label', ''),
+                        # This is the most specific matching type, so we use this and then break.
+                        possible_labels = list(map(lambda identifier: identifier.get('label', ''),
                                               sort_identifiers_with_boosted_prefixes(
                                                   node["identifiers"],
                                                   preferred_name_boost_prefixes[typ]
-                                              ))
+                                              )))
+
+                        # Add in all the other labels -- we'd still like to consider them, but at a lower priority.
+                        for id in node["identifiers"]:
+                            label = id.get('label', '')
+                            if label not in possible_labels:
+                                possible_labels.append(label)
+
+                        # Since this is the most specific matching type, we shouldn't do other (presumably higher-level)
+                        # categories: so let's break here.
                         break
 
                 # Step 1.2. If we didn't have a preferred_name_boost_prefixes, just use the identifiers in their
