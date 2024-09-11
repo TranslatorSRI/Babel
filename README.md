@@ -22,7 +22,13 @@ strong dependencies against the Babel code.
 
 ## Configuration
 
+The [`./kubernetes`](./kubernetes/README.md) directory contains Kubernetes manifest files
+that can be used to set up a Pod to run Babel in. They'll give you an idea of the disk
+space and memory requirements needed to run this pipeline.
+
 Before running, read through `config.json` and make sure that the settings look correct.
+You may need to update the version numbers of some databases that need to be downloaded,
+or change the download and output directories.
 
 A UMLS API key is required in order to download UMLS and RxNorm databases. You will need
 to set the `UMLS_API_KEY` environmental variable to a UMLS API key, which you can obtain
@@ -34,19 +40,31 @@ Compendia building is managed by snakemake.  To build, for example, the anatomy 
 
 ```snakemake --cores 1 anatomy```
 
-Currently, the following targets build compendia:
+Currently, the following targets build compendia and synonym files:
 * anatomy
 * chemical
 * disease
 * gene
-* protein
 * genefamily
+* protein
+* macromolecular_complex
 * taxon
 * process
+* publications
+
+And these two build conflations:
 * geneprotein
+* drugchemical
 
 Each target builds one or more compendia corresponding to a biolink model category.  For instance, the anatomy target 
 builds compendia for `biolink:AnatomicalEntity`, `biolink:Cell`, `biolink:CellularComponent`, and `biolink:GrossAnatomicalStructure`.
+
+You can also just run:
+
+```snakemake --cores 5```
+
+without a target to create all the files that are produced as part of Babel, including all reports and
+alternate exports.
 
 ## Build Process
 
