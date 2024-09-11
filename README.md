@@ -22,12 +22,11 @@ strong dependencies against the Babel code.
 
 ## Configuration
 
-Before running, edit `config.json` and set the `babel_downloads` and `babel_output` directories.  Do not edit the
-remaining items, which are used to control the build process.
+Before running, read through `config.json` and make sure that the settings look correct.
 
-Also, if building the disease/phenotype compendia, there are two files that 
-must be obtained with the user's UMLS license.  In particular `MRCONSO.RRF` 
-and `MRSTY.RRF` should be placed in `/babel/input_data/private`.
+A UMLS API key is required in order to download UMLS and RxNorm databases. You will need
+to set the `UMLS_API_KEY` environmental variable to a UMLS API key, which you can obtain
+by creating a profile on the [UMLS Terminology Services website](https://uts.nlm.nih.gov/uts).
 
 ## Building Compendia
 
