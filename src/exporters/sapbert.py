@@ -47,7 +47,8 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
 
     # For now, the simplest way to identify the DrugChemicalConflated file is by name.
     # In this case we still generate DrugChemicalConflated.txt, but we also generate
-    # DrugChemicalConflatedSmaller.txt, which ignores labels longer than config['demote_labels_longer_than'].
+    # DrugChemicalConflatedSmaller.txt, which ignores cliques whose preferred label is
+    # longer than config['demote_labels_longer_than'].
     generate_smaller_filename = None
     if synonym_filename.endswith('/DrugChemicalConflated.txt'):
         generate_smaller_filename = sapbert_filename_gzipped.replace('.txt.gz', 'Smaller.txt.gz')
@@ -115,7 +116,6 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
                     count_smaller_rows += 1
             else:
                 name_pairs = list(itertools.combinations(set(names), 2))
-                is_any_name_short = any(map(lambda name: len(name) >= config['demote_labels_longer_than'], names))
 
                 if len(name_pairs) > MAX_SYNONYM_PAIRS:
                     # Randomly select 50 pairs.
@@ -126,8 +126,9 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
                     sapbertf.write(line)
                     count_training_rows += 1
 
-                    # As long as any of the names is short enough, we should use this for training.
-                    if generate_smaller_file and is_any_name_short:
+                    # As long as the preferred name is shorter than the right size, we should add this clique to the
+                    # smaller file as well.
+                    if generate_smaller_file and is_preferred_name_short:
                         generate_smaller_file.write(line)
                         count_smaller_rows += 1
 
