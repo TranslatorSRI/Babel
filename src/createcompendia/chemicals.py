@@ -196,7 +196,7 @@ def write_drugbank_ids(infile,outfile):
                 if x[2] in written:
                     continue
                 dbid = f'{DRUGBANK}:{x[2]}'
-                outf.write(f'{dbid}\t{DRUG}\n')
+                outf.write(f'{dbid}\t{CHEMICAL_ENTITY}\n')
                 written.add(x[2])
 
 def write_chemical_ids_from_labels_and_smiles(labelfile,smifile,outfile):
