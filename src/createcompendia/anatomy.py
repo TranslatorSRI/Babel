@@ -107,8 +107,13 @@ def build_wikidata_cell_relationships(outdir):
           ?wd wdt:P2892 ?umls .
         }"""
     frink_wikidata_url = "https://frink.apps.renci.org/federation/sparql"
-    response = requests.post(frink_wikidata_url, params={'query': sparql})
-    results = response.json()
+    response = requests.post(frink_wikidata_url, data={'query': sparql})
+    if not response.ok:
+        raise RuntimeError(f"Could not query {frink_wikidata_url}: {response.status_code} {response.reason}")
+    try:
+        results = response.json()
+    except Exception as e:
+        raise RuntimeError(f"Could not parse {frink_wikidata_url}: {e} raised when parsing response {response.content}.")
     rows = results["results"]["bindings"]
     # If one wikidata entry has either more than one CL or more than one UMLS, then we end up with problems
     # (It could also be possible that the same CL is on more than one wikidata entry, but haven't seen that yet)

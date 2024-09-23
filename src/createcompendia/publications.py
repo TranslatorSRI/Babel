@@ -199,8 +199,10 @@ def generate_compendium(concordances, identifiers, titles, publication_compendiu
             for line in titlef:
                 id, title = line.strip().split('\t')
                 if id in labels:
-                    logging.warning(
-                        f"Duplicate title for {id}: ignoring previous title '{labels[id]}', using new title '{title}'.")
+                    # Don't emit a warning unless the title has actually changed.
+                    if labels[id] != title:
+                        logging.warning(
+                            f"Duplicate title for {id}: ignoring previous title '{labels[id]}', using new title '{title}'.")
                 labels[id] = title
 
     # Write out the compendium.
