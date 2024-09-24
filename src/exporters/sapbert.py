@@ -72,7 +72,7 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
 
             # Read fields from the synonym.
             curie = entry['curie']
-            preferred_name = entry.get('preferred_name', '')
+            preferred_name = entry.get('preferred_name', '').strip()
             if not preferred_name:
                 logging.warning(f"Unable to convert synonym entry for curie {curie}, skipping: {entry}")
                 continue
