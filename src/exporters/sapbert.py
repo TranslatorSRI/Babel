@@ -66,9 +66,9 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
     count_training_rows = 0
     count_smaller_rows = 0
     with open(synonym_filename, "r", encoding="utf-8") as synonymf, gzip.open(sapbert_filename_gzipped, "wt", encoding="utf-8") as sapbertf:
-        for line in synonymf:
+        for input_line in synonymf:
             count_entry += 1
-            entry = json.loads(line)
+            entry = json.loads(input_line)
 
             # Read fields from the synonym.
             curie = entry['curie']
