@@ -25,6 +25,8 @@ from src.util import LoggingUtil
 logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 
 # Configuration options
+# Limit DrugChemicalSmaller.txt.gz to terms that have a preferred name of 50 characters or more.
+DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH = 50
 # Include up to 50 synonym pairs for each synonym.
 MAX_SYNONYM_PAIRS = 50
 # Should we lowercase all the names?
@@ -40,8 +42,6 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
     :param synonym_filename: The compendium file to convert.
     :param sapbert_filename_gzipped: The SAPBERT training file to generate.
     """
-
-    config = get_config()
 
     logger.info(f"convert_synonyms_to_sapbert({synonym_filename}, {sapbert_filename_gzipped})")
 
@@ -78,7 +78,7 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
                 continue
 
             # Is the preferred name small enough that we should ignore it from generate_smaller_file?
-            is_preferred_name_short = (len(preferred_name) <= config['demote_labels_longer_than'])
+            is_preferred_name_short = (len(preferred_name) <= DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH)
             #if not is_preferred_name_short:
             #    logging.warning(f"CURIE {curie} (preferred name: {preferred_name}) will be excluded from the Smaller training file.")
 
