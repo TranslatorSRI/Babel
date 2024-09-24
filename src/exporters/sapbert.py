@@ -78,7 +78,9 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
                 continue
 
             # Is the preferred name small enough that we should ignore it from generate_smaller_file?
-            is_preferred_name_short = len(preferred_name) <= config['demote_labels_longer_than']
+            is_preferred_name_short = (len(preferred_name) <= config['demote_labels_longer_than'])
+            if not is_preferred_name_short:
+                logging.warning(f"CURIE {curie} (preferred name: {preferred_name}) will be excluded from the Smaller training file.")
 
             # Collect and process the list of names.
             names = entry['names']
