@@ -77,14 +77,24 @@ def build_chemical_rxnorm_relationships(conso, idfile,outfile):
 def write_pubchem_ids(labelfile,smilesfile,outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
     # but since they're already sorted, let's give it a shot
-    with open(labelfile,'r') as inlabels, GzipFile(smilesfile,'r') as insmiles, open(outfile,'w') as outf:
+    with open(labelfile,'r') as inlabels, gzip.open(smilesfile, 'rt', encoding='utf-8') as insmiles, open(outfile,'w') as outf:
         sn = -1
+        flag_file_ended = False
         for labelline in inlabels:
             x = labelline.split('\t')[0]
             pn = int(x.split(':')[-1])
-            while sn < pn:
-                smiline = insmiles.readline().decode('utf-8').strip().split('\t')
+            while not flag_file_ended and sn < pn:
+                line = insmiles.readline()
+                if line == '':
+                    # Get this: a blank line in readline() means that we've reached the end-of-file.
+                    # (A '\n' would indicate that we've just read a blank line.)
+                    flag_file_ended = True
+                    break
+                smiline = line.strip().split('\t')
+                if len(smiline) != 2:
+                    raise RuntimeError(f"Could not parse line from {smilesfile}: '{line}'")
                 sn = int(smiline[0])
+
             if sn == pn:
                 #We have a smiles for this id
                 stype = get_type_from_smiles(smiline[1])
