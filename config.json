@@ -117,5 +117,8 @@
     "charengus_gene_ensembl",
     "otshawytscha_gene_ensembl",
     "aocellaris_gene_ensembl"
-  ]
+  ],
+
+  "duckdb_config": {
+  }
 }
