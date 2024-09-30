@@ -20,6 +20,9 @@ def download_pubmed(download_file,
     which are in the same format, but the baseline is set up at the start of the year and then
     updates are included in the daily update files.
 
+    We would love to use HTTPS to do the downloads, but unfortunately the robots.txt
+    (https://ftp.ncbi.nlm.nih.gov/robots.txt) prevents this from working recursively.
+
     :param download_file: A `done` file that should be created to indicate that we are done.
     :param pubmed_base: The PubMed base URL to download files from.
     """
@@ -32,14 +35,16 @@ def download_pubmed(download_file,
         pubmed_base, 'baseline',
         decompress=False,
         subpath='PubMed',
-        recurse=WgetRecursionOptions.RECURSE_SUBFOLDERS)
+        recurse=WgetRecursionOptions.RECURSE_SUBFOLDERS,
+        timestamping=True)
 
     # Step 2. Download all the files for the PubMed update files.
     pull_via_wget(
         pubmed_base, 'updatefiles',
         decompress=False,
         subpath='PubMed',
-        recurse=WgetRecursionOptions.RECURSE_SUBFOLDERS)
+        recurse=WgetRecursionOptions.RECURSE_SUBFOLDERS,
+        timestamping=True)
 
     # Step 3. Download the PMC/PMID mapping file from PMC.
     pull_via_wget(pmc_base, 'PMC-ids.csv.gz', decompress=True, subpath='PubMed')
@@ -199,8 +204,10 @@ def generate_compendium(concordances, identifiers, titles, publication_compendiu
             for line in titlef:
                 id, title = line.strip().split('\t')
                 if id in labels:
-                    logging.warning(
-                        f"Duplicate title for {id}: ignoring previous title '{labels[id]}', using new title '{title}'.")
+                    # Don't emit a warning unless the title has actually changed.
+                    if labels[id] != title:
+                        logging.warning(
+                            f"Duplicate title for {id}: ignoring previous title '{labels[id]}', using new title '{title}'.")
                 labels[id] = title
 
     # Write out the compendium.

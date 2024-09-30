@@ -1,0 +1,35 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Babel
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Chris
+    family-names: Bizon
+    email: bizon@renci.org
+    orcid: 'https://orcid.org/0000-0002-9491-7674'
+    affiliation: >-
+      Renaissance Computing Institute, University of North
+      Carolina
+  - given-names: Gaurav
+    family-names: Vaidya
+    email: gaurav@renci.org
+    affiliation: >-
+      Renaissance Computing Institute, University of North
+      Carolina
+    orcid: 'https://orcid.org/0000-0003-0587-0454'
+  - given-names: Shalki
+    family-names: Shrivastava
+  - given-names: Phil
+    family-names: Owen
+  - given-names: Jason
+    family-names: Reilly
+repository-code: 'https://github.com/TranslatorSRI/Babel'
+abstract: >-
+  Babel creates cliques of equivalent identifiers across
+  many biomedical vocabularies.
+license: MIT
