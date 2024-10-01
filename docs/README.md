@@ -33,13 +33,18 @@ name-based lookup of concepts.
 ## How can I access Babel cliques?
 
 There are several ways of accessing Babel cliques:
+* You can run the Babel pipeline to generate the cliques yourself. Note that Babel
+  currently has very high memory requirements -- it requires around 500G of memory
+  in order to generate the Protein clique. The [main Babel README](../README.md) has
+  information on running this pipeline.
 * The NCATS Translator project provides the [Node Normalization](https://nodenorm.transltr.io/docs) frontend to
-  "normalize" identifiers -- any member of a particular clique will be normalized to the same preferred identifier,
-  allowing identifiers referring to the same concept to be merged. You can find out more about this frontend in
-  [its GitHub repository](https://github.com/TranslatorSRI/NodeNormalization).
+  "normalize" identifiers -- any member of a particular clique will be normalized
+  to the same preferred identifier, and the API will return all the secondary
+  identifiers, Biolink type, description and other useful information.
+  You can find out more about this frontend on [its GitHub repository](https://github.com/TranslatorSRI/NodeNormalization).
 * The NCATS Translator project also provides the [Name Lookup (Name Resolution)](https://name-lookup.transltr.io/)
-  frontends for searching for concepts by labels or synonyms. You can find out more about this frontend at
-  [its GitHub repository](https://github.com/TranslatorSRI/NameResolution).
+  frontends for searching for concepts by labels or synonyms. You can find out more
+  about this frontend at [its GitHub repository](https://github.com/TranslatorSRI/NameResolution).
 * Members of the Translator consortium can also request access to the [Babel outputs](./BabelOutputs.md), which
   are currently available in JSONL or [KGX](https://github.com/biolink/kgx) formats.
 
