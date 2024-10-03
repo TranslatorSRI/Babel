@@ -4,7 +4,7 @@
   [Babel 2024jul13](https://github.com/TranslatorSRI/Babel/releases/tag/2024jul13))
   - [CURIE summary](./summaries/2024jul13.json)
 
-Next release: _None as yet_
+Next release: [TranslatorGuppyAugust2024](./TranslatorGuppyAugust2024.md)
 
 ## New features
 * Added manual disease concords, and used that to do a better job of combining opioid use disorder and

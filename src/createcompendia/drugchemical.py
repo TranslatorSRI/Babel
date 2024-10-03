@@ -1,3 +1,5 @@
+import csv
+
 from src.node import NodeFactory, get_config
 from src.prefixes import RXCUI, PUBCHEMCOMPOUND, UMLS
 from src.categories import (CHEMICAL_ENTITY, DRUG, MOLECULAR_MIXTURE, FOOD, COMPLEX_MOLECULAR_MIXTURE,
@@ -233,13 +235,26 @@ def build_pubchem_relationships(infile,outfile):
             for cid in cids:
                 outf.write(f"{RXCUI}:{rxnid}\tlinked\t{PUBCHEMCOMPOUND}:{cid}\n")
 
-def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
+def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
     """RXN_concord contains relationshps between rxcuis that can be used to conflate
     Now we don't want all of them.  We want the ones that are between drugs and chemicals,
     and the ones between drugs and drugs.
     To determine which those are, we're going to have to dig around in all the compendia.
     We also want to get all the clique leaders as well.  For those, we only need to worry if there are RXCUIs
     in the clique."""
+
+    print("Loading manual concords ...")
+    manual_concords = []
+    with open(manual_concord_filename,"r") as manualf:
+        csv_reader = csv.DictReader(manualf, dialect=csv.excel_tab)
+        for row in csv_reader:
+            # We're only interested in two fields, so you can add additional files ('comment', 'notes', etc.) as needed.
+            if 'subject' not in row or 'object' not in row:
+                raise RuntimeError(f"Missing subject or object fields in {manual_concord_filename}: {row}")
+            if row['subject'].strip() == '' or row['object'].strip() == '':
+                raise RuntimeError(f"Empty subject or object fields in {manual_concord_filename}: {row}")
+            manual_concords.append((row['subject'], row['object']))
+    print(f"{len(manual_concords)} manual concords loaded.")
 
     print("load all chemical conflations so we can normalize identifiers")
     preferred_curie_for_curie = {}
@@ -325,6 +340,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
     # merged together because they share a normalized identifier. We can do this by adding pairs to indicate that every
     # subject and object is associated with its normalized identifier.
     pairs_to_be_glommed = []
+    pairs.extend(manual_concords)
     for (subj, obj) in pairs:
         # If either the subject or the object cannot be normalized, skip this pair entirely.
         #
