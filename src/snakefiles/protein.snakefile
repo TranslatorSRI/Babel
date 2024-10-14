@@ -19,6 +19,14 @@ rule protein_uniprotkb_ids:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1}}' {input.infile} > {output.outfile}"
 
+rule extract_taxon_ids_from_uniprotkb:
+    input:
+        infile=config['download_directory']+'/UniProtKB/idmapping.dat'
+    output:
+        outfile=config['download_directory']+'/UniProtKB/taxa'
+    run:
+        protein.extract_taxon_ids_from_uniprotkb(input.infile, output.outfile)
+
 rule protein_umls_ids:
     input:
         mrsty=config['download_directory']+"/UMLS/MRSTY.RRF"
@@ -73,6 +81,8 @@ rule protein_compendia:
         concords=expand("{dd}/protein/concords/{ap}",dd=config['intermediate_directory'],ap=config['protein_concords']),
         idlists=expand("{dd}/protein/ids/{ap}",dd=config['intermediate_directory'],ap=config['protein_ids']),
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
+        # Include the taxon information from UniProtKB
+        uniprotkb_taxa_file=config['download_directory']+'/UniProtKB/taxa',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
         expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs'])

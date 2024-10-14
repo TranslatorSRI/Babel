@@ -414,18 +414,29 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 #    (If this simple filter doesn't work, and if prefixes are inconsistent, we can build upon the
                 #    algorithm proposed by Jeff at
                 #    https://github.com/NCATSTranslator/Feedback/issues/259#issuecomment-1605140850)
-                # 3. We choose the first label that isn't blank. If no labels remain, we generate a warning.
+                # 3. We filter out any labels longer than config['demote_labels_longer_than'], but only if there is
+                #    at least one label shorter than this limit.
+                # 4. We choose the first label that isn't blank (that allows us to use our rule of smallest-prefix-first to find the broadest name for this concept). If no labels remain, we generate a warning.
 
                 # Step 1.1. Sort labels in boosted prefix order if possible.
                 possible_labels = []
                 for typ in types:
                     if typ in preferred_name_boost_prefixes:
-                        # This is the most specific matching type, so we use this.
-                        possible_labels = map(lambda identifier: identifier.get('label', ''),
+                        # This is the most specific matching type, so we use this and then break.
+                        possible_labels = list(map(lambda identifier: identifier.get('label', ''),
                                               sort_identifiers_with_boosted_prefixes(
                                                   node["identifiers"],
                                                   preferred_name_boost_prefixes[typ]
-                                              ))
+                                              )))
+
+                        # Add in all the other labels -- we'd still like to consider them, but at a lower priority.
+                        for id in node["identifiers"]:
+                            label = id.get('label', '')
+                            if label not in possible_labels:
+                                possible_labels.append(label)
+
+                        # Since this is the most specific matching type, we shouldn't do other (presumably higher-level)
+                        # categories: so let's break here.
                         break
 
                 # Step 1.2. If we didn't have a preferred_name_boost_prefixes, just use the identifiers in their
@@ -439,7 +450,13 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                                             not l.startswith('CHEMBL')          # Some CHEMBL names are just the identifier again.
                                             ]
 
-                # Step 3. Pick the first label that isn't blank.
+                # Step 3. Filter out labels longer than config['demote_labels_longer_than'], but only if there is at
+                # least one label shorter than this limit.
+                labels_shorter_than_limit = [l for l in possible_labels if l and len(l) <= config['demote_labels_longer_than']]
+                if labels_shorter_than_limit:
+                    filtered_possible_labels = labels_shorter_than_limit
+
+                # Step 4. Pick the first label that isn't blank.
                 if filtered_possible_labels:
                     preferred_name = filtered_possible_labels[0]
                 else:

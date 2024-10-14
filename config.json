@@ -6,7 +6,7 @@
 
   "biolink_version": "4.2.2",
   "umls_version": "2024AA",
-  "rxnorm_version": "08052024",
+  "rxnorm_version": "09032024",
   "drugbank_version": "5-1-12",
 
   "ncbi_files": ["gene2ensembl.gz", "gene_info.gz", "gene_orthologs.gz", "gene_refseq_uniprotkb_collab.gz", "mim2gene_medgen"],
@@ -101,12 +101,13 @@
   "preferred_name_boost_prefixes": {
     "biolink:ChemicalEntity": [
       "DRUGBANK",
-      "GTOPDB",
       "DrugCentral",
-      "CHEMBL.COMPOUND",
-      "RXCUI",
       "CHEBI",
+      "MESH",
+      "CHEMBL.COMPOUND",
+      "GTOPDB",
       "HMDB",
+      "RXCUI",
       "PUBCHEM.COMPOUND"
     ]
   },
@@ -120,5 +121,7 @@
   ],
 
   "duckdb_config": {
-  }
+  },
+
+  "demote_labels_longer_than": 15
 }
