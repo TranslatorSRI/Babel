@@ -250,6 +250,7 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
             split_part(curie, ':', 1) AS curie_prefix,
             COUNT(curie) AS curie_count,
             COUNT(DISTINCT curie) AS curie_distinct_count,
+            COUNT(DISTINCT clique_leader) AS clique_distinct_count,
             STRING_AGG(edges.filename, '||' ORDER BY edges.filename ASC) AS filenames
         FROM
             edges
@@ -264,11 +265,12 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
     for row in rows:
         curie_prefix = row[0]
 
-        filename_counts = Counter(row[3].split('||'))
+        filename_counts = Counter(row[4].split('||'))
 
         result[curie_prefix] = {
             'curie_count': row[1],
             'curie_distinct_count': row[2],
+            'clique_distinct_count': row[3],
             'filenames': filename_counts,
         }
 
