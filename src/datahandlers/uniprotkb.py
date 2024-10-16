@@ -2,7 +2,10 @@ import csv
 import logging
 import os
 
-from src.babel_utils import pull_via_urllib, make_local_name
+import requests
+from requests import request
+
+from src.babel_utils import pull_via_urllib, make_local_name, pull_via_wget
 
 
 def readlabels(which):
@@ -45,7 +48,10 @@ def download_umls_gene_protein_mappings(umls_uniprotkb_raw_url, umls_uniprotkb_f
     RELATION = 'oio:closeMatch'
 
     # Step 1. Download the file.
-    pull_via_urllib(umls_uniprotkb_raw_url, umls_uniprotkb_filename, decompress=False)
+    response = requests.get(umls_uniprotkb_raw_url)
+    response.raise_for_status()
+    with open(umls_uniprotkb_filename, 'w') as f:
+        f.write(response.text)
 
     # Step 2. Read the file into memory.
     os.makedirs(os.path.dirname(umls_gene_concords), exist_ok=True)
