@@ -16,6 +16,7 @@ CHEBI:5931	skos:exactMatch	PUBCHEM.COMPOUND:70678557	Both “Insulin”	https://
 CHEBI:5931	skos:exactMatch	DRUGBANK:DB00030	Insulin and “Insulin human”	https://github.com/TranslatorSRI/Babel/issues/327
 CHEBI:5931	skos:exactMatch	UNII:GFX7QIS1II	"Insulin and ""Insulin lispro"""	https://github.com/TranslatorSRI/Babel/issues/327
 CHEBI:5931	skos:exactMatch	UNII:2ZM8CX04RZ	"Insulin and ""Insulin glargine"""	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:narrowMatch	RXCUI:1736859	Insulin and “insulin glargine 100 UNT/ML [Basaglar]”	https://github.com/TranslatorSRI/Babel/issues/356
 CHEBI:5931	skos:exactMatch	DRUGBANK:DB18001	"Insulin and ""Neutral Protamine Hagedorn (NPH) insulin"""	https://github.com/TranslatorSRI/Babel/issues/327
 CHEBI:5931	skos:exactMatch	UNII:D933668QVX	"Insulin and ""Insulin aspart"""	https://github.com/TranslatorSRI/Babel/issues/327
 CHEBI:5931	skos:exactMatch	UNII:AVT680JB39	"Insulin and ""Insulin pork"""	https://github.com/TranslatorSRI/Babel/issues/327
