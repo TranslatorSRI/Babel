@@ -22,13 +22,13 @@
 
   "gene_labels": ["HGNC","NCBIGene","UMLS"],
   "gene_ids": ["ENSEMBL","HGNC","NCBIGene","UMLS","OMIM","ZFIN","WormBase","FB","MGI","RGD","SGD"],
-  "gene_concords": ["NCBIGene","NCBIGeneENSEMBL","medgen","UMLS"],
+  "gene_concords": ["NCBIGene","NCBIGeneENSEMBL","medgen","UMLS", "UMLS_NCBIGene"],
   "gene_outputs": ["Gene.txt"],
 
   "protein_labels": ["UniProtKB","PR","UMLS"],
   "protein_synonyms": ["PR", "UMLS"],
   "protein_ids": ["ENSEMBL","UniProtKB","PR","UMLS"],
-  "protein_concords": ["UniProtKB","PR","NCIT_UniProtKB","NCIT_UMLS"],
+  "protein_concords": ["UniProtKB","PR","NCIT_UniProtKB","NCIT_UMLS", "UMLS_UniProtKB"],
   "protein_outputs": ["Protein.txt"],
 
   "disease_labelsandsynonyms": ["MONDO","DOID","Orphanet","HP","MESH","NCIT","UMLS","SNOMEDCT","EFO"],
