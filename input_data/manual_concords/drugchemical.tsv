@@ -12,20 +12,20 @@ MESH:D007252	skos:exactMatch	CHEMBL.COMPOUND:CHEMBL2109042	"They should be combi
 MESH:C415772	skos:exactMatch	CHEMBL.COMPOUND:CHEMBL2108230	"They should be combined, but they’re not — we can temporarily fix it in DrugChemical conflation, but we should figure out a comprehensive solution to this."	https://github.com/TranslatorSRI/NodeNormalization/issues/224
 UNII:A1ED6W905I	skos:exactMatch	CHEMBL.COMPOUND:CHEMBL2108230	"They should be combined, but they’re not — we can temporarily fix it in DrugChemical conflation, but we should figure out a comprehensive solution to this."	https://github.com/TranslatorSRI/NodeNormalization/issues/224
 UNII:XX73205DH5	skos:exactMatch	CHEMBL.COMPOUND:CHEMBL2367706	"They should be combined, but they’re not — we can temporarily fix it in DrugChemical conflation, but we should figure out a comprehensive solution to this."	https://github.com/TranslatorSRI/Babel/issues/230
-CHEBI:5931	skos:exactMatch	PUBCHEM.COMPOUND:70678557	Both “Insulin”	https://github.com/TranslatorSRI/Babel/issues/327 
-CHEBI:5931	skos:exactMatch	DRUGBANK:DB00030	Insulin and “Insulin human”	https://github.com/TranslatorSRI/Babel/issues/327 
-CHEBI:5931	skos:exactMatch	UNII:GFX7QIS1II	"Insulin and ""Insulin lispro""
-"	https://github.com/TranslatorSRI/Babel/issues/327 
-CHEBI:5931	skos:exactMatch	UNII:2ZM8CX04RZ	"Insulin and ""Insulin glargine""
-"	https://github.com/TranslatorSRI/Babel/issues/327 
-CHEBI:5931	skos:exactMatch	DRUGBANK:DB18001	"Insulin and ""Neutral Protamine Hagedorn (NPH) insulin"""	https://github.com/TranslatorSRI/Babel/issues/327 
-CHEBI:5931	skos:exactMatch	UNII:D933668QVX	"Insulin and ""Insulin aspart""
-"	https://github.com/TranslatorSRI/Babel/issues/327 
-CHEBI:5931	skos:exactMatch	UNII:AVT680JB39	"Insulin and ""Insulin pork""
-"	https://github.com/TranslatorSRI/Babel/issues/327 
-CHEBI:5931	skos:exactMatch	UNII:54Q18076QB	"Insulin and “Insulin degludec"""	https://github.com/TranslatorSRI/Babel/issues/327 
-CHEBI:5931	skos:exactMatch	UNII:4FT78T86XV	"Insulin and ""Insulin detemir""
-"	https://github.com/TranslatorSRI/Babel/issues/327 
-CHEBI:5931	skos:exactMatch	UNII:7XIY785AZD	"Insulin and ""Insulin glulisine”"	https://github.com/TranslatorSRI/Babel/issues/327 
-CHEBI:5931	skos:exactMatch	CHEBI:228608	"Insulin and ""Insulin beef”"	https://github.com/TranslatorSRI/Babel/issues/327 
-CHEBI:5931	skos:exactMatch	UNII:54Q18076QB	"Insulin and ""Insulin degludec"""	https://github.com/TranslatorSRI/Babel/issues/327 
+CHEBI:5931	skos:exactMatch	PUBCHEM.COMPOUND:70678557	Both “Insulin”	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:exactMatch	DRUGBANK:DB00030	Insulin and “Insulin human”	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:exactMatch	UNII:GFX7QIS1II	"Insulin and ""Insulin lispro"""	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:exactMatch	UNII:2ZM8CX04RZ	"Insulin and ""Insulin glargine"""	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:narrowMatch	RXCUI:1736859	Insulin and “insulin glargine 100 UNT/ML [Basaglar]”	https://github.com/TranslatorSRI/Babel/issues/356
+CHEBI:5931	skos:exactMatch	DRUGBANK:DB18001	"Insulin and ""Neutral Protamine Hagedorn (NPH) insulin"""	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:exactMatch	UNII:D933668QVX	"Insulin and ""Insulin aspart"""	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:exactMatch	UNII:AVT680JB39	"Insulin and ""Insulin pork"""	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:exactMatch	UNII:54Q18076QB	"Insulin and “Insulin degludec"""	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:exactMatch	UNII:4FT78T86XV	"Insulin and ""Insulin detemir"""	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:exactMatch	UNII:7XIY785AZD	"Insulin and ""Insulin glulisine”"	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:exactMatch	CHEBI:228608	"Insulin and ""Insulin beef”"	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:5931	skos:exactMatch	UNII:54Q18076QB	"Insulin and ""Insulin degludec"""	https://github.com/TranslatorSRI/Babel/issues/327
+CHEBI:4672	skos:relatedMatch	CHEBI:59809	"CHEBI:4672 “Docetaxel” and CHEBI:59809 “Docetaxel trihydrate” are apparently medically similar, and we appear to have split clique issues"	https://github.com/TranslatorSRI/NameResolution/issues/99
+CHEBI:136034	skos:relatedMatch	HMDB:HMDB0254418	"Not sure why these aren’t combining, or where the latter is even coming from really."	https://github.com/TranslatorSRI/Babel/issues/358
+CHEBI:59173	skos:relatedMatch	PUBCHEM.COMPOUND:19797045	Conflating all the bivalirudin cliques into a single conflated clique	https://github.com/TranslatorSRI/Babel/issues/346
+CHEBI:59173	skos:relatedMatch	PUBCHEM.COMPOUND:78357798	Conflating all the bivalirudin cliques into a single conflated clique	https://github.com/TranslatorSRI/Babel/issues/346
