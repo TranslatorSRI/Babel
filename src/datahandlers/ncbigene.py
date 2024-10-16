@@ -1,11 +1,10 @@
-from src.babel_utils import pull_via_ftp, make_local_name
+from src.babel_utils import make_local_name, pull_via_urllib
 import gzip
 
 
 def pull_ncbigene(filenames):
-    remotedir = 'https://ftp.ncbi.nlm.nih.gov/gene/DATA/'
     for fn in filenames:
-        pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/gene/DATA', fn, decompress_data=False, outfilename=f'NCBIGene/{fn}')
+        pull_via_urllib('https://ftp.ncbi.nlm.nih.gov/gene/DATA/', fn, decompress=False, subpath='NCBIGene')
 
 
 def pull_ncbigene_labels_synonyms_and_taxa():

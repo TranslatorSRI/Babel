@@ -1,6 +1,6 @@
 import re
 
-from src.prefixes import ENSEMBL, UMLS, PR, UNIPROTKB, NCIT
+from src.prefixes import ENSEMBL, UMLS, PR, UNIPROTKB, NCIT, NCBITAXON
 from src.categories import PROTEIN
 
 import src.datahandlers.umls as umls
@@ -15,7 +15,20 @@ import gzip
 
 import logging
 from src.util import LoggingUtil
-logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
+logger = LoggingUtil.init_logging(__name__, level=logging.WARNING)
+
+
+def extract_taxon_ids_from_uniprotkb(idmapping_filename, uniprotkb_taxa_filename):
+    """ Extract NCBIGene identifiers from the UniProtKB mapping file. """
+    with open(idmapping_filename, 'r') as inf, open(uniprotkb_taxa_filename, 'w') as outf:
+        for line in inf:
+            x = line.strip().split('\t')
+            if x[1] == 'NCBI_TaxID':
+                if x[0] == '' or x[2] == '':
+                    logger.warning(f'Line {x} is an NCBI_TaxID but has a blank UniProtKB ({x[0]}) or NCBITaxon ({x[2]}), skipping.')
+                    continue
+                outf.write(f'{UNIPROTKB}:{x[0]}\t{NCBITAXON}:{x[2]}\n')
+
 
 def write_ensembl_ids(ensembl_dir, outfile):
     """Loop over all the ensembl species.  Find any protein-coding gene"""
