@@ -291,7 +291,7 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
         GROUP BY
             filename, clique_leader_prefix
         ORDER BY
-            curie_prefix ASC
+            filename ASC, clique_leader_prefix ASC
     """)
     rows = clique_summary.fetchall()
 
