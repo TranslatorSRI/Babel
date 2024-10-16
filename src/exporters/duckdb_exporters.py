@@ -4,10 +4,9 @@ import json
 import os.path
 import pathlib
 import time
-from collections import Counter
+from collections import Counter, defaultdict
 
 import duckdb
-from black.trans import defaultdict
 
 from src.node import get_config
 
