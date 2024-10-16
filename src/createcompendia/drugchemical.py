@@ -1,6 +1,6 @@
 import csv
 
-from src.node import NodeFactory, get_config
+from src.node import NodeFactory, get_config, InformationContentFactory
 from src.prefixes import RXCUI, PUBCHEMCOMPOUND, UMLS
 from src.categories import (CHEMICAL_ENTITY, DRUG, MOLECULAR_MIXTURE, FOOD, COMPLEX_MOLECULAR_MIXTURE,
                             SMALL_MOLECULE, NUCLEIC_ACID_ENTITY, MOLECULAR_ENTITY, FOOD_ADDITIVE,
@@ -235,13 +235,16 @@ def build_pubchem_relationships(infile,outfile):
             for cid in cids:
                 outf.write(f"{RXCUI}:{rxnid}\tlinked\t{PUBCHEMCOMPOUND}:{cid}\n")
 
-def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
+def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem_rxn_concord, drug_compendium, chemical_compendia, icrdf_filename, outfilename):
     """RXN_concord contains relationshps between rxcuis that can be used to conflate
     Now we don't want all of them.  We want the ones that are between drugs and chemicals,
     and the ones between drugs and drugs.
     To determine which those are, we're going to have to dig around in all the compendia.
     We also want to get all the clique leaders as well.  For those, we only need to worry if there are RXCUIs
     in the clique."""
+
+    print("Loading information content values...")
+    ic_factory = InformationContentFactory(icrdf_filename)
 
     print("Loading manual concords ...")
     manual_concords = []
@@ -483,7 +486,58 @@ def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_r
             # non-numerical CURIE suffixes sorted to the end.
             final_conflation_id_list.extend(list(sorted(ids_to_add, key=sort_by_curie_suffix)))
 
-            # Let's normalize all the identifiers.
+            # At this point, final_conflation_id_list is a list of all the identifiers for this conflation
+            # arranged in two ways:
+            #   - This is sorted by prefix in the prefix order specified for the type we've come up with for this
+            #     conflation (conflation_type).
+            #   - Within each prefix, we've sorted identifiers by CURIE suffix, so that the smallest identifier goes
+            #     first.
+            # This generally gives us the right identifier for the conflation, but there are a few cases where we can
+            # improve this:
+            #   - We might end up with a conflation clique leader that's not the right type.
+            #   - We might end up with a conflation clique leader that's a more complex chemical than the simplest
+            #     one (e.g. the conflated clique for CHEBI:45783 "imanitib" is currently lead by
+            #     CHEBI:31690 "imatinib methanesulfonate", just because it's numerically smaller).
+            #     - See https://github.com/TranslatorSRI/Babel/issues/341 for examples.
+            #   - We might end up with a conflation clique leader that has a higher information content
+            # To work around this, we take this chance to pick an alternate conflation clique leader.
+            conflation_clique_leader = final_conflation_id_list[0]
+            conflation_clique_leader_prefix = conflation_clique_leader.split(':')[0]
+            conflation_clique_leader_ic = ic_factory.get_ic(conflation_clique_leader)
+            if conflation_clique_leader_ic is None:
+                conflation_clique_leader_ic = 100
+
+            for curie in final_conflation_id_list:
+                curie_prefix = curie.split(':')[0]
+                if curie_prefix != conflation_clique_leader_prefix:
+                    # Let's stick will the same prefix as the first entry.
+                    continue
+
+                # Note that this works because curie is always a clique leader here.
+                curie_type = type_for_preferred_curie[curie]
+                if curie_type != conflation_type:
+                    # Only consider clique leaders that are of the calculated type.
+                    continue
+
+                # Is this a lower information content value? If so, prefer this CURIE.
+                curie_ic = ic_factory.get_ic(curie)
+                if curie_ic is not None and curie_ic < conflation_clique_leader_ic:
+                    conflation_clique_leader = curie
+                    conflation_clique_leader_ic = curie_ic
+
+                # Is this a shorter label? If so, we would like to prefer this
+                # CURIE, but loading all the labels into memory would take a
+                # lot of memory. So let's see how good we can do with just the
+                # information content values.
+
+            # If we've picked a new clique leader, move it to the front of the list.
+            if conflation_clique_leader != final_conflation_id_list[0]:
+                logging.info(f"Replacing conflation clique leader {final_conflation_id_list[0]} with improved "
+                             f"conflation clique leader {conflation_clique_leader}")
+                final_conflation_id_list.remove(conflation_clique_leader)
+                final_conflation_id_list.insert(0, conflation_clique_leader)
+
+                # Write out all the identifiers.
             logger.info(f"Ordered DrugChemical conflation {final_conflation_id_list}")
 
             outfile.write(f"{json.dumps(final_conflation_id_list)}\n")
