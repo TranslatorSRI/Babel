@@ -84,3 +84,13 @@ rule check_for_duplicate_curies:
         duplicate_curies = config['output_directory'] + '/reports/duckdb/duplicate_curies.tsv',
     run:
         duckdb_exporters.check_for_duplicate_curies(input.parquet_dir, output.duckdb_filename, output.duplicate_curies)
+
+rule generate_prefix_report:
+    input:
+        config['output_directory'] + '/duckdb/done',
+        parquet_dir = config['output_directory'] + '/duckdb/parquet/',
+    output:
+        duckdb_filename = config['output_directory'] + '/duckdb/prefix_report.duckdb',
+        prefix_report = config['output_directory'] + '/reports/duckdb/prefix_report.json',
+    run:
+        duckdb_exporters.generate_prefix_report(input.parquet_dir, output.duckdb_filename, output.prefix_report)

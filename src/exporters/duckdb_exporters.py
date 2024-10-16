@@ -1,5 +1,6 @@
 # The DuckDB exporter can be used to export particular intermediate files into the
 # in-process database engine DuckDB (https://duckdb.org) for future querying.
+import json
 import os.path
 import pathlib
 import time
@@ -223,6 +224,40 @@ def check_for_duplicate_curies(parquet_root, duckdb_filename, duplicate_curies_t
             curie_counts.clique_leader_count DESC;
     
     """).write_csv(duplicate_curies_tsv, sep="\t")
+
+
+def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
+    """
+    Generate a report about all the prefixes within this system.
+
+    See thoughts at https://github.com/TranslatorSRI/Babel/issues/359
+
+    :param parquet_root: The root directory for the Parquet files. We expect these to have subdirectories named
+        e.g. `filename=AnatomicalEntity/Clique.parquet`, etc.
+    :param duckdb_filename: A temporary DuckDB file to use.
+    :param prefix_report_json: The prefix report.
+    """
+
+    db = setup_duckdb(duckdb_filename)
+    edges = db.read_parquet(
+        os.path.join(parquet_root, "**/Edge.parquet"),
+        hive_partitioning=True
+    )
+
+    results = db.sql("""
+        SELECT
+            split_part(curie, ':', 1) AS curie_prefix,
+            COUNT(*) AS curie_count,
+            COUNT(DISTINCT *) AS curie_distinct_count,
+            STRING_AGG(filename, '||' ORDER BY filename ASC) AS filenames
+        FROM
+            edges
+        GROUP BY
+            curie_prefix        
+    """)
+
+    with open(prefix_report_json, 'w') as fout:
+        json.dump(results, fout, indent=2)
 
 
 def get_label_distribution(duckdb_filename, output_filename):
