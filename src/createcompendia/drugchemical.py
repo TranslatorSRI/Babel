@@ -464,24 +464,24 @@ def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_r
             ids_already_added = set()
             for prefix in prefixes_for_type:
                 if prefix in prefix_map:
-                    prefixes_to_add = []
+                    ids_to_add = []
                     for id in prefix_map[prefix]:
                         ids_already_added.add(id)
-                        prefixes_to_add.append(id)
+                        ids_to_add.append(id)
 
                     # Sort this set of CURIEs from the numerically smallest CURIE suffix to the largest, with
                     # non-numerical CURIE suffixes sorted to the end.
-                    final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
+                    final_conflation_id_list.extend(list(sorted(ids_to_add, key=sort_by_curie_suffix)))
 
             # Add any identifiers that weren't in the prefix_map in the original order (which is not significant).
-            prefixes_to_add = []
+            ids_to_add = []
             for id in normalized_conflation_id_list:
                 if id not in ids_already_added:
-                    prefixes_to_add.append(id)
+                    ids_to_add.append(id)
 
             # Sort this final set of CURIEs from the numerically smallest CURIE suffix to the largest, with
             # non-numerical CURIE suffixes sorted to the end.
-            final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
+            final_conflation_id_list.extend(list(sorted(ids_to_add, key=sort_by_curie_suffix)))
 
             # Let's normalize all the identifiers.
             logger.info(f"Ordered DrugChemical conflation {final_conflation_id_list}")
