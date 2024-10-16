@@ -7,6 +7,7 @@ import time
 from collections import Counter
 
 import duckdb
+from black.trans import defaultdict
 
 from src.node import get_config
 
@@ -244,7 +245,12 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
         os.path.join(parquet_root, "**/Edge.parquet"),
         hive_partitioning=True
     )
+    cliques = db.read_parquet(
+        os.path.join(parquet_root, "**/Clique.parquet"),
+        hive_partitioning=True
+    )
 
+    # Step 1. Generate a by-prefix summary.
     curie_prefix_summary = db.sql("""
         SELECT
             split_part(curie, ':', 1) AS curie_prefix,
@@ -261,21 +267,75 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
     """)
     rows = curie_prefix_summary.fetchall()
 
-    result = {}
+    by_curie_prefix_results = {}
     for row in rows:
         curie_prefix = row[0]
 
         filename_counts = Counter(row[4].split('||'))
 
-        result[curie_prefix] = {
+        by_curie_prefix_results[curie_prefix] = {
             'curie_count': row[1],
             'curie_distinct_count': row[2],
             'clique_distinct_count': row[3],
             'filenames': filename_counts,
         }
 
+    # Step 2. Generate a by-clique summary.
+    clique_summary = db.sql("""
+        SELECT
+            filename,
+            split_part(clique_leader, ':', 1) AS clique_leader_prefix,
+            COUNT(DISTINCT clique_leader) AS clique_count,
+            STRING_AGG(split_part(curie, ':', 1), '||' ORDER BY curie ASC) AS curie_prefixes
+        FROM
+            edges
+        GROUP BY
+            filename, clique_leader_prefix
+        ORDER BY
+            curie_prefix ASC
+    """)
+    rows = clique_summary.fetchall()
+
+    by_clique_results = {}
+    for row in rows:
+        filename = row[0]
+        clique_leader_prefix = row[1]
+        clique_count = row[2]
+        curie_prefixes = row[3].split('||')
+
+        clique_count = len(curie_prefixes)
+        curie_prefix_counts = Counter(row[2].split('||'))
+
+        if clique_leader_prefix not in by_clique_results:
+            by_clique_results[clique_leader_prefix] = {
+                'count_cliques': 0,
+                'by_file': {}
+            }
+
+        by_clique_results[clique_leader_prefix]['count_cliques'] += clique_count
+
+        if filename not in by_clique_results[clique_leader_prefix]['by_file']:
+            by_clique_results[clique_leader_prefix]['by_file'][filename] = defaultdict(int)
+
+        for curie_prefix in curie_prefix_counts.keys():
+            by_clique_results[clique_leader_prefix]['by_file'][filename][curie_prefix] += curie_prefix_counts[curie_prefix]
+
+    # Generate totals.
+    total_cliques = 0
+    total_curies = 0
+    for curie_leader_prefix in by_clique_results.keys():
+        total_cliques += by_clique_results[curie_leader_prefix]['count_cliques']
+        for filename in by_clique_results[curie_leader_prefix]['by_file'].keys():
+            total_curies += sum(by_clique_results[curie_leader_prefix]['by_file'][filename].values())
+        by_clique_results[curie_leader_prefix]['count_curies'] = total_curies
+    by_clique_results['count_cliques'] = total_cliques
+
+    # Step 3. Write out prefix report.
     with open(prefix_report_json, 'w') as fout:
-        json.dump(result, fout, indent=2)
+        json.dump({
+            'by_clique': by_clique_results,
+            'by_curie_prefix': by_curie_prefix_results
+        }, fout, indent=2)
 
 
 def get_label_distribution(duckdb_filename, output_filename):
