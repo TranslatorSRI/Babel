@@ -301,9 +301,7 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
         clique_leader_prefix = row[1]
         clique_count = row[2]
         curie_prefixes = row[3].split('||')
-
-        clique_count = len(curie_prefixes)
-        curie_prefix_counts = Counter(row[2].split('||'))
+        curie_prefix_counts = Counter(curie_prefixes.split('||'))
 
         if clique_leader_prefix not in by_clique_results:
             by_clique_results[clique_leader_prefix] = {
