@@ -244,7 +244,7 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
         hive_partitioning=True
     )
 
-    results = db.sql("""
+    curie_prefix_summary = db.sql("""
         SELECT
             split_part(curie, ':', 1) AS curie_prefix,
             COUNT(curie) AS curie_count,
@@ -253,11 +253,23 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
         FROM
             edges
         GROUP BY
-            curie_prefix        
+            curie_prefix
+        ORDER BY
+            curie_prefix ASC
     """)
+    rows = curie_prefix_summary.fetchall()
+
+    result = {}
+    for row in rows:
+        curie_prefix = row[0]
+        result[curie_prefix] = {
+            'curie_count': row[1],
+            'curie_distinct_count': row[2],
+            'filenames': row[3].split('||')
+        }
 
     with open(prefix_report_json, 'w') as fout:
-        json.dump(results, fout, indent=2)
+        json.dump(result, fout, indent=2)
 
 
 def get_label_distribution(duckdb_filename, output_filename):
