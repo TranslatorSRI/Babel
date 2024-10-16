@@ -4,6 +4,7 @@ import json
 import os.path
 import pathlib
 import time
+from collections import Counter
 
 import duckdb
 
@@ -243,15 +244,21 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
         os.path.join(parquet_root, "**/Edge.parquet"),
         hive_partitioning=True
     )
+    cliques = db.read_parquet(
+        os.path.join(parquet_root, "**/Clique.parquet"),
+        hive_partitioning=True
+    )
 
     curie_prefix_summary = db.sql("""
         SELECT
             split_part(curie, ':', 1) AS curie_prefix,
             COUNT(curie) AS curie_count,
             COUNT(DISTINCT curie) AS curie_distinct_count,
-            STRING_AGG(filename, '||' ORDER BY filename ASC) AS filenames
+            STRING_AGG(edges.filename, '||' ORDER BY edges.filename ASC) AS filenames,
+            STRING_AGG(cliques.biolink_type, '||' ORDER BY cliques.biolink_type ASC) AS biolink_types
         FROM
             edges
+        JOIN cliques ON clique.clique_leader = edges.clique_leader
         GROUP BY
             curie_prefix
         ORDER BY
@@ -262,10 +269,15 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
     result = {}
     for row in rows:
         curie_prefix = row[0]
+
+        filename_counts = Counter(row[3].split('||'))
+        biolink_type_counts = Counter(row[4].split('||'))
+
         result[curie_prefix] = {
             'curie_count': row[1],
             'curie_distinct_count': row[2],
-            'filenames': row[3].split('||')
+            'filenames': filename_counts,
+            'biolink_types': biolink_type_counts,
         }
 
     with open(prefix_report_json, 'w') as fout:
