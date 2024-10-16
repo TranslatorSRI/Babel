@@ -247,8 +247,8 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
     results = db.sql("""
         SELECT
             split_part(curie, ':', 1) AS curie_prefix,
-            COUNT(*) AS curie_count,
-            COUNT(DISTINCT *) AS curie_distinct_count,
+            COUNT(curie) AS curie_count,
+            COUNT(DISTINCT curie) AS curie_distinct_count,
             STRING_AGG(filename, '||' ORDER BY filename ASC) AS filenames
         FROM
             edges
