@@ -321,18 +321,21 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json):
     total_cliques = 0
     total_curies = 0
     for curie_leader_prefix in by_clique_results.keys():
+        count_curies = 0
         total_cliques += by_clique_results[curie_leader_prefix]['count_cliques']
         for filename in by_clique_results[curie_leader_prefix]['by_file'].keys():
-            total_curies += sum(by_clique_results[curie_leader_prefix]['by_file'][filename].values())
-        by_clique_results[curie_leader_prefix]['count_curies'] = total_curies
-    by_clique_results['count_cliques'] = total_cliques
+            count_curies += sum(by_clique_results[curie_leader_prefix]['by_file'][filename].values())
+        by_clique_results[curie_leader_prefix]['count_curies'] = count_curies
+        total_curies += count_curies
 
     # Step 3. Write out prefix report.
     with open(prefix_report_json, 'w') as fout:
         json.dump({
+            'count_cliques': total_cliques,
+            'count_curies': total_curies,
             'by_clique': by_clique_results,
             'by_curie_prefix': by_curie_prefix_results
-        }, fout, indent=2)
+        }, fout, indent=2, sort_keys=True)
 
 
 def get_label_distribution(duckdb_filename, output_filename):
