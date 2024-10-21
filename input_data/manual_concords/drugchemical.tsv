@@ -29,3 +29,4 @@ CHEBI:4672	skos:relatedMatch	CHEBI:59809	"CHEBI:4672 “Docetaxel” and CHEBI:5
 CHEBI:136034	skos:relatedMatch	HMDB:HMDB0254418	"Not sure why these aren’t combining, or where the latter is even coming from really."	https://github.com/TranslatorSRI/Babel/issues/358
 CHEBI:59173	skos:relatedMatch	PUBCHEM.COMPOUND:19797045	Conflating all the bivalirudin cliques into a single conflated clique	https://github.com/TranslatorSRI/Babel/issues/346
 CHEBI:59173	skos:relatedMatch	PUBCHEM.COMPOUND:78357798	Conflating all the bivalirudin cliques into a single conflated clique	https://github.com/TranslatorSRI/Babel/issues/346
+MESH:D013668	skos:exactMatch	CHEMBL.COMPOUND:CHEMBL1201522	Appears to be the same concept	https://github.com/TranslatorSRI/NodeNormalization/issues/280
