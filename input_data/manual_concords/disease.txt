@@ -111,3 +111,16 @@ MONDO:0007079	oio:closeMatch	UMLS:C4536264
 # Not sure why MONDO:0005799 isn't connecting with MONDO:0005799, but we can connect it manually here.
 # See https://github.com/NCATSTranslator/Tests/issues/92
 MONDO:0005799	xref	MESH:D006725
+
+# These pairs were reported by Gwenlyn in https://github.com/TranslatorSRI/Babel/issues/333
+MONDO:0007540   oio:closeMatch  DOID:10017
+HP:0003124  oio:closeMatch  NCIT:C37967
+EFO:1001393 oio:closeMatch  UMLS:C0031094
+EFO:0006911 oio:closeMatch  UMLS:C0401160
+EFO:1001404 oio:closeMatch  UMLS:C0032805
+MONDO:0017169   oio:closeMatch  DOID:3125
+EFO:1001390 oio:closeMatch  UMLS:C2936258
+HP:0040412  oio:closeMatch  UMLS:C0587044
+EFO:1001348 oio:closeMatch  UMLS:C1136321
+MONDO:0015517   oio:closeMatch  DOID:12177
+EFO:1001863 oio:closeMatch  UMLS:C0042135
