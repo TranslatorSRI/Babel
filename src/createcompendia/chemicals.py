@@ -241,7 +241,7 @@ def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
                     '"Ensembl ID"', '"Ligand Subunit IDs"', '"Ligand Subunit Name"',
                     '"Ligand Subunit UniProt IDs"', '"Ligand Subunit Ensembl IDs"', '"IUPAC name"',
                     '"INN"', '"Synonyms"', '"SMILES"', '"InChIKey"', '"InChI"', '"GtoImmuPdb"',
-                    '"GtoMPdb"', '"Antibacterial"']
+                    '"GtoMPdb"', '"Antibacterial"'], f"SMIFile {infile} has a modified header, please update."
                 continue
             x = line.split('\t')
             if stripquotes:
