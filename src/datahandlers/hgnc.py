@@ -4,7 +4,7 @@ import json
 def pull_hgnc():
     # As per the "quick links" from https://www.genenames.org/download/archive/
     pull_via_urllib(
-        'https://storage.googleapis.com/public-download-files/hgnc/json/json',
+        'https://storage.googleapis.com/public-download-files/hgnc/json/json/',
         'hgnc_complete_set.json',
         decompress=False,
         subpath="HGNC")
