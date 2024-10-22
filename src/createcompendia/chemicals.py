@@ -226,6 +226,8 @@ def write_chemical_ids_from_labels_and_smiles(labelfile,smifile,outfile):
 
 
 def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
+    idcol_index = None
+    smicol_index = None
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
             if line.startswith('"# GtoPdb Version'):
@@ -238,16 +240,32 @@ def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
                 assert header == [
                     '"Ligand ID"', '"Name"', '"Species"', '"Type"', '"Approved"', '"Withdrawn"',
                     '"Labelled"', '"Radioactive"', '"PubChem SID"', '"PubChem CID"', '"UniProt ID"',
-                    '"Ensembl ID"', '"Ligand Subunit IDs"', '"Ligand Subunit Name"',
+                    '"Ensembl ID"', '"ChEMBL ID"', '"Ligand Subunit IDs"', '"Ligand Subunit Name"',
                     '"Ligand Subunit UniProt IDs"', '"Ligand Subunit Ensembl IDs"', '"IUPAC name"',
                     '"INN"', '"Synonyms"', '"SMILES"', '"InChIKey"', '"InChI"', '"GtoImmuPdb"',
                     '"GtoMPdb"', '"Antibacterial"'], f"SMIFile {infile} has a modified header, please update."
+                try:
+                    idcol_index = header.index(idcol)
+                except ValueError as e:
+                    logging.error(f"Could not find ID column '{idcol}' in header {header} for {infile}")
+                    exit(1)
+                try:
+                    smicol_index = header.index(smicol)
+                except ValueError as e:
+                    logging.error(f"Could not find SMILES column '{smicol}' in header {header} for {infile}")
+                    exit(1)
                 continue
             x = line.split('\t')
             if stripquotes:
                 x = [ xi[1:-1] for xi in x ]
-            smi = x[smicol]
-            dcid = f'{pref}:{x[idcol]}'
+            if idcol_index is None:
+                logging.error(f"Could not find ID column '{idcol}' in {infile}")
+                exit(1)
+            if smicol_index is None:
+                logging.error(f"Could not find SMILES column '{smicol}' in {infile}")
+                exit(1)
+            smi = x[smicol_index]
+            dcid = f'{pref}:{x[idcol_index]}'
             ctype = get_type_from_smiles(smi)
             outf.write(f'{dcid}\t{ctype}\n')
 
@@ -264,10 +282,7 @@ def write_drugcentral_ids(infile,outfile):
 
 
 def write_gtopdb_ids(infile,outfile):
-    smicol = 14
-    idcol = 0
-    pref = GTOPDB
-    parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=True)
+    parse_smifile(infile,outfile,'"SMILES"','"Ligand ID"',GTOPDB,stripquotes=True)
 
 def write_unichem_concords(structfile,reffile,outdir):
     inchikeys = read_inchikeys(structfile)
