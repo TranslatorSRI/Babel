@@ -345,6 +345,7 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json, pr
         csv_writer = csv.DictWriter(fout, dialect='excel-tab', fieldnames=[
             'Clique prefix', 'Filename', 'Clique count', 'CURIEs'
         ])
+        csv_writer.writeheader()
 
         curie_totals = defaultdict(int)
 
@@ -389,7 +390,6 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json, pr
             'Clique count': total_cliques,
             'CURIEs': f"{total_curies}: " + ', '.join(curie_totals_sorted)
         })
-
 
 
 def get_label_distribution(duckdb_filename, output_filename):
