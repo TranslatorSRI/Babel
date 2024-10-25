@@ -29,6 +29,9 @@ rule all:
         # Build all the Parquet files.
         config['output_directory'] + '/duckdb/done',
 
+        # Build all the DuckDB (index-wide) reports.
+        config['output_directory'] + '/reports/duckdb/done',
+
         # Build all the exports.
         config['output_directory'] + '/kgx/done',
         config['output_directory'] + '/sapbert-training-data/done',
