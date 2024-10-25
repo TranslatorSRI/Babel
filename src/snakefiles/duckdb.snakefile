@@ -91,9 +91,12 @@ rule generate_prefix_report:
         parquet_dir = config['output_directory'] + '/duckdb/parquet/',
     output:
         duckdb_filename = config['output_directory'] + '/duckdb/prefix_report.duckdb',
-        prefix_report = config['output_directory'] + '/reports/duckdb/prefix_report.json',
+        prefix_report_json = config['output_directory'] + '/reports/duckdb/prefix_report.json',
+        prefix_report_tsv = config['output_directory'] + '/reports/duckdb/prefix_report.tsv',
     run:
-        duckdb_exporters.generate_prefix_report(input.parquet_dir, output.duckdb_filename, output.prefix_report)
+        duckdb_exporters.generate_prefix_report(input.parquet_dir, output.duckdb_filename,
+            output.prefix_report_json,
+            output.prefix_report_tsv)
 
 rule all_duckdb_reports:
     input:
