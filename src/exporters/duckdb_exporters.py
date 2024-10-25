@@ -375,12 +375,14 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json, pr
             filename_curie_sorted = map(lambda x: f"{x[0]}: {x[1]}", sorted(filename_curie_counts.items(), key=lambda x: x[1], reverse=True))
             count_curies = sum(filename_curie_counts.values())
 
-            csv_writer.writerow({
-                'Clique prefix': prefix,
-                'Filename': f"Total for prefix {prefix}",
-                'Clique count': count_cliques,
-                'CURIEs': f"{count_curies}: " + ', '.join(filename_curie_sorted)
-            })
+            # Don't bother with a total for the prefix unless there are at least two files.
+            if len(by_file) > 1:
+                csv_writer.writerow({
+                    'Clique prefix': prefix,
+                    'Filename': f"Total for prefix {prefix}",
+                    'Clique count': count_cliques,
+                    'CURIEs': f"{count_curies}: " + ', '.join(filename_curie_sorted)
+                })
 
         curie_totals_sorted = map(lambda x: f"{x[0]}: {x[1]}", sorted(curie_totals.items(), key=lambda x: x[1], reverse=True))
         total_curies = sum(curie_totals.values())
