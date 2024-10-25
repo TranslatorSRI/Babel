@@ -356,7 +356,7 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json, pr
             filename_curie_counts = defaultdict(int)
 
             for filename in by_file.keys():
-                curie_prefixes_sorted = map(lambda k, v: f"{k}: {v}", sorted(by_file[filename].items(), key=lambda x: x[1], reverse=True))
+                curie_prefixes_sorted = map(lambda x: f"{x[0]}: {x[1]}", sorted(by_file[filename].items(), key=lambda x: x[1], reverse=True))
 
                 filename_count_curies = 0
                 for curie_prefix in by_file[filename]:
@@ -371,7 +371,7 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json, pr
                     'CURIEs': f"{filename_count_curies}: " + ', '.join(curie_prefixes_sorted)
                 })
 
-            filename_curie_sorted = map(lambda k, v: f"{k}: {v}", sorted(filename_curie_counts.items(), key=lambda x: x[1], reverse=True))
+            filename_curie_sorted = map(lambda x: f"{x[0]}: {x[1]}", sorted(filename_curie_counts.items(), key=lambda x: x[1], reverse=True))
             count_curies = sum(filename_curie_counts.values())
 
             csv_writer.writerow({
@@ -381,7 +381,7 @@ def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json, pr
                 'CURIEs': f"{count_curies}: " + ', '.join(filename_curie_sorted)
             })
 
-        curie_totals_sorted = map(lambda k, v: f"{k}: {v}", sorted(curie_totals.items(), key=lambda x: x[1], reverse=True))
+        curie_totals_sorted = map(lambda x: f"{x[0]}: {x[1]}", sorted(curie_totals.items(), key=lambda x: x[1], reverse=True))
         total_curies = sum(curie_totals.values())
         csv_writer.writerow({
             'Clique prefix': 'Total cliques',
