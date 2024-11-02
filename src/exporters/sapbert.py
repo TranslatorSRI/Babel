@@ -26,7 +26,7 @@ logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 
 # Configuration options
 # Limit DrugChemicalSmaller.txt.gz to terms that have a preferred name of 50 characters or more.
-DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH = 30
+DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH = 40
 # Include up to 50 synonym pairs for each synonym.
 MAX_SYNONYM_PAIRS = 50
 # Should we lowercase all the names?
