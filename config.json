@@ -101,12 +101,13 @@
   "preferred_name_boost_prefixes": {
     "biolink:ChemicalEntity": [
       "DRUGBANK",
-      "GTOPDB",
       "DrugCentral",
-      "CHEMBL.COMPOUND",
-      "RXCUI",
       "CHEBI",
+      "MESH",
+      "CHEMBL.COMPOUND",
+      "GTOPDB",
       "HMDB",
+      "RXCUI",
       "PUBCHEM.COMPOUND"
     ]
   },
@@ -120,5 +121,7 @@
   ],
 
   "duckdb_config": {
-  }
+  },
+
+  "demote_labels_longer_than": 15
 }
