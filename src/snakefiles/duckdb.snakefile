@@ -73,3 +73,14 @@ rule check_for_identically_labeled_cliques:
         identically_labeled_cliques_tsv = config['output_directory'] + '/reports/duckdb/identically_labeled_cliques.tsv',
     run:
         duckdb_exporters.check_for_identically_labeled_cliques(input.parquet_dir, output.duckdb_filename, output.identically_labeled_cliques_tsv)
+
+
+rule check_for_duplicate_curies:
+    input:
+        config['output_directory'] + '/duckdb/done',
+        parquet_dir = config['output_directory'] + '/duckdb/parquet/',
+    output:
+        duckdb_filename = config['output_directory'] + '/duckdb/duplicate_curies.duckdb',
+        duplicate_curies = config['output_directory'] + '/reports/duckdb/duplicate_curies.tsv',
+    run:
+        duckdb_exporters.check_for_duplicate_curies(input.parquet_dir, output.duckdb_filename, output.duplicate_curies)
