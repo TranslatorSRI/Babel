@@ -1,9 +1,14 @@
-from src.babel_utils import make_local_name, pull_via_ftp
+from pronto.utils.io import decompress
+
+from src.babel_utils import make_local_name, pull_via_ftp, pull_via_urllib
 from src.prefixes import HGNCFAMILY
 
 def pull_hgncfamily():
-    outfile=f'{HGNCFAMILY}/family.csv'
-    pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/genenames/new/csv/genefamily_db_tables','family.csv', outfilename=outfile)
+    # As per https://www.genenames.org/download/gene-groups/#!/#tocAnchor-1-2
+    pull_via_urllib('https://storage.googleapis.com/public-download-files/hgnc/csv/csv/genefamily_db_tables/',
+                    'family.csv',
+                    decompress=False,
+                    subpath=HGNCFAMILY)
 
 def pull_labels(infile,outfile):
     with open(infile,'r') as inf:
