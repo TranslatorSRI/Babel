@@ -38,10 +38,19 @@ rule drugchemical_conflation:
         umls_concord=config['intermediate_directory']+'/drugchemical/concords/UMLS',
         pubchem_concord=config['intermediate_directory']+'/drugchemical/concords/PUBCHEM_RXNORM',
         drugchemical_manual_concord=config['input_directory']+'/manual_concords/drugchemical.tsv',
+        icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         outfile=config['output_directory']+'/conflation/DrugChemical.txt'
     run:
-        drugchemical.build_conflation(input.drugchemical_manual_concord,input.rxnorm_concord,input.umls_concord,input.pubchem_concord,input.drug_compendium,input.chemical_compendia,output.outfile)
+        drugchemical.build_conflation(
+            input.drugchemical_manual_concord,
+            input.rxnorm_concord,
+            input.umls_concord,
+            input.pubchem_concord,
+            input.drug_compendium,
+            input.chemical_compendia,
+            input.icrdf_filename,
+            output.outfile)
 
 rule drugchemical_conflated_synonyms:
     input:
