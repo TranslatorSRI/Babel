@@ -30,3 +30,4 @@ CHEBI:136034	skos:relatedMatch	HMDB:HMDB0254418	"Not sure why these aren’t com
 CHEBI:59173	skos:relatedMatch	PUBCHEM.COMPOUND:19797045	Conflating all the bivalirudin cliques into a single conflated clique	https://github.com/TranslatorSRI/Babel/issues/346
 CHEBI:59173	skos:relatedMatch	PUBCHEM.COMPOUND:78357798	Conflating all the bivalirudin cliques into a single conflated clique	https://github.com/TranslatorSRI/Babel/issues/346
 MESH:D013668	skos:exactMatch	CHEMBL.COMPOUND:CHEMBL1201522	Appears to be the same concept	https://github.com/TranslatorSRI/NodeNormalization/issues/280
+UNII:2S9ZZM9Q9V	skos:exactMatch	UMLS:C0796392	"UNII:2S9ZZM9Q9V includes UMLS:C0796392 as an identifier, but is also generated as its own clique by the protein module."	https://github.com/NCATSTranslator/Feedback/issues/970
