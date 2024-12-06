@@ -257,7 +257,7 @@ def build_rxnorm_umls_relationships(rxn_conso, umls_conso, umls_sty, outfile_con
                     for rxn_id in rxn[name]:
                         if (id,rxn_id) not in used_pairs:
                             used_pairs.add((id,rxn_id))
-                            outf.write(f"UMLS:{id}\tsame_name\tRXNORM:{rxn_id}\n")
+                            outf.write(f"{UMLS}:{id}\tsame_name\t{RXCUI}:{rxn_id}\n")
 
 
 def build_pubchem_relationships(infile,outfile):
