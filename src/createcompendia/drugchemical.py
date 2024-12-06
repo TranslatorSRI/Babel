@@ -225,6 +225,41 @@ def load_cliques(compendium):
                    rx_to_clique[terms["i"]] = clique
     return rx_to_clique
 
+def build_rxnorm_umls_relationships(rxn_conso, umls_conso, umls_sty, outfile_concords):
+    """It's not very pretty, but there are UMLS/RXN relationships that are somehow missing.  That is, there is no
+    formal relationship between the UMLS and RXN identifiers at all, but they really refer to the same thing.
+    This produces quite a few holes in the conflations. So we're going to fix that here by just looking for
+    UMLS id's with STY 200 and RXN's that have the same lexical name."""
+    # Get the UMLS CUIs that have STY 200
+    with open(umls_sty,"r") as f:
+        sty = set()
+        for line in f:
+            if line.split("|")[1] == "T200":
+                sty.add(line.split("|")[0])
+    # Create a name->(ids) dictionary from RXNCONSO
+    with open(rxn_conso,"r") as f:
+        rxn = {}
+        for line in f:
+            name = line.split("|")[14]
+            id = line.split("|")[0]
+            if name in rxn:
+                rxn[name].add(id)
+            else:
+                rxn[name] = {id}
+    # for each line, if the id is in sty, and if the name is in rxn, then print # UMLS:{umls_id}\tsame_name\tRXNORM:{rxn_id}
+    used_pairs = set()
+    with open(umls_conso,"r") as f, open(outfile_concords,"w") as outf:
+        for line in f:
+            id = line.split("|")[0]
+            name = line.split("|")[14]
+            if id in sty:
+                if name in rxn:
+                    for rxn_id in rxn[name]:
+                        if (id,rxn_id) not in used_pairs:
+                            used_pairs.add((id,rxn_id))
+                            outf.write(f"UMLS:{id}\tsame_name\tRXNORM:{rxn_id}\n")
+
+
 def build_pubchem_relationships(infile,outfile):
     with open(infile,"r") as inf:
         document = json.load(inf)
@@ -235,7 +270,7 @@ def build_pubchem_relationships(infile,outfile):
             for cid in cids:
                 outf.write(f"{RXCUI}:{rxnid}\tlinked\t{PUBCHEMCOMPOUND}:{cid}\n")
 
-def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
+def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,rxn_umls_concord, outfilename):
     """RXN_concord contains relationshps between rxcuis that can be used to conflate
     Now we don't want all of them.  We want the ones that are between drugs and chemicals,
     and the ones between drugs and drugs.
@@ -282,7 +317,7 @@ def build_conflation(manual_concord_filename, rxn_concord,umls_concord,pubchem_r
         chemical_rxcui_to_clique.update(load_cliques(chemical_compendium))
 
     pairs = []
-    for concfile in [rxn_concord,umls_concord]:
+    for concfile in [rxn_concord,umls_concord, rxn_umls_concord]:
         with open(concfile,"r") as infile:
             for line in infile:
                 x = line.strip().split('\t')

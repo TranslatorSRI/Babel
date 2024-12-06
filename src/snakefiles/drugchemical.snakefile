@@ -13,6 +13,16 @@ rule rxnorm_relationships:
     run:
         drugchemical.build_rxnorm_relationships(input.rxnconso, input.rxnrel, output.outfile_concords)
 
+rule rxnorm_umls_relationships:
+    input:
+        rxn_conso = config['download_directory'] + "/RxNorm/RXNCONSO.RRF",
+        umls_conso = config['download_directory'] + "/UMLS/MRCONSO.RRF",
+        umls_sty = config['download_directory'] + "/UMLS/MRSTY.RRF",
+    output:
+        outfile_concords = config['intermediate_directory'] + '/drugchemical/concords/RXNORM_UMLS'
+    run:
+        drugchemical.build_rxnorm_umls_relationships(input.rxn_conso, input.umls_conso, input.umls_sty, output.outfile_concords)
+
 rule umls_relationships:
     input:
         umlsconso = config['download_directory'] + "/UMLS/MRCONSO.RRF",
@@ -37,11 +47,12 @@ rule drugchemical_conflation:
         rxnorm_concord=config['intermediate_directory']+'/drugchemical/concords/RXNORM',
         umls_concord=config['intermediate_directory']+'/drugchemical/concords/UMLS',
         pubchem_concord=config['intermediate_directory']+'/drugchemical/concords/PUBCHEM_RXNORM',
+        rxn_umls_concord = config['intermediate_directory'] + '/drugchemical/concords/RXNORM_UMLS'
         drugchemical_manual_concord=config['input_directory']+'/manual_concords/drugchemical.tsv',
     output:
         outfile=config['output_directory']+'/conflation/DrugChemical.txt'
     run:
-        drugchemical.build_conflation(input.drugchemical_manual_concord,input.rxnorm_concord,input.umls_concord,input.pubchem_concord,input.drug_compendium,input.chemical_compendia,output.outfile)
+        drugchemical.build_conflation(input.drugchemical_manual_concord,input.rxnorm_concord,input.umls_concord,input.pubchem_concord,input.drug_compendium,input.chemical_compendia,input.rxn_umls_concord,output.outfile)
 
 rule drugchemical_conflated_synonyms:
     input:
