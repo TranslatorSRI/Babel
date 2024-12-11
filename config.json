@@ -4,9 +4,9 @@
   "intermediate_directory": "babel_outputs/intermediate",
   "output_directory": "babel_outputs",
 
-  "biolink_version": "4.2.4",
-  "umls_version": "2024AA",
-  "rxnorm_version": "10072024",
+  "biolink_version": "4.2.5",
+  "umls_version": "2024AB",
+  "rxnorm_version": "12022024",
   "drugbank_version": "5-1-12",
 
   "UMLS_UniProtKB_download_raw_url": "https://raw.githubusercontent.com/cbizon/UMLS_UniProtKB/refs/heads/main/outputs/UMLS_UniProtKB.tsv",
