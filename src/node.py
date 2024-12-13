@@ -355,10 +355,10 @@ class NodeFactory:
 
     def load_extra_labels(self,prefix):
         if self.label_dir is None:
-            print (f"WARNING: no label_dir specified in load_extra_labels({json.dumps(self)}, {prefix}), can't load extra labels for {prefix}. Skipping.")
+            print (f"WARNING: no label_dir specified in load_extra_labels({self}, {prefix}), can't load extra labels for {prefix}. Skipping.")
             return
         if prefix is None:
-            print (f"WARNING: no prefix specified in load_extra_labels({json.dumps(self)}, {prefix}), can't load extra labels. Skipping.")
+            print (f"WARNING: no prefix specified in load_extra_labels({self}, {prefix}), can't load extra labels. Skipping.")
             return
         labelfname = os.path.join(self.label_dir,prefix,'labels')
         lbs = {}
