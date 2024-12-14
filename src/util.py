@@ -79,10 +79,15 @@ class Text:
         return text.upper().split(':', 1)[0] if ':' in text else None
 
     @staticmethod
-    def get_prefix (text):
-        if isinstance(text,LabeledID):
-            text = text.identifier
-        return text.split(':', 1)[0] if ':' in text else None
+    def get_prefix (id):
+        if isinstance(id,LabeledID):
+            text = id.identifier
+        else:
+            text = id
+        if ':' in text:
+            return text.split(':', 1)[0]
+        raise RuntimeError(f"Unable to get_prefix({id}) with text '{text}': no colons found in identifier.")
+
 
     @classmethod
     def recurie(cls,text,new_prefix=None):
