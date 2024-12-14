@@ -6,7 +6,7 @@ from collections import namedtuple
 import copy
 from logging.handlers import RotatingFileHandler
 from src.LabeledID import LabeledID
-from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10, ICD10CM
+from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10, ICD10CM, ICD11FOUNDATION
 import src.prefixes as prefixes
 
 #loggers = {}
@@ -150,6 +150,8 @@ class Text:
             r = f'{ICD10CM}:{text.split("/")[-1]}'
         elif text.startswith('http://www.snomedbrowser.com/'):
             r = f'{SNOMEDCT}:{text.split("/")[-1]}'
+        elif text.startswith('http://purl.obolibrary.org/obo/mondo/sources/icd11foundation/'):
+            r = f'{ICD11FOUNDATION}:{text[61:]}'
         elif text.startswith('KEGG_PATHWAY'):
             r = Text.recurie(text,KEGGPATHWAY)
         elif text.startswith('NCIt'):
