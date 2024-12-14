@@ -158,8 +158,12 @@ class Text:
             r = Text.recurie(text,KEGGREACTION)
         else:
             r = text
+
         if ':' in r:
             return Text.recurie(r)
+        else:
+            raise ValueError(f"Unable to opt_to_curie({text}): output calculated as {r}, which has no colon.")
+        
         return r
 
     @staticmethod
