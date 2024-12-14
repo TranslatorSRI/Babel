@@ -86,7 +86,7 @@ class Text:
             text = id
         if ':' in text:
             return text.split(':', 1)[0]
-        raise RuntimeError(f"Unable to get_prefix({id}) with text '{text}': no colons found in identifier.")
+        raise ValueError(f"Unable to get_prefix({id}) with text '{text}': no colons found in identifier.")
 
 
     @classmethod
