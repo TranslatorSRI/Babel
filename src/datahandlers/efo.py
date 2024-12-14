@@ -91,7 +91,6 @@ class EFOgraph:
          prefix EFO: <http://www.ebi.ac.uk/efo/EFO_>
          prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
          prefix SKOS: <http://www.w3.org/2004/02/skos/core#>
-         prefix icd11.foundation: <http://id.who.int/icd/entity/>
          SELECT DISTINCT ?match
          WHERE {{
              {{ {iri} SKOS:exactMatch ?match. }}
