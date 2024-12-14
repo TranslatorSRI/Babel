@@ -129,7 +129,10 @@ class Text:
         if text is None:
             return None
         #grumble, I should be better about handling prefixes
-        if text.startswith('http://purl.obolibrary.org') or text.startswith('http://www.orpha.net') or text.startswith('http://www.ebi.ac.uk/efo'):
+        if text.startswith('http://purl.obolibrary.org/obo/mondo/sources/icd11foundation/'):
+            # This has to go on top because it's a 'purl.obolibrary.org' which doesn't follow the same pattern as the others.
+            r = f'{ICD11FOUNDATION}:{text[61:]}'
+        elif text.startswith('http://purl.obolibrary.org') or text.startswith('http://www.orpha.net') or text.startswith('http://www.ebi.ac.uk/efo'):
             p = text.split('/')[-1].split('_')
             r = ':'.join( p )
         elif text.startswith('https://omim.org/'):
@@ -150,8 +153,6 @@ class Text:
             r = f'{ICD10CM}:{text.split("/")[-1]}'
         elif text.startswith('http://www.snomedbrowser.com/'):
             r = f'{SNOMEDCT}:{text.split("/")[-1]}'
-        elif text.startswith('http://purl.obolibrary.org/obo/mondo/sources/icd11foundation/'):
-            r = f'{ICD11FOUNDATION}:{text[61:]}'
         elif text.startswith('KEGG_PATHWAY'):
             r = Text.recurie(text,KEGGPATHWAY)
         elif text.startswith('NCIt'):
