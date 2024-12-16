@@ -31,6 +31,7 @@ class EFOgraph:
         end = dt.now()
         print('loading complete')
         print(f'took {end-start}')
+
     def pull_EFO_labels_and_synonyms(self,lname,sname):
         with open(lname, 'w') as labelfile, open(sname,'w') as synfile:
             #for labeltype in ['skos:prefLabel','skos:altLabel','rdfs:label']:
@@ -59,6 +60,7 @@ class EFOgraph:
                     synfile.write(f'{EFO}:{efo_id}\t{labeltype}\t{label}\n')
                     if not labeltype == 'skos:altLabel':
                         labelfile.write(f'{EFO}:{efo_id}\t{label}\n')
+
     def pull_EFO_ids(self,roots,idfname):
         with open(idfname, 'w') as idfile:
             for root,rtype in roots:
@@ -75,6 +77,7 @@ class EFOgraph:
                     if efoid.startswith("EFO_"):
                         efo_id = efoid.split("_")[-1]
                         idfile.write(f'{EFO}:{efo_id}\t{rtype}\n')
+
     def get_exacts(self, iri, outfile):
         query = f"""
          prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -98,7 +101,12 @@ class EFOgraph:
         qres = self.m.query(query)
         for row in list(qres):
             other = str(row["match"])
-            otherid = Text.opt_to_curie(other[1:-1])
+            try:
+                otherid = Text.opt_to_curie(other[1:-1])
+            except ValueError as verr:
+                print(f"Could not translate {other[1:-1]} into a CURIE, will be used as-is: {verr}")
+                otherid = other[1:-1]
+
             if otherid.startswith("ORPHANET"):
                 print(row["match"])
                 print(other)
