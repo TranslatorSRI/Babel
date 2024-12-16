@@ -15,6 +15,9 @@ class CompendiumFile:
     def __init__(self, path):
         self.path = path
 
+        self.file_exists = os.path.exists(self.path)
+        self.row_count = 0
+
         # TODO: replace with DuckDB or something else more memory efficient.
         self.curie_to_preferred_id = dict()
         self.curie_to_label = dict()
@@ -23,9 +26,13 @@ class CompendiumFile:
         self.preferred_id_to_type = defaultdict()
         self.preferred_id_to_preferred_name = defaultdict()
         self.preferred_id_to_ic = dict()
-        self.row_count = 0
+
 
     def load(self):
+        if not os.path.exists(self.path):
+            logging.warning(f"Compendium file {self.path} does not exist.")
+            return
+
         with open(self.path, "r") as f:
             for row in f:
                 self.row_count += 1
@@ -68,12 +75,16 @@ def compare_compendium_files(path1, path2):
     return {
         'compendium1': {
             'path': path1,
+            'file_exists': compendium1.file_exists,
+            'row_count': compendium1.row_count,
             'curie_count': len(compendium1.curie_to_preferred_id),
             'clique_count': len(compendium1.preferred_id_to_type),
             'types': list(sorted(set(compendium1.preferred_id_to_type.values()))),
         },
         'compendium2': {
             'path': path2,
+            'file_exists': compendium2.file_exists,
+            'row_count': compendium2.row_count,
             'curie_count': len(compendium2.curie_to_preferred_id),
             'clique_count': len(compendium2.preferred_id_to_type),
             'types': list(set(sorted(compendium2.preferred_id_to_type.values()))),
@@ -99,11 +110,40 @@ def comparator(input_type, input1, input2):
     # Some features haven't been implemented yet.
     if input_type != 'compendium':
         raise NotImplementedError(f"Input type '{input_type}' is not yet supported.")
-    if not os.path.isfile(input1) or not os.path.isfile(input2):
-        raise NotImplementedError(f"Only file-based comparisons are currently supported.")
 
     # Do the comparison.
-    results = compare_compendium_files(input1, input2)
+    if os.path.isfile(input1) and os.path.isfile(input2):
+        results = compare_compendium_files(input1, input2)
+    elif os.path.isdir(input1) and os.path.isdir(input2):
+        results = {
+            'directory1': {'path': input1},
+            'directory2': {'path': input2},
+            'comparisons': [],
+        }
+
+        # Make a list of all the files in the directories input1 and input2.
+        files1 = os.listdir(input1)
+        files2 = os.listdir(input2)
+        all_filenames = set(files1 + files2)
+        for filename in sorted(all_filenames):
+            if filename.startswith('.'):
+                continue
+            path1 = os.path.join(input1, filename)
+            path2 = os.path.join(input2, filename)
+
+            if os.path.isdir(path1):
+                logging.warning(f"Skipping directory {path1} in comparison.")
+                continue
+
+            if os.path.isdir(path2):
+                logging.warning(f"Skipping directory {path2} in comparison.")
+                continue
+
+            result = compare_compendium_files(path1, path2)
+            results['comparisons'].append(result)
+    else:
+        raise RuntimeError(f"Cannot compare a file to a directory or vice versa: {input1} and {input2}.")
+    
     print(json.dumps(results, indent=2))
 
 
