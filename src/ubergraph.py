@@ -296,11 +296,13 @@ class UberGraph:
         results = defaultdict(set)
         for row in resultmap:
             dcurie = Text.opt_to_curie(row['descendent'])
-            #Sometimes we're getting back just strings that aren't curies, skip those (but complain)
-            if ':' not in row['xref']:
-                print(f'Bad XREF from {row["descendent"]} to {row["xref"]}')
+            # Sometimes we're getting back just strings that aren't curies, skip those (but complain)
+            try:
+                results[ dcurie ].add( (Text.opt_to_curie(row['xref']) ))
+            except ValueError as verr:
+                print(f'Bad XREF from {row["descendent"]} to {row["xref"]}: {verr}')
                 continue
-            results[ dcurie ].add( (Text.opt_to_curie(row['xref']) ))
+
         return results
 
     def get_subclasses_and_exacts(self,iri):
@@ -350,11 +352,14 @@ class UberGraph:
             if row['match'] is None:
                 results[desc] += []
             else:
-                results[ desc ].append( (Text.opt_to_curie(row['match']) ))
-        #Sometimes, if there are no exact_matches, we'll get some kind of blank node id
-        # like 't19830198'. Want to filter those out.
-        for k,v in results.items():
-            results[k] = list(filter(lambda x: ':' in x, v))
+                # Sometimes, if there are no exact_matches, we'll get some kind of blank node id
+                # like 't19830198'. Want to filter those out.
+                try:
+                    results[ desc ].append(Text.opt_to_curie(row['match']))
+                except ValueError as verr:
+                    print(f'Row {row} could not be converted to a CURIE: {verr}')
+                    continue
+
         return results
 
     def get_subclasses_and_close(self,iri):
@@ -399,11 +404,14 @@ class UberGraph:
             if row['match'] is None:
                 results[desc] += []
             else:
-                results[ desc].append( (Text.opt_to_curie(row['match']) ))
-        #Sometimes, if there are no exact_matches, we'll get some kind of blank node id
-        # like 't19830198'. Want to filter those out.
-        for k,v in results.items():
-            results[k] = list(filter(lambda x: ':' in x, v))
+                try:
+                    results[ desc].append( (Text.opt_to_curie(row['match']) ))
+                except ValueError as verr:
+                    # Sometimes, if there are no exact_matches, we'll get some kind of blank node id
+                    # like 't19830198'. Want to filter those out.
+                    print(f'Row {row} could not be converted to a CURIE: {verr}')
+                    continue
+
         return results
 
     def write_normalized_information_content(self, filename):
