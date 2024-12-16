@@ -2,11 +2,9 @@ from src.babel_utils import make_local_name, pull_via_urllib
 import json
 
 def pull_hgnc():
-    # On 2023nov26, I would get an error trying to download this file using FTP on Python (although
-    # weirdly enough, I could download the file without any problem using macOS Finder). So I changed
-    # it to use HTTP instead.
+    # As per the "quick links" from https://www.genenames.org/download/archive/
     pull_via_urllib(
-        'https://ftp.ebi.ac.uk/pub/databases/genenames/new/json/',
+        'https://storage.googleapis.com/public-download-files/hgnc/json/json/',
         'hgnc_complete_set.json',
         decompress=False,
         subpath="HGNC")

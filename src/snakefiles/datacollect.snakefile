@@ -30,6 +30,7 @@ import src.datahandlers.chebi as chebi
 import src.datahandlers.hgncfamily as hgncfamily
 import src.datahandlers.pantherfamily as pantherfamily
 import src.datahandlers.complexportal as complexportal
+import src.datahandlers.drugbank as drugbank
 from src.babel_utils import pull_via_wget
 
 import src.prefixes as prefixes
@@ -119,6 +120,19 @@ rule get_uniprotkb_labels:
         outfile=config['download_directory']+'/UniProtKB/labels'
     run:
         uniprotkb.pull_uniprot_labels(input.sprot_input,input.trembl_input,output.outfile)
+
+rule get_umls_gene_protein_mappings:
+    output:
+        umls_uniprotkb_filename=config['download_directory']+'/UMLS_UniProtKB/UMLS_UniProtKB.tsv',
+        umls_gene_concords=config['output_directory']+'/intermediate/gene/concords/UMLS_NCBIGene',
+        umls_protein_concords=config['output_directory']+'/intermediate/protein/concords/UMLS_UniProtKB',
+    run:
+        uniprotkb.download_umls_gene_protein_mappings(
+            config['UMLS_UniProtKB_download_raw_url'],
+            output.umls_uniprotkb_filename,
+            output.umls_gene_concords,
+            output.umls_protein_concords,
+        )
 
 ### MESH
 
@@ -423,7 +437,16 @@ rule chembl_labels_and_smiles:
     run:
         chembl.pull_chembl_labels_and_smiles(input.infile,input.ccofile,output.outfile,output.smifile)
 
-### DrugBank requires a login... not sure how to handle
+### DrugBank requires a login... but not for basic vocabulary information.
+rule get_drugbank_labels_and_synonyms:
+    output:
+        outfile=config['download_directory']+'/DRUGBANK/drugbank vocabulary.csv',
+        labels=config['download_directory']+'/DRUGBANK/labels',
+        synonyms=config['download_directory']+'/DRUGBANK/synonyms',
+    run:
+        drugbank.download_drugbank_vocabulary(config['drugbank_version'], output.outfile)
+        drugbank.extract_drugbank_labels_and_synonyms(output.outfile, output.labels, output.synonyms)
+
 
 ### GTOPDB We're only pulling ligands.  Maybe one day we'll want the whole db?
 
