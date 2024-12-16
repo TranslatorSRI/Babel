@@ -61,7 +61,11 @@ class UberGraph:
                 )
             for x in rr:
                 y = {}
-                y['iri'] = Text.opt_to_curie(x['thing'])
+                try:
+                    y['iri'] = Text.opt_to_curie(x['thing'])
+                except ValueError as verr:
+                    print(f"WARNING: Unable to translate {x['thing']} to a CURIE; it will be used as-is: {verr}")
+                    y['iri'] = x['thing']
                 y['label'] = x['label']
                 results.append(y)
 
