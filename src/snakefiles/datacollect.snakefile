@@ -121,6 +121,19 @@ rule get_uniprotkb_labels:
     run:
         uniprotkb.pull_uniprot_labels(input.sprot_input,input.trembl_input,output.outfile)
 
+rule get_umls_gene_protein_mappings:
+    output:
+        umls_uniprotkb_filename=config['download_directory']+'/UMLS_UniProtKB/UMLS_UniProtKB.tsv',
+        umls_gene_concords=config['output_directory']+'/intermediate/gene/concords/UMLS_NCBIGene',
+        umls_protein_concords=config['output_directory']+'/intermediate/protein/concords/UMLS_UniProtKB',
+    run:
+        uniprotkb.download_umls_gene_protein_mappings(
+            config['UMLS_UniProtKB_download_raw_url'],
+            output.umls_uniprotkb_filename,
+            output.umls_gene_concords,
+            output.umls_protein_concords,
+        )
+
 ### MESH
 
 rule get_mesh:

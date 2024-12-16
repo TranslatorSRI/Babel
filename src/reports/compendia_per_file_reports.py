@@ -31,7 +31,12 @@ def assert_files_in_directory(dir, files, report_file):
     """
 
     logging.info(f"Expect files in directory {dir} to be equal to {files}")
-    file_list = os.listdir(dir)
+    all_file_list = os.listdir(dir)
+
+    # On Sterling, we sometimes have `.nfs*` files that represent NFS cached files that weren't properly deleted.
+    # These shouldn't interfere with these tests.
+    file_list = filter(lambda fn: not fn.startswith('.nfs'), all_file_list)
+
     assert set(file_list) == set(files)
 
     # If we passed, write the output to the check_file.
