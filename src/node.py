@@ -354,6 +354,12 @@ class NodeFactory:
         return cleaned
 
     def load_extra_labels(self,prefix):
+        if self.label_dir is None:
+            print (f"WARNING: no label_dir specified in load_extra_labels({self}, {prefix}), can't load extra labels for {prefix}. Skipping.")
+            return
+        if prefix is None:
+            print (f"WARNING: no prefix specified in load_extra_labels({self}, {prefix}), can't load extra labels. Skipping.")
+            return
         labelfname = os.path.join(self.label_dir,prefix,'labels')
         lbs = {}
         if os.path.exists(labelfname):
@@ -375,7 +381,11 @@ class NodeFactory:
             if iid in labels:
                 labeled_list.append( LabeledID(identifier=iid, label = labels[iid]))
             else:
-                prefix = Text.get_prefix(iid)
+                try:
+                    prefix = Text.get_prefix(iid)
+                except ValueError as e:
+                    print(f"ERROR: Unable to apply_labels({self}, {input_identifiers}, {labels}): could not obtain prefix for identifier {iid}")
+                    raise e
                 if prefix not in self.extra_labels:
                     self.load_extra_labels(prefix)
                 if iid in self.extra_labels[prefix]:
