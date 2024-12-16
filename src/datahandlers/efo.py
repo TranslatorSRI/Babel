@@ -102,7 +102,12 @@ class EFOgraph:
         qres = self.m.query(query)
         for row in list(qres):
             other = str(row["match"])
-            otherid = Text.opt_to_curie(other[1:-1])
+            try:
+                otherid = Text.opt_to_curie(other[1:-1])
+            except ValueError as verr:
+                print(f"Could not translate {other[1:-1]} into a CURIE, will be used as-is: {verr}")
+                otherid = other[1:-1]
+
             if otherid.startswith("ORPHANET"):
                 print(row["match"])
                 print(other)
