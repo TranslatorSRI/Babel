@@ -116,6 +116,15 @@ class CompendiumFile:
         time_ended = time.time_ns()
         logging.info(f"Loaded {self.row_count:,} lines from {self.path} in {(time_ended - time_started) / 1_000_000_000:.2f} seconds.")
 
+    def add_labels(self, ids: list[str]):
+        """
+        Return a list of labels for the IDs in ids.
+
+        :param ids: A list of identifiers.
+        :return: A list of labels.
+        """
+        return list(map(lambda x: self.curie_to_label.get(x, ''), ids))
+
     def diffs_to(self, older_compendium_file: 'CompendiumFile'):
         """
         Generate diff counts between this compendium file and the older compendium file.
@@ -174,7 +183,7 @@ class CompendiumFile:
                 old_typ = older_compendium_file.preferred_id_to_type[preferred_curie]
                 if old_typ != typ:
                     flag_actually_changed = True
-                    clique_change['type'] = {
+                    clique_change['type_changed'] = {
                         'old': old_typ,
                         'new': typ,
                     }
@@ -183,7 +192,7 @@ class CompendiumFile:
                 old_clique_label = older_compendium_file.preferred_id_to_preferred_name[preferred_curie]
                 if clique_label != old_clique_label:
                     flag_actually_changed = True
-                    clique_change['preferred_name'] = {
+                    clique_change['preferred_name_changed'] = {
                         'old': old_clique_label,
                         'new': clique_label,
                     }
@@ -192,9 +201,11 @@ class CompendiumFile:
                 old_ids = older_compendium_file.preferred_id_to_clique[preferred_curie]
                 if ids != old_ids:
                     flag_actually_changed = True
-                    clique_change['identifiers'] = {
+                    clique_change['identifiers_changed'] = {
                         'old': old_ids,
+                        'old_with_labels': list(map(lambda x: f"{x[0]} '{x[1]}'", zip(old_ids, older_compendium_file.add_labels(old_ids)))),
                         'new': ids,
+                        'new_with_labels': list(map(lambda x: f"{x[0]} '{x[1]}'", zip(ids, self.add_labels(ids)))),
                         'added': sorted(set(ids) - set(old_ids)),
                         'deleted': sorted(set(old_ids) - set(ids)),
                     }
