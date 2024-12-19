@@ -109,6 +109,46 @@ class CompendiumFile:
 
         logging.info(f"Loaded {self.row_count:,} lines from {self.path}.")
 
+    def diffs_to(self, older_compendium_file: 'CompendiumFile'):
+        """
+        Generate diff counts between this compendium file and the older compendium file.
+
+        :param older_compendium_file: A CompendiumFile object representing the older compendium file.
+        :return: A dictionary.
+        """
+
+        # Step 1. Figure out which identifiers have changed cliques between these two compendia.
+        identifiers_added = set()
+        identifiers_not_changed = set()
+        identifiers_changed = set()
+        identifiers_deleted = set()
+        for curie, preferred_curie in self.curie_to_preferred_id.items():
+            if curie not in older_compendium_file.curie_to_preferred_id:
+                identifiers_added.add((curie, self.curie_to_label[curie], None, '', preferred_curie, self.preferred_id_to_preferred_name[preferred_curie]))
+            else:
+                old_preferred_curie = older_compendium_file.curie_to_preferred_id.get(curie)
+                if preferred_curie == old_preferred_curie:
+                    identifiers_not_changed.add((curie, self.curie_to_label[curie], old_preferred_curie, older_compendium_file.preferred_id_to_preferred_name[old_preferred_curie], preferred_curie, self.preferred_id_to_preferred_name[preferred_curie]))
+                else:
+                    identifiers_changed.add((curie, self.curie_to_label[curie], old_preferred_curie, older_compendium_file.preferred_id_to_preferred_name[old_preferred_curie], preferred_curie, self.preferred_id_to_preferred_name[preferred_curie]))
+
+        for old_curie, old_preferred_curie in older_compendium_file.curie_to_preferred_id.items():
+            if old_curie not in self.curie_to_preferred_id:
+                identifiers_deleted.add((old_curie, older_compendium_file.curie_to_label[old_curie], old_preferred_curie, older_compendium_file.preferred_id_to_preferred_name[old_preferred_curie], None, ''))
+
+        # Step 2. Figure out the clique change.
+        clique_count = len(self.preferred_id_to_type.keys())
+        old_clique_count = len(older_compendium_file.preferred_id_to_type.keys())
+
+        # Step 3. Report on all the identifiers.
+        return {
+            'net_identifier_change': len(identifiers_added) - len(identifiers_deleted),
+            'net_clique_change': (clique_count - old_clique_count),
+            'additions': sorted(map(lambda x: f"{x[0]} '{x[1]}' (to clique {x[4]} '{x[5]}')", identifiers_added)),
+            'deletions': sorted(map(lambda x: f"{x[0]} '{x[1]}' (from clique {x[2]} '{x[3]}')", identifiers_deleted)),
+            'changes': sorted(map(lambda x: f"{x[0]} '{x[1]}' moved from {x[2]} '{x[3]}' to {x[4]} '{x[5]}'", identifiers_changed)),
+        }
+
 
 def compare_compendium_files(path1, path2):
     """ Compare two compendium files.
@@ -147,6 +187,7 @@ def compare_compendium_files(path1, path2):
             'clique_count': len(compendium2.preferred_id_to_type),
             'types': list(set(sorted(compendium2.preferred_id_to_type.values()))),
         },
+        'diffs': compendium2.diffs_to(compendium1),
     }
 
 
