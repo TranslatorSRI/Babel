@@ -2,6 +2,14 @@
 #
 # comparator.py - A script for comparing Babel files from different runs
 #
+# You can run this script on a single compendium file:
+#   python comparator.py dir1/compendia/Disease.txt dir2/compendia/Disease.txt
+# Or on an entire directory:
+#   python comparator.py dir1/compendia dir2/compendia
+#
+# It currently only writes out a JSON document to STDOUT, but in the future we might add a TSV output as well.
+#
+
 import concurrent
 import json
 import os
@@ -17,34 +25,8 @@ logging.basicConfig(level=logging.INFO)
 
 class CompendiumFile:
     """
-    CompendiumFile represents a data handler for managing and processing a compendium
-    file. It is used to load compendium data from a file, map identifiers to their
-    preferred IDs, extract associated labels, descriptions, taxonomic information,
-    and other metadata.
-
-    The class provides methods to load data from a specified file path and maintains
-    the mappings and metadata in memory for further processing.
-
-    :ivar path: The path to the compendium file.
-    :type path: str
-    :ivar file_exists: A boolean indicating if the compendium file exists at the specified path.
-    :type file_exists: bool
-    :ivar row_count: The number of rows processed from the compendium file.
-    :type row_count: int
-    :ivar curie_to_preferred_id: A dictionary mapping CURIEs to their preferred identifiers.
-    :type curie_to_preferred_id: dict
-    :ivar curie_to_label: A dictionary mapping CURIEs to their associated labels.
-    :type curie_to_label: dict
-    :ivar curie_to_description: A defaultdict mapping CURIEs to sets of descriptions.
-    :type curie_to_description: defaultdict
-    :ivar curie_to_taxa: A defaultdict mapping CURIEs to sets of taxonomic identifiers.
-    :type curie_to_taxa: defaultdict
-    :ivar preferred_id_to_type: A dict mapping preferred identifiers to their types.
-    :type preferred_id_to_type: dict
-    :ivar preferred_id_to_preferred_name: A defaultdict mapping preferred identifiers to their preferred names.
-    :type preferred_id_to_preferred_name: defaultdict
-    :ivar preferred_id_to_ic: A dictionary mapping preferred identifiers to their information content scores.
-    :type preferred_id_to_ic: dict
+    Represents a compendium file at a particular path. The load() method will load the file into a series of in-memory
+    dictionaries, and the diffs_to() method will generate a diff between this compendium file and another compendium file.
     """
 
     def __init__(self, path):
@@ -159,6 +141,7 @@ class CompendiumFile:
 
         cliques_additions = {}
         cliques_deletions = {}
+        cliques_unchanged = {}
         clique_changes = {}
         for preferred_curie, typ in self.preferred_id_to_type.items():
             if preferred_curie not in older_compendium_file.preferred_id_to_type:
@@ -170,6 +153,8 @@ class CompendiumFile:
                     'identifiers': self.preferred_id_to_clique[preferred_curie],
                 }
             else:
+                # The clique is present in both self and older_compendium_file, so we need to determine if it's
+                # changed or not.
                 clique_change = {
                     'type': typ,
                     'preferred_curie': preferred_curie,
@@ -210,8 +195,11 @@ class CompendiumFile:
                         'deleted': sorted(set(old_ids) - set(ids)),
                     }
 
+                # If something actually changed, add it to the clique changes list.
                 if flag_actually_changed:
                     clique_changes[preferred_curie] = clique_change
+                else:
+                    cliques_unchanged[preferred_curie] = clique_change
 
         for old_preferred_curie, typ in older_compendium_file.preferred_id_to_type.items():
             if old_preferred_curie not in self.preferred_id_to_type:
@@ -223,7 +211,7 @@ class CompendiumFile:
                     'identifiers': older_compendium_file.preferred_id_to_clique[old_preferred_curie],
                 }
 
-        # Step 3. Report on all the identifiers.
+        # Step 3. Report on all the identifiers and cliques.
         return {
             'net_identifier_change': len(identifiers_added) - len(identifiers_deleted),
             'net_clique_change': (clique_count - old_clique_count),
@@ -348,8 +336,6 @@ def comparator(input_type, input1, input2, max_workers):
                 except Exception as exc:
                     logging.error(f"Error comparing files: {exc}")
                     raise exc
-
-        print(json.dumps(results, indent=2))
 
     else:
         raise RuntimeError(f"Cannot compare a file to a directory or vice versa: {input1} and {input2}.")
