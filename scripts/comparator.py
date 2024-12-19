@@ -2,10 +2,13 @@
 #
 # comparator.py - A script for comparing Babel files from different runs
 #
+import concurrent
 import json
 import os
 import logging
+import threading
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 
 import click
 
@@ -118,9 +121,13 @@ def compare_compendium_files(path1, path2):
     compendium1 = CompendiumFile(path1)
     compendium2 = CompendiumFile(path2)
 
-    # TODO: Figure out how to do this in parallel.
-    compendium1.load()
-    compendium2.load()
+    # Load the two files in parallel.
+    thread_compendium1 = threading.Thread(target=compendium1.load)
+    thread_compendium2 = threading.Thread(target=compendium2.load)
+    thread_compendium1.start()
+    thread_compendium2.start()
+    thread_compendium1.join()
+    thread_compendium2.join()
 
     # Craft results and return.
     return {
@@ -147,7 +154,8 @@ def compare_compendium_files(path1, path2):
 @click.option('--input-type', type=click.Choice(['compendium', 'synonyms']), default='compendium')
 @click.argument('input1', type=click.Path(exists=True, file_okay=True, dir_okay=True), required=True)
 @click.argument('input2', type=click.Path(exists=True, file_okay=True, dir_okay=True), required=True)
-def comparator(input_type, input1, input2):
+@click.option('--max-workers', '-j', type=int, default=None, help='Maximum number of workers to use for parallel processing.')
+def comparator(input_type, input1, input2, max_workers):
     """
     Compares two compendium or synonym files.
 
@@ -156,6 +164,7 @@ def comparator(input_type, input1, input2):
         Defaults to 'compendium'.
     :param input1: First path (file or directory) to compare.
     :param input2: Second file (file or directory) to compare.
+    :param max_workers: Maximum number of workers to use for parallel processing.
     """
 
     # Some features haven't been implemented yet.
@@ -176,22 +185,34 @@ def comparator(input_type, input1, input2):
         files1 = os.listdir(input1)
         files2 = os.listdir(input2)
         all_filenames = set(files1 + files2)
-        for filename in sorted(all_filenames):
-            if filename.startswith('.'):
-                continue
-            path1 = os.path.join(input1, filename)
-            path2 = os.path.join(input2, filename)
 
-            if os.path.isdir(path1):
-                logging.warning(f"Skipping directory {path1} in comparison.")
-                continue
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = []
+            for filename in sorted(all_filenames):
+                if filename.startswith('.'):
+                    continue
+                path1 = os.path.join(input1, filename)
+                path2 = os.path.join(input2, filename)
 
-            if os.path.isdir(path2):
-                logging.warning(f"Skipping directory {path2} in comparison.")
-                continue
+                if os.path.isdir(path1):
+                    logging.warning(f"Skipping directory {path1} in comparison.")
+                    continue
 
-            result = compare_compendium_files(path1, path2)
-            results['comparisons'].append(result)
+                if os.path.isdir(path2):
+                    logging.warning(f"Skipping directory {path2} in comparison.")
+                    continue
+
+                futures.append(executor.submit(compare_compendium_files, path1, path2))
+
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    results['comparisons'].append(future.result())
+                except Exception as exc:
+                    logging.error(f"Error comparing files: {exc}")
+                    raise exc
+
+        print(json.dumps(results, indent=2))
+
     else:
         raise RuntimeError(f"Cannot compare a file to a directory or vice versa: {input1} and {input2}.")
     
