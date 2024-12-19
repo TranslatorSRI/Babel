@@ -12,7 +12,43 @@ import click
 logging.basicConfig(level=logging.INFO)
 
 class CompendiumFile:
+    """
+    CompendiumFile represents a data handler for managing and processing a compendium
+    file. It is used to load compendium data from a file, map identifiers to their
+    preferred IDs, extract associated labels, descriptions, taxonomic information,
+    and other metadata.
+
+    The class provides methods to load data from a specified file path and maintains
+    the mappings and metadata in memory for further processing.
+
+    :ivar path: The path to the compendium file.
+    :type path: str
+    :ivar file_exists: A boolean indicating if the compendium file exists at the specified path.
+    :type file_exists: bool
+    :ivar row_count: The number of rows processed from the compendium file.
+    :type row_count: int
+    :ivar curie_to_preferred_id: A dictionary mapping CURIEs to their preferred identifiers.
+    :type curie_to_preferred_id: dict
+    :ivar curie_to_label: A dictionary mapping CURIEs to their associated labels.
+    :type curie_to_label: dict
+    :ivar curie_to_description: A defaultdict mapping CURIEs to sets of descriptions.
+    :type curie_to_description: defaultdict
+    :ivar curie_to_taxa: A defaultdict mapping CURIEs to sets of taxonomic identifiers.
+    :type curie_to_taxa: defaultdict
+    :ivar preferred_id_to_type: A defaultdict mapping preferred identifiers to their types.
+    :type preferred_id_to_type: defaultdict
+    :ivar preferred_id_to_preferred_name: A defaultdict mapping preferred identifiers to their preferred names.
+    :type preferred_id_to_preferred_name: defaultdict
+    :ivar preferred_id_to_ic: A dictionary mapping preferred identifiers to their information content scores.
+    :type preferred_id_to_ic: dict
+    """
+
     def __init__(self, path):
+        """
+        Initialize a CompendiumFile object with the specified path. We don't load the file until load() is called.
+
+        :param path: File path to initialize and load metadata from.
+        """
         self.path = path
 
         self.file_exists = os.path.exists(self.path)
@@ -29,6 +65,21 @@ class CompendiumFile:
 
 
     def load(self):
+        """
+        Loads compendium data from the specified file path into various mappings.
+
+        This method reads data from a JSON lines file located at the path specified
+        by the instance attribute `path`. Each line in the file should represent a
+        clique object in JSON format. The method populates multiple mappings
+        based on the contents of the file, including mappings between CURIEs and
+        their preferred identifiers, labels, descriptions, taxa, types, and
+        information content (IC).
+
+        The method tracks and logs the progress of the file loading process. It will
+        log a warning if the specified file path does not exist, and progress
+        information is logged for every million lines processed. At the end, the
+        method logs the total number of lines read.
+        """
         if not os.path.exists(self.path):
             logging.warning(f"Compendium file {self.path} does not exist.")
             return
