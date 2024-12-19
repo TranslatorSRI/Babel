@@ -27,3 +27,5 @@ curies
 duckdb
 # Added by Gaurav, Jul 2024
 sssom
+# Added by Gaurav, Dec 2024, to support command-line applications
+click
