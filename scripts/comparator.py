@@ -7,6 +7,7 @@ import json
 import os
 import logging
 import threading
+import time
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 
@@ -38,8 +39,8 @@ class CompendiumFile:
     :type curie_to_description: defaultdict
     :ivar curie_to_taxa: A defaultdict mapping CURIEs to sets of taxonomic identifiers.
     :type curie_to_taxa: defaultdict
-    :ivar preferred_id_to_type: A defaultdict mapping preferred identifiers to their types.
-    :type preferred_id_to_type: defaultdict
+    :ivar preferred_id_to_type: A dict mapping preferred identifiers to their types.
+    :type preferred_id_to_type: dict
     :ivar preferred_id_to_preferred_name: A defaultdict mapping preferred identifiers to their preferred names.
     :type preferred_id_to_preferred_name: defaultdict
     :ivar preferred_id_to_ic: A dictionary mapping preferred identifiers to their information content scores.
@@ -58,11 +59,12 @@ class CompendiumFile:
         self.row_count = 0
 
         # TODO: replace with DuckDB or something else more memory efficient.
+        self.preferred_id_to_clique = defaultdict(list)
         self.curie_to_preferred_id = dict()
         self.curie_to_label = dict()
         self.curie_to_description = defaultdict(set)
         self.curie_to_taxa = defaultdict(set)
-        self.preferred_id_to_type = defaultdict()
+        self.preferred_id_to_type = dict()
         self.preferred_id_to_preferred_name = defaultdict()
         self.preferred_id_to_ic = dict()
 
@@ -83,6 +85,9 @@ class CompendiumFile:
         information is logged for every million lines processed. At the end, the
         method logs the total number of lines read.
         """
+
+        time_started = time.time_ns()
+
         if not os.path.exists(self.path):
             logging.warning(f"Compendium file {self.path} does not exist.")
             return
@@ -98,7 +103,8 @@ class CompendiumFile:
                 preferred_curie = clique['identifiers'][0]['i']
                 self.preferred_id_to_type[preferred_curie] = clique['type']
                 self.preferred_id_to_preferred_name[preferred_curie] = clique['preferred_name']
-                self.preferred_id_to_ic = clique['ic']
+                self.preferred_id_to_ic[preferred_curie] = clique['ic']
+                self.preferred_id_to_clique[preferred_curie] = list(map(lambda x: x['i'], clique['identifiers']))
 
                 for identifier in clique['identifiers']:
                     curie = identifier['i']
@@ -107,7 +113,8 @@ class CompendiumFile:
                     self.curie_to_description[curie].update(identifier.get('d', []))
                     self.curie_to_taxa[curie].update(identifier.get('t', []))
 
-        logging.info(f"Loaded {self.row_count:,} lines from {self.path}.")
+        time_ended = time.time_ns()
+        logging.info(f"Loaded {self.row_count:,} lines from {self.path} in {(time_ended - time_started) / 1_000_000_000:.2f} seconds.")
 
     def diffs_to(self, older_compendium_file: 'CompendiumFile'):
         """
@@ -122,6 +129,7 @@ class CompendiumFile:
         identifiers_not_changed = set()
         identifiers_changed = set()
         identifiers_deleted = set()
+
         for curie, preferred_curie in self.curie_to_preferred_id.items():
             if curie not in older_compendium_file.curie_to_preferred_id:
                 identifiers_added.add((curie, self.curie_to_label[curie], None, '', preferred_curie, self.preferred_id_to_preferred_name[preferred_curie]))
@@ -136,17 +144,88 @@ class CompendiumFile:
             if old_curie not in self.curie_to_preferred_id:
                 identifiers_deleted.add((old_curie, older_compendium_file.curie_to_label[old_curie], old_preferred_curie, older_compendium_file.preferred_id_to_preferred_name[old_preferred_curie], None, ''))
 
-        # Step 2. Figure out the clique change.
+        # Step 2. Figure out the clique changes.
         clique_count = len(self.preferred_id_to_type.keys())
         old_clique_count = len(older_compendium_file.preferred_id_to_type.keys())
+
+        cliques_additions = {}
+        cliques_deletions = {}
+        clique_changes = {}
+        for preferred_curie, typ in self.preferred_id_to_type.items():
+            if preferred_curie not in older_compendium_file.preferred_id_to_type:
+                # Addition.
+                cliques_additions[preferred_curie] = {
+                    'type': typ,
+                    'preferred_curie': preferred_curie,
+                    'preferred_name': self.preferred_id_to_preferred_name[preferred_curie],
+                    'identifiers': self.preferred_id_to_clique[preferred_curie],
+                }
+            else:
+                clique_change = {
+                    'type': typ,
+                    'preferred_curie': preferred_curie,
+                    'preferred_name': self.preferred_id_to_preferred_name[preferred_curie],
+                    'identifiers': self.preferred_id_to_clique[preferred_curie],
+                }
+
+                # But did anything actually change?
+                flag_actually_changed = False
+
+                old_typ = older_compendium_file.preferred_id_to_type[preferred_curie]
+                if old_typ != typ:
+                    flag_actually_changed = True
+                    clique_change['type'] = {
+                        'old': old_typ,
+                        'new': typ,
+                    }
+
+                clique_label = self.preferred_id_to_preferred_name[preferred_curie]
+                old_clique_label = older_compendium_file.preferred_id_to_preferred_name[preferred_curie]
+                if clique_label != old_clique_label:
+                    flag_actually_changed = True
+                    clique_change['preferred_name'] = {
+                        'old': old_clique_label,
+                        'new': clique_label,
+                    }
+
+                ids = self.preferred_id_to_clique[preferred_curie]
+                old_ids = older_compendium_file.preferred_id_to_clique[preferred_curie]
+                if ids != old_ids:
+                    flag_actually_changed = True
+                    clique_change['identifiers'] = {
+                        'old': old_ids,
+                        'new': ids,
+                        'added': sorted(set(ids) - set(old_ids)),
+                        'deleted': sorted(set(old_ids) - set(ids)),
+                    }
+
+                if flag_actually_changed:
+                    clique_changes[preferred_curie] = clique_change
+
+        for old_preferred_curie, typ in older_compendium_file.preferred_id_to_type.items():
+            if old_preferred_curie not in self.preferred_id_to_type:
+                # Deletion.
+                cliques_deletions[old_preferred_curie] = {
+                    'type': typ,
+                    'preferred_curie': old_preferred_curie,
+                    'preferred_name': older_compendium_file.preferred_id_to_preferred_name[old_preferred_curie],
+                    'identifiers': older_compendium_file.preferred_id_to_clique[old_preferred_curie],
+                }
 
         # Step 3. Report on all the identifiers.
         return {
             'net_identifier_change': len(identifiers_added) - len(identifiers_deleted),
             'net_clique_change': (clique_count - old_clique_count),
-            'additions': sorted(map(lambda x: f"{x[0]} '{x[1]}' (to clique {x[4]} '{x[5]}')", identifiers_added)),
-            'deletions': sorted(map(lambda x: f"{x[0]} '{x[1]}' (from clique {x[2]} '{x[3]}')", identifiers_deleted)),
-            'changes': sorted(map(lambda x: f"{x[0]} '{x[1]}' moved from {x[2]} '{x[3]}' to {x[4]} '{x[5]}'", identifiers_changed)),
+            'identifiers': {
+                'additions': sorted(map(lambda x: f"{x[0]} '{x[1]}' (to clique {x[4]} '{x[5]}')", identifiers_added)),
+                'deletions': sorted(map(lambda x: f"{x[0]} '{x[1]}' (from clique {x[2]} '{x[3]}')", identifiers_deleted)),
+                'changes': sorted(map(lambda x: f"{x[0]} '{x[1]}' moved from {x[2]} '{x[3]}' to {x[4]} '{x[5]}'", identifiers_changed)),
+            },
+            'cliques': {
+                'additions': cliques_additions,
+                'deletions': cliques_deletions,
+                'changes': clique_changes,
+            },
         }
 
 
@@ -157,6 +236,8 @@ def compare_compendium_files(path1, path2):
     @param path2: Second path to compare.
     @return A comparison between the two compendium files as a dictionary.
     """
+
+    time_started = time.time_ns()
 
     compendium1 = CompendiumFile(path1)
     compendium2 = CompendiumFile(path2)
@@ -170,7 +251,7 @@ def compare_compendium_files(path1, path2):
     thread_compendium2.join()
 
     # Craft results and return.
-    return {
+    result = {
         'compendium1': {
             'path': path1,
             'file_exists': compendium1.file_exists,
@@ -189,6 +270,11 @@ def compare_compendium_files(path1, path2):
         },
         'diffs': compendium2.diffs_to(compendium1),
     }
+
+    time_ended = time.time_ns()
+    logging.info(f"Comparison of {path1} and {path2} took {(time_ended - time_started) / 1_000_000_000:.2f} seconds.")
+
+    return result
 
 
 @click.command()
