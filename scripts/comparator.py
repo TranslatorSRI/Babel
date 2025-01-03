@@ -228,22 +228,22 @@ class CompendiumFile:
         }
 
 
-def compare_compendium_files(path1, path2):
+def compare_compendium_files(path_old, path_new):
     """ Compare two compendium files.
 
-    @param path1: First path to compare.
-    @param path2: Second path to compare.
-    @return A comparison between the two compendium files as a dictionary.
+    :param path_old: The older folder to compare
+    :param path_new: The newer folder to compare.
+    :return A comparison between the two compendium files as a dictionary.
     """
 
     time_started = time.time_ns()
 
-    compendium1 = CompendiumFile(path1)
-    compendium2 = CompendiumFile(path2)
+    compendium_old = CompendiumFile(path_old)
+    compendium_new = CompendiumFile(path_new)
 
     # Load the two files in parallel.
-    thread_compendium1 = threading.Thread(target=compendium1.load)
-    thread_compendium2 = threading.Thread(target=compendium2.load)
+    thread_compendium1 = threading.Thread(target=compendium_old.load)
+    thread_compendium2 = threading.Thread(target=compendium_new.load)
     thread_compendium1.start()
     thread_compendium2.start()
     thread_compendium1.join()
@@ -251,45 +251,46 @@ def compare_compendium_files(path1, path2):
 
     # Craft results and return.
     result = {
-        'compendium1': {
-            'path': path1,
-            'file_exists': compendium1.file_exists,
-            'row_count': compendium1.row_count,
-            'curie_count': len(compendium1.curie_to_preferred_id),
-            'clique_count': len(compendium1.preferred_id_to_type),
-            'types': list(sorted(set(compendium1.preferred_id_to_type.values()))),
+        'compendium_old': {
+            'path': path_old,
+            'file_exists': compendium_old.file_exists,
+            'row_count': compendium_old.row_count,
+            'curie_count': len(compendium_old.curie_to_preferred_id),
+            'clique_count': len(compendium_old.preferred_id_to_type),
+            'types': list(sorted(set(compendium_old.preferred_id_to_type.values()))),
         },
-        'compendium2': {
-            'path': path2,
-            'file_exists': compendium2.file_exists,
-            'row_count': compendium2.row_count,
-            'curie_count': len(compendium2.curie_to_preferred_id),
-            'clique_count': len(compendium2.preferred_id_to_type),
-            'types': list(set(sorted(compendium2.preferred_id_to_type.values()))),
+        'compendium_new': {
+            'path': path_new,
+            'file_exists': compendium_new.file_exists,
+            'row_count': compendium_new.row_count,
+            'curie_count': len(compendium_new.curie_to_preferred_id),
+            'clique_count': len(compendium_new.preferred_id_to_type),
+            'types': list(set(sorted(compendium_new.preferred_id_to_type.values()))),
         },
-        'diffs': compendium2.diffs_to(compendium1),
+        'diffs': compendium_new.diffs_to(compendium_old),
     }
 
     time_ended = time.time_ns()
-    logging.info(f"Comparison of {path1} and {path2} took {(time_ended - time_started) / 1_000_000_000:.2f} seconds.")
+    logging.info(f"Comparison of {path_old} to {path_new} took {(time_ended - time_started) / 1_000_000_000:.2f} seconds.")
 
     return result
 
 
 @click.command()
 @click.option('--input-type', type=click.Choice(['compendium', 'synonyms']), default='compendium')
-@click.argument('input1', type=click.Path(exists=True, file_okay=True, dir_okay=True), required=True)
-@click.argument('input2', type=click.Path(exists=True, file_okay=True, dir_okay=True), required=True)
+@click.argument('input_old', type=click.Path(exists=True, file_okay=True, dir_okay=True), required=True)
+@click.argument('input_new', type=click.Path(exists=True, file_okay=True, dir_okay=True), required=True)
 @click.option('--max-workers', '-j', type=int, default=None, help='Maximum number of workers to use for parallel processing.')
-def comparator(input_type, input1, input2, max_workers):
+def comparator(input_type, input_old, input_new, max_workers):
     """
-    Compares two compendium or synonym files.
+    Compares either two compendium files or two directories containing compendium files.
+    \f
 
     :param input_type: Specifies the type of the files to compare.
         Options are 'compendium' or 'synonyms' (not yet supported).
         Defaults to 'compendium'.
-    :param input1: First path (file or directory) to compare.
-    :param input2: Second file (file or directory) to compare.
+    :param input_old: Older path (file or directory) to compare.
+    :param input_new: Newer path (file or directory) to compare.
     :param max_workers: Maximum number of workers to use for parallel processing.
     """
 
@@ -298,18 +299,18 @@ def comparator(input_type, input1, input2, max_workers):
         raise NotImplementedError(f"Input type '{input_type}' is not yet supported.")
 
     # Do the comparison.
-    if os.path.isfile(input1) and os.path.isfile(input2):
-        results = compare_compendium_files(input1, input2)
-    elif os.path.isdir(input1) and os.path.isdir(input2):
+    if os.path.isfile(input_old) and os.path.isfile(input_new):
+        results = compare_compendium_files(input_old, input_new)
+    elif os.path.isdir(input_old) and os.path.isdir(input_new):
         results = {
-            'directory1': {'path': input1},
-            'directory2': {'path': input2},
+            'directory1': {'path': input_old},
+            'directory2': {'path': input_new},
             'comparisons': [],
         }
 
         # Make a list of all the files in the directories input1 and input2.
-        files1 = os.listdir(input1)
-        files2 = os.listdir(input2)
+        files1 = os.listdir(input_old)
+        files2 = os.listdir(input_new)
         all_filenames = set(files1 + files2)
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -317,8 +318,8 @@ def comparator(input_type, input1, input2, max_workers):
             for filename in sorted(all_filenames):
                 if filename.startswith('.'):
                     continue
-                path1 = os.path.join(input1, filename)
-                path2 = os.path.join(input2, filename)
+                path1 = os.path.join(input_old, filename)
+                path2 = os.path.join(input_new, filename)
 
                 if os.path.isdir(path1):
                     logging.warning(f"Skipping directory {path1} in comparison.")
@@ -338,7 +339,7 @@ def comparator(input_type, input1, input2, max_workers):
                     raise exc
 
     else:
-        raise RuntimeError(f"Cannot compare a file to a directory or vice versa: {input1} and {input2}.")
+        raise RuntimeError(f"Cannot compare a file to a directory or vice versa: {input_old} and {input_new}.")
     
     print(json.dumps(results, indent=2))
 
