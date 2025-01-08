@@ -5,6 +5,7 @@ import src.datahandlers.obo as obo
 import src.datahandlers.reactome as reactome
 import src.datahandlers.rhea as rhea
 import src.datahandlers.ec as ec
+import src.datahandlers.umls as umls
 
 from src.prefixes import GO, REACT, WIKIPATHWAYS, RHEA, SMPDB, EC, PANTHERPATHWAY, TCDB
 from src.categories import BIOLOGICAL_PROCESS, MOLECULAR_ACTIVITY, PATHWAY
