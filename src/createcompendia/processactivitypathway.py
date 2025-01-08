@@ -30,6 +30,15 @@ def write_react_ids(infile,outfile):
 def write_ec_ids(outfile):
     ec.make_ids(outfile)
 
+
+def write_umls_ids(mrsty, outfile):
+    umlsmap = {}
+    umlsmap['B2.2.1.1.4'] = MOLECULAR_ACTIVITY
+    umls.write_umls_ids(mrsty, umlsmap, outfile)
+
+def build_process_umls_relationships(mrconso, idfile,outfile):
+    umls.build_sets(mrconso, idfile, outfile, {'GO': GO})
+
 def build_process_obo_relationships(outdir):
     #Create the equivalence pairs
     #op={'MSH':MESH,'SNOMEDCT_US':SNOMEDCT,'SNOMED_CT': SNOMEDCT, 'ORPHANET':ORPHANET, 'ICD-9':ICD9, 'ICD-10':ICD10, 'ICD-0':ICD0, 'ICD-O':ICD0 }

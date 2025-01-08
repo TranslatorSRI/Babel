@@ -50,6 +50,14 @@ rule process_panther_ids:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:Pathway\"}}' {input.infile} > {output.outfile}"
 
+rule process_umls_ids:
+    input:
+        mrsty=config['download_directory'] + "/UMLS/MRSTY.RRF"
+    output:
+        outfile=config['intermediate_directory']+"/process/ids/UMLS"
+    run:
+        pap.write_umls_ids(input.mrsty, output.outfile)
+
 ### Concords
 
 rule get_process_go_relationships:
@@ -65,6 +73,16 @@ rule get_process_rhea_relationships:
         outfile=config['intermediate_directory']+'/process/concords/RHEA',
     run:
         pap.build_process_rhea_relationships(output.outfile)
+
+
+rule get_process_umls_relationships:
+    input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
+        infile=config['intermediate_directory']+"/process/ids/UMLS",
+    output:
+        outfile=config['intermediate_directory']+'/process/concords/UMLS',
+    run:
+        pap.build_chemical_umls_relationships(input.mrconso, input.infile, output.outfile)
 
 rule process_compendia:
     input:
