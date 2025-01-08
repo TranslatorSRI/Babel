@@ -82,7 +82,7 @@ rule get_process_umls_relationships:
     output:
         outfile=config['intermediate_directory']+'/process/concords/UMLS',
     run:
-        pap.build_chemical_umls_relationships(input.mrconso, input.infile, output.outfile)
+        pap.build_process_umls_relationships(input.mrconso, input.infile, output.outfile)
 
 rule process_compendia:
     input:
