@@ -72,14 +72,19 @@ def build_compendia(concordances, identifiers, icrdf_filename):
         print(infile)
         print('loading',infile)
         # We have a concordance problem with UMLS - it is including GO terms that are obsolete and we don't want
-        # them added. So we want to limit concordances to terms that are already in the dicts?
+        # them added. So we want to limit concordances to terms that are already in the dicts. But that's ONLY for the
+        # UMLS concord.  We trust the others to retrieve decent identifiers.
         pairs = []
         with open(infile,'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
-                for xi in (x[0], x[2]):
-                    if xi not in dicts:
-                        print(f"Skipping pair {x} from {infile}")
+                if infile.endswith("UMLS"):
+                    use = True
+                    for xi in (x[0], x[2]):
+                        if xi not in dicts:
+                            print(f"Skipping pair {x} from {infile}")
+                            use = False
+                    if not use:
                         continue
                 pair = ([x[0], x[2]])
                 fspair = frozenset(pair)
