@@ -159,7 +159,7 @@ def build_compendia(concordances, identifiers, icrdf_filename):
         with open(infile,'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
-                prefixes = frozenset( [xi.split(':')[0] for xi in x])
+                prefixes = frozenset( [xi.split(':')[0] for xi in x[0:3:2]]) #leave out the predicate
                 if prefixes == bs:
                     use = True
                     for xi in (x[0], x[2]):
