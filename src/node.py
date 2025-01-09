@@ -305,6 +305,7 @@ class NodeFactory:
         j = self.toolkit.get_element(input_type)
         prefs = j['id_prefixes']
         # biolink doesnt yet include UMLS as a valid prefix for biological process. There is a PR here:
+        # https://github.com/biolink/biolink-model/pull/1541
         # once that's merged and makes its way to BMT, we can remove the following hack:
         ### HACK ###
         if input_type == 'biolink:BiologicalProcess':
