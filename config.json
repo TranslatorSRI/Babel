@@ -36,9 +36,9 @@
   "disease_concords": ["HP","MONDO","UMLS","DOID","EFO", "Manual"],
   "disease_outputs": ["Disease.txt", "PhenotypicFeature.txt"],
 
-  "process_labels": ["GO","REACT","RHEA","EC","SMPDB","PANTHER.PATHWAY"],
-  "process_ids": ["GO","REACT","RHEA","EC","SMPDB","PANTHER.PATHWAY"],
-  "process_concords": ["GO","RHEA"],
+  "process_labels": ["GO","REACT","RHEA","EC","SMPDB","PANTHER.PATHWAY", "UMLS"],
+  "process_ids": ["GO","REACT","RHEA","EC","SMPDB","PANTHER.PATHWAY", "UMLS"],
+  "process_concords": ["GO","RHEA","UMLS"],
   "process_outputs": ["Pathway.txt", "BiologicalProcess.txt", "MolecularActivity.txt"],
 
   "unichem_datasources": ["CHEMBL.COMPOUND","DRUGBANK","GTOPDB","KEGG.COMPOUND","CHEBI","UNII","HMDB","PUBCHEM.COMPOUND","DrugCentral"],

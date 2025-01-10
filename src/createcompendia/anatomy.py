@@ -136,7 +136,7 @@ def build_wikidata_cell_relationships(outdir):
                 print(f'Pair {pair} is not unique {counts[pair[0]]} {counts[pair[1]]}')
 
 def build_anatomy_umls_relationships(mrconso, idfile,outfile):
-    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT})
+    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO})
 
 def build_compendia(concordances, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
@@ -152,9 +152,22 @@ def build_compendia(concordances, identifiers, icrdf_filename):
         print(infile)
         print('loading',infile)
         pairs = []
+        # We have a concordance problem with UMLS - it is including GO terms that are obsolete and we don't want
+        # them added. So we want to limit concordances to terms that are already in the dicts. But that's ONLY for the
+        # UMLS concord.  We trust the others to retrieve decent identifiers.
+        bs = frozenset( [UMLS, GO])
         with open(infile,'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
+                prefixes = frozenset( [xi.split(':')[0] for xi in x[0:3:2]]) #leave out the predicate
+                if prefixes == bs:
+                    use = True
+                    for xi in (x[0], x[2]):
+                        if xi not in dicts:
+                            print(f"Skipping pair {x} from {infile}")
+                            use = False
+                    if not use:
+                        continue
                 pairs.append( ([x[0], x[2]]) )
         newpairs = remove_overused_xrefs(pairs)
         setpairs = [ set(x) for x in newpairs]
