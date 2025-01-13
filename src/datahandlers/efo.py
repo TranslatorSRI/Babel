@@ -128,7 +128,7 @@ class EFOgraph:
                 print(otherid)
                 exit()
             #EFO occasionally has xrefs that are just strings, not IRIs or CURIEs
-            if ":" in otherid:
+            if ":" in otherid and not otherid.startswith(":"):
                 outfile.write(f"{iri}\toboInOwl:hasDbXref\t{otherid}\n")
 
 
