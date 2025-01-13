@@ -127,7 +127,9 @@ class EFOgraph:
                 print(other)
                 print(otherid)
                 exit()
-            outfile.write(f"{iri}\toboInOwl:hasDbXref\t{otherid}\n")
+            #EFO occasionally has xrefs that are just strings, not IRIs or CURIEs
+            if ":" in otherid:
+                outfile.write(f"{iri}\toboInOwl:hasDbXref\t{otherid}\n")
 
 
 def make_labels(labelfile,synfile):
