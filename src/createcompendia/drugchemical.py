@@ -505,7 +505,9 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             # To work around this, we take this chance to pick an alternate conflation clique leader.
             conflation_clique_leader = final_conflation_id_list[0]
             conflation_clique_leader_prefix = conflation_clique_leader.split(':')[0]
-            conflation_clique_leader_ic = ic_factory.get_ic(conflation_clique_leader)
+            conflation_clique_leader_ic = ic_factory.get_ic({
+                'identifiers': list(map(lambda curie: {'identifier': curie}, final_conflation_id_list))
+            })
             if conflation_clique_leader_ic is None:
                 conflation_clique_leader_ic = 100
 
