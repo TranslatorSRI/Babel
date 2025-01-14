@@ -271,7 +271,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             for line in compendiumf:
                 clique = json.loads(line)
                 preferred_id = clique['identifiers'][0]['i']
-                clique_for_preferred_curie = list(map(lambda ident: ident['i'], clique['identifiers']))
+                clique_for_preferred_curie[preferred_id] = list(map(lambda ident: ident['i'], clique['identifiers']))
                 type_for_preferred_curie[preferred_id] = clique['type']
                 for ident in clique['identifiers']:
                     id = ident['i']
