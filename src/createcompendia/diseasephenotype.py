@@ -81,6 +81,9 @@ def write_umls_ids(mrsty, outfile,badumlsfile):
     #A2.2.2 Sign or Symptom
     umlsmap['A2.2.1'] = PHENOTYPIC_FEATURE
     umlsmap['A2.2.2'] = PHENOTYPIC_FEATURE
+    #A2.3 Organism Attribute
+    # Includes things like "Age" which will merge with EFOs
+    umlsmap['A2.3'] = PHENOTYPIC_FEATURE
     umls.write_umls_ids(mrsty, umlsmap, outfile, blacklist=badumls)
 
 

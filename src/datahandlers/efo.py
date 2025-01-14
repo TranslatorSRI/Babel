@@ -100,6 +100,7 @@ class EFOgraph:
          }}
          """
         qres = self.m.query(query)
+        nwrite = 0
         for row in list(qres):
             other = str(row["match"])
             try:
@@ -114,6 +115,31 @@ class EFOgraph:
                 print(otherid)
                 exit()
             outfile.write(f"{iri}\tskos:exactMatch\t{otherid}\n")
+            nwrite += 1
+        return nwrite
+    def get_xrefs(self, iri, outfile):
+        query = f"""
+         prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+         prefix EFO: <http://www.ebi.ac.uk/efo/EFO_>
+         prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#>
+         SELECT DISTINCT ?match
+         WHERE {{
+             {{ {iri} oboInOwl:hasDbXref ?match. }}
+         }}
+         """
+        qres = self.m.query(query)
+        for row in list(qres):
+            other = str(row["match"])
+            otherid = Text.opt_to_curie(other[1:-1])
+            if otherid.startswith("ORPHANET"):
+                print(row["match"])
+                print(other)
+                print(otherid)
+                exit()
+            #EFO occasionally has xrefs that are just strings, not IRIs or CURIEs
+            if ":" in otherid and not otherid.startswith(":"):
+                outfile.write(f"{iri}\toboInOwl:hasDbXref\t{otherid}\n")
+
 
 def make_labels(labelfile,synfile):
     m = EFOgraph()
@@ -129,4 +155,6 @@ def make_concords(idfilename, outfilename):
     with open(idfilename,"r") as inf, open(outfilename,"w") as concfile:
         for line in inf:
             efo_id = line.split('\t')[0]
-            m.get_exacts(efo_id,concfile)
+            nexacts = m.get_exacts(efo_id,concfile)
+            if nexacts == 0:
+                m.get_xrefs(efo_id,concfile)
