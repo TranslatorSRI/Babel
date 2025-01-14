@@ -530,6 +530,8 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
                     'identifiers': list(map(lambda curie: {'identifier': curie}, clique_for_preferred_curie[curie]))
                 })
                 if curie_ic is not None and curie_ic < conflation_clique_leader_ic:
+                    logging.info(f"Found better IC with CURIE {curie} (IC {curie_ic}) than previous conflation clique "
+                                 f"leader {final_conflation_id_list[0]} (IC {conflation_clique_leader_ic}).")
                     conflation_clique_leader = curie
                     conflation_clique_leader_ic = curie_ic
 
