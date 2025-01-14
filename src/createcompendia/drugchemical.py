@@ -264,12 +264,14 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
     print("load all chemical conflations so we can normalize identifiers")
     preferred_curie_for_curie = {}
     type_for_preferred_curie = {}
+    clique_for_preferred_curie = {}
     for chemical_compendium in chemical_compendia:
         with open(chemical_compendium, 'r') as compendiumf:
             logger.info(f"Loading {chemical_compendium}")
             for line in compendiumf:
                 clique = json.loads(line)
                 preferred_id = clique['identifiers'][0]['i']
+                clique_for_preferred_curie = list(map(lambda ident: ident['i'], clique['identifiers']))
                 type_for_preferred_curie[preferred_id] = clique['type']
                 for ident in clique['identifiers']:
                     id = ident['i']
@@ -506,7 +508,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             conflation_clique_leader = final_conflation_id_list[0]
             conflation_clique_leader_prefix = conflation_clique_leader.split(':')[0]
             conflation_clique_leader_ic = ic_factory.get_ic({
-                'identifiers': list(map(lambda curie: {'identifier': curie}, final_conflation_id_list))
+                'identifiers': list(map(lambda curie: {'identifier': curie}, clique_for_preferred_curie[conflation_clique_leader]))
             })
             if conflation_clique_leader_ic is None:
                 conflation_clique_leader_ic = 100
@@ -524,7 +526,9 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
                     continue
 
                 # Is this a lower information content value? If so, prefer this CURIE.
-                curie_ic = ic_factory.get_ic(curie)
+                curie_ic = ic_factory.get_ic({
+                    'identifiers': list(map(lambda curie: {'identifier': curie}, clique_for_preferred_curie[curie]))
+                })
                 if curie_ic is not None and curie_ic < conflation_clique_leader_ic:
                     conflation_clique_leader = curie
                     conflation_clique_leader_ic = curie_ic
