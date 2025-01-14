@@ -295,7 +295,7 @@ class SynonymsFile:
 
         # TODO: replace with DuckDB or something else more memory efficient.
         self.names = dict()
-        self.types = dict()
+        self.type_by_preferred_curie = dict()
         self.preferred_name = dict()
         self.clique_identifier_count = dict()
         self.taxa = dict()
@@ -333,10 +333,10 @@ class SynonymsFile:
                 synonyms = json.loads(row)
 
                 preferred_curie = synonyms['curie']
-                if preferred_curie in self.types:
+                if preferred_curie in self.type_by_preferred_curie:
                     raise RuntimeError(f"Duplicate preferred curie {preferred_curie} in {self.path}")
 
-                self.types[preferred_curie] = synonyms['type']
+                self.type_by_preferred_curie[preferred_curie] = synonyms['types'][0]
                 self.preferred_name[preferred_curie] = synonyms['preferred_name']
                 self.preferred_ids_by_preferred_name[synonyms['preferred_name']].add(preferred_curie)
 
@@ -367,8 +367,8 @@ class SynonymsFile:
         names_changed = []
         types_changed = []
 
-        preferred_curies = self.types.keys()
-        older_preferred_curies = older_synonyms_file.types.keys()
+        preferred_curies = self.type_by_preferred_curie.keys()
+        older_preferred_curies = older_synonyms_file.type_by_preferred_curie.keys()
 
         for preferred_curie in preferred_curies:
             if preferred_curie not in older_preferred_curies:
@@ -391,9 +391,9 @@ class SynonymsFile:
                     identifiers_not_changed[preferred_curie] = self.preferred_name[preferred_curie]
 
                 # Let's check the type here.
-                if self.types[preferred_curie] != older_synonyms_file.types[preferred_curie]:
-                    added_types = self.types[preferred_curie] - older_synonyms_file.types[preferred_curie]
-                    deleted_types = older_synonyms_file.types[preferred_curie] - self.types[preferred_curie]
+                if self.type_by_preferred_curie[preferred_curie] != older_synonyms_file.type_by_preferred_curie[preferred_curie]:
+                    added_types = self.type_by_preferred_curie[preferred_curie] - older_synonyms_file.type_by_preferred_curie[preferred_curie]
+                    deleted_types = older_synonyms_file.type_by_preferred_curie[preferred_curie] - self.type_by_preferred_curie[preferred_curie]
 
                     types_changed.append((preferred_curie, self.preferred_name[preferred_curie], added_types, deleted_types))
 
@@ -427,9 +427,9 @@ class SynonymsFile:
                 'additions': list(f"{i} '{identifiers_added[i]}'" for i in sorted(identifiers_added.keys())),
                 'deletions': list(f"{i} '{identifiers_deleted[i]}'" for i in sorted(identifiers_deleted.keys())),
                 'changes': list(
-                    f"{i} '{identifiers_deleted[i]}': {self.names[i]} -> {older_synonyms_file.names[i]} " +
-                    f"(additions: {self.names[i] - older_synonyms_file.names[i]}, " +
-                    f"deletions: {older_synonyms_file.names[i] - self.names[i]})"
+                    f"{i} '{identifiers_changed[i]}': {self.names[i]} -> {older_synonyms_file.names[i]} " +
+                    f"(additions: {sorted(set(self.names[i]) - set(older_synonyms_file.names[i]))}, " +
+                    f"deletions: {sorted(set(older_synonyms_file.names[i]) - set(self.names[i]))})"
                     for i in sorted(identifiers_changed.keys())),
             },
             'preferred_name_changes': preferred_name_changes,
@@ -464,15 +464,15 @@ def compare_synonym_files(path_old, path_new):
             'path': path_old,
             'file_exists': synonyms_old.file_exists,
             'row_count': synonyms_old.row_count,
-            'curie_count': len(synonyms_old.types.keys()),
-            'type_count': len(set(synonyms_old.types.values())),
+            'curie_count': len(synonyms_old.type_by_preferred_curie.keys()),
+            'type_count': len(set(synonyms_old.type_by_preferred_curie.values())),
         },
         'synonyms_new': {
             'path': path_new,
             'file_exists': synonyms_new.file_exists,
             'row_count': synonyms_new.row_count,
-            'curie_count': len(synonyms_new.types.keys()),
-            'type_count': len(set(synonyms_new.types.values())),
+            'curie_count': len(synonyms_new.type_by_preferred_curie.keys()),
+            'type_count': len(set(synonyms_new.type_by_preferred_curie.values())),
         },
         'diffs': synonyms_new.diffs_to(synonyms_old),
     }
@@ -490,7 +490,7 @@ def compare_synonym_files(path_old, path_new):
 @click.option('--max-workers', '-j', type=int, default=None, help='Maximum number of workers to use for parallel processing.')
 def comparator(input_type, input_old, input_new, max_workers):
     """
-    Compares either two compendium files or two directories containing compendium files.
+    Compares either two files or two directories containing compendium or synonyms files.
     \f
 
     :param input_type: Specifies the type of the files to compare.
