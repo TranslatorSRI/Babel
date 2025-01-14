@@ -304,6 +304,13 @@ class NodeFactory:
         print(input_type)
         j = self.toolkit.get_element(input_type)
         prefs = j['id_prefixes']
+        # biolink doesnt yet include UMLS as a valid prefix for biological process. There is a PR here:
+        # https://github.com/biolink/biolink-model/pull/1541
+        # once that's merged and makes its way to BMT, we can remove the following hack:
+        ### HACK ###
+        if input_type == 'biolink:BiologicalProcess':
+            prefs.append('UMLS')
+        ### END HACK ###
         if len(prefs) == 0:
             raise RuntimeError(f'No Biolink prefixes for {input_type}')
         # The pref are in a particular order, but apparently they can have dups (ugh)
@@ -354,6 +361,12 @@ class NodeFactory:
         return cleaned
 
     def load_extra_labels(self,prefix):
+        if self.label_dir is None:
+            print (f"WARNING: no label_dir specified in load_extra_labels({self}, {prefix}), can't load extra labels for {prefix}. Skipping.")
+            return
+        if prefix is None:
+            print (f"WARNING: no prefix specified in load_extra_labels({self}, {prefix}), can't load extra labels. Skipping.")
+            return
         labelfname = os.path.join(self.label_dir,prefix,'labels')
         lbs = {}
         if os.path.exists(labelfname):
@@ -375,7 +388,11 @@ class NodeFactory:
             if iid in labels:
                 labeled_list.append( LabeledID(identifier=iid, label = labels[iid]))
             else:
-                prefix = Text.get_prefix(iid)
+                try:
+                    prefix = Text.get_prefix(iid)
+                except ValueError as e:
+                    print(f"ERROR: Unable to apply_labels({self}, {input_identifiers}, {labels}): could not obtain prefix for identifier {iid}")
+                    raise e
                 if prefix not in self.extra_labels:
                     self.load_extra_labels(prefix)
                 if iid in self.extra_labels[prefix]:

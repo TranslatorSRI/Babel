@@ -452,11 +452,11 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
 
                 # Step 3. Filter out labels longer than config['demote_labels_longer_than'], but only if there is at
                 # least one label shorter than this limit.
-                labels_shorter_than_limit = [l for l in possible_labels if l and len(l) <= config['demote_labels_longer_than']]
+                labels_shorter_than_limit = [l for l in filtered_possible_labels if l and len(l) <= config['demote_labels_longer_than']]
                 if labels_shorter_than_limit:
                     filtered_possible_labels = labels_shorter_than_limit
 
-                # Step 4. Pick the first label that isn't blank.
+                # Step 4. Pick the first label if it isn't blank.
                 if filtered_possible_labels:
                     preferred_name = filtered_possible_labels[0]
                 else:
