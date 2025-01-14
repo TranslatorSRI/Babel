@@ -276,6 +276,213 @@ def compare_compendium_files(path_old, path_new):
     return result
 
 
+class SynonymsFile:
+    """
+    Represents a synonyms file at a particular path. The load() method will load the file into a series of in-memory
+    dictionaries, and the diffs_to() method will generate a diff between this synonyms file and another synonyms file.
+    """
+
+    def __init__(self, path):
+        """
+        Initialize a SynonymsFile object with the specified path. We don't load the file until load() is called.
+
+        :param path: File path to initialize and load metadata from.
+        """
+        self.path = path
+
+        self.file_exists = os.path.exists(self.path)
+        self.row_count = 0
+
+        # TODO: replace with DuckDB or something else more memory efficient.
+        self.names = dict()
+        self.types = dict()
+        self.preferred_name = dict()
+        self.clique_identifier_count = dict()
+        self.taxa = dict()
+
+        self.preferred_ids_by_name = defaultdict(set)
+        self.preferred_ids_by_preferred_name = defaultdict(set)
+
+
+    def load(self):
+        """
+        Loads synonyms data from the specified file path into various mappings.
+
+        This method reads data from a JSON lines file located at the path specified
+        by the instance attribute `path`. Each line in the file should represent a
+        synonyms object in JSON format.
+
+        The method tracks and logs the progress of the file loading process. It will
+        log a warning if the specified file path does not exist, and progress
+        information is logged for every million lines processed. At the end, the
+        method logs the total number of lines read.
+        """
+
+        time_started = time.time_ns()
+
+        if not os.path.exists(self.path):
+            logging.warning(f"Synonyms file {self.path} does not exist.")
+            return
+
+        with open(self.path, "r") as f:
+            for row in f:
+                self.row_count += 1
+                if self.row_count % 1000000 == 0:
+                    logging.info(f"Now loading line {self.row_count:,} from {self.path}")
+
+                synonyms = json.loads(row)
+
+                preferred_curie = synonyms['curie']
+                if preferred_curie in self.types:
+                    raise RuntimeError(f"Duplicate preferred curie {preferred_curie} in {self.path}")
+
+                self.types[preferred_curie] = synonyms['type']
+                self.preferred_name[preferred_curie] = synonyms['preferred_name']
+                self.preferred_ids_by_preferred_name[synonyms['preferred_name']].add(preferred_curie)
+
+                self.clique_identifier_count[preferred_curie] = synonyms['clique_identifier_count']
+                self.taxa[preferred_curie] = synonyms['taxa']
+
+                self.names[preferred_curie] = synonyms['names']
+                for name in synonyms['names']:
+                    self.preferred_ids_by_name[name].add(preferred_curie)
+
+        time_ended = time.time_ns()
+        logging.info(f"Loaded {self.row_count:,} lines from {self.path} in {(time_ended - time_started) / 1_000_000_000:.2f} seconds.")
+
+    def diffs_to(self, older_synonyms_file: 'SynonymsFile'):
+        """
+        Generate diff counts between this synonyms file and the older synonyms file.
+
+        :param older_synonyms_file: A SynonymsFile object representing the older compendium file.
+        :return: A dictionary.
+        """
+
+        # Step 1. Figure out which identifiers have changed cliques between these two compendia.
+        identifiers_added = dict()
+        identifiers_not_changed = dict()
+        identifiers_changed = dict()
+        identifiers_deleted = dict()
+
+        names_changed = []
+        types_changed = []
+
+        preferred_curies = self.types.keys()
+        older_preferred_curies = older_synonyms_file.types.keys()
+
+        for preferred_curie in preferred_curies:
+            if preferred_curie not in older_preferred_curies:
+                identifiers_added[preferred_curie] = self.preferred_name[preferred_curie]
+            else:
+                names = set(self.names[preferred_curie])
+                old_names = set(older_synonyms_file.names[preferred_curie])
+
+                if names != old_names:
+                    identifiers_changed[preferred_curie] = self.preferred_name[preferred_curie]
+
+                    added_names = names - old_names
+                    deleted_names = old_names - names
+                    if added_names:
+                        names_changed.append((preferred_curie, self.preferred_name[preferred_curie], list(sorted(added_names)), list(sorted(deleted_names))))
+
+                else:
+                    # This means that if the names haven't changed, but e.g. the type or clique_identifier_count has
+                    # changed, we will not consider these identifiers as having changed. Which is okay, probably.
+                    identifiers_not_changed[preferred_curie] = self.preferred_name[preferred_curie]
+
+                # Let's check the type here.
+                if self.types[preferred_curie] != older_synonyms_file.types[preferred_curie]:
+                    added_types = self.types[preferred_curie] - older_synonyms_file.types[preferred_curie]
+                    deleted_types = older_synonyms_file.types[preferred_curie] - self.types[preferred_curie]
+
+                    types_changed.append((preferred_curie, self.preferred_name[preferred_curie], added_types, deleted_types))
+
+        for old_preferred_curie in older_preferred_curies:
+            if old_preferred_curie not in preferred_curies:
+                identifiers_deleted[old_preferred_curie] = older_synonyms_file.preferred_name[old_preferred_curie]
+
+        # Step 2. Figure out if the preferred names have changed.
+        preferred_name_changes = []
+        for preferred_name in self.preferred_ids_by_preferred_name.keys():
+            preferred_name_ids = self.preferred_ids_by_preferred_name[preferred_name]
+
+            if preferred_name not in older_synonyms_file.preferred_ids_by_preferred_name:
+                preferred_name_changes.append((preferred_name, [], list(sorted(preferred_name_ids))))
+            else:
+                old_preferred_ids = older_synonyms_file.preferred_ids_by_preferred_name[preferred_name]
+                if set(old_preferred_ids) == set(self.preferred_ids_by_preferred_name[preferred_name]):
+                    # No change, do nothing.
+                    pass
+                else:
+                    preferred_name_changes.append((preferred_name, list(sorted(old_preferred_ids)), list(sorted(preferred_name_ids))))
+
+        for old_preferred_name in older_synonyms_file.preferred_ids_by_preferred_name:
+            if old_preferred_name not in self.preferred_ids_by_preferred_name:
+                preferred_name_changes.append((old_preferred_name, list(sorted(older_synonyms_file.preferred_ids_by_preferred_name[old_preferred_name])), []))
+
+        # Step 3. Report on all the synonyms.
+        return {
+            'net_identifier_change': len(identifiers_added) - len(identifiers_deleted),
+            'identifiers': {
+                'additions': list(f"{i} '{identifiers_added[i]}'" for i in sorted(identifiers_added.keys())),
+                'deletions': list(f"{i} '{identifiers_deleted[i]}'" for i in sorted(identifiers_deleted.keys())),
+                'changes': list(
+                    f"{i} '{identifiers_deleted[i]}': {self.names[i]} -> {older_synonyms_file.names[i]} " +
+                    f"(additions: {self.names[i] - older_synonyms_file.names[i]}, " +
+                    f"deletions: {older_synonyms_file.names[i] - self.names[i]})"
+                    for i in sorted(identifiers_changed.keys())),
+            },
+            'preferred_name_changes': preferred_name_changes,
+            'type_changes': types_changed,
+        }
+
+
+def compare_synonym_files(path_old, path_new):
+    """ Compare two synonym files.
+
+    :param path_old: The older folder to compare
+    :param path_new: The newer folder to compare.
+    :return A comparison between the two synonym files as a dictionary.
+    """
+
+    time_started = time.time_ns()
+
+    synonyms_old = SynonymsFile(path_old)
+    synonyms_new = SynonymsFile(path_new)
+
+    # Load the two files in parallel.
+    thread_synonyms1 = threading.Thread(target=synonyms_old.load)
+    thread_synonyms2 = threading.Thread(target=synonyms_new.load)
+    thread_synonyms1.start()
+    thread_synonyms2.start()
+    thread_synonyms1.join()
+    thread_synonyms2.join()
+
+    # Craft results and return.
+    result = {
+        'synonyms_old': {
+            'path': path_old,
+            'file_exists': synonyms_old.file_exists,
+            'row_count': synonyms_old.row_count,
+            'curie_count': len(synonyms_old.types.keys()),
+            'type_count': len(set(synonyms_old.types.values())),
+        },
+        'synonyms_new': {
+            'path': path_new,
+            'file_exists': synonyms_new.file_exists,
+            'row_count': synonyms_new.row_count,
+            'curie_count': len(synonyms_new.types.keys()),
+            'type_count': len(set(synonyms_new.types.values())),
+        },
+        'diffs': synonyms_new.diffs_to(synonyms_old),
+    }
+
+    time_ended = time.time_ns()
+    logging.info(f"Comparison of {path_old} to {path_new} took {(time_ended - time_started) / 1_000_000_000:.2f} seconds.")
+
+    return result
+
+
 @click.command()
 @click.option('--input-type', type=click.Choice(['compendium', 'synonyms']), default='compendium')
 @click.argument('input_old', type=click.Path(exists=True, file_okay=True, dir_okay=True), required=True)
@@ -295,12 +502,17 @@ def comparator(input_type, input_old, input_new, max_workers):
     """
 
     # Some features haven't been implemented yet.
-    if input_type != 'compendium':
-        raise NotImplementedError(f"Input type '{input_type}' is not yet supported.")
+    match input_type:
+        case 'compendium':
+            comparison_function = compare_compendium_files
+        case 'synonyms':
+            comparison_function = compare_synonym_files
+        case _:
+            raise RuntimeError(f"Input type '{input_type}' is not defined.")
 
     # Do the comparison.
     if os.path.isfile(input_old) and os.path.isfile(input_new):
-        results = compare_compendium_files(input_old, input_new)
+        results = comparison_function(input_old, input_new)
     elif os.path.isdir(input_old) and os.path.isdir(input_new):
         results = {
             'directory1': {'path': input_old},
@@ -329,7 +541,7 @@ def comparator(input_type, input_old, input_new, max_workers):
                     logging.warning(f"Skipping directory {path2} in comparison.")
                     continue
 
-                futures.append(executor.submit(compare_compendium_files, path1, path2))
+                futures.append(executor.submit(comparison_function, path1, path2))
 
             for future in concurrent.futures.as_completed(futures):
                 try:
@@ -340,7 +552,7 @@ def comparator(input_type, input_old, input_new, max_workers):
 
     else:
         raise RuntimeError(f"Cannot compare a file to a directory or vice versa: {input_old} and {input_new}.")
-    
+
     print(json.dumps(results, indent=2))
 
 
