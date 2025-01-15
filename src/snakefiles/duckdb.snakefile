@@ -23,7 +23,7 @@ rule export_compendia_to_duckdb:
         compendium_file=config['output_directory'] + "/compendia/{filename}.txt",
     output:
         duckdb_filename=config['output_directory'] + "/duckdb/duckdbs/filename={filename}/compendium.duckdb",
-        parquet_dir=config['output_directory'] + "/duckdb/parquet/",
+        parquet_dir=config['output_directory'] + "/duckdb/parquet/filename={filename}/",
     run:
         duckdb_exporters.export_compendia_to_parquet(input.compendium_file, output.parquet_dir, output.duckdb_filename)
 
