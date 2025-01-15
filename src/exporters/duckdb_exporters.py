@@ -26,11 +26,12 @@ def setup_duckdb(duckdb_filename):
     return db
 
 
-def export_compendia_to_parquet(compendium_filename, duckdb_filename):
+def export_compendia_to_parquet(compendium_filename, parquet_dir, duckdb_filename):
     """
     Export a compendium to a Parquet file via a DuckDB.
 
     :param compendium_filename: The compendium filename to read.
+    :param parquet_dir: The Parquet directory to write to.
     :param duckdb_filename: The DuckDB filename to write. We will write the Parquet files into the directory that
         this file is located in.
     """
@@ -41,9 +42,10 @@ def export_compendia_to_parquet(compendium_filename, duckdb_filename):
 
     duckdb_dir = os.path.dirname(duckdb_filename)
     os.makedirs(duckdb_dir, exist_ok=True)
-    clique_parquet_filename = os.path.join(duckdb_dir, 'Clique.parquet')
-    edge_parquet_filename = os.path.join(duckdb_dir, 'Edge.parquet')
-    node_parquet_filename = os.path.join(duckdb_dir, 'Node.parquet')
+    os.makedirs(parquet_dir, exist_ok=True)
+    clique_parquet_filename = os.path.join(parquet_dir, 'Clique.parquet')
+    edge_parquet_filename = os.path.join(parquet_dir, 'Edge.parquet')
+    node_parquet_filename = os.path.join(parquet_dir, 'Node.parquet')
 
     with setup_duckdb(duckdb_filename) as db:
         # Step 1. Load the entire synonyms file.
