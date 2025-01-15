@@ -22,9 +22,10 @@ rule export_compendia_to_duckdb:
     input:
         compendium_file=config['output_directory'] + "/compendia/{filename}.txt",
     output:
-        duckdb_filename=config['output_directory'] + "/duckdb/parquet/filename={filename}/compendium.duckdb"
+        duckdb_filename=config['output_directory'] + "/duckdb/duckdbs/filename={filename}/compendium.duckdb",
+        parquet_dir=config['output_directory'] + "/duckdb/parquet/",
     run:
-        duckdb_exporters.export_compendia_to_parquet(input.compendium_file, output.duckdb_filename)
+        duckdb_exporters.export_compendia_to_parquet(input.compendium_file, output.parquet_dir, output.duckdb_filename)
 
 
 # Write all synonyms files to Parquet via DuckDB, then create `babel_outputs/duckdb/synonyms_done` to signal that we're done.
