@@ -507,9 +507,9 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             # To work around this, we take this chance to pick an alternate conflation clique leader.
             conflation_clique_leader = final_conflation_id_list[0]
             conflation_clique_leader_prefix = conflation_clique_leader.split(':')[0]
-            conflation_clique_leader_ic = ic_factory.get_ic({
+            conflation_clique_leader_ic = float(ic_factory.get_ic({
                 'identifiers': list(map(lambda curie: {'identifier': curie}, clique_for_preferred_curie[conflation_clique_leader]))
-            })
+            }))
             if conflation_clique_leader_ic is None:
                 conflation_clique_leader_ic = 100
 
@@ -526,9 +526,9 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
                     continue
 
                 # Is this a lower information content value? If so, prefer this CURIE.
-                curie_ic = ic_factory.get_ic({
+                curie_ic = float(ic_factory.get_ic({
                     'identifiers': list(map(lambda curie: {'identifier': curie}, clique_for_preferred_curie[curie]))
-                })
+                }))
                 if curie_ic is not None and curie_ic < conflation_clique_leader_ic:
                     logging.info(f"Found better IC with CURIE {curie} (IC {curie_ic}) than previous conflation clique "
                                  f"leader {final_conflation_id_list[0]} (IC {conflation_clique_leader_ic}).")
