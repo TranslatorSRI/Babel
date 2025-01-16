@@ -61,7 +61,11 @@ class UberGraph:
                 )
             for x in rr:
                 y = {}
-                y['iri'] = Text.opt_to_curie(x['thing'])
+                try:
+                    y['iri'] = Text.opt_to_curie(x['thing'])
+                except ValueError as verr:
+                    print(f"WARNING: Unable to translate {x['thing']} to a CURIE; it will be used as-is: {verr}")
+                    y['iri'] = x['thing']
                 y['label'] = x['label']
                 results.append(y)
 
@@ -113,7 +117,11 @@ class UberGraph:
                 )
             for x in rr:
                 y = {}
-                y['iri'] = Text.opt_to_curie(x['thing'])
+                try:
+                    y['iri'] = Text.opt_to_curie(x['thing'])
+                except ValueError as verr:
+                    print(f"WARNING: Unable to translate {x['thing']} to a CURIE; it will be used as-is: {verr}")
+                    y['iri'] = x['thing']
                 y['description'] = x['description']
                 results.append(y)
 
@@ -185,7 +193,12 @@ class UberGraph:
                 template_text=text \
                 )
             for x in rr:
-                y = ( Text.opt_to_curie(x['cls']), x['pred'], x['val'])
+                try:
+                    cls_curie = Text.opt_to_curie(x['cls'])
+                except ValueError as verr:
+                    print(f"Unable to convert {x['cls']} to a CURIE; it will be used as-is: {verr}")
+                    cls_curie = x['cls']
+                y = ( cls_curie, x['pred'], x['val'])
                 results.append(y)
 
         return results
@@ -221,7 +234,11 @@ class UberGraph:
         results = []
         for x in rr:
             y = {}
-            y['descendent'] = Text.opt_to_curie(x['descendent'])
+            try:
+                y['descendent'] = Text.opt_to_curie(x['descendent'])
+            except ValueError as verr:
+                print(f"Descendent {x['descendent']} could not be converted to a CURIE, will be used as-is: {verr}")
+                y['descendent'] = x['descendent']
             y['descendentLabel'] = x['descendentLabel']
             results.append(y)
         return results
@@ -258,7 +275,11 @@ class UberGraph:
         results = []
         for x in rr:
             y = {}
-            y['descendent'] = Text.opt_to_curie(x['descendent'])
+            try:
+                y['descendent'] = Text.opt_to_curie(x['descendent'])
+            except ValueError as verr:
+                print(f"Descendent {x['descendent']} could not be converted to a CURIE, will be used as-is: {verr}")
+                y['descendent'] = x['descendent']
             if x['descendentSmiles'] is not None:
                 y['SMILES'] = x['descendentSmiles']
             results.append(y)
@@ -295,12 +316,14 @@ class UberGraph:
         )
         results = defaultdict(set)
         for row in resultmap:
-            dcurie = Text.opt_to_curie(row['descendent'])
-            #Sometimes we're getting back just strings that aren't curies, skip those (but complain)
-            if ':' not in row['xref']:
-                print(f'Bad XREF from {row["descendent"]} to {row["xref"]}')
+            # Sometimes we're getting back just strings that aren't curies, skip those (but complain)
+            try:
+                dcurie = Text.opt_to_curie(row['descendent'])
+                results[ dcurie ].add( (Text.opt_to_curie(row['xref']) ))
+            except ValueError as verr:
+                print(f'Bad XREF from {row["descendent"]} to {row["xref"]}: {verr}')
                 continue
-            results[ dcurie ].add( (Text.opt_to_curie(row['xref']) ))
+
         return results
 
     def get_subclasses_and_exacts(self,iri):
@@ -346,15 +369,23 @@ class UberGraph:
                 }, outputs=[ 'descendent', 'match'] )
         results = defaultdict(list)
         for row in resultmap:
-            desc=Text.opt_to_curie(row['descendent'])
+            try:
+                desc = Text.opt_to_curie(row['descendent'])
+            except ValueError as verr:
+                print(f"Descendant {row['descendent']} could not be converted to a CURIE, will be used as-is: {verr}")
+                desc = row['descendent']
+
             if row['match'] is None:
                 results[desc] += []
             else:
-                results[ desc ].append( (Text.opt_to_curie(row['match']) ))
-        #Sometimes, if there are no exact_matches, we'll get some kind of blank node id
-        # like 't19830198'. Want to filter those out.
-        for k,v in results.items():
-            results[k] = list(filter(lambda x: ':' in x, v))
+                # Sometimes, if there are no exact_matches, we'll get some kind of blank node id
+                # like 't19830198'. Want to filter those out.
+                try:
+                    results[ desc ].append(Text.opt_to_curie(row['match']))
+                except ValueError as verr:
+                    print(f'Row {row} could not be converted to a CURIE: {verr}')
+                    continue
+
         return results
 
     def get_subclasses_and_close(self,iri):
@@ -395,15 +426,23 @@ class UberGraph:
                }, outputs=[ 'descendent', 'match' ] )
         results = defaultdict(list)
         for row in resultmap:
-            desc = Text.opt_to_curie(row['descendent'])
+            try:
+                desc = Text.opt_to_curie(row['descendent'])
+            except ValueError as verr:
+                print(f"Descendant {row['descendent']} could not be converted to a CURIE, will be used as-is: {verr}")
+                desc = row['descendent']
+
             if row['match'] is None:
                 results[desc] += []
             else:
-                results[ desc].append( (Text.opt_to_curie(row['match']) ))
-        #Sometimes, if there are no exact_matches, we'll get some kind of blank node id
-        # like 't19830198'. Want to filter those out.
-        for k,v in results.items():
-            results[k] = list(filter(lambda x: ':' in x, v))
+                try:
+                    results[ desc].append( (Text.opt_to_curie(row['match']) ))
+                except ValueError as verr:
+                    # Sometimes, if there are no exact_matches, we'll get some kind of blank node id
+                    # like 't19830198'. Want to filter those out.
+                    print(f"Value {row['match']} in row {row} could not be converted to a CURIE: {verr}")
+                    continue
+
         return results
 
     def write_normalized_information_content(self, filename):
