@@ -13,11 +13,11 @@ def pull_ncbigene_labels_synonyms_and_taxa():
     labelname = make_local_name('labels', subpath='NCBIGene')
     synname = make_local_name('synonyms', subpath='NCBIGene')
     taxaname = make_local_name('taxa', subpath='NCBIGene')
-    bad_gene_types = set(['biological-region', 'other', 'unknown'])
-    with (gzip.open(ifname, 'r') as inf,
-          open(labelname, 'w') as labelfile,
-          open(synname, 'w') as synfile,
-          open(taxaname, 'w') as taxafile):
+    bad_gene_types = {'biological-region', 'other', 'unknown'}
+    with gzip.open(ifname, 'r') as inf, \
+          open(labelname, 'w') as labelfile, \
+          open(synname, 'w') as synfile, \
+          open(taxaname, 'w') as taxafile:
 
         # Make sure the gene_info.gz columns haven't changed from under us.
         header = inf.readline().decode('utf-8').strip().split("\t")
@@ -39,17 +39,17 @@ def pull_ncbigene_labels_synonyms_and_taxa():
             "Modification_date",
             "Feature_type"]
 
-        def get_field(row, field_name):
+        def get_field(r, field_name):
             """
             A helper function for returning the value of a field in gene_info.gz by name.
             The value is `-` if no value is present; we need to convert that into an empty string.
 
-            :param row: A row from gene_info.gz.
+            :param r: A row from gene_info.gz.
             :param field_name: A field name in the header of gene_info.gz.
             :return: The value in this column in this row, otherwise the empty string ('').
             """
             index = header.index(field_name)
-            value = row[index].strip()
+            value = r[index].strip()
             if value == '-':
                 return ''
             return value
@@ -83,6 +83,6 @@ def pull_ncbigene_labels_synonyms_and_taxa():
                 # gene_info.gz uses `-` to indicate a blank field -- if we're seeing that here, that means
                 # we've misread the file somehow!
                 if syn == '-':
-                    raise RuntimeError(f"Synonym '-' should not be present in NCBIGene output!")
+                    raise RuntimeError("Synonym '-' should not be present in NCBIGene output!")
 
                 synfile.write(f'{gene_id}\thttp://www.geneontology.org/formats/oboInOwl#hasSynonym\t{syn}\n')
