@@ -140,7 +140,7 @@ class EFOgraph:
                     f"EFOgraph.get_xrefs({iri}), skipping: {verr}"
                 )
                 continue
-            if other_id.startswith("ORPHANET"):
+            if other_id.upper().startswith("ORPHANET"):
                 raise RuntimeError(
                     f"Unexpected ORPHANET in EFOgraph.get_xrefs({iri}): '{other_without_brackets}'"
                 )
