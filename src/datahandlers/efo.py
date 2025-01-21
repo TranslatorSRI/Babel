@@ -1,12 +1,13 @@
+import logging
 import re
 
 from src.prefixes import EFO,ORPHANET
 from src.babel_utils import pull_via_urllib
 from src.babel_utils import make_local_name
-from src.util import Text
+from src.util import Text, LoggingUtil
 import pyoxigraph
 
-
+logger = LoggingUtil.init_logging(__name__, level=logging.WARNING)
 
 def pull_efo():
     _=pull_via_urllib('http://www.ebi.ac.uk/efo/','efo.owl', subpath='EFO', decompress=False)
@@ -121,15 +122,27 @@ class EFOgraph:
         qres = self.m.query(query)
         for row in list(qres):
             other = str(row["match"])
-            otherid = Text.opt_to_curie(other[1:-1])
-            if otherid.startswith("ORPHANET"):
-                print(row["match"])
-                print(other)
-                print(otherid)
-                exit()
+            other_without_brackets = other[1:-1]
+            try:
+                other_id = Text.opt_to_curie(other_without_brackets)
+            except ValueError as verr:
+                logger.warning(
+                    f"Could not translate '{other_without_brackets}' into a CURIE in " +
+                    f"EFOgraph.get_xrefs({iri}), skipping: {verr}"
+                )
+                continue
+            if other_id.startswith("ORPHANET"):
+                raise RuntimeError(
+                    f"Unexpected ORPHANET in EFOgraph.get_xrefs({iri}): '{other_without_brackets}'"
+                )
             #EFO occasionally has xrefs that are just strings, not IRIs or CURIEs
-            if ":" in otherid and not otherid.startswith(":"):
-                outfile.write(f"{iri}\toboInOwl:hasDbXref\t{otherid}\n")
+            if ":" in other_id and not other_id.startswith(":"):
+                outfile.write(f"{iri}\toboInOwl:hasDbXref\t{other_id}\n")
+            else:
+                logging.warning(
+                    f"Skipping xref '{other_without_brackets}' in EFOgraph.get_xrefs({iri}): " +
+                    "not a valid CURIE"
+                )
 
 
 def make_labels(labelfile,synfile):
