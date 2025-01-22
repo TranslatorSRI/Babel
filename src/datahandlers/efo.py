@@ -32,6 +32,7 @@ class EFOgraph:
         end = dt.now()
         print('loading complete')
         print(f'took {end-start}')
+
     def pull_EFO_labels_and_synonyms(self,lname,sname):
         with open(lname, 'w') as labelfile, open(sname,'w') as synfile:
             #for labeltype in ['skos:prefLabel','skos:altLabel','rdfs:label']:
@@ -60,6 +61,7 @@ class EFOgraph:
                     synfile.write(f'{EFO}:{efo_id}\t{labeltype}\t{label}\n')
                     if not labeltype == 'skos:altLabel':
                         labelfile.write(f'{EFO}:{efo_id}\t{label}\n')
+
     def pull_EFO_ids(self,roots,idfname):
         with open(idfname, 'w') as idfile:
             for root,rtype in roots:
@@ -76,6 +78,7 @@ class EFOgraph:
                     if efoid.startswith("EFO_"):
                         efo_id = efoid.split("_")[-1]
                         idfile.write(f'{EFO}:{efo_id}\t{rtype}\n')
+
     def get_exacts(self, iri, outfile):
         query = f"""
          prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -89,6 +92,7 @@ class EFOgraph:
          prefix EFO: <http://www.ebi.ac.uk/efo/EFO_>
          prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
          prefix SKOS: <http://www.w3.org/2004/02/skos/core#>
+         prefix icd11.foundation: <http://id.who.int/icd/entity/>
          SELECT DISTINCT ?match
          WHERE {{
              {{ {iri} SKOS:exactMatch ?match. }}
@@ -100,12 +104,18 @@ class EFOgraph:
         nwrite = 0
         for row in list(qres):
             other = str(row["match"])
-            otherid = Text.opt_to_curie(other[1:-1])
-            if otherid.startswith("ORPHANET"):
-                print(row["match"])
-                print(other)
-                print(otherid)
-                exit()
+            try:
+                otherid = Text.opt_to_curie(other[1:-1])
+            except ValueError as verr:
+                print(f"Could not translate {other[1:-1]} into a CURIE, will be used as-is: {verr}")
+                otherid = other[1:-1]
+
+            if otherid.upper().startswith(ORPHANET.upper()):
+                logger.warning(f"Skipping Orphanet xref '{other[1:-1]}' in EFOgraph.get_xrefs({iri})")
+                continue
+                # raise RuntimeError(
+                #     f"Unexpected ORPHANET in EFOgraph.get_xrefs({iri}): '{other_without_brackets}'"
+                # )
             outfile.write(f"{iri}\tskos:exactMatch\t{otherid}\n")
             nwrite += 1
         return nwrite
@@ -131,10 +141,12 @@ class EFOgraph:
                     f"EFOgraph.get_xrefs({iri}), skipping: {verr}"
                 )
                 continue
-            if other_id.startswith("ORPHANET"):
-                raise RuntimeError(
-                    f"Unexpected ORPHANET in EFOgraph.get_xrefs({iri}): '{other_without_brackets}'"
-                )
+            if other_id.upper().startswith(ORPHANET.upper()):
+                logger.warning(f"Skipping Orphanet xref '{other_without_brackets}' in EFOgraph.get_xrefs({iri})")
+                continue
+                # raise RuntimeError(
+                #     f"Unexpected ORPHANET in EFOgraph.get_xrefs({iri}): '{other_without_brackets}'"
+                # )
             #EFO occasionally has xrefs that are just strings, not IRIs or CURIEs
             if ":" in other_id and not other_id.startswith(":"):
                 outfile.write(f"{iri}\toboInOwl:hasDbXref\t{other_id}\n")
