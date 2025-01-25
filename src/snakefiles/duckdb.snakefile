@@ -46,9 +46,10 @@ rule export_synonyms_to_duckdb:
     input:
         synonyms_file=config['output_directory'] + "/synonyms/{filename}.txt",
     output:
-        duckdb_filename=config['output_directory'] + "/duckdb/duckdbs/filename={filename}/synonyms.duckdb"
+        duckdb_filename=config['output_directory'] + "/duckdb/duckdbs/filename={filename}/synonyms.duckdb",
+        synonyms_parquet_filename=config['output_directory'] + "/duckdb/parquet/filename={filename}/Synonyms.parquet",
     run:
-        duckdb_exporters.export_synonyms_to_parquet(input.synonyms_file, output.duckdb_filename)
+        duckdb_exporters.export_synonyms_to_parquet(input.synonyms_file, output.duckdb_filename, output.synonyms_parquet_filename)
 
 
 # TODO: convert all conflations to Parquet via DuckDB.

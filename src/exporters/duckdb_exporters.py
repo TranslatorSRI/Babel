@@ -94,12 +94,13 @@ def export_compendia_to_parquet(compendium_filename, clique_parquet_filename, du
         )
 
 
-def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
+def export_synonyms_to_parquet(synonyms_filename, duckdb_filename, synonyms_parquet_filename):
     """
     Export a synonyms file to a DuckDB directory.
 
     :param synonyms_filename: The synonym file (in JSONL) to export to Parquet.
     :param duckdb_filename: A DuckDB file to temporarily store data in.
+    :param synonyms_parquet_filename: The Parquet file to store the synoynms in.
     """
 
     # Make sure that duckdb_filename doesn't exist.
@@ -108,7 +109,6 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
 
     duckdb_dir = os.path.dirname(duckdb_filename)
     os.makedirs(duckdb_dir, exist_ok=True)
-    synonyms_parquet_filename = os.path.join(duckdb_dir, f'Synonym.parquet')
 
     with setup_duckdb(duckdb_filename) as db:
         # Step 1. Load the entire synonyms file.
