@@ -1,12 +1,13 @@
+import logging
 import re
 
 from src.prefixes import EFO,ORPHANET
 from src.babel_utils import pull_via_urllib
 from src.babel_utils import make_local_name
-from src.util import Text
+from src.util import Text, LoggingUtil
 import pyoxigraph
 
-
+logger = LoggingUtil.init_logging(__name__, level=logging.WARNING)
 
 def pull_efo():
     _=pull_via_urllib('http://www.ebi.ac.uk/efo/','efo.owl', subpath='EFO', decompress=False)
@@ -91,6 +92,7 @@ class EFOgraph:
          prefix EFO: <http://www.ebi.ac.uk/efo/EFO_>
          prefix NCIT: <http://purl.obolibrary.org/obo/NCIT_>
          prefix SKOS: <http://www.w3.org/2004/02/skos/core#>
+         prefix icd11.foundation: <http://id.who.int/icd/entity/>
          SELECT DISTINCT ?match
          WHERE {{
              {{ {iri} SKOS:exactMatch ?match. }}
@@ -99,6 +101,7 @@ class EFOgraph:
          }}
          """
         qres = self.m.query(query)
+        nwrite = 0
         for row in list(qres):
             other = str(row["match"])
             try:
@@ -107,12 +110,52 @@ class EFOgraph:
                 print(f"Could not translate {other[1:-1]} into a CURIE, will be used as-is: {verr}")
                 otherid = other[1:-1]
 
-            if otherid.startswith("ORPHANET"):
-                print(row["match"])
-                print(other)
-                print(otherid)
-                exit()
+            if otherid.upper().startswith(ORPHANET.upper()):
+                logger.warning(f"Skipping Orphanet xref '{other[1:-1]}' in EFOgraph.get_xrefs({iri})")
+                continue
+                # raise RuntimeError(
+                #     f"Unexpected ORPHANET in EFOgraph.get_xrefs({iri}): '{other_without_brackets}'"
+                # )
             outfile.write(f"{iri}\tskos:exactMatch\t{otherid}\n")
+            nwrite += 1
+        return nwrite
+    def get_xrefs(self, iri, outfile):
+        query = f"""
+         prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+         prefix EFO: <http://www.ebi.ac.uk/efo/EFO_>
+         prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#>
+         SELECT DISTINCT ?match
+         WHERE {{
+             {{ {iri} oboInOwl:hasDbXref ?match. }}
+         }}
+         """
+        qres = self.m.query(query)
+        for row in list(qres):
+            other = str(row["match"])
+            other_without_brackets = other[1:-1]
+            try:
+                other_id = Text.opt_to_curie(other_without_brackets)
+            except ValueError as verr:
+                logger.warning(
+                    f"Could not translate '{other_without_brackets}' into a CURIE in " +
+                    f"EFOgraph.get_xrefs({iri}), skipping: {verr}"
+                )
+                continue
+            if other_id.upper().startswith(ORPHANET.upper()):
+                logger.warning(f"Skipping Orphanet xref '{other_without_brackets}' in EFOgraph.get_xrefs({iri})")
+                continue
+                # raise RuntimeError(
+                #     f"Unexpected ORPHANET in EFOgraph.get_xrefs({iri}): '{other_without_brackets}'"
+                # )
+            #EFO occasionally has xrefs that are just strings, not IRIs or CURIEs
+            if ":" in other_id and not other_id.startswith(":"):
+                outfile.write(f"{iri}\toboInOwl:hasDbXref\t{other_id}\n")
+            else:
+                logging.warning(
+                    f"Skipping xref '{other_without_brackets}' in EFOgraph.get_xrefs({iri}): " +
+                    "not a valid CURIE"
+                )
+
 
 def make_labels(labelfile,synfile):
     m = EFOgraph()
@@ -128,4 +171,6 @@ def make_concords(idfilename, outfilename):
     with open(idfilename,"r") as inf, open(outfilename,"w") as concfile:
         for line in inf:
             efo_id = line.split('\t')[0]
-            m.get_exacts(efo_id,concfile)
+            nexacts = m.get_exacts(efo_id,concfile)
+            if nexacts == 0:
+                m.get_xrefs(efo_id,concfile)

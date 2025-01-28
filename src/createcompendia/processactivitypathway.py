@@ -5,6 +5,7 @@ import src.datahandlers.obo as obo
 import src.datahandlers.reactome as reactome
 import src.datahandlers.rhea as rhea
 import src.datahandlers.ec as ec
+import src.datahandlers.umls as umls
 
 from src.prefixes import GO, REACT, WIKIPATHWAYS, RHEA, SMPDB, EC, PANTHERPATHWAY, TCDB
 from src.categories import BIOLOGICAL_PROCESS, MOLECULAR_ACTIVITY, PATHWAY
@@ -29,6 +30,20 @@ def write_react_ids(infile,outfile):
 
 def write_ec_ids(outfile):
     ec.make_ids(outfile)
+
+
+def write_umls_ids(mrsty, outfile):
+    umlsmap = { 'B2.2.1.1.4': MOLECULAR_ACTIVITY, #
+                'B2.2.1.1': BIOLOGICAL_PROCESS, # Physiologic Function
+                'B2.2.1.1.1': BIOLOGICAL_PROCESS, # Organism Function
+                'B2.2.1.1.2': BIOLOGICAL_PROCESS, # Organ or Tissue Function
+                'B2.2.1.1.3': BIOLOGICAL_PROCESS, #  Cell Function
+                'B2.2.1.1.4.1': BIOLOGICAL_PROCESS, # Genetic Function
+                }
+    umls.write_umls_ids(mrsty, umlsmap, outfile)
+
+def build_process_umls_relationships(mrconso, idfile,outfile):
+    umls.build_sets(mrconso, idfile, outfile, {'GO': GO})
 
 def build_process_obo_relationships(outdir):
     #Create the equivalence pairs
@@ -61,10 +76,21 @@ def build_compendia(concordances, identifiers, icrdf_filename):
     for infile in concordances:
         print(infile)
         print('loading',infile)
+        # We have a concordance problem with UMLS - it is including GO terms that are obsolete and we don't want
+        # them added. So we want to limit concordances to terms that are already in the dicts. But that's ONLY for the
+        # UMLS concord.  We trust the others to retrieve decent identifiers.
         pairs = []
         with open(infile,'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
+                if infile.endswith("UMLS"):
+                    use = True
+                    for xi in (x[0], x[2]):
+                        if xi not in dicts:
+                            print(f"Skipping pair {x} from {infile}")
+                            use = False
+                    if not use:
+                        continue
                 pair = ([x[0], x[2]])
                 fspair = frozenset(pair)
                 if fspair not in bad_concords:
