@@ -69,7 +69,7 @@ rule export_all_to_duckdb:
 rule check_for_identically_labeled_cliques:
     input:
         config['output_directory'] + '/duckdb/done',
-        parquet_dir = config['output_directory'] + '/duckdb/parquet/',
+        parquet_dir = dir(config['output_directory'] + '/duckdb/parquet/'),
     output:
         duckdb_filename = temp(config['output_directory'] + '/duckdb/duckdbs/identically_labeled_clique.duckdb'),
         identically_labeled_cliques_tsv = config['output_directory'] + '/reports/duckdb/identically_labeled_cliques.tsv',
@@ -80,17 +80,17 @@ rule check_for_identically_labeled_cliques:
 rule check_for_duplicate_curies:
     input:
         config['output_directory'] + '/duckdb/done',
-        parquet_dir = config['output_directory'] + '/duckdb/parquet/',
+        parquet_dir = dir(config['output_directory'] + '/duckdb/parquet/'),
     output:
         duckdb_filename = temp(config['output_directory'] + '/duckdb/duckdbs/duplicate_curies.duckdb'),
         duplicate_curies = config['output_directory'] + '/reports/duckdb/duplicate_curies.tsv',
     run:
-        duckdb_exporters.check_for_duplicate_curies(input.parquet_dir, output.duckdb_filename, output.duplicate_curies)
         duckdb_exporters.check_for_duplicate_curies(config['output_directory'] + '/duckdb/parquet/', output.duckdb_filename, output.duplicate_curies)
 
 rule generate_prefix_report:
     input:
         config['output_directory'] + '/duckdb/done',
+        parquet_dir = dir(config['output_directory'] + '/duckdb/parquet/'),
     output:
         duckdb_filename = temp(config['output_directory'] + '/duckdb/duckdbs/prefix_report.duckdb'),
         prefix_report_json = config['output_directory'] + '/reports/duckdb/prefix_report.json',
