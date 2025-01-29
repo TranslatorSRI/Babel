@@ -26,11 +26,12 @@ def setup_duckdb(duckdb_filename):
     return db
 
 
-def export_compendia_to_parquet(compendium_filename, duckdb_filename):
+def export_compendia_to_parquet(compendium_filename, clique_parquet_filename, duckdb_filename):
     """
     Export a compendium to a Parquet file via a DuckDB.
 
     :param compendium_filename: The compendium filename to read.
+    :param clique_parquet_filename: The filename for the Clique.parquet file.
     :param duckdb_filename: The DuckDB filename to write. We will write the Parquet files into the directory that
         this file is located in.
     """
@@ -41,9 +42,12 @@ def export_compendia_to_parquet(compendium_filename, duckdb_filename):
 
     duckdb_dir = os.path.dirname(duckdb_filename)
     os.makedirs(duckdb_dir, exist_ok=True)
-    clique_parquet_filename = os.path.join(duckdb_dir, 'Clique.parquet')
-    edge_parquet_filename = os.path.join(duckdb_dir, 'Edge.parquet')
-    node_parquet_filename = os.path.join(duckdb_dir, 'Node.parquet')
+
+    # We'll create these two files as well, but we don't report them back to Snakemake for now.
+    parquet_dir = os.path.dirname(clique_parquet_filename)
+    os.makedirs(parquet_dir, exist_ok=True)
+    edge_parquet_filename = os.path.join(parquet_dir, 'Edge.parquet')
+    node_parquet_filename = os.path.join(parquet_dir, 'Node.parquet')
 
     with setup_duckdb(duckdb_filename) as db:
         # Step 1. Load the entire synonyms file.
@@ -93,12 +97,13 @@ def export_compendia_to_parquet(compendium_filename, duckdb_filename):
         )
 
 
-def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
+def export_synonyms_to_parquet(synonyms_filename, duckdb_filename, synonyms_parquet_filename):
     """
     Export a synonyms file to a DuckDB directory.
 
     :param synonyms_filename: The synonym file (in JSONL) to export to Parquet.
     :param duckdb_filename: A DuckDB file to temporarily store data in.
+    :param synonyms_parquet_filename: The Parquet file to store the synoynms in.
     """
 
     # Make sure that duckdb_filename doesn't exist.
@@ -107,7 +112,6 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename):
 
     duckdb_dir = os.path.dirname(duckdb_filename)
     os.makedirs(duckdb_dir, exist_ok=True)
-    synonyms_parquet_filename = os.path.join(duckdb_dir, f'Synonym.parquet')
 
     with setup_duckdb(duckdb_filename) as db:
         # Step 1. Load the entire synonyms file.

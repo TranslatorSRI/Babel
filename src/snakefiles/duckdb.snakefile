@@ -7,7 +7,7 @@ import os
 # Write all compendia files to DuckDB and Parquet, then create `babel_outputs/duckdb/compendia_done` to signal that we're done.
 rule export_all_compendia_to_duckdb:
     input:
-        nodes_files=expand("{od}/duckdb/parquet/filename={fn}/compendium.duckdb",
+        compendium_duckdb_files=expand("{od}/duckdb/duckdbs/filename={fn}/compendium.duckdb",
             od=config['output_directory'],
             fn=map(lambda fn: os.path.splitext(fn)[0], get_all_compendia(config))
         )
@@ -22,15 +22,16 @@ rule export_compendia_to_duckdb:
     input:
         compendium_file=config['output_directory'] + "/compendia/{filename}.txt",
     output:
-        duckdb_filename=config['output_directory'] + "/duckdb/parquet/filename={filename}/compendium.duckdb"
+        duckdb_filename=temp(config['output_directory'] + "/duckdb/duckdbs/filename={filename}/compendium.duckdb"),
+        clique_parquet_file=config['output_directory'] + "/duckdb/parquet/filename={filename}/Clique.parquet",
     run:
-        duckdb_exporters.export_compendia_to_parquet(input.compendium_file, output.duckdb_filename)
+        duckdb_exporters.export_compendia_to_parquet(input.compendium_file, output.clique_parquet_file, output.duckdb_filename)
 
 
 # Write all synonyms files to Parquet via DuckDB, then create `babel_outputs/duckdb/synonyms_done` to signal that we're done.
 rule export_all_synonyms_to_duckdb:
     input:
-        sapbert_training_file=expand("{od}/duckdb/parquet/filename={fn}/synonyms.duckdb",
+        synonyms_duckdb_files=expand("{od}/duckdb/duckdbs/filename={fn}/synonyms.duckdb",
             od=config['output_directory'],
             fn=map(lambda fn: os.path.splitext(fn)[0], get_all_synonyms_with_drugchemicalconflated(config))
         )
@@ -45,12 +46,13 @@ rule export_synonyms_to_duckdb:
     input:
         synonyms_file=config['output_directory'] + "/synonyms/{filename}.txt",
     output:
-        duckdb_filename=config['output_directory'] + "/duckdb/parquet/filename={filename}/synonyms.duckdb"
+        duckdb_filename=temp(config['output_directory'] + "/duckdb/duckdbs/filename={filename}/synonyms.duckdb"),
+        synonyms_parquet_filename=config['output_directory'] + "/duckdb/parquet/filename={filename}/Synonyms.parquet",
     run:
-        duckdb_exporters.export_synonyms_to_parquet(input.synonyms_file, output.duckdb_filename)
+        duckdb_exporters.export_synonyms_to_parquet(input.synonyms_file, output.duckdb_filename, output.synonyms_parquet_filename)
 
 
-# TODO: convert all conflations to Parquet via DuckDB.
+# TODO: convert all conflations to Parquet via DuckDB (https://github.com/TranslatorSRI/Babel/issues/378).
 
 # Create `babel_outputs/duckdb/done` once all the files have been converted.
 rule export_all_to_duckdb:
@@ -67,34 +69,39 @@ rule export_all_to_duckdb:
 rule check_for_identically_labeled_cliques:
     input:
         config['output_directory'] + '/duckdb/done',
+    params:
         parquet_dir = config['output_directory'] + '/duckdb/parquet/',
     output:
-        duckdb_filename = config['output_directory'] + '/duckdb/identically_labeled_clique.duckdb',
+        duckdb_filename = temp(config['output_directory'] + '/duckdb/duckdbs/identically_labeled_clique.duckdb'),
         identically_labeled_cliques_tsv = config['output_directory'] + '/reports/duckdb/identically_labeled_cliques.tsv',
     run:
-        duckdb_exporters.check_for_identically_labeled_cliques(input.parquet_dir, output.duckdb_filename, output.identically_labeled_cliques_tsv)
+        duckdb_exporters.check_for_identically_labeled_cliques(params.parquet_dir, output.duckdb_filename, output.identically_labeled_cliques_tsv)
 
 
 rule check_for_duplicate_curies:
     input:
         config['output_directory'] + '/duckdb/done',
+        config['output_directory'] + '/duckdb/compendia_done',
+    params:
         parquet_dir = config['output_directory'] + '/duckdb/parquet/',
     output:
-        duckdb_filename = config['output_directory'] + '/duckdb/duplicate_curies.duckdb',
+        duckdb_filename = temp(config['output_directory'] + '/duckdb/duckdbs/duplicate_curies.duckdb'),
         duplicate_curies = config['output_directory'] + '/reports/duckdb/duplicate_curies.tsv',
     run:
-        duckdb_exporters.check_for_duplicate_curies(input.parquet_dir, output.duckdb_filename, output.duplicate_curies)
+        duckdb_exporters.check_for_duplicate_curies(params.parquet_dir, output.duckdb_filename, output.duplicate_curies)
 
 rule generate_prefix_report:
     input:
         config['output_directory'] + '/duckdb/done',
+        config['output_directory'] + '/duckdb/compendia_done',
+    params:
         parquet_dir = config['output_directory'] + '/duckdb/parquet/',
     output:
-        duckdb_filename = config['output_directory'] + '/duckdb/prefix_report.duckdb',
+        duckdb_filename = temp(config['output_directory'] + '/duckdb/duckdbs/prefix_report.duckdb'),
         prefix_report_json = config['output_directory'] + '/reports/duckdb/prefix_report.json',
         prefix_report_tsv = config['output_directory'] + '/reports/duckdb/prefix_report.tsv',
     run:
-        duckdb_exporters.generate_prefix_report(input.parquet_dir, output.duckdb_filename,
+        duckdb_exporters.generate_prefix_report(params.parquet_dir, output.duckdb_filename,
             output.prefix_report_json,
             output.prefix_report_tsv)
 
