@@ -52,7 +52,7 @@ rule export_synonyms_to_duckdb:
         duckdb_exporters.export_synonyms_to_parquet(input.synonyms_file, output.duckdb_filename, output.synonyms_parquet_filename)
 
 
-# TODO: convert all conflations to Parquet via DuckDB.
+# TODO: convert all conflations to Parquet via DuckDB (https://github.com/TranslatorSRI/Babel/issues/378).
 
 # Create `babel_outputs/duckdb/done` once all the files have been converted.
 rule export_all_to_duckdb:
