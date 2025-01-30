@@ -1,5 +1,6 @@
 import src.createcompendia.macromolecular_complex as macromolecular_complex
 import src.assess_compendia as assessments
+import src.snakefiles.util as util
 
 rule macromolecular_complex_ids:
     input:
@@ -17,7 +18,7 @@ rule macromolecular_complex_compendia:
         icrdf_filename = config['download_directory'] + '/icRDF.tsv',
     output:
         config['output_directory']+'/compendia/MacromolecularComplex.txt',
-        config['output_directory']+'/synonyms/MacromolecularComplex.txt'
+        temp(config['output_directory']+'/synonyms/MacromolecularComplex.txt')
     run:
         macromolecular_complex.build_compendia([input.idlists], icrdf_filename=input.icrdf_filename)
 
@@ -39,11 +40,13 @@ rule check_macromolecular_complex:
 
 rule macromolecular_complex:
     input:
-        config['output_directory']+'/synonyms/MacromolecularComplex.txt',
-        config['output_directory']+'/reports/macromolecular_complex_completeness.txt',
+        synonym=config['output_directory']+'/synonyms/MacromolecularComplex.txt',
+        completeness=config['output_directory']+'/reports/macromolecular_complex_completeness.txt',
         reports = config['output_directory']+'/reports/MacromolecularComplex.txt'
     output:
+        synonym_gzipped = config['output_directory']+'/synonyms/MacromolecularComplex.txt.gz',
         x = config['output_directory']+'/reports/macromolecular_complex_done'
-    shell:
-        "echo 'done' >> {output.x}"
+    run:
+        util.gzip_files([input.synonym])
+        util.write_done(output.x)
 
