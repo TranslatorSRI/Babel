@@ -126,7 +126,7 @@ rule anatomy:
         synonyms=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['anatomy_outputs'])
     output:
-        synonyms_gzipped=expand("{od}/synonyms/{ap}.gzip", od = config['output_directory'], ap = config['anatomy_outputs']),
+        synonyms_gzipped=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['anatomy_outputs']),
         x=config['output_directory']+'/reports/anatomy_done'
     run:
         util.gzip_files(input.synonyms)
