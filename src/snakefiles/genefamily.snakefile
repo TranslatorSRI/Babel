@@ -1,5 +1,6 @@
 import src.createcompendia.genefamily as genefamily
 import src.assess_compendia as assessments
+import src.snakefiles.util as util
 
 rule genefamily_pantherfamily_ids:
     input:
@@ -26,7 +27,7 @@ rule genefamily_compendia:
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['genefamily_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['genefamily_outputs'])
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['genefamily_outputs']))
     run:
         genefamily.build_compendia(input.idlists, input.icrdf_filename)
 
@@ -49,9 +50,11 @@ rule check_genefamily:
 rule genefamily:
     input:
         config['output_directory']+'/reports/genefamily_completeness.txt',
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['genefamily_outputs']),
+        synonyms=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['genefamily_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['genefamily_outputs'])
     output:
+        synonyms_gzipped=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['genefamily_outputs']),
         x=config['output_directory']+'/reports/genefamily_done'
-    shell:
-        "echo 'done' >> {output.x}"
+    run:
+        util.gzip_files(input.synonyms)
+        util.write_done(output.x)

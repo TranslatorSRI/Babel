@@ -1,5 +1,6 @@
 import src.createcompendia.anatomy as anatomy
 import src.assess_compendia as assessments
+import src.snakefiles.util as util
 
 ### AnatomicalEntity / Cell / CellularComponent
 
@@ -75,7 +76,7 @@ rule anatomy_compendia:
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs'])
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']))
     run:
         anatomy.build_compendia(input.concords, input.idlists, input.icrdf_filename)
 
@@ -125,7 +126,8 @@ rule anatomy:
         synonyms=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['anatomy_outputs'])
     output:
+        synonyms_gzipped=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['anatomy_outputs']),
         x=config['output_directory']+'/reports/anatomy_done'
-    shell:
-        "echo 'done' >> {output.x}"
-
+    run:
+        util.gzip_files(input.synonyms)
+        util.write_done(output.x)

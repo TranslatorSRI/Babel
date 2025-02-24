@@ -1,5 +1,6 @@
 import src.createcompendia.chemicals as chemicals
 import src.assess_compendia as assessments
+import src.snakefiles.util as util
 
 rule chemical_umls_ids:
     input:
@@ -219,7 +220,7 @@ rule chemical_compendia:
         icrdf_filename = config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs'])
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs']))
     run:
         chemicals.build_compendia(input.typesfile,input.untyped_file, input.icrdf_filename)
 
@@ -292,9 +293,11 @@ rule check_drug:
 rule chemical:
     input:
         config['output_directory']+'/reports/chemical_completeness.txt',
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
+        synonyms = expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['chemical_outputs'])
     output:
+        synonyms_gzipped = expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['chemical_outputs']),
         x=config['output_directory']+'/reports/chemicals_done'
-    shell:
-        "echo 'done' >> {output.x}"
+    run:
+        util.gzip_files(input.synonyms)
+        util.write_done(output.x)
