@@ -25,6 +25,8 @@ from src.util import LoggingUtil
 logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 
 # Configuration options
+# Should we generate a DrugChemicalSmaller.txt.gz file at all?
+GENERATE_DRUG_CHEMICAL_SMALLER_FILE = False
 # Limit DrugChemicalSmaller.txt.gz to terms that have a preferred name of 50 characters or more.
 DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH = 40
 # Include up to 50 synonym pairs for each synonym.
@@ -50,7 +52,7 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
     # DrugChemicalConflatedSmaller.txt, which ignores cliques whose preferred label is
     # longer than config['demote_labels_longer_than'].
     generate_smaller_filename = None
-    if synonym_filename.endswith('/DrugChemicalConflated.txt'):
+    if GENERATE_DRUG_CHEMICAL_SMALLER_FILE and synonym_filename.endswith('/DrugChemicalConflated.txt'):
         generate_smaller_filename = sapbert_filename_gzipped.replace('.txt.gz', 'Smaller.txt.gz')
 
     # Make the output directories if they don't exist.
