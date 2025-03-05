@@ -34,7 +34,7 @@ rule check_cell_line_completeness:
     output:
         report_file = config['output_directory']+'/reports/cell_line_completeness.txt'
     run:
-        assessments.assess_completeness(config['intermediate_directory']+'/cell_line/ids',input.input_compendia,output.report_file)
+        assessments.assess_completeness(config['intermediate_directory']+'/cell_line/ids',[input.input_compendia],output.report_file)
 
 rule check_cell_line:
     input:
