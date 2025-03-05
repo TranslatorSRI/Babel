@@ -596,8 +596,6 @@ rule get_chebi:
 
 # CLO: Cell Line Ontology
 
-### NCBIGene
-
 rule get_clo:
     output:
         config['download_directory']+'/CLO/clo.owl'
