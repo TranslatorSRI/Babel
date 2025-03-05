@@ -1,5 +1,6 @@
 import src.node as node
 import src.datahandlers.mesh as mesh
+import src.datahandlers.clo as clo
 import src.datahandlers.obo as obo
 import src.datahandlers.umls as umls
 import src.datahandlers.ncbigene as ncbigene
@@ -592,3 +593,22 @@ rule get_chebi:
         config['download_directory'] + '/CHEBI/database_accession.tsv',
     run:
         chebi.pull_chebi()
+
+# CLO: Cell Line Ontology
+
+### NCBIGene
+
+rule get_clo:
+    output:
+        config['download_directory']+'/CLO/clo.owl'
+    run:
+        clo.pull_clo()
+
+rule get_CLO_labels:
+    input:
+        infile=config['download_directory'] + '/CLO/clo.owl'
+    output:
+        labelfile=config['download_directory'] + '/CLO/labels',
+        synonymfile =config['download_directory'] + '/CLO/synonyms'
+    run:
+        clo.make_labels(input.infile, output.labelfile,output.synonymfile)
