@@ -2,7 +2,7 @@ from src.categories import CELL_LINE
 
 from src.babel_utils import read_identifier_file,glom,write_compendium
 
-def build_compendia(ifile, labels, synonyms, icrdf_filename):
+def build_compendia(ifile, icrdf_filename):
     """:identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
     types = {}
