@@ -30,7 +30,7 @@ rule cell_line_compendia:
 
 rule check_cell_line_completeness:
     input:
-        input_compendia = config['output_dictionary']+"/compendia/CellLine.txt",
+        input_compendia = config['output_directory']+"/compendia/CellLine.txt",
     output:
         report_file = config['output_directory']+'/reports/cell_line_completeness.txt'
     run:
