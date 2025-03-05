@@ -52,6 +52,7 @@ rule all_outputs:
         config['output_directory'] + '/reports/process_done',
         config['output_directory'] + '/reports/protein_done',
         config['output_directory'] + '/reports/taxon_done',
+        config['output_directory'] + '/reports/cell_line_done',
         config['output_directory'] + '/reports/umls_done',
         config['output_directory'] + '/reports/macromolecular_complex_done',
         config['output_directory'] + '/reports/drugchemical_done',
