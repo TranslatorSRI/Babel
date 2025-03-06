@@ -4,7 +4,7 @@ import requests
 import src.datahandlers.obo as obo
 from src.util import Text
 
-from src.prefixes import MESH, NCIT, CL, GO, UBERON, SNOMEDCT, WIKIDATA, UMLS
+from src.prefixes import MESH, NCIT, CL, GO, UBERON, SNOMEDCT, WIKIDATA, UMLS, FMA
 from src.categories import ANATOMICAL_ENTITY, GROSS_ANATOMICAL_STRUCTURE, CELL, CELLULAR_COMPONENT
 from src.ubergraph import build_sets
 from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
@@ -136,7 +136,7 @@ def build_wikidata_cell_relationships(outdir):
                 print(f'Pair {pair} is not unique {counts[pair[0]]} {counts[pair[1]]}')
 
 def build_anatomy_umls_relationships(mrconso, idfile,outfile):
-    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO})
+    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO, 'FMA': FMA})
 
 def build_compendia(concordances, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
