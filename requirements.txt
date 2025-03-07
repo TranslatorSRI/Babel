@@ -25,3 +25,5 @@ beautifulsoup4
 curies
 # Added by Gaurav, May 2024
 duckdb
+# Added by Gaurav, Jul 2024
+sssom
