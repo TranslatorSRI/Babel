@@ -21,6 +21,8 @@ rule get_clo_ids:
 rule cell_line_compendia:
     input:
         ids=config['intermediate_directory']+"/cell_line/ids/CLO",
+        labelfile=config['download_directory'] + '/CLO/labels',
+        synonymfile=config['download_directory'] + '/CLO/synonyms',
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         config['output_directory']+"/compendia/CellLine.txt",

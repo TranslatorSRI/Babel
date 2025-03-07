@@ -28,7 +28,6 @@ class CLOgraph:
 
     def pull_CLO_labels_and_synonyms(self,lname,sname):
         with open(lname, 'w') as labelfile, open(sname,'w') as synfile:
-            #for labeltype in ['skos:prefLabel','skos:altLabel','rdfs:label']:
             for labeltype in ['skos:prefLabel','skos:altLabel','rdfs:label']:
                 s=f"""   PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
                         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
