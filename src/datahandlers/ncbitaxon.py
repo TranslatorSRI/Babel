@@ -9,6 +9,20 @@ def pull_ncbitaxon():
     pull_via_ftp('ftp.ncbi.nlm.nih.gov','/pub/taxonomy','taxdump.tar.gz',decompress_data=True,outfilename=f'{NCBITAXON}/taxdump.tar')
 
 def make_labels_and_synonyms(infile,labelfile,synfile):
+    """
+    Generate labels and synonyms for NCBITaxon IDs.
+
+    We have two goals here:
+    1.  To come up with a good label for every taxon. Ideally, this should be in the form "[scientific name] ([common name])",
+        with GenBank common names preferred over other common names. If a taxon has multiple scientific names or common names,
+        we should pick the FIRST one to appear in this file. A single best label for every taxon should be written to the labels
+        file.
+    2.  EVERY useful synonym should be added to the synonyms file.
+
+    :param infile: taxdump.tar, the file containing the individual data dumps for NCBI Taxonomy.
+    :param labelfile: The output file to write the labels to.
+    :param synfile: The output file to write the synonyms to.
+    """
     taxtar = tarfile.open(infile,'r')
     f = taxtar.extractfile('names.dmp')
     l = f.readlines()
@@ -48,7 +62,7 @@ def make_labels_and_synonyms(infile,labelfile,synfile):
             # Flag to write this entry as a synonym. Essentially we want to add everything we select
             # below as a synonym (including scientific names, equivalent names and so on), but things
             # we don't select should NOT be added as a synonym (e.g. acronym). So we set it to be True
-            # here, but then change it to False if
+            # here, but then change it to False if it isn't one of the name classes we're interested in.
             flag_write_as_synonym = True
 
             match name_class:
@@ -67,9 +81,6 @@ def make_labels_and_synonyms(infile,labelfile,synfile):
                     else:
                         logging.warning(f"Found additional common name for {ncbi_txid}: '{name}' (previously '{names_by_txid[ncbi_txid]['common name']}'), ignoring.")
 
-                    # However, we should write all common names as synonyms!
-                    outsyn.write(f'{ncbi_txid}\toio:exactSynonym\t{name}\n')
-
                 case 'genbank common name':
                     if 'genbank common name' not in names_by_txid[ncbi_txid]:
                         # We only write down the first one as the "official" common name.
@@ -80,10 +91,10 @@ def make_labels_and_synonyms(infile,labelfile,synfile):
                 # Synonyms: we use taxonomic synonyms and equivalent names, which are directly added as a synonym.
                 case 'synonym' | 'equivalent name':
                     # We previously uniquified the synonyms, but I don't think that's useful, because we can't really
-                    # control which one gets the first synonym (I guess it's the smallest identifier)
+                    # control which one gets the first synonym, so let's just add them all.
                     pass
 
-                # For every other case, we DON'T want to write this as a synonym.
+                # For every other name class, we DON'T want to write this as a synonym.
                 case _:
                     flag_write_as_synonym = False
 
