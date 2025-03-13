@@ -55,6 +55,8 @@
   "taxon_concords": ["NCBI_MESH", "UMLS"],
   "taxon_outputs": ["OrganismTaxon.txt"],
 
+  "cell_line_outputs": ["CellLine.txt"],
+
   "genefamily_labels": ["PANTHER.FAMILY","HGNC.FAMILY"],
   "genefamily_ids": ["PANTHER.FAMILY","HGNC.FAMILY"],
   "genefamily_outputs": ["GeneFamily.txt"],
