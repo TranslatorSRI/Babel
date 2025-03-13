@@ -69,6 +69,12 @@ rule disease_hp_ids:
     run:
         diseasephenotype.write_hp_ids(output.outfile)
 
+rule mammalian_phenotype_ids:
+    output:
+        outfile=config['intermediate_directory']+"/disease/ids/MP"
+    run:
+        diseasephenotype.write_mp_ids(output.outfile)
+
 rule disease_omim_ids:
     input:
         infile=config['download_directory']+"/OMIM/mim2gene.txt"
@@ -113,6 +119,32 @@ rule get_disease_doid_relationships:
         outfile=config['intermediate_directory']+'/disease/concords/DOID',
     run:
         diseasephenotype.build_disease_doid_relationships(input.infile,output.outfile)
+
+rule get_hp_mp_concord:
+    output:
+        outfile = config['intermediate_directory']+'/disease/concords/HP_MP'
+    run:
+        hp_mp_sssom_urls = [
+            # https://github.com/mapping-commons/mh_mapping_initiative/blob/master/mappings/mp_hp_eye_impc.sssom.tsv
+            'https://raw.githubusercontent.com/mapping-commons/mh_mapping_initiative/master/mappings/mp_hp_eye_impc.sssom.tsv',
+            # https://github.com/mapping-commons/mh_mapping_initiative/blob/master/mappings/mp_hp_hwt_impc.sssom.tsv
+            'https://raw.githubusercontent.com/mapping-commons/mh_mapping_initiative/master/mappings/mp_hp_hwt_impc.sssom.tsv',
+            # https://github.com/mapping-commons/mh_mapping_initiative/blob/master/mappings/mp_hp_mgi_all.sssom.tsv
+            'https://raw.githubusercontent.com/mapping-commons/mh_mapping_initiative/master/mappings/mp_hp_mgi_all.sssom.tsv',
+            # https://github.com/mapping-commons/mh_mapping_initiative/blob/master/mappings/mp_hp_owt_impc.sssom.tsv
+            'https://raw.githubusercontent.com/mapping-commons/mh_mapping_initiative/master/mappings/mp_hp_owt_impc.sssom.tsv',
+            # https://github.com/mapping-commons/mh_mapping_initiative/blob/master/mappings/mp_hp_pat_impc.sssom.tsv
+            'https://raw.githubusercontent.com/mapping-commons/mh_mapping_initiative/master/mappings/mp_hp_pat_impc.sssom.tsv',
+            # https://github.com/mapping-commons/mh_mapping_initiative/blob/master/mappings/mp_hp_pistoia.sssom.tsv
+            'https://raw.githubusercontent.com/mapping-commons/mh_mapping_initiative/master/mappings/mp_hp_pistoia.sssom.tsv',
+            # https://github.com/mapping-commons/mh_mapping_initiative/blob/master/mappings/mp_hp_xry_impc.sssom.tsv
+            'https://raw.githubusercontent.com/mapping-commons/mh_mapping_initiative/master/mappings/mp_hp_xry_impc.sssom.tsv',
+        ]
+        diseasephenotype.build_hp_mp_concords(hp_mp_sssom_urls, output.outfile, threshold=0.8, acceptable_predicates=[
+            'skos:exactMatch',
+            'skos:closeMatch',
+            'skos:relatedMatch'
+        ])
 
 rule disease_manual_concord:
     input:
