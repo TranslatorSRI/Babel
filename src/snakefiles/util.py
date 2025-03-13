@@ -1,4 +1,31 @@
 # Shared code used by Snakemake files
+import shutil
+import gzip
+
+import src.util
+
+logger = src.util.LoggingUtil.init_logging(__name__, level="INFO")
+
+def write_done(filename):
+    """ Write a file to indicate that we are done. """
+    with open(filename, 'w') as f:
+        print("done", f)
+
+
+def gzip_files(input_filenames):
+    """ Compress files using Gzip. Like with `gzip`, we compress the file by adding `.gz` to the end of the filename, but
+    we do NOT delete the original file -- we'll leave that to the user.
+
+    :param input_filenames: A list of Gzip files to compress.
+    """
+    logger.info(f"Compressing: {input_filenames}")
+    for filename in input_filenames:
+        output_filename = filename + '.gz'
+        with open(filename, 'rb') as f_in:
+            with gzip.open(output_filename, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+                logger.info(f"Compressed {filename} to {output_filename} using Gzip.")
+
 
 # List of all the compendia files that need to be converted.
 def get_all_compendia(config):

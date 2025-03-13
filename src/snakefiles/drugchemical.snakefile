@@ -1,6 +1,6 @@
 import src.createcompendia.drugchemical as drugchemical
-import src.assess_compendia as assessments
 import src.synonyms.synonymconflation as synonymconflation
+import src.snakefiles.util as util
 
 ### Drug / Chemical
 
@@ -65,8 +65,11 @@ rule drugchemical_conflated_synonyms:
 rule drugchemical:
     input:
         config['output_directory']+'/conflation/DrugChemical.txt',
-        config['output_directory']+'/synonyms/DrugChemicalConflated.txt'
+        config['output_directory']+'/synonyms/DrugChemicalConflated.txt',
+        chemical_synonyms=expand("{do}/synonyms/{co}", do=config['output_directory'], co=config['chemical_outputs']),
     output:
+        chemical_synonyms_gzipped=expand("{do}/synonyms/{co}.gz", do=config['output_directory'], co=config['chemical_outputs']),
         x=config['output_directory']+'/reports/drugchemical_done'
-    shell:
-        "echo 'done' >> {output.x}"
+    run:
+        util.gzip_files(input.chemical_synonyms)
+        util.write_done(output.x)

@@ -1,5 +1,6 @@
 import src.createcompendia.processactivitypathway as pap
 import src.assess_compendia as assessments
+import src.snakefiles.util as util
 
 ### Process / Activity / Pathway
 
@@ -93,7 +94,7 @@ rule process_compendia:
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['process_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs'])
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs']))
     run:
         pap.build_compendia(input.concords,input.idlists,input.icrdf_filename)
 
@@ -132,9 +133,11 @@ rule check_pathway:
 rule process:
     input:
         config['output_directory']+'/reports/process_completeness.txt',
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs']),
+        synonyms=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['process_outputs'])
     output:
+        synonyms_gzipped=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['process_outputs']),
         x=config['output_directory']+'/reports/process_done'
-    shell:
-        "echo 'done' >> {output.x}"
+    run:
+        util.gzip_files(input.synonyms)
+        util.write_done(output.x)

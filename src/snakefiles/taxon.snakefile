@@ -1,5 +1,6 @@
 import src.createcompendia.taxon as taxon
 import src.assess_compendia as assessments
+import src.snakefiles.util as util
 
 rule taxon_ncbi_ids:
     input:
@@ -53,7 +54,7 @@ rule taxon_compendia:
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['taxon_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs'])
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs']))
     run:
         taxon.build_compendia(input.concords,input.idlists, input.icrdf_filename)
 
@@ -76,9 +77,11 @@ rule check_taxon:
 rule taxon:
     input:
         config['output_directory']+'/reports/taxon_completeness.txt',
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs']),
+        synonyms=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['taxon_outputs'])
     output:
+        synonyms_gzipped=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['taxon_outputs']),
         x=config['output_directory']+'/reports/taxon_done'
-    shell:
-        "echo 'done' >> {output.x}"
+    run:
+        util.gzip_files(input.synonyms)
+        util.write_done(output.x)
