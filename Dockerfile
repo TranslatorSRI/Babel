@@ -7,7 +7,7 @@
 #
 # This is still at Python 3.9, so I'm going to use Python Latest, which
 # should give us a Debian with Python 3.12+.
-FROM python:latest
+FROM python:3.12
 
 # Configuration options:
 # - ${ROOT} is where Babel source code will be copied.
