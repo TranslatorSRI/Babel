@@ -118,10 +118,16 @@ def verify_pubmed_downloads(pubmed_directories,
                 while not verify_pubmed_download_against_md5(file_path, file_path + '.md5'):
                     pubmed_url_base = pubmed_base + subdir + '/'
                     logging.warning(f"Re-downloading {file_path} from HTTPS URL {pubmed_url_base}{filename}.")
+
+                    # We should delete the files before redownloading them, but if we did that and the download
+                    # failed, we would not retry the download again. So instead, we truncate both files -- this
+                    # should cause MD5 verification to fail until they are in sync again.
                     if os.path.exists(file_path):
-                        os.truncate(file_path)
+                        os.truncate(file_path, 0)
                     if os.path.exists(md5_file_path):
-                        os.truncate(md5_file_path)
+                        os.truncate(md5_file_path, 0)
+
+                    # Redownload the file.
                     pull_via_wget(pubmed_url_base, filename, decompress=False, subpath='PubMed/' + subdir)
                     pull_via_wget(pubmed_url_base, md5_filename, decompress=False, subpath='PubMed/' + subdir)
 
