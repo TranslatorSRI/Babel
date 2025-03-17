@@ -7,6 +7,7 @@ rule download_pubmed:
     output:
         baseline_dir = directory(config['download_directory'] + '/PubMed/baseline'),
         updatefiles_dir = directory(config['download_directory'] + '/PubMed/updatefiles'),
+        done_file = config['download_directory'] + '/PubMed/downloaded',
     run:
         publications.download_pubmed(output.done_file)
 
