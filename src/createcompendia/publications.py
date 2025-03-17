@@ -104,7 +104,7 @@ def verify_pubmed_downloads(pubmed_directories,
     for pubmed_directory in pubmed_directories:
         for filename in os.listdir(pubmed_directory):
             file_path = os.path.join(pubmed_directory, filename)
-            subdir = os.path.dirname(pubmed_directory)
+            subdir = os.path.basename(pubmed_directory)
 
             if file_path.endswith('.gz'):
                 md5_filename = filename + '.md5'
