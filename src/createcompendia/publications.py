@@ -111,11 +111,12 @@ def verify_pubmed_downloads(pubmed_directories,
                 md5_file_path = file_path + '.md5'
 
                 while not verify_pubmed_download_against_md5(file_path, file_path + '.md5'):
-                    logging.warning(f"Re-downloading {file_path} from HTTPS URL {pubmed_base + subdir}/{filename}.")
+                    pubmed_url_base = pubmed_base + subdir + '/'
+                    logging.warning(f"Re-downloading {file_path} from HTTPS URL {pubmed_url_base}{filename}.")
                     os.remove(file_path)
                     os.remove(md5_file_path)
-                    pull_via_wget(pubmed_base + subdir, filename, decompress=False, subpath='PubMed/' + subdir)
-                    pull_via_wget(pubmed_base + subdir, md5_filename, decompress=False, subpath='PubMed/' + subdir)
+                    pull_via_wget(pubmed_url_base, filename, decompress=False, subpath='PubMed/' + subdir)
+                    pull_via_wget(pubmed_url_base, md5_filename, decompress=False, subpath='PubMed/' + subdir)
 
     # We're all done!
     Path.touch(done_filename)
