@@ -65,6 +65,11 @@ def verify_pubmed_download_against_md5(pubmed_filename, md5_filename):
     :return: True if the file is verified, but False if it is not verified.
     """
 
+    # Is the PubMed file readable? Non-zero size?
+    if not os.path.exists(pubmed_filename) or os.path.getsize(pubmed_filename) == 0:
+        logging.warning(f"Could not verify {pubmed_filename}: no such file or zero size.")
+        return False
+
     # Calculate the MD5 sum of the PubMed file.
     with open(pubmed_filename, 'rb') as pubmedf, mmap(pubmedf.fileno(), 0, access=ACCESS_READ) as file:
         md5hash = hashlib.md5(file.read()).hexdigest()
