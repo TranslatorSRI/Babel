@@ -21,7 +21,7 @@ rule verify_pubmed:
                 config['download_directory'] + '/PubMed/baseline',
                 config['download_directory'] + '/PubMed/updatefiles'
             ],
-            done_file
+            output.done_file
         )
 
 rule generate_pubmed_concords:
