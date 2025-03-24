@@ -1,4 +1,4 @@
-from src.snakefiles.util import get_all_compendia, get_all_synonyms
+from src.snakefiles.util import get_all_compendia, get_all_synonyms, get_all_gzipped
 import os
 
 from src.reports.compendia_per_file_reports import assert_files_in_directory, \
@@ -32,7 +32,7 @@ rule check_compendia_files:
         )
 
 # Make sure we have all the expected Synonyms files.
-rule check_synonyms_files:
+rule check_synonyms_gzipped_files:
     input:
         # Don't run this until all the outputs have been generated.
         config['output_directory'] + '/reports/outputs_done'
@@ -40,7 +40,7 @@ rule check_synonyms_files:
         donefile = config['output_directory']+'/reports/check_synonyms_files.done'
     run:
         assert_files_in_directory(synonyms_path,
-            synonyms_files,
+            get_all_gzipped(config, synonyms_files),
             output.donefile
         )
 
