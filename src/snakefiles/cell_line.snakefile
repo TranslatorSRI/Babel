@@ -1,6 +1,7 @@
 import src.datahandlers.clo as clo
 import src.createcompendia.cell_line as cell_line
 import src.assess_compendia as assessments
+import src.snakefiles.util as util
 
 ### Cell Line
 
@@ -26,7 +27,7 @@ rule cell_line_compendia:
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         config['output_directory']+"/compendia/CellLine.txt",
-        config['output_directory']+"/synonyms/CellLine.txt"
+        temp(config['output_directory']+"/synonyms/CellLine.txt")
     run:
         cell_line.build_compendia(input.ids,input.icrdf_filename)
 
@@ -49,9 +50,11 @@ rule check_cell_line:
 rule cell_line:
     input:
         config['output_directory']+'/reports/cell_line_completeness.txt',
-        config['output_directory'] + "/synonyms/CellLine.txt",
-        config['output_directory'] + "/reports/CellLine.txt"
+        config['output_directory'] + "/reports/CellLine.txt",
+        cell_line_synonyms=config['output_directory'] + "/synonyms/CellLine.txt",
     output:
+        config['output_directory'] + "/synonyms/CellLine.txt.gz",
         x=config['output_directory']+'/reports/cell_line_done'
-    shell:
-        "echo 'done' >> {output.x}"
+    run:
+        util.gzip_files([input.cell_line_synonyms])
+        util.write_done(output.x)
