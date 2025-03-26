@@ -44,7 +44,7 @@ rule export_all_synonyms_to_duckdb:
 # Generic rule for generating the Parquet files for a particular compendia file.
 rule export_synonyms_to_duckdb:
     input:
-        synonyms_file=config['output_directory'] + "/synonyms/{filename}.txt",
+        synonyms_file=config['output_directory'] + "/synonyms/{filename}.txt.gz",
     output:
         duckdb_filename=temp(config['output_directory'] + "/duckdb/duckdbs/filename={filename}/synonyms.duckdb"),
         synonyms_parquet_filename=config['output_directory'] + "/duckdb/parquet/filename={filename}/Synonyms.parquet",
