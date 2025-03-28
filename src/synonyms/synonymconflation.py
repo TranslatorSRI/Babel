@@ -4,6 +4,7 @@
 conflate-synonyms.py is a Python script for conflating synonym files using one or more
 conflation files.
 """
+import gzip
 import sys
 import json
 import logging
@@ -21,18 +22,18 @@ logging.basicConfig(level=logging.INFO)
 #click.option('--conflation-file', multiple=True, type=click.Path(exists=True))
 #click.option('--output', type=click.Path(exists=False), default='-')
 #click.argument("synonym_files", nargs=-1, type=click.Path(exists=True))
-def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
+def conflate_synonyms(synonym_files_gz, compendia_files, conflation_file, output):
     """
     Generate a synonym file based on a single input synonym, the conflation described in the input conflation files,
     and any cross-references present in the input compendia files.
 
-    :param synonym_files: The input synonym files.
+    :param synonym_files_gz: The input synonym files (gzipped).
     :param conflation_file: Any conflation files to apply.
     :param output: The file to write the synonyms to.
     :return:
     """
 
-    logging.info(f"conflate_synonyms({synonym_files}, {compendia_files}, {conflation_file}, {output})")
+    logging.info(f"conflate_synonyms({synonym_files_gz}, {compendia_files}, {conflation_file}, {output})")
 
     # Some common code to manage the conflation index.
     # This is simply a large dictionary, where every key is an identifier and the value is the identifier to map it to.
@@ -106,9 +107,9 @@ def conflate_synonyms(synonym_files, compendia_files, conflation_file, output):
     with open(output, 'w') as outputf:
         # Step 2. Conflate the synonyms.
         synonyms_to_conflate = defaultdict(lambda: defaultdict(list))
-        for synonym_filename in synonym_files:
-            logging.info(f"Reading synonym file {synonym_filename}")
-            with open(synonym_filename, "r") as synonymsf:
+        for synonym_filename_gz in synonym_files_gz:
+            logging.info(f"Reading synonym file {synonym_filename_gz}")
+            with gzip.open(synonym_filename_gz, "rt", encoding="utf-8") as synonymsf:
                 for synonym_text in synonymsf:
                     synonym = json.loads(synonym_text)
 
