@@ -35,24 +35,24 @@ MAX_SYNONYM_PAIRS = 50
 LOWERCASE_ALL_NAMES = True
 
 
-def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
+def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
     """
     Convert a synonyms file to the training format for SAPBERT (https://github.com/RENCI-NER/sapbert).
 
     Based on the code in https://github.com/TranslatorSRI/babel-validation/blob/f21b1b308e54ec0af616f2c24f7e2738ac4c261c/src/main/scala/org/renci/babel/utils/converter/Converter.scala#L107-L207
 
-    :param synonym_filename: The compendium file to convert.
+    :param synonym_filename_gz: The compendium file to convert.
     :param sapbert_filename_gzipped: The SAPBERT training file to generate.
     """
 
-    logger.info(f"convert_synonyms_to_sapbert({synonym_filename}, {sapbert_filename_gzipped})")
+    logger.info(f"convert_synonyms_to_sapbert({synonym_filename_gz}, {sapbert_filename_gzipped})")
 
     # For now, the simplest way to identify the DrugChemicalConflated file is by name.
     # In this case we still generate DrugChemicalConflated.txt, but we also generate
     # DrugChemicalConflatedSmaller.txt, which ignores cliques whose preferred label is
     # longer than config['demote_labels_longer_than'].
     generate_smaller_filename = None
-    if GENERATE_DRUG_CHEMICAL_SMALLER_FILE and synonym_filename.endswith('/DrugChemicalConflated.txt'):
+    if GENERATE_DRUG_CHEMICAL_SMALLER_FILE and synonym_filename_gz.endswith('/DrugChemicalConflated.txt.gz'):
         generate_smaller_filename = sapbert_filename_gzipped.replace('.txt.gz', 'Smaller.txt.gz')
 
     # Make the output directories if they don't exist.
@@ -67,7 +67,7 @@ def convert_synonyms_to_sapbert(synonym_filename, sapbert_filename_gzipped):
     count_entry = 0
     count_training_rows = 0
     count_smaller_rows = 0
-    with open(synonym_filename, "r", encoding="utf-8") as synonymf, gzip.open(sapbert_filename_gzipped, "wt", encoding="utf-8") as sapbertf:
+    with gzip.open(synonym_filename_gz, "rt", encoding="utf-8") as synonymf, gzip.open(sapbert_filename_gzipped, "wt", encoding="utf-8") as sapbertf:
         for input_line in synonymf:
             count_entry += 1
             entry = json.loads(input_line)
