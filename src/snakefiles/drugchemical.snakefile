@@ -66,12 +66,9 @@ rule drugchemical:
     input:
         config['output_directory']+'/conflation/DrugChemical.txt',
         drug_chemical_conflated=config['output_directory']+'/synonyms/DrugChemicalConflated.txt',
-        chemical_synonyms=expand("{do}/synonyms/{co}", do=config['output_directory'], co=config['chemical_outputs']),
     output:
-        chemical_synonyms_gzipped=expand("{do}/synonyms/{co}.gz", do=config['output_directory'], co=config['chemical_outputs']),
         drug_chemical_conflated_gz=config['output_directory']+'/synonyms/DrugChemicalConflated.txt.gz',
         x=config['output_directory']+'/reports/drugchemical_done'
     run:
-        util.gzip_files(input.chemical_synonyms)
         util.gzip_files([input.drug_chemical_conflated])
         util.write_done(output.x)
