@@ -31,7 +31,6 @@ rule leftover_umls:
         umls_compendium = config['output_directory'] + "/compendia/umls.txt",
         umls_synonyms = temp(config['output_directory'] + "/synonyms/umls.txt"),
         report = config['output_directory'] + "/reports/umls.txt",
-        done = config['output_directory'] + "/reports/umls_done"
     run:
         write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, input.synonyms, output.umls_compendium, output.umls_synonyms, output.report, output.done, config['biolink_version'])
 
@@ -40,5 +39,7 @@ rule compress_umls:
         umls_synonyms = config['output_directory'] + "/synonyms/umls.txt",
     output:
         umls_synonyms_gzipped = config['output_directory'] + "/synonyms/umls.txt.gz",
+        done = config['output_directory'] + "/reports/umls_done",
     run:
         util.gzip_files([input.umls_synonyms])
+        util.write_done(output.done)
