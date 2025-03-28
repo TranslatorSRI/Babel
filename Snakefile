@@ -74,3 +74,12 @@ rule clean_downloads:
     shell:
         "rm -rf {params.dir}/*"
 
+# Sometimes a synonyms file is available as a .gz file, but not as the .txt file itself.
+# This rule is here so that Snakemake knows how to uncompress it if needed.
+rule uncompress_synonym_file:
+    input:
+        config['output_directory'] + '/synonyms/{synonym_file}.txt.gz'
+    output:
+        config['output_directory'] + '/synonyms/{synonym_file}.txt'
+    shell:
+        'gunzip {input} -c > {output}'
