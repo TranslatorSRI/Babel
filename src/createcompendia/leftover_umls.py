@@ -12,7 +12,7 @@ from src.prefixes import UMLS
 from src.categories import ACTIVITY, AGENT, DEVICE, DRUG, FOOD, SMALL_MOLECULE, PHYSICAL_ENTITY, PUBLICATION, PROCEDURE
 
 
-def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, umls_synonyms, report, done, biolink_version):
+def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, umls_synonyms, report, biolink_version):
     """
     Search for "leftover" UMLS concepts, i.e. those that are defined and valid in MRCONSO but are not
     mapped to a concept in Babel.
@@ -26,7 +26,6 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
     :param umls_compendium: The UMLS compendium file to write out.
     :param umls_synonyms: The synonyms file to generate for this compendium.
     :param report: The report file to write out.
-    :param done: The done file to write out.
     :return: Nothing.
     """
 
@@ -243,10 +242,5 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
 
         logging.info(f"Wrote out {count_synonym_objs} synonym objects into the leftover UMLS synonyms file.")
         reportf.write(f"Wrote out {count_synonym_objs} synonym objects into the leftover UMLS synonyms file.\n")
-
-
-    # Write out `done` file.
-    with open(done, 'w') as outf:
-        outf.write(f"done\n{datetime.now()}\n")
 
     logging.info("Complete")
