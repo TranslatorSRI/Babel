@@ -32,7 +32,7 @@ rule leftover_umls:
         umls_synonyms = temp(config['output_directory'] + "/synonyms/umls.txt"),
         report = config['output_directory'] + "/reports/umls.txt",
     run:
-        write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, input.synonyms, output.umls_compendium, output.umls_synonyms, output.report, output.done, config['biolink_version'])
+        write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, input.synonyms, output.umls_compendium, output.umls_synonyms, output.report, config['biolink_version'])
 
 rule compress_umls:
     input:
