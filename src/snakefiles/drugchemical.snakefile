@@ -58,17 +58,15 @@ rule drugchemical_conflated_synonyms:
         chemical_compendia=expand("{do}/compendia/{co}", do=config['output_directory'], co=config['chemical_outputs']),
         chemical_synonyms_gz=expand("{do}/synonyms/{co}.gz", do=config['output_directory'], co=config['chemical_outputs']),
     output:
-        drugchemical_conflated=temp(config['output_directory']+'/synonyms/DrugChemicalConflated.txt'),
+        drugchemical_conflated_gz=temp(config['output_directory']+'/synonyms/DrugChemicalConflated.txt.gz'),
     run:
-        synonymconflation.conflate_synonyms(input.chemical_synonyms_gz, input.chemical_compendia, input.drugchemical_conflation, output.drugchemical_conflated)
+        synonymconflation.conflate_synonyms(input.chemical_synonyms_gz, input.chemical_compendia, input.drugchemical_conflation, output.drugchemical_conflated_gz)
 
 rule drugchemical:
     input:
         config['output_directory']+'/conflation/DrugChemical.txt',
-        drug_chemical_conflated=config['output_directory']+'/synonyms/DrugChemicalConflated.txt',
+        config['output_directory']+'/synonyms/DrugChemicalConflated.txt.gz',
     output:
-        drug_chemical_conflated_gz=config['output_directory']+'/synonyms/DrugChemicalConflated.txt.gz',
-        x=config['output_directory']+'/reports/drugchemical_done'
+        done=config['output_directory']+'/reports/drugchemical_done'
     run:
-        util.gzip_files([input.drug_chemical_conflated])
-        util.write_done(output.x)
+        util.write_done(output.done)
