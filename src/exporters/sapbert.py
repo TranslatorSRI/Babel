@@ -136,14 +136,14 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
                         generate_smaller_file.write(line)
                         count_smaller_rows += 1
 
-    logger.info(f"Converted {synonym_filename} to SAPBERT training file {synonym_filename}: " +
+    logger.info(f"Converted {synonym_filename_gz} to SAPBERT training file {synonym_filename_gz}: " +
                 f"read {count_entry} entries and wrote out {count_training_rows} training rows.")
 
     # Close SmallerFile if needed.
     if generate_smaller_file:
         generate_smaller_file.close()
         percentage = count_smaller_rows / float(count_training_rows) * 100
-        logger.info(f"Converted {synonym_filename} to smaller SAPBERT training file {generate_smaller_filename}: " +
+        logger.info(f"Converted {synonym_filename_gz} to smaller SAPBERT training file {generate_smaller_filename}: " +
                     f"read {count_entry} entries and wrote out {count_smaller_rows} training rows ({percentage:.2f}%).")
 
 
