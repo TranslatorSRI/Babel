@@ -115,12 +115,11 @@ def get_all_synonyms_with_drugchemicalconflated(config):
     )
 
 
-def get_all_gzipped(config, list):
+def get_all_gzipped(file_list):
     """
     Helper method to add '.gz' to all the files in a list (presumably from get_all_synonyms_*()).
 
-    :param config: The Babel config to use.
-    :param list: List of filenames.
+    :param file_list: List of filenames.
     :return: List of filenames with '.gz' appended.
     """
-    return list(map(lambda x: x + '.gz', list))
+    return list(map(lambda x: x + '.gz', file_list))

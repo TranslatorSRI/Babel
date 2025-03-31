@@ -40,7 +40,7 @@ rule check_synonyms_gzipped_files:
         donefile = config['output_directory']+'/reports/check_synonyms_files.done'
     run:
         assert_files_in_directory(synonyms_path,
-            get_all_gzipped(config, synonyms_files),
+            get_all_gzipped(synonyms_files),
             output.donefile
         )
 
