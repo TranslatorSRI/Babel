@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 from collections import Counter, defaultdict
 
 from src.exporters.duckdb_exporters import setup_duckdb
@@ -64,6 +65,7 @@ def check_for_duplicate_curies(parquet_root, duckdb_filename, duplicate_curies_t
         hive_partitioning=True
     )
 
+    # Look for CURIEs that are present in different cliques.
     db.sql("""
         WITH curie_counts AS (SELECT DISTINCT curie, COUNT(clique_leader) AS clique_leader_count FROM edges
             WHERE conflation = 'None'
@@ -88,6 +90,42 @@ def check_for_duplicate_curies(parquet_root, duckdb_filename, duplicate_curies_t
             curie_counts.clique_leader_count DESC;
     
     """).write_csv(duplicate_curies_tsv, sep="\t")
+
+
+def check_for_duplicate_clique_leaders(parquet_root, duckdb_filename, duplicate_clique_leaders_tsv):
+    """
+    Generate a list of duplicate clique leaders.
+
+    :param parquet_root: The root directory for the Parquet files. We expect these to have subdirectories named
+        e.g. `filename=AnatomicalEntity/Clique.parquet`, etc.
+    :param duckdb_filename: A temporary DuckDB file to use.
+    :param duplicate_clique_leaders_tsv: The output file listing duplicate CURIEs.
+    """
+
+    db = setup_duckdb(duckdb_filename)
+    edges = db.read_parquet(
+        os.path.join(parquet_root, "**/Edge.parquet"),
+        hive_partitioning=True
+    )
+    cliques = db.read_parquet(
+        os.path.join(parquet_root, "**/Clique.parquet"),
+        hive_partitioning=True
+    )
+
+    # Look for CURIEs that are present in different cliques.
+    db.sql(
+        """
+        SELECT
+            clique_leader,
+            COUNT(DISTINCT clique_leader) AS clique_leader_count,
+            STRING_AGG(DISTINCT cliques.filename, '||' ORDER BY cliques.filename ASC) AS filenames,
+        FROM
+            cliques
+        GROUP BY clique_leader
+        HAVING clique_leader_count > 1
+        ORDER BY clique_leader ASC
+        """
+    ).write_csv(duplicate_clique_leaders_tsv, sep="\t")
 
 
 def generate_prefix_report(parquet_root, duckdb_filename, prefix_report_json, prefix_report_tsv):

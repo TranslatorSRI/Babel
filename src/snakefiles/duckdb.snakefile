@@ -91,6 +91,18 @@ rule check_for_duplicate_curies:
     run:
         src.reports.duckdb_reports.check_for_duplicate_curies(params.parquet_dir, output.duckdb_filename, output.duplicate_curies)
 
+rule check_for_duplicate_clique_leaders:
+    input:
+        config['output_directory'] + '/duckdb/done',
+        config['output_directory'] + '/duckdb/compendia_done',
+    params:
+        parquet_dir = config['output_directory'] + '/duckdb/parquet/',
+    output:
+        duckdb_filename = temp(config['output_directory'] + '/duckdb/duckdbs/duplicate_clique_leaders.duckdb'),
+        duplicate_clique_readers_tsv = config['output_directory'] + '/reports/duckdb/duplicate_clique_leaders.tsv',
+    run:
+        src.reports.duckdb_reports.check_for_duplicate_clique_leaders(params.parquet_dir, output.duckdb_filename, output.duplicate_clique_readers_tsv)
+
 rule generate_prefix_report:
     input:
         config['output_directory'] + '/duckdb/done',
