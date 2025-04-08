@@ -1,3 +1,4 @@
+import src.reports.duckdb_reports
 from src.snakefiles.util import get_all_compendia, get_all_synonyms_with_drugchemicalconflated
 import src.exporters.duckdb_exporters as duckdb_exporters
 import os
@@ -75,7 +76,7 @@ rule check_for_identically_labeled_cliques:
         duckdb_filename = temp(config['output_directory'] + '/duckdb/duckdbs/identically_labeled_clique.duckdb'),
         identically_labeled_cliques_tsv = config['output_directory'] + '/reports/duckdb/identically_labeled_cliques.tsv',
     run:
-        duckdb_exporters.check_for_identically_labeled_cliques(params.parquet_dir, output.duckdb_filename, output.identically_labeled_cliques_tsv)
+        src.reports.duckdb_reports.check_for_identically_labeled_cliques(params.parquet_dir, output.duckdb_filename, output.identically_labeled_cliques_tsv)
 
 
 rule check_for_duplicate_curies:
@@ -88,7 +89,7 @@ rule check_for_duplicate_curies:
         duckdb_filename = temp(config['output_directory'] + '/duckdb/duckdbs/duplicate_curies.duckdb'),
         duplicate_curies = config['output_directory'] + '/reports/duckdb/duplicate_curies.tsv',
     run:
-        duckdb_exporters.check_for_duplicate_curies(params.parquet_dir, output.duckdb_filename, output.duplicate_curies)
+        src.reports.duckdb_reports.check_for_duplicate_curies(params.parquet_dir, output.duckdb_filename, output.duplicate_curies)
 
 rule generate_prefix_report:
     input:
@@ -101,7 +102,7 @@ rule generate_prefix_report:
         prefix_report_json = config['output_directory'] + '/reports/duckdb/prefix_report.json',
         prefix_report_tsv = config['output_directory'] + '/reports/duckdb/prefix_report.tsv',
     run:
-        duckdb_exporters.generate_prefix_report(params.parquet_dir, output.duckdb_filename,
+        src.reports.duckdb_reports.generate_prefix_report(params.parquet_dir, output.duckdb_filename,
             output.prefix_report_json,
             output.prefix_report_tsv)
 
