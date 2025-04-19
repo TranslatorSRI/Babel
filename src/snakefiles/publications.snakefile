@@ -5,15 +5,29 @@ import src.assess_compendia as assessments
 
 rule download_pubmed:
     output:
-        done_file = config['download_directory'] + '/PubMed/downloaded',
         baseline_dir = directory(config['download_directory'] + '/PubMed/baseline'),
         updatefiles_dir = directory(config['download_directory'] + '/PubMed/updatefiles'),
+        done_file = config['download_directory'] + '/PubMed/downloaded',
     run:
         publications.download_pubmed(output.done_file)
 
-rule generate_pubmed_concords:
+rule verify_pubmed:
     input:
         config['download_directory'] + '/PubMed/downloaded',
+    output:
+        done_file = config['download_directory'] + '/PubMed/verified',
+    run:
+        publications.verify_pubmed_downloads(
+            [
+                config['download_directory'] + '/PubMed/baseline',
+                config['download_directory'] + '/PubMed/updatefiles'
+            ],
+            done_file
+        )
+
+rule generate_pubmed_concords:
+    input:
+        config['download_directory'] + '/PubMed/verified',
         baseline_dir = config['download_directory'] + '/PubMed/baseline',
         updatefiles_dir = config['download_directory'] + '/PubMed/updatefiles',
     output:
