@@ -5,8 +5,8 @@
 # (https://github.com/TranslatorSRI/RENCI-Python-image)
 # FROM renciorg/renci-python-image:latest
 #
-# This is still at Python 3.9, so I'm going to use Python Latest, which
-# should give us a Debian with Python 3.12+.
+# Unfortunately, one of our dependencies doesn't work properly on
+# Python 3.12+, so we pin ourselves to Python 3.12 specifically.
 FROM python:3.12
 
 # Configuration options:
