@@ -21,10 +21,10 @@ def gzip_files(input_filenames):
     logger.info(f"Compressing: {input_filenames}")
     for filename in input_filenames:
         output_filename = filename + '.gz'
-        with open(filename, 'rb') as f_in:
-            with gzip.open(output_filename, 'wb') as f_out:
-                shutil.copyfileobj(f_in, f_out)
-                logger.info(f"Compressed {filename} to {output_filename} using Gzip.")
+        with open(filename, 'rb') as f_in, gzip.open(output_filename, 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+        logger.info(f"Compressed {filename} to {output_filename} using the gzip module.")
+    logger.info(f"Done compressing: {input_filenames}")
 
 
 # List of all the compendia files that need to be converted.
@@ -113,3 +113,13 @@ def get_all_synonyms_with_drugchemicalconflated(config):
             config['umls_outputs'] +
             config['macromolecularcomplex_outputs']
     )
+
+
+def get_all_gzipped(file_list):
+    """
+    Helper method to add '.gz' to all the files in a list (presumably from get_all_synonyms_*()).
+
+    :param file_list: List of filenames.
+    :return: List of filenames with '.gz' appended.
+    """
+    return list(map(lambda x: x + '.gz', file_list))

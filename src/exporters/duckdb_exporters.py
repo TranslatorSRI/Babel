@@ -97,7 +97,7 @@ def export_compendia_to_parquet(compendium_filename, clique_parquet_filename, du
         )
 
 
-def export_synonyms_to_parquet(synonyms_filename, duckdb_filename, synonyms_parquet_filename):
+def export_synonyms_to_parquet(synonyms_filename_gz, duckdb_filename, synonyms_parquet_filename):
     """
     Export a synonyms file to a DuckDB directory.
 
@@ -115,7 +115,7 @@ def export_synonyms_to_parquet(synonyms_filename, duckdb_filename, synonyms_parq
 
     with setup_duckdb(duckdb_filename) as db:
         # Step 1. Load the entire synonyms file.
-        synonyms_jsonl = db.read_json(synonyms_filename, format='newline_delimited')
+        synonyms_jsonl = db.read_json(synonyms_filename_gz, format='newline_delimited')
 
         # Step 2. Create a Cliques table with all the cliques from this file.
         #db.sql("CREATE TABLE Cliques (curie TEXT PRIMARY KEY, label TEXT, clique_identifier_count INT, biolink_type TEXT)")

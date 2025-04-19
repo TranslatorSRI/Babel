@@ -1,5 +1,6 @@
 import src.createcompendia.publications as publications
 import src.assess_compendia as assessments
+from src.snakefiles import util
 
 ### PubMed
 
@@ -54,6 +55,8 @@ rule generate_pubmed_compendia:
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         publication_compendium = config['output_directory'] + '/compendia/Publication.txt',
+        # We generate an empty Publication Synonyms files, but we still need to generate one.
+        publication_synonyms_gz = config['output_directory'] + '/synonyms/Publication.txt.gz',
     run:
         publications.generate_compendium(
             [input.pmid_doi_concord_file],
@@ -62,6 +65,10 @@ rule generate_pubmed_compendia:
             output.publication_compendium,
             input.icrdf_filename
         )
+        # generate_compendium() will generate an (empty) Publication.txt.gz file, but we need
+        # to compress it.
+        publication_synonyms = os.path.splitext(output.publication_synonyms_gz)[0]
+        util.gzip_files([publication_synonyms])
 
 rule check_publications_completeness:
     input:
@@ -82,8 +89,7 @@ rule check_publications:
 rule publications:
     input:
         config['output_directory']+'/reports/publication_completeness.txt',
-        # No synonyms for Publication.txt yet.
-        # synonyms=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['publication_outputs']),
+        synonyms = expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['publication_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['publication_outputs'])
     output:
         x=config['output_directory']+'/reports/publications_done'
