@@ -8,6 +8,24 @@ def pull_ncbigene(filenames):
 
 
 def pull_ncbigene_labels_synonyms_and_taxa():
+    """
+    Extract labels, synonyms, and taxonomic data for genes from the NCBIGene "gene_info.gz" file
+    and write them into separate files. The function processes the input file by skipping rows
+    with certain unwanted gene types and writing relevant data to output files for gene labels,
+    synonyms, and taxonomy associations. Only rows conforming to the required gene type are processed.
+
+    The output files include:
+    1. Label file: Gene IDs mapped to their canonical labels (symbols).
+    2. Synonym file: Gene IDs mapped to associated synonyms.
+    3. Taxa file: Gene IDs mapped to their corresponding taxonomy identifiers.
+
+    :raises AssertionError: If the file headers in "gene_info.gz" do not match the expected format.
+    :raises RuntimeError: If a synonym value of `-` is encountered in the output, indicating unexpected
+        processing behavior in the input file.
+
+    :return: None
+    """
+
     # File format described here: https://ftp.ncbi.nlm.nih.gov/gene/DATA/README
     ifname = make_local_name('gene_info.gz', subpath='NCBIGene')
     labelname = make_local_name('labels', subpath='NCBIGene')
@@ -58,26 +76,21 @@ def pull_ncbigene_labels_synonyms_and_taxa():
             sline = line.decode('utf-8')
             row = sline.strip().split('\t')
             gene_id = f'NCBIGene:{get_field(row, "GeneID")}'
-            symbol = get_field(row, "Symbol")
             gene_type = get_field(row, "type_of_gene")
             if gene_type in bad_gene_types:
                 continue
-            labelfile.write(f'{gene_id}\t{symbol}\n')
             taxafile.write(f'{gene_id}\tNCBITaxon:{get_field(row, "#tax_id")}\n')
 
+            # Write out all the synonyms.
             syns = set(get_field(row, "Synonyms").split('|'))
-            syns.add(symbol)
-            description = get_field(row, "description")
-            syns.add(description)
-            authoritative_symbol = get_field(row, "Symbol_from_nomenclature_authority")
-            syns.add(authoritative_symbol)
-            authoritative_full_name = get_field(row, "Full_name_from_nomenclature_authority")
-            syns.add(authoritative_full_name)
-            others = set(get_field(row, "Other_designations").split('|'))
-            syns.update(others)
+            syns.add(get_field(row, "description"))
+            syns.add(get_field(row, "Symbol"))
+            syns.add(get_field(row, "Symbol_from_nomenclature_authority"))
+            syns.add(get_field(row, "Full_name_from_nomenclature_authority"))
+            syns.update(get_field(row, "Other_designations").split('|'))
             for syn in syns:
                 # Skip empty synonym.
-                if syn.strip() == '':
+                if syn.strip() == '' or syn.strip() == '-':
                     continue
 
                 # gene_info.gz uses `-` to indicate a blank field -- if we're seeing that here, that means
@@ -86,3 +99,23 @@ def pull_ncbigene_labels_synonyms_and_taxa():
                     raise RuntimeError("Synonym '-' should not be present in NCBIGene output!")
 
                 synfile.write(f'{gene_id}\thttp://www.geneontology.org/formats/oboInOwl#hasSynonym\t{syn}\n')
+
+            # Figure out the label. We would ideally go with:
+            #   {Symbol_from_nomenclature_authority || Symbol}: {Full_name_from_nomenclature_authority}
+            # But falling back cleanly. As per https://github.com/TranslatorSRI/Babel/issues/429
+            best_symbol = get_field(row, "Symbol_from_nomenclature_authority")
+            if not best_symbol:
+                # Fallback to the "Symbol" field.
+                best_symbol = get_field(row, "Symbol")
+            if not best_symbol and len(syns) > 0:
+                # Fallback to the first synonym.
+                best_symbol = syns[0]
+            best_description = get_field(row, "Full_name_from_nomenclature_authority")
+            if not best_description:
+                best_description = get_field(row, "description")
+            if best_symbol:
+                if best_description:
+                    label = f'{best_symbol}: {best_description}'
+                else:
+                    label = best_symbol
+                labelfile.write(f'{gene_id}\t{label}\n')
