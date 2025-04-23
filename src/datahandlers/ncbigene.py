@@ -6,6 +6,20 @@ def pull_ncbigene(filenames):
     for fn in filenames:
         pull_via_urllib('https://ftp.ncbi.nlm.nih.gov/gene/DATA/', fn, decompress=False, subpath='NCBIGene')
 
+def get_ncbigene_field(row, header, field_name):
+    """
+    A helper function for returning the value of a field in gene_info.gz by name.
+    The value is `-` if no value is present, so we need to convert that into an empty string.
+
+    :param r: A row from gene_info.gz.
+    :param field_name: A field name in the header of gene_info.gz.
+    :return: The value in this column in this row, otherwise the empty string ('').
+    """
+    index = header.index(field_name)
+    value = row[index].strip()
+    if value == '-':
+        return ''
+    return value
 
 def pull_ncbigene_labels_synonyms_and_taxa():
     """
@@ -57,37 +71,22 @@ def pull_ncbigene_labels_synonyms_and_taxa():
             "Modification_date",
             "Feature_type"]
 
-        def get_field(r, field_name):
-            """
-            A helper function for returning the value of a field in gene_info.gz by name.
-            The value is `-` if no value is present; we need to convert that into an empty string.
-
-            :param r: A row from gene_info.gz.
-            :param field_name: A field name in the header of gene_info.gz.
-            :return: The value in this column in this row, otherwise the empty string ('').
-            """
-            index = header.index(field_name)
-            value = r[index].strip()
-            if value == '-':
-                return ''
-            return value
-
         for line in inf:
             sline = line.decode('utf-8')
             row = sline.strip().split('\t')
-            gene_id = f'NCBIGene:{get_field(row, "GeneID")}'
-            gene_type = get_field(row, "type_of_gene")
+            gene_id = f'NCBIGene:{get_ncbigene_field(row, header, "GeneID")}'
+            gene_type = get_ncbigene_field(row, header, "type_of_gene")
             if gene_type in bad_gene_types:
                 continue
-            taxafile.write(f'{gene_id}\tNCBITaxon:{get_field(row, "#tax_id")}\n')
+            taxafile.write(f'{gene_id}\tNCBITaxon:{get_ncbigene_field(row, header, "#tax_id")}\n')
 
             # Write out all the synonyms.
-            syns = set(get_field(row, "Synonyms").split('|'))
-            syns.add(get_field(row, "description"))
-            syns.add(get_field(row, "Symbol"))
-            syns.add(get_field(row, "Symbol_from_nomenclature_authority"))
-            syns.add(get_field(row, "Full_name_from_nomenclature_authority"))
-            syns.update(get_field(row, "Other_designations").split('|'))
+            syns = set(get_ncbigene_field(row, header, "Synonyms").split('|'))
+            syns.add(get_ncbigene_field(row, header, "description"))
+            syns.add(get_ncbigene_field(row, header, "Symbol"))
+            syns.add(get_ncbigene_field(row, header, "Symbol_from_nomenclature_authority"))
+            syns.add(get_ncbigene_field(row, header, "Full_name_from_nomenclature_authority"))
+            syns.update(get_ncbigene_field(row, header, "Other_designations").split('|'))
             for syn in syns:
                 # Skip empty synonym.
                 if syn.strip() == '' or syn.strip() == '-':
@@ -103,16 +102,16 @@ def pull_ncbigene_labels_synonyms_and_taxa():
             # Figure out the label. We would ideally go with:
             #   {Symbol_from_nomenclature_authority || Symbol}: {Full_name_from_nomenclature_authority}
             # But falling back cleanly. As per https://github.com/TranslatorSRI/Babel/issues/429
-            best_symbol = get_field(row, "Symbol_from_nomenclature_authority")
+            best_symbol = get_ncbigene_field(row, header, "Symbol_from_nomenclature_authority")
             if not best_symbol:
                 # Fallback to the "Symbol" field.
-                best_symbol = get_field(row, "Symbol")
+                best_symbol = get_ncbigene_field(row, header, "Symbol")
             if not best_symbol and len(syns) > 0:
                 # Fallback to the first synonym.
                 best_symbol = syns[0]
-            best_description = get_field(row, "Full_name_from_nomenclature_authority")
+            best_description = get_ncbigene_field(row, header, "Full_name_from_nomenclature_authority")
             if not best_description:
-                best_description = get_field(row, "description")
+                best_description = get_ncbigene_field(row, header, "description")
             if best_symbol:
                 if best_description:
                     label = f'{best_symbol}: {best_description}'
