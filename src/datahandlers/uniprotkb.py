@@ -4,10 +4,11 @@ import os
 
 import requests
 from src.babel_utils import make_local_name
+from src.prefixes import UNIPROTKB
 
 
 def readlabels(which):
-    swissname = make_local_name(f'UniProtKB/uniprot_{which}.fasta')
+    swissname = make_local_name(f'{UNIPROTKB}/uniprot_{which}.fasta')
     swissprot_labels = {}
     with open(swissname,'r') as inf:
         for line in inf:

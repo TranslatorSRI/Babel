@@ -11,7 +11,7 @@ def pull_rhea():
 class Rhea:
     """Load the mesh rdf file for querying"""
     def __init__(self):
-        ifname = make_local_name('rhea.rdf', subpath='RHEA')
+        ifname = make_local_name('rhea.rdf', subpath=RHEA)
         from datetime import datetime as dt
         print('loading rhea')
         start = dt.now()

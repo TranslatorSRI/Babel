@@ -10,7 +10,7 @@ import pyoxigraph
 logger = LoggingUtil.init_logging(__name__, level=logging.WARNING)
 
 def pull_efo():
-    _=pull_via_urllib('http://www.ebi.ac.uk/efo/','efo.owl', subpath='EFO', decompress=False)
+    _=pull_via_urllib('http://www.ebi.ac.uk/efo/','efo.owl', subpath=EFO, decompress=False)
 
 class EFOgraph:
     """Load the mesh rdf file for querying"""
@@ -22,7 +22,7 @@ class EFOgraph:
         </owl:Ontology>
 
         That about='' really makes pyoxigraph annoyed. So we have to give it a base_iri on load, then its ok"""
-        ifname = make_local_name('efo.owl', subpath='EFO')
+        ifname = make_local_name('efo.owl', subpath=EFO)
         from datetime import datetime as dt
         print('loading EFO')
         start = dt.now()

@@ -4,6 +4,8 @@ from src.babel_utils import make_local_name, get_config
 from apybiomart import find_datasets, query, find_attributes
 import os
 
+from src.prefixes import ENSEMBL
+
 
 # Note that Ensembl doesn't seem to assign its own labels or synonyms to its gene identifiers.  It appears that
 # they are all imported from other sources.   Therefore, we will not generate labels or synonym files.  We
@@ -25,7 +27,7 @@ def pull_ensembl(complete_file):
         if ds in skip_dataset_ids:
             print(f'Skipping {ds} as it is included in skip_dataset_ids: {skip_dataset_ids}')
             continue
-        outfile = make_local_name('BioMart.tsv', subpath=f'ENSEMBL/{ds}')
+        outfile = make_local_name('BioMart.tsv', subpath=f'{ENSEMBL}/{ds}')
         # Really, we should let snakemake handle this, but then we would need to put a list of all the 200+ sets in our
         # config, and keep it up to date.  Maybe you could have a job that gets the datasets and writes a dataset file,
         # but then updates the config? That sounds bogus.

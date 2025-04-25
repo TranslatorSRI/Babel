@@ -9,7 +9,7 @@ def pull_mesh():
 class Mesh:
     """Load the mesh rdf file for querying"""
     def __init__(self):
-        ifname = make_local_name('mesh.nt', subpath='MESH')
+        ifname = make_local_name('mesh.nt', subpath=MESH)
         from datetime import datetime as dt
         print('loading mesh.nt')
         start = dt.now()
@@ -105,7 +105,7 @@ class Mesh:
                 WHERE { ?term rdfs:label ?label }
                 ORDER BY ?term
         """
-        ofname = make_local_name('labels', subpath='MESH')
+        ofname = make_local_name('labels', subpath=MESH)
         qres = self.m.query(s)
         with open(ofname, 'w', encoding='utf8') as outf:
             for row in list(qres):
@@ -147,8 +147,8 @@ def write_ids(meshmap,outfile,order=['biolink:CellularComponent','biolink:Cell',
 
 
 
-#    ifname = make_local_name('mesh.nt', subpath='MESH')
-#    ofname = make_local_name('labels', subpath='MESH')
+#    ifname = make_local_name('mesh.nt', subpath=MESH)
+#    ofname = make_local_name('labels', subpath=MESH)
 #    badlines = 0
 #    with open(ofname, 'w') as outf, open(ifname,'r') as data:
 #        for line in data:

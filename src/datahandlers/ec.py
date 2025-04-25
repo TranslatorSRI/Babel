@@ -19,7 +19,7 @@ class ECgraph:
         </owl:Ontology>
 
         That about='' really makes pyoxigraph annoyed. So we have to give it a base_iri on load, then its ok"""
-        ifname = make_local_name('enzyme.rdf', subpath='EC')
+        ifname = make_local_name('enzyme.rdf', subpath=EC)
         from datetime import datetime as dt
         print('loading EC')
         start = dt.now()

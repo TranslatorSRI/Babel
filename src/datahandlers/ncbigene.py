@@ -1,6 +1,8 @@
 from src.babel_utils import make_local_name, pull_via_urllib
 import gzip
 
+from src.prefixes import NCBIGENE
+
 
 def pull_ncbigene(filenames):
     for fn in filenames:
@@ -9,10 +11,10 @@ def pull_ncbigene(filenames):
 
 def pull_ncbigene_labels_synonyms_and_taxa():
     # File format described here: https://ftp.ncbi.nlm.nih.gov/gene/DATA/README
-    ifname = make_local_name('gene_info.gz', subpath='NCBIGene')
-    labelname = make_local_name('labels', subpath='NCBIGene')
-    synname = make_local_name('synonyms', subpath='NCBIGene')
-    taxaname = make_local_name('taxa', subpath='NCBIGene')
+    ifname = make_local_name('gene_info.gz', subpath=NCBIGENE)
+    labelname = make_local_name('labels', subpath=NCBIGENE)
+    synname = make_local_name('synonyms', subpath=NCBIGENE)
+    taxaname = make_local_name('taxa', subpath=NCBIGENE)
     bad_gene_types = {'biological-region', 'other', 'unknown'}
     with gzip.open(ifname, 'r') as inf, \
           open(labelname, 'w') as labelfile, \
