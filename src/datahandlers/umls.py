@@ -305,8 +305,8 @@ def pull_umls(mrconso):
     """Run through MRCONSO.RRF creating label and synonym files for UMLS and SNOMEDCT"""
     rows = defaultdict(list)
     priority = read_umls_priority()
-    snomed_label_name = make_local_name('labels', subpath='SNOMEDCT')
-    snomed_syn_name = make_local_name('synonyms', subpath='SNOMEDCT')
+    snomed_label_name = make_local_name('pull_umls', subpath='SNOMEDCT/labels')
+    snomed_syn_name = make_local_name('pull_umls', subpath='SNOMEDCT/synonyms')
     with open(mrconso, 'r') as inf, open(snomed_label_name,'w') as snolabels, open(snomed_syn_name,'w') as snosyns:
         for line in inf:
             if not check_mrconso_line(line):
@@ -335,8 +335,8 @@ def pull_umls(mrconso):
                 #print(pkey)
                 pri = 1000000
             rows[cui].append( (pri,term,line) )
-    lname = make_local_name('labels', subpath='UMLS')
-    sname = make_local_name('synonyms', subpath='UMLS')
+    lname = make_local_name('pull_umls', subpath='UMLS/labels')
+    sname = make_local_name('pull_umls', subpath='UMLS/synonyms')
     re_numerical = re.compile(r"^\s*[+-]*[\d\.]+\s*$")
     with open(lname,'w') as labels, open(sname,'w') as synonyms:
         for cui,crows in rows.items():

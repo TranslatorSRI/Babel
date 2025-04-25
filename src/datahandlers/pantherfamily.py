@@ -1,4 +1,4 @@
-from src.babel_utils import make_local_name, pull_via_ftp
+from src.babel_utils import pull_via_ftp
 from src.prefixes import PANTHERFAMILY
 
 def pull_pantherfamily():

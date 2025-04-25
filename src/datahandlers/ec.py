@@ -1,9 +1,8 @@
 from src.prefixes import EC
 from src.categories import MOLECULAR_ACTIVITY
 from src.babel_utils import pull_via_urllib
-from src.babel_utils import make_local_name, pull_via_ftp
+from src.babel_utils import make_local_name
 import pyoxigraph
-from collections import defaultdict
 
 
 def pull_ec():

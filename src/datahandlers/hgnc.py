@@ -12,8 +12,8 @@ def pull_hgnc():
 def pull_hgnc_labels_and_synonyms(infile):
     with open(infile,'r') as data:
         hgnc_json = json.load(data)
-    lname = make_local_name('labels', subpath='HGNC')
-    sname = make_local_name('synonyms', subpath='HGNC')
+    lname = make_local_name('pull_hgnc_labels_and_synonyms', subpath='HGNC/labels')
+    sname = make_local_name('pull_hgnc_labels_and_synonyms', subpath='HGNC/synonyms')
     with open(lname,'w') as lfile, open(sname,'w') as sfile:
         for gene in hgnc_json['response']['docs']:
             hgnc_id =gene['hgnc_id']
