@@ -230,12 +230,12 @@ rule get_hgnc:
 
 rule get_hgnc_labels_and_synonyms:
     output:
-        config['download_directory']+'/HGNC/labels',
-        config['download_directory']+'/HGNC/synonyms'
+        labelfile=config['download_directory']+'/HGNC/labels',
+        synonymfile=config['download_directory']+'/HGNC/synonyms'
     input:
         infile=rules.get_hgnc.output.outfile
     run:
-        hgnc.pull_hgnc_labels_and_synonyms(input.infile)
+        hgnc.pull_hgnc_labels_and_synonyms(input.infile,output.labelfile,output.synonymfile)
 
 ### HGNC.FAMILY
 
@@ -535,7 +535,6 @@ rule pubchem_labels:
         labelfile = config['download_directory'] + '/PUBCHEM.COMPOUND/labels'
     run:
         pubchem.pull_pubchem_labels(input.infile, output.labelfile)
-
 
 rule pubchem_synonyms:
     input:

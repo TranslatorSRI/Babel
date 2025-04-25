@@ -134,3 +134,12 @@ class PrefixPropertyStore(AbstractContextManager):
             if include_sources:
                 output.append(pv.source)
             file.write('\t'.join(output) + '\n')
+
+    def add_label(self, curie, label, source):
+        self.insert_values(curie, 'label', [label], source)
+
+    def add_exact_synonym(self, curie, synonym, source):
+        self.insert_values(curie, 'hasExactSynonym', [synonym], source)
+
+    def add_related_synonym(self, curie, synonym, source):
+        self.insert_values(curie, 'hasRelatedSynonym', [synonym], source)
