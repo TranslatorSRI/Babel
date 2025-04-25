@@ -47,9 +47,10 @@ class PropertyValue:
 
 # A property store for a single prefix.
 class PrefixPropertyStore(AbstractContextManager):
-    def __init__(self, prefix_path=None, prefix=None, autocommit=True, validate_properties=True):
+    def __init__(self, prefix_path=None, prefix=None, autocommit=True, validate_properties=True, readonly=False):
         self.autocommit = autocommit
         self.validate_properties = validate_properties
+        self.readonly = readonly
 
         prefix_directory = None
         if prefix_path is not None:
@@ -63,7 +64,7 @@ class PrefixPropertyStore(AbstractContextManager):
         os.makedirs(prefix_directory, exist_ok=True)
 
         # Load or create a public store.
-        self.connection = duckdb.connect(os.path.join(prefix_directory, 'properties.duckdb'))
+        self.connection = duckdb.connect(os.path.join(prefix_directory, 'properties.duckdb'), read_only=self.readonly)
         self.connection.sql("CREATE TABLE IF NOT EXISTS properties (curie TEXT, property TEXT, value TEXT, source TEXT) ;")
         # Create a UNIQUE index on the property values -- this means that if someone tries to set a value for a property
         # either duplicatively or from another source, we simply ignore it.
