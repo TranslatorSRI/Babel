@@ -31,10 +31,10 @@ supported_properties = {
     'hasRelatedSynonym': 'http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym',
 }
 
-LABEL = supported_properties['label']
-EXACT_SYNONYM = supported_properties['hasExactSynonym']
-RELATED_SYNONYM = supported_properties['hasRelatedSynonym']
-SYNONYMS = [EXACT_SYNONYM, RELATED_SYNONYM]
+LABEL = ['label']
+EXACT_SYNONYM = ['hasExactSynonym']
+RELATED_SYNONYM = ['hasRelatedSynonym']
+SYNONYMS = EXACT_SYNONYM + RELATED_SYNONYM
 
 # A single property value.
 @dataclass
@@ -80,7 +80,7 @@ class PrefixPropertyStore(AbstractContextManager):
             raise ValueError(f"Unable to get({curie}, {prop}): unsupported property {prop}.")
         results = self.connection.sql("SELECT curie, property, value, source FROM properties WHERE curie=$curie AND property=$property", params={
             "curie": curie,
-            "property": prop,
+            "property": supported_properties[prop],
         }).fetchall()
         return [PropertyValue(result[0], result[1], result[2], result[3]) for result in results]
 
@@ -93,8 +93,9 @@ class PrefixPropertyStore(AbstractContextManager):
             unsupported_properties = list(filter(lambda pr: pr not in supported_properties, props))
             if len(unsupported_properties) > 0:
                 raise ValueError(f"Unable to get_all_by_properties({props}): unsupported properties {unsupported_properties}.")
+        prop_iris = list(map(lambda pr: supported_properties[pr], props))
         results = self.connection.sql("SELECT curie, property, value, source FROM properties WHERE property IN $props", params={
-            'props': props,
+            'props': prop_iris,
         }).fetchall()
         return [PropertyValue(result[0], result[1], result[2], result[3]) for result in results]
 
@@ -155,7 +156,7 @@ class PrefixPropertyStore(AbstractContextManager):
             file.write('\t'.join(output) + '\n')
 
     def to_labels_tsv(self, file):
-        self.to_tsv(file, [LABEL], include_properties=False, include_sources=False)
+        self.to_tsv(file, LABEL, include_properties=False, include_sources=False)
 
     def to_synonyms_tsv(self, file):
         self.to_tsv(file, SYNONYMS, include_properties=True, include_sources=False)
