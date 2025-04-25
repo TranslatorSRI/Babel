@@ -1,4 +1,4 @@
-from src.babel_utils import pull_via_urllib, make_local_name
+from src.babel_utils import pull_via_urllib
 from src.prefixes import COMPLEXPORTAL
 
 def pull_complexportal():

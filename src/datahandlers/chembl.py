@@ -1,5 +1,5 @@
 from src.prefixes import CHEMBLCOMPOUND
-from src.babel_utils import pull_via_ftp, make_local_name
+from src.babel_utils import pull_via_ftp
 import ftplib
 import pyoxigraph
 
