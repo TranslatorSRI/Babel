@@ -5,7 +5,7 @@ from src.prefixes import RXCUI, PUBCHEMCOMPOUND, UMLS
 from src.categories import (CHEMICAL_ENTITY, DRUG, MOLECULAR_MIXTURE, FOOD, COMPLEX_MOLECULAR_MIXTURE,
                             SMALL_MOLECULE, NUCLEIC_ACID_ENTITY, MOLECULAR_ENTITY, FOOD_ADDITIVE,
                             ENVIRONMENTAL_FOOD_CONTAMINANT, PROCESSED_MATERIAL, CHEMICAL_MIXTURE, POLYPEPTIDE)
-from src.babel_utils import glom, get_numerical_curie_suffix
+from src.babel_utils import glom, get_numerical_curie_suffix, make_local_name
 from collections import defaultdict
 import os,json
 

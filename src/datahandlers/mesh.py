@@ -148,7 +148,7 @@ def write_ids(meshmap,outfile,order=['biolink:CellularComponent','biolink:Cell',
 
 
 #    ifname = make_local_name('mesh.nt', subpath='MESH')
-#    ofname = make_local_name('MESH', subpath='MESH/labels')
+#    ofname = make_local_name('write_ids', subpath='MESH/labels')
 #    badlines = 0
 #    with open(ofname, 'w') as outf, open(ifname,'r') as data:
 #        for line in data:
