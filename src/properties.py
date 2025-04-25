@@ -88,7 +88,8 @@ class PrefixPropertyStore(AbstractContextManager):
     def get_all_by_properties(self, props) -> list[PropertyValue]:
         if self.validate_properties:
             unsupported_properties = list(filter(lambda pr: pr not in supported_properties, props))
-            raise ValueError(f"Unable to get_all_by_properties({props}): unsupported properties {unsupported_properties}.")
+            if len(unsupported_properties) > 0:
+                raise ValueError(f"Unable to get_all_by_properties({props}): unsupported properties {unsupported_properties}.")
         results = self.connection.sql("SELECT curie, property, value, source FROM properties WHERE property IN $props", params={
             'props': props,
         }).fetchall()
