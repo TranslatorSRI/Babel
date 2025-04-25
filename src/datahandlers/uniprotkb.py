@@ -3,9 +3,7 @@ import logging
 import os
 
 import requests
-from requests import request
-
-from src.babel_utils import pull_via_urllib, make_local_name, pull_via_wget
+from src.babel_utils import make_local_name
 
 
 def readlabels(which):

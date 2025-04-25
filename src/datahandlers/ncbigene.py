@@ -10,8 +10,8 @@ def pull_ncbigene(filenames):
 def pull_ncbigene_labels_synonyms_and_taxa():
     # File format described here: https://ftp.ncbi.nlm.nih.gov/gene/DATA/README
     ifname = make_local_name('gene_info.gz', subpath='NCBIGene')
-    labelname = make_local_name('labels', subpath='NCBIGene')
-    synname = make_local_name('synonyms', subpath='NCBIGene')
+    labelname = make_local_name('pull_ncbigene_labels_synonyms_and_taxa', subpath='NCBIGene/labels')
+    synname = make_local_name('pull_ncbigene_labels_synonyms_and_taxa', subpath='NCBIGene/synonyms')
     taxaname = make_local_name('taxa', subpath='NCBIGene')
     bad_gene_types = {'biological-region', 'other', 'unknown'}
     with gzip.open(ifname, 'r') as inf, \

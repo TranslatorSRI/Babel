@@ -6,6 +6,7 @@ from pathlib import Path
 from snakemake.logging import Logger
 from bmt import Toolkit
 
+from src.babel_utils import make_local_name
 from src.node import NodeFactory
 from src.datahandlers import umls
 from src.prefixes import UMLS
@@ -206,7 +207,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
         reportf.write(f"Collected synonyms for {len(synonyms_by_id)} UMLS IDs into the leftover UMLS synonyms file.\n")
 
         # Write out synonyms to synonym file.
-        node_factory = NodeFactory('babel_downloads/UMLS/labels', biolink_version)
+        node_factory = NodeFactory(make_local_name(''), biolink_version)
         count_synonym_objs = 0
         with jsonlines.open(umls_synonyms, 'w') as umls_synonymsf:
             for id in synonyms_by_id:

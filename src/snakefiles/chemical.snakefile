@@ -28,23 +28,23 @@ rule chemical_mesh_ids:
 
 rule chemical_pubchem_ids:
     input:
-        infile=config['download_directory']+"/PUBCHEM.COMPOUND/labels",
+        labelsdir=directory(config['download_directory']+"/PUBCHEM.COMPOUND/labels"),
         smilesfile=config['download_directory']+"/PUBCHEM.COMPOUND/CID-SMILES.gz"
     output:
         outfile=config['intermediate_directory']+"/chemicals/ids/PUBCHEM.COMPOUND"
     run:
         #This one is a simple enough transform to do with awk
-        chemicals.write_pubchem_ids(input.infile,input.smilesfile,output.outfile)
+        chemicals.write_pubchem_ids(input.labelsdir,input.smilesfile,output.outfile)
         #"awk '{{print $1\"\tbiolink:ChemicalSubstance\"}}' {input.infile} > {output.outfile}"
 
 rule chemical_chembl_ids:
     input:
-        labelfile=config['download_directory']+"/CHEMBL.COMPOUND/labels",
+        labeldir=directory(config['download_directory']+"/CHEMBL.COMPOUND/labels"),
         smifile  =config['download_directory'] + "/CHEMBL.COMPOUND/smiles"
     output:
         outfile=config['intermediate_directory']+"/chemicals/ids/CHEMBL.COMPOUND"
     run:
-        chemicals.write_chemical_ids_from_labels_and_smiles(input.labelfile,input.smifile,output.outfile)
+        chemicals.write_chemical_ids_from_labels_and_smiles(input.labeldir,input.smifile,output.outfile)
 
 rule chemical_gtopdb_ids:
     input:
@@ -56,7 +56,7 @@ rule chemical_gtopdb_ids:
 
 rule chemical_kegg_ids:
     input:
-        infile=config['download_directory']+"/KEGG.COMPOUND/labels"
+        infile=config['download_directory']+"/KEGG.COMPOUND/labels/pull_kegg_compound_labels"
     output:
         outfile=config['intermediate_directory']+"/chemicals/ids/KEGG.COMPOUND"
     shell:
@@ -73,12 +73,12 @@ rule chemical_unii_ids:
 
 rule chemical_hmdb_ids:
     input:
-        labelfile=config['download_directory']+"/HMDB/labels",
+        labeldir=directory(config['download_directory']+"/HMDB/labels"),
         smifile=config['download_directory'] + "/HMDB/smiles"
     output:
         outfile=config['intermediate_directory']+"/chemicals/ids/HMDB"
     run:
-        chemicals.write_chemical_ids_from_labels_and_smiles(input.labelfile,input.smifile,output.outfile)
+        chemicals.write_chemical_ids_from_labels_and_smiles(input.labeldir,input.smifile,output.outfile)
 
 rule chemical_drugcentral_ids:
     input:
@@ -159,11 +159,11 @@ rule get_chemical_unichem_relationships:
 rule get_chemical_pubchem_mesh_concord:
     input:
         pubchemfile=config['download_directory'] + '/PUBCHEM.COMPOUND/CID-MeSH',
-        meshlabels=config['download_directory'] + '/MESH/labels'
+        meshlabelsdir=directory(config['download_directory'] + '/MESH/labels')
     output:
         outfile =  config['intermediate_directory'] + '/chemicals/concords/PUBCHEM_MESH'
     run:
-        chemicals.make_pubchem_mesh_concord(input.pubchemfile,input.meshlabels,output.outfile)
+        chemicals.make_pubchem_mesh_concord(input.pubchemfile,input.meshlabelsdir,output.outfile)
 
 rule get_chemical_pubchem_cas_concord:
     input:
@@ -201,7 +201,7 @@ rule chemical_unichem_concordia:
 
 rule untyped_chemical_compendia:
     input:
-        labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['chemical_labels']),
+        labeldirs=directory(expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['chemical_labels'])),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['chemical_synonyms']),
         unichemgroup = config['intermediate_directory']+'/chemicals/partials/UNICHEM',
         concords = expand('{dd}/chemicals/concords/{cc}',dd=config['intermediate_directory'], cc=config['chemical_concords'] ),

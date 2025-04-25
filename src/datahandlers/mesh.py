@@ -105,7 +105,7 @@ class Mesh:
                 WHERE { ?term rdfs:label ?label }
                 ORDER BY ?term
         """
-        ofname = make_local_name('labels', subpath='MESH')
+        ofname = make_local_name('pull_mesh_labels', subpath='MESH/labels')
         qres = self.m.query(s)
         with open(ofname, 'w', encoding='utf8') as outf:
             for row in list(qres):
@@ -148,7 +148,7 @@ def write_ids(meshmap,outfile,order=['biolink:CellularComponent','biolink:Cell',
 
 
 #    ifname = make_local_name('mesh.nt', subpath='MESH')
-#    ofname = make_local_name('labels', subpath='MESH')
+#    ofname = make_local_name('write_ids', subpath='MESH/labels')
 #    badlines = 0
 #    with open(ofname, 'w') as outf, open(ifname,'r') as data:
 #        for line in data:

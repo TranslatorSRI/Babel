@@ -54,8 +54,8 @@ rule get_EFO_labels:
     input:
         infile=config['download_directory'] + '/EFO/efo.owl'
     output:
-        labelfile=config['download_directory'] + '/EFO/labels',
-        synonymfile =config['download_directory'] + '/EFO/synonyms'
+        labelfile=config['download_directory'] + '/EFO/labels/get_EFO_labels',
+        synonymfile =config['download_directory'] + '/EFO/synonyms/get_EFO_labels'
     run:
         efo.make_labels(output.labelfile,output.synonymfile)
 
@@ -89,7 +89,7 @@ rule get_mods_labels:
     input:
         expand("{download_directory}/{mod}/GENE-DESCRIPTION-JSON_{mod}.json",download_directory=config['download_directory'], mod=config['mods']),
     output:
-        expand("{download_directory}/{mod}/labels",download_directory=config['download_directory'], mod=config['mods']),
+        expand("{download_directory}/{mod}/labels/write_labels",download_directory=config['download_directory'], mod=config['mods']),
     run:
         mods.write_labels(config['download_directory'])
 
@@ -118,7 +118,7 @@ rule get_uniprotkb_labels:
         sprot_input=config['download_directory']+'/UniProtKB/uniprot_sprot.fasta',
         trembl_input=config['download_directory']+'/UniProtKB/uniprot_trembl.fasta',
     output:
-        outfile=config['download_directory']+'/UniProtKB/labels'
+        outfile=config['download_directory']+'/UniProtKB/labels/pull_uniprot_labels'
     run:
         uniprotkb.pull_uniprot_labels(input.sprot_input,input.trembl_input,output.outfile)
 
@@ -471,7 +471,7 @@ rule gtopdb_labels_and_synonyms:
 
 rule keggcompound_labels:
     output:
-        labelfile=config['download_directory'] + '/KEGG.COMPOUND/labels'
+        labelfile=config['download_directory'] + '/KEGG.COMPOUND/labels/pull_kegg_compound_labels'
     run:
         kegg.pull_kegg_compound_labels(output.labelfile)
 

@@ -5,7 +5,7 @@ from src.prefixes import RXCUI, PUBCHEMCOMPOUND, UMLS
 from src.categories import (CHEMICAL_ENTITY, DRUG, MOLECULAR_MIXTURE, FOOD, COMPLEX_MOLECULAR_MIXTURE,
                             SMALL_MOLECULE, NUCLEIC_ACID_ENTITY, MOLECULAR_ENTITY, FOOD_ADDITIVE,
                             ENVIRONMENTAL_FOOD_CONTAMINANT, PROCESSED_MATERIAL, CHEMICAL_MIXTURE, POLYPEPTIDE)
-from src.babel_utils import glom, get_numerical_curie_suffix
+from src.babel_utils import glom, get_numerical_curie_suffix, make_local_name
 from collections import defaultdict
 import os,json
 
@@ -378,7 +378,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
     glom(gloms, pairs_to_be_glommed)
 
     # Set up a NodeFactory.
-    nodefactory = NodeFactory('', get_config()['biolink_version'])
+    nodefactory = NodeFactory(make_local_name(''), get_config()['biolink_version'])
 
     # Write out all the resulting cliques.
     written = set()

@@ -24,7 +24,7 @@ def pull_uber_labels(expected):
         ldict[p].add( ( unit['iri'], unit['label'] ) )
     for p in ldict:
         if p not in ['http','ro'] and not p.startswith('t') and not '#' in p:
-            fname = make_local_name('labels',subpath=p)
+            fname = make_local_name('pull_uber_labels',subpath=p + "/labels")
             with open(fname,'w') as outf:
                 for unit in ldict[p]:
                     outf.write(f'{unit[0]}\t{unit[1]}\n')
@@ -39,7 +39,7 @@ def pull_uber_descriptions(expected):
         ldict[p].add( ( unit['iri'], unit['description'] ) )
     for p in ldict:
         if p not in ['http','ro'] and not p.startswith('t') and not '#' in p:
-            fname = make_local_name('descriptions',subpath=p)
+            fname = make_local_name('pull_uber_descriptions',subpath=p + "/descriptions")
             with open(fname,'w') as outf:
                 for unit in ldict[p]:
                     outf.write(f'{unit[0]}\t{unit[1]}\n')
@@ -57,7 +57,7 @@ def pull_uber_synonyms(expected):
     # we are going to make some zero-length files for it
     for p in expected:
         if p not in ['http','ro'] and not p.startswith('t') and not '#' in p:
-            fname = make_local_name('synonyms',subpath=p)
+            fname = make_local_name('pull_uber_synonyms',subpath=p + "/synonyms")
             with open(fname,'w') as outf:
                 for unit in ldict[p]:
                     outf.write(f'{unit[0]}\t{unit[1]}\t{unit[2]}\n')

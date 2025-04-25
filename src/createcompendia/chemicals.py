@@ -1,4 +1,5 @@
 import logging
+import os
 from collections import defaultdict
 import jsonlines
 import requests
@@ -74,35 +75,40 @@ def build_chemical_umls_relationships(mrconso, idfile,outfile):
 def build_chemical_rxnorm_relationships(conso, idfile,outfile):
     umls.build_sets(conso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, cui_prefix=RXCUI)
 
-def write_pubchem_ids(labelfile,smilesfile,outfile):
+def write_pubchem_ids(labeldir, smilesfile, outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
     # but since they're already sorted, let's give it a shot
-    with open(labelfile,'r') as inlabels, gzip.open(smilesfile, 'rt', encoding='utf-8') as insmiles, open(outfile,'w') as outf:
-        sn = -1
-        flag_file_ended = False
-        for labelline in inlabels:
-            x = labelline.split('\t')[0]
-            pn = int(x.split(':')[-1])
-            while not flag_file_ended and sn < pn:
-                line = insmiles.readline()
-                if line == '':
-                    # Get this: a blank line in readline() means that we've reached the end-of-file.
-                    # (A '\n' would indicate that we've just read a blank line.)
-                    flag_file_ended = True
-                    break
-                smiline = line.strip().split('\t')
-                if len(smiline) != 2:
-                    raise RuntimeError(f"Could not parse line from {smilesfile}: '{line}'")
-                sn = int(smiline[0])
+    with gzip.open(smilesfile, 'rt', encoding='utf-8') as insmiles, open(outfile, 'w') as outf:
+        for labelfile in os.listdir(labeldir):
+            labelpath = os.path.join(labeldir, labelfile)
+            if not os.path.isfile(labelpath):
+                continue
+            with open(labelpath, 'r') as inlabels:
+                sn = -1
+                flag_file_ended = False
+                for labelline in inlabels:
+                    x = labelline.split('\t')[0]
+                    pn = int(x.split(':')[-1])
+                    while not flag_file_ended and sn < pn:
+                        line = insmiles.readline()
+                        if line == '':
+                            # Get this: a blank line in readline() means that we've reached the end-of-file.
+                            # (A '\n' would indicate that we've just read a blank line.)
+                            flag_file_ended = True
+                            break
+                        smiline = line.strip().split('\t')
+                        if len(smiline) != 2:
+                            raise RuntimeError(f"Could not parse line from {smilesfile}: '{line}'")
+                        sn = int(smiline[0])
 
-            if sn == pn:
-                #We have a smiles for this id
-                stype = get_type_from_smiles(smiline[1])
-                outf.write(f'{x}\t{stype}\n')
-            else:
-                #sn > pn, we went past it.  No smiles for that
-                print('no smiles:',x,pn,sn)
-                outf.write(f'{x}\t{CHEMICAL_ENTITY}\n')
+                    if sn == pn:
+                        #We have a smiles for this id
+                        stype = get_type_from_smiles(smiline[1])
+                        outf.write(f'{x}\t{stype}\n')
+                    else:
+                        #sn > pn, we went past it.  No smiles for that
+                        print('no smiles:',x,pn,sn)
+                        outf.write(f'{x}\t{CHEMICAL_ENTITY}\n')
 
 
 def write_mesh_ids(outfile):
@@ -209,20 +215,25 @@ def write_drugbank_ids(infile,outfile):
                 outf.write(f'{dbid}\t{CHEMICAL_ENTITY}\n')
                 written.add(x[2])
 
-def write_chemical_ids_from_labels_and_smiles(labelfile,smifile,outfile):
+def write_chemical_ids_from_labels_and_smiles(labeldir,smifile,outfile):
     smiles = {}
     with open(smifile,'r') as inf:
         for line in inf:
             x = line.strip().split('\t')
             smiles[x[0]] = x[1]
-    with open(labelfile,'r') as inf, open(outfile,'w') as outf:
-        for line in inf:
-            hmdbid = line.split('\t')[0]
-            if hmdbid in smiles:
-                ctype = get_type_from_smiles(smiles[hmdbid])
-            else:
-                ctype = CHEMICAL_ENTITY
-            outf.write(f'{hmdbid}\t{ctype}\n')
+    with open(outfile,'w') as outf:
+        for labelfile in os.listdir(labeldir):
+            labelpath = os.path.join(labeldir,labelfile)
+            if not os.path.isfile(labelpath):
+                continue
+            with open(labelpath,'r') as inf:
+                for line in inf:
+                    hmdbid = line.split('\t')[0]
+                    if hmdbid in smiles:
+                        ctype = get_type_from_smiles(smiles[hmdbid])
+                    else:
+                        ctype = CHEMICAL_ENTITY
+                    outf.write(f'{hmdbid}\t{ctype}\n')
 
 
 def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
@@ -363,17 +374,22 @@ def make_pubchem_cas_concord(pubchemsynonyms, outfile):
             if is_cas(x[1]):
                 outf.write(f'{x[0]}\txref\tCAS:{x[1]}\n')
 
-def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile):
+def make_pubchem_mesh_concord(pubcheminput,meshlabelsdir,outfile):
     mesh_label_to_id={}
     #Meshlabels has all kinds of stuff. e.g. these are both in there:
     #MESH:D014867    Water
     #MESH:M0022883   Water
     #but we only want the ones that are MESH:D... or MESH:C....
-    with open(meshlabels,'r') as inf:
-        for line in inf:
-            x = line.strip().split('\t')
-            if x[0].split(':')[-1][0] in ['C','D']:
-                mesh_label_to_id[x[1]] = x[0]
+    for meshlabelsfile in os.listdir(meshlabelsdir):
+        meshlabels = os.path.join(meshlabelsdir,meshlabelsfile)
+        if not os.path.isfile(meshlabels):
+            continue
+        with open(meshlabels,'r') as inf:
+            for line in inf:
+                x = line.strip().split('\t')
+                if x[0].split(':')[-1][0] in ['C','D']:
+                    mesh_label_to_id[x[1]] = x[0]
+
     #The pubchem - mesh pairs are supposed to be ordered in this file such that the
     # first mapping is the 'best' i.e. the one most frequently reported.
     # We will only use the first one

@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 
 from src.prefixes import EFO,ORPHANET
@@ -159,6 +160,8 @@ class EFOgraph:
 
 def make_labels(labelfile,synfile):
     m = EFOgraph()
+    os.makedirs(os.path.dirname(labelfile),exist_ok=True)
+    os.makedirs(os.path.dirname(synfile),exist_ok=True)
     m.pull_EFO_labels_and_synonyms(labelfile,synfile)
 
 def make_ids(roots,idfname):

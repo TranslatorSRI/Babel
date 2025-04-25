@@ -1,5 +1,5 @@
 from src.ubergraph import UberGraph
-from src.babel_utils import make_local_name, pull_via_ftp
+from src.babel_utils import make_local_name, pull_via_ftp, pull_via_urllib
 from collections import defaultdict
 import os, gzip
 from json import loads,dumps
@@ -8,7 +8,7 @@ def pull_pubchem_labels():
     print('LABEL PUBCHEM')
     f_name =  'CID-Title.gz'
     cname = pull_via_ftp('ftp.ncbi.nlm.nih.gov','/pubchem/Compound/Extras/', f_name, outfilename=f_name)
-    fname = make_local_name('labels', subpath='PUBCHEM.COMPOUND')
+    fname = make_local_name('pull_pubchem_labels', subpath='PUBCHEM.COMPOUND/labels')
     with open(fname, 'w') as outf, gzip.open(cname,mode='rt',encoding='latin-1') as inf:
         for line in inf:
             x = line.strip().split('\t')
@@ -17,7 +17,7 @@ def pull_pubchem_labels():
 def pull_pubchem_synonyms():
     f_name = 'CID-Synonym-filtered.gz'
     sname = pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/pubchem/Compound/Extras/', f_name, outfilename=f_name)
-    fname = make_local_name('synonyms', subpath='PUBCHEM.COMPOUND')
+    fname = make_local_name('pull_pubchem_synonyms', subpath='PUBCHEM.COMPOUND/synonyms')
     with open(fname, 'w') as outf, gzip.open(sname,mode='rt',encoding='latin-1') as inf:
         for line in inf:
             x = line.strip().split('\t')
@@ -30,28 +30,6 @@ def pull_pubchem_synonyms():
 def pull_pubchem():
     pull_pubchem_labels()
     pull_pubchem_synonyms()
-
-def pull_hgnc():
-    data = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/genenames/new/json', 'hgnc_complete_set.json')
-    hgnc_json = loads(data)
-    lname = make_local_name('labels', subpath='HGNC')
-    sname = make_local_name('synonyms', subpath='HGNC')
-    with open(lname,'w') as lfile, open(sname,'w') as sfile:
-        for gene in hgnc_json['response']['docs']:
-            hgnc_id =gene['hgnc_id']
-            symbol = gene['symbol']
-            lfile.write(f'{hgnc_id}\t{symbol}\n')
-            name = gene['name']
-            sfile.write(f'{hgnc_id}\thttp://www.geneontology.org/formats/oboInOwl#hasExactSynonym\t{name}\n')
-            if 'alias_symbol' in gene:
-                alias_symbols = gene['alias_symbol']
-                for asym in alias_symbols:
-                    sfile.write(f'{hgnc_id}\thttp://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym\t{asym}\n')
-            if 'alias_name' in gene:
-                alias_names = gene['alias_name']
-                for asym in alias_names:
-                    sfile.write(f'{hgnc_id}\thttp://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym\t{asym}\n')
-
 
 def pull_prot(which,refresh):
     #swissname = pull_via_ftplib('ftp.uniprot.org','/pub/databases/uniprot/current_release/knowledgebase/complete/',f'uniprot_{which}.fasta.gz',decompress_data=True,outfilename=f'uniprot_{which}.fasta')
@@ -82,7 +60,7 @@ def pull_prot(which,refresh):
 
 def pull_prots(refresh_swiss=False,refresh_trembl=False):
     swiss,labels = pull_prot('sprot',refresh_swiss)
-    fname = make_local_name('labels', subpath='UNIPROTKB')
+    fname = make_local_name('pull_prots', subpath='UNIPROTKB/labels')
     with open(fname,'w') as synonyms:
         for k,v in labels.items():
             synonyms.write(f'{k}\t{v}\n')
