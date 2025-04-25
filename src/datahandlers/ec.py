@@ -1,9 +1,13 @@
+import os
+
 from src.prefixes import EC
 from src.categories import MOLECULAR_ACTIVITY
 from src.babel_utils import pull_via_urllib
 from src.babel_utils import make_local_name, pull_via_ftp
 import pyoxigraph
 from collections import defaultdict
+
+from src.properties import PrefixPropertyStore
 
 
 def pull_ec():
@@ -29,8 +33,10 @@ class ECgraph:
         end = dt.now()
         print('loading complete')
         print(f'took {end-start}')
+
     def pull_EC_labels_and_synonyms(self,lname,sname):
-        with open(lname, 'w') as labelfile, open(sname,'w') as synfile:
+        prefix_path = os.path.dirname(lname)
+        with PrefixPropertyStore(prefix_path=prefix_path) as pps:
             #for labeltype in ['skos:prefLabel','skos:altLabel','rdfs:label']:
             for labeltype in ['skos:prefLabel','skos:altLabel','rdfs:label']:
                 s=f"""   PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -48,6 +54,12 @@ class ECgraph:
                     synfile.write(f'{EC}:{ecid}\t{labeltype}\t{label}\n')
                     if not labeltype == 'skos:altLabel':
                         labelfile.write(f'{EC}:{ecid}\t{label}\n')
+
+            with open(lname, 'w') as labelfile, open(sname,'w') as synfile:
+                pps.to_file(labelfile)
+                pps.to_file(synfile)
+
+
     def pull_EC_ids(self,idfname):
         with open(idfname, 'w') as idfile:
             s="""  PREFIX ec: <http://purl.uniprot.org/enzyme/>

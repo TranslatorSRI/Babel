@@ -39,7 +39,7 @@ def pull_pubchem_labels(infile, labelfile):
                 x = line.strip().split('\t')
                 pps.insert_values(curie=x[0], prop='label', values=[x[1]], source="datacollect.py:pull_pubchem_labels()")
             pps.commit_transaction()
-            pps.to_tsv(outf)
+            pps.to_labels_tsv(outf)
 
 def pull_pubchem_synonyms(infile, synonymfile):
     with PrefixPropertyStore(prefix=PUBCHEMCOMPOUND, autocommit=False) as pps:
@@ -53,4 +53,4 @@ def pull_pubchem_synonyms(infile, synonymfile):
                     continue
                 pps.insert_values(curie=x[0], prop='hasRelatedSynonym', values=[x[1]], source="datacollect.py:pull_pubchem_synonyms()")
             pps.commit_transaction()
-            pps.to_tsv(outf, include_properties=True)
+            pps.to_synonyms_tsv(outf)

@@ -40,6 +40,6 @@ def pull_hgnc_labels_and_synonyms(infile, labelfile, synonymfile):
 
         pps.commit_transaction()
         with open(labelfile,'w') as lfile:
-            pps.to_tsv(lfile, include_properties=False)
+            pps.to_labels_tsv(lfile)
         with open(synonymfile,'w') as sfile:
-            pps.to_tsv(sfile, include_properties=True)
+            pps.to_synonyms_tsv(sfile)

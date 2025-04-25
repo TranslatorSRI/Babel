@@ -31,6 +31,11 @@ supported_properties = {
     'hasRelatedSynonym': 'http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym',
 }
 
+LABEL = 'label'
+EXACT_SYNONYM = 'hasExactSynonym'
+RELATED_SYNONYM = 'hasRelatedSynonym'
+SYNONYMS = [EXACT_SYNONYM, RELATED_SYNONYM]
+
 # A single property value.
 @dataclass
 class PropertyValue:
@@ -80,6 +85,16 @@ class PrefixPropertyStore(AbstractContextManager):
         results = self.connection.sql("SELECT curie, property, value, source FROM properties").fetchall()
         return [PropertyValue(result[0], result[1], result[2], result[3]) for result in results]
 
+    def get_all_by_properties(self, props) -> list[PropertyValue]:
+        if self.validate_properties:
+            unsupported_properties = list(filter(lambda pr: pr not in supported_properties, props))
+            raise ValueError(f"Unable to get_all_by_properties({props}): unsupported properties {unsupported_properties}.")
+        results = self.connection.sql("SELECT curie, property, value, source FROM properties WHERE property IN $props", params={
+            'props': props,
+        }).fetchall()
+        return [PropertyValue(result[0], result[1], result[2], result[3]) for result in results]
+
+
     def get_all_for_curie(self, curie) -> list[PropertyValue]:
         all_props = self.get_properties(curie)
         return [pv for prop in all_props for pv in self.get(curie, prop)]
@@ -126,14 +141,20 @@ class PrefixPropertyStore(AbstractContextManager):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.connection.close()
 
-    def to_tsv(self, file, include_properties=False, include_sources=False):
-        for pv in self.get_all():
+    def to_tsv(self, file, properties, include_properties=False, include_sources=False):
+        for pv in self.get_all_by_properties(properties):
             output = [pv.curie, pv.value]
             if include_properties:
                 output.insert(1, pv.property)
             if include_sources:
                 output.append(pv.source)
             file.write('\t'.join(output) + '\n')
+
+    def to_labels_tsv(self, file):
+        self.to_tsv(file, [LABEL], include_properties=False, include_sources=False)
+
+    def to_synonyms_tsv(self, file):
+        self.to_tsv(file, SYNONYMS, include_properties=True, include_sources=False)
 
     def add_label(self, curie, label, source):
         self.insert_values(curie, 'label', [label], source)
