@@ -31,9 +31,9 @@ supported_properties = {
     'hasRelatedSynonym': 'http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym',
 }
 
-LABEL = 'label'
-EXACT_SYNONYM = 'hasExactSynonym'
-RELATED_SYNONYM = 'hasRelatedSynonym'
+LABEL = supported_properties['label']
+EXACT_SYNONYM = supported_properties['hasExactSynonym']
+RELATED_SYNONYM = supported_properties['hasRelatedSynonym']
 SYNONYMS = [EXACT_SYNONYM, RELATED_SYNONYM]
 
 # A single property value.
