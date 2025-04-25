@@ -28,6 +28,7 @@ from src.babel_utils import make_local_name
 supported_properties = {
     'label': 'http://www.w3.org/2000/01/rdf-schema#label',
     'hasExactSynonym': 'http://www.geneontology.org/formats/oboInOwl#hasExactSynonym',
+    'hasRelatedSynonym': 'http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym',
 }
 
 # A single property value.
@@ -124,3 +125,12 @@ class PrefixPropertyStore(AbstractContextManager):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.connection.close()
+
+    def to_tsv(self, file, include_properties=False, include_sources=False):
+        for pv in self.get_all():
+            output = [pv.curie, pv.value]
+            if include_properties:
+                output.insert(1, pv.property)
+            if include_sources:
+                output.append(pv.source)
+            file.write('\t'.join(output) + '\n')

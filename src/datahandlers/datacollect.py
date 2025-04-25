@@ -1,3 +1,5 @@
+from src.prefixes import PUBCHEMCOMPOUND
+from src.properties import PrefixPropertyStore
 from src.ubergraph import UberGraph
 from src.babel_utils import make_local_name, pull_via_ftp
 from collections import defaultdict
@@ -5,27 +7,34 @@ import os, gzip
 from json import loads,dumps
 
 def pull_pubchem_labels():
-    print('LABEL PUBCHEM')
     f_name =  'CID-Title.gz'
     cname = pull_via_ftp('ftp.ncbi.nlm.nih.gov','/pubchem/Compound/Extras/', f_name, outfilename=f_name)
-    fname = make_local_name('labels', subpath='PUBCHEM.COMPOUND')
-    with open(fname, 'w') as outf, gzip.open(cname,mode='rt',encoding='latin-1') as inf:
-        for line in inf:
-            x = line.strip().split('\t')
-            outf.write(f'PUBCHEM.COMPOUND:{x[0]}\t{x[1]}\n')
+    fname = make_local_name('labels', subpath=PUBCHEMCOMPOUND)
+    with PrefixPropertyStore(prefix=PUBCHEMCOMPOUND, autocommit=False) as pps:
+        with open(fname, 'w') as outf, gzip.open(cname,mode='rt',encoding='latin-1') as inf:
+            pps.begin_transaction()
+            for line in inf:
+                x = line.strip().split('\t')
+                pps.insert_values(curie=x[0], prop='label', values=[x[1]], source="datacollect.py:pull_pubchem_labels()")
+            pps.commit_transaction()
+            pps.to_tsv(outf)
 
 def pull_pubchem_synonyms():
     f_name = 'CID-Synonym-filtered.gz'
     sname = pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/pubchem/Compound/Extras/', f_name, outfilename=f_name)
-    fname = make_local_name('synonyms', subpath='PUBCHEM.COMPOUND')
-    with open(fname, 'w') as outf, gzip.open(sname,mode='rt',encoding='latin-1') as inf:
-        for line in inf:
-            x = line.strip().split('\t')
-            if x[1].startswith('CHEBI'):
-                continue
-            if x[1].startswith('SCHEMBL'):
-                continue
-            outf.write(f'PUBCHEM.COMPOUND:{x[0]}\thttp://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym\t{x[1]}\n')
+    fname = make_local_name('synonyms', subpath=PUBCHEMCOMPOUND)
+    with PrefixPropertyStore(prefix=PUBCHEMCOMPOUND, autocommit=False) as pps:
+        with open(fname, 'w') as outf, gzip.open(sname,mode='rt',encoding='latin-1') as inf:
+            pps.begin_transaction()
+            for line in inf:
+                x = line.strip().split('\t')
+                if x[1].startswith('CHEBI'):
+                    continue
+                if x[1].startswith('SCHEMBL'):
+                    continue
+                pps.insert_values(curie=x[0], prop='hasRelatedSynonym', values=[x[1]], source="datacollect.py:pull_pubchem_synonyms()")
+            pps.commit_transaction()
+            pps.to_tsv(outf, include_properties=True)
 
 def pull_pubchem():
     pull_pubchem_labels()
