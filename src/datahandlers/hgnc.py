@@ -20,6 +20,7 @@ def pull_hgnc_labels_and_synonyms(infile, labelfile, synonymfile):
         hgnc_json = json.load(data)
 
     with PrefixPropertyStore(prefix=HGNC, autocommit=False) as pps:
+        pps.begin_transaction()
         for gene in hgnc_json['response']['docs']:
             hgnc_id =gene['hgnc_id']
             symbol = gene['symbol']
@@ -37,6 +38,7 @@ def pull_hgnc_labels_and_synonyms(infile, labelfile, synonymfile):
                 for asym in alias_names:
                     pps.add_related_synonym(hgnc_id, asym, source)
 
+        pps.commit_transaction()
         with open(labelfile,'w') as lfile:
             pps.to_tsv(lfile, include_properties=False)
         with open(synonymfile,'w') as sfile:
