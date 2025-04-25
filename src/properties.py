@@ -64,7 +64,10 @@ class PrefixPropertyStore(AbstractContextManager):
 
         # Load or create a public store.
         self.connection = duckdb.connect(os.path.join(prefix_directory, 'properties.duckdb'))
-        self.connection.sql("CREATE TABLE IF NOT EXISTS properties (curie TEXT, property TEXT, value TEXT, source TEXT);")
+        self.connection.sql("CREATE TABLE IF NOT EXISTS properties (curie TEXT, property TEXT, value TEXT, source TEXT) ;")
+        # Create a UNIQUE index on the property values -- this means that if someone tries to set a value for a property
+        # either duplicatively or from another source, we simply ignore it.
+        self.connection.sql("CREATE UNIQUE INDEX IF NOT EXISTS properties_propvalues ON properties USING (curie, property, value);")
         self.connection.commit()
 
     def get_properties(self, curie) -> list[str]:
@@ -109,7 +112,7 @@ class PrefixPropertyStore(AbstractContextManager):
         for pv in pvs:
             if self.validate_properties and pv.property not in supported_properties:
                 raise ValueError(f"Unable to insert_all({pvs}): unsupported property {pv.property} in {pv}.")
-            self.connection.sql("INSERT INTO properties VALUES ($curie, $property, $value, $source)", params={
+            self.connection.sql("INSERT OR IGNORE INTO properties VALUES ($curie, $property, $value, $source)", params={
                 "curie": pv.curie,
                 "property": supported_properties[pv.property],
                 "value": pv.value,
@@ -124,7 +127,7 @@ class PrefixPropertyStore(AbstractContextManager):
         if self.autocommit:
             self.connection.begin()
         for value in values:
-            self.connection.sql("INSERT INTO properties VALUES ($curie, $property, $value, $source)", params={
+            self.connection.sql("INSERT OR IGNORE INTO properties VALUES ($curie, $property, $value, $source)", params={
                 "curie": curie,
                 "property": supported_properties[prop],
                 "value": value,
