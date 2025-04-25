@@ -1,65 +1,33 @@
-from src.prefixes import PUBCHEMCOMPOUND
+from src.prefixes import HGNC, UNIPROTKB
 from src.properties import PrefixPropertyStore
-from src.ubergraph import UberGraph
-from src.babel_utils import make_local_name, pull_via_ftp
-from collections import defaultdict
-import os, gzip
-from json import loads,dumps
-
-def pull_pubchem_labels():
-    f_name =  'CID-Title.gz'
-    cname = pull_via_ftp('ftp.ncbi.nlm.nih.gov','/pubchem/Compound/Extras/', f_name, outfilename=f_name)
-    fname = make_local_name('labels', subpath=PUBCHEMCOMPOUND)
-    with PrefixPropertyStore(prefix=PUBCHEMCOMPOUND, autocommit=False) as pps:
-        with open(fname, 'w') as outf, gzip.open(cname,mode='rt',encoding='latin-1') as inf:
-            pps.begin_transaction()
-            for line in inf:
-                x = line.strip().split('\t')
-                pps.insert_values(curie=x[0], prop='label', values=[x[1]], source="datacollect.py:pull_pubchem_labels()")
-            pps.commit_transaction()
-            pps.to_tsv(outf)
-
-def pull_pubchem_synonyms():
-    f_name = 'CID-Synonym-filtered.gz'
-    sname = pull_via_ftp('ftp.ncbi.nlm.nih.gov', '/pubchem/Compound/Extras/', f_name, outfilename=f_name)
-    fname = make_local_name('synonyms', subpath=PUBCHEMCOMPOUND)
-    with PrefixPropertyStore(prefix=PUBCHEMCOMPOUND, autocommit=False) as pps:
-        with open(fname, 'w') as outf, gzip.open(sname,mode='rt',encoding='latin-1') as inf:
-            pps.begin_transaction()
-            for line in inf:
-                x = line.strip().split('\t')
-                if x[1].startswith('CHEBI'):
-                    continue
-                if x[1].startswith('SCHEMBL'):
-                    continue
-                pps.insert_values(curie=x[0], prop='hasRelatedSynonym', values=[x[1]], source="datacollect.py:pull_pubchem_synonyms()")
-            pps.commit_transaction()
-            pps.to_tsv(outf, include_properties=True)
-
-def pull_pubchem():
-    pull_pubchem_labels()
-    pull_pubchem_synonyms()
+from src.babel_utils import make_local_name, pull_via_ftp, pull_via_urllib
+from json import loads
 
 def pull_hgnc():
     data = pull_via_ftp('ftp.ebi.ac.uk', '/pub/databases/genenames/new/json', 'hgnc_complete_set.json')
     hgnc_json = loads(data)
-    lname = make_local_name('labels', subpath='HGNC')
-    sname = make_local_name('synonyms', subpath='HGNC')
-    with open(lname,'w') as lfile, open(sname,'w') as sfile:
+    lname = make_local_name('labels', subpath=HGNC)
+    sname = make_local_name('synonyms', subpath=HGNC)
+    with PrefixPropertyStore(prefix=HGNC, autocommit=False) as pps:
         for gene in hgnc_json['response']['docs']:
             hgnc_id =gene['hgnc_id']
             symbol = gene['symbol']
-            lfile.write(f'{hgnc_id}\t{symbol}\n')
+            pps.insert_values(curie=hgnc_id, prop='label', values=[symbol], source="datacollect.py:pull_hgnc()")
+
             name = gene['name']
-            sfile.write(f'{hgnc_id}\thttp://www.geneontology.org/formats/oboInOwl#hasExactSynonym\t{name}\n')
+            pps.insert_values(curie=hgnc_id, prop='hasExactSynonym', values=[name], source="datacollect.py:pull_hgnc()")
             if 'alias_symbol' in gene:
                 alias_symbols = gene['alias_symbol']
                 for asym in alias_symbols:
-                    sfile.write(f'{hgnc_id}\thttp://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym\t{asym}\n')
+                    pps.insert_values(curie=hgnc_id, prop='hasRelatedSynonym', values=[asym], source="datacollect.py:pull_hgnc()")
             if 'alias_name' in gene:
                 alias_names = gene['alias_name']
                 for asym in alias_names:
-                    sfile.write(f'{hgnc_id}\thttp://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym\t{asym}\n')
+                    pps.insert_values(curie=hgnc_id, prop='hasRelatedSynonym', values=[asym], source="datacollect.py:pull_hgnc()")
+
+        with open(lname,'w') as lfile, open(sname,'w') as sfile:
+            pps.to_tsv(lfile, include_properties=False)
+            pps.to_tsv(sfile, include_properties=True)
 
 
 def pull_prot(which,refresh):
@@ -78,7 +46,7 @@ def pull_prot(which,refresh):
                 #example fasta line:
                 #>sp|Q6GZX4|001R_FRG3G Putative transcription factor 001R OS=Frog virus 3 (isolate Goorha) OX=654924 GN=FV3-001R PE=4 SV=1
                 x = line.split('|')
-                uniprotid = f'UniProtKB:{x[1]}'
+                uniprotid = f'{UNIPROTKB}:{x[1]}'
                 name = x[2].split(' OS=')[0]
                 swissprot_labels[uniprotid] = f'{name} ({which})'
             #if nlines > maxn:
@@ -91,7 +59,7 @@ def pull_prot(which,refresh):
 
 def pull_prots(refresh_swiss=False,refresh_trembl=False):
     swiss,labels = pull_prot('sprot',refresh_swiss)
-    fname = make_local_name('labels', subpath='UNIPROTKB')
+    fname = make_local_name('labels', subpath=UNIPROTKB)
     with open(fname,'w') as synonyms:
         for k,v in labels.items():
             synonyms.write(f'{k}\t{v}\n')

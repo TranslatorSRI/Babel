@@ -532,18 +532,18 @@ rule pubchem_labels:
     input:
         infile = config['download_directory'] + '/PUBCHEM.COMPOUND/CID-Title.gz'
     output:
-        outfile = config['download_directory'] + '/PUBCHEM.COMPOUND/labels'
+        labelfile = config['download_directory'] + '/PUBCHEM.COMPOUND/labels'
     run:
-        pubchem.make_labels_or_synonyms(input.infile,output.outfile)
+        pubchem.pull_pubchem_labels(input.infile, output.labelfile)
 
 
 rule pubchem_synonyms:
     input:
         infile = config['download_directory'] + '/PUBCHEM.COMPOUND/CID-Synonym-filtered.gz',
     output:
-        outfile  = config['download_directory'] + '/PUBCHEM.COMPOUND/synonyms'
+        synonymfile = config['download_directory'] + '/PUBCHEM.COMPOUND/synonyms'
     run:
-        pubchem.make_labels_or_synonyms(input.infile,output.outfile)
+        pubchem.pull_pubchem_synonyms(input.infile, output.synonymfile)
 
 rule download_rxnorm:
     output:

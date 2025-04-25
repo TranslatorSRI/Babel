@@ -42,7 +42,7 @@ def merge(geneproteinlist):
     geneprotein['type'] = ['biolink:Gene'] + protein['type']
     return geneprotein
 
-kl={'NCBIGene':0, 'UniProtKB':1}
+kl={NCBIGENE:0, UNIPROTKB:1}
 def gpkey(curie):
     """There are only NCBIGene and UniProtKB.  I want all the NCBI first and UniProt second, and after that, lexically sorted"""
     pref = curie.split(':')[0]

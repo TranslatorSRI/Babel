@@ -95,7 +95,7 @@ class PrefixPropertyStore(AbstractContextManager):
                 raise ValueError(f"Unable to insert_all({pvs}): unsupported property {pv.property} in {pv}.")
             self.connection.sql("INSERT INTO properties VALUES ($curie, $property, $value, $source)", params={
                 "curie": pv.curie,
-                "property": pv.property,
+                "property": supported_properties[pv.property],
                 "value": pv.value,
                 "source": pv.source,
             })
@@ -110,7 +110,7 @@ class PrefixPropertyStore(AbstractContextManager):
         for value in values:
             self.connection.sql("INSERT INTO properties VALUES ($curie, $property, $value, $source)", params={
                 "curie": curie,
-                "property": prop,
+                "property": supported_properties[prop],
                 "value": value,
                 "source": source,
             })

@@ -1,5 +1,6 @@
 from src.prefixes import PUBCHEMCOMPOUND
 from src.babel_utils import pull_via_wget
+from src.properties import PrefixPropertyStore
 import gzip
 import requests
 import json
@@ -30,10 +31,26 @@ def pull_rxnorm_annotations(outname):
     with open(outname,"w") as outf:
         outf.write(json.dumps(base_response,indent=4))
 
-def make_labels_or_synonyms(infile,outfile):
-    with gzip.open(infile, 'r') as inf, open(outfile,'w') as outf:
-        for l in inf:
-            line = l.decode('latin1')
-            x = line.strip().split('\t')
-            outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\t{x[1]}\n')
+def pull_pubchem_labels(infile, labelfile):
+    with PrefixPropertyStore(prefix=PUBCHEMCOMPOUND, autocommit=False) as pps:
+        with open(labelfile, 'w') as outf, gzip.open(infile,mode='rt',encoding='latin-1') as inf:
+            pps.begin_transaction()
+            for line in inf:
+                x = line.strip().split('\t')
+                pps.insert_values(curie=x[0], prop='label', values=[x[1]], source="datacollect.py:pull_pubchem_labels()")
+            pps.commit_transaction()
+            pps.to_tsv(outf)
 
+def pull_pubchem_synonyms(infile, synonymfile):
+    with PrefixPropertyStore(prefix=PUBCHEMCOMPOUND, autocommit=False) as pps:
+        with open(synonymfile, 'w') as outf, gzip.open(infile,mode='rt',encoding='latin-1') as inf:
+            pps.begin_transaction()
+            for line in inf:
+                x = line.strip().split('\t')
+                if x[1].startswith('CHEBI'):
+                    continue
+                if x[1].startswith('SCHEMBL'):
+                    continue
+                pps.insert_values(curie=x[0], prop='hasRelatedSynonym', values=[x[1]], source="datacollect.py:pull_pubchem_synonyms()")
+            pps.commit_transaction()
+            pps.to_tsv(outf, include_properties=True)
