@@ -378,7 +378,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
     glom(gloms, pairs_to_be_glommed)
 
     # Set up a NodeFactory.
-    nodefactory = NodeFactory('', get_config()['biolink_version'])
+    nodefactory = NodeFactory(make_local_name(''), get_config()['biolink_version'])
 
     # Write out all the resulting cliques.
     written = set()
