@@ -67,7 +67,7 @@ class PrefixPropertyStore(AbstractContextManager):
         self.connection.sql("CREATE TABLE IF NOT EXISTS properties (curie TEXT, property TEXT, value TEXT, source TEXT) ;")
         # Create a UNIQUE index on the property values -- this means that if someone tries to set a value for a property
         # either duplicatively or from another source, we simply ignore it.
-        self.connection.sql("CREATE UNIQUE INDEX IF NOT EXISTS properties_propvalues ON properties USING (curie, property, value);")
+        self.connection.sql("CREATE UNIQUE INDEX IF NOT EXISTS properties_propvalues ON properties (curie, property, value);")
         self.connection.commit()
 
     def get_properties(self, curie) -> list[str]:
