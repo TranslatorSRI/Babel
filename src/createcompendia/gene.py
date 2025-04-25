@@ -18,10 +18,16 @@ logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
 def write_mods_ids(dd,id,modlist):
     for mod in modlist:
-        with open(f'{dd}/{mod}/labels','r') as inf, open(f'{id}/gene/ids/{mod}','w') as outf:
-            for line in inf:
-                x = line.split('\t')[0]
-                outf.write(f'{x}\n')
+        with open(f'{id}/gene/ids/{mod}','w') as outf:
+            for labelfile in os.listdir(f'{dd}/{mod}/labels'):
+                labelfile_path = f'{dd}/{mod}/labels/{labelfile}'
+                if not os.path.isfile(labelfile_path):
+                    # Skip label files.
+                    continue
+                with open(labelfile_path,'r') as inf:
+                    for line in inf:
+                        x = line.split('\t')[0]
+                        outf.write(f'{x}\n')
 
 def build_gene_ensembl_relationships(ensembl_dir, outfile):
     """Loop over all the ensembl species.  Find any protein-coding gene"""
