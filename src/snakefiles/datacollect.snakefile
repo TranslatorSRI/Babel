@@ -195,7 +195,7 @@ rule get_obo_synonyms:
 
 rule get_obo_descriptions:
     output:
-        obo_descriptions=config['download_directory']+'/common/ubergraph/descriptions'
+        obo_descriptions=config['download_directory']+'/common/ubergraph/descriptions.jsonl'
     run:
         obo.pull_uber_descriptions(output.obo_descriptions)
 

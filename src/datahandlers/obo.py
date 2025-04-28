@@ -1,3 +1,5 @@
+import json
+
 from src.ubergraph import UberGraph
 from src.babel_utils import make_local_name, pull_via_ftp
 from src.node import get_config
@@ -29,20 +31,18 @@ def pull_uber_labels(outputfile):
                 for unit in ldict[p]:
                     outf.write(f'{unit[0]}\t{unit[1]}\n')
 
-def pull_uber_descriptions(outputfile):
+def pull_uber_descriptions(jsonloutputfile):
     uber = UberGraph()
-    labels = uber.get_all_descriptions()
-    ldict = defaultdict(set)
-    for unit in labels:
-        iri = unit['iri']
-        p = iri.split(':')[0]
-        ldict[p].add( ( unit['iri'], unit['description'] ) )
+    descriptions = uber.get_all_descriptions()
+    descriptions_by_curie = defaultdict(list)
+    for unit in descriptions:
+        descriptions_by_curie[unit['iri']].append(unit['description'])
 
-    with open(outputfile, 'w') as outf:
-        for p in ldict:
-            if p not in ['http','ro'] and not p.startswith('t') and '#' not in p:
-                for unit in ldict[p]:
-                    outf.write(f'{unit[0]}\t{unit[1]}\n')
+    with open(jsonloutputfile, 'w') as outf:
+        for curie in descriptions_by_curie:
+            prefix = Text.get_curie(curie)
+            if prefix not in ['http','ro'] and not prefix.startswith('t') and '#' not in prefix:
+                outf.write(json.dumps({ 'curie': curie, 'descriptions': descriptions_by_curie[curie] }) + '\n')
 
 
 def pull_uber_synonyms(outputfile):

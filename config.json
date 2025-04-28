@@ -23,7 +23,7 @@
       "ubergraph/synonyms"
     ],
     "descriptions": [
-      "ubergraph/descriptions"
+      "ubergraph/descriptions.jsonl"
     ]
   },
 

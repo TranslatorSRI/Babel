@@ -161,19 +161,17 @@ class DescriptionFactory:
         config = get_config()
         if self.common_descriptions is None:
             # Load the common synonyms.
-            self.common_descriptions = defaultdict(set)
+            self.common_descriptions = defaultdict(list)
 
             for common_descriptions_file in config['common']['descriptions']:
                 common_descriptions_path = os.path.join(config['download_directory'], 'common', common_descriptions_file)
                 count_common_file_descriptions = 0
                 with open(common_descriptions_path, 'r') as descriptionsf:
-                    # Note that these files may contain ANY prefix -- we should only fallback to this if we have no other
+                    # Note that these files may contain ANY CURIE -- we should only fallback to this if we have no other
                     # option.
                     for line in descriptionsf:
-                        x = line.strip().split('\t')
-                        curie = x[0]
-                        description = x[1]
-                        self.common_descriptions[curie].add(description)
+                        row = json.loads(line)
+                        self.common_descriptions[row['curie']].extend(row['descriptions'])
                         count_common_file_descriptions += 1
                 logging.info(f"Loaded {count_common_file_descriptions} common descriptions from {common_descriptions_path}")
 
