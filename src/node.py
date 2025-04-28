@@ -119,7 +119,7 @@ class SynonymFactory:
                         synonym = x[2]
                         self.common_synonyms[curie].add(synonym)
                         count_common_file_synonyms += 1
-                logging.info(f"Loaded {count_common_file_synonyms} common labels from {common_synonyms_path}")
+                logging.info(f"Loaded {count_common_file_synonyms} common synonyms from {common_synonyms_path}")
 
         node_synonyms = set()
         for ident in node['identifiers']:
@@ -140,6 +140,8 @@ class DescriptionFactory:
     def __init__(self,rootdir):
         self.root_dir = rootdir
         self.descriptions = {}
+        self.common_descriptions = None
+        print(f"Created DescriptionFactory for directory {rootdir}")
 
     def load_descriptions(self,prefix):
         print(f'Loading descriptions for {prefix}')
@@ -156,6 +158,26 @@ class DescriptionFactory:
         print(f'Loaded {desc_count} descriptions for {prefix}')
 
     def get_descriptions(self,node):
+        config = get_config()
+        if self.common_descriptions is None:
+            # Load the common synonyms.
+            self.common_descriptions = defaultdict(set)
+
+            for common_descriptions_file in config['common']['descriptions']:
+                common_descriptions_path = os.path.join(config['download_directory'], 'common', common_descriptions_file)
+                count_common_file_descriptions = 0
+                with open(common_descriptions_path, 'r') as descriptionsf:
+                    # Note that these files may contain ANY prefix -- we should only fallback to this if we have no other
+                    # option.
+                    for line in descriptionsf:
+                        x = line.strip().split('\t')
+                        curie = x[0]
+                        description = x[1]
+                        self.common_descriptions[curie].add(description)
+                        count_common_file_descriptions += 1
+                logging.info(f"Loaded {count_common_file_descriptions} common descriptions from {common_descriptions_path}")
+
+
         node_descriptions = defaultdict(set)
         for ident in node['identifiers']:
             thisid = ident['identifier']
@@ -163,6 +185,7 @@ class DescriptionFactory:
             if not pref in self.descriptions:
                 self.load_descriptions(pref)
             node_descriptions[thisid].update( self.descriptions[pref][thisid] )
+            node_descriptions[thisid].update( self.common_descriptions.get(thisid, {}) )
         return node_descriptions
 
 
