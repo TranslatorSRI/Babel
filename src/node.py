@@ -114,8 +114,7 @@ class SynonymFactory:
                     # option.
                     for line in synonymsf:
                         row = json.loads(line)
-                        # We ignore row['predicate']
-                        self.common_synonyms[row['curie']].add(row['synonym'])
+                        self.common_synonyms[row['curie']].add((row['predicate'], row['synonym']))
                         count_common_file_synonyms += 1
                 logging.info(f"Loaded {count_common_file_synonyms} common synonyms from {common_synonyms_path}")
 

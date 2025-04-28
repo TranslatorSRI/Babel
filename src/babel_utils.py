@@ -489,11 +489,13 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
                 # But we're only interested in the synonyms themselves, so we can skip the relationship for now.
                 curie = node["identifiers"][0]["identifier"]
+
+                # get_synonyms() returns a list of tuples, where each tuple is a relation and a synonym.
+                # So we extract just the synonyms here, ditching the relations (result[0]), then unique-ify the
+                # synonyms.
                 synonyms = [result[1] for result in synonym_factory.get_synonyms(node)]
-                # Why are we running the synonym list through set() again? Because get_synonyms returns unique pairs of (relation, synonym).
-                # So multiple identical synonyms may be returned as long they have a different relation. But since we don't care about the
-                # relation, we should get rid of any duplicated synonyms here.
                 synonyms_list = sorted(set(synonyms), key=lambda x: len(x))
+
                 try:
                     document = {"curie": curie,
                                 "names": synonyms_list,
