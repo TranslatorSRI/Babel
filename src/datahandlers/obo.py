@@ -57,7 +57,7 @@ def pull_uber_synonyms(jsonloutputfile):
         predicate = unit[1]
         synonym = unit[2]
         if predicate not in ldict[curie]:
-            ldict[curie][predicate] = defaultdict(list)
+            ldict[curie][predicate] = []
         ldict[curie][predicate].append(synonym)
 
     with open(jsonloutputfile, 'w') as outf:
