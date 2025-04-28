@@ -12,7 +12,7 @@ from src.prefixes import UMLS
 from src.categories import ACTIVITY, AGENT, DEVICE, DRUG, FOOD, SMALL_MOLECULE, PHYSICAL_ENTITY, PUBLICATION, PROCEDURE
 
 
-def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, umls_synonyms, report, biolink_version):
+def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonyms, umls_compendium, umls_synonyms, report, biolink_version):
     """
     Search for "leftover" UMLS concepts, i.e. those that are defined and valid in MRCONSO but are not
     mapped to a concept in Babel.
@@ -20,6 +20,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
     As described in https://github.com/TranslatorSRI/NodeNormalization/issues/119#issuecomment-1154751451
 
     :param compendia: A list of compendia to collect.
+    :param umls_labels_filename: The filename of the UMLS labels file to use for this compendium (e.g. 'babel_downloads/UMLS/labels').
     :param mrconso: MRCONSO.RRF file path
     :param mrsty: MRSTY.RRF file path
     :param synonyms: synonyms file for UMLS
@@ -30,7 +31,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
     """
 
     logging = Logger()
-    logging.info(f"write_leftover_umls({compendia}, {mrconso}, {mrsty}, {synonyms}, {umls_compendium}, {umls_synonyms}, {report}, {biolink_version})")
+    logging.info(f"write_leftover_umls({compendia}, {umls_labels_filename}, {mrconso}, {mrsty}, {synonyms}, {umls_compendium}, {umls_synonyms}, {report}, {biolink_version})")
 
     # For now, we have many more UMLS entities in MRCONSO than in the compendia, so
     # we'll make an in-memory list of those first. Once that flips, this should be
@@ -206,7 +207,7 @@ def write_leftover_umls(compendia, mrconso, mrsty, synonyms, umls_compendium, um
         reportf.write(f"Collected synonyms for {len(synonyms_by_id)} UMLS IDs into the leftover UMLS synonyms file.\n")
 
         # Write out synonyms to synonym file.
-        node_factory = NodeFactory('babel_downloads/UMLS/labels', biolink_version)
+        node_factory = NodeFactory(umls_labels_filename, biolink_version)
         count_synonym_objs = 0
         with jsonlines.open(umls_synonyms, 'w') as umls_synonymsf:
             for id in synonyms_by_id:
