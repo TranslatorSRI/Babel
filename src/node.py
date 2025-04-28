@@ -464,7 +464,7 @@ class NodeFactory:
                     self.load_extra_labels(prefix)
                 if iid in self.extra_labels[prefix]:
                     labeled_list.append( LabeledID(identifier=iid, label = self.extra_labels[prefix][iid]))
-                elif iid in self.common_labels[iid]:
+                elif iid in self.common_labels:
                     # We only fall back to common labels if the prefix label doesn't have anything.
                     labeled_list.append( LabeledID(identifier=iid, label = self.common_labels[iid]))
                 else:
