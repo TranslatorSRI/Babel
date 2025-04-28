@@ -206,7 +206,7 @@ rule get_icrdf:
         # marked as required for all compendia, so we just need to make sure that OBO/Ubergraph has been downloaded
         # before the icRDF file is downloaded.
         config['download_directory']+'/common/ubergraph/labels',
-        config['download_directory']+'/common/ubergraph/synonyms',
+        config['download_directory']+'/common/ubergraph/synonyms.jsonl',
         config['download_directory']+'/common/ubergraph/descriptions.jsonl'
     output:
         icrdf_filename=config['download_directory']+'/icRDF.tsv'
