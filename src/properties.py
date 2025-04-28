@@ -47,8 +47,7 @@ class PropertyValue:
 
 # A property store for a single prefix.
 class PrefixPropertyStore(AbstractContextManager):
-    def __init__(self, prefix_path=None, prefix=None, autocommit=True, validate_properties=True, readonly=False):
-        self.autocommit = autocommit
+    def __init__(self, prefix_path=None, prefix=None, validate_properties=True, readonly=False):
         self.validate_properties = validate_properties
         self.readonly = readonly
 
@@ -63,13 +62,21 @@ class PrefixPropertyStore(AbstractContextManager):
         # Make the prefix directory if it doesn't exist.
         os.makedirs(prefix_directory, exist_ok=True)
 
-        # Load or create a public store.
+        # Normally we would open the database here, but databases in general are slow on inserts and DuckDB is
+        # particularly so. Besides, PrefixPropertyStores aren't intended to work like full databases -- we only add
+        # to the existing knowledge, and we don't add duplicates. So what we should do instead is to break this up into
+        # a Reader and a Writer:
+        #   - The Reader opens the database in read-only mode, and can be used to query it.
+        #   - The Writer doesn't open the database as well -- it collects new properties into a NumPy table, then
+        #     writes it all to the database in one go at commit. (This might be more efficient to do with an in-memory
+        #     database that we later attach the file database to.)
         self.connection = duckdb.connect(os.path.join(prefix_directory, 'properties.duckdb'), read_only=self.readonly)
         self.connection.sql("CREATE TABLE IF NOT EXISTS properties (curie TEXT, property TEXT, value TEXT, source TEXT) ;")
         # Create a UNIQUE index on the property values -- this means that if someone tries to set a value for a property
         # either duplicatively or from another source, we simply ignore it.
         self.connection.sql("CREATE UNIQUE INDEX IF NOT EXISTS properties_propvalues ON properties (curie, property, value);")
         self.connection.commit()
+
 
     def get_properties(self, curie) -> list[str]:
         return list(map(lambda x: x[0], self.connection.sql("SELECT DISTINCT properties FROM properties WHERE curie=$curie", params={
