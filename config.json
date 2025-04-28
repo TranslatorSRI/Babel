@@ -20,7 +20,7 @@
       "ubergraph/labels"
     ],
     "synonyms": [
-      "ubergraph/synonyms"
+      "ubergraph/synonyms.jsonl"
     ],
     "descriptions": [
       "ubergraph/descriptions.jsonl"

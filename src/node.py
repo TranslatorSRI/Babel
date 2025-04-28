@@ -113,11 +113,9 @@ class SynonymFactory:
                     # Note that these files may contain ANY prefix -- we should only fallback to this if we have no other
                     # option.
                     for line in synonymsf:
-                        x = line.strip().split('\t')
-                        curie = x[0]
-                        # relation = x[1]
-                        synonym = x[2]
-                        self.common_synonyms[curie].add(synonym)
+                        row = json.loads(line)
+                        # We ignore row['predicate']
+                        self.common_synonyms[row['curie']].add(row['synonym'])
                         count_common_file_synonyms += 1
                 logging.info(f"Loaded {count_common_file_synonyms} common synonyms from {common_synonyms_path}")
 

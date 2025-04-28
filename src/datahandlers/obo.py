@@ -48,20 +48,29 @@ def pull_uber_descriptions(jsonloutputfile):
                 # Couldn't extract a prefix for this CURIE, so let's ignore it.
                 continue
 
-def pull_uber_synonyms(outputfile):
+def pull_uber_synonyms(jsonloutputfile):
     uber = UberGraph()
-    labels = uber.get_all_synonyms()
-    ldict = defaultdict(set)
-    for unit in labels:
-        iri = unit[0]
-        p = iri.split(':')[0]
-        ldict[p].add(  unit )
+    synonyms = uber.get_all_synonyms()
+    ldict = defaultdict(dict)
+    for unit in synonyms:
+        curie = unit[0]
+        predicate = unit[1]
+        synonym = unit[2]
+        if predicate not in ldict[curie]:
+            ldict[curie][predicate] = defaultdict(list)
+        ldict[curie][predicate].append(synonym)
 
-    with open(outputfile, 'w') as outf:
-        for p in ldict:
-            if p not in ['http','ro'] and not p.startswith('t') and '#' not in p:
-                for unit in ldict[p]:
-                    outf.write(f'{unit[0]}\t{unit[1]}\t{unit[2]}\n')
+    with open(jsonloutputfile, 'w') as outf:
+        for curie in ldict.keys():
+            try:
+                prefix = Text.get_prefix(curie)
+            except ValueError:
+                continue
+
+            if prefix not in ['http','ro'] and not prefix.startswith('t') and '#' not in prefix:
+                for predicate in ldict[curie].keys():
+                    for synonym in ldict[curie][predicate]:
+                        outf.write(json.dumps({'curie': curie, 'predicate': predicate, 'synonym': synonym}) + '\n')
 
 def pull_uber(expected_ontologies, icrdf_filename):
     pull_uber_icRDF(icrdf_filename)

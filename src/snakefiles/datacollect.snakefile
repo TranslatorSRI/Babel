@@ -189,7 +189,7 @@ rule get_obo_labels:
 
 rule get_obo_synonyms:
     output:
-        obo_synonyms=config['download_directory']+'/common/ubergraph/synonyms'
+        obo_synonyms=config['download_directory']+'/common/ubergraph/synonyms.jsonl'
     run:
         obo.pull_uber_synonyms(output.obo_synonyms)
 
