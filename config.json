@@ -15,6 +15,18 @@
   "ubergraph_ontologies": ["UBERON", "CL", "GO", "NCIT", "ECO", "ECTO", "ENVO", "HP", "UPHENO","BFO","BSPO","CARO","CHEBI","CP","GOREL","IAO","MAXO","MONDO","PATO","PR","RO","UBPROP"],
   "mods": ["WormBase","FB","MGI","ZFIN","RGD","SGD"],
 
+  "common": {
+    "labels": [
+      "ubergraph/labels"
+    ],
+    "synonyms": [
+      "ubergraph/synonyms"
+    ],
+    "descriptions": [
+      "ubergraph/descriptions"
+    ]
+  },
+
   "anatomy_prefixes": ["UBERON","GO","CL","UMLS","MESH","NCIT","SNOMEDCT"],
   "anatomy_ids": ["UBERON","GO","CL","UMLS","MESH","NCIT"],
   "anatomy_concords": ["UBERON","GO","CL","UMLS", "WIKIDATA"],

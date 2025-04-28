@@ -1,4 +1,5 @@
 import json
+import logging
 from json import load
 import os
 from collections import defaultdict
@@ -287,6 +288,7 @@ class NodeFactory:
         self.ignored_prefixes = set()
         self.extra_labels = {}
         self.label_dir = label_dir
+        self.common_labels = None
 
     def get_ancestors(self,input_type):
         if input_type in self.ancestor_map:
@@ -325,7 +327,7 @@ class NodeFactory:
 
         self.prefix_map[input_type] = prefixes_deduplicated
         return prefixes_deduplicated
-    
+
 
     def make_json_id(self,input):
         if isinstance(input,LabeledID):
@@ -377,6 +379,29 @@ class NodeFactory:
         self.extra_labels[prefix] = lbs
 
     def apply_labels(self, input_identifiers, labels):
+        # Before we work on the labels (or try to load any extra labels), let's load up the common labels.
+        config = get_config()
+        if self.common_labels is None:
+            self.common_labels = {}
+
+            for common_labels_file in config['common']['labels']:
+                common_labels_path = os.path.join(config['download_directory'], 'common', common_labels_file)
+                count_common_file_labels = 0
+                with open(common_labels_path, 'r') as labelf:
+                    # Note that these files may contain ANY prefix -- we should only fallback to this if we have no other
+                    # option.
+                    for line in labelf:
+                        x = line.strip().split('\t')
+                        curie = x[0]
+                        new_label = x[1]
+                        if curie in self.common_labels:
+                            # We have multiple labels! For simplicity's sake, let's choose the longest one.
+                            if len(new_label) <= len(self.common_labels[curie]):
+                                continue
+                        self.common_labels[x[0]] = x[1]
+                        count_common_file_labels += 1
+                logging.info(f"Loaded {count_common_file_labels} common labels from {common_labels_path}")
+
         #Originally we needed to clean up the identifer lists, because there would be both labeledids and
         # string ids and we had to reconcile them.
         # But now, we only allow regular ids in the list, and now we need to turn some of them into labeled ids for output
@@ -397,6 +422,9 @@ class NodeFactory:
                     self.load_extra_labels(prefix)
                 if iid in self.extra_labels[prefix]:
                     labeled_list.append( LabeledID(identifier=iid, label = self.extra_labels[prefix][iid]))
+                elif iid in self.common_labels[iid]:
+                    # We only fall back to common labels if the prefix label doesn't have anything.
+                    labeled_list.append( LabeledID(identifier=iid, label = self.common_labels[iid]))
                 else:
                     labeled_list.append(iid)
         return labeled_list
