@@ -39,8 +39,8 @@ def pull_uber_descriptions(jsonloutputfile):
         descriptions_by_curie[unit['iri']].append(unit['description'])
 
     with open(jsonloutputfile, 'w') as outf:
-        for curie in descriptions_by_curie:
-            prefix = Text.get_curie(curie)
+        for curie in descriptions_by_curie.keys():
+            prefix = Text.get_prefix(curie)
             if prefix not in ['http','ro'] and not prefix.startswith('t') and '#' not in prefix:
                 outf.write(json.dumps({ 'curie': curie, 'descriptions': descriptions_by_curie[curie] }) + '\n')
 
