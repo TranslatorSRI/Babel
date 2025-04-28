@@ -73,6 +73,7 @@ class SynonymFactory:
     def __init__(self,syndir):
         self.synonym_dir = syndir
         self.synonyms = {}
+        self.common_synonyms = None
         print(f"Created SynonymFactory for directory {syndir}")
 
     def load_synonyms(self,prefix):
@@ -100,13 +101,34 @@ class SynonymFactory:
         print(f'Loaded {count_labels} labels and {count_synonyms} synonyms for {prefix} from {labelfname}')
 
     def get_synonyms(self,node):
+        config = get_config()
+        if self.common_synonyms is None:
+            # Load the common synonyms.
+            self.common_synonyms = defaultdict(set)
+
+            for common_synonyms_file in config['common']['synonyms']:
+                common_synonyms_path = os.path.join(config['download_directory'], 'common', common_synonyms_file)
+                count_common_file_synonyms = 0
+                with open(common_synonyms_path, 'r') as synonymsf:
+                    # Note that these files may contain ANY prefix -- we should only fallback to this if we have no other
+                    # option.
+                    for line in synonymsf:
+                        x = line.strip().split('\t')
+                        curie = x[0]
+                        # relation = x[1]
+                        synonym = x[2]
+                        self.common_synonyms[curie].add(synonym)
+                        count_common_file_synonyms += 1
+                logging.info(f"Loaded {count_common_file_synonyms} common labels from {common_synonyms_path}")
+
         node_synonyms = set()
         for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = Text.get_prefix(thisid)
-            if not pref in self.synonyms:
+            if pref not in self.synonyms:
                 self.load_synonyms(pref)
             node_synonyms.update( self.synonyms[pref][thisid] )
+            node_synonyms.update( self.common_synonyms.get(thisid, {}) )
         return node_synonyms
 
 
@@ -382,6 +404,7 @@ class NodeFactory:
         # Before we work on the labels (or try to load any extra labels), let's load up the common labels.
         config = get_config()
         if self.common_labels is None:
+            # Load the common labels.
             self.common_labels = {}
 
             for common_labels_file in config['common']['labels']:
