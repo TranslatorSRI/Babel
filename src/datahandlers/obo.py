@@ -40,10 +40,13 @@ def pull_uber_descriptions(jsonloutputfile):
 
     with open(jsonloutputfile, 'w') as outf:
         for curie in descriptions_by_curie.keys():
-            prefix = Text.get_prefix(curie)
-            if prefix not in ['http','ro'] and not prefix.startswith('t') and '#' not in prefix:
-                outf.write(json.dumps({ 'curie': curie, 'descriptions': descriptions_by_curie[curie] }) + '\n')
-
+            try:
+                prefix = Text.get_prefix(curie)
+                if prefix not in ['http','ro'] and not prefix.startswith('t') and '#' not in prefix:
+                    outf.write(json.dumps({ 'curie': curie, 'descriptions': descriptions_by_curie[curie] }) + '\n')
+            except ValueError:
+                # Couldn't extract a prefix for this CURIE, so let's ignore it.
+                continue
 
 def pull_uber_synonyms(outputfile):
     uber = UberGraph()
