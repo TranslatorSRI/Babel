@@ -126,7 +126,7 @@ class SynonymFactory:
             if pref not in self.synonyms:
                 self.load_synonyms(pref)
             node_synonyms.update( self.synonyms[pref][thisid] )
-            node_synonyms.update( self.common_synonyms.get(thisid, {}) )
+            node_synonyms.update( self.common_synonyms.get(thisid, set()) )
         return node_synonyms
 
 
