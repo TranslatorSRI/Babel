@@ -24,10 +24,7 @@ def make_local_name(fname,subpath=None):
     if subpath is None:
         return os.path.join(config['download_directory'],fname)
     odir = os.path.join(config['download_directory'],subpath)
-    try:
-        os.makedirs(odir)
-    except:
-        pass
+    os.makedirs(odir, exist_ok=True)
     return os.path.join(odir,fname)
 
 
@@ -391,7 +388,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     # Create compendia and synonyms directories, just in case they haven't been created yet.
     os.makedirs(os.path.join(cdir, 'compendia'), exist_ok=True)
     os.makedirs(os.path.join(cdir, 'synonyms'), exist_ok=True)
-    
+
     # Write compendium and synonym files.
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
