@@ -207,7 +207,7 @@ rule get_icrdf:
         # before the icRDF file is downloaded.
         config['download_directory']+'/common/ubergraph/labels',
         config['download_directory']+'/common/ubergraph/synonyms',
-        config['download_directory']+'/common/ubergraph/descriptions'
+        config['download_directory']+'/common/ubergraph/descriptions.jsonl'
     output:
         icrdf_filename=config['download_directory']+'/icRDF.tsv'
     run:
