@@ -43,13 +43,15 @@ def pull_ncbigene_labels_synonyms_and_taxa():
     # File format described here: https://ftp.ncbi.nlm.nih.gov/gene/DATA/README
     ifname = make_local_name('gene_info.gz', subpath='NCBIGene')
     labelname = make_local_name('labels', subpath='NCBIGene')
+    descriptionname = make_local_name('descriptions', subpath='NCBIGene')
     synname = make_local_name('synonyms', subpath='NCBIGene')
     taxaname = make_local_name('taxa', subpath='NCBIGene')
     bad_gene_types = {'biological-region', 'other', 'unknown'}
     with gzip.open(ifname, 'r') as inf, \
           open(labelname, 'w') as labelfile, \
           open(synname, 'w') as synfile, \
-          open(taxaname, 'w') as taxafile:
+          open(taxaname, 'w') as taxafile, \
+          open(descriptionname, 'w') as descriptionfile:
 
         # Make sure the gene_info.gz columns haven't changed from under us.
         header = inf.readline().decode('utf-8').strip().split("\t")
@@ -81,12 +83,12 @@ def pull_ncbigene_labels_synonyms_and_taxa():
             taxafile.write(f'{gene_id}\tNCBITaxon:{get_ncbigene_field(row, header, "#tax_id")}\n')
 
             # Write out all the synonyms.
-            syns = set(get_ncbigene_field(row, header, "Synonyms").split('|'))
-            syns.add(get_ncbigene_field(row, header, "description"))
-            syns.add(get_ncbigene_field(row, header, "Symbol"))
-            syns.add(get_ncbigene_field(row, header, "Symbol_from_nomenclature_authority"))
-            syns.update(get_ncbigene_field(row, header, "Full_name_from_nomenclature_authority").split('|'))
+            syns = set(get_ncbigene_field(row, header, "Full_name_from_nomenclature_authority").split('|'))
+            syns.update(get_ncbigene_field(row, header, "Synonyms").split('|'))
             syns.update(get_ncbigene_field(row, header, "Other_designations").split('|'))
+            # syns.add(get_ncbigene_field(row, header, "description"))
+            syns.add(get_ncbigene_field(row, header, "Symbol_from_nomenclature_authority"))
+            syns.add(get_ncbigene_field(row, header, "Symbol"))
             for syn in syns:
                 # Skip empty synonym.
                 if syn.strip() == '' or syn.strip() == '-':
@@ -109,15 +111,10 @@ def pull_ncbigene_labels_synonyms_and_taxa():
             if not best_symbol and len(syns) > 0:
                 # Fallback to the first synonym.
                 best_symbol = syns[0]
-            best_description = get_ncbigene_field(row, header, "Full_name_from_nomenclature_authority")
-            if '|' in best_description:
-                # Full_name_from_nomenclature_authority
-                best_description = best_description.split('|')[0]
-            if not best_description:
-                best_description = get_ncbigene_field(row, header, "description")
-            if best_symbol:
-                if best_description:
-                    label = f'{best_symbol}: {best_description}'
-                else:
-                    label = best_symbol
-                labelfile.write(f'{gene_id}\t{label}\n')
+
+            labelfile.write(f'{gene_id}\t{best_symbol}\n')
+
+            # Write a description file for this description record.
+            description = get_ncbigene_field(row, header, "description")
+            descriptionfile.write(f'{gene_id}\t{description}\n')
+

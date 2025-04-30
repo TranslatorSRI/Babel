@@ -206,7 +206,8 @@ rule get_ncbigene_labels_synonyms_and_taxa:
     output:
         config['download_directory']+'/NCBIGene/labels',
         config['download_directory']+'/NCBIGene/synonyms',
-        config['download_directory']+'/NCBIGene/taxa'
+        config['download_directory']+'/NCBIGene/taxa',
+        config['download_directory']+'/NCBIGene/descriptions',
     input:
         config['download_directory']+'/NCBIGene/gene_info.gz'
     run:
