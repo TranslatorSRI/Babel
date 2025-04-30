@@ -21,7 +21,7 @@ def get_ncbigene_field(row, header, field_name):
         return ''
     return value
 
-def pull_ncbigene_labels_synonyms_and_taxa():
+def pull_ncbigene_labels_synonyms_and_taxa(gene_info_filename, labels_filename, synonyms_filename, taxa_filename, descriptions_filename):
     """
     Extract labels, synonyms, and taxonomic data for genes from the NCBIGene "gene_info.gz" file
     and write them into separate files. The function processes the input file by skipping rows
@@ -41,17 +41,12 @@ def pull_ncbigene_labels_synonyms_and_taxa():
     """
 
     # File format described here: https://ftp.ncbi.nlm.nih.gov/gene/DATA/README
-    ifname = make_local_name('gene_info.gz', subpath='NCBIGene')
-    labelname = make_local_name('labels', subpath='NCBIGene')
-    descriptionname = make_local_name('descriptions', subpath='NCBIGene')
-    synname = make_local_name('synonyms', subpath='NCBIGene')
-    taxaname = make_local_name('taxa', subpath='NCBIGene')
     bad_gene_types = {'biological-region', 'other', 'unknown'}
-    with gzip.open(ifname, 'r') as inf, \
-          open(labelname, 'w') as labelfile, \
-          open(synname, 'w') as synfile, \
-          open(taxaname, 'w') as taxafile, \
-          open(descriptionname, 'w') as descriptionfile:
+    with gzip.open(gene_info_filename, 'r') as inf, \
+          open(labels_filename, 'w') as labelfile, \
+          open(synonyms_filename, 'w') as synfile, \
+          open(taxa_filename, 'w') as taxafile, \
+          open(descriptions_filename, 'w') as descriptionfile:
 
         # Make sure the gene_info.gz columns haven't changed from under us.
         header = inf.readline().decode('utf-8').strip().split("\t")

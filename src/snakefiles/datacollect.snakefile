@@ -203,15 +203,15 @@ rule get_ncbigene:
         ncbigene.pull_ncbigene(config['ncbi_files'])
 
 rule get_ncbigene_labels_synonyms_and_taxa:
-    output:
-        config['download_directory']+'/NCBIGene/labels',
-        config['download_directory']+'/NCBIGene/synonyms',
-        config['download_directory']+'/NCBIGene/taxa',
-        config['download_directory']+'/NCBIGene/descriptions',
     input:
-        config['download_directory']+'/NCBIGene/gene_info.gz'
+        gene_info_filename=config['download_directory']+'/NCBIGene/gene_info.gz',
+    output:
+        labels_filename=config['download_directory'] + '/NCBIGene/labels',
+        synonyms_filename=config['download_directory']+'/NCBIGene/synonyms',
+        taxa_filename=config['download_directory']+'/NCBIGene/taxa',
+        descriptions_filename=config['download_directory']+'/NCBIGene/descriptions',
     run:
-        ncbigene.pull_ncbigene_labels_synonyms_and_taxa()
+        ncbigene.pull_ncbigene_labels_synonyms_and_taxa(input.gene_info_filename, output.labels_filename, output.synonyms_filename, output.taxa_filename, output.descriptions_filename)
 
 ### ENSEMBL
 
