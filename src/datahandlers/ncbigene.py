@@ -85,7 +85,7 @@ def pull_ncbigene_labels_synonyms_and_taxa():
             syns.add(get_ncbigene_field(row, header, "description"))
             syns.add(get_ncbigene_field(row, header, "Symbol"))
             syns.add(get_ncbigene_field(row, header, "Symbol_from_nomenclature_authority"))
-            syns.add(get_ncbigene_field(row, header, "Full_name_from_nomenclature_authority"))
+            syns.update(get_ncbigene_field(row, header, "Full_name_from_nomenclature_authority").split('|'))
             syns.update(get_ncbigene_field(row, header, "Other_designations").split('|'))
             for syn in syns:
                 # Skip empty synonym.
@@ -110,6 +110,9 @@ def pull_ncbigene_labels_synonyms_and_taxa():
                 # Fallback to the first synonym.
                 best_symbol = syns[0]
             best_description = get_ncbigene_field(row, header, "Full_name_from_nomenclature_authority")
+            if '|' in best_description:
+                # Full_name_from_nomenclature_authority
+                best_description = best_description.split('|')[0]
             if not best_description:
                 best_description = get_ncbigene_field(row, header, "description")
             if best_symbol:
