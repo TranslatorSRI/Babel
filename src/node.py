@@ -1,4 +1,5 @@
 import json
+import logging
 from json import load
 import os
 from collections import defaultdict
@@ -72,6 +73,7 @@ class SynonymFactory:
     def __init__(self,syndir):
         self.synonym_dir = syndir
         self.synonyms = {}
+        self.common_synonyms = None
         print(f"Created SynonymFactory for directory {syndir}")
 
     def load_synonyms(self,prefix):
@@ -99,13 +101,31 @@ class SynonymFactory:
         print(f'Loaded {count_labels} labels and {count_synonyms} synonyms for {prefix} from {labelfname}')
 
     def get_synonyms(self,node):
+        config = get_config()
+        if self.common_synonyms is None:
+            # Load the common synonyms.
+            self.common_synonyms = defaultdict(set)
+
+            for common_synonyms_file in config['common']['synonyms']:
+                common_synonyms_path = os.path.join(config['download_directory'], 'common', common_synonyms_file)
+                count_common_file_synonyms = 0
+                with open(common_synonyms_path, 'r') as synonymsf:
+                    # Note that these files may contain ANY prefix -- we should only fallback to this if we have no other
+                    # option.
+                    for line in synonymsf:
+                        row = json.loads(line)
+                        self.common_synonyms[row['curie']].add((row['predicate'], row['synonym']))
+                        count_common_file_synonyms += 1
+                logging.info(f"Loaded {count_common_file_synonyms} common synonyms from {common_synonyms_path}")
+
         node_synonyms = set()
         for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = Text.get_prefix(thisid)
-            if not pref in self.synonyms:
+            if pref not in self.synonyms:
                 self.load_synonyms(pref)
             node_synonyms.update( self.synonyms[pref][thisid] )
+            node_synonyms.update( self.common_synonyms.get(thisid, set()) )
         return node_synonyms
 
 
@@ -117,6 +137,8 @@ class DescriptionFactory:
     def __init__(self,rootdir):
         self.root_dir = rootdir
         self.descriptions = {}
+        self.common_descriptions = None
+        print(f"Created DescriptionFactory for directory {rootdir}")
 
     def load_descriptions(self,prefix):
         print(f'Loading descriptions for {prefix}')
@@ -133,6 +155,24 @@ class DescriptionFactory:
         print(f'Loaded {desc_count} descriptions for {prefix}')
 
     def get_descriptions(self,node):
+        config = get_config()
+        if self.common_descriptions is None:
+            # Load the common synonyms.
+            self.common_descriptions = defaultdict(list)
+
+            for common_descriptions_file in config['common']['descriptions']:
+                common_descriptions_path = os.path.join(config['download_directory'], 'common', common_descriptions_file)
+                count_common_file_descriptions = 0
+                with open(common_descriptions_path, 'r') as descriptionsf:
+                    # Note that these files may contain ANY CURIE -- we should only fallback to this if we have no other
+                    # option.
+                    for line in descriptionsf:
+                        row = json.loads(line)
+                        self.common_descriptions[row['curie']].extend(row['descriptions'])
+                        count_common_file_descriptions += 1
+                logging.info(f"Loaded {count_common_file_descriptions} common descriptions from {common_descriptions_path}")
+
+
         node_descriptions = defaultdict(set)
         for ident in node['identifiers']:
             thisid = ident['identifier']
@@ -140,6 +180,7 @@ class DescriptionFactory:
             if not pref in self.descriptions:
                 self.load_descriptions(pref)
             node_descriptions[thisid].update( self.descriptions[pref][thisid] )
+            node_descriptions[thisid].update( self.common_descriptions.get(thisid, {}) )
         return node_descriptions
 
 
@@ -287,6 +328,7 @@ class NodeFactory:
         self.ignored_prefixes = set()
         self.extra_labels = {}
         self.label_dir = label_dir
+        self.common_labels = None
 
     def get_ancestors(self,input_type):
         if input_type in self.ancestor_map:
@@ -325,7 +367,7 @@ class NodeFactory:
 
         self.prefix_map[input_type] = prefixes_deduplicated
         return prefixes_deduplicated
-    
+
 
     def make_json_id(self,input):
         if isinstance(input,LabeledID):
@@ -377,6 +419,30 @@ class NodeFactory:
         self.extra_labels[prefix] = lbs
 
     def apply_labels(self, input_identifiers, labels):
+        # Before we work on the labels (or try to load any extra labels), let's load up the common labels.
+        config = get_config()
+        if self.common_labels is None:
+            # Load the common labels.
+            self.common_labels = {}
+
+            for common_labels_file in config['common']['labels']:
+                common_labels_path = os.path.join(config['download_directory'], 'common', common_labels_file)
+                count_common_file_labels = 0
+                with open(common_labels_path, 'r') as labelf:
+                    # Note that these files may contain ANY prefix -- we should only fallback to this if we have no other
+                    # option.
+                    for line in labelf:
+                        x = line.strip().split('\t')
+                        curie = x[0]
+                        new_label = x[1]
+                        if curie in self.common_labels:
+                            # We have multiple labels! For simplicity's sake, let's choose the longest one.
+                            if len(new_label) <= len(self.common_labels[curie]):
+                                continue
+                        self.common_labels[x[0]] = x[1]
+                        count_common_file_labels += 1
+                logging.info(f"Loaded {count_common_file_labels} common labels from {common_labels_path}")
+
         #Originally we needed to clean up the identifer lists, because there would be both labeledids and
         # string ids and we had to reconcile them.
         # But now, we only allow regular ids in the list, and now we need to turn some of them into labeled ids for output
@@ -397,6 +463,9 @@ class NodeFactory:
                     self.load_extra_labels(prefix)
                 if iid in self.extra_labels[prefix]:
                     labeled_list.append( LabeledID(identifier=iid, label = self.extra_labels[prefix][iid]))
+                elif iid in self.common_labels:
+                    # We only fall back to common labels if the prefix label doesn't have anything.
+                    labeled_list.append( LabeledID(identifier=iid, label = self.common_labels[iid]))
                 else:
                     labeled_list.append(iid)
         return labeled_list
