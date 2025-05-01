@@ -32,6 +32,7 @@ import src.datahandlers.hgncfamily as hgncfamily
 import src.datahandlers.pantherfamily as pantherfamily
 import src.datahandlers.complexportal as complexportal
 import src.datahandlers.drugbank as drugbank
+import src.datahandlers.pharmgkb as pharmgkb
 from src.babel_utils import pull_via_wget
 
 import src.prefixes as prefixes
@@ -633,3 +634,16 @@ rule get_CLO_labels:
         synonymfile =config['download_directory'] + '/CLO/synonyms'
     run:
         clo.make_labels(input.infile, output.labelfile,output.synonymfile)
+
+# PharmaGKB
+
+rule get_pharmgkb:
+    output:
+        genes_zip_filepath = config['download_directory'] + '/PharmGKB/genes.zip',
+        genes_tsv_filepath = config['download_directory'] + '/PharmGKB/genes/genes.tsv',
+        chemicals_zip_filepath = config['download_directory'] + '/PharmGKB/chemicals.zip',
+        chemicals_tsv_filepath = config['download_directory'] + '/PharmGKB/chemicals/chemicals.tsv',
+        drugs_zip_filepath = config['download_directory'] + '/PharmGKB/drugs.zip',
+        drugs_tsv_filepath = config['download_directory'] + '/PharmGKB/drugs/drugs.tsv',
+    run:
+        pharmgkb.pull_pharmgkb(output.genes_zip_filepath, output.chemicals_zip_filepath, output.drugs_zip_filepath)
