@@ -635,7 +635,7 @@ rule get_CLO_labels:
     run:
         clo.make_labels(input.infile, output.labelfile,output.synonymfile)
 
-# PharmaGKB
+# PharmGKB
 
 rule get_pharmgkb:
     output:
