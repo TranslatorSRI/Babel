@@ -22,10 +22,12 @@ def download_and_unzip(url, filepath):
         zipObj.extractall(path.join(ddir, bname))
 
 
-def pull_pharmgkb(genes_zip_filepath, chemicals_zip_filepath, drugs_zip_filepath):
+def pull_pharmgkb(genes_zip_filepath, chemicals_zip_filepath, drugs_zip_filepath, phenotypes_zip_filepath, variants_zip_filepath):
     """
     Download the PharmaGKB files we need.
     """
     download_and_unzip('https://api.pharmgkb.org/v1/download/file/data/genes.zip', genes_zip_filepath)
     download_and_unzip('https://api.pharmgkb.org/v1/download/file/data/chemicals.zip', chemicals_zip_filepath)
     download_and_unzip('https://api.pharmgkb.org/v1/download/file/data/drugs.zip', drugs_zip_filepath)
+    download_and_unzip('https://api.pharmgkb.org/v1/download/file/data/phenotypes.zip', phenotypes_zip_filepath)
+    download_and_unzip('https://api.pharmgkb.org/v1/download/file/data/variants.zip', variants_zip_filepath)

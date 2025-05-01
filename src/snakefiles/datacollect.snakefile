@@ -645,5 +645,15 @@ rule get_pharmgkb:
         chemicals_tsv_filepath = config['download_directory'] + '/PharmGKB/chemicals/chemicals.tsv',
         drugs_zip_filepath = config['download_directory'] + '/PharmGKB/drugs.zip',
         drugs_tsv_filepath = config['download_directory'] + '/PharmGKB/drugs/drugs.tsv',
+        phenotypes_zip_filepath = config['download_directory'] + '/PharmGKB/phenotypes.zip',
+        phenotypes_tsv_filepath = config['download_directory'] + '/PharmGKB/phenotypes/phenotypes.tsv',
+        variants_zip_filepath = config['download_directory'] + '/PharmGKB/variants.zip',
+        variants_tsv_filepath = config['download_directory'] + '/PharmGKB/variants/variants.tsv',
     run:
-        pharmgkb.pull_pharmgkb(output.genes_zip_filepath, output.chemicals_zip_filepath, output.drugs_zip_filepath)
+        pharmgkb.pull_pharmgkb(
+            output.genes_zip_filepath,
+            output.chemicals_zip_filepath,
+            output.drugs_zip_filepath,
+            output.phenotypes_zip_filepath,
+            output.variants_zip_filepath,
+        )
