@@ -13,8 +13,8 @@ Babel currently generates two conflations:
 
 ## How are conflations generated in Babel and used in NodeNorm?
 
-Each conflation consists of a list of lists of clique identifiers, which are stored in Redis databases in NodeNorm.
-If a particular conflation is turned on, NodeNorm will:
+Each conflation file is a JSON-Lines (JSONL) file, where every line is a JSON list of clique identifiers, which are
+stored in Redis databases in NodeNorm. If a particular conflation is turned on, NodeNorm will:
 1. Normalize the input identifier to a clique identifier.
 2. If the clique identifier is not part of any conflation, we return it as-is.
 3. If the clique identifier is part of a conflation, we construct a new clique whose preferred identifier is the first
