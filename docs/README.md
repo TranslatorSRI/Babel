@@ -55,7 +55,8 @@ NCATS Translator web service to normalize identifiers by returning a single pref
 provided.
 
 In addition to returning the preferred identifier and all the secondary identifiers for a clique, NodeNorm will also
-return its Biolink type and "information content" score, and optionally any descriptions we have for these identifiers.
+return its Biolink type and ["information content" score](#what-are-information-content-values), and optionally any
+descriptions we have for these identifiers.
 
 It also includes some endpoints for normalizing an entire TRAPI message and other APIs intended primarily for
 Translator users.
@@ -110,11 +111,11 @@ but the `description` flag can be used to include any descriptions when returnin
 Babel is difficult to build, primarily because of its inefficient memory handling -- we currently need around 500G of
 memory to build the largest compendia (Protein and DrugChemical conflated information), although the smaller
 compendia should be buildable with far less memory. We are working on reducing these restrictions as far as possible.
-You can read more about [Babel's build process](./Build.md), and please do contact us if you run into any problems or
-would like some assistance.
+You can read more about Babel's build process in the [main README](../README.md), and please do contact us if you run
+into any problems or would like some assistance.
 
 ## Who should I contact for more information about Babel?
 
 You can find out more about Babel by [opening an issue on this repository](https://github.com/TranslatorSRI/Babel/issues),
-contacting one of the [Translator SRI PIs](https://ncats.nih.gov/research/research-activities/translator/projects), or
+contacting one of the [Translator SRI PIs](https://ncats.nih.gov/research/research-activities/translator/projects) or
 contacting the [NCATS Translator team](https://ncats.nih.gov/research/research-activities/translator/about).
