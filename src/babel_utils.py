@@ -24,10 +24,7 @@ def make_local_name(fname,subpath=None):
     if subpath is None:
         return os.path.join(config['download_directory'],fname)
     odir = os.path.join(config['download_directory'],subpath)
-    try:
-        os.makedirs(odir)
-    except:
-        pass
+    os.makedirs(odir, exist_ok=True)
     return os.path.join(odir,fname)
 
 
@@ -391,7 +388,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     # Create compendia and synonyms directories, just in case they haven't been created yet.
     os.makedirs(os.path.join(cdir, 'compendia'), exist_ok=True)
     os.makedirs(os.path.join(cdir, 'synonyms'), exist_ok=True)
-    
+
     # Write compendium and synonym files.
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
@@ -399,9 +396,70 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
             if node is not None:
                 nw = {"type": node['type']}
                 ic = ic_factory.get_ic(node)
-                if ic is not None:
-                    nw['ic'] = ic
+                nw['ic'] = ic
 
+                # Determine types.
+                types = node_factory.get_ancestors(node["type"])
+
+                # Generate a preferred label for this clique.
+                #
+                # To pick a preferred label for this clique, we need to do three things:
+                # 1. We sort all labels in the preferred-name order. By default, this should be
+                #    the preferred CURIE order, but if this clique is in one of the Biolink classes in
+                #    preferred_name_boost_prefixes, we boost those prefixes in that order to the top of the list.
+                # 2. We filter out any suspicious labels.
+                #    (If this simple filter doesn't work, and if prefixes are inconsistent, we can build upon the
+                #    algorithm proposed by Jeff at
+                #    https://github.com/NCATSTranslator/Feedback/issues/259#issuecomment-1605140850)
+                # 3. We filter out any labels longer than config['demote_labels_longer_than'], but only if there is
+                #    at least one label shorter than this limit.
+                # 4. We choose the first label that isn't blank (that allows us to use our rule of smallest-prefix-first to find the broadest name for this concept). If no labels remain, we generate a warning.
+
+                # Step 1.1. Sort labels in boosted prefix order if possible.
+                possible_labels = []
+                for typ in types:
+                    if typ in preferred_name_boost_prefixes:
+                        # This is the most specific matching type, so we use this and then break.
+                        possible_labels = list(map(lambda identifier: identifier.get('label', ''),
+                                              sort_identifiers_with_boosted_prefixes(
+                                                  node["identifiers"],
+                                                  preferred_name_boost_prefixes[typ]
+                                              )))
+
+                        # Add in all the other labels -- we'd still like to consider them, but at a lower priority.
+                        for id in node["identifiers"]:
+                            label = id.get('label', '')
+                            if label not in possible_labels:
+                                possible_labels.append(label)
+
+                        # Since this is the most specific matching type, we shouldn't do other (presumably higher-level)
+                        # categories: so let's break here.
+                        break
+
+                # Step 1.2. If we didn't have a preferred_name_boost_prefixes, just use the identifiers in their
+                # Biolink prefix order.
+                if not possible_labels:
+                    possible_labels = map(lambda identifier: identifier.get('label', ''), node["identifiers"])
+
+                # Step 2. Filter out any suspicious labels.
+                filtered_possible_labels = [l for l in possible_labels if
+                                            l and                               # Ignore blank or empty names.
+                                            not l.startswith('CHEMBL')          # Some CHEMBL names are just the identifier again.
+                                            ]
+
+                # Step 3. Filter out labels longer than config['demote_labels_longer_than'], but only if there is at
+                # least one label shorter than this limit.
+                labels_shorter_than_limit = [l for l in filtered_possible_labels if l and len(l) <= config['demote_labels_longer_than']]
+                if labels_shorter_than_limit:
+                    filtered_possible_labels = labels_shorter_than_limit
+
+                # Step 4. Pick the first label if it isn't blank.
+                if filtered_possible_labels:
+                    preferred_name = filtered_possible_labels[0]
+                else:
+                    preferred_name = ''
+
+                # Generate the node.
                 descs = description_factory.get_descriptions(node)
                 taxa = taxon_factory.get_taxa(node)
                 nw['identifiers'] = []
@@ -420,6 +478,9 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
 
                     nw['identifiers'].append(id_info)
 
+                # Write out the preferred name, if we have one.
+                nw['preferred_name'] = preferred_name
+
                 # Collect taxon names for this node.
                 nw['taxa'] = list(sorted(set().union(*taxa.values()), key=get_numerical_curie_suffix))
 
@@ -428,56 +489,24 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                 # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
                 # But we're only interested in the synonyms themselves, so we can skip the relationship for now.
                 curie = node["identifiers"][0]["identifier"]
+
+                # get_synonyms() returns a list of tuples, where each tuple is a relation and a synonym.
+                # So we extract just the synonyms here, ditching the relations (result[0]), then unique-ify the
+                # synonyms.
                 synonyms = [result[1] for result in synonym_factory.get_synonyms(node)]
-                # Why are we running the synonym list through set() again? Because get_synonyms returns unique pairs of (relation, synonym).
-                # So multiple identical synonyms may be returned as long they have a different relation. But since we don't care about the
-                # relation, we should get rid of any duplicated synonyms here.
                 synonyms_list = sorted(set(synonyms), key=lambda x: len(x))
+
                 try:
-                    types = node_factory.get_ancestors(node["type"])
                     document = {"curie": curie,
                                 "names": synonyms_list,
                                 "types": [t[8:] for t in types]} # remove biolink:
 
-                    # To pick a preferred label for this clique, we need to do three things:
-                    # 1. We sort all labels in the preferred-name order. By default, this should be
-                    #    the preferred CURIE order, but if this clique is in one of the Biolink classes in
-                    #    preferred_name_boost_prefixes, we boost those prefixes in that order to the top of the list.
-                    # 2. We filter out any suspicious labels.
-                    #    (If this simple filter doesn't work, and if prefixes are inconsistent, we can build upon the
-                    #    algorithm proposed by Jeff at
-                    #    https://github.com/NCATSTranslator/Feedback/issues/259#issuecomment-1605140850)
-                    # 3. We choose the first label that isn't blank. If no labels remain, we generate a warning.
-
-                    # Step 1.1. Sort labels in boosted prefix order if possible.
-                    possible_labels = []
-                    for typ in types:
-                        if typ in preferred_name_boost_prefixes:
-                            # This is the most specific matching type, so we use this.
-                            possible_labels = map(lambda identifier: identifier.get('label', ''),
-                                sort_identifiers_with_boosted_prefixes(
-                                    node["identifiers"],
-                                    preferred_name_boost_prefixes[typ]
-                                ))
-                            break
-
-                    # Step 1.2. If we didn't have a preferred_name_boost_prefixes, just use the identifiers in their
-                    # Biolink prefix order.
-                    if not possible_labels:
-                        possible_labels = map(lambda identifier: identifier.get('label', ''), node["identifiers"])
-
-                    # Step 2. Filter out any suspicious labels.
-                    filtered_possible_labels = [l for l in possible_labels if
-                                                l and                               # Ignore blank or empty names.
-                                                not l.startswith('CHEMBL')          # Some CHEMBL names are just the identifier again.
-                                                ]
-
-                    # Step 3. Pick the first label that isn't blank.
-                    if filtered_possible_labels:
-                        document["preferred_name"] = filtered_possible_labels[0]
+                    # Write out the preferred name.
+                    if preferred_name:
+                        document["preferred_name"] = preferred_name
                     else:
                         logging.debug(
-                            f"No preferred name for {node}, probably because all names were filtered out. Skipping."
+                            f"No preferred name for {node}, probably because all names were filtered out, skipping."
                         )
                         continue
 

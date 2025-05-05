@@ -1,6 +1,6 @@
 import src.createcompendia.drugchemical as drugchemical
-import src.assess_compendia as assessments
 import src.synonyms.synonymconflation as synonymconflation
+import src.snakefiles.util as util
 
 ### Drug / Chemical
 
@@ -36,27 +36,37 @@ rule drugchemical_conflation:
         chemical_compendia=expand("{do}/compendia/{co}", do=config['output_directory'], co=config['chemical_outputs']),
         rxnorm_concord=config['intermediate_directory']+'/drugchemical/concords/RXNORM',
         umls_concord=config['intermediate_directory']+'/drugchemical/concords/UMLS',
-        pubchem_concord=config['intermediate_directory']+'/drugchemical/concords/PUBCHEM_RXNORM'
+        pubchem_concord=config['intermediate_directory']+'/drugchemical/concords/PUBCHEM_RXNORM',
+        drugchemical_manual_concord=config['input_directory']+'/manual_concords/drugchemical.tsv',
+        icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         outfile=config['output_directory']+'/conflation/DrugChemical.txt'
     run:
-        drugchemical.build_conflation(input.rxnorm_concord,input.umls_concord,input.pubchem_concord,input.drug_compendium,input.chemical_compendia,output.outfile)
+        drugchemical.build_conflation(
+            input.drugchemical_manual_concord,
+            input.rxnorm_concord,
+            input.umls_concord,
+            input.pubchem_concord,
+            input.drug_compendium,
+            input.chemical_compendia,
+            input.icrdf_filename,
+            output.outfile)
 
 rule drugchemical_conflated_synonyms:
     input:
         drugchemical_conflation=[config['output_directory']+'/conflation/DrugChemical.txt'],
         chemical_compendia=expand("{do}/compendia/{co}", do=config['output_directory'], co=config['chemical_outputs']),
-        chemical_synonyms=expand("{do}/synonyms/{co}", do=config['output_directory'], co=config['chemical_outputs']),
+        chemical_synonyms_gz=expand("{do}/synonyms/{co}.gz", do=config['output_directory'], co=config['chemical_outputs']),
     output:
-        drugchemical_conflated=config['output_directory']+'/synonyms/DrugChemicalConflated.txt',
+        drugchemical_conflated_gz=config['output_directory']+'/synonyms/DrugChemicalConflated.txt.gz',
     run:
-        synonymconflation.conflate_synonyms(input.chemical_synonyms, input.chemical_compendia, input.drugchemical_conflation, output.drugchemical_conflated)
+        synonymconflation.conflate_synonyms(input.chemical_synonyms_gz, input.chemical_compendia, input.drugchemical_conflation, output.drugchemical_conflated_gz)
 
 rule drugchemical:
     input:
         config['output_directory']+'/conflation/DrugChemical.txt',
-        config['output_directory']+'/synonyms/DrugChemicalConflated.txt'
+        config['output_directory']+'/synonyms/DrugChemicalConflated.txt.gz',
     output:
-        x=config['output_directory']+'/reports/drugchemical_done'
-    shell:
-        "echo 'done' >> {output.x}"
+        done=config['output_directory']+'/reports/drugchemical_done'
+    run:
+        util.write_done(output.done)

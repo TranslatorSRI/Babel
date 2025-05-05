@@ -4,7 +4,7 @@ import requests
 import src.datahandlers.obo as obo
 from src.util import Text
 
-from src.prefixes import MESH, NCIT, CL, GO, UBERON, SNOMEDCT, WIKIDATA, UMLS
+from src.prefixes import MESH, NCIT, CL, GO, UBERON, SNOMEDCT, WIKIDATA, UMLS, FMA
 from src.categories import ANATOMICAL_ENTITY, GROSS_ANATOMICAL_STRUCTURE, CELL, CELLULAR_COMPONENT
 from src.ubergraph import build_sets
 from src.babel_utils import write_compendium, glom, get_prefixes, read_identifier_file, remove_overused_xrefs
@@ -136,7 +136,7 @@ def build_wikidata_cell_relationships(outdir):
                 print(f'Pair {pair} is not unique {counts[pair[0]]} {counts[pair[1]]}')
 
 def build_anatomy_umls_relationships(mrconso, idfile,outfile):
-    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT})
+    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO, 'FMA': FMA})
 
 def build_compendia(concordances, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
@@ -152,9 +152,22 @@ def build_compendia(concordances, identifiers, icrdf_filename):
         print(infile)
         print('loading',infile)
         pairs = []
+        # We have a concordance problem with UMLS - it is including GO terms that are obsolete and we don't want
+        # them added. So we want to limit concordances to terms that are already in the dicts. But that's ONLY for the
+        # UMLS concord.  We trust the others to retrieve decent identifiers.
+        bs = frozenset( [UMLS, GO])
         with open(infile,'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
+                prefixes = frozenset( [xi.split(':')[0] for xi in x[0:3:2]]) #leave out the predicate
+                if prefixes == bs:
+                    use = True
+                    for xi in (x[0], x[2]):
+                        if xi not in dicts:
+                            print(f"Skipping pair {x} from {infile}")
+                            use = False
+                    if not use:
+                        continue
                 pairs.append( ([x[0], x[2]]) )
         newpairs = remove_overused_xrefs(pairs)
         setpairs = [ set(x) for x in newpairs]
@@ -180,7 +193,7 @@ def create_typed_sets(eqsets,types):
         prefixes = get_prefixes(equivalent_ids)
         found  = False
         for prefix in [GO, CL, UBERON]:
-            if prefix in prefixes and not found:
+            if prefix in prefixes and prefixes[prefix][0] in types and not found:
                 mytype = types[prefixes[prefix][0]]
                 typed_sets[mytype].add(equivalent_ids)
                 found = True

@@ -49,8 +49,8 @@ rule export_all_to_sapbert_training:
 # Generic rule for generating the KGX files for a particular compendia file.
 rule generate_sapbert_training_data:
     input:
-        synonym_file=config['output_directory'] + "/synonyms/{filename}",
+        synonym_file_gz=config['output_directory'] + "/synonyms/{filename}.gz",
     output:
         sapbert_training_data_file=config['output_directory'] + "/sapbert-training-data/{filename}.gz",
     run:
-        sapbert.convert_synonyms_to_sapbert(input.synonym_file, output.sapbert_training_data_file)
+        sapbert.convert_synonyms_to_sapbert(input.synonym_file_gz, output.sapbert_training_data_file)

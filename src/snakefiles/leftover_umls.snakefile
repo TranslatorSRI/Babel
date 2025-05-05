@@ -1,6 +1,6 @@
-from src.createcompendia import leftover_umls
+from src.createcompendia.leftover_umls import write_leftover_umls
 from src.snakefiles.util import get_all_compendia
-
+import src.snakefiles.util as util
 
 ##
 ## This Snakefile implements the algorithm proposed in
@@ -24,13 +24,23 @@ rule leftover_umls:
     input:
         input_compendia = expand("{output}/compendia/{compendium}", output=config['output_directory'],
             compendium=[x for x in get_all_compendia(config) if x not in {'umls.txt'}]),
+        umls_label_filename = config['download_directory'] + "/UMLS/labels",
         mrconso = config['download_directory'] + '/UMLS/MRCONSO.RRF',
         mrsty = config['download_directory'] + '/UMLS/MRSTY.RRF',
         synonyms = config['download_directory'] + '/UMLS/synonyms'
     output:
         umls_compendium = config['output_directory'] + "/compendia/umls.txt",
-        umls_synonyms = config['output_directory'] + "/synonyms/umls.txt",
+        umls_synonyms = temp(config['output_directory'] + "/synonyms/umls.txt"),
         report = config['output_directory'] + "/reports/umls.txt",
-        done = config['output_directory'] + "/reports/umls_done"
     run:
-        leftover_umls.write_leftover_umls(input.input_compendia, input.mrconso, input.mrsty, input.synonyms, output.umls_compendium, output.umls_synonyms, output.report, output.done, config['biolink_version'])
+        write_leftover_umls(input.input_compendia, input.umls_label_filename, input.mrconso, input.mrsty, input.synonyms, output.umls_compendium, output.umls_synonyms, output.report, config['biolink_version'])
+
+rule compress_umls:
+    input:
+        umls_synonyms = config['output_directory'] + "/synonyms/umls.txt",
+    output:
+        umls_synonyms_gzipped = config['output_directory'] + "/synonyms/umls.txt.gz",
+        done = config['output_directory'] + "/reports/umls_done",
+    run:
+        util.gzip_files([input.umls_synonyms])
+        util.write_done(output.done)

@@ -1,7 +1,8 @@
 import logging
 import re
 
-from src.prefixes import EFO,ORPHANET
+from src.prefixes import CLO
+from src.categories import CELL_LINE
 from src.babel_utils import pull_via_urllib
 from src.babel_utils import make_local_name
 from src.util import Text, LoggingUtil
@@ -9,22 +10,14 @@ import pyoxigraph
 
 logger = LoggingUtil.init_logging(__name__, level=logging.WARNING)
 
-def pull_efo():
-    _=pull_via_urllib('http://www.ebi.ac.uk/efo/','efo.owl', subpath='EFO', decompress=False)
+def pull_clo():
+    _=pull_via_urllib('http://purl.obolibrary.org/obo/','clo.owl', subpath='CLO', decompress=False)
 
-class EFOgraph:
-    """Load the mesh rdf file for querying"""
-    def __init__(self):
-        """There is a problem with enzyme.rdf.  As pulled from expasy, it includes this:
-
-        <owl:Ontology rdf:about="">
-        <owl:imports rdf:resource="http://purl.uniprot.org/core/"/>
-        </owl:Ontology>
-
-        That about='' really makes pyoxigraph annoyed. So we have to give it a base_iri on load, then its ok"""
-        ifname = make_local_name('efo.owl', subpath='EFO')
+class CLOgraph:
+    """Load the file for querying"""
+    def __init__(self,ifname):
         from datetime import datetime as dt
-        print('loading EFO')
+        print('loading CLO')
         start = dt.now()
         self.m= pyoxigraph.MemoryStore()
         with open(ifname,'rb') as inf:
@@ -33,9 +26,8 @@ class EFOgraph:
         print('loading complete')
         print(f'took {end-start}')
 
-    def pull_EFO_labels_and_synonyms(self,lname,sname):
+    def pull_CLO_labels_and_synonyms(self,lname,sname):
         with open(lname, 'w') as labelfile, open(sname,'w') as synfile:
-            #for labeltype in ['skos:prefLabel','skos:altLabel','rdfs:label']:
             for labeltype in ['skos:prefLabel','skos:altLabel','rdfs:label']:
                 s=f"""   PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
                         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -54,18 +46,18 @@ class EFOgraph:
                             label = re.sub(pattern, r"\1", label)
                         else:
                             label = label[1:-1]
-                    efoid = iterm[:-1].split('/')[-1]
-                    if not efoid.startswith("EFO_"):
+                    cloid = iterm[:-1].split('/')[-1]
+                    if not cloid.startswith("CLO_"):
                         continue
-                    efo_id = efoid.split("_")[-1]
-                    synfile.write(f'{EFO}:{efo_id}\t{labeltype}\t{label}\n')
+                    clo_id = cloid.split("_")[-1]
+                    synfile.write(f'{CLO}:{clo_id}\t{labeltype}\t{label}\n')
                     if not labeltype == 'skos:altLabel':
-                        labelfile.write(f'{EFO}:{efo_id}\t{label}\n')
+                        labelfile.write(f'{CLO}:{clo_id}\t{label}\n')
 
-    def pull_EFO_ids(self,roots,idfname):
+    def pull_CLO_ids(self,roots,idfname):
         with open(idfname, 'w') as idfile:
             for root,rtype in roots:
-                s=f""" PREFIX EFO: <http://www.ebi.ac.uk/efo/EFO_>
+                s=f""" PREFIX CLO: <http://purl.obolibrary.org/obo/CLO_>
                        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
                        SELECT DISTINCT ?x
@@ -74,10 +66,10 @@ class EFOgraph:
                 qres = self.m.query(s)
                 for row in list(qres):
                     iterm = str(row['x'])
-                    efoid = iterm[:-1].split('/')[-1]
-                    if efoid.startswith("EFO_"):
-                        efo_id = efoid.split("_")[-1]
-                        idfile.write(f'{EFO}:{efo_id}\t{rtype}\n')
+                    cloid = iterm[:-1].split('/')[-1]
+                    if cloid.startswith("CLO_"):
+                        clo_id = cloid.split("_")[-1]
+                        idfile.write(f'{CLO}:{clo_id}\t{rtype}\n')
 
     def get_exacts(self, iri, outfile):
         query = f"""
@@ -157,20 +149,21 @@ class EFOgraph:
                 )
 
 
-def make_labels(labelfile,synfile):
-    m = EFOgraph()
-    m.pull_EFO_labels_and_synonyms(labelfile,synfile)
+def make_labels(infile,labelfile,synfile):
+    m = CLOgraph(infile)
+    m.pull_CLO_labels_and_synonyms(labelfile,synfile)
 
-def make_ids(roots,idfname):
-    m = EFOgraph()
-    m.pull_EFO_ids(roots,idfname)
+def write_clo_ids(idfname, odfname):
+    m = CLOgraph(idfname)
+    roots = [("CLO:0000001", CELL_LINE)]
+    m.pull_CLO_ids(roots,odfname)
 
-def make_concords(idfilename, outfilename):
-    """Given a list of identifiers, find out all of the equivalent identifiers from the owl"""
-    m = EFOgraph()
-    with open(idfilename,"r") as inf, open(outfilename,"w") as concfile:
-        for line in inf:
-            efo_id = line.split('\t')[0]
-            nexacts = m.get_exacts(efo_id,concfile)
-            if nexacts == 0:
-                m.get_xrefs(efo_id,concfile)
+#def make_concords(idfilename, outfilename):
+#    """Given a list of identifiers, find out all of the equivalent identifiers from the owl"""
+#    m = EFOgraph()
+#    with open(idfilename,"r") as inf, open(outfilename,"w") as concfile:
+#        for line in inf:
+#            efo_id = line.split('\t')[0]
+#            nexacts = m.get_exacts(efo_id,concfile)
+#            if nexacts == 0:
+#                m.get_xrefs(efo_id,concfile)

@@ -6,7 +6,7 @@ from collections import namedtuple
 import copy
 from logging.handlers import RotatingFileHandler
 from src.LabeledID import LabeledID
-from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10, ICD10CM
+from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10, ICD10CM, ICD11FOUNDATION
 import src.prefixes as prefixes
 
 #loggers = {}
@@ -79,10 +79,15 @@ class Text:
         return text.upper().split(':', 1)[0] if ':' in text else None
 
     @staticmethod
-    def get_prefix (text):
-        if isinstance(text,LabeledID):
-            text = text.identifier
-        return text.split(':', 1)[0] if ':' in text else None
+    def get_prefix (id):
+        if isinstance(id,LabeledID):
+            text = id.identifier
+        else:
+            text = id
+        if ':' in text:
+            return text.split(':', 1)[0]
+        raise ValueError(f"Unable to get_prefix({id}) with text '{text}': no colons found in identifier.")
+
 
     @classmethod
     def recurie(cls,text,new_prefix=None):
@@ -124,7 +129,10 @@ class Text:
         if text is None:
             return None
         #grumble, I should be better about handling prefixes
-        if text.startswith('http://purl.obolibrary.org') or text.startswith('http://www.orpha.net') or text.startswith('http://www.ebi.ac.uk/efo'):
+        if text.startswith('http://purl.obolibrary.org/obo/mondo/sources/icd11foundation/'):
+            # This has to go on top because it's a 'purl.obolibrary.org' which doesn't follow the same pattern as the others.
+            r = f'{ICD11FOUNDATION}:{text[61:]}'
+        elif text.startswith('http://purl.obolibrary.org') or text.startswith('http://www.orpha.net') or text.startswith('http://www.ebi.ac.uk/efo'):
             p = text.split('/')[-1].split('_')
             r = ':'.join( p )
         elif text.startswith('https://omim.org/'):
@@ -153,8 +161,12 @@ class Text:
             r = Text.recurie(text,KEGGREACTION)
         else:
             r = text
+
         if ':' in r:
             return Text.recurie(r)
+        else:
+            raise ValueError(f"Unable to opt_to_curie({text}): output calculated as {r}, which has no colon.")
+        
         return r
 
     @staticmethod

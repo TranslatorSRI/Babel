@@ -1,5 +1,6 @@
 import src.createcompendia.processactivitypathway as pap
 import src.assess_compendia as assessments
+import src.snakefiles.util as util
 
 ### Process / Activity / Pathway
 
@@ -50,6 +51,14 @@ rule process_panther_ids:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:Pathway\"}}' {input.infile} > {output.outfile}"
 
+rule process_umls_ids:
+    input:
+        mrsty=config['download_directory'] + "/UMLS/MRSTY.RRF"
+    output:
+        outfile=config['intermediate_directory']+"/process/ids/UMLS"
+    run:
+        pap.write_umls_ids(input.mrsty, output.outfile)
+
 ### Concords
 
 rule get_process_go_relationships:
@@ -66,6 +75,16 @@ rule get_process_rhea_relationships:
     run:
         pap.build_process_rhea_relationships(output.outfile)
 
+
+rule get_process_umls_relationships:
+    input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
+        infile=config['intermediate_directory']+"/process/ids/UMLS",
+    output:
+        outfile=config['intermediate_directory']+'/process/concords/UMLS',
+    run:
+        pap.build_process_umls_relationships(input.mrconso, input.infile, output.outfile)
+
 rule process_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['process_labels']),
@@ -75,7 +94,7 @@ rule process_compendia:
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['process_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs'])
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs']))
     run:
         pap.build_compendia(input.concords,input.idlists,input.icrdf_filename)
 
@@ -114,9 +133,11 @@ rule check_pathway:
 rule process:
     input:
         config['output_directory']+'/reports/process_completeness.txt',
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs']),
+        synonyms=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['process_outputs'])
     output:
+        synonyms_gzipped=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['process_outputs']),
         x=config['output_directory']+'/reports/process_done'
-    shell:
-        "echo 'done' >> {output.x}"
+    run:
+        util.gzip_files(input.synonyms)
+        util.write_done(output.x)

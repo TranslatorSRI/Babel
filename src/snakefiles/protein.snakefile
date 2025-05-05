@@ -1,6 +1,7 @@
 import src.createcompendia.protein as protein
 import src.assess_compendia as assessments
 #import src.filter_compendia as filter
+import src.snakefiles.util as util
 
 ### Gene / Protein
 
@@ -18,6 +19,14 @@ rule protein_uniprotkb_ids:
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1}}' {input.infile} > {output.outfile}"
+
+rule extract_taxon_ids_from_uniprotkb:
+    input:
+        infile=config['download_directory']+'/UniProtKB/idmapping.dat'
+    output:
+        outfile=config['download_directory']+'/UniProtKB/taxa'
+    run:
+        protein.extract_taxon_ids_from_uniprotkb(input.infile, output.outfile)
 
 rule protein_umls_ids:
     input:
@@ -73,9 +82,11 @@ rule protein_compendia:
         concords=expand("{dd}/protein/concords/{ap}",dd=config['intermediate_directory'],ap=config['protein_concords']),
         idlists=expand("{dd}/protein/ids/{ap}",dd=config['intermediate_directory'],ap=config['protein_ids']),
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
+        # Include the taxon information from UniProtKB
+        uniprotkb_taxa_file=config['download_directory']+'/UniProtKB/taxa',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs'])
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs']))
     run:
         protein.build_protein_compendia(input.concords,input.idlists, input.icrdf_filename)
 
@@ -98,12 +109,15 @@ rule check_protein:
 rule protein:
     input:
         config['output_directory']+'/reports/protein_completeness.txt',
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
+        synonyms=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['protein_outputs'])
     output:
+        synonyms_gzipped=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['protein_outputs']),
         x=config['output_directory']+'/reports/protein_done'
-    shell:
-        "echo 'done' >> {output.x}"
+    run:
+        util.gzip_files(input.synonyms)
+        util.write_done(output.x)
+
 #
 #rule filter_protein:
 #    input:

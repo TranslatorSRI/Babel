@@ -1,4 +1,6 @@
-from src.node import NodeFactory, get_config
+import csv
+
+from src.node import NodeFactory, get_config, InformationContentFactory
 from src.prefixes import RXCUI, PUBCHEMCOMPOUND, UMLS
 from src.categories import (CHEMICAL_ENTITY, DRUG, MOLECULAR_MIXTURE, FOOD, COMPLEX_MOLECULAR_MIXTURE,
                             SMALL_MOLECULE, NUCLEIC_ACID_ENTITY, MOLECULAR_ENTITY, FOOD_ADDITIVE,
@@ -82,7 +84,7 @@ useful_relationships = [
 "has_form",
 "has_precise_active_ingredient",
 "has_precise_ingredient",
-"has_tradename",
+"tradename_of",
 "consists_of",
 "has_ingredient",
 "has_active_ingredient"]
@@ -172,9 +174,11 @@ def build_rxnorm_relationships(conso, relfile, outfile):
                             "has_precise_active_ingredient": defaultdict(set),
                             "has_precise_ingredient": defaultdict(set),
                             "has_ingredient": defaultdict(set),
+                            "tradename_of": defaultdict(set),
                             "consists_of": defaultdict(set)}
-    one_to_one_relations = {"has_tradename": {"subject": defaultdict(set),
-                                              "object": defaultdict(set)}}
+    one_to_one_relations = {}
+    #one_to_one_relations = {"has_tradename": {"subject": defaultdict(set),
+    #                                          "object": defaultdict(set)}}
     with open(relfile, 'r') as inf, open(outfile, 'w') as outf:
         for line in inf:
             x = line.strip().split('|')
@@ -233,7 +237,7 @@ def build_pubchem_relationships(infile,outfile):
             for cid in cids:
                 outf.write(f"{RXCUI}:{rxnid}\tlinked\t{PUBCHEMCOMPOUND}:{cid}\n")
 
-def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendium,chemical_compendia,outfilename):
+def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem_rxn_concord, drug_compendium, chemical_compendia, icrdf_filename, outfilename):
     """RXN_concord contains relationshps between rxcuis that can be used to conflate
     Now we don't want all of them.  We want the ones that are between drugs and chemicals,
     and the ones between drugs and drugs.
@@ -241,15 +245,33 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
     We also want to get all the clique leaders as well.  For those, we only need to worry if there are RXCUIs
     in the clique."""
 
+    print("Loading information content values...")
+    ic_factory = InformationContentFactory(icrdf_filename)
+
+    print("Loading manual concords ...")
+    manual_concords = []
+    with open(manual_concord_filename,"r") as manualf:
+        csv_reader = csv.DictReader(manualf, dialect=csv.excel_tab)
+        for row in csv_reader:
+            # We're only interested in two fields, so you can add additional files ('comment', 'notes', etc.) as needed.
+            if 'subject' not in row or 'object' not in row:
+                raise RuntimeError(f"Missing subject or object fields in {manual_concord_filename}: {row}")
+            if row['subject'].strip() == '' or row['object'].strip() == '':
+                raise RuntimeError(f"Empty subject or object fields in {manual_concord_filename}: {row}")
+            manual_concords.append((row['subject'], row['object']))
+    print(f"{len(manual_concords)} manual concords loaded.")
+
     print("load all chemical conflations so we can normalize identifiers")
     preferred_curie_for_curie = {}
     type_for_preferred_curie = {}
+    clique_for_preferred_curie = {}
     for chemical_compendium in chemical_compendia:
         with open(chemical_compendium, 'r') as compendiumf:
             logger.info(f"Loading {chemical_compendium}")
             for line in compendiumf:
                 clique = json.loads(line)
                 preferred_id = clique['identifiers'][0]['i']
+                clique_for_preferred_curie[preferred_id] = list(map(lambda ident: ident['i'], clique['identifiers']))
                 type_for_preferred_curie[preferred_id] = clique['type']
                 for ident in clique['identifiers']:
                     id = ident['i']
@@ -325,6 +347,7 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
     # merged together because they share a normalized identifier. We can do this by adding pairs to indicate that every
     # subject and object is associated with its normalized identifier.
     pairs_to_be_glommed = []
+    pairs.extend(manual_concords)
     for (subj, obj) in pairs:
         # If either the subject or the object cannot be normalized, skip this pair entirely.
         #
@@ -448,26 +471,85 @@ def build_conflation(rxn_concord,umls_concord,pubchem_rxn_concord,drug_compendiu
             ids_already_added = set()
             for prefix in prefixes_for_type:
                 if prefix in prefix_map:
-                    prefixes_to_add = []
+                    ids_to_add = []
                     for id in prefix_map[prefix]:
                         ids_already_added.add(id)
-                        prefixes_to_add.append(id)
+                        ids_to_add.append(id)
 
                     # Sort this set of CURIEs from the numerically smallest CURIE suffix to the largest, with
                     # non-numerical CURIE suffixes sorted to the end.
-                    final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
+                    final_conflation_id_list.extend(list(sorted(ids_to_add, key=sort_by_curie_suffix)))
 
             # Add any identifiers that weren't in the prefix_map in the original order (which is not significant).
-            prefixes_to_add = []
+            ids_to_add = []
             for id in normalized_conflation_id_list:
                 if id not in ids_already_added:
-                    prefixes_to_add.append(id)
+                    ids_to_add.append(id)
 
             # Sort this final set of CURIEs from the numerically smallest CURIE suffix to the largest, with
             # non-numerical CURIE suffixes sorted to the end.
-            final_conflation_id_list.extend(list(sorted(prefixes_to_add, key=sort_by_curie_suffix)))
+            final_conflation_id_list.extend(list(sorted(ids_to_add, key=sort_by_curie_suffix)))
 
-            # Let's normalize all the identifiers.
+            # At this point, final_conflation_id_list is a list of all the identifiers for this conflation
+            # arranged in two ways:
+            #   - This is sorted by prefix in the prefix order specified for the type we've come up with for this
+            #     conflation (conflation_type).
+            #   - Within each prefix, we've sorted identifiers by CURIE suffix, so that the smallest identifier goes
+            #     first.
+            # This generally gives us the right identifier for the conflation, but there are a few cases where we can
+            # improve this:
+            #   - We might end up with a conflation clique leader that's not the right type.
+            #   - We might end up with a conflation clique leader that's a more complex chemical than the simplest
+            #     one (e.g. the conflated clique for CHEBI:45783 "imanitib" is currently lead by
+            #     CHEBI:31690 "imatinib methanesulfonate", just because it's numerically smaller).
+            #     - See https://github.com/TranslatorSRI/Babel/issues/341 for examples.
+            #   - We might end up with a conflation clique leader that has a higher information content
+            # To work around this, we take this chance to pick an alternate conflation clique leader.
+            conflation_clique_leader = final_conflation_id_list[0]
+            conflation_clique_leader_prefix = conflation_clique_leader.split(':')[0]
+            conflation_clique_leader_ic = ic_factory.get_ic({
+                'identifiers': list(map(lambda curie: {'identifier': curie}, clique_for_preferred_curie[conflation_clique_leader]))
+            })
+            if conflation_clique_leader_ic is None:
+                conflation_clique_leader_ic = float(100.0)
+            else:
+                conflation_clique_leader_ic = float(conflation_clique_leader_ic)
+
+            for curie in final_conflation_id_list:
+                curie_prefix = curie.split(':')[0]
+                if curie_prefix != conflation_clique_leader_prefix:
+                    # Let's stick will the same prefix as the first entry.
+                    continue
+
+                # Note that this works because curie is always a clique leader here.
+                curie_type = type_for_preferred_curie[curie]
+                if curie_type != conflation_type:
+                    # Only consider clique leaders that are of the calculated type.
+                    continue
+
+                # Is this a lower information content value? If so, prefer this CURIE.
+                curie_ic = ic_factory.get_ic({
+                    'identifiers': list(map(lambda curie: {'identifier': curie}, clique_for_preferred_curie[curie]))
+                })
+                if curie_ic is not None and float(curie_ic) < float(conflation_clique_leader_ic):
+                    logging.info(f"Found better IC with CURIE {curie} (IC {curie_ic}) than previous conflation clique "
+                                 f"leader {final_conflation_id_list[0]} (IC {conflation_clique_leader_ic}).")
+                    conflation_clique_leader = curie
+                    conflation_clique_leader_ic = float(curie_ic)
+
+                # Is this a shorter label? If so, we would like to prefer this
+                # CURIE, but loading all the labels into memory would take a
+                # lot of memory. So let's see how good we can do with just the
+                # information content values.
+
+            # If we've picked a new clique leader, move it to the front of the list.
+            if conflation_clique_leader != final_conflation_id_list[0]:
+                logging.info(f"Replacing conflation clique leader {final_conflation_id_list[0]} with improved "
+                             f"conflation clique leader {conflation_clique_leader}")
+                final_conflation_id_list.remove(conflation_clique_leader)
+                final_conflation_id_list.insert(0, conflation_clique_leader)
+
+                # Write out all the identifiers.
             logger.info(f"Ordered DrugChemical conflation {final_conflation_id_list}")
 
             outfile.write(f"{json.dumps(final_conflation_id_list)}\n")

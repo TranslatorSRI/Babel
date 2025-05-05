@@ -1,0 +1,1428 @@
+{
+  "name": "babel-2025jan23",
+  "by_clique": {
+    "CHEBI": {
+      "by_file": {
+        "ChemicalEntity": {
+          "CAS": 16,
+          "CHEBI": 10938,
+          "CHEMBL.COMPOUND": 103,
+          "DRUGBANK": 88,
+          "DrugCentral": 55,
+          "GTOPDB": 17,
+          "HMDB": 29,
+          "INCHIKEY": 121,
+          "KEGG.COMPOUND": 570,
+          "MESH": 692,
+          "PUBCHEM.COMPOUND": 1,
+          "RXCUI": 85,
+          "UMLS": 515,
+          "UNII": 125
+        },
+        "ChemicalMixture": {
+          "CHEBI": 505,
+          "INCHIKEY": 1,
+          "KEGG.COMPOUND": 7,
+          "MESH": 8,
+          "PUBCHEM.COMPOUND": 1,
+          "UMLS": 6,
+          "UNII": 1
+        },
+        "MolecularMixture": {
+          "CAS": 2389,
+          "CHEBI": 3835,
+          "CHEMBL.COMPOUND": 1583,
+          "DRUGBANK": 222,
+          "DrugCentral": 167,
+          "GTOPDB": 13,
+          "HMDB": 115,
+          "INCHIKEY": 3463,
+          "KEGG.COMPOUND": 467,
+          "MESH": 706,
+          "PUBCHEM.COMPOUND": 3590,
+          "RXCUI": 353,
+          "UMLS": 726,
+          "UNII": 1911
+        },
+        "SmallMolecule": {
+          "CAS": 51281,
+          "CHEBI": 185052,
+          "CHEMBL.COMPOUND": 40520,
+          "DRUGBANK": 5595,
+          "DrugCentral": 3977,
+          "GTOPDB": 3709,
+          "HMDB": 24396,
+          "INCHIKEY": 172644,
+          "KEGG.COMPOUND": 13522,
+          "MESH": 25093,
+          "PUBCHEM.COMPOUND": 172051,
+          "RXCUI": 3658,
+          "UMLS": 23776,
+          "UNII": 18692
+        }
+      },
+      "count_cliques": 199875,
+      "count_curies": 777390
+    },
+    "CHEMBL.COMPOUND": {
+      "by_file": {
+        "ChemicalEntity": {
+          "CHEMBL.COMPOUND": 20889,
+          "DRUGBANK": 9,
+          "DrugCentral": 6,
+          "INCHIKEY": 46,
+          "KEGG.COMPOUND": 1,
+          "RXCUI": 5,
+          "UMLS": 11
+        },
+        "MolecularMixture": {
+          "CHEMBL.COMPOUND": 12657,
+          "GTOPDB": 4,
+          "HMDB": 3,
+          "INCHIKEY": 10855,
+          "KEGG.COMPOUND": 1
+        },
+        "SmallMolecule": {
+          "CHEMBL.COMPOUND": 158728,
+          "DRUGBANK": 71,
+          "DrugCentral": 9,
+          "GTOPDB": 145,
+          "HMDB": 75,
+          "INCHIKEY": 93668,
+          "KEGG.COMPOUND": 9,
+          "RXCUI": 1,
+          "UMLS": 2
+        }
+      },
+      "count_cliques": 192268,
+      "count_curies": 297195
+    },
+    "CL": {
+      "by_file": {
+        "Cell": {
+          "CL": 2853,
+          "MESH": 144,
+          "NCIT": 185,
+          "SNOMEDCT": 114,
+          "UBERON": 3,
+          "UMLS": 587
+        }
+      },
+      "count_cliques": 2853,
+      "count_curies": 3886
+    },
+    "ComplexPortal": {
+      "by_file": {
+        "MacromolecularComplex": {
+          "ComplexPortal": 1258
+        }
+      },
+      "count_cliques": 629,
+      "count_curies": 1258
+    },
+    "DOID": {
+      "by_file": {
+        "Disease": {
+          "DOID": 364,
+          "EFO": 24,
+          "ICD10": 20,
+          "ICD9": 24,
+          "MEDDRA": 95,
+          "MESH": 46,
+          "NCIT": 37,
+          "OMIM": 21,
+          "SNOMEDCT": 86,
+          "UMLS": 114
+        }
+      },
+      "count_cliques": 362,
+      "count_curies": 831
+    },
+    "DRUGBANK": {
+      "by_file": {
+        "ChemicalEntity": {
+          "CAS": 26,
+          "DRUGBANK": 3458,
+          "DrugCentral": 1,
+          "HMDB": 1,
+          "INCHIKEY": 231,
+          "KEGG.COMPOUND": 1,
+          "MESH": 238,
+          "RXCUI": 1171,
+          "UMLS": 3010
+        },
+        "ComplexMolecularMixture": {
+          "CAS": 1,
+          "DRUGBANK": 6,
+          "MESH": 6,
+          "UMLS": 6
+        },
+        "SmallMolecule": {
+          "DRUGBANK": 1,
+          "GTOPDB": 1,
+          "INCHIKEY": 1
+        }
+      },
+      "count_cliques": 3323,
+      "count_curies": 8159
+    },
+    "DrugCentral": {
+      "by_file": {
+        "ChemicalEntity": {
+          "DrugCentral": 5,
+          "RXCUI": 1,
+          "UMLS": 4
+        },
+        "SmallMolecule": {
+          "DrugCentral": 4,
+          "INCHIKEY": 4,
+          "UMLS": 1
+        }
+      },
+      "count_cliques": 9,
+      "count_curies": 19
+    },
+    "EC": {
+      "by_file": {
+        "MolecularActivity": {
+          "EC": 3689
+        }
+      },
+      "count_cliques": 3689,
+      "count_curies": 3689
+    },
+    "EFO": {
+      "by_file": {
+        "Disease": {
+          "EFO": 578,
+          "HP": 1,
+          "ICD10": 40,
+          "ICD9": 8,
+          "MEDDRA": 298,
+          "MESH": 106,
+          "MP": 1,
+          "NCIT": 158,
+          "SNOMEDCT": 170,
+          "UMLS": 323,
+          "medgen": 19
+        },
+        "PhenotypicFeature": {
+          "EFO": 8397,
+          "MEDDRA": 124,
+          "MESH": 80,
+          "MP": 14,
+          "NCIT": 272,
+          "SNOMEDCT": 192,
+          "UMLS": 122
+        }
+      },
+      "count_cliques": 8974,
+      "count_curies": 10903
+    },
+    "ENSEMBL": {
+      "by_file": {
+        "Gene": {
+          "ENSEMBL": 3420258
+        },
+        "Protein": {
+          "ENSEMBL": 1715928
+        }
+      },
+      "count_cliques": 5136186,
+      "count_curies": 5136186
+    },
+    "FB": {
+      "by_file": {
+        "Gene": {
+          "FB": 12382
+        }
+      },
+      "count_cliques": 12382,
+      "count_curies": 12382
+    },
+    "GO": {
+      "by_file": {
+        "BiologicalProcess": {
+          "GO": 25874,
+          "UMLS": 17565
+        },
+        "CellularComponent": {
+          "GO": 4022,
+          "MESH": 102,
+          "NCIT": 104,
+          "SNOMEDCT": 82,
+          "UBERON": 8,
+          "UMLS": 3188
+        },
+        "MolecularActivity": {
+          "EC": 216,
+          "GO": 10146,
+          "KEGG.REACTION": 6,
+          "REACT": 203,
+          "RHEA": 240,
+          "TCDB": 22,
+          "UMLS": 7219
+        },
+        "Pathway": {
+          "GO": 593
+        }
+      },
+      "count_cliques": 40635,
+      "count_curies": 69590
+    },
+    "GTOPDB": {
+      "by_file": {
+        "MolecularMixture": {
+          "GTOPDB": 7,
+          "INCHIKEY": 5
+        },
+        "SmallMolecule": {
+          "GTOPDB": 2703,
+          "HMDB": 7,
+          "INCHIKEY": 294,
+          "KEGG.COMPOUND": 1
+        }
+      },
+      "count_cliques": 2710,
+      "count_curies": 3017
+    },
+    "HGNC": {
+      "by_file": {
+        "Gene": {
+          "HGNC": 886,
+          "UMLS": 877
+        }
+      },
+      "count_cliques": 886,
+      "count_curies": 1763
+    },
+    "HGNC.FAMILY": {
+      "by_file": {
+        "GeneFamily": {
+          "HGNC.FAMILY": 1831
+        }
+      },
+      "count_cliques": 1831,
+      "count_curies": 1831
+    },
+    "HMDB": {
+      "by_file": {
+        "MolecularMixture": {
+          "HMDB": 46,
+          "INCHIKEY": 46
+        },
+        "SmallMolecule": {
+          "HMDB": 16036,
+          "INCHIKEY": 15849,
+          "KEGG.COMPOUND": 10
+        }
+      },
+      "count_cliques": 16082,
+      "count_curies": 31987
+    },
+    "HP": {
+      "by_file": {
+        "PhenotypicFeature": {
+          "EFO": 116,
+          "HP": 16457,
+          "MEDDRA": 5263,
+          "MESH": 560,
+          "MP": 17,
+          "NCIT": 1063,
+          "SNOMEDCT": 3444,
+          "UMLS": 17682
+        }
+      },
+      "count_cliques": 16457,
+      "count_curies": 44602
+    },
+    "KEGG.COMPOUND": {
+      "by_file": {
+        "ChemicalEntity": {
+          "INCHIKEY": 99,
+          "KEGG.COMPOUND": 409
+        }
+      },
+      "count_cliques": 409,
+      "count_curies": 508
+    },
+    "MESH": {
+      "by_file": {
+        "AnatomicalEntity": {
+          "MESH": 90
+        },
+        "Cell": {
+          "MESH": 13
+        },
+        "CellularComponent": {
+          "MESH": 176,
+          "NCIT": 61,
+          "SNOMEDCT": 61,
+          "UMLS": 153
+        },
+        "ChemicalEntity": {
+          "CAS": 8227,
+          "DrugCentral": 1,
+          "MESH": 167908,
+          "RXCUI": 223,
+          "UMLS": 96882
+        },
+        "ComplexMolecularMixture": {
+          "CAS": 4,
+          "MESH": 168,
+          "UMLS": 95
+        },
+        "Disease": {
+          "MESH": 20
+        },
+        "OrganismTaxon": {
+          "MESH": 547,
+          "UMLS": 503
+        },
+        "PhenotypicFeature": {
+          "MESH": 18
+        }
+      },
+      "count_cliques": 168929,
+      "count_curies": 275150
+    },
+    "MGI": {
+      "by_file": {
+        "Gene": {
+          "MGI": 21978
+        }
+      },
+      "count_cliques": 21978,
+      "count_curies": 21978
+    },
+    "MONDO": {
+      "by_file": {
+        "Disease": {
+          "DOID": 11392,
+          "EFO": 3127,
+          "HP": 2291,
+          "ICD10": 2456,
+          "ICD9": 2199,
+          "KEGG.DISEASE": 40,
+          "MEDDRA": 15360,
+          "MESH": 9284,
+          "MONDO": 25959,
+          "MP": 3,
+          "NCIT": 8607,
+          "OMIM": 9419,
+          "OMIM.PS": 565,
+          "SNOMEDCT": 14579,
+          "UMLS": 25356,
+          "icd11": 5,
+          "icd11.foundation": 4032,
+          "medgen": 20950,
+          "orphanet": 8138
+        }
+      },
+      "count_cliques": 25959,
+      "count_curies": 163762
+    },
+    "NCBIGene": {
+      "by_file": {
+        "Gene": {
+          "ENSEMBL": 11684845,
+          "FB": 17872,
+          "HGNC": 43087,
+          "MGI": 58252,
+          "NCBIGene": 58008124,
+          "OMIM": 17319,
+          "RGD": 77158,
+          "SGD": 6471,
+          "UMLS": 42949,
+          "WormBase": 28785,
+          "ZFIN": 26918,
+          "dictyBase": 13892
+        }
+      },
+      "count_cliques": 58008124,
+      "count_curies": 70025672
+    },
+    "NCBITaxon": {
+      "by_file": {
+        "OrganismTaxon": {
+          "MESH": 70097,
+          "NCBITaxon": 2615615,
+          "UMLS": 69197
+        }
+      },
+      "count_cliques": 2615615,
+      "count_curies": 2754909
+    },
+    "NCIT": {
+      "by_file": {
+        "AnatomicalEntity": {
+          "NCIT": 1476
+        },
+        "Cell": {
+          "NCIT": 3
+        },
+        "CellularComponent": {
+          "NCIT": 122
+        },
+        "Disease": {
+          "NCIT": 264
+        },
+        "PhenotypicFeature": {
+          "MEDDRA": 838,
+          "MESH": 66,
+          "NCIT": 19781,
+          "SNOMEDCT": 536,
+          "UMLS": 19489
+        }
+      },
+      "count_cliques": 21629,
+      "count_curies": 42575
+    },
+    "OMIM": {
+      "by_file": {
+        "Disease": {
+          "EFO": 5,
+          "MEDDRA": 5,
+          "MESH": 85,
+          "NCIT": 27,
+          "OMIM": 693,
+          "SNOMEDCT": 32,
+          "UMLS": 549
+        },
+        "Gene": {
+          "OMIM": 193
+        }
+      },
+      "count_cliques": 885,
+      "count_curies": 1589
+    },
+    "PANTHER.FAMILY": {
+      "by_file": {
+        "GeneFamily": {
+          "PANTHER.FAMILY": 26139
+        }
+      },
+      "count_cliques": 26139,
+      "count_curies": 26139
+    },
+    "PANTHER.PATHWAY": {
+      "by_file": {
+        "Pathway": {
+          "PANTHER.PATHWAY": 175
+        }
+      },
+      "count_cliques": 175,
+      "count_curies": 175
+    },
+    "PMID": {
+      "by_file": {
+        "Publication": {
+          "PMC": 9802826,
+          "PMID": 38230457,
+          "doi": 29313924
+        }
+      },
+      "count_cliques": 38230457,
+      "count_curies": 77347207
+    },
+    "PR": {
+      "by_file": {
+        "Protein": {
+          "PR": 79574
+        }
+      },
+      "count_cliques": 79574,
+      "count_curies": 79574
+    },
+    "PUBCHEM.COMPOUND": {
+      "by_file": {
+        "ChemicalEntity": {
+          "INCHIKEY": 41548,
+          "KEGG.COMPOUND": 1,
+          "PUBCHEM.COMPOUND": 41548
+        },
+        "MolecularMixture": {
+          "CAS": 250452,
+          "CHEMBL.COMPOUND": 98809,
+          "DRUGBANK": 49,
+          "DrugCentral": 10,
+          "GTOPDB": 26,
+          "HMDB": 89,
+          "INCHIKEY": 10014788,
+          "KEGG.COMPOUND": 7,
+          "MESH": 5452,
+          "PUBCHEM.COMPOUND": 10639787,
+          "RXCUI": 60,
+          "UMLS": 4982
+        },
+        "SmallMolecule": {
+          "CAS": 3448369,
+          "CHEMBL.COMPOUND": 2144155,
+          "DRUGBANK": 2998,
+          "DrugCentral": 66,
+          "GTOPDB": 4532,
+          "HMDB": 174495,
+          "INCHIKEY": 105242222,
+          "KEGG.COMPOUND": 835,
+          "MESH": 44576,
+          "PUBCHEM.COMPOUND": 108444440,
+          "RXCUI": 54,
+          "UMLS": 39681
+        }
+      },
+      "count_cliques": 119125773,
+      "count_curies": 240644031
+    },
+    "REACT": {
+      "by_file": {
+        "BiologicalProcess": {
+          "REACT": 12
+        },
+        "MolecularActivity": {
+          "REACT": 87789
+        },
+        "Pathway": {
+          "REACT": 22304
+        }
+      },
+      "count_cliques": 110105,
+      "count_curies": 110105
+    },
+    "RGD": {
+      "by_file": {
+        "Gene": {
+          "RGD": 14268
+        }
+      },
+      "count_cliques": 14268,
+      "count_curies": 14268
+    },
+    "RHEA": {
+      "by_file": {
+        "MolecularActivity": {
+          "EC": 4873,
+          "RHEA": 68284
+        }
+      },
+      "count_cliques": 68284,
+      "count_curies": 73157
+    },
+    "RXCUI": {
+      "by_file": {
+        "ChemicalEntity": {
+          "RXCUI": 756
+        },
+        "Drug": {
+          "CAS": 1,
+          "DRUGBANK": 1,
+          "MESH": 12,
+          "RXCUI": 102206,
+          "UMLS": 99477
+        },
+        "MolecularMixture": {
+          "RXCUI": 3802
+        }
+      },
+      "count_cliques": 106764,
+      "count_curies": 206255
+    },
+    "SGD": {
+      "by_file": {
+        "Gene": {
+          "SGD": 696
+        }
+      },
+      "count_cliques": 696,
+      "count_curies": 696
+    },
+    "SMPDB": {
+      "by_file": {
+        "Pathway": {
+          "SMPDB": 30248
+        }
+      },
+      "count_cliques": 30248,
+      "count_curies": 30248
+    },
+    "UBERON": {
+      "by_file": {
+        "AnatomicalEntity": {
+          "EMAPA": 968,
+          "FBbt": 117,
+          "MESH": 329,
+          "NCIT": 570,
+          "UBERON": 4080,
+          "UMLS": 1103,
+          "WBbt": 18,
+          "ZFA": 607
+        },
+        "GrossAnatomicalStructure": {
+          "MESH": 779,
+          "NCIT": 2079,
+          "UBERON": 10405,
+          "UMLS": 2376
+        }
+      },
+      "count_cliques": 14485,
+      "count_curies": 23431
+    },
+    "UMLS": {
+      "by_file": {
+        "AnatomicalEntity": {
+          "MESH": 186,
+          "NCIT": 2143,
+          "UMLS": 138843
+        },
+        "BiologicalProcess": {
+          "UMLS": 24648
+        },
+        "Cell": {
+          "MESH": 173,
+          "NCIT": 2310,
+          "SNOMEDCT": 768,
+          "UMLS": 5755
+        },
+        "CellularComponent": {
+          "NCIT": 1170,
+          "SNOMEDCT": 396,
+          "UMLS": 5032
+        },
+        "ChemicalEntity": {
+          "RXCUI": 10443,
+          "UMLS": 183888
+        },
+        "Disease": {
+          "HP": 59,
+          "MEDDRA": 31021,
+          "MESH": 1719,
+          "NCIT": 16883,
+          "SNOMEDCT": 82658,
+          "UMLS": 325182
+        },
+        "Drug": {
+          "CAS": 2,
+          "MESH": 46,
+          "UMLS": 156890
+        },
+        "Gene": {
+          "UMLS": 3044
+        },
+        "MolecularActivity": {
+          "UMLS": 19881
+        },
+        "OrganismTaxon": {
+          "UMLS": 699994
+        },
+        "PhenotypicFeature": {
+          "MEDDRA": 16449,
+          "MESH": 270,
+          "SNOMEDCT": 43283,
+          "UMLS": 326639
+        },
+        "Polypeptide": {
+          "UMLS": 191
+        },
+        "Protein": {
+          "UMLS": 149930
+        },
+        "umls": {
+          "UMLS": 907349
+        }
+      },
+      "count_cliques": 2944418,
+      "count_curies": 3157245
+    },
+    "UNII": {
+      "by_file": {
+        "ChemicalEntity": {
+          "CAS": 4,
+          "CHEMBL.COMPOUND": 514,
+          "DRUGBANK": 801,
+          "DrugCentral": 264,
+          "GTOPDB": 171,
+          "HMDB": 21,
+          "INCHIKEY": 5192,
+          "KEGG.COMPOUND": 12,
+          "MESH": 1449,
+          "PUBCHEM.COMPOUND": 4,
+          "RXCUI": 532,
+          "UMLS": 1358,
+          "UNII": 53023
+        },
+        "MolecularMixture": {
+          "CAS": 10181,
+          "CHEMBL.COMPOUND": 3154,
+          "DRUGBANK": 196,
+          "DrugCentral": 130,
+          "GTOPDB": 12,
+          "HMDB": 102,
+          "INCHIKEY": 12603,
+          "KEGG.COMPOUND": 11,
+          "MESH": 1195,
+          "PUBCHEM.COMPOUND": 11602,
+          "RXCUI": 282,
+          "UMLS": 1207,
+          "UNII": 12620
+        },
+        "SmallMolecule": {
+          "CAS": 46110,
+          "CHEMBL.COMPOUND": 15415,
+          "DRUGBANK": 2607,
+          "DrugCentral": 300,
+          "GTOPDB": 1613,
+          "HMDB": 2505,
+          "INCHIKEY": 47970,
+          "KEGG.COMPOUND": 110,
+          "MESH": 10938,
+          "PUBCHEM.COMPOUND": 47481,
+          "RXCUI": 528,
+          "UMLS": 11347,
+          "UNII": 48039
+        }
+      },
+      "count_cliques": 113632,
+      "count_curies": 351603
+    },
+    "UniProtKB": {
+      "by_file": {
+        "Protein": {
+          "ENSEMBL": 19465886,
+          "PR": 172191,
+          "UMLS": 15753,
+          "UniProtKB": 254326154
+        }
+      },
+      "count_cliques": 254326154,
+      "count_curies": 273979984
+    },
+    "WormBase": {
+      "by_file": {
+        "Gene": {
+          "WormBase": 19992
+        }
+      },
+      "count_cliques": 19992,
+      "count_curies": 19992
+    },
+    "ZFIN": {
+      "by_file": {
+        "Gene": {
+          "ZFIN": 11161
+        }
+      },
+      "count_cliques": 11161,
+      "count_curies": 11161
+    },
+    "orphanet": {
+      "by_file": {
+        "Disease": {
+          "orphanet": 2853
+        }
+      },
+      "count_cliques": 2853,
+      "count_curies": 2853
+    }
+  },
+  "by_curie_prefix": {
+    "CAS": {
+      "clique_distinct_count": 3768908,
+      "curie_count": 3817063,
+      "curie_distinct_count": 3817063,
+      "filenames": {
+        "ChemicalEntity": 8273,
+        "ComplexMolecularMixture": 5,
+        "Drug": 3,
+        "MolecularMixture": 263022,
+        "SmallMolecule": 3545760
+      }
+    },
+    "CHEBI": {
+      "clique_distinct_count": 199875,
+      "curie_count": 200330,
+      "curie_distinct_count": 200330,
+      "filenames": {
+        "ChemicalEntity": 10938,
+        "ChemicalMixture": 505,
+        "MolecularMixture": 3835,
+        "SmallMolecule": 185052
+      }
+    },
+    "CHEMBL.COMPOUND": {
+      "clique_distinct_count": 2496308,
+      "curie_count": 2496527,
+      "curie_distinct_count": 2496527,
+      "filenames": {
+        "ChemicalEntity": 21506,
+        "MolecularMixture": 116203,
+        "SmallMolecule": 2358818
+      }
+    },
+    "CL": {
+      "clique_distinct_count": 2853,
+      "curie_count": 2853,
+      "curie_distinct_count": 2853,
+      "filenames": {
+        "Cell": 2853
+      }
+    },
+    "ComplexPortal": {
+      "clique_distinct_count": 629,
+      "curie_count": 1258,
+      "curie_distinct_count": 629,
+      "filenames": {
+        "MacromolecularComplex": 1258
+      }
+    },
+    "DOID": {
+      "clique_distinct_count": 11586,
+      "curie_count": 11756,
+      "curie_distinct_count": 11756,
+      "filenames": {
+        "Disease": 11756
+      }
+    },
+    "DRUGBANK": {
+      "clique_distinct_count": 15908,
+      "curie_count": 16102,
+      "curie_distinct_count": 16102,
+      "filenames": {
+        "ChemicalEntity": 4356,
+        "ComplexMolecularMixture": 6,
+        "Drug": 1,
+        "MolecularMixture": 467,
+        "SmallMolecule": 11272
+      }
+    },
+    "DrugCentral": {
+      "clique_distinct_count": 4991,
+      "curie_count": 4995,
+      "curie_distinct_count": 4995,
+      "filenames": {
+        "ChemicalEntity": 332,
+        "MolecularMixture": 307,
+        "SmallMolecule": 4356
+      }
+    },
+    "EC": {
+      "clique_distinct_count": 8778,
+      "curie_count": 8778,
+      "curie_distinct_count": 8778,
+      "filenames": {
+        "MolecularActivity": 8778
+      }
+    },
+    "EFO": {
+      "clique_distinct_count": 12207,
+      "curie_count": 12247,
+      "curie_distinct_count": 12247,
+      "filenames": {
+        "Disease": 3734,
+        "PhenotypicFeature": 8513
+      }
+    },
+    "EMAPA": {
+      "clique_distinct_count": 934,
+      "curie_count": 968,
+      "curie_distinct_count": 968,
+      "filenames": {
+        "AnatomicalEntity": 968
+      }
+    },
+    "ENSEMBL": {
+      "clique_distinct_count": 26010042,
+      "curie_count": 36286917,
+      "curie_distinct_count": 36280317,
+      "filenames": {
+        "Gene": 15105103,
+        "Protein": 21181814
+      }
+    },
+    "FB": {
+      "clique_distinct_count": 30254,
+      "curie_count": 30254,
+      "curie_distinct_count": 30254,
+      "filenames": {
+        "Gene": 30254
+      }
+    },
+    "FBbt": {
+      "clique_distinct_count": 117,
+      "curie_count": 117,
+      "curie_distinct_count": 117,
+      "filenames": {
+        "AnatomicalEntity": 117
+      }
+    },
+    "GO": {
+      "clique_distinct_count": 40635,
+      "curie_count": 40635,
+      "curie_distinct_count": 40635,
+      "filenames": {
+        "BiologicalProcess": 25874,
+        "CellularComponent": 4022,
+        "MolecularActivity": 10146,
+        "Pathway": 593
+      }
+    },
+    "GTOPDB": {
+      "clique_distinct_count": 12949,
+      "curie_count": 12953,
+      "curie_distinct_count": 12953,
+      "filenames": {
+        "ChemicalEntity": 188,
+        "MolecularMixture": 62,
+        "SmallMolecule": 12703
+      }
+    },
+    "HGNC": {
+      "clique_distinct_count": 43973,
+      "curie_count": 43973,
+      "curie_distinct_count": 43973,
+      "filenames": {
+        "Gene": 43973
+      }
+    },
+    "HGNC.FAMILY": {
+      "clique_distinct_count": 1831,
+      "curie_count": 1831,
+      "curie_distinct_count": 1831,
+      "filenames": {
+        "GeneFamily": 1831
+      }
+    },
+    "HMDB": {
+      "clique_distinct_count": 217920,
+      "curie_count": 217920,
+      "curie_distinct_count": 217920,
+      "filenames": {
+        "ChemicalEntity": 51,
+        "MolecularMixture": 355,
+        "SmallMolecule": 217514
+      }
+    },
+    "HP": {
+      "clique_distinct_count": 18808,
+      "curie_count": 18808,
+      "curie_distinct_count": 18808,
+      "filenames": {
+        "Disease": 2351,
+        "PhenotypicFeature": 16457
+      }
+    },
+    "ICD10": {
+      "clique_distinct_count": 2371,
+      "curie_count": 2516,
+      "curie_distinct_count": 2516,
+      "filenames": {
+        "Disease": 2516
+      }
+    },
+    "ICD9": {
+      "clique_distinct_count": 2077,
+      "curie_count": 2231,
+      "curie_distinct_count": 2231,
+      "filenames": {
+        "Disease": 2231
+      }
+    },
+    "INCHIKEY": {
+      "clique_distinct_count": 115661650,
+      "curie_count": 115661650,
+      "curie_distinct_count": 115661650,
+      "filenames": {
+        "ChemicalEntity": 47237,
+        "ChemicalMixture": 1,
+        "MolecularMixture": 10041760,
+        "SmallMolecule": 105572652
+      }
+    },
+    "KEGG.COMPOUND": {
+      "clique_distinct_count": 15922,
+      "curie_count": 15974,
+      "curie_distinct_count": 15974,
+      "filenames": {
+        "ChemicalEntity": 994,
+        "ChemicalMixture": 7,
+        "MolecularMixture": 486,
+        "SmallMolecule": 14487
+      }
+    },
+    "KEGG.DISEASE": {
+      "clique_distinct_count": 40,
+      "curie_count": 40,
+      "curie_distinct_count": 40,
+      "filenames": {
+        "Disease": 40
+      }
+    },
+    "KEGG.REACTION": {
+      "clique_distinct_count": 6,
+      "curie_count": 6,
+      "curie_distinct_count": 6,
+      "filenames": {
+        "MolecularActivity": 6
+      }
+    },
+    "MEDDRA": {
+      "clique_distinct_count": 45728,
+      "curie_count": 69453,
+      "curie_distinct_count": 69453,
+      "filenames": {
+        "Disease": 46779,
+        "PhenotypicFeature": 22674
+      }
+    },
+    "MESH": {
+      "clique_distinct_count": 341886,
+      "curie_count": 343377,
+      "curie_distinct_count": 343177,
+      "filenames": {
+        "AnatomicalEntity": 605,
+        "Cell": 330,
+        "CellularComponent": 278,
+        "ChemicalEntity": 170287,
+        "ChemicalMixture": 8,
+        "ComplexMolecularMixture": 174,
+        "Disease": 11260,
+        "Drug": 58,
+        "GrossAnatomicalStructure": 779,
+        "MolecularMixture": 7353,
+        "OrganismTaxon": 70644,
+        "PhenotypicFeature": 994,
+        "SmallMolecule": 80607
+      }
+    },
+    "MGI": {
+      "clique_distinct_count": 80230,
+      "curie_count": 80230,
+      "curie_distinct_count": 80230,
+      "filenames": {
+        "Gene": 80230
+      }
+    },
+    "MONDO": {
+      "clique_distinct_count": 25959,
+      "curie_count": 25959,
+      "curie_distinct_count": 25959,
+      "filenames": {
+        "Disease": 25959
+      }
+    },
+    "MP": {
+      "clique_distinct_count": 34,
+      "curie_count": 35,
+      "curie_distinct_count": 35,
+      "filenames": {
+        "Disease": 4,
+        "PhenotypicFeature": 31
+      }
+    },
+    "NCBIGene": {
+      "clique_distinct_count": 58008124,
+      "curie_count": 58008124,
+      "curie_distinct_count": 58008124,
+      "filenames": {
+        "Gene": 58008124
+      }
+    },
+    "NCBITaxon": {
+      "clique_distinct_count": 2615615,
+      "curie_count": 2615615,
+      "curie_distinct_count": 2615615,
+      "filenames": {
+        "OrganismTaxon": 2615615
+      }
+    },
+    "NCIT": {
+      "clique_distinct_count": 56459,
+      "curie_count": 57315,
+      "curie_distinct_count": 57258,
+      "filenames": {
+        "AnatomicalEntity": 4189,
+        "Cell": 2498,
+        "CellularComponent": 1457,
+        "Disease": 25976,
+        "GrossAnatomicalStructure": 2079,
+        "PhenotypicFeature": 21116
+      }
+    },
+    "OMIM": {
+      "clique_distinct_count": 27622,
+      "curie_count": 27645,
+      "curie_distinct_count": 27591,
+      "filenames": {
+        "Disease": 10133,
+        "Gene": 17512
+      }
+    },
+    "OMIM.PS": {
+      "clique_distinct_count": 565,
+      "curie_count": 565,
+      "curie_distinct_count": 565,
+      "filenames": {
+        "Disease": 565
+      }
+    },
+    "PANTHER.FAMILY": {
+      "clique_distinct_count": 26139,
+      "curie_count": 26139,
+      "curie_distinct_count": 26139,
+      "filenames": {
+        "GeneFamily": 26139
+      }
+    },
+    "PANTHER.PATHWAY": {
+      "clique_distinct_count": 175,
+      "curie_count": 175,
+      "curie_distinct_count": 175,
+      "filenames": {
+        "Pathway": 175
+      }
+    },
+    "PMC": {
+      "clique_distinct_count": 9801554,
+      "curie_count": 9802826,
+      "curie_distinct_count": 9802826,
+      "filenames": {
+        "Publication": 9802826
+      }
+    },
+    "PMID": {
+      "clique_distinct_count": 38230457,
+      "curie_count": 38230457,
+      "curie_distinct_count": 38230457,
+      "filenames": {
+        "Publication": 38230457
+      }
+    },
+    "PR": {
+      "clique_distinct_count": 251765,
+      "curie_count": 251765,
+      "curie_distinct_count": 251765,
+      "filenames": {
+        "Protein": 251765
+      }
+    },
+    "PUBCHEM.COMPOUND": {
+      "clique_distinct_count": 119360258,
+      "curie_count": 119360505,
+      "curie_distinct_count": 119360505,
+      "filenames": {
+        "ChemicalEntity": 41553,
+        "ChemicalMixture": 1,
+        "MolecularMixture": 10654979,
+        "SmallMolecule": 108663972
+      }
+    },
+    "REACT": {
+      "clique_distinct_count": 110308,
+      "curie_count": 110308,
+      "curie_distinct_count": 110308,
+      "filenames": {
+        "BiologicalProcess": 12,
+        "MolecularActivity": 87992,
+        "Pathway": 22304
+      }
+    },
+    "RGD": {
+      "clique_distinct_count": 91426,
+      "curie_count": 91426,
+      "curie_distinct_count": 91426,
+      "filenames": {
+        "Gene": 91426
+      }
+    },
+    "RHEA": {
+      "clique_distinct_count": 68524,
+      "curie_count": 68524,
+      "curie_distinct_count": 68524,
+      "filenames": {
+        "MolecularActivity": 68524
+      }
+    },
+    "RXCUI": {
+      "clique_distinct_count": 124063,
+      "curie_count": 124160,
+      "curie_distinct_count": 124160,
+      "filenames": {
+        "ChemicalEntity": 13216,
+        "Drug": 102206,
+        "MolecularMixture": 4497,
+        "SmallMolecule": 4241
+      }
+    },
+    "SGD": {
+      "clique_distinct_count": 7167,
+      "curie_count": 7167,
+      "curie_distinct_count": 7167,
+      "filenames": {
+        "Gene": 7167
+      }
+    },
+    "SMPDB": {
+      "clique_distinct_count": 30248,
+      "curie_count": 30248,
+      "curie_distinct_count": 30248,
+      "filenames": {
+        "Pathway": 30248
+      }
+    },
+    "SNOMEDCT": {
+      "clique_distinct_count": 141610,
+      "curie_count": 146401,
+      "curie_distinct_count": 146394,
+      "filenames": {
+        "Cell": 882,
+        "CellularComponent": 539,
+        "Disease": 97525,
+        "PhenotypicFeature": 47455
+      }
+    },
+    "TCDB": {
+      "clique_distinct_count": 22,
+      "curie_count": 22,
+      "curie_distinct_count": 22,
+      "filenames": {
+        "MolecularActivity": 22
+      }
+    },
+    "UBERON": {
+      "clique_distinct_count": 14496,
+      "curie_count": 14496,
+      "curie_distinct_count": 14496,
+      "filenames": {
+        "AnatomicalEntity": 4080,
+        "Cell": 3,
+        "CellularComponent": 8,
+        "GrossAnatomicalStructure": 10405
+      }
+    },
+    "UMLS": {
+      "clique_distinct_count": 3410195,
+      "curie_count": 3455457,
+      "curie_distinct_count": 3387680,
+      "filenames": {
+        "AnatomicalEntity": 139946,
+        "BiologicalProcess": 42213,
+        "Cell": 6342,
+        "CellularComponent": 8373,
+        "ChemicalEntity": 285668,
+        "ChemicalMixture": 6,
+        "ComplexMolecularMixture": 101,
+        "Disease": 351524,
+        "Drug": 256367,
+        "Gene": 46870,
+        "GrossAnatomicalStructure": 2376,
+        "MolecularActivity": 27100,
+        "MolecularMixture": 6915,
+        "OrganismTaxon": 769694,
+        "PhenotypicFeature": 363932,
+        "Polypeptide": 191,
+        "Protein": 165683,
+        "SmallMolecule": 74807,
+        "umls": 907349
+      }
+    },
+    "UNII": {
+      "clique_distinct_count": 134272,
+      "curie_count": 134411,
+      "curie_distinct_count": 134411,
+      "filenames": {
+        "ChemicalEntity": 53148,
+        "ChemicalMixture": 1,
+        "MolecularMixture": 14531,
+        "SmallMolecule": 66731
+      }
+    },
+    "UniProtKB": {
+      "clique_distinct_count": 254326154,
+      "curie_count": 254326154,
+      "curie_distinct_count": 254326154,
+      "filenames": {
+        "Protein": 254326154
+      }
+    },
+    "WBbt": {
+      "clique_distinct_count": 17,
+      "curie_count": 18,
+      "curie_distinct_count": 18,
+      "filenames": {
+        "AnatomicalEntity": 18
+      }
+    },
+    "WormBase": {
+      "clique_distinct_count": 48777,
+      "curie_count": 48777,
+      "curie_distinct_count": 48777,
+      "filenames": {
+        "Gene": 48777
+      }
+    },
+    "ZFA": {
+      "clique_distinct_count": 606,
+      "curie_count": 607,
+      "curie_distinct_count": 607,
+      "filenames": {
+        "AnatomicalEntity": 607
+      }
+    },
+    "ZFIN": {
+      "clique_distinct_count": 38079,
+      "curie_count": 38079,
+      "curie_distinct_count": 38079,
+      "filenames": {
+        "Gene": 38079
+      }
+    },
+    "dictyBase": {
+      "clique_distinct_count": 13892,
+      "curie_count": 13892,
+      "curie_distinct_count": 13892,
+      "filenames": {
+        "Gene": 13892
+      }
+    },
+    "doi": {
+      "clique_distinct_count": 29310262,
+      "curie_count": 29313924,
+      "curie_distinct_count": 29313924,
+      "filenames": {
+        "Publication": 29313924
+      }
+    },
+    "icd11": {
+      "clique_distinct_count": 5,
+      "curie_count": 5,
+      "curie_distinct_count": 5,
+      "filenames": {
+        "Disease": 5
+      }
+    },
+    "icd11.foundation": {
+      "clique_distinct_count": 3999,
+      "curie_count": 4032,
+      "curie_distinct_count": 4032,
+      "filenames": {
+        "Disease": 4032
+      }
+    },
+    "medgen": {
+      "clique_distinct_count": 20959,
+      "curie_count": 20969,
+      "curie_distinct_count": 20969,
+      "filenames": {
+        "Disease": 20969
+      }
+    },
+    "orphanet": {
+      "clique_distinct_count": 10953,
+      "curie_count": 10991,
+      "curie_distinct_count": 10991,
+      "filenames": {
+        "Disease": 10991
+      }
+    }
+  },
+  "count_cliques": 481727857,
+  "count_curies": 675768955
+}

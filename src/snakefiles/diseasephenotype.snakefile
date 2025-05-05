@@ -1,7 +1,6 @@
-import shutil
-
 import src.createcompendia.diseasephenotype as diseasephenotype
 import src.assess_compendia as assessments
+import src.snakefiles.util as util
 
 ### Disease / Phenotypic Feature
 
@@ -146,7 +145,7 @@ rule disease_compendia:
         icrdf_filename = config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['disease_outputs']),
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['disease_outputs'])
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['disease_outputs']))
     run:
         diseasephenotype.build_compendium(input.concords,input.idlists,input.close_matches,{'HP':input.bad_hpo_xrefs,
                                                                         'MONDO':input.bad_mondo_xrefs,
@@ -179,9 +178,11 @@ rule check_phenotypic_feature:
 rule disease:
     input:
         config['output_directory']+'/reports/disease_completeness.txt',
-        expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['disease_outputs']),
+        synonyms = expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['disease_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['disease_outputs'])
     output:
+        synonyms_gzipped = expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['disease_outputs']),
         x=config['output_directory']+'/reports/disease_done'
-    shell:
-        "echo 'done' >> {output.x}"
+    run:
+        util.gzip_files(input.synonyms)
+        util.write_done(output.x)

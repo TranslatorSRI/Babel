@@ -1,9 +1,11 @@
 import gzip
+import hashlib
 import json
 import logging
 import os
 import time
 from collections import defaultdict
+from mmap import ACCESS_READ, mmap
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
@@ -25,6 +27,7 @@ def download_pubmed(download_file,
 
     :param download_file: A `done` file that should be created to indicate that we are done.
     :param pubmed_base: The PubMed base URL to download files from.
+    :param pmc_base: The PubMed Central base URL to download files from.
     """
 
     # Create directories if they don't exist.
@@ -51,6 +54,85 @@ def download_pubmed(download_file,
 
     # We're all done!
     Path.touch(download_file)
+
+
+def verify_pubmed_download_against_md5(pubmed_filename, md5_filename):
+    """
+    Verify a single PubMed download file against its MD5 checksum in the `.md5` file.
+
+    :param pubmed_filename: The PubMed download file to verify.
+    :param md5_filename: The MD5 checksum file to verify against.
+    :return: True if the file is verified, but False if it is not verified.
+    """
+
+    # Is the PubMed file readable? Non-zero size?
+    if not os.path.exists(pubmed_filename) or os.path.getsize(pubmed_filename) == 0:
+        logging.warning(f"Could not verify {pubmed_filename}: no such file or zero size.")
+        return False
+
+    # Calculate the MD5 sum of the PubMed file.
+    with open(pubmed_filename, 'rb') as pubmedf, mmap(pubmedf.fileno(), 0, access=ACCESS_READ) as file:
+        md5hash = hashlib.md5(file.read()).hexdigest()
+
+    # Read the expected MD5 checksum.
+    if not os.path.exists(md5_filename):
+        logging.warning(f"Could not verify {pubmed_filename}: no MD5 file found at {md5_filename}.")
+        return False
+
+    with open(md5_filename, 'r') as md5f:
+        md5_line = md5f.readline().strip()
+        expected_md5 = md5_line.split('= ')[1]
+        if len(expected_md5) != 32:
+            raise RuntimeError(f"Could not verify {pubmed_filename}: could not read MD5 hash from MD5 file {md5_filename}: '{md5_line}'")
+
+    if md5hash == expected_md5:
+        return True
+    logging.warning(f"Could not verify {pubmed_filename}: calculated MD5 hash {md5hash} is not equal to expected MD5 hash {expected_md5} in {md5_filename}.")
+    return False
+
+
+def verify_pubmed_downloads(pubmed_directories,
+                            done_filename,
+                            pubmed_base='https://ftp.ncbi.nlm.nih.gov/pubmed/'):
+    """
+    download_pubmed() does a good job of downloading all the PubMed files, but every once in a while the download
+    is corrupted (https://github.com/TranslatorSRI/Babel/issues/352). Luckily, PubMed also gives up `.md5` files
+    for all the downloaded files, so we can use those to verify each file. If a file is incorrect, we can re-download
+    it using the more reliable HTTPS URL.
+
+    :param pubmed_directories: A list of PubMed directories to verify.
+    :param done_filename: A 'done' file to write once we're done.
+    :param pubmed_base: The PubMed base URL to download files from.
+    :return:
+    """
+
+    for pubmed_directory in pubmed_directories:
+        for filename in os.listdir(pubmed_directory):
+            file_path = os.path.join(pubmed_directory, filename)
+            subdir = os.path.basename(pubmed_directory)
+
+            if file_path.endswith('.gz'):
+                md5_filename = filename + '.md5'
+                md5_file_path = file_path + '.md5'
+
+                while not verify_pubmed_download_against_md5(file_path, file_path + '.md5'):
+                    pubmed_url_base = pubmed_base + subdir + '/'
+                    logging.warning(f"Re-downloading {file_path} from HTTPS URL {pubmed_url_base}{filename}.")
+
+                    # We should delete the files before redownloading them, but if we did that and the download
+                    # failed, we would not retry the download again. So instead, we truncate both files -- this
+                    # should cause MD5 verification to fail until they are in sync again.
+                    if os.path.exists(file_path):
+                        os.truncate(file_path, 0)
+                    if os.path.exists(md5_file_path):
+                        os.truncate(md5_file_path, 0)
+
+                    # Redownload the file.
+                    pull_via_wget(pubmed_url_base, filename, decompress=False, subpath='PubMed/' + subdir)
+                    pull_via_wget(pubmed_url_base, md5_filename, decompress=False, subpath='PubMed/' + subdir)
+
+    # We're all done!
+    Path.touch(done_filename)
 
 
 def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_file, pmid_id_file,
