@@ -45,8 +45,9 @@ There are several ways of accessing Babel cliques:
 * The NCATS Translator project also provides the [Name Lookup (Name Resolution)](https://name-lookup.transltr.io/)
   frontends for searching for concepts by labels or synonyms. You can find out more
   about this frontend at [its GitHub repository](https://github.com/TranslatorSRI/NameResolution).
-* Members of the Translator consortium can also request access to the [Babel outputs](./BabelOutputs.md), which
-  are currently available in JSONL or [KGX](https://github.com/biolink/kgx) formats.
+* Members of the Translator consortium can also request access to the [Babel outputs](./BabelOutputs.md)
+  (in a [custom format](./DataFormats.md)),
+  which are currently available in JSONL, [Apache Parquet](https://parquet.apache.org/) or [KGX](https://github.com/biolink/kgx) formats.
 
 ## What is the Node Normalization service (NodeNorm)?
 
