@@ -14,7 +14,7 @@ conventions established by the [biolink model](https://github.com/biolink/biolin
 at runtime by querying the [Biolink Model service](https://github.com/TranslatorIIPrototypes/bl_lookup).  Each semantic type (such as 
 chemical substance) requires specialized processing, but in each case, a 
 JSON-formatted compendium is written to disk.  This compendium can be used 
-directly, but it can also be served by the [Node Normalization service](https://github.com/TranslatorIIPrototypes/NodeNormalization)
+directly, but it can also be served by the [Node Normalization service](https://github.com/TranslatorSRI/NodeNormalization)
 or another frontend.
 
 We anticipate that the simple approach taken here will soon be overtaken by
