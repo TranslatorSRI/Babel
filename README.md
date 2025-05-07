@@ -62,10 +62,12 @@ builds compendia for `biolink:AnatomicalEntity`, `biolink:Cell`, `biolink:Cellul
 
 You can also just run:
 
-```snakemake --cores 5```
+```snakemake --cores 1```
 
 without a target to create all the files that are produced as part of Babel, including all reports and
 alternate exports.
+
+If you have multiple CPUs available, you can increase the number of `--cores` to run multiple steps in parallel.
 
 ## Build Process
 
