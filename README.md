@@ -95,9 +95,6 @@ does not subset the data for a specific purpose, but contains all labels for any
 `synonyms` contains other lexical names for the entity and is a 3-column tab-delimited file, with the second column
 indicating the type of synonym (exact, related, xref, etc.)
 
-We plan to replace both labels and synonyms with a single property store that would allow us to add more node-level
-properties to the cliques being produced, but it's unclear when this will be implemented.
-
 ### Creating compendia
 
 The individual details of creating a compendium vary, but all follow the same essential pattern.  
