@@ -28,7 +28,7 @@ that can be used to set up a Pod to run Babel in. They'll give you an idea of th
 space and memory requirements needed to run this pipeline.
 
 Before running, read through `config.json` and make sure that the settings look correct.
-You may need to update the version numbers of some databases that need to be downloaded,
+You will need to update the version numbers of some databases that need to be downloaded,
 or change the download and output directories.
 
 A UMLS API key is required in order to download UMLS and RxNorm databases. You will need
