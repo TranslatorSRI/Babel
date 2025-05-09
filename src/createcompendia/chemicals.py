@@ -26,7 +26,6 @@ def get_type_from_smiles(smiles):
 def write_umls_ids(mrsty, outfile):
     groups = ['A1.4.1.1.1.1', #antibiotic
               'A1.4.1.1.3.2', # Hormone
-              'A1.4.1.1.3.3',# Enzyme
               'A1.4.1.1.3.4',# Vitamin
               'A1.4.1.1.3.5',# Immunologic Factor
               'A1.4.1.1.4',# Indicator, Reagent, or Diagnostic Aid
@@ -40,7 +39,8 @@ def write_umls_ids(mrsty, outfile):
     #Leaving out these ones:
     exclude_umls_sty_trees = {
         'A1.4.1.1.3.6',     # Receptor
-        'A1.4.1.2.1.7',      # Amino Acid, Peptide, or Protein
+        'A1.4.1.1.3.3',     # Enzyme
+        'A1.4.1.2.1.7',     # Amino Acid, Peptide, or Protein
     }
     umlsmap = {a:CHEMICAL_ENTITY for a in groups}
     umlsmap["A1.3.3"] = DRUG
