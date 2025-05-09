@@ -38,11 +38,14 @@ def write_umls_ids(mrsty, outfile):
               'A1.3.3' #Clinical Drug
              ]
     #Leaving out these ones:
-    #'A1.4.1.1.3.6',# Receptor
-    #'A1.4.1.2.1.7 Amino Acid, Peptide, or Protein
+    exclude_umls_sty_trees = {
+        'A1.4.1.1.3.6',     # Receptor
+        'A1.4.1.2.1.7',      # Amino Acid, Peptide, or Protein
+    }
     umlsmap = {a:CHEMICAL_ENTITY for a in groups}
     umlsmap["A1.3.3"] = DRUG
     umls.write_umls_ids(mrsty, umlsmap, outfile)
+    # umls.write_umls_ids(mrsty, umlsmap, outfile, blacklist_umls_semantic_type_tree=exclude_umls_sty_trees)
 
 def write_rxnorm_ids(infile, outfile):
     groups = ['A1.4.1.1.1.1', #antibiotic
