@@ -84,7 +84,7 @@ def write_umls_ids(mrsty, outfile,badumlsfile):
     #A2.3 Organism Attribute
     # Includes things like "Age" which will merge with EFOs
     umlsmap['A2.3'] = PHENOTYPIC_FEATURE
-    umls.write_umls_ids(mrsty, umlsmap, outfile, blacklist_umls_ids=badumls)
+    umls.write_umls_ids(mrsty, umlsmap, outfile, blocklist_umls_ids=badumls)
 
 
 def build_disease_obo_relationships(outdir):

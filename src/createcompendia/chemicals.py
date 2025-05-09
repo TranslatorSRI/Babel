@@ -44,8 +44,7 @@ def write_umls_ids(mrsty, outfile):
     }
     umlsmap = {a:CHEMICAL_ENTITY for a in groups}
     umlsmap["A1.3.3"] = DRUG
-    umls.write_umls_ids(mrsty, umlsmap, outfile)
-    # umls.write_umls_ids(mrsty, umlsmap, outfile, blacklist_umls_semantic_type_tree=exclude_umls_sty_trees)
+    umls.write_umls_ids(mrsty, umlsmap, outfile, blocklist_umls_semantic_type_tree=exclude_umls_sty_trees)
 
 def write_rxnorm_ids(infile, outfile):
     groups = ['A1.4.1.1.1.1', #antibiotic
