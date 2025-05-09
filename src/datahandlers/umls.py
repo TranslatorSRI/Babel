@@ -1,6 +1,9 @@
+from bmt import Toolkit
+
 from src.prefixes import UMLS, RXCUI
 from src.babel_utils import make_local_name
-from src.categories import DRUG, CHEMICAL_ENTITY, MOLECULAR_MIXTURE
+from src.categories import DRUG, CHEMICAL_ENTITY, MOLECULAR_MIXTURE, DEVICE, SMALL_MOLECULE, PHYSICAL_ENTITY, AGENT, \
+    PUBLICATION, ACTIVITY, PROCEDURE, FOOD
 
 import shutil
 from zipfile import ZipFile
@@ -350,3 +353,87 @@ def pull_umls(mrconso):
                     continue
                 synonyms.write(f'{UMLS}:{cui}\thttp://www.geneontology.org/formats/oboInOwl#hasExactSynonym\t{s}\n')
 
+class UMLSToBiolinkTypeConverter:
+    """
+    A Python class for converting UMLS IDs to Biolink types.
+    """
+
+    def __init__(self, mrsty_filename, biolink_model_url=None):
+        """
+        Create an UMLSToBiolinkTypeConverter with a MRSTY file and optional Biolink Model URL.
+
+        :param mrsty_filename: The path to the MRSTY.RRF file.
+        :param biolink_model_url: The link to the biolink-model.yaml file. If not provided, the default Biolink Model URL will be used.
+        """
+
+        # Set up Biolink Toolkit.
+        if biolink_model_url:
+            self.biolink_toolkit = Toolkit(biolink_model_url)
+        else:
+            self.biolink_toolkit = Toolkit()
+
+        # Load MRSTY filename.
+        # See https://www.ncbi.nlm.nih.gov/books/NBK9685/table/ch03.Tf/ for column information.
+        self.types_by_id = dict()
+        self.types_by_tui = dict()
+        with open(mrsty_filename, 'r') as inf:
+            for line in inf:
+                x = line.strip().split('|')
+                curie = f"{UMLS}:{x[0]}"
+                tui = x[1]
+                # stn = x[2]
+                sty = x[3]
+
+                if curie not in self.types_by_id:
+                    self.types_by_id[curie] = dict()
+                if tui not in self.types_by_id[curie]:
+                    self.types_by_id[curie][tui] = set()
+                self.types_by_id[curie][tui].add(sty)
+
+                if tui not in self.types_by_tui:
+                    self.types_by_tui[tui] = set()
+                self.types_by_tui[tui].add(sty)
+
+    def umls_type_to_biolink_type(self, umls_tui: str):
+        biolink_type = self.biolink_toolkit.get_element_by_mapping(f'STY:{umls_tui}', most_specific=True, formatted=True, mixin=True)
+        if biolink_type is None:
+            logging.debug(f"No Biolink type found for UMLS TUI {umls_tui}")
+        return biolink_type
+
+    def get_biolink_types(self, curie):
+        umls_type_results = self.types_by_id.get(curie, {'biolink:NamedThing': {'Named thing'}})
+        return set(list(map(self.umls_type_to_biolink_type, umls_type_results.keys())))
+
+    def choose_single_biolink_type(self, curie: str, biolink_types: list[str]):
+        """
+        Given a set of Biolink types, choose the best one for a UMLS CURIE.
+
+        :param curie: The CURIE to normalize. We don't actually use this right now.
+        :param biolink_types: The list of Biolink types for this CURIE.
+        :return: A single Biolink type for this CURIE, or None if one could not be determined.
+        """
+
+        if len(biolink_types) == 0:
+            return None
+
+        if len(biolink_types) == 1:
+            return biolink_types[0]
+
+        biolink_types_as_set = set(biolink_types)
+
+        # Some Biolink multiple types we handle manually.
+        if biolink_types_as_set == {DEVICE, DRUG}:
+            return DRUG
+        elif biolink_types_as_set == {DRUG, SMALL_MOLECULE}:
+            return SMALL_MOLECULE
+        elif biolink_types_as_set == {AGENT, PHYSICAL_ENTITY}:
+            return AGENT
+        elif biolink_types_as_set == {PHYSICAL_ENTITY, PUBLICATION}:
+            return PUBLICATION
+        elif biolink_types_as_set == {ACTIVITY, PROCEDURE}:
+            return PROCEDURE
+        elif biolink_types_as_set == {DRUG, FOOD}:
+            return FOOD
+
+        # No idea -- raise an Exception.
+        raise RuntimeError(f"Could not choose a single Biolink type for {curie} with types {biolink_types_as_set}: no manual resolution.")
