@@ -41,15 +41,54 @@ def check_mrconso_line(line):
 
     return True
 
-def write_umls_ids(mrsty, category_map,umls_output,prefix=UMLS,blacklist=set()):
+def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blacklist_umls_ids=None, blacklist_umls_semantic_type_tree=None):
+    if blacklist_umls_ids is None:
+        blacklist_umls_ids = set()
+    if blacklist_umls_semantic_type_tree is None:
+        blacklist_umls_semantic_type_tree = set()
     categories = set(category_map.keys())
+
+    # Fun fact: MRSTY has duplicate records for entities that have multiple types, e.g.
+    #   CUI | TUI | STN | STY | ATUI | CVF
+    #   C0000005|T116|A1.4.1.2.1.7|Amino Acid, Peptide, or Protein|AT17648347|256|
+    #   C0000005|T121|A1.4.1.1.1|Pharmacologic Substance|AT17575038|256|
+    #   C0000005|T130|A1.4.1.1.4|Indicator, Reagent, or Diagnostic Aid|AT17634323|256|
+    #   C0000039|T109|A1.4.1.2.1|Organic Chemical|AT45562015|256|
+    # (see https://github.com/TranslatorSRI/Babel/issues/200#issuecomment-1789550364 for another example and
+    #  https://www.ncbi.nlm.nih.gov/books/NBK9685/table/ch03.Tf/ for column information.)
+    #
+    # This means that we can't blacklist UMLS types by just skipping those lines: instead, we will need to load
+    # the type information on the selected CUI, and later filter out the blacklisted UMLS type trees.
+
+    tree_names = defaultdict(set)
+    output_lines = defaultdict(list)
+    semantic_type_trees = defaultdict(set)
     with open(mrsty,'r') as inf, open(umls_output,'w') as outf:
         for line in inf:
             x = line.strip().split('|')
             cat = x[2]
+            cat_name = x[3]
             if cat in categories:
-                if not x[0] in blacklist:
-                    outf.write(f'{prefix}:{x[0]}\t{category_map[cat]}\n')
+                if x[0] in blacklist_umls_ids:
+                    continue
+
+                curie = f"{prefix}:{x[0]}"
+
+                tree_names[cat].add(cat_name)
+                semantic_type_trees[curie].add(cat)
+                output_lines[curie].append(category_map[cat])
+
+        if blacklist_umls_semantic_type_tree:
+            # If we need to blacklist by UMLS semantic type trees,
+            for curie in semantic_type_trees.keys():
+                if semantic_type_trees[curie] & blacklist_umls_semantic_type_tree:
+                    sty_trees_with_names = ", ".join(map(lambda sty_tree: sty_tree + "=" + tree_names[sty_tree], semantic_type_trees[curie]))
+                    blocklist_sty_trees_with_names = ", ".join(map(lambda sty_tree: sty_tree + "=" + tree_names[sty_tree], blacklist_umls_semantic_type_tree))
+                    logging.info(f"Deleted {curie} from UMLS IDs because its types ({sty_trees_with_names}) overlapped with the blocklist ({blocklist_sty_trees_with_names}).")
+                    del output_lines[curie]
+
+        outf.write("\n".join(output_lines))
+
 
 def write_rxnorm_ids(category_map, bad_categories, infile, outfile,prefix=RXCUI,styfile="RXNSTY.RRF",blacklist=set()):
     """It's surprising, but not everything in here has an RXCUI.
