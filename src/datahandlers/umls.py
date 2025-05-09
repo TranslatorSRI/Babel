@@ -46,7 +46,6 @@ def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls
         blocklist_umls_ids = set()
     if blocklist_umls_semantic_type_tree is None:
         blocklist_umls_semantic_type_tree = set()
-    categories = set(category_map.keys())
 
     # Fun fact: MRSTY has duplicate records for entities that have multiple types, e.g.
     #   CUI | TUI | STN | STY | ATUI | CVF
@@ -60,31 +59,32 @@ def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls
     # This means that we can't blacklist UMLS types by just skipping those lines: instead, we will need to load
     # the type information on the selected CUI, and later filter out the blacklisted UMLS type trees.
 
-    tree_names = defaultdict(set)
     output_lines = defaultdict(list)
     semantic_type_trees = defaultdict(set)
+    tree_names = defaultdict(set)
+    categories = set(category_map.keys())
     with open(mrsty,'r') as inf, open(umls_output,'w') as outf:
         for line in inf:
             x = line.strip().split('|')
             cat = x[2]
             cat_name = x[3]
-            if cat in categories:
-                if x[0] in blocklist_umls_ids:
-                    continue
 
-                curie = f"{prefix}:{x[0]}"
+            curie = f"{prefix}:{x[0]}"
 
-                tree_names[cat].add(cat_name)
-                semantic_type_trees[curie].add(cat)
+            tree_names[cat].add(cat_name)
+            semantic_type_trees[curie].add(cat)
+
+            if cat in categories and x[0] not in blocklist_umls_ids:
                 output_lines[curie].append(category_map[cat])
 
         if blocklist_umls_semantic_type_tree:
             # If we need to blacklist by UMLS semantic type trees,
-            for curie in semantic_type_trees.keys():
+            selected_curies = list(output_lines.keys())
+            for curie in selected_curies:
                 if semantic_type_trees[curie] & blocklist_umls_semantic_type_tree:
-                    sty_trees_with_names = ", ".join(map(lambda sty_tree: sty_tree + "=" + tree_names[sty_tree], semantic_type_trees[curie]))
-                    blocklist_sty_trees_with_names = ", ".join(map(lambda sty_tree: sty_tree + "=" + tree_names[sty_tree], blocklist_umls_semantic_type_tree))
-                    logging.info(f"Deleted {curie} from UMLS IDs because its types ({sty_trees_with_names}) overlapped with the blocklist ({blocklist_sty_trees_with_names}).")
+                    sty_trees_with_names = ", ".join(map(lambda sty_tree: f"{sty_tree}={tree_names[sty_tree]}", semantic_type_trees[curie]))
+                    blocklist_sty_trees_with_names = ", ".join(map(lambda sty_tree: f"{sty_tree}={tree_names[sty_tree]}", blocklist_umls_semantic_type_tree))
+                    print(f"Deleted {curie} from UMLS IDs because its types ({sty_trees_with_names}) overlapped with the blocklist ({blocklist_sty_trees_with_names}).")
                     del output_lines[curie]
 
         outf.write("\n".join(output_lines))
