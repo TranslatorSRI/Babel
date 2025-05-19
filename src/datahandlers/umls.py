@@ -148,8 +148,24 @@ def build_sets(mrconso,umls_input, umls_output , other_prefixes, bad_mappings=de
             u = line.strip().split('\t')[0].split(':')[1]
             umls_ids.add(u)
     lookfor = set(other_prefixes.keys())
-    acceptable_mesh_tty = set(["MH","NM","HT","QAB"])
-    acceptable_drugbank_tty = set(["IN","PIN","MIN"])
+
+    # See full list at https://www.nlm.nih.gov/research/umls/knowledge_sources/metathesaurus/release/abbreviations.html#mrdoc_TTY
+    acceptable_mesh_tty = {
+        "MH",       # Main heading
+        "NM",       # Name of Supplementary Concept
+        "HT",       # Hierarchical term
+        "QAB",      # Qualifier abbreviation
+        "PEP",      # Preferred entry term
+
+        # According to https://www.nlm.nih.gov/research/umls/knowledge_sources/metathesaurus/release/precedence_suppressibility.html,
+        # we should also include:
+        #   "ET", # Entry Term, but these are specifically not synonymous (https://www.nlm.nih.gov/mesh/intro_entry.html)
+        #   "TQ", # Topical qualifier
+        #   "XQ", # Alternate name for a qualifier
+        #   "PXQ", # Preferred qualifier term
+        # But I'm not sure if we should be included qualifiers, so I'll leave it out for now.
+    }
+    acceptable_drugbank_tty = {"IN", "PIN", "MIN"}
     pairs = set()
     #test_cui = 'C0026827'
     with open(mrconso,'r') as inf, open(umls_output,'w') as concordfile:
