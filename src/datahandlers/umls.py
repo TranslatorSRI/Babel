@@ -42,6 +42,18 @@ def check_mrconso_line(line):
     return True
 
 def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls_ids=None, blocklist_umls_semantic_type_tree=None):
+    """
+    Write out UMLS IDs and categories (as per a category map) to a file.
+
+    :param mrsty: The file path of the MRSTY.RRF file from the UMLS download.
+    :param category_map: A dictionary mapping UMLS semantic types to Biolink types.
+    :param umls_output: The file path of the output file.
+    :param prefix: The prefix to use for the UMLS IDs. Defaults to UMLS.
+    :param blocklist_umls_ids: A set of individual UMLS IDs to block. Defaults to None.
+    :param blocklist_umls_semantic_type_tree: A set of UMLS semantic type trees to block. Defaults to None.
+    :return: None.
+    """
+
     if blocklist_umls_ids is None:
         blocklist_umls_ids = set()
     if blocklist_umls_semantic_type_tree is None:
