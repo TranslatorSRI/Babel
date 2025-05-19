@@ -51,6 +51,9 @@ def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls
     :param prefix: The prefix to use for the UMLS IDs. Defaults to UMLS.
     :param blocklist_umls_ids: A set of individual UMLS IDs to block. Defaults to None.
     :param blocklist_umls_semantic_type_tree: A set of UMLS semantic type trees to block. Defaults to None.
+        Note that we strictly filter out the semantic type trees listed here: if e.g. A1.2.3 is on the blocklist,
+        UMLS IDs with a semantic type tree of A1.2.3.4 will be allowed -- only UMLS IDs with a type of A1.2.3 will
+        be blocked.
     :return: None.
     """
 
@@ -90,13 +93,21 @@ def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls
                 output_lines[curie].append(category_map[cat])
 
         if blocklist_umls_semantic_type_tree:
-            # If we need to blacklist by UMLS semantic type trees,
+            # If we need to blacklist by UMLS semantic type trees, delete CURIEs whose semantic type trees overlap
+            # with the blocklist.
             selected_curies = list(output_lines.keys())
             for curie in selected_curies:
                 if semantic_type_trees[curie] & blocklist_umls_semantic_type_tree:
+                    # Note that this only works if the UMLS semantic tree type is exactly identical to the semantic
+                    # tree type on the blocklist: so if you try to block "A1.2.3", then UMLS IDs with a semantic tree
+                    # type of "A1.2.3.4" will NOT be blocked.
+                    
+                    # Write out a log message.
                     sty_trees_with_names = ", ".join(map(lambda sty_tree: f"{sty_tree}={tree_names[sty_tree]}", semantic_type_trees[curie]))
                     blocklist_sty_trees_with_names = ", ".join(map(lambda sty_tree: f"{sty_tree}={tree_names[sty_tree]}", blocklist_umls_semantic_type_tree))
-                    print(f"Deleted {curie} from UMLS IDs because its types ({sty_trees_with_names}) overlapped with the blocklist ({blocklist_sty_trees_with_names}).")
+                    logging.info(f"Deleted {curie} from UMLS IDs because its types ({sty_trees_with_names}) overlapped with the blocklist ({blocklist_sty_trees_with_names}).")
+
+                    # Delete this CURIE from the output.
                     del output_lines[curie]
 
         outf.write("\n".join(output_lines))
