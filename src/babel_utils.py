@@ -442,10 +442,7 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     possible_labels = map(lambda identifier: identifier.get('label', ''), node["identifiers"])
 
                 # Step 2. Filter out any suspicious labels.
-                filtered_possible_labels = [l for l in possible_labels if
-                                            l and                               # Ignore blank or empty names.
-                                            not l.startswith('CHEMBL')          # Some CHEMBL names are just the identifier again.
-                                            ]
+                filtered_possible_labels = [l for l in possible_labels if l ]   # Ignore blank or empty names.
 
                 # Step 3. Filter out labels longer than config['demote_labels_longer_than'], but only if there is at
                 # least one label shorter than this limit.

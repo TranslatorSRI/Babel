@@ -74,7 +74,13 @@ class ChemblRDF:
                 ilabel = str(row['label'])
                 chemblid = iterm[:-1].split('/')[-1]
                 label = ilabel[1:-1]
+
+                # Sometimes the CHEMBL label is identical to the chemblid. We don't want those (https://github.com/TranslatorSRI/Babel/issues/430).
+                if label == chemblid:
+                    continue
+
                 outf.write(f'{CHEMBLCOMPOUND}:{chemblid}\t{label}\n')
+
     def pull_smiles(self,ofname):
         s="""PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
