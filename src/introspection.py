@@ -31,4 +31,9 @@ def get_tagged_code(tag):
 # Predefined tags to help with code introspection.
 def downloader(fn): return tagged('downloader')(fn)
 def filterer(fn): return tagged('filterer')(fn)
-def compendium_creator(fn): return tagged('compendium_creator')(fn)
+def obo_writer(fn): return tagged('obo_writer')(fn)
+def mesh_writer(fn): return tagged('mesh_writer')(fn)
+def umls_writer(fn): return tagged('umls_writer')(fn)
+def ubergraph_writer(fn): return tagged('ubergraph_writer')(fn)
+def frink_writer(fn): return tagged('frink_writer')(fn)
+def compendium_builder(fn): return tagged('compendium_builder')(fn)

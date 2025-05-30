@@ -2,6 +2,8 @@ from collections import defaultdict
 import requests
 
 import src.datahandlers.obo as obo
+from src.introspection import filterer, obo_writer, mesh_writer, umls_writer, ubergraph_writer, frink_writer, \
+    compendium_builder
 from src.util import Text
 
 from src.prefixes import MESH, NCIT, CL, GO, UBERON, SNOMEDCT, WIKIDATA, UMLS, FMA
@@ -11,6 +13,7 @@ from src.babel_utils import write_compendium, glom, get_prefixes, read_identifie
 import src.datahandlers.umls as umls
 import src.datahandlers.mesh as mesh
 
+@filterer
 def remove_overused_xrefs_dict(kv):
     """Given a dict of iri->list of xrefs, look through them for xrefs that are in more than one list.
     Remove those anywhere they occur, as they will only lead to pain further on."""
@@ -25,12 +28,12 @@ def remove_overused_xrefs_dict(kv):
     for k,v in kv.items():
         kv[k] = list( set(v).difference(overused_xrefs) )
 
-
+@obo_writer
 def write_obo_ids(irisandtypes,outfile,exclude=[]):
     order = [CELLULAR_COMPONENT, CELL, GROSS_ANATOMICAL_STRUCTURE, ANATOMICAL_ENTITY]
     obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])
 
-
+@obo_writer
 def write_ncit_ids(outfile):
     #For NCIT, there are some branches of the subhiearrchy that we don't want, like this one for genomic locus
     anatomy_id = f'{NCIT}:C12219'
@@ -44,26 +47,30 @@ def write_ncit_ids(outfile):
     anatomic_site_id=f'{NCIT}:C13717' #the site of procedures like injections etc
     write_obo_ids([(anatomy_id, ANATOMICAL_ENTITY), (cell_id, CELL), (component_id, CELLULAR_COMPONENT)], outfile, exclude=[genomic_location_id, chromosome_band_id, macromolecular_structure_id, ostomy_site_id, chromosome_structure_id, anatomic_site_id])
 
+@obo_writer
 def write_uberon_ids(outfile):
     anatomy_id = f'{UBERON}:0001062'
     gross_id   = f'{UBERON}:0010000'
     write_obo_ids([(anatomy_id, ANATOMICAL_ENTITY), (gross_id, GROSS_ANATOMICAL_STRUCTURE)], outfile)
 
+@obo_writer
 def write_cl_ids(outfile):
     cell_id   = f'{CL}:0000000'
     write_obo_ids([(cell_id, CELL)], outfile)
 
+@obo_writer
 def write_go_ids(outfile):
     component_id = f'{GO}:0005575'
     write_obo_ids([(component_id, CELLULAR_COMPONENT)], outfile)
 
-
+@mesh_writer
 def write_mesh_ids(outfile):
     meshmap = { f'A{str(i).zfill(2)}': ANATOMICAL_ENTITY for i in range(1, 21)}
     meshmap['A11'] = CELL
     meshmap['A11.284'] = CELLULAR_COMPONENT
     mesh.write_ids(meshmap,outfile)
 
+@umls_writer
 def write_umls_ids(mrsty, outfile):
     #UMLS categories:
     #A1.2 Anatomical Structure
@@ -91,6 +98,7 @@ def write_umls_ids(mrsty, outfile):
 #CL only shows up as an xref once in uberon, and it's a mistake.  It doesn't show up in anything else.
 #GO only shows up as an xref once in uberon, and it's a mistake.  It doesn't show up in anything else.
 #PMID is just wrong
+@ubergraph_writer
 def build_anatomy_obo_relationships(outdir):
     ignore_list = ['PMID','BTO','BAMS','FMA','CALOHA','GOC','WIKIPEDIA.EN','CL','GO','NIF_SUBCELLULAR','HTTP','OPENCYC']
     #Create the equivalence pairs
@@ -98,6 +106,7 @@ def build_anatomy_obo_relationships(outdir):
         build_sets(f'{UBERON}:0001062', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
         build_sets(f'{GO}:0005575', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
 
+@frink_writer
 def build_wikidata_cell_relationships(outdir):
     #This sparql returns all the wikidata items that have a UMLS identifier and a CL identifier
     sparql = """PREFIX wdt: <http://www.wikidata.org/prop/direct/>
@@ -135,9 +144,11 @@ def build_wikidata_cell_relationships(outdir):
             else:
                 print(f'Pair {pair} is not unique {counts[pair[0]]} {counts[pair[1]]}')
 
+@umls_writer
 def build_anatomy_umls_relationships(mrconso, idfile,outfile):
     umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO, 'FMA': FMA})
 
+@compendium_builder
 def build_compendia(concordances, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
@@ -177,6 +188,7 @@ def build_compendia(concordances, identifiers, icrdf_filename):
         baretype = biotype.split(':')[-1]
         write_compendium(sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
 
+@compendium_builder
 def create_typed_sets(eqsets,types):
     """Given a set of sets of equivalent identifiers, we want to type each one into
     being either a disease or a phenotypic feature.  Or something else, that we may want to
