@@ -6,6 +6,8 @@ import ast
 import gzip
 from gzip import GzipFile
 
+from src.introspection import umls_writer, rxnorm_writer, filterer, mesh_writer, ubergraph_writer, type_determination, \
+    transformer, utility, concord_generator, wikidata_writer, compendium_builder
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
 from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_MOLECULAR_MIXTURE, CHEMICAL_MIXTURE, DRUG
@@ -23,6 +25,7 @@ def get_type_from_smiles(smiles):
     else:
         return SMALL_MOLECULE
 
+@umls_writer
 def write_umls_ids(mrsty, outfile):
     groups = ['A1.4.1.1.1.1', #antibiotic
               'A1.4.1.1.3.2', # Hormone
@@ -46,6 +49,7 @@ def write_umls_ids(mrsty, outfile):
     umlsmap["A1.3.3"] = DRUG
     umls.write_umls_ids(mrsty, umlsmap, outfile, blocklist_umls_semantic_type_tree=exclude_umls_sty_trees)
 
+@rxnorm_writer
 def write_rxnorm_ids(infile, outfile):
     groups = ['A1.4.1.1.1.1', #antibiotic
               'A1.4.1.1.3.2', # Hormone
@@ -70,12 +74,15 @@ def write_rxnorm_ids(infile, outfile):
     umlsmap ["A1.4.1.1.1"] = DRUG
     umls.write_rxnorm_ids(umlsmap, filter_types, infile, outfile, prefix=RXCUI, styfile="RXNSTY.RRF")
 
+@umls_writer
 def build_chemical_umls_relationships(mrconso, idfile,outfile):
     umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK, 'RXNORM': RXCUI })
 
+@umls_writer
 def build_chemical_rxnorm_relationships(conso, idfile,outfile):
     umls.build_sets(conso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, cui_prefix=RXCUI)
 
+@filterer
 def write_pubchem_ids(labelfile,smilesfile,outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
     # but since they're already sorted, let's give it a shot
@@ -106,7 +113,7 @@ def write_pubchem_ids(labelfile,smilesfile,outfile):
                 print('no smiles:',x,pn,sn)
                 outf.write(f'{x}\t{CHEMICAL_ENTITY}\n')
 
-
+@mesh_writer
 def write_mesh_ids(outfile):
     #Get the D tree,
     # D01	Inorganic Chemicals
@@ -143,6 +150,7 @@ def write_mesh_ids(outfile):
 #    order = [CHEMICAL_SUBSTANCE]
 #    obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])
 
+@ubergraph_writer
 def write_chebi_ids(outfile):
     #We're not using obo.write_obo_ids here because we need to 1) grab smiles as well and 2) figure out the types
     chemical_entity_id = f'{CHEBI}:24431'
@@ -173,6 +181,7 @@ def write_chebi_ids(outfile):
                 ctype = CHEMICAL_ENTITY
             idfile.write(f'{k["descendent"]}\t{ctype}\n')
 
+@filterer
 def write_unii_ids(infile,outfile):
     """UNII contains a bunch of junk like leaves.   We are going to try to clean it a bit to get things
     that are actually chemicals.  In biolink 2.0 we cn revisit exactly what happens here."""
@@ -193,6 +202,7 @@ def write_unii_ids(infile,outfile):
             if not flag_skip:
                 outf.write(f'{UNII}:{x[0]}\t{CHEMICAL_ENTITY}\n')
 
+@filterer
 def write_drugbank_ids(infile,outfile):
     """We don't have a good drugbank source, so we're going to dig through unichem and get out drugbank ids."""
     #doublecheck so that we know we're getting the right value
@@ -211,6 +221,8 @@ def write_drugbank_ids(infile,outfile):
                 outf.write(f'{dbid}\t{CHEMICAL_ENTITY}\n')
                 written.add(x[2])
 
+@type_determination
+@filterer
 def write_chemical_ids_from_labels_and_smiles(labelfile,smifile,outfile):
     smiles = {}
     with open(smifile,'r') as inf:
@@ -226,7 +238,8 @@ def write_chemical_ids_from_labels_and_smiles(labelfile,smifile,outfile):
                 ctype = CHEMICAL_ENTITY
             outf.write(f'{hmdbid}\t{ctype}\n')
 
-
+@transformer
+@utility
 def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
     idcol_index = None
     smicol_index = None
@@ -271,6 +284,8 @@ def parse_smifile(infile,outfile,smicol,idcol,pref,stripquotes=False):
             ctype = get_type_from_smiles(smi)
             outf.write(f'{dcid}\t{ctype}\n')
 
+@type_determination
+@filterer
 def write_drugcentral_ids(infile,outfile):
     smicol = 1
     idcol = 0
@@ -283,9 +298,11 @@ def write_drugcentral_ids(infile,outfile):
                 outf.write(f'{x[idcol]}\t{get_type_from_smiles(x[smicol])}\n')
 
 
+@transformer
 def write_gtopdb_ids(infile,outfile):
     parse_smifile(infile,outfile,'"SMILES"','"Ligand ID"',GTOPDB,stripquotes=True)
 
+@filterer
 def write_unichem_concords(structfile,reffile,outdir):
     inchikeys = read_inchikeys(structfile)
     concfiles = {}
@@ -305,6 +322,7 @@ def write_unichem_concords(structfile,reffile,outdir):
     for outf in concfiles.values():
         outf.close()
 
+@transformer
 def read_inchikeys(struct_file):
     #struct header [0'uci', 1'standardinchi', 2'standardinchikey'],
     inchikeys = {}
@@ -319,6 +337,7 @@ def read_inchikeys(struct_file):
             inchikeys[uci] = f'{INCHIKEY}:{line[2]}'
     return inchikeys
 
+@filterer
 def combine_unichem(concordances,output):
     dicts = {}
     for infile in concordances:
@@ -337,6 +356,7 @@ def combine_unichem(concordances,output):
         for chemset in chem_sets:
             writer.write(list(chemset))
 
+@filterer
 def read_partial_unichem(unichem_partial):
     chem_sets = {}
     with jsonlines.open(unichem_partial) as reader:
@@ -346,6 +366,8 @@ def read_partial_unichem(unichem_partial):
                 chem_sets[element] = chemset
     return chem_sets
 
+@utility
+@filterer
 def is_cas(thing):
     #The last digit in a CAS is a checksum. We could use, but are not atm.
     x = thing.split('-')
@@ -358,6 +380,8 @@ def is_cas(thing):
             return False
     return True
 
+@transformer
+@concord_generator
 def make_pubchem_cas_concord(pubchemsynonyms, outfile):
     with open(pubchemsynonyms,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
@@ -365,6 +389,8 @@ def make_pubchem_cas_concord(pubchemsynonyms, outfile):
             if is_cas(x[1]):
                 outf.write(f'{x[0]}\txref\tCAS:{x[1]}\n')
 
+@transformer
+@concord_generator
 def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile):
     mesh_label_to_id={}
     #Meshlabels has all kinds of stuff. e.g. these are both in there:
@@ -393,6 +419,8 @@ def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile):
             outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\txref\t{mesh_id}\n')
             used_pubchem.add(x[0])
 
+@concord_generator
+@filterer
 def build_drugcentral_relations(infile,outfile):
     prefixmap = { 'CHEBI': CHEBI,
                   'ChEMBL_ID': CHEMBLCOMPOUND,
@@ -417,7 +445,8 @@ def build_drugcentral_relations(infile,outfile):
             #print('ok')
             outf.write(f'{DRUGCENTRAL}:{parts[drugcentral_id_col]}\txref\t{prefixmap[external_ns]}:{parts[external_id_col]}\n')
 
-
+@concord_generator
+@filterer
 def make_gtopdb_relations(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         h = inf.readline()
@@ -435,6 +464,9 @@ def make_gtopdb_relations(infile,outfile):
             inchi = f'{INCHIKEY}:{x[inchi_index][1:-1]}'
             outf.write(f'{gid}\txref\t{inchi}\n')
 
+@concord_generator
+@filterer
+@transformer
 def make_chebi_relations(sdf,dbx,outfile):
     """CHEBI contains relations both about chemicals with and without inchikeys.  You might think that because
     everything is based on unichem, we could avoid the with structures part, but history has shown that we lose
@@ -479,9 +511,8 @@ def make_chebi_relations(sdf,dbx,outfile):
             if x[3] == 'Pubchem accession':
                 outf.write(f'{cid}\txref\t{PUBCHEMCOMPOUND}:{x[4]}\n')
 
-
-
-
+@filterer
+@concord_generator
 def get_mesh_relationships(mesh_id_file,cas_out, unii_out):
     meshes = set()
     with open(mesh_id_file,'r') as inf:
@@ -504,6 +535,8 @@ def get_mesh_relationships(mesh_id_file,cas_out, unii_out):
                 #is a unii?
                 uniiout.write(f'{meshid}\txref\tUNII:{reg}\n')
 
+@wikidata_writer
+@concord_generator
 def get_wikipedia_relationships(outfile):
     url = 'https://query.wikidata.org/sparql?format=json&query=SELECT ?chebi ?mesh WHERE { ?compound wdt:P683 ?chebi . ?compound wdt:P486 ?mesh. }'
     results = requests.get(url).json()
@@ -521,6 +554,8 @@ def get_wikipedia_relationships(outfile):
         for m,c in pairs:
             outf.write(f'{m}\txref\t{c}\n')
 
+@utility
+@compendium_builder
 def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_concord, type_file):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
@@ -567,6 +602,7 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
         for s in untyped_sets:
             outf.write(f'{set(s)}\n')
 
+@compendium_builder
 def build_compendia(type_file, untyped_compendia_file, icrdf_filename):
     types = {}
     with open(type_file,'r') as inf:
@@ -586,6 +622,8 @@ def build_compendia(type_file, untyped_compendia_file, icrdf_filename):
         else:
             write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[RXCUI], icrdf_filename=icrdf_filename)
 
+@type_determination
+@compendium_builder
 def create_typed_sets(eqsets, types):
     """
     Given a set of sets of equivalent identifiers, we want to type each one into

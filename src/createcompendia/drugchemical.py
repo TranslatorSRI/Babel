@@ -1,5 +1,6 @@
 import csv
 
+from src.introspection import utility, concord_generator, filterer, conflation_builder
 from src.node import NodeFactory, get_config, InformationContentFactory
 from src.prefixes import RXCUI, PUBCHEMCOMPOUND, UMLS
 from src.categories import (CHEMICAL_ENTITY, DRUG, MOLECULAR_MIXTURE, FOOD, COMPLEX_MOLECULAR_MIXTURE,
@@ -89,6 +90,7 @@ useful_relationships = [
 "has_ingredient",
 "has_active_ingredient"]
 
+@utility
 def get_aui_to_cui(consofile):
     """Get a mapping from AUI to CUI"""
     aui_to_cui = {}
@@ -111,6 +113,7 @@ def get_aui_to_cui(consofile):
             sdui_to_cui[sdui].add(cui)
     return aui_to_cui, sdui_to_cui
 
+@utility
 def get_cui(x,indicator_column,cui_column,aui_column,aui_to_cui,sdui_to_cui):
     relation_column = 7
     source_column = 10
@@ -138,6 +141,8 @@ def get_cui(x,indicator_column,cui_column,aui_column,aui_to_cui,sdui_to_cui):
         print(x)
         exit()
 
+@concord_generator
+@filterer
 def build_rxnorm_relationships(conso, relfile, outfile):
     """RXNREL is a lousy file.
     The subject and object can sometimes be a CUI and sometimes an AUI and you have to use
@@ -213,7 +218,7 @@ def build_rxnorm_relationships(conso, relfile, outfile):
                     continue
                 outf.write(f"{prefix}:{subject}\t{predicate}\t{prefix}:{next(iter(objects))}\n")
 
-
+@utility
 def load_cliques(compendium):
     rx_to_clique = {}
     with open(compendium,"r") as infile:
@@ -227,6 +232,7 @@ def load_cliques(compendium):
                    rx_to_clique[terms["i"]] = clique
     return rx_to_clique
 
+@concord_generator
 def build_pubchem_relationships(infile,outfile):
     with open(infile,"r") as inf:
         document = json.load(inf)
@@ -237,6 +243,7 @@ def build_pubchem_relationships(infile,outfile):
             for cid in cids:
                 outf.write(f"{RXCUI}:{rxnid}\tlinked\t{PUBCHEMCOMPOUND}:{cid}\n")
 
+@conflation_builder
 def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem_rxn_concord, drug_compendium, chemical_compendia, icrdf_filename, outfilename):
     """RXN_concord contains relationshps between rxcuis that can be used to conflate
     Now we don't want all of them.  We want the ones that are between drugs and chemicals,
@@ -555,7 +562,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             outfile.write(f"{json.dumps(final_conflation_id_list)}\n")
             written.add(fs)
 
-
+@utility
 def sort_by_curie_suffix(curie):
     """
     Sort function to sort by curie suffix. We can't just use get_curie_suffix() because it returns None for CURIEs

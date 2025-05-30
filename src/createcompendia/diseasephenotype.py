@@ -2,6 +2,8 @@ from os import path
 from collections import defaultdict
 
 import src.datahandlers.obo as obo
+from src.introspection import obo_writer, efo_writer, transformer, mesh_writer, umls_writer, ubergraph_writer, \
+    doid_writer, compendium_builder, utility, filterer, no_longer_needed
 
 from src.prefixes import MESH, NCIT, MONDO, OMIM, HP, SNOMEDCT, MEDDRA, EFO, ORPHANET, ICD0, ICD9, ICD10, UMLS, KEGGDISEASE
 from src.categories import DISEASE, PHENOTYPIC_FEATURE
@@ -13,20 +15,24 @@ import src.datahandlers.efo as efo
 
 from src.babel_utils import read_identifier_file, glom, remove_overused_xrefs, get_prefixes, write_compendium
 
+@obo_writer
 def write_obo_ids(irisandtypes,outfile,exclude=[]):
     order = [DISEASE, PHENOTYPIC_FEATURE]
     obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])
 
+@obo_writer
 def write_ncit_ids(outfile):
     disease_id = f'{NCIT}:C2991'
     phenotypic_feature_id = f'{NCIT}:C3367'
     write_obo_ids([(disease_id, DISEASE), (phenotypic_feature_id, PHENOTYPIC_FEATURE)], outfile, exclude=[])
 
+@obo_writer
 def write_mondo_ids(outfile):
     disease_id = f'{MONDO}:0000001'
     disease_sus_id = f'{MONDO}:0042489'
     write_obo_ids([(disease_id, DISEASE),(disease_sus_id,DISEASE)],outfile)
 
+@efo_writer
 def write_efo_ids(outfile):
     disease_id='EFO:0000408'
     phenotype_id='EFO:0000651'
@@ -34,11 +40,13 @@ def write_efo_ids(outfile):
     efos = [(disease_id, DISEASE), (phenotype_id, PHENOTYPIC_FEATURE), (measurement_id, PHENOTYPIC_FEATURE)]
     efo.make_ids(efos,outfile)
 
+@obo_writer
 def write_hp_ids(outfile):
     #Phenotype
     phenotype_id = 'HP:0000118'
     write_obo_ids([(phenotype_id,PHENOTYPIC_FEATURE)],outfile)
 
+@filterer
 def write_omim_ids(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
@@ -48,12 +56,14 @@ def write_omim_ids(infile,outfile):
             if 'phenotype' in chunks[1]:
                 outf.write(f'{OMIM}:{chunks[0]}\t{DISEASE}\n')
 
+@mesh_writer
 def write_mesh_ids(outfile):
     dcodes = ['C01','C04','C05','C06','C07','C08','C09','C10','C11','C12','C13','C14','C15','C16','C17','C18','C19','C20','C21','C22','C24','C25','C26']
     meshmap = { i:DISEASE for i in dcodes}
     meshmap['C23'] = PHENOTYPIC_FEATURE
     mesh.write_ids(meshmap,outfile,order=[DISEASE,PHENOTYPIC_FEATURE])
 
+@umls_writer
 def write_umls_ids(mrsty, outfile,badumlsfile):
     badumls=set()
     with open(badumlsfile,'r') as inf:
@@ -86,7 +96,7 @@ def write_umls_ids(mrsty, outfile,badumlsfile):
     umlsmap['A2.3'] = PHENOTYPIC_FEATURE
     umls.write_umls_ids(mrsty, umlsmap, outfile, blocklist_umls_ids=badumls)
 
-
+@ubergraph_writer
 def build_disease_obo_relationships(outdir):
     #Create the equivalence pairs
     with open(f'{outdir}/{HP}', 'w') as outfile:
@@ -104,10 +114,11 @@ def build_disease_obo_relationships(outdir):
         build_sets('MONDO:0000001', {MONDO:outfile}, set_type='close', other_prefixes={'ORPHANET':ORPHANET})
         build_sets('MONDO:0042489', {MONDO:outfile}, set_type='close', other_prefixes={'ORPHANET':ORPHANET})
 
+@efo_writer
 def build_disease_efo_relationships(idfile,outfile):
     efo.make_concords(idfile, outfile)
 
-
+@umls_writer
 def build_disease_umls_relationships(mrconso, idfile, outfile, omimfile, ncitfile):
     #UMLS contains xrefs between a disease UMLS and a gene OMIM. So here we are saying: if you are going to link to
     # an omim identifier, make sure it's a disease omim, not some other thing.
@@ -120,12 +131,14 @@ def build_disease_umls_relationships(mrconso, idfile, outfile, omimfile, ncitfil
                 good_ids[prefix].add(x)
     umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM},acceptable_identifiers=good_ids)
 
+@doid_writer
 def build_disease_doid_relationships(idfile,outfile):
     doid.build_xrefs(idfile, outfile, other_prefixes={'ICD10CM':ICD10, 'ICD9CM':ICD9, 'ICDO': ICD0, 'NCI': NCIT,
                                                       'SNOMEDCT_US_2018_03_01': SNOMEDCT, 'SNOMEDCT_US_2019_09_01': SNOMEDCT,
                                                       'SNOMEDCT_US_2020_03_01': SNOMEDCT, 'SNOMEDCT_US_2020_09_01': SNOMEDCT,
                                                       'UMLS_CUI': UMLS, 'KEGG': KEGGDISEASE})
 
+@compendium_builder
 def build_compendium(concordances, identifiers, mondoclose, badxrefs, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
@@ -175,6 +188,7 @@ def build_compendium(concordances, identifiers, mondoclose, badxrefs, icrdf_file
         baretype = biotype.split(':')[-1]
         write_compendium(sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
 
+@compendium_builder
 def create_typed_sets(eqsets,types):
     """Given a set of sets of equivalent identifiers, we want to type each one into
     being either a disease or a phenotypic feature.  Or something else, that we may want to
@@ -220,6 +234,7 @@ def create_typed_sets(eqsets,types):
                 typed_sets[t].add(equivalent_ids)
     return typed_sets
 
+@utility
 def read_badxrefs(fn):
     morebad = set()
     with open(fn,'r') as inf:
@@ -230,6 +245,7 @@ def read_badxrefs(fn):
             morebad.add( (x[0],x[1]) )
     return morebad
 
+@no_longer_needed
 def load_diseases_and_phenotypes(concords,idlists,badhpos,badhpoxrefs, icrdf_filename):
     #print('disease/phenotype')
     #print('get and write hp sets')
