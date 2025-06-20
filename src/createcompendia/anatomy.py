@@ -164,7 +164,7 @@ def build_compendia(concordances, identifiers, icrdf_filename):
                     use = True
                     for xi in (x[0], x[2]):
                         if xi not in dicts:
-                            print(f"Skipping pair {x} from {infile}")
+                            print(f"Skipping pair {x} from {infile}: terms with prefixes {bs} are skipped unless they are already in the concords.")
                             use = False
                     if not use:
                         continue
