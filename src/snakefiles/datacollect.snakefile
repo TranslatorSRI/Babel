@@ -181,15 +181,37 @@ rule get_umls_labels_and_synonyms:
 
 ### OBO Ontologies
 
-rule get_ontology_labels_descriptions_and_synonyms:
+rule get_obo_labels:
     output:
-        expand("{download_directory}/{onto}/labels", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
-        expand("{download_directory}/{onto}/synonyms", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
-        icrdf_filename = config['download_directory']+'/icRDF.tsv',
-        # This would make sense if we had descriptions for every ontology, but since we don't, we can't make these outputs explicit.
-        # expand("{download_directory}/{onto}/descriptions", download_directory = config['download_directory'], onto = config['ubergraph_ontologies']),
+        obo_labels=config['download_directory']+'/common/ubergraph/labels'
     run:
-        obo.pull_uber(config['ubergraph_ontologies'], output.icrdf_filename)
+        obo.pull_uber_labels(output.obo_labels)
+
+rule get_obo_synonyms:
+    output:
+        obo_synonyms=config['download_directory']+'/common/ubergraph/synonyms.jsonl'
+    run:
+        obo.pull_uber_synonyms(output.obo_synonyms)
+
+rule get_obo_descriptions:
+    output:
+        obo_descriptions=config['download_directory']+'/common/ubergraph/descriptions.jsonl'
+    run:
+        obo.pull_uber_descriptions(output.obo_descriptions)
+
+rule get_icrdf:
+    input:
+        # Ideally, we would correctly mark all the dependencies for Ubergraph labels, synonyms and descriptions
+        # throughout the system, but that would require a bunch of rewriting. Luckily, we already have the icRDF file
+        # marked as required for all compendia, so we just need to make sure that OBO/Ubergraph has been downloaded
+        # before the icRDF file is downloaded.
+        config['download_directory']+'/common/ubergraph/labels',
+        config['download_directory']+'/common/ubergraph/synonyms.jsonl',
+        config['download_directory']+'/common/ubergraph/descriptions.jsonl'
+    output:
+        icrdf_filename=config['download_directory']+'/icRDF.tsv'
+    run:
+        obo.pull_uber_icRDF(output.icrdf_filename)
 
         # Try to load the icRDF.tsv file (this will produce an error if the file can't be read).
         node.InformationContentFactory(output.icrdf_filename)
@@ -203,14 +225,15 @@ rule get_ncbigene:
         ncbigene.pull_ncbigene(config['ncbi_files'])
 
 rule get_ncbigene_labels_synonyms_and_taxa:
-    output:
-        config['download_directory']+'/NCBIGene/labels',
-        config['download_directory']+'/NCBIGene/synonyms',
-        config['download_directory']+'/NCBIGene/taxa'
     input:
-        config['download_directory']+'/NCBIGene/gene_info.gz'
+        gene_info_filename=config['download_directory']+'/NCBIGene/gene_info.gz',
+    output:
+        labels_filename=config['download_directory'] + '/NCBIGene/labels',
+        synonyms_filename=config['download_directory']+'/NCBIGene/synonyms',
+        taxa_filename=config['download_directory']+'/NCBIGene/taxa',
+        descriptions_filename=config['download_directory']+'/NCBIGene/descriptions',
     run:
-        ncbigene.pull_ncbigene_labels_synonyms_and_taxa()
+        ncbigene.pull_ncbigene_labels_synonyms_and_taxa(input.gene_info_filename, output.labels_filename, output.synonyms_filename, output.taxa_filename, output.descriptions_filename)
 
 ### ENSEMBL
 

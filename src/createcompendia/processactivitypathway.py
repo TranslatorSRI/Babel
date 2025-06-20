@@ -33,7 +33,7 @@ def write_ec_ids(outfile):
 
 
 def write_umls_ids(mrsty, outfile):
-    umlsmap = { 'B2.2.1.1.4': MOLECULAR_ACTIVITY, #
+    umlsmap = { 'B2.2.1.1.4': MOLECULAR_ACTIVITY, # Molecular Function
                 'B2.2.1.1': BIOLOGICAL_PROCESS, # Physiologic Function
                 'B2.2.1.1.1': BIOLOGICAL_PROCESS, # Organism Function
                 'B2.2.1.1.2': BIOLOGICAL_PROCESS, # Organ or Tissue Function
