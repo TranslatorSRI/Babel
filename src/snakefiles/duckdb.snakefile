@@ -99,9 +99,9 @@ rule check_for_duplicate_clique_leaders:
         parquet_dir = config['output_directory'] + '/duckdb/parquet/',
     output:
         duckdb_filename = temp(config['output_directory'] + '/duckdb/duckdbs/duplicate_clique_leaders.duckdb'),
-        duplicate_clique_readers_tsv = config['output_directory'] + '/reports/duckdb/duplicate_clique_leaders.tsv',
+        duplicate_clique_leaders_tsv = config['output_directory'] + '/reports/duckdb/duplicate_clique_leaders.tsv',
     run:
-        src.reports.duckdb_reports.check_for_duplicate_clique_leaders(params.parquet_dir, output.duckdb_filename, output.duplicate_clique_readers_tsv)
+        src.reports.duckdb_reports.check_for_duplicate_clique_leaders(params.parquet_dir, output.duckdb_filename, output.duplicate_clique_leaders_tsv)
 
 rule generate_prefix_report:
     input:
@@ -123,6 +123,7 @@ rule all_duckdb_reports:
         config['output_directory'] + '/duckdb/done',
         identically_labeled_cliques_tsv = config['output_directory'] + '/reports/duckdb/identically_labeled_cliques.tsv',
         duplicate_curies = config['output_directory'] + '/reports/duckdb/duplicate_curies.tsv',
+        duplicate_clique_leaders_tsv = config['output_directory'] + '/reports/duckdb/duplicate_clique_leaders.tsv',
         prefix_report = config['output_directory'] + '/reports/duckdb/prefix_report.json',
     output:
         x = config['output_directory'] + '/reports/duckdb/done',
