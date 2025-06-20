@@ -1,3 +1,4 @@
+import gzip
 import logging
 from collections import defaultdict
 
@@ -8,7 +9,7 @@ import tarfile
 def pull_ncbitaxon():
     pull_via_ftp('ftp.ncbi.nlm.nih.gov','/pub/taxonomy','taxdump.tar.gz',decompress_data=True,outfilename=f'{NCBITAXON}/taxdump.tar')
 
-def make_labels_and_synonyms(infile,labelfile,synfile):
+def make_labels_and_synonyms(infile,labelfile,synfile,propfilegz):
     """
     Generate labels and synonyms for NCBITaxon IDs.
 
@@ -31,7 +32,7 @@ def make_labels_and_synonyms(infile,labelfile,synfile):
     # we put that into a dictionary and write them out separately later.
     names_by_txid = {}
 
-    with open(labelfile,'w') as labelf, open(synfile,'w') as outsyn:
+    with open(labelfile,'w') as labelf, open(synfile,'w') as outsyn, gzip.open(propfilegz,'wt') as propf:
         for line in l:
             sline = line.decode('utf-8').strip().split('|')
             parts = [x.strip() for x in sline]
@@ -69,8 +70,10 @@ def make_labels_and_synonyms(infile,labelfile,synfile):
                 # Labels: we use the scientific name and common name, which we put together afterwards.
                 case 'scientific name':
                     if 'scientific name' not in names_by_txid[ncbi_txid]:
-                        # We only write down the first one.
+                        # We only record the first one to use in the label.
                         names_by_txid[ncbi_txid]['scientific name'] = name
+                        # But we write all of them into the properties file.
+                        propf.write(f'{ncbi_txid}\tdwc:scientificName\t{name}\n')
                     else:
                         logging.warning(f"Found additional scientific name for {ncbi_txid}: '{name}' (previously '{names_by_txid[ncbi_txid]['scientific name']}'), ignoring.")
 
@@ -78,6 +81,8 @@ def make_labels_and_synonyms(infile,labelfile,synfile):
                     if 'common name' not in names_by_txid[ncbi_txid]:
                         # We only write down the first one as the "official" common name.
                         names_by_txid[ncbi_txid]['common name'] = name
+                        # But we write all of them into the properties file.
+                        propf.write(f'{ncbi_txid}\tdwc:vernacularName\t{name}\n')
                     else:
                         logging.warning(f"Found additional common name for {ncbi_txid}: '{name}' (previously '{names_by_txid[ncbi_txid]['common name']}'), ignoring.")
 
@@ -85,6 +90,8 @@ def make_labels_and_synonyms(infile,labelfile,synfile):
                     if 'genbank common name' not in names_by_txid[ncbi_txid]:
                         # We only write down the first one as the "official" common name.
                         names_by_txid[ncbi_txid]['genbank common name'] = name
+                        # But we write all of them into the properties file.
+                        propf.write(f'{ncbi_txid}\tdwc:vernacularName\t{name}\n')
                     else:
                         logging.warning(f"Found additional GenBank common name for {ncbi_txid}: '{name}' (previously '{names_by_txid[ncbi_txid]['genbank common name']}'), ignoring.")
 
@@ -92,6 +99,8 @@ def make_labels_and_synonyms(infile,labelfile,synfile):
                 case 'synonym' | 'equivalent name':
                     # We previously uniquified the synonyms, but I don't think that's useful, because we can't really
                     # control which one gets the first synonym, so let's just add them all.
+                    #
+                    # We could write the synonyms into the properties file, but they probably won't be useful for taxonomy.
                     pass
 
                 # For every other name class, we DON'T want to write this as a synonym.
@@ -108,6 +117,8 @@ def make_labels_and_synonyms(infile,labelfile,synfile):
             common_name = names_by_txid[txid].get('common name', '')
             genbank_common_name = names_by_txid[txid].get('genbank common name', '')
 
+            # To make these labels easier to understand, we incorporate both the
+            # scientific name and the vernacular name (e.g. "Homo sapiens (human)").
             # We prefer the GenBank common name, if there is one.
             if scientific_name and genbank_common_name:
                 labelf.write(f'{txid}\t{scientific_name} ({genbank_common_name})\n')
