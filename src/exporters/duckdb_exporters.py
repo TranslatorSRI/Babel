@@ -1,12 +1,10 @@
 # The DuckDB exporter can be used to export particular intermediate files into the
 # in-process database engine DuckDB (https://duckdb.org) for future querying.
 import os.path
-import time
 
 import duckdb
 
 from src.node import get_config
-from src.reports.duckdb_reports import get_label_distribution
 
 
 def setup_duckdb(duckdb_filename):
