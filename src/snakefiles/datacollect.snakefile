@@ -604,9 +604,10 @@ rule ncbitaxon_labels_and_synonyms:
         infile = config['download_directory'] + '/NCBITaxon/taxdump.tar'
     output:
         lfile = config['download_directory'] + '/NCBITaxon/labels',
-        sfile = config['download_directory'] + '/NCBITaxon/synonyms'
+        sfile = config['download_directory'] + '/NCBITaxon/synonyms',
+        propfilegz = config['download_directory'] + '/NCBITaxon/properties.tsv.gz'
     run:
-        ncbitaxon.make_labels_and_synonyms(input.infile,output.lfile,output.sfile)
+        ncbitaxon.make_labels_and_synonyms(input.infile,output.lfile,output.sfile,output.propfilegz)
 
 # CHEBI: some comes via obo, but we need the SDF file too
 
