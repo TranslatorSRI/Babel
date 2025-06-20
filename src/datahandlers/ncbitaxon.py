@@ -84,7 +84,7 @@ def make_labels_and_synonyms(infile,labelfile,synfile,propfilegz):
                         # But we write all of them into the properties file.
                         propf.write(f'{ncbi_txid}\tdwc:vernacularName\t{name}\n')
                     else:
-                        logging.warning(f"Found additional common name for {ncbi_txid}: '{name}' (previously '{names_by_txid[ncbi_txid]['common name']}'), ignoring.")
+                        logging.debug(f"Found additional common name for {ncbi_txid}: '{name}' (previously '{names_by_txid[ncbi_txid]['common name']}'), ignoring.")
 
                 case 'genbank common name':
                     if 'genbank common name' not in names_by_txid[ncbi_txid]:
@@ -93,7 +93,7 @@ def make_labels_and_synonyms(infile,labelfile,synfile,propfilegz):
                         # But we write all of them into the properties file.
                         propf.write(f'{ncbi_txid}\tdwc:vernacularName\t{name}\n')
                     else:
-                        logging.warning(f"Found additional GenBank common name for {ncbi_txid}: '{name}' (previously '{names_by_txid[ncbi_txid]['genbank common name']}'), ignoring.")
+                        logging.debug(f"Found additional GenBank common name for {ncbi_txid}: '{name}' (previously '{names_by_txid[ncbi_txid]['genbank common name']}'), ignoring.")
 
                 # Synonyms: we use taxonomic synonyms and equivalent names, which are directly added as a synonym.
                 case 'synonym' | 'equivalent name':
