@@ -5,8 +5,8 @@
   "output_directory": "babel_outputs",
 
   "biolink_version": "4.2.6-rc5",
-  "umls_version": "2024AB",
-  "rxnorm_version": "03032025",
+  "umls_version": "2025AA",
+  "rxnorm_version": "06022025",
   "drugbank_version": "5-1-13",
 
   "UMLS_UniProtKB_download_raw_url": "https://raw.githubusercontent.com/cbizon/UMLS_UniProtKB/refs/heads/main/outputs/UMLS_UniProtKB.tsv",
