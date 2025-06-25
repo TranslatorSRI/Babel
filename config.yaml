@@ -22,6 +22,7 @@ generate_dirs_for_labels_and_synonyms_prefixes:
   - CL
   - NCIT
   - UBERON
+  - CHEBI
 
 ubergraph_ontologies:
   - UBERON
