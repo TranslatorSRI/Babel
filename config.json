@@ -34,7 +34,8 @@
     "UBERON",
     "CHEBI",
     "HP",
-    "MONDO"
+    "MONDO",
+    "PR"
   ],
 
   "anatomy_prefixes": ["UBERON","GO","CL","UMLS","MESH","NCIT","SNOMEDCT"],
