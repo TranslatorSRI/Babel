@@ -23,6 +23,8 @@ generate_dirs_for_labels_and_synonyms_prefixes:
   - NCIT
   - UBERON
   - CHEBI
+  - HP
+  - MONDO
 
 ubergraph_ontologies:
   - UBERON
