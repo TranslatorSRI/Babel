@@ -31,7 +31,8 @@
     "GO",
     "CL",
     "NCIT",
-    "UBERON"
+    "UBERON",
+    "CHEBI"
   ],
 
   "anatomy_prefixes": ["UBERON","GO","CL","UMLS","MESH","NCIT","SNOMEDCT"],
