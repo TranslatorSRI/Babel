@@ -25,6 +25,7 @@ generate_dirs_for_labels_and_synonyms_prefixes:
   - CHEBI
   - HP
   - MONDO
+  - PR
 
 ubergraph_ontologies:
   - UBERON
