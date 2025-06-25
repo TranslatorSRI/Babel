@@ -1,9 +1,8 @@
-from datetime import datetime
+import logging
 import json
 import jsonlines
 from pathlib import Path
 
-from snakemake.logging import Logger
 from bmt import Toolkit
 
 from src.node import NodeFactory
@@ -30,7 +29,6 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
     :return: Nothing.
     """
 
-    logging = Logger()
     logging.info(f"write_leftover_umls({compendia}, {umls_labels_filename}, {mrconso}, {mrsty}, {synonyms}, {umls_compendium}, {umls_synonyms}, {report}, {biolink_version})")
 
     # For now, we have many more UMLS entities in MRCONSO than in the compendia, so
