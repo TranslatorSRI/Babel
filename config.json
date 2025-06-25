@@ -27,6 +27,13 @@
     ]
   },
 
+  "generate_dirs_for_labels_and_synonyms_prefixes": [
+    "GO",
+    "CL",
+    "NCIT",
+    "UBERON"
+  ],
+
   "anatomy_prefixes": ["UBERON","GO","CL","UMLS","MESH","NCIT","SNOMEDCT"],
   "anatomy_ids": ["UBERON","GO","CL","UMLS","MESH","NCIT"],
   "anatomy_concords": ["UBERON","GO","CL","UMLS", "WIKIDATA"],
