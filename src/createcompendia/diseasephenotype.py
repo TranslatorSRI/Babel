@@ -126,7 +126,7 @@ def build_disease_doid_relationships(idfile,outfile):
                                                       'SNOMEDCT_US_2020_03_01': SNOMEDCT, 'SNOMEDCT_US_2020_09_01': SNOMEDCT,
                                                       'UMLS_CUI': UMLS, 'KEGG': KEGGDISEASE})
 
-def build_compendium(concordances, identifiers, mondoclose, badxrefs, icrdf_filename):
+def build_compendium(concordances, metadata_yamls, identifiers, mondoclose, badxrefs, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
@@ -173,7 +173,7 @@ def build_compendium(concordances, identifiers, mondoclose, badxrefs, icrdf_file
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]),types)
     for biotype,sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
-        write_compendium(sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
+        write_compendium(metadata_yamls, sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
 
 def create_typed_sets(eqsets,types):
     """Given a set of sets of equivalent identifiers, we want to type each one into
@@ -231,6 +231,7 @@ def read_badxrefs(fn):
     return morebad
 
 def load_diseases_and_phenotypes(concords,idlists,badhpos,badhpoxrefs, icrdf_filename):
+    metadata_yamls = []
     #print('disease/phenotype')
     #print('get and write hp sets')
     #bad_mappings = read_bad_hp_mappings(badhpos)
@@ -301,8 +302,8 @@ def load_diseases_and_phenotypes(concords,idlists,badhpos,badhpoxrefs, icrdf_fil
     print('dump it')
     fs = set([frozenset(x) for x in dicts.values()])
     diseases,phenotypes = create_typed_sets(fs)
-    write_compendium(diseases,'disease.txt','biolink:Disease',labels, icrdf_filename=icrdf_filename)
-    write_compendium(phenotypes,'phenotypes.txt','biolink:PhenotypicFeature',labels, icrdf_filename=icrdf_filename)
+    write_compendium(metadata_yamls, diseases,'disease.txt','biolink:Disease',labels, icrdf_filename=icrdf_filename)
+    write_compendium(metadata_yamls, phenotypes,'phenotypes.txt','biolink:PhenotypicFeature',labels, icrdf_filename=icrdf_filename)
 
 if __name__ == '__main__':
     with open('crapfile','w') as crapfile:

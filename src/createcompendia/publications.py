@@ -246,7 +246,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
             statusf.write(json.dumps({'id': pmid, 'statuses': sorted(statuses)}, sort_keys=True) + '\n')
 
 
-def generate_compendium(concordances, identifiers, titles, publication_compendium, icrdf_filename):
+def generate_compendium(concordances, metadata_yamls, identifiers, titles, publication_compendium, icrdf_filename):
     """
     Generate a Publication compendium using the ID and Concord files provided.
 
@@ -295,5 +295,5 @@ def generate_compendium(concordances, identifiers, titles, publication_compendiu
     # Write out the compendium.
     publication_sets = set([frozenset(x) for x in dicts.values()])
     baretype = PUBLICATION.split(':')[-1]
-    write_compendium(publication_sets, os.path.basename(publication_compendium), PUBLICATION, labels,
+    write_compendium(metadata_yamls, publication_sets, os.path.basename(publication_compendium), PUBLICATION, labels,
                      icrdf_filename=icrdf_filename)
