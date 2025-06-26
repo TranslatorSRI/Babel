@@ -52,6 +52,7 @@ rule generate_pubmed_compendia:
         titles = [
             config['download_directory'] + '/PubMed/titles.tsv',
         ],
+        metadata_yaml = config['intermediate_directory'] + '/publications/concords/metadata.yaml',
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         publication_compendium = config['output_directory'] + '/compendia/Publication.txt',
@@ -60,6 +61,7 @@ rule generate_pubmed_compendia:
     run:
         publications.generate_compendium(
             [input.pmid_doi_concord_file],
+            [input.metadata_yaml],
             [input.pmid_id_file],
             input.titles,
             output.publication_compendium,

@@ -80,6 +80,7 @@ rule protein_compendia:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['protein_labels']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['protein_synonyms']),
         concords=expand("{dd}/protein/concords/{ap}",dd=config['intermediate_directory'],ap=config['protein_concords']),
+        metadata_yamls=expand("{dd}/protein/concords/metadata-{ap}.yaml",dd=config['intermediate_directory'],ap=config['protein_concords']),
         idlists=expand("{dd}/protein/ids/{ap}",dd=config['intermediate_directory'],ap=config['protein_ids']),
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
         # Include the taxon information from UniProtKB
@@ -88,7 +89,7 @@ rule protein_compendia:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
         temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs']))
     run:
-        protein.build_protein_compendia(input.concords,input.idlists, input.icrdf_filename)
+        protein.build_protein_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
 
 rule check_protein_completeness:
     input:

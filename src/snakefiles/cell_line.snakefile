@@ -24,12 +24,13 @@ rule cell_line_compendia:
         ids=config['intermediate_directory']+"/cell_line/ids/CLO",
         labelfile=config['download_directory'] + '/CLO/labels',
         synonymfile=config['download_directory'] + '/CLO/synonyms',
+        metadatafile=config['download_directory'] + '/CLO/metadata.yaml',
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         config['output_directory']+"/compendia/CellLine.txt",
         temp(config['output_directory']+"/synonyms/CellLine.txt")
     run:
-        cell_line.build_compendia(input.ids,input.icrdf_filename)
+        cell_line.build_compendia(input.ids, input.metadatafile, input.icrdf_filename)
 
 rule check_cell_line_completeness:
     input:
