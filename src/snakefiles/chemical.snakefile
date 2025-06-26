@@ -217,12 +217,13 @@ rule chemical_compendia:
     input:
         typesfile    = config['intermediate_directory'] + '/chemicals/partials/types',
         untyped_file = config['intermediate_directory'] + '/chemicals/partials/untyped_compendium',
+        metadata_yamls = config['intermediate_directory'] + '/chemicals/partials/metadata-untyped_compendium.yaml',
         icrdf_filename = config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
         temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs']))
     run:
-        chemicals.build_compendia(input.typesfile,input.untyped_file, input.icrdf_filename)
+        chemicals.build_compendia(input.typesfile, input.untyped_file, [input.metadata_yamls], input.icrdf_filename)
 
 rule check_chemical_completeness:
     input:

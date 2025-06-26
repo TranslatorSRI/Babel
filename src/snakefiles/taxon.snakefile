@@ -50,13 +50,14 @@ rule taxon_compendia:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['taxon_labels']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['taxon_synonyms']),
         concords=expand("{dd}/taxon/concords/{ap}",dd=config['intermediate_directory'],ap=config['taxon_concords']),
+        metadata_yamls=expand("{dd}/taxon/concords/metadata-{ap}.yaml",dd=config['intermediate_directory'],ap=config['taxon_concords']),
         idlists=expand("{dd}/taxon/ids/{ap}",dd=config['intermediate_directory'],ap=config['taxon_ids']),
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['taxon_outputs']),
         temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs']))
     run:
-        taxon.build_compendia(input.concords,input.idlists, input.icrdf_filename)
+        taxon.build_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
 
 rule check_taxon_completeness:
     input:

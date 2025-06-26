@@ -90,13 +90,14 @@ rule process_compendia:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['process_labels']),
         #synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['process_labelsandsynonyms']),
         concords=expand("{dd}/process/concords/{ap}",dd=config['intermediate_directory'],ap=config['process_concords']),
+        metadata_yamls=expand("{dd}/process/concords/metadata-{ap}.yaml",dd=config['intermediate_directory'],ap=config['process_concords']),
         idlists=expand("{dd}/process/ids/{ap}",dd=config['intermediate_directory'],ap=config['process_ids']),
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['process_outputs']),
         temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs']))
     run:
-        pap.build_compendia(input.concords,input.idlists,input.icrdf_filename)
+        pap.build_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
 
 rule check_process_completeness:
     input:

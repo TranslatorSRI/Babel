@@ -72,13 +72,14 @@ rule anatomy_compendia:
         labels=os.path.join(config["download_directory"], 'common', config["common"]["labels"][0]),
         synonyms=os.path.join(config["download_directory"], 'common', config["common"]["synonyms"][0]),
         concords=expand("{dd}/anatomy/concords/{ap}",dd=config['intermediate_directory'],ap=config['anatomy_concords']),
+        metadata_yamls=expand("{dd}/anatomy/concords/metadata-{ap}.yaml",dd=config['intermediate_directory'],ap=config['anatomy_concords']),
         idlists=expand("{dd}/anatomy/ids/{ap}",dd=config['intermediate_directory'],ap=config['anatomy_ids']),
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
         temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']))
     run:
-        anatomy.build_compendia(input.concords, input.idlists, input.icrdf_filename)
+        anatomy.build_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
 
 rule check_anatomy_completeness:
     input:

@@ -101,13 +101,14 @@ rule gene_compendia:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['gene_labels']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['gene_labels']),
         concords=expand("{dd}/gene/concords/{ap}",dd=config['intermediate_directory'],ap=config['gene_concords']),
+        metadata_yamls=expand("{dd}/gene/concords/metadata-{ap}.yaml",dd=config['intermediate_directory'],ap=config['gene_concords']),
         idlists=expand("{dd}/gene/ids/{ap}",dd=config['intermediate_directory'],ap=config['gene_ids']),
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['gene_outputs']),
         temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['gene_outputs']))
     run:
-        gene.build_gene_compendia(input.concords,input.idlists, input.icrdf_filename)
+        gene.build_gene_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
 
 rule check_gene_completeness:
     input:

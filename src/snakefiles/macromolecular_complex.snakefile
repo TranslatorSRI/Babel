@@ -14,13 +14,14 @@ rule macromolecular_complex_compendia:
     input:
         labels = config['download_directory']+'/ComplexPortal/559292_labels.tsv',
         synonyms = config['download_directory']+'/ComplexPortal/559292_synonyms.tsv',
+        metadata_yaml = config['download_directory']+'/ComplexPortal/metadata.yaml',
         idlists = config['intermediate_directory']+'/macromolecular_complex/ids/ComplexPortal',
         icrdf_filename = config['download_directory'] + '/icRDF.tsv',
     output:
         config['output_directory']+'/compendia/MacromolecularComplex.txt',
         temp(config['output_directory']+'/synonyms/MacromolecularComplex.txt')
     run:
-        macromolecular_complex.build_compendia([input.idlists], icrdf_filename=input.icrdf_filename)
+        macromolecular_complex.build_compendia([input.idlists], [input.metadata_yaml], icrdf_filename=input.icrdf_filename)
 
 rule check_macromolecular_complex_completeness:
     input:
