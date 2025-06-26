@@ -196,7 +196,7 @@ rule get_obo_labels:
             prefix=config['generate_dirs_for_labels_and_synonyms_prefixes']
         ),
     run:
-        obo.pull_uber_labels(output.obo_labels, output.generated_labels, output.generated_labels)
+        obo.pull_uber_labels(output.obo_labels, output.generated_labels)
 
 rule get_obo_synonyms:
     output:
