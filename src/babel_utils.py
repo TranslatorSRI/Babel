@@ -351,7 +351,7 @@ def get_numerical_curie_suffix(curie):
     return None
 
 
-def write_compendium(metadata_yamls, synonym_list,ofname,node_type,labels={},extra_prefixes=[],icrdf_filename=None):
+def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={}, extra_prefixes=[], icrdf_filename=None):
     """
     :param metadata_yaml: The YAML files containing the metadata for this compendium.
     :param synonym_list:
@@ -374,32 +374,6 @@ def write_compendium(metadata_yamls, synonym_list,ofname,node_type,labels={},ext
     node_factory = NodeFactory(make_local_name(''),biolink_version)
     synonym_factory = SynonymFactory(make_local_name(''))
 
-    # Write out the metadata.yaml file combining information from all the metadata.yaml files.
-    metadata_dir = os.path.join(cdir,'metadata')
-    os.makedirs(metadata_dir, exist_ok=True)
-    with open(os.path.join(cdir, ofname + '.yaml'), 'w') as outf:
-        metadata = {
-            'type': 'compendium',
-            'name': ofname,
-            'created_at': datetime.now().isoformat(),
-            'concords': {}
-        }
-        for metadata_yaml in metadata_yamls:
-            metadata_block = yaml.safe_load(metadata_yaml)
-            if metadata_block is None:
-                raise ValueError("Metadata file {metadata_yaml} is empty.")
-
-            metadata_name = metadata_block['name']
-
-            if metadata_name in metadata['concords']:
-                logging.error(f"Duplicate metadata block name {metadata_name}!")
-                logging.error(f"New metadata block from {metadata_yaml}: {metadata_block}!")
-                logging.error(f"Existing metadata block: {metadata['concords'][metadata_name]}!")
-                raise ValueError(f"Metadata file {metadata_yaml} is named {metadata_name}, but this has already been loaded.")
-            metadata['concords'][metadata_name] = metadata_block
-
-        outf.write(yaml.dump(metadata))
-
     # Load the preferred_name_boost_prefixes -- this tells us which prefixes to boost when
     # coming up with a preferred label for a particular Biolink class.
     preferred_name_boost_prefixes = config['preferred_name_boost_prefixes']
@@ -418,11 +392,19 @@ def write_compendium(metadata_yamls, synonym_list,ofname,node_type,labels={},ext
     os.makedirs(os.path.join(cdir, 'compendia'), exist_ok=True)
     os.makedirs(os.path.join(cdir, 'synonyms'), exist_ok=True)
 
+    # Counts.
+    count_cliques = 0
+    count_eq_ids = 0
+    count_synonyms = 0
+
     # Write compendium and synonym files.
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
             if node is not None:
+                count_cliques += 1
+                count_eq_ids += len(slist)
+
                 nw = {"type": node['type']}
                 ic = ic_factory.get_ic(node)
                 nw['ic'] = ic
@@ -527,6 +509,8 @@ def write_compendium(metadata_yamls, synonym_list,ofname,node_type,labels={},ext
                                 "names": synonyms_list,
                                 "types": [t[8:] for t in types]} # remove biolink:
 
+                    count_synonyms += len(synonyms_list)
+
                     # Write out the preferred name.
                     if preferred_name:
                         document["preferred_name"] = preferred_name
@@ -573,6 +557,37 @@ def write_compendium(metadata_yamls, synonym_list,ofname,node_type,labels={},ext
                     print(node_factory.get_ancestors(node["type"]))
                     traceback.print_exc()
                     exit()
+
+    # Write out the metadata.yaml file combining information from all the metadata.yaml files.
+    metadata_dir = os.path.join(cdir,'metadata')
+    os.makedirs(metadata_dir, exist_ok=True)
+    with open(os.path.join(cdir, ofname + '.yaml'), 'w') as outf:
+        metadata = {
+            'type': 'compendium',
+            'name': ofname,
+            'created_at': datetime.now().isoformat(),
+            'counts': {
+                'cliques': count_cliques,
+                'eq_ids': count_eq_ids,
+                'synonyms': count_synonyms,
+            },
+            'concords': {}
+        }
+        for metadata_yaml in metadata_yamls:
+            metadata_block = yaml.safe_load(metadata_yaml)
+            if metadata_block is None:
+                raise ValueError("Metadata file {metadata_yaml} is empty.")
+
+            metadata_name = metadata_block['name']
+
+            if metadata_name in metadata['concords']:
+                logging.error(f"Duplicate metadata block name {metadata_name}!")
+                logging.error(f"New metadata block from {metadata_yaml}: {metadata_block}!")
+                logging.error(f"Existing metadata block: {metadata['concords'][metadata_name]}!")
+                raise ValueError(f"Metadata file {metadata_yaml} is named {metadata_name}, but this has already been loaded.")
+            metadata['concords'][metadata_name] = metadata_block
+
+        outf.write(yaml.dump(metadata))
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.
