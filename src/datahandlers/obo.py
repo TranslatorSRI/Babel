@@ -1,4 +1,5 @@
 import json
+import logging
 from pathlib import Path
 
 from src.ubergraph import UberGraph
@@ -61,7 +62,7 @@ def pull_uber_labels(outputfile, prefix_labels_files_to_generate):
         prefix = prefix_dir.name
         os.makedirs(prefix_dir, exist_ok=True)
         if prefix not in ldict:
-            raise ValueError(f'Prefix {prefix} not found in UberGraph download.')
+            raise ValueError(f'Prefix {prefix} not found in UberGraph labels download.')
         with open(prefix_labels_file, 'w') as outf:
             for unit in ldict[prefix]:
                 outf.write(f'{unit[0]}\t{unit[1]}\n')
@@ -128,7 +129,8 @@ def pull_uber_synonyms(jsonloutputfile, prefix_synonyms_files_to_generate):
         os.makedirs(prefix_dir, exist_ok=True)
         with open(prefix_synonyms_file, 'w') as outf:
             if prefix not in ldict:
-                raise ValueError(f'Prefix {prefix} not found in UberGraph download.')
+                logging.warning(f'Prefix {prefix} not found in UberGraph synonyms download.')
+                outf.write('')
             for unit in ldict[prefix]:
                 outf.write(f'{unit[0]}\t{unit[1]}\n')
 
