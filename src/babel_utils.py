@@ -5,13 +5,15 @@ from enum import Enum
 from ftplib import FTP
 from io import BytesIO
 import gzip
-from datetime import datetime as dt
+from datetime import datetime as dt, datetime
 from datetime import timedelta
 import time
 import requests
 import os
 import urllib
 import jsonlines
+import yaml
+
 from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory
 from src.util import Text, get_config
 from src.LabeledID import LabeledID
@@ -349,10 +351,11 @@ def get_numerical_curie_suffix(curie):
     return None
 
 
-def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],icrdf_filename=None):
+def write_compendium(metadata_yamls, synonym_list,ofname,node_type,labels={},extra_prefixes=[],icrdf_filename=None):
     """
+    :param metadata_yaml: The YAML files containing the metadata for this compendium.
     :param synonym_list:
-    :param ofname:
+    :param ofname: Output filename. A file with this filename will be created in both the `compendia` and `synonyms` output directories.
     :param node_type:
     :param labels: A map of identifiers
         Not needed if each identifier will have a label in the correct directory (i.e. downloads/PMID/labels for PMID:xxx).
@@ -370,6 +373,32 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     biolink_version = config['biolink_version']
     node_factory = NodeFactory(make_local_name(''),biolink_version)
     synonym_factory = SynonymFactory(make_local_name(''))
+
+    # Write out the metadata.yaml file combining information from all the metadata.yaml files.
+    metadata_dir = os.path.join(cdir,'metadata')
+    os.makedirs(metadata_dir, exist_ok=True)
+    with open(os.path.join(cdir, ofname + '.yaml'), 'w') as outf:
+        metadata = {
+            'type': 'compendium',
+            'name': ofname,
+            'created_at': datetime.now().isoformat(),
+            'concords': {}
+        }
+        for metadata_yaml in metadata_yamls:
+            metadata_block = yaml.safe_load(metadata_yaml)
+            if metadata_block is None:
+                raise ValueError("Metadata file {metadata_yaml} is empty.")
+
+            metadata_name = metadata_block['name']
+
+            if metadata_name in metadata['concords']:
+                logging.error(f"Duplicate metadata block name {metadata_name}!")
+                logging.error(f"New metadata block from {metadata_yaml}: {metadata_block}!")
+                logging.error(f"Existing metadata block: {metadata['concords'][metadata_name]}!")
+                raise ValueError(f"Metadata file {metadata_yaml} is named {metadata_name}, but this has already been loaded.")
+            metadata['concords'][metadata_name] = metadata_block
+
+        outf.write(yaml.dump(metadata))
 
     # Load the preferred_name_boost_prefixes -- this tells us which prefixes to boost when
     # coming up with a preferred label for a particular Biolink class.
