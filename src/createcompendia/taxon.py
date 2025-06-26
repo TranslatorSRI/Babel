@@ -82,7 +82,7 @@ def build_relationships(outfile,mesh_ids):
 
 
 
-def build_compendia(concordances, identifiers, icrdf_filename):
+def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
@@ -106,5 +106,5 @@ def build_compendia(concordances, identifiers, icrdf_filename):
     baretype = ORGANISM_TAXON.split(':')[-1]
     # We need to use extra_prefixes since UMLS is not listed as an identifier prefix at
     # https://biolink.github.io/biolink-model/docs/OrganismTaxon.html
-    write_compendium(gene_sets, f'{baretype}.txt', ORGANISM_TAXON, {}, icrdf_filename=icrdf_filename)
+    write_compendium(metadata_yamls, gene_sets, f'{baretype}.txt', ORGANISM_TAXON, {}, icrdf_filename=icrdf_filename)
 

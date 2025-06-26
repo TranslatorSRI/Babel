@@ -138,7 +138,7 @@ def build_wikidata_cell_relationships(outdir):
 def build_anatomy_umls_relationships(mrconso, idfile,outfile):
     umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO, 'FMA': FMA})
 
-def build_compendia(concordances, identifiers, icrdf_filename):
+def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
@@ -175,7 +175,7 @@ def build_compendia(concordances, identifiers, icrdf_filename):
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]),types)
     for biotype,sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
-        write_compendium(sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
+        write_compendium(metadata_yamls, concordances, sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
 
 def create_typed_sets(eqsets,types):
     """Given a set of sets of equivalent identifiers, we want to type each one into

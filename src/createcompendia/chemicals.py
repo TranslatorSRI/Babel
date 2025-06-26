@@ -567,7 +567,7 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
         for s in untyped_sets:
             outf.write(f'{set(s)}\n')
 
-def build_compendia(type_file, untyped_compendia_file, icrdf_filename):
+def build_compendia(type_file, untyped_compendia_file, metadata_yamls, icrdf_filename):
     types = {}
     with open(type_file,'r') as inf:
         for line in inf:
@@ -582,9 +582,9 @@ def build_compendia(type_file, untyped_compendia_file, icrdf_filename):
     for biotype, sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
         if biotype == DRUG:
-            write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[MESH,UNII], icrdf_filename=icrdf_filename)
+            write_compendium(metadata_yamls, sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[MESH,UNII], icrdf_filename=icrdf_filename)
         else:
-            write_compendium(sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[RXCUI], icrdf_filename=icrdf_filename)
+            write_compendium(metadata_yamls, sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[RXCUI], icrdf_filename=icrdf_filename)
 
 def create_typed_sets(eqsets, types):
     """
