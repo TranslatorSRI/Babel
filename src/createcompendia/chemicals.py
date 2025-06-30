@@ -1,10 +1,14 @@
 import logging
 from collections import defaultdict
+from datetime import datetime
+
 import jsonlines
 import requests
 import ast
 import gzip
 from gzip import GzipFile
+
+import yaml
 
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
@@ -521,7 +525,7 @@ def get_wikipedia_relationships(outfile):
         for m,c in pairs:
             outf.write(f'{m}\txref\t{c}\n')
 
-def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_concord, type_file):
+def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_concord, type_file, metadata_yaml, input_metadata_yamls):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = read_partial_unichem(unichem_partial)
@@ -566,6 +570,20 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
     with open(untyped_concord, 'w') as outf:
         for s in untyped_sets:
             outf.write(f'{set(s)}\n')
+
+    # Build the metadata file by combining the input metadata_yamls.
+    metadata = {
+        'type': 'untyped_compendium',
+        'name': 'build_untyped_compendia()',
+        'created_at': datetime.now().isoformat(),
+        'sources': []
+    }
+    for metadata_yaml in input_metadata_yamls:
+        with open(metadata_yaml, 'r') as metaf:
+            metadata_block = yaml.safe_load(metaf)
+            if metadata_block is None:
+                raise ValueError("Metadata file {metadata_yaml} is empty.")
+            metadata['sources'].append(metadata_block)
 
 def build_compendia(type_file, untyped_compendia_file, metadata_yamls, icrdf_filename):
     types = {}

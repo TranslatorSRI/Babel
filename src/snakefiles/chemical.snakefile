@@ -205,12 +205,14 @@ rule untyped_chemical_compendia:
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['chemical_synonyms']),
         unichemgroup = config['intermediate_directory']+'/chemicals/partials/UNICHEM',
         concords = expand('{dd}/chemicals/concords/{cc}',dd=config['intermediate_directory'], cc=config['chemical_concords'] ),
+        metadata_yamls = expand('{dd}/chemicals/concords/metadata-{cc}.yaml',dd=config['intermediate_directory'], cc=config['chemical_concords'] ),
         idlists=expand("{dd}/chemicals/ids/{ap}",dd=config['intermediate_directory'],ap=config['chemical_ids']),
     output:
         typesfile    = config['intermediate_directory'] + '/chemicals/partials/types',
         untyped_file = config['intermediate_directory'] + '/chemicals/partials/untyped_compendium',
+        untyped_meta = config['intermediate_directory'] + '/chemicals/partials/metadata-untyped_compendium.yaml'
     run:
-        chemicals.build_untyped_compendia(input.concords,input.idlists,input.unichemgroup,output.untyped_file,output.typesfile)
+        chemicals.build_untyped_compendia(input.concords,input.idlists,input.unichemgroup,output.untyped_file,output.typesfile, output.untyped_meta, input.metadata_yamls)
 
 
 rule chemical_compendia:
