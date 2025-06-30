@@ -49,7 +49,7 @@ rule get_anatomy_obo_relationships:
         config['intermediate_directory']+'/anatomy/concords/UBERON',
         config['intermediate_directory']+'/anatomy/concords/CL',
         config['intermediate_directory']+'/anatomy/concords/GO',
-        uberon_metadata=config['intermediate_directory']+'/anatomy/concords/metadata-UberGraph.yaml',
+        uberon_metadata=config['intermediate_directory']+'/anatomy/concords/metadata-UBERON.yaml',
         cl_metadata=config['intermediate_directory']+'/anatomy/concords/metadata-CL.yaml',
         go_metadata=config['intermediate_directory']+'/anatomy/concords/metadata-GO.yaml',
     run:
