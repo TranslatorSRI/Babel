@@ -49,14 +49,22 @@ rule get_anatomy_obo_relationships:
         config['intermediate_directory']+'/anatomy/concords/UBERON',
         config['intermediate_directory']+'/anatomy/concords/CL',
         config['intermediate_directory']+'/anatomy/concords/GO',
+        uberon_metadata=config['intermediate_directory']+'/anatomy/concords/metadata-UberGraph.yaml',
+        cl_metadata=config['intermediate_directory']+'/anatomy/concords/metadata-CL.yaml',
+        go_metadata=config['intermediate_directory']+'/anatomy/concords/metadata-GO.yaml',
     run:
-        anatomy.build_anatomy_obo_relationships(config['intermediate_directory']+'/anatomy/concords')
+        anatomy.build_anatomy_obo_relationships(config['intermediate_directory']+'/anatomy/concords', {
+            'UBERON': output.uberon_metadata,
+            'CL': output.cl_metadata,
+            'GO': output.go_metadata,
+        })
 
 rule get_wikidata_cell_relationships:
     output:
         config['intermediate_directory']+'/anatomy/concords/WIKIDATA',
+        wikidata_metadata=config['intermediate_directory']+'/anatomy/concords/metadata-WIKIDATA.yaml',
     run:
-        anatomy.build_wikidata_cell_relationships(config['intermediate_directory']+'/anatomy/concords')
+        anatomy.build_wikidata_cell_relationships(config['intermediate_directory']+'/anatomy/concords', output.wikidata_metadata)
 
 rule get_anatomy_umls_relationships:
     input:
@@ -64,8 +72,9 @@ rule get_anatomy_umls_relationships:
         infile=config['intermediate_directory']+"/anatomy/ids/UMLS"
     output:
         outfile=config['intermediate_directory']+'/anatomy/concords/UMLS',
+        umls_metadata=config['intermediate_directory']+'/anatomy/concords/metadata-UMLS.yaml',
     run:
-        anatomy.build_anatomy_umls_relationships(input.mrconso, input.infile, output.outfile)
+        anatomy.build_anatomy_umls_relationships(input.mrconso, input.infile, output.outfile, output.umls_metadata)
 
 rule anatomy_compendia:
     input:

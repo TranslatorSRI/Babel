@@ -562,6 +562,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={},
     metadata_dir = os.path.join(cdir,'metadata')
     os.makedirs(metadata_dir, exist_ok=True)
     with open(os.path.join(cdir, ofname + '.yaml'), 'w') as outf:
+        # TODO: move into metadata/provenance.py
         metadata = {
             'type': 'compendium',
             'name': ofname,
