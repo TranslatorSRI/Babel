@@ -30,7 +30,7 @@ rule cell_line_compendia:
         config['output_directory']+"/compendia/CellLine.txt",
         temp(config['output_directory']+"/synonyms/CellLine.txt")
     run:
-        cell_line.build_compendia(input.ids, input.metadatafile, input.icrdf_filename)
+        cell_line.build_compendia(input.ids, [input.metadatafile], input.icrdf_filename)
 
 rule check_cell_line_completeness:
     input:
