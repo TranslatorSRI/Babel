@@ -561,7 +561,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={},
     # Write out the metadata.yaml file combining information from all the metadata.yaml files.
     metadata_dir = os.path.join(cdir,'metadata')
     os.makedirs(metadata_dir, exist_ok=True)
-    with open(os.path.join(cdir, ofname + '.yaml'), 'w') as outf:
+    with open(os.path.join(cdir, 'metadata', ofname + '.yaml'), 'w') as outf:
         # TODO: move into metadata/provenance.py
         metadata = {
             'type': 'compendium',
@@ -575,18 +575,22 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={},
             'concords': {}
         }
         for metadata_yaml in metadata_yamls:
-            metadata_block = yaml.safe_load(metadata_yaml)
-            if metadata_block is None:
-                raise ValueError("Metadata file {metadata_yaml} is empty.")
+            with open(metadata_yaml, 'r') as metaf:
+                metadata_block = yaml.safe_load(metaf)
+                if metadata_block is None or metadata_block == {}:
+                    raise ValueError("Metadata file {metadata_yaml} is empty.")
 
-            metadata_name = metadata_block['name']
+                if 'name' not in metadata_block:
+                    raise ValueError(f"Metadata file {metadata_yaml} is missing a 'name' field: {metadata_block}")
 
-            if metadata_name in metadata['concords']:
-                logging.error(f"Duplicate metadata block name {metadata_name}!")
-                logging.error(f"New metadata block from {metadata_yaml}: {metadata_block}!")
-                logging.error(f"Existing metadata block: {metadata['concords'][metadata_name]}!")
-                raise ValueError(f"Metadata file {metadata_yaml} is named {metadata_name}, but this has already been loaded.")
-            metadata['concords'][metadata_name] = metadata_block
+                metadata_name = metadata_block['name']
+
+                if metadata_name in metadata['concords']:
+                    logging.error(f"Duplicate metadata block name {metadata_name}!")
+                    logging.error(f"New metadata block from {metadata_yaml}: {metadata_block}!")
+                    logging.error(f"Existing metadata block: {metadata['concords'][metadata_name]}!")
+                    raise ValueError(f"Metadata file {metadata_yaml} is named {metadata_name}, but this has already been loaded.")
+                metadata['concords'][metadata_name] = metadata_block
 
         outf.write(yaml.dump(metadata))
 
