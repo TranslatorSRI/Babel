@@ -175,9 +175,9 @@ def build_wikidata_cell_relationships(outdir, metadata_yaml):
         'description': 'wd:P7963 ("Cell Ontology ID") and wd:P2892 ("UMLS CUI") from Wikidata',
     })
 
-def build_anatomy_umls_relationships(mrconso, idfile,outfile):
+def build_anatomy_umls_relationships(mrconso, idfile, outfile, umls_metadata):
     umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO, 'FMA': FMA})
-    write_concord_metadata(outfile, {
+    write_concord_metadata(umls_metadata, {
         'name': 'build_anatomy_umls_relationships()',
         'sources': [{
             'type': 'UMLS',
