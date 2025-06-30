@@ -11,7 +11,7 @@ rule get_clo_ids:
     input:
         infile=config['download_directory']+"/CLO/clo.owl"
     output:
-        outfile=config['intermediate_directory']+"/cell_line/ids/CLO"
+        outfile=config['intermediate_directory']+"/cell_line/ids/CLO",
     run:
         clo.write_clo_ids(input.infile, output.outfile)
 

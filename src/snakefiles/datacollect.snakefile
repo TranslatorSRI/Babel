@@ -641,9 +641,10 @@ rule get_chebi:
 
 rule get_clo:
     output:
-        config['download_directory']+'/CLO/clo.owl'
+        config['download_directory']+'/CLO/clo.owl',
+        metadata=config['download_directory']+'/CLO/metadata.yaml',
     run:
-        clo.pull_clo()
+        clo.pull_clo(output.metadata)
 
 rule get_CLO_labels:
     input:
