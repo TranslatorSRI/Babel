@@ -135,6 +135,7 @@ rule anatomy:
     input:
         config['output_directory']+'/reports/anatomy_completeness.txt',
         synonyms=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
+        metadata=expand("{od}/metadata/{ap}.yaml", od = config['output_directory'], ap = config['anatomy_outputs']),
         reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['anatomy_outputs'])
     output:
         synonyms_gzipped=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['anatomy_outputs']),

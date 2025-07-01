@@ -54,6 +54,7 @@ rule cell_line:
         config['output_directory']+'/reports/cell_line_completeness.txt',
         config['output_directory'] + "/reports/CellLine.txt",
         cell_line_synonyms=config['output_directory'] + "/synonyms/CellLine.txt",
+        metadata=config['output_directory']+"/metadata/CellLine.txt.yaml",
     output:
         config['output_directory'] + "/synonyms/CellLine.txt.gz",
         x=config['output_directory']+'/reports/cell_line_done'
