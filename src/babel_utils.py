@@ -14,6 +14,7 @@ import urllib
 import jsonlines
 import yaml
 
+from src.metadata.provenance import write_combined_metadata
 from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory
 from src.util import Text, get_config
 from src.LabeledID import LabeledID
@@ -559,44 +560,17 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={},
                     exit()
 
     # Write out the metadata.yaml file combining information from all the metadata.yaml files.
-    metadata_dir = os.path.join(cdir,'metadata')
-    os.makedirs(metadata_dir, exist_ok=True)
-    with open(os.path.join(cdir, 'metadata', ofname + '.yaml'), 'w') as outf:
-        # TODO: move into metadata/provenance.py
-        metadata = {
-            'type': 'compendium',
-            'name': ofname,
-            'created_at': datetime.now().isoformat(),
-            'counts': {
-                'cliques': count_cliques,
-                'eq_ids': count_eq_ids,
-                'synonyms': count_synonyms,
-            },
-            'concords': {}
-        }
-        for metadata_yaml in metadata_yamls:
-            with open(metadata_yaml, 'r') as metaf:
-                metadata_block = yaml.safe_load(metaf)
-                if metadata_block is None or metadata_block == {}:
-                    raise ValueError("Metadata file {metadata_yaml} is empty.")
-
-                if 'name' not in metadata_block:
-                    raise ValueError(f"Metadata file {metadata_yaml} is missing a 'name' field: {metadata_block}")
-
-                metadata_name = metadata_block['name']
-
-                if type(metadata_name) != str:
-                    raise ValueError(f"Metadata file {metadata_yaml} has a 'name' field that is not a string: {metadata_block}")
-
-                if metadata_name in metadata['concords']:
-                    # If it's not already a list, then make it into a list.
-                    if type(metadata['concords'][metadata_name]) != list:
-                        metadata['concords'][metadata_name] = [metadata['concords'][metadata_name]]
-                    metadata['concords'][metadata_name].append(metadata_block)
-                else:
-                    metadata['concords'][metadata_name] = metadata_block
-
-        yaml.dump(metadata, outf)
+    write_combined_metadata(
+        os.path.join(cdir, 'metadata', ofname + '.yaml'),
+        typ='compendium',
+        name=ofname,
+        counts={
+            'cliques': count_cliques,
+            'eq_ids': count_eq_ids,
+            'synonyms': count_synonyms,
+        },
+        combined_from_filenames=metadata_yamls,
+    )
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.
