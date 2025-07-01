@@ -233,7 +233,8 @@ rule chemical_compendia:
         icrdf_filename = config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
-        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs']))
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs'])),
+        expand("{od}/metadata/{ap}.yaml", od = config['output_directory'], ap = config['chemical_outputs']),
     run:
         chemicals.build_compendia(input.typesfile, input.untyped_file, [input.metadata_yamls], input.icrdf_filename)
 
@@ -307,7 +308,8 @@ rule chemical:
     input:
         config['output_directory']+'/reports/chemical_completeness.txt',
         synonyms = expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
-        reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['chemical_outputs'])
+        reports = expand("{od}/reports/{ap}",od=config['output_directory'], ap = config['chemical_outputs']),
+        metadata = expand("{od}/metadata/{ap}.yaml", od = config['output_directory'], ap = config['chemical_outputs']),
     output:
         synonyms_gzipped = expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['chemical_outputs']),
         x=config['output_directory']+'/reports/chemicals_done'
