@@ -114,7 +114,10 @@ def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls
                     # Delete this CURIE from the output.
                     del output_lines[curie]
 
-        outf.write("\n".join(output_lines))
+        for curie in output_lines:
+            # We only write out the first type we found for this UMLS ID.
+            types = output_lines[curie]
+            outf.write(f"{curie}\t{types[0]}\n")
 
 
 def write_rxnorm_ids(category_map, bad_categories, infile, outfile,prefix=RXCUI,styfile="RXNSTY.RRF",blacklist=set()):
