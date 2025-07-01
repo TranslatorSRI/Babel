@@ -87,7 +87,7 @@ rule anatomy_compendia:
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
         temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['anatomy_outputs'])),
-        expand("{od}/metadata/{ap}", od = config['output_directory'], ap = config['anatomy_outputs']),
+        expand("{od}/metadata/{ap}.yaml", od = config['output_directory'], ap = config['anatomy_outputs']),
     run:
         anatomy.build_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
 
