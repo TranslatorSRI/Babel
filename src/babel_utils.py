@@ -585,12 +585,16 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={},
 
                 metadata_name = metadata_block['name']
 
+                if type(metadata_name) != str:
+                    raise ValueError(f"Metadata file {metadata_yaml} has a 'name' field that is not a string: {metadata_block}")
+
                 if metadata_name in metadata['concords']:
-                    logging.error(f"Duplicate metadata block name {metadata_name}!")
-                    logging.error(f"New metadata block from {metadata_yaml}: {metadata_block}!")
-                    logging.error(f"Existing metadata block: {metadata['concords'][metadata_name]}!")
-                    raise ValueError(f"Metadata file {metadata_yaml} is named {metadata_name}, but this has already been loaded.")
-                metadata['concords'][metadata_name] = metadata_block
+                    # If it's not already a list, then make it into a list.
+                    if type(metadata['concords'][metadata_name]) != list:
+                        metadata['concords'][metadata_name] = [metadata['concords'][metadata_name]]
+                    metadata['concords'][metadata_name].append(metadata_block)
+                else:
+                    metadata['concords'][metadata_name] = metadata_block
 
         yaml.dump(metadata, outf)
 
