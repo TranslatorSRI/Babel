@@ -1,6 +1,8 @@
 import src.createcompendia.gene as gene
 import src.assess_compendia as assessments
 import src.snakefiles.util as util
+from src.datahandlers import uniprotkb
+from src.metadata.provenance import write_concord_metadata
 
 rule gene_mods_ids:
     input:
@@ -57,44 +59,74 @@ rule get_gene_ncbigene_ensembl_relationships:
         infile=config['download_directory']+"/NCBIGene/gene2ensembl.gz",
         idfile=config['intermediate_directory'] + "/gene/ids/NCBIGene"
     output:
-        outfile=config['intermediate_directory']+'/gene/concords/NCBIGeneENSEMBL'
+        outfile=config['intermediate_directory']+'/gene/concords/NCBIGeneENSEMBL',
+        metadata_yaml=config['intermediate_directory']+'/gene/concords/metadata-NCBIGeneENSEMBL.yaml'
     run:
-        gene.build_gene_ncbi_ensembl_relationships(input.infile,input.idfile,output.outfile)
+        gene.build_gene_ncbi_ensembl_relationships(input.infile,input.idfile,output.outfile, output.metadata_yaml)
 
 rule get_gene_ncbigene_relationships:
     input:
         infile=config['download_directory']+"/NCBIGene/gene_info.gz",
         idfile=config['intermediate_directory']+"/gene/ids/NCBIGene"
     output:
-        outfile=config['intermediate_directory']+'/gene/concords/NCBIGene'
+        outfile=config['intermediate_directory']+'/gene/concords/NCBIGene',
+        metadata_yaml=config['intermediate_directory']+'/gene/concords/metadata-NCBIGene.yaml'
     run:
-        gene.build_gene_ncbigene_xrefs(input.infile,input.idfile,output.outfile)
+        gene.build_gene_ncbigene_xrefs(input.infile,input.idfile,output.outfile, output.metadata_yaml)
 
 rule get_gene_ensembl_relationships:
     input:
         infile =config['download_directory'] + '/ENSEMBL/BioMartDownloadComplete'
     output:
-        outfile=config['intermediate_directory']+'/gene/concords/ENSEMBL'
+        outfile=config['intermediate_directory']+'/gene/concords/ENSEMBL',
+        metadata_yaml=config['intermediate_directory']+'/gene/concords/metadata-ENSEMBL.yaml'
     run:
-        gene.build_gene_ensembl_relationships(config['download_directory']+'/ENSEMBL',output.outfile)
+        gene.build_gene_ensembl_relationships(config['download_directory']+'/ENSEMBL',output.outfile, output.metadata_yaml)
 
 
 rule get_gene_medgen_relationships:
     input:
         infile=config['download_directory']+'/NCBIGene/mim2gene_medgen'
     output:
-        outfile=config['intermediate_directory']+'/gene/concords/medgen'
+        outfile=config['intermediate_directory']+'/gene/concords/medgen',
+        metadata_yaml=config['intermediate_directory']+'/gene/concords/metadata-medgen.yaml',
     run:
-        gene.build_gene_medgen_relationships(input.infile, output.outfile)
+        gene.build_gene_medgen_relationships(input.infile, output.outfile, output.metadata_yaml)
 
 rule get_gene_umls_relationships:
     input:
         mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
         infile=config['intermediate_directory']+'/gene/ids/UMLS'
     output:
-        outfile=config['intermediate_directory']+'/gene/concords/UMLS'
+        outfile=config['intermediate_directory']+'/gene/concords/UMLS',
+        metadata_yaml=config['intermediate_directory']+'/gene/concords/metadata-UMLS.yaml',
     run:
-        gene.build_gene_umls_hgnc_relationships(input.mrconso, input.infile, output.outfile)
+        gene.build_gene_umls_hgnc_relationships(input.mrconso, input.infile, output.outfile, output.metadata_yaml)
+
+rule get_umls_gene_protein_mappings:
+    output:
+        umls_uniprotkb_filename=config['download_directory']+'/UMLS_UniProtKB/UMLS_UniProtKB.tsv',
+        umls_gene_concords=config['output_directory']+'/intermediate/gene/concords/UMLS_NCBIGene',
+        umls_protein_concords=config['output_directory']+'/intermediate/protein/concords/UMLS_UniProtKB',
+        metadata_yaml=config['output_directory']+'/intermediate/gene/concords/metadata-UMLS_NCBIGene.yaml'
+    run:
+        uniprotkb.download_umls_gene_protein_mappings(
+            config['UMLS_UniProtKB_download_raw_url'],
+            output.umls_uniprotkb_filename,
+            output.umls_gene_concords,
+            output.umls_protein_concords,
+        )
+
+        write_concord_metadata(
+            output.metadata_yaml,
+            name='get_umls_gene_protein_mappings',
+            description="Download UMLS-UniProtKB mappings from {config['UMLS_UniProtKB_download_raw_url']}",
+            sources=[{
+                'type': 'download',
+                'name': 'UMLS-UniProtKB mappings',
+                'url': config['UMLS_UniProtKB_download_raw_url'],
+            }],
+        )
 
 rule gene_compendia:
     input:
