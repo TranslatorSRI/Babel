@@ -477,7 +477,7 @@ class UberGraph:
         print(f"Wrote {write_count} information content values into {filename}.")
         return write_count
 
-def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={}, hop_ontologies=False ):
+def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={}, hop_ontologies=False):
     """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
     is a set for each subclass of the input iri.  Write these lists to concord files, indexed by the prefix"""
     prefix = Text.get_curie(iri)
