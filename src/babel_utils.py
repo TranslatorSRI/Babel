@@ -592,7 +592,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={},
                     raise ValueError(f"Metadata file {metadata_yaml} is named {metadata_name}, but this has already been loaded.")
                 metadata['concords'][metadata_name] = metadata_block
 
-        outf.write(yaml.dump(metadata))
+        yaml.dump(metadata, outf)
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.

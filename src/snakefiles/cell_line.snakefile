@@ -28,7 +28,8 @@ rule cell_line_compendia:
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         config['output_directory']+"/compendia/CellLine.txt",
-        temp(config['output_directory']+"/synonyms/CellLine.txt")
+        temp(config['output_directory']+"/synonyms/CellLine.txt"),
+        config['output_directory']+"/metadata/CellLine.txt.yaml",
     run:
         cell_line.build_compendia(input.ids, [input.metadatafile], input.icrdf_filename)
 
