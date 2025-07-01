@@ -11,7 +11,7 @@
 export CORES=5
 
 # Dry run: if true, run Snakemake in a dry run.
-export DRY_RUN=1
+export DRY_RUN=
 
 # Verbose: if set, produce verbose output.
 export VERBOSE=
