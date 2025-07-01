@@ -9,6 +9,8 @@ def write_concord_metadata(filename, name, url='', description='', sources=None)
     write_metadata(filename, 'concord', name, url=url, description=description, sources=sources)
 
 def write_metadata(filename, typ, name, sources=None, url='', description=''):
+    if type(name) != str:
+        raise ValueError(f"Metadata entry name must be a string, not {type(name)}: '{name}'")
     if sources is None:
         sources = []
     with open(filename, 'w') as fout:
