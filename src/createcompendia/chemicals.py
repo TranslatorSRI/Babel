@@ -10,6 +10,7 @@ from gzip import GzipFile
 
 import yaml
 
+from src.metadata.provenance import write_concord_metadata
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
 from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_MOLECULAR_MIXTURE, CHEMICAL_MIXTURE, DRUG
@@ -74,11 +75,31 @@ def write_rxnorm_ids(infile, outfile):
     umlsmap ["A1.4.1.1.1"] = DRUG
     umls.write_rxnorm_ids(umlsmap, filter_types, infile, outfile, prefix=RXCUI, styfile="RXNSTY.RRF")
 
-def build_chemical_umls_relationships(mrconso, idfile,outfile):
+def build_chemical_umls_relationships(mrconso, idfile,outfile, metadata_yaml):
     umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK, 'RXNORM': RXCUI })
 
-def build_chemical_rxnorm_relationships(conso, idfile,outfile):
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_chemical_umls_relationships()',
+        sources=[{
+            'type': 'UMLS',
+            'name': 'MRCONSO'
+        }],
+        description='umls.build_sets() of UMLS MRCONSO with prefixes: MSH, DRUGBANK, RXNORM',
+    )
+
+def build_chemical_rxnorm_relationships(conso, idfile,outfile, metadata_yaml):
     umls.build_sets(conso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, cui_prefix=RXCUI)
+
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_chemical_rxnorm_relationships()',
+        sources=[{
+            'type': 'UMLS',
+            'name': 'MRCONSO'
+        }],
+        description=f'umls.build_sets() of {RXNORM} MRCONSO with prefixes: {MESH}, {DRUGBANK}',
+    )
 
 def write_pubchem_ids(labelfile,smilesfile,outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
@@ -362,14 +383,20 @@ def is_cas(thing):
             return False
     return True
 
-def make_pubchem_cas_concord(pubchemsynonyms, outfile):
+def make_pubchem_cas_concord(pubchemsynonyms, outfile, metadata_yaml):
     with open(pubchemsynonyms,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
             x = line.strip().split('\t')
             if is_cas(x[1]):
                 outf.write(f'{x[0]}\txref\tCAS:{x[1]}\n')
 
-def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile):
+    write_concord_metadata(
+        metadata_yaml,
+        name='make_pubchem_cas_concord()',
+        description=f'make_pubchem_cas_concord() creates xrefs from PUBCHEM identifiers in the PubChem synonyms file ({pubchemsynonyms}) to Chemical Abstracts Service (CAS) identifiers.',
+    )
+
+def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile, metadata_yaml):
     mesh_label_to_id={}
     #Meshlabels has all kinds of stuff. e.g. these are both in there:
     #MESH:D014867    Water
@@ -397,7 +424,13 @@ def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile):
             outf.write(f'{PUBCHEMCOMPOUND}:{x[0]}\txref\t{mesh_id}\n')
             used_pubchem.add(x[0])
 
-def build_drugcentral_relations(infile,outfile):
+    write_concord_metadata(
+        metadata_yaml,
+       name='make_pubchem_mesh_concord()',
+       description=f'make_pubchem_mesh_concord() loads MeSH labels from {meshlabels}, then creates xrefs from PubChem identifiers in the PubChem input file ({pubcheminput}) to those MeSH identifiers using the labels as keys.',
+    )
+
+def build_drugcentral_relations(infile,outfile, metadata_yaml):
     prefixmap = { 'CHEBI': CHEBI,
                   'ChEMBL_ID': CHEMBLCOMPOUND,
                   'DRUGBANK_ID': DRUGBANK,
@@ -421,8 +454,13 @@ def build_drugcentral_relations(infile,outfile):
             #print('ok')
             outf.write(f'{DRUGCENTRAL}:{parts[drugcentral_id_col]}\txref\t{prefixmap[external_ns]}:{parts[external_id_col]}\n')
 
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_drugcentral_relations()',
+        description=f'Build xrefs from DrugCentral ({infile}) to {DRUGCENTRAL} using the prefix map {prefixmap}.',
+    )
 
-def make_gtopdb_relations(infile,outfile):
+def make_gtopdb_relations(infile,outfile, metadata_yaml):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         h = inf.readline()
         # We might have a header/version line. If so, skip to the next line.
@@ -439,7 +477,13 @@ def make_gtopdb_relations(infile,outfile):
             inchi = f'{INCHIKEY}:{x[inchi_index][1:-1]}'
             outf.write(f'{gid}\txref\t{inchi}\n')
 
-def make_chebi_relations(sdf,dbx,outfile):
+    write_concord_metadata(
+        metadata_yaml,
+        name='make_gtopdb_relations()',
+        description=f'Transform Ligand ID/InChIKey mappings from {infile} into a concord.'
+    )
+
+def make_chebi_relations(sdf,dbx,outfile,metadata_yaml):
     """CHEBI contains relations both about chemicals with and without inchikeys.  You might think that because
     everything is based on unichem, we could avoid the with structures part, but history has shown that we lose
     links in that case, so we will use both the structured and unstructured chemical entries."""
@@ -483,10 +527,14 @@ def make_chebi_relations(sdf,dbx,outfile):
             if x[3] == 'Pubchem accession':
                 outf.write(f'{cid}\txref\t{PUBCHEMCOMPOUND}:{x[4]}\n')
 
+    write_concord_metadata(
+        metadata_yaml,
+        name='make_chebi_relations()',
+        description=f'make_chebi_relations() creates xrefs from the ChEBI database ({sdf}) to {PUBCHEMCOMPOUND} and {KEGGCOMPOUND}.',
+    )
 
 
-
-def get_mesh_relationships(mesh_id_file,cas_out, unii_out):
+def get_mesh_relationships(mesh_id_file,cas_out, unii_out, cas_metadata, unii_metadata):
     meshes = set()
     with open(mesh_id_file,'r') as inf:
         for line in inf:
@@ -508,7 +556,29 @@ def get_mesh_relationships(mesh_id_file,cas_out, unii_out):
                 #is a unii?
                 uniiout.write(f'{meshid}\txref\tUNII:{reg}\n')
 
-def get_wikipedia_relationships(outfile):
+    write_concord_metadata(
+        cas_metadata,
+        name='get_mesh_relationships()',
+        sources=[{
+            'type': 'MeSH Registry',
+            'name': 'MeSH Registry',
+        }],
+        description=f'get_mesh_relationships() iterates through the MeSH registry, filters it to the MeSH IDs '
+                    f'in {mesh_id_file}, then writes out CAS mappings to {cas_out}'
+    )
+
+    write_concord_metadata(
+        unii_metadata,
+        name='get_mesh_relationships()',
+        sources=[{
+            'type': 'MeSH Registry',
+            'name': 'MeSH Registry',
+        }],
+        description=f'get_mesh_relationships() iterates through the MeSH registry, filters it to the MeSH IDs '
+                    f'in {mesh_id_file}, then writes out non-CAS mappings (i.e. UNII mappings) to {unii_out}'
+    )
+
+def get_wikipedia_relationships(outfile, metadata_yaml):
     url = 'https://query.wikidata.org/sparql?format=json&query=SELECT ?chebi ?mesh WHERE { ?compound wdt:P683 ?chebi . ?compound wdt:P486 ?mesh. }'
     results = requests.get(url).json()
     pairs = [(f'{MESH}:{r["mesh"]["value"]}', f'{CHEBI}:{r["chebi"]["value"]}')
@@ -524,6 +594,15 @@ def get_wikipedia_relationships(outfile):
         m2c = defaultdict(list)
         for m,c in pairs:
             outf.write(f'{m}\txref\t{c}\n')
+
+    write_concord_metadata(
+        metadata_yaml,
+        sources=[{
+            'type': 'Wikidata',
+            'name': 'Wikidata SPARQL query',
+        }],
+        description='Wikidata SPARQL query to find Wikidata entities with both CHEBI and MESH IDs, and build a concordance between them.',
+    )
 
 def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_concord, type_file, metadata_yaml, input_metadata_yamls):
     """:concordances: a list of files from which to read relationships

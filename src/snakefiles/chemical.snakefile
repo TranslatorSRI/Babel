@@ -109,9 +109,10 @@ rule get_chemical_drugcentral_relationships:
     input:
         xreffile=config['download_directory']+"/DrugCentral/xrefs"
     output:
-        outfile=config['intermediate_directory']+'/chemicals/concords/DrugCentral'
+        outfile=config['intermediate_directory']+'/chemicals/concords/DrugCentral',
+        metadata_yaml=config['intermediate_directory']+'/chemicals/concords/metadata-DrugCentral.yaml',
     run:
-        chemicals.build_drugcentral_relations(input.xreffile,output.outfile)
+        chemicals.build_drugcentral_relations(input.xreffile,output.outfile, output.metadata_yaml)
 
 rule get_chemical_umls_relationships:
     input:
@@ -119,8 +120,9 @@ rule get_chemical_umls_relationships:
         infile=config['intermediate_directory']+"/chemicals/ids/UMLS",
     output:
         outfile=config['intermediate_directory']+'/chemicals/concords/UMLS',
+        metadata_yaml=config['intermediate_directory']+'/chemicals/concords/metadata-UMLS.yaml',
     run:
-        chemicals.build_chemical_umls_relationships(input.mrconso, input.infile, output.outfile)
+        chemicals.build_chemical_umls_relationships(input.mrconso, input.infile, output.outfile, output.metadata_yaml)
 
 rule get_chemical_rxnorm_relationships:
     input:
@@ -128,23 +130,27 @@ rule get_chemical_rxnorm_relationships:
         conso=config['download_directory'] + "/RxNorm/RXNCONSO.RRF"
     output:
         outfile=config['intermediate_directory']+'/chemicals/concords/RXNORM',
+        metadata_yaml=config['intermediate_directory']+'/chemicals/concords/metadata-RXNORM.yaml',
     run:
-        chemicals.build_chemical_rxnorm_relationships(input.conso, input.infile,output.outfile)
+        chemicals.build_chemical_rxnorm_relationships(input.conso, input.infile,output.outfile, output.metadata_yaml)
 
 rule get_chemical_wikipedia_relationships:
     output:
-        outfile = config['intermediate_directory'] + '/chemicals/concords/wikipedia_mesh_chebi'
+        outfile = config['intermediate_directory'] + '/chemicals/concords/wikipedia_mesh_chebi',
+        metadata_yaml = config['intermediate_directory'] + '/chemicals/concords/metadata-wikipedia_mesh_chebi.yaml'
     run:
-        chemicals.get_wikipedia_relationships(output.outfile)
+        chemicals.get_wikipedia_relationships(output.outfile, output.metadata_yaml)
 
 rule get_chemical_mesh_relationships:
     input:
         infile = config['intermediate_directory'] + '/chemicals/ids/MESH'
     output:
         casout = config['intermediate_directory'] + '/chemicals/concords/mesh_cas',
-        uniout = config['intermediate_directory'] + '/chemicals/concords/mesh_unii'
+        uniout = config['intermediate_directory'] + '/chemicals/concords/mesh_unii',
+        casout_metadata_yaml = config['intermediate_directory'] + '/chemicals/concords/metadata-mesh_cas.yaml',
+        uniout_metadata_yaml = config['intermediate_directory'] + '/chemicals/concords/metadata-mesh_unii.yaml',
     run:
-        chemicals.get_mesh_relationships(input.infile,output.casout,output.uniout)
+        chemicals.get_mesh_relationships(input.infile,output.casout,output.uniout,output.casout_metadata_yaml,output.uniout_metadata_yaml)
 
 #This is about a 2 hour step and requires something more than 256G of RAM.  512G works.
 rule get_chemical_unichem_relationships:
@@ -161,35 +167,39 @@ rule get_chemical_pubchem_mesh_concord:
         pubchemfile=config['download_directory'] + '/PUBCHEM.COMPOUND/CID-MeSH',
         meshlabels=config['download_directory'] + '/MESH/labels'
     output:
-        outfile =  config['intermediate_directory'] + '/chemicals/concords/PUBCHEM_MESH'
+        outfile =  config['intermediate_directory'] + '/chemicals/concords/PUBCHEM_MESH',
+        metadata_yaml = config['intermediate_directory'] + '/chemicals/concords/metadata-PUBCHEM_MESH.yaml'
     run:
-        chemicals.make_pubchem_mesh_concord(input.pubchemfile,input.meshlabels,output.outfile)
+        chemicals.make_pubchem_mesh_concord(input.pubchemfile,input.meshlabels,output.outfile, output.metadata_yaml)
 
 rule get_chemical_pubchem_cas_concord:
     input:
         pubchemsynonyms=config['download_directory'] + '/PUBCHEM.COMPOUND/synonyms'
     output:
-        outfile = config['intermediate_directory'] + '/chemicals/concords/PUBCHEM_CAS'
+        outfile = config['intermediate_directory'] + '/chemicals/concords/PUBCHEM_CAS',
+        metadata_yaml = config['intermediate_directory'] + '/chemicals/concords/metadata-PUBCHEM_CAS.yaml'
     run:
-        chemicals.make_pubchem_cas_concord(input.pubchemsynonyms, output.outfile)
+        chemicals.make_pubchem_cas_concord(input.pubchemsynonyms, output.outfile, output.metadata_yaml)
 
 # There are some gtopdb inchikey relations that for some reason are not in unichem
 rule get_gtopdb_inchikey_concord:
     input:
         infile=config['download_directory']+'/GTOPDB/ligands.tsv'
     output:
-        outfile=config['intermediate_directory'] + '/chemicals/concords/GTOPDB'
+        outfile=config['intermediate_directory'] + '/chemicals/concords/GTOPDB',
+        metadata_yaml=config['intermediate_directory'] + '/chemicals/concords/metadata-GTOPDB.yaml',
     run:
-        chemicals.make_gtopdb_relations(input.infile,output.outfile)
+        chemicals.make_gtopdb_relations(input.infile,output.outfile, output.metadata_yaml)
 
 rule get_chebi_concord:
     input:
         sdf=config['download_directory']+'/CHEBI/ChEBI_complete.sdf',
         dbx=config['download_directory']+'/CHEBI/database_accession.tsv'
     output:
-        outfile=config['intermediate_directory']+'/chemicals/concords/CHEBI'
+        outfile=config['intermediate_directory']+'/chemicals/concords/CHEBI',
+        metadata_yaml=config['intermediate_directory']+'/chemicals/concords/metadata-CHEBI.yaml'
     run:
-        chemicals.make_chebi_relations(input.sdf,input.dbx,output.outfile)
+        chemicals.make_chebi_relations(input.sdf,input.dbx,output.outfile, output.metadata_yaml)
 
 rule chemical_unichem_concordia:
     input:
