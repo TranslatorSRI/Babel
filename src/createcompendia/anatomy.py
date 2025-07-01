@@ -166,25 +166,25 @@ def build_wikidata_cell_relationships(outdir, metadata_yaml):
                 print(f'Pair {pair} is not unique {counts[pair[0]]} {counts[pair[1]]}')
 
     # Write out metadata
-    write_concord_metadata(metadata_yaml, {
-        'name': 'build_wikidata_cell_relationships()',
-        'sources': [{
+    write_concord_metadata(metadata_yaml,
+        name='build_wikidata_cell_relationships()',
+        sources=[{
             'type': 'Frink',
             'name': 'Frink Direct Normalized Graph via SPARQL'
         }],
-        'description': 'wd:P7963 ("Cell Ontology ID") and wd:P2892 ("UMLS CUI") from Wikidata',
-    })
+        description='wd:P7963 ("Cell Ontology ID") and wd:P2892 ("UMLS CUI") from Wikidata',
+    )
 
 def build_anatomy_umls_relationships(mrconso, idfile, outfile, umls_metadata):
     umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO, 'FMA': FMA})
-    write_concord_metadata(umls_metadata, {
-        'name': 'build_anatomy_umls_relationships()',
-        'sources': [{
+    write_concord_metadata(umls_metadata,
+        name='build_anatomy_umls_relationships()',
+        sources=[{
             'type': 'UMLS',
             'name': 'MRCONSO'
         }],
-        'description': 'umls.build_sets() of UMLS MRCONSO with prefixes: SNOMEDCT_US, MSH, NCI, GO, FMA',
-    })
+        description='umls.build_sets() of UMLS MRCONSO with prefixes: SNOMEDCT_US, MSH, NCI, GO, FMA',
+    )
 
 def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
@@ -223,7 +223,7 @@ def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]),types)
     for biotype,sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
-        write_compendium(metadata_yamls, concordances, sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
+        write_compendium(metadata_yamls, sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
 
 def create_typed_sets(eqsets,types):
     """Given a set of sets of equivalent identifiers, we want to type each one into
