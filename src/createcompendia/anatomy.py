@@ -176,15 +176,7 @@ def build_wikidata_cell_relationships(outdir, metadata_yaml):
     )
 
 def build_anatomy_umls_relationships(mrconso, idfile, outfile, umls_metadata):
-    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO, 'FMA': FMA})
-    write_concord_metadata(umls_metadata,
-        name='build_anatomy_umls_relationships()',
-        sources=[{
-            'type': 'UMLS',
-            'name': 'MRCONSO'
-        }],
-        description='umls.build_sets() of UMLS MRCONSO with prefixes: SNOMEDCT_US, MSH, NCI, GO, FMA',
-    )
+    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO, 'FMA': FMA}, provenance_metadata_yaml=umls_metadata)
 
 def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships

@@ -76,17 +76,7 @@ def write_rxnorm_ids(infile, outfile):
     umls.write_rxnorm_ids(umlsmap, filter_types, infile, outfile, prefix=RXCUI, styfile="RXNSTY.RRF")
 
 def build_chemical_umls_relationships(mrconso, idfile,outfile, metadata_yaml):
-    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK, 'RXNORM': RXCUI })
-
-    write_concord_metadata(
-        metadata_yaml,
-        name='build_chemical_umls_relationships()',
-        sources=[{
-            'type': 'UMLS',
-            'name': 'MRCONSO'
-        }],
-        description='umls.build_sets() of UMLS MRCONSO with prefixes: MSH, DRUGBANK, RXNORM',
-    )
+    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK, 'RXNORM': RXCUI }, provenance_metadata_yaml=metadata_yaml)
 
 def build_chemical_rxnorm_relationships(conso, idfile,outfile, metadata_yaml):
     umls.build_sets(conso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, cui_prefix=RXCUI)
