@@ -1,6 +1,7 @@
 import src.createcompendia.diseasephenotype as diseasephenotype
 import src.assess_compendia as assessments
 import src.snakefiles.util as util
+from src.metadata.provenance import write_concord_metadata
 
 ### Disease / Phenotypic Feature
 
@@ -84,16 +85,24 @@ rule get_disease_obo_relationships:
         config['intermediate_directory']+'/disease/concords/MONDO',
         config['intermediate_directory']+'/disease/concords/MONDO_close',
         config['intermediate_directory']+'/disease/concords/HP',
+        mondo_metadata_yaml=config['intermediate_directory']+'/disease/concords/metadata-MONDO.yaml',
+        mondo_close_metadata_yaml=config['intermediate_directory']+'/disease/concords/metadata-MONDO_close.yaml',
+        hp_metadata_yaml=config['intermediate_directory']+'/disease/concords/metadata-HP.yaml',
     run:
-        diseasephenotype.build_disease_obo_relationships(config['intermediate_directory']+'/disease/concords')
+        diseasephenotype.build_disease_obo_relationships(config['intermediate_directory']+'/disease/concords', {
+            'MONDO': output.mondo_metadata_yaml,
+            'MONDO_close': output.mondo_close_metadata_yaml,
+            'HP': output.hp_metadata_yaml,
+        })
 
 rule get_disease_efo_relationships:
     input:
         infile=config['intermediate_directory']+"/disease/ids/EFO",
     output:
-        outfile=config['intermediate_directory']+'/disease/concords/EFO'
+        outfile=config['intermediate_directory']+'/disease/concords/EFO',
+        metadata_yaml=config['intermediate_directory']+'/disease/concords/metadata-EFO.yaml',
     run:
-        diseasephenotype.build_disease_efo_relationships(input.infile,output.outfile)
+        diseasephenotype.build_disease_efo_relationships(input.infile,output.outfile, output.metadata_yaml)
 
 rule get_disease_umls_relationships:
     input:
@@ -103,23 +112,27 @@ rule get_disease_umls_relationships:
         ncit=config['intermediate_directory'] + '/disease/ids/NCIT'
     output:
         outfile=config['intermediate_directory']+'/disease/concords/UMLS',
+        metadata_yaml=config['intermediate_directory']+'/disease/concords/metadata-UMLS.yaml',
     run:
-        diseasephenotype.build_disease_umls_relationships(input.mrconso, input.infile,output.outfile,input.omim,input.ncit)
+        diseasephenotype.build_disease_umls_relationships(input.mrconso, input.infile,output.outfile,input.omim,input.ncit, output.metadata_yaml)
 
 rule get_disease_doid_relationships:
     input:
         infile = config['download_directory']+'/DOID/doid.json'
     output:
         outfile=config['intermediate_directory']+'/disease/concords/DOID',
+        metadata_yaml=config['intermediate_directory']+'/disease/concords/metadata-DOID.yaml',
     run:
-        diseasephenotype.build_disease_doid_relationships(input.infile,output.outfile)
+        diseasephenotype.build_disease_doid_relationships(input.infile,output.outfile,output.metadata_yaml)
 
 rule disease_manual_concord:
     input:
         infile = 'input_data/manual_concords/disease.txt'
     output:
-        outfile = config['intermediate_directory']+'/disease/concords/Manual'
+        outfile = config['intermediate_directory']+'/disease/concords/Manual',
+        metadata_yaml = config['intermediate_directory']+'/disease/concords/metadata-Manual.yaml'
     run:
+        count_manual_concords = 0
         with open(input.infile, 'r') as inp, open(output.outfile, 'w') as outp:
             for line in inp:
                 # Remove any lines starting with '#', which we treat as comments.
@@ -131,6 +144,21 @@ rule disease_manual_concord:
                 if len(elements) != 3:
                     raise RuntimeError(f"Found {len(elements)} elements on line {lstripped_line}, expected 3: {elements}")
                 outp.writelines(["\t".join(elements)])
+                count_manual_concords += 1
+
+        write_concord_metadata(
+            output.metadata_yaml,
+            name='Manual Disease/Phenotype Concords',
+            description='Manually curated Disease/Phenotype cross-references from the Babel repository',
+            sources=[{
+                'name': 'Babel repository',
+                'url': 'https://github.com/TranslatorSRI/Babel',
+            }],
+            url='https://github.com/TranslatorSRI/Babel/blob/master/input_data/manual_concords/disease.txt',
+            counts={
+                'concords': count_manual_concords,
+            },
+        )
 
 rule disease_compendia:
     input:
