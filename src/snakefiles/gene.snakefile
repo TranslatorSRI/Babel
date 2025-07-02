@@ -107,8 +107,9 @@ rule get_umls_gene_protein_mappings:
     output:
         umls_uniprotkb_filename=config['download_directory']+'/UMLS_UniProtKB/UMLS_UniProtKB.tsv',
         umls_gene_concords=config['output_directory']+'/intermediate/gene/concords/UMLS_NCBIGene',
+        umls_ncbigene_metadata_yaml=config['output_directory']+'/intermediate/gene/concords/metadata-UMLS_NCBIGene.yaml',
         umls_protein_concords=config['output_directory']+'/intermediate/protein/concords/UMLS_UniProtKB',
-        metadata_yaml=config['output_directory']+'/intermediate/gene/concords/metadata-UMLS_NCBIGene.yaml'
+        umls_protein_metadata_yaml=config['output_directory']+'/intermediate/protein/concords/metadata-UMLS_UniProtKB.yaml',
     run:
         uniprotkb.download_umls_gene_protein_mappings(
             config['UMLS_UniProtKB_download_raw_url'],
@@ -118,9 +119,19 @@ rule get_umls_gene_protein_mappings:
         )
 
         write_concord_metadata(
-            output.metadata_yaml,
+            output.umls_ncbigene_metadata_yaml,
             name='get_umls_gene_protein_mappings',
-            description="Download UMLS-UniProtKB mappings from {config['UMLS_UniProtKB_download_raw_url']}",
+            description=f"Download UMLS-UniProtKB gene mappings from {config['UMLS_UniProtKB_download_raw_url']}",
+            sources=[{
+                'type': 'download',
+                'name': 'UMLS-UniProtKB mappings',
+                'url': config['UMLS_UniProtKB_download_raw_url'],
+            }],
+        )
+        write_concord_metadata(
+            output.umls_protein_metadata_yaml,
+            name='get_umls_gene_protein_mappings',
+            description=f"Download UMLS-UniProtKB protein mappings from {config['UMLS_UniProtKB_download_raw_url']}",
             sources=[{
                 'type': 'download',
                 'name': 'UMLS-UniProtKB mappings',

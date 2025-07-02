@@ -1,5 +1,6 @@
 import re
 
+from src.metadata.provenance import write_concord_metadata
 from src.prefixes import ENSEMBL, UMLS, PR, UNIPROTKB, NCIT, NCBITAXON
 from src.categories import PROTEIN
 
@@ -97,7 +98,7 @@ def write_ensembl_ids(ensembl_dir, outfile):
                             wrote.add(pid)
                             outf.write(f'{pid}\n')
 
-def build_pr_uniprot_relationships(outfile, ignore_list = []):
+def build_pr_uniprot_relationships(outfile, ignore_list = [], metadata_yaml = None):
     """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
     is a set for each subclass of the input iri.  Write these lists to concord files, indexed by the prefix"""
     iri = 'PR:000000001'
@@ -110,7 +111,18 @@ def build_pr_uniprot_relationships(outfile, ignore_list = []):
                     if k.startswith('PR'):
                         concfile.write(f'{k}\txref\t{x}\n')
 
-def build_protein_uniprotkb_ensemble_relationships(infile,outfile):
+    if metadata_yaml:
+        write_concord_metadata(
+            metadata_yaml,
+            name='build_pr_uniprot_relationships()',
+            description=f"Extracts {PR} xrefs from UberGraph after getting subclasses and xrefs of {iri}",
+            sources=[{
+                'type': 'UberGraph',
+                'name': 'UberGraph',
+            }]
+        )
+
+def build_protein_uniprotkb_ensemble_relationships(infile,outfile, metadata_yaml):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
             x = line.strip().split()
@@ -128,8 +140,18 @@ def build_protein_uniprotkb_ensemble_relationships(infile,outfile):
                     ensembl_id_without_version = res.group(1)
                     outf.write(f'{ensembl_id}\teq\t{ENSEMBL}:{ensembl_id_without_version}\n')
 
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_protein_uniprotkb_ensemble_relationships()',
+        description=f'Extracts {UNIPROTKB}-to-{ENSEMBL} relationships from the ENSEMBL id-mapping file ({infile}) file.',
+        sources=[{
+            'name': 'ENSEMBL',
+            'filename': infile,
+        }]
+    )
 
-def build_ncit_uniprot_relationships(infile,outfile):
+
+def build_ncit_uniprot_relationships(infile,outfile, metadata_yaml):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
         for line in inf:
             # These lines are sometimes empty (I think because the
@@ -144,8 +166,18 @@ def build_ncit_uniprot_relationships(infile,outfile):
             uniprot_id = f'{UNIPROTKB}:{x[1]}'
             outf.write(f'{ncit_id}\teq\t{uniprot_id}\n')
 
-def build_umls_ncit_relationships(mrconso, idfile, outfile):
-    umls.build_sets(mrconso, idfile, outfile, {'NCI': NCIT})
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_ncit_uniprot_relationships()',
+        description=f'Extracts {NCIT}-to-{UNIPROTKB} relationships from the NCIt-SwissProt_Mapping file ({infile}).',
+        sources=[{
+            'name': 'NCIt-SwissProt Mapping file',
+            'filename': infile,
+        }]
+    )
+
+def build_umls_ncit_relationships(mrconso, idfile, outfile, metadata_yaml):
+    umls.build_sets(mrconso, idfile, outfile, {'NCI': NCIT}, provenance_metadata_yaml=metadata_yaml)
 
 def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
