@@ -6,7 +6,7 @@ rule macromolecular_complex_ids:
     input:
         infile = config['download_directory']+'/ComplexPortal/559292_labels.tsv'
     output:
-        outfile = config['intermediate_directory']+'/macromolecular_complex/ids/ComplexPortal'
+        outfile = config['intermediate_directory']+'/macromolecular_complex/ids/ComplexPortal',
     shell:
         "awk '{{print $1\"\tbiolink:MacromolecularComplex\"}}' {input.infile} > {output.outfile}"
 
@@ -14,8 +14,8 @@ rule macromolecular_complex_compendia:
     input:
         labels = config['download_directory']+'/ComplexPortal/559292_labels.tsv',
         synonyms = config['download_directory']+'/ComplexPortal/559292_synonyms.tsv',
-        metadata_yaml = config['download_directory']+'/ComplexPortal/metadata.yaml',
         idlists = config['intermediate_directory']+'/macromolecular_complex/ids/ComplexPortal',
+        metadata_yaml = config['download_directory']+'/ComplexPortal/metadata.yaml',
         icrdf_filename = config['download_directory'] + '/icRDF.tsv',
     output:
         config['output_directory']+'/compendia/MacromolecularComplex.txt',
