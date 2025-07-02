@@ -15,7 +15,7 @@ rule genefamily_hgncfamily_ids:
     input:
         infile=config['download_directory']+'/HGNC.FAMILY/labels'
     output:
-        outfile=config['intermediate_directory']+"/genefamily/ids/HGNC.FAMILY"
+        outfile=config['intermediate_directory']+"/genefamily/ids/HGNC.FAMILY",
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:GeneFamily\"}}' {input.infile} > {output.outfile}"

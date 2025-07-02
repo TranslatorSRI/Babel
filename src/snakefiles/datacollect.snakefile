@@ -279,8 +279,9 @@ rule get_hgncfamily_labels:
         infile=rules.get_hgncfamily.output.outfile
     output:
         outfile = config['download_directory'] + '/HGNC.FAMILY/labels',
+        metadata_yaml = config['download_directory'] + '/HGNC.FAMILY/metadata.yaml',
     run:
-        hgncfamily.pull_labels(input.infile,output.outfile)
+        hgncfamily.pull_labels(input.infile,output.outfile, output.metadata_yaml)
 
 ### PANTHER.FAMILY
 
@@ -295,8 +296,9 @@ rule get_pantherfamily_labels:
         infile=rules.get_pantherfamily.output.outfile
     output:
         outfile = config['download_directory'] + '/PANTHER.FAMILY/labels',
+        metadata_yaml = config['download_directory'] + '/PANTHER.FAMILY/metadata.yaml',
     run:
-        pantherfamily.pull_labels(input.infile,output.outfile)
+        pantherfamily.pull_labels(input.infile,output.outfile, output.metadata_yaml)
 
 
 ### OMIM
