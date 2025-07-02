@@ -64,16 +64,18 @@ rule process_umls_ids:
 rule get_process_go_relationships:
     output:
         config['intermediate_directory']+'/process/concords/GO',
+        metadata_yaml = config['intermediate_directory']+'/process/concords/metadata-GO.yaml'
     run:
-        pap.build_process_obo_relationships(config['intermediate_directory']+'/process/concords')
+        pap.build_process_obo_relationships(config['intermediate_directory']+'/process/concords', output.metadata_yaml)
 
 rule get_process_rhea_relationships:
     input:
         infile=config['download_directory']+"/RHEA/rhea.rdf",
     output:
         outfile=config['intermediate_directory']+'/process/concords/RHEA',
+        metadata_yaml=config['intermediate_directory']+'/process/concords/metadata-RHEA.yaml',
     run:
-        pap.build_process_rhea_relationships(output.outfile)
+        pap.build_process_rhea_relationships(output.outfile, output.metadata_yaml)
 
 
 rule get_process_umls_relationships:
@@ -82,8 +84,9 @@ rule get_process_umls_relationships:
         infile=config['intermediate_directory']+"/process/ids/UMLS",
     output:
         outfile=config['intermediate_directory']+'/process/concords/UMLS',
+        metadata_yaml=config['intermediate_directory']+'/process/concords/metadata-UMLS.yaml'
     run:
-        pap.build_process_umls_relationships(input.mrconso, input.infile, output.outfile)
+        pap.build_process_umls_relationships(input.mrconso, input.infile, output.outfile, output.metadata_yaml)
 
 rule process_compendia:
     input:
