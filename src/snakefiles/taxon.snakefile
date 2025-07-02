@@ -33,17 +33,19 @@ rule get_taxon_umls_relationships:
         infile=config['intermediate_directory']+"/taxon/ids/UMLS"
     output:
         outfile=config['intermediate_directory']+'/taxon/concords/UMLS',
+        metadata_yaml=config['intermediate_directory']+'/taxon/concords/metadata-UMLS.yaml',
     run:
-        taxon.build_taxon_umls_relationships(input.mrconso, input.infile, output.outfile)
+        taxon.build_taxon_umls_relationships(input.mrconso, input.infile, output.outfile, output.metadata_yaml)
 
 rule get_taxon_relationships:
     input:
         meshfile=config['download_directory']+"/MESH/mesh.nt",
         meshids=config['intermediate_directory']+"/taxon/ids/MESH",
     output:
-        outfile=config['intermediate_directory']+'/taxon/concords/NCBI_MESH'
+        outfile=config['intermediate_directory']+'/taxon/concords/NCBI_MESH',
+        metadata_yaml=config['intermediate_directory']+'/taxon/concords/metadata-NCBI_MESH.yaml',
     run:
-        taxon.build_relationships(output.outfile,input.meshids)
+        taxon.build_relationships(output.outfile,input.meshids, output.metadata_yaml)
 
 rule taxon_compendia:
     input:

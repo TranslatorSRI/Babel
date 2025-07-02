@@ -1,3 +1,4 @@
+from src.metadata.provenance import write_concord_metadata
 from src.prefixes import NCBITAXON,MESH,UMLS
 from src.categories import ORGANISM_TAXON
 
@@ -61,10 +62,10 @@ def write_umls_ids(mrsty, outfile):
     ]}
     umls.write_umls_ids(mrsty, umlsmap,outfile)
 
-def build_taxon_umls_relationships(mrconso, idfile, outfile):
-    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH, 'NCBITaxon': NCBITAXON})
+def build_taxon_umls_relationships(mrconso, idfile, outfile, metadata_yaml):
+    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH, 'NCBITaxon': NCBITAXON}, provenance_metadata_yaml=metadata_yaml)
 
-def build_relationships(outfile,mesh_ids):
+def build_relationships(outfile,mesh_ids, metadata_yaml):
     regis = mesh.pull_mesh_registry()
     with open(mesh_ids,'r') as inf:
         lines = inf.read().strip().split('\n')
@@ -80,6 +81,15 @@ def build_relationships(outfile,mesh_ids):
         #left = list(all_mesh_taxa.difference( set([x[0] for x in regis]) ))
         #eutil.lookup(left)
 
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_relationships()',
+        description=f'Builds relationships between MeSH and NCBI Taxon from the MeSH registry.',
+        sources=[{
+            'type': 'MeSH',
+            'name': 'MeSH Registry',
+        }]
+    )
 
 
 def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
