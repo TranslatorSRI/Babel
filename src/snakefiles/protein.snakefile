@@ -48,23 +48,26 @@ rule get_protein_uniprotkb_ensembl_relationships:
     input:
         infile = config['download_directory'] + '/UniProtKB/idmapping.dat'
     output:
-        outfile = config['intermediate_directory'] + '/protein/concords/UniProtKB'
+        outfile = config['intermediate_directory'] + '/protein/concords/UniProtKB',
+        metadata_yaml = config['intermediate_directory'] + '/protein/concords/metadata-UniProtKB.yaml',
     run:
-        protein.build_protein_uniprotkb_ensemble_relationships(input.infile,output.outfile)
+        protein.build_protein_uniprotkb_ensemble_relationships(input.infile,output.outfile, output.metadata_yaml)
 
 rule get_protein_pr_uniprotkb_relationships:
     output:
-        outfile  = config['intermediate_directory'] + '/protein/concords/PR'
+        outfile  = config['intermediate_directory'] + '/protein/concords/PR',
+        metadata_yaml = config['intermediate_directory'] + '/protein/concords/metadata-PR.yaml'
     run:
-        protein.build_pr_uniprot_relationships(output.outfile)
+        protein.build_pr_uniprot_relationships(output.outfile, output.metadata_yaml)
 
 rule get_protein_ncit_uniprotkb_relationships:
     input:
         infile = config['download_directory'] + '/NCIT/NCIt-SwissProt_Mapping.txt'
     output:
-        outfile  = config['intermediate_directory'] + '/protein/concords/NCIT_UniProtKB'
+        outfile  = config['intermediate_directory'] + '/protein/concords/NCIT_UniProtKB',
+        metadata_yaml = config['intermediate_directory'] + '/protein/concords/metadata-NCIT_UniProtKB.yaml',
     run:
-        protein.build_ncit_uniprot_relationships(input.infile, output.outfile)
+        protein.build_ncit_uniprot_relationships(input.infile, output.outfile, output.metadata_yaml)
 
 rule get_protein_ncit_umls_relationships:
     input:
@@ -72,8 +75,9 @@ rule get_protein_ncit_umls_relationships:
         infile=config['intermediate_directory']+"/protein/ids/UMLS"
     output:
         outfile=config['intermediate_directory']+'/protein/concords/NCIT_UMLS',
+        metadata_yaml=config['intermediate_directory']+'/protein/concords/metadata-NCIT_UMLS.yaml'
     run:
-        protein.build_umls_ncit_relationships(input.mrconso, input.infile, output.outfile)
+        protein.build_umls_ncit_relationships(input.mrconso, input.infile, output.outfile, output.metadata_yaml)
 
 rule protein_compendia:
     input:
