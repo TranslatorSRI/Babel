@@ -73,9 +73,10 @@ rule get_complexportal_labels_and_synonyms:
         infile = config['download_directory']+'/ComplexPortal'+'/559292.tsv'
     output:
         lfile = config['download_directory']+'/ComplexPortal'+'/559292_labels.tsv',
-        sfile = config['download_directory']+'/ComplexPortal'+'/559292_synonyms.tsv'
+        sfile = config['download_directory']+'/ComplexPortal'+'/559292_synonyms.tsv',
+        metadata_yaml = config['download_directory']+'/ComplexPortal/metadata.yaml'
     run:
-        complexportal.make_labels_and_synonyms(input.infile, output.lfile, output.sfile)
+        complexportal.make_labels_and_synonyms(input.infile, output.lfile, output.sfile, output.metadata_yaml)
 
 ### MODS
 
