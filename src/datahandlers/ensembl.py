@@ -1,7 +1,15 @@
+import itertools
+
 from src.babel_utils import get_config, make_local_name
 from apybiomart import find_datasets, query, find_attributes
 import logging
 import os
+
+# As per https://support.bioconductor.org/p/39744/#39751, more attributes than this result in an
+# error from BioMart: Too many attributes selected for External References
+# This is the real MAX minus one: for every batch, we'll query the ensembl_gene_id so that we can
+# put the batches back together again afterwards.
+BIOMART_MAX_ATTRIBUTE_COUNT = 9
 
 
 # Note that Ensembl doesn't seem to assign its own labels or synonyms to its gene identifiers.  It appears that
@@ -57,7 +65,28 @@ def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None):
             atts = find_attributes(ds)
             existingatts = set(atts['Attribute_ID'].to_list())
             attsIcanGet = cols.intersection(existingatts)
-            df = query(attributes=list(attsIcanGet), filters={}, dataset=ds)
+
+            if len(attsIcanGet) <= BIOMART_MAX_ATTRIBUTE_COUNT:
+                # Excellent: we can do this in one query.
+                logging.info(f'Found {len(attsIcanGet)} attributes for {ds} for single query: {attsIcanGet}')
+                df = query(attributes=list(attsIcanGet), filters={}, dataset=ds)
+            else:
+                # We need to retrieve all the attributes in batches.
+                # We'll remove ensembl_gene_id from the list to
+                attributes_to_retrieve = list(attsIcanGet)
+                attributes_to_retrieve.remove('ensembl_gene_id')
+                df = None
+                for i in range(0, len(attributes_to_retrieve), BIOMART_MAX_ATTRIBUTE_COUNT):
+                    attr_batch = attributes_to_retrieve[i:i + BIOMART_MAX_ATTRIBUTE_COUNT]
+                    logging.info(f"Querying batch of {len(attr_batch)} attributes for {ds} (+ 'ensembl_gene_id'): {attr_batch}")
+                    batch_df = query(attributes=['ensembl_gene_id'] + list(attr_batch), filters={}, dataset=ds)
+                    if df is None:
+                        df = batch_df
+                    else:
+                        df = df.merge(batch_df, on='Gene stable ID', how='outer')
+
+            # Write out the data frame.
+            os.makedirs(os.path.dirname(outfile))
             df.to_csv(outfile, index=False, sep='\t')
         except Exception as exc:
             biomart_dir = os.path.dirname(outfile)

@@ -11,7 +11,7 @@ def test_pull_ensembl(tmp_path):
     output_dir.mkdir()
 
     # Pull a single ENSEMBL file to that. This should trigger https://github.com/TranslatorSRI/Babel/issues/193
-    pull_ensembl(output_dir, output_dir / 'download_complete', ['hgfemale_gene_ensembl'])
+    pull_ensembl(output_dir, output_dir / 'download_complete', ['uamericanus_gene_ensembl', 'hgfemale_gene_ensembl'])
 
     # Full list: ["elucius_gene_ensembl",
     # "hgfemale_gene_ensembl",
