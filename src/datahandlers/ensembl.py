@@ -1,7 +1,6 @@
-import traceback
-
-from src.babel_utils import make_local_name, get_config
+from src.babel_utils import get_config, make_local_name
 from apybiomart import find_datasets, query, find_attributes
+import logging
 import os
 
 
@@ -12,24 +11,46 @@ import os
 # In principle, we want to pull some file from somewhere, but ensembl, in all of its glory, lacks a list of
 # genes that can be gathered without downloading hundreds of gigs of other stuff.  So, we'll use biomart to pull
 # just what we need.
-def pull_ensembl(complete_file):
+def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None):
+    """
+    Pulls gene information from Ensembl datasets, filters the datasets based on provided
+    criteria, and saves the queried data locally.
+
+    This function handles downloading and processing gene dataset information from Ensembl
+    using the BioMart API. It allows filtering specific datasets and skips those marked to
+    be excluded in configuration settings. Data is saved in a tab-separated value format for
+    each dataset, and a log file is created indicating the number of processed datasets.
+
+    :param ensembl_dir: The directory to download ENSEMBL files to.
+    :param complete_file: A file that will be created to indicate that the pull is complete.
+    :param only_download_datasets: A list of dataset IDs to download. If None, all
+        datasets will be evaluated except those marked in skip config. Can be used to
+        override config['ensembl_datasets_to_skip']
+    :return: None
+    """
+    if only_download_datasets is None:
+        only_download_datasets = set()
     f = find_datasets()
 
     skip_dataset_ids = set(get_config()['ensembl_datasets_to_skip'])
+    dataset_ids = f['Dataset_ID']
+    if only_download_datasets:
+        dataset_ids = only_download_datasets
 
     cols = {"ensembl_gene_id", "ensembl_peptide_id", "description", "external_gene_name", "external_gene_source",
             "external_synonym", "chromosome_name", "source", "gene_biotype", "entrezgene_id", "zfin_id_id", 'mgi_id',
             'rgd_id', 'flybase_gene_id', 'sgd_gene', 'wormbase_gene'}
-    for ds in f['Dataset_ID']:
-        print(ds)
+    for ds in dataset_ids:
+        logging.info(f"Downloading ENSEMBL dataset {ds}")
         if ds in skip_dataset_ids:
             print(f'Skipping {ds} as it is included in skip_dataset_ids: {skip_dataset_ids}')
             continue
-        outfile = make_local_name('BioMart.tsv', subpath=f'ENSEMBL/{ds}')
+        outfile = os.path.join(ensembl_dir, ds, 'BioMart.tsv')
         # Really, we should let snakemake handle this, but then we would need to put a list of all the 200+ sets in our
         # config, and keep it up to date.  Maybe you could have a job that gets the datasets and writes a dataset file,
         # but then updates the config? That sounds bogus.
         if os.path.exists(outfile):
+            logging.info(f'Skipping {ds} as it already exists')
             continue
         try:
             atts = find_attributes(ds)
@@ -48,4 +69,5 @@ def pull_ensembl(complete_file):
 
 
 if __name__ == '__main__':
-    pull_ensembl()
+    ensembl_dir = os.path.join(get_config()['babel_downloads'], 'ENSEMBL')
+    pull_ensembl(ensembl_dir, os.path.join(ensembl_dir, 'BioMartDownloadComplete'))
