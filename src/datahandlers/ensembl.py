@@ -36,6 +36,7 @@ def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None):
     dataset_ids = f['Dataset_ID']
     if only_download_datasets:
         dataset_ids = only_download_datasets
+        skip_dataset_ids = set()
 
     cols = {"ensembl_gene_id", "ensembl_peptide_id", "description", "external_gene_name", "external_gene_source",
             "external_synonym", "chromosome_name", "source", "gene_biotype", "entrezgene_id", "zfin_id_id", 'mgi_id',
@@ -61,8 +62,8 @@ def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None):
         except Exception as exc:
             biomart_dir = os.path.dirname(outfile)
             print(f'Deleting BioMart directory {biomart_dir} so its clear it needs to be downloaded again.')
-            os.rmdir(biomart_dir)
-
+            if os.path.exists(biomart_dir):
+                os.rmdir(biomart_dir)
             raise exc
     with open(complete_file, 'w') as outf:
         outf.write(f'Downloaded gene sets for {len(f)} data sets.')
