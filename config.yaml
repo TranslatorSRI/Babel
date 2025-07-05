@@ -61,16 +61,25 @@ anatomy_prefixes:
   - UBERON
   - GO
   - CL
+  - UMLS
+  - MESH
+  - NCIT
+  - SNOMEDCT
 
 anatomy_ids:
   - UBERON
   - GO
   - CL
+  - UMLS
+  - MESH
+  - NCIT
 
 anatomy_concords:
   - UBERON
   - GO
   - CL
+  - UMLS
+  - WIKIDATA
 
 anatomy_outputs:
   - AnatomicalEntity.txt
