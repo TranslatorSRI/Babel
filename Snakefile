@@ -1,4 +1,4 @@
-configfile: "config.json"
+configfile: "config.yaml"
 
 include: "src/snakefiles/datacollect.snakefile"
 include: "src/snakefiles/anatomy.snakefile"
