@@ -1,6 +1,6 @@
 import yaml
+import json
 import logging
-from json import load
 import os
 from collections import defaultdict
 from urllib.parse import urlparse
