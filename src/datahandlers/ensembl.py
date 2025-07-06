@@ -1,6 +1,4 @@
-import itertools
-
-from src.babel_utils import get_config, make_local_name
+from src.babel_utils import get_config
 from apybiomart import find_datasets, query, find_attributes
 import logging
 import os
