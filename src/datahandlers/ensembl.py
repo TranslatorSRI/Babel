@@ -6,8 +6,8 @@ import os
 # As per https://support.bioconductor.org/p/39744/#39751, more attributes than this result in an
 # error from BioMart: Too many attributes selected for External References
 # This is the real MAX minus one: for every batch, we'll query the ensembl_gene_id so that we can
-# put the batches back together again afterwards.
-BIOMART_MAX_ATTRIBUTE_COUNT = 9
+# put the batches back together again afterward.
+BIOMART_MAX_ATTRIBUTE_COUNT = 8
 
 
 # Note that Ensembl doesn't seem to assign its own labels or synonyms to its gene identifiers.  It appears that
@@ -17,7 +17,7 @@ BIOMART_MAX_ATTRIBUTE_COUNT = 9
 # In principle, we want to pull some file from somewhere, but ensembl, in all of its glory, lacks a list of
 # genes that can be gathered without downloading hundreds of gigs of other stuff.  So, we'll use biomart to pull
 # just what we need.
-def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None):
+def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None, max_attribute_count=BIOMART_MAX_ATTRIBUTE_COUNT,):
     """
     Pulls gene information from Ensembl datasets, filters the datasets based on provided
     criteria, and saves the queried data locally.
@@ -32,6 +32,8 @@ def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None):
     :param only_download_datasets: A list of dataset IDs to download. If None, all
         datasets will be evaluated except those marked in skip config. Can be used to
         override config['ensembl_datasets_to_skip']
+    :param max_attribute_count: The maximum number of attributes to request in a single query.
+        Should be the (actual max - 1), because we'll need to use the ensembl_gene_id to merge.
     :return: None
     """
     if only_download_datasets is None:
@@ -64,7 +66,7 @@ def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None):
             existingatts = set(atts['Attribute_ID'].to_list())
             attsIcanGet = cols.intersection(existingatts)
 
-            if len(attsIcanGet) <= BIOMART_MAX_ATTRIBUTE_COUNT:
+            if len(attsIcanGet) <= max_attribute_count:
                 # Excellent: we can do this in one query.
                 logging.info(f'Found {len(attsIcanGet)} attributes for {ds} for single query: {attsIcanGet}')
                 df = query(attributes=list(attsIcanGet), filters={}, dataset=ds)
@@ -74,16 +76,17 @@ def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None):
                 attributes_to_retrieve = list(attsIcanGet)
                 attributes_to_retrieve.remove('ensembl_gene_id')
                 df = None
-                for i in range(0, len(attributes_to_retrieve), BIOMART_MAX_ATTRIBUTE_COUNT):
-                    attr_batch = attributes_to_retrieve[i:i + BIOMART_MAX_ATTRIBUTE_COUNT]
+                for i in range(0, len(attributes_to_retrieve), max_attribute_count):
+                    attr_batch = attributes_to_retrieve[i:i + max_attribute_count]
                     logging.info(f"Querying batch of {len(attr_batch)} attributes for {ds} (+ 'ensembl_gene_id'): {attr_batch}")
                     batch_df = query(attributes=['ensembl_gene_id'] + list(attr_batch), filters={}, dataset=ds)
                     if df is None:
                         df = batch_df
                     else:
-                        df = df.merge(batch_df, on='Gene stable ID', how='outer')
+                        df = df.merge(batch_df, on='Gene stable ID', how='outer', sort=True)
 
-            # Write out the data frame.
+            # Write out the data frame after sorting it by Gene stable ID.
+            df.sort_values(by=['Gene stable ID'], inplace=True)
             os.makedirs(os.path.dirname(outfile))
             df.to_csv(outfile, index=False, sep='\t')
         except Exception as exc:
