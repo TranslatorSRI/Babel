@@ -58,7 +58,7 @@ rule get_protein_pr_uniprotkb_relationships:
         outfile  = config['intermediate_directory'] + '/protein/concords/PR',
         metadata_yaml = config['intermediate_directory'] + '/protein/concords/metadata-PR.yaml'
     run:
-        protein.build_pr_uniprot_relationships(output.outfile, output.metadata_yaml)
+        protein.build_pr_uniprot_relationships(output.outfile, metadata_yaml=output.metadata_yaml)
 
 rule get_protein_ncit_uniprotkb_relationships:
     input:
