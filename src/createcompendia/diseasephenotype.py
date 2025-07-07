@@ -132,7 +132,7 @@ def build_disease_obo_relationships(outdir, metadata_yamls):
         build_sets('MONDO:0042489', {MONDO:outfile}, set_type='close', other_prefixes={'ORPHANET':ORPHANET})
 
         write_concord_metadata(
-            metadata_yamls['MONDO'],
+            metadata_yamls['MONDO_close'],
             name='build_disease_obo_relationships()',
             sources=[
                 {
