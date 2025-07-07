@@ -132,7 +132,7 @@ rule get_chemical_rxnorm_relationships:
         outfile=config['intermediate_directory']+'/chemicals/concords/RXNORM',
         metadata_yaml=config['intermediate_directory']+'/chemicals/concords/metadata-RXNORM.yaml',
     run:
-        chemicals.build_chemical_rxnorm_relationships(input.conso, input.infile,output.outfile, output.metadata_yaml)
+        chemicals.build_chemical_rxnorm_relationships(input.conso, input.infile, output.outfile, output.metadata_yaml)
 
 rule get_chemical_wikipedia_relationships:
     output:
