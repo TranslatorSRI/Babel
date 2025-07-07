@@ -13,8 +13,8 @@ def read_biomart_file(biomart_file):
     for row in reader:
         yield row
 
-def normalize_list_of_dictionaries(l):
-    return sorted(json.dumps(d, sort_keys=True) for d in l)
+def normalize_list_of_dictionaries(dict_list):
+    return sorted(json.dumps(dictionary, sort_keys=True) for dictionary in dict_list)
 
 def test_pull_ensembl(tmp_path):
     # Make a temporary directory for testing.
