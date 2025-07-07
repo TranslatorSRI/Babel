@@ -115,7 +115,7 @@ def build_pr_uniprot_relationships(outfile, ignore_list = [], metadata_yaml = No
         write_concord_metadata(
             metadata_yaml,
             name='build_pr_uniprot_relationships()',
-            description=f"Extracts {PR} xrefs from UberGraph after getting subclasses and xrefs of {iri}",
+            description=f"Extracts {PR} xrefs from UberGraph after getting subclasses and xrefs of {iri}, ignoring {ignore_list}.",
             sources=[{
                 'type': 'UberGraph',
                 'name': 'UberGraph',
