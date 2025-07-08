@@ -3,13 +3,13 @@ from datetime import datetime
 
 import yaml
 
-def write_download_metadata(filename, name, url='', description='', sources=None, counts=None):
+def write_download_metadata(filename, name, *, url='', description='', sources=None, counts=None):
     write_metadata(filename, 'download', name, url=url, description=description, sources=sources, counts=None)
 
-def write_concord_metadata(filename, name, url='', description='', sources=None, counts=None):
+def write_concord_metadata(filename, name, *, url='', description='', sources=None, counts=None):
     write_metadata(filename, 'concord', name, url=url, description=description, sources=sources, counts=None)
 
-def write_combined_metadata(filename, typ, name, sources=None, url='', description='', counts=None, combined_from_filenames=None):
+def write_combined_metadata(filename, typ, name, *, sources=None, url='', description='', counts=None, combined_from_filenames=None):
     combined_from = {}
     if combined_from_filenames is not None:
         for metadata_yaml in combined_from_filenames:
@@ -45,7 +45,7 @@ def write_combined_metadata(filename, typ, name, sources=None, url='', descripti
         combined_from=combined_from
     )
 
-def write_metadata(filename, typ, name, sources=None, url='', description='', counts=None, combined_from=None):
+def write_metadata(filename, typ, name, *, sources=None, url='', description='', counts=None, combined_from=None):
     if type(typ) is not str:
         raise ValueError(f"Metadata entry type must be a string, not {type(typ)}: '{typ}'")
     if type(name) is not str:
