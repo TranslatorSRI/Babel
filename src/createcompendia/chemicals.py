@@ -586,6 +586,7 @@ def get_wikipedia_relationships(outfile, metadata_yaml):
 
     write_concord_metadata(
         metadata_yaml,
+        name="get_wikipedia_relationships()",
         sources=[{
             'type': 'Wikidata',
             'name': 'Wikidata SPARQL query',
