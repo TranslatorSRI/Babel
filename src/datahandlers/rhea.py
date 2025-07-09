@@ -70,7 +70,8 @@ class Rhea:
                     'name': 'rhea.rdf',
                     'url': 'https://ftp.expasy.org/databases/rhea/rdf/rhea.rdf.gz',
                 }]
-            }]
+            }],
+            concord_filename=ofname,
         )
 
 

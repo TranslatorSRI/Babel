@@ -158,6 +158,7 @@ rule disease_manual_concord:
             counts={
                 'concords': count_manual_concords,
             },
+            concord_filename=output.outfile,
         )
 
 rule disease_compendia:

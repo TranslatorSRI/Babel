@@ -28,7 +28,8 @@ rule genefamily_compendia:
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['genefamily_outputs']),
-        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['genefamily_outputs']))
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['genefamily_outputs'])),
+        metadata_yaml=config['output_directory']+'/metadata/GeneFamily.txt.yaml',
     run:
         genefamily.build_compendia(input.idlists, input.metadata_yamls, input.icrdf_filename)
 

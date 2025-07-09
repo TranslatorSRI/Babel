@@ -258,7 +258,8 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
             'type': 'download',
             'name': 'PubMed PMC-ids.csv.gz',
             'url': 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz',
-        }]
+        }],
+        concord_filename=pmid_doi_concord_file,
     )
 
 def generate_compendium(concordances, metadata_yamls, identifiers, titles, publication_compendium, icrdf_filename):

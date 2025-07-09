@@ -89,6 +89,7 @@ def build_chemical_rxnorm_relationships(conso, idfile, outfile, metadata_yaml):
             'name': 'MRCONSO'
         }],
         description=f'umls.build_sets() of {RXCUI} MRCONSO with prefixes: {MESH}, {DRUGBANK}',
+        concord_filename=outfile,
     )
 
 def write_pubchem_ids(labelfile,smilesfile,outfile):
@@ -383,7 +384,9 @@ def make_pubchem_cas_concord(pubchemsynonyms, outfile, metadata_yaml):
     write_concord_metadata(
         metadata_yaml,
         name='make_pubchem_cas_concord()',
-        description=f'make_pubchem_cas_concord() creates xrefs from PUBCHEM identifiers in the PubChem synonyms file ({pubchemsynonyms}) to Chemical Abstracts Service (CAS) identifiers.',
+        description='make_pubchem_cas_concord() creates xrefs from PUBCHEM identifiers in the PubChem synonyms file ' +
+                    f'({pubchemsynonyms}) to Chemical Abstracts Service (CAS) identifiers.',
+        concord_filename=outfile,
     )
 
 def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile, metadata_yaml):
@@ -416,8 +419,10 @@ def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile, metadata_yaml):
 
     write_concord_metadata(
         metadata_yaml,
-       name='make_pubchem_mesh_concord()',
-       description=f'make_pubchem_mesh_concord() loads MeSH labels from {meshlabels}, then creates xrefs from PubChem identifiers in the PubChem input file ({pubcheminput}) to those MeSH identifiers using the labels as keys.',
+        name='make_pubchem_mesh_concord()',
+        description=f'make_pubchem_mesh_concord() loads MeSH labels from {meshlabels}, then creates xrefs from PubChem ' +
+                   f'identifiers in the PubChem input file ({pubcheminput}) to those MeSH identifiers using the labels as keys.',
+        concord_filename=outfile,
     )
 
 def build_drugcentral_relations(infile,outfile, metadata_yaml):
@@ -448,6 +453,7 @@ def build_drugcentral_relations(infile,outfile, metadata_yaml):
         metadata_yaml,
         name='build_drugcentral_relations()',
         description=f'Build xrefs from DrugCentral ({infile}) to {DRUGCENTRAL} using the prefix map {prefixmap}.',
+        concord_filename=outfile,
     )
 
 def make_gtopdb_relations(infile,outfile, metadata_yaml):
@@ -470,7 +476,8 @@ def make_gtopdb_relations(infile,outfile, metadata_yaml):
     write_concord_metadata(
         metadata_yaml,
         name='make_gtopdb_relations()',
-        description=f'Transform Ligand ID/InChIKey mappings from {infile} into a concord.'
+        description=f'Transform Ligand ID/InChIKey mappings from {infile} into a concord.',
+        concord_filename=outfile,
     )
 
 def make_chebi_relations(sdf,dbx,outfile,metadata_yaml):
@@ -521,6 +528,7 @@ def make_chebi_relations(sdf,dbx,outfile,metadata_yaml):
         metadata_yaml,
         name='make_chebi_relations()',
         description=f'make_chebi_relations() creates xrefs from the ChEBI database ({sdf}) to {PUBCHEMCOMPOUND} and {KEGGCOMPOUND}.',
+        concord_filename=outfile,
     )
 
 
@@ -554,7 +562,8 @@ def get_mesh_relationships(mesh_id_file,cas_out, unii_out, cas_metadata, unii_me
             'name': 'MeSH Registry',
         }],
         description=f'get_mesh_relationships() iterates through the MeSH registry, filters it to the MeSH IDs '
-                    f'in {mesh_id_file}, then writes out CAS mappings to {cas_out}'
+                    f'in {mesh_id_file}, then writes out CAS mappings to {cas_out}',
+        concord_filename=cas_out,
     )
 
     write_concord_metadata(
@@ -565,7 +574,8 @@ def get_mesh_relationships(mesh_id_file,cas_out, unii_out, cas_metadata, unii_me
             'name': 'MeSH Registry',
         }],
         description=f'get_mesh_relationships() iterates through the MeSH registry, filters it to the MeSH IDs '
-                    f'in {mesh_id_file}, then writes out non-CAS mappings (i.e. UNII mappings) to {unii_out}'
+                    f'in {mesh_id_file}, then writes out non-CAS mappings (i.e. UNII mappings) to {unii_out}',
+        concord_filename=unii_out,
     )
 
 def get_wikipedia_relationships(outfile, metadata_yaml):
@@ -592,6 +602,7 @@ def get_wikipedia_relationships(outfile, metadata_yaml):
             'name': 'Wikidata SPARQL query',
         }],
         description='Wikidata SPARQL query to find Wikidata entities with both CHEBI and MESH IDs, and build a concordance between them.',
+        concord_filename=outfile,
     )
 
 def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_concord, type_file, metadata_yaml, input_metadata_yamls):

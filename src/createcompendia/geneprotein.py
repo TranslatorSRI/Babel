@@ -35,7 +35,8 @@ def build_uniprotkb_ncbigene_relationships(infile,outfile, metadata_yaml):
             'type': 'UniProtKB',
             'name': 'UniProtKB idmapping file',
             'filename': infile,
-        }]
+        }],
+        concord_filename=outfile,
     )
 
 

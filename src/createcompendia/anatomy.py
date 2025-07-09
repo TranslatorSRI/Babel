@@ -109,24 +109,32 @@ def build_anatomy_obo_relationships(outdir, metadata_yamls):
                 'name': 'UBERON'
             }
         ],
-        description=f'get_subclasses_and_xrefs() of {UBERON}:0001062'
+        description=f'get_subclasses_and_xrefs() of {UBERON}:0001062',
+        concord_filename=f'{outdir}/{UBERON}',
     )
     write_concord_metadata(metadata_yamls['GO'],
-                           name='build_anatomy_obo_relationships()',
-                           sources=[
-                               {
-                                   'type': 'UberGraph',
-                                   'name': 'GO'
-                               }
-                           ],
-                           description=f'get_subclasses_and_xrefs() of {GO}:0005575'
-                           )
+       name='build_anatomy_obo_relationships()',
+       sources=[
+           {
+               'type': 'UberGraph',
+               'name': 'GO'
+           }
+       ],
+       description=f'get_subclasses_and_xrefs() of {GO}:0005575',
+       concord_filename=f'{outdir}/{GO}',
+    )
     # TODO: delete
     write_concord_metadata(metadata_yamls['CL'],
-                           name='build_anatomy_obo_relationships()',
-                           sources=[],
-                           description=''
-                           )
+       name='build_anatomy_obo_relationships()',
+       sources=[
+           {
+               'type': 'UberGraph',
+               'name': 'CL'
+           }
+       ],
+       description='CL relationships (not used?)',
+       concord_filename=f'{outdir}/{CL}',
+    )
 
 def build_wikidata_cell_relationships(outdir, metadata_yaml):
     #This sparql returns all the wikidata items that have a UMLS identifier and a CL identifier
@@ -173,6 +181,7 @@ def build_wikidata_cell_relationships(outdir, metadata_yaml):
             'name': 'Frink Direct Normalized Graph via SPARQL'
         }],
         description='wd:P7963 ("Cell Ontology ID") and wd:P2892 ("UMLS CUI") from Wikidata',
+        concord_filename=f'{outdir}/{WIKIDATA}',
     )
 
 def build_anatomy_umls_relationships(mrconso, idfile, outfile, umls_metadata):

@@ -127,6 +127,7 @@ rule get_umls_gene_protein_mappings:
                 'name': 'UMLS-UniProtKB mappings',
                 'url': config['UMLS_UniProtKB_download_raw_url'],
             }],
+            concord_filename=output.umls_gene_concords,
         )
         write_concord_metadata(
             output.umls_protein_metadata_yaml,
@@ -137,6 +138,7 @@ rule get_umls_gene_protein_mappings:
                 'name': 'UMLS-UniProtKB mappings',
                 'url': config['UMLS_UniProtKB_download_raw_url'],
             }],
+            concord_filename=output.umls_protein_concords,
         )
 
 rule gene_compendia:

@@ -119,7 +119,8 @@ def build_pr_uniprot_relationships(outfile, ignore_list = [], metadata_yaml = No
             sources=[{
                 'type': 'UberGraph',
                 'name': 'UberGraph',
-            }]
+            }],
+            concord_filename=outfile,
         )
 
 def build_protein_uniprotkb_ensemble_relationships(infile,outfile, metadata_yaml):
@@ -147,7 +148,8 @@ def build_protein_uniprotkb_ensemble_relationships(infile,outfile, metadata_yaml
         sources=[{
             'name': 'ENSEMBL',
             'filename': infile,
-        }]
+        }],
+        concord_filename=outfile,
     )
 
 
@@ -173,7 +175,8 @@ def build_ncit_uniprot_relationships(infile,outfile, metadata_yaml):
         sources=[{
             'name': 'NCIt-SwissProt Mapping file',
             'filename': infile,
-        }]
+        }],
+        concord_filename=outfile,
     )
 
 def build_umls_ncit_relationships(mrconso, idfile, outfile, metadata_yaml):

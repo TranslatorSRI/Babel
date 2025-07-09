@@ -185,4 +185,5 @@ def make_concords(idfilename, outfilename, provenance_metadata=None):
                 'name': 'Experimental Factor Ontology',
                 'url': 'http://www.ebi.ac.uk/efo/efo.owl',
             }],
+            concord_filename=outfilename,
         )

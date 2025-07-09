@@ -97,17 +97,18 @@ def build_disease_obo_relationships(outdir, metadata_yamls):
                    other_prefixes=other_prefixes,
                    set_type='xref')
 
-        write_concord_metadata(
-           metadata_yamls['HP'],
-           name='build_disease_obo_relationships()',
-           sources=[
-               {
-                   'type': 'UberGraph',
-                   'name': 'HP'
-               }
-           ],
-           description=f'ubergraph.build_sets() of {HP}:0000118 with other_prefixes {other_prefixes}'
-        )
+    write_concord_metadata(
+        metadata_yamls['HP'],
+        name='build_disease_obo_relationships()',
+        sources=[
+            {
+                'type': 'UberGraph',
+                'name': 'HP'
+            }
+        ],
+        description=f'ubergraph.build_sets() of {HP}:0000118 with other_prefixes {other_prefixes}',
+        concord_filename=f'{outdir}/{HP}'
+    )
 
     with open(f'{outdir}/{MONDO}', 'w') as outfile:
         #Orphanet here is confusing.  In mondo it comes out mixed case like "Orphanet" and we want to cap it.  We have a normer
@@ -116,32 +117,34 @@ def build_disease_obo_relationships(outdir, metadata_yamls):
         build_sets('MONDO:0000001', {MONDO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
         build_sets('MONDO:0042489', {MONDO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
 
-        write_concord_metadata(metadata_yamls['MONDO'],
-           name='build_disease_obo_relationships()',
-           sources=[
-               {
-                   'type': 'UberGraph',
-                   'name': 'MONDO'
-               }
-           ],
-           description=f'ubergraph.build_sets() (exact) of {MONDO}:0000001 and {MONDO}:0042489, including ORPHANET prefixes'
-        )
+    write_concord_metadata(metadata_yamls['MONDO'],
+       name='build_disease_obo_relationships()',
+       sources=[
+           {
+               'type': 'UberGraph',
+               'name': 'MONDO'
+           }
+       ],
+       description=f'ubergraph.build_sets() (exact) of {MONDO}:0000001 and {MONDO}:0042489, including ORPHANET prefixes',
+       concord_filename=f'{outdir}/{MONDO}'
+    )
 
     with open(f'{outdir}/{MONDO}_close', 'w') as outfile:
         build_sets('MONDO:0000001', {MONDO:outfile}, set_type='close', other_prefixes={'ORPHANET':ORPHANET})
         build_sets('MONDO:0042489', {MONDO:outfile}, set_type='close', other_prefixes={'ORPHANET':ORPHANET})
 
-        write_concord_metadata(
-            metadata_yamls['MONDO_close'],
-            name='build_disease_obo_relationships()',
-            sources=[
-                {
-                   'type': 'UberGraph',
-                   'name': 'MONDO'
-               }
-            ],
-            description=f'ubergraph.build_sets() (close matches) of {MONDO}:0000001 and {MONDO}:0042489, including ORPHANET prefixes'
-        )
+    write_concord_metadata(
+        metadata_yamls['MONDO_close'],
+        name='build_disease_obo_relationships()',
+        sources=[
+            {
+               'type': 'UberGraph',
+               'name': 'MONDO'
+           }
+        ],
+        description=f'ubergraph.build_sets() (close matches) of {MONDO}:0000001 and {MONDO}:0042489, including ORPHANET prefixes',
+        concord_filename=f'{outdir}/{MONDO}_close'
+    )
 
 def build_disease_efo_relationships(idfile,outfile, metadata_yaml):
     efo.make_concords(idfile, outfile, provenance_metadata=metadata_yaml)
@@ -168,7 +171,14 @@ def build_disease_doid_relationships(idfile,outfile, metadata_yaml):
     write_concord_metadata(
         metadata_yaml,
         name='build_disease_doid_relationships()',
-        description=f'build_disease_doid_relationships() using the DOID ID file {idfile} and other_prefixes {other_prefixes}'
+        description=f'build_disease_doid_relationships() using the DOID ID file {idfile} and other_prefixes {other_prefixes}',
+        concord_filename=outfile,
+        sources=[
+            {
+                'type': 'DOID',
+                'name': 'doid.build_xrefs'
+            }
+        ]
     )
 
 def build_compendium(concordances, metadata_yamls, identifiers, mondoclose, badxrefs, icrdf_filename):
