@@ -2,6 +2,7 @@ from collections import defaultdict
 import requests
 
 import src.datahandlers.obo as obo
+from src.metadata.provenance import write_concord_metadata
 from src.util import Text
 
 from src.prefixes import MESH, NCIT, CL, GO, UBERON, SNOMEDCT, WIKIDATA, UMLS, FMA
@@ -91,14 +92,51 @@ def write_umls_ids(mrsty, outfile):
 #CL only shows up as an xref once in uberon, and it's a mistake.  It doesn't show up in anything else.
 #GO only shows up as an xref once in uberon, and it's a mistake.  It doesn't show up in anything else.
 #PMID is just wrong
-def build_anatomy_obo_relationships(outdir):
+def build_anatomy_obo_relationships(outdir, metadata_yamls):
     ignore_list = ['PMID','BTO','BAMS','FMA','CALOHA','GOC','WIKIPEDIA.EN','CL','GO','NIF_SUBCELLULAR','HTTP','OPENCYC']
     #Create the equivalence pairs
     with open(f'{outdir}/{UBERON}', 'w') as uberon, open(f'{outdir}/{GO}', 'w') as go, open(f'{outdir}/{CL}', 'w') as cl:
         build_sets(f'{UBERON}:0001062', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
         build_sets(f'{GO}:0005575', {UBERON:uberon, GO:go, CL:cl},'xref', ignore_list=ignore_list)
+        # CL is now being handled by Wikidata (build_wikidata_cell_relationships), so we can probably remove it from here.
 
-def build_wikidata_cell_relationships(outdir):
+    # Write out metadata.
+    write_concord_metadata(metadata_yamls['UBERON'],
+        name='build_anatomy_obo_relationships()',
+        sources=[
+            {
+                'type': 'UberGraph',
+                'name': 'UBERON'
+            }
+        ],
+        description=f'get_subclasses_and_xrefs() of {UBERON}:0001062',
+        concord_filename=f'{outdir}/{UBERON}',
+    )
+    write_concord_metadata(metadata_yamls['GO'],
+       name='build_anatomy_obo_relationships()',
+       sources=[
+           {
+               'type': 'UberGraph',
+               'name': 'GO'
+           }
+       ],
+       description=f'get_subclasses_and_xrefs() of {GO}:0005575',
+       concord_filename=f'{outdir}/{GO}',
+    )
+    # TODO: delete
+    write_concord_metadata(metadata_yamls['CL'],
+       name='build_anatomy_obo_relationships()',
+       sources=[
+           {
+               'type': 'UberGraph',
+               'name': 'CL'
+           }
+       ],
+       description='CL relationships (not used?)',
+       concord_filename=f'{outdir}/{CL}',
+    )
+
+def build_wikidata_cell_relationships(outdir, metadata_yaml):
     #This sparql returns all the wikidata items that have a UMLS identifier and a CL identifier
     sparql = """PREFIX wdt: <http://www.wikidata.org/prop/direct/>
         PREFIX wdtn: <http://www.wikidata.org/prop/direct-normalized/>
@@ -135,10 +173,21 @@ def build_wikidata_cell_relationships(outdir):
             else:
                 print(f'Pair {pair} is not unique {counts[pair[0]]} {counts[pair[1]]}')
 
-def build_anatomy_umls_relationships(mrconso, idfile,outfile):
-    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO, 'FMA': FMA})
+    # Write out metadata
+    write_concord_metadata(metadata_yaml,
+        name='build_wikidata_cell_relationships()',
+        sources=[{
+            'type': 'Frink',
+            'name': 'Frink Direct Normalized Graph via SPARQL'
+        }],
+        description='wd:P7963 ("Cell Ontology ID") and wd:P2892 ("UMLS CUI") from Wikidata',
+        concord_filename=f'{outdir}/{WIKIDATA}',
+    )
 
-def build_compendia(concordances, identifiers, icrdf_filename):
+def build_anatomy_umls_relationships(mrconso, idfile, outfile, umls_metadata):
+    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'GO': GO, 'FMA': FMA}, provenance_metadata_yaml=umls_metadata)
+
+def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
@@ -175,7 +224,7 @@ def build_compendia(concordances, identifiers, icrdf_filename):
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]),types)
     for biotype,sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
-        write_compendium(sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
+        write_compendium(metadata_yamls, sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
 
 def create_typed_sets(eqsets,types):
     """Given a set of sets of equivalent identifiers, we want to type each one into

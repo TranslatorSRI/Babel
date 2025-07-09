@@ -1,3 +1,5 @@
+import logging
+
 from src.triplestore import TripleStore
 from src.util import Text
 from collections import defaultdict
@@ -64,7 +66,7 @@ class UberGraph:
                 try:
                     y['iri'] = Text.opt_to_curie(x['thing'])
                 except ValueError as verr:
-                    print(f"WARNING: Unable to translate {x['thing']} to a CURIE; it will be used as-is: {verr}")
+                    logging.warning(f"WARNING: Unable to translate {x['thing']} to a CURIE; it will be used as-is: {verr}")
                     y['iri'] = x['thing']
                 y['label'] = x['label']
                 results.append(y)
@@ -475,7 +477,7 @@ class UberGraph:
         print(f"Wrote {write_count} information content values into {filename}.")
         return write_count
 
-def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={}, hop_ontologies=False ):
+def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={}, hop_ontologies=False):
     """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
     is a set for each subclass of the input iri.  Write these lists to concord files, indexed by the prefix"""
     prefix = Text.get_curie(iri)

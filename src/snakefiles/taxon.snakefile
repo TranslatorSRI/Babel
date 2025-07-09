@@ -33,30 +33,34 @@ rule get_taxon_umls_relationships:
         infile=config['intermediate_directory']+"/taxon/ids/UMLS"
     output:
         outfile=config['intermediate_directory']+'/taxon/concords/UMLS',
+        metadata_yaml=config['intermediate_directory']+'/taxon/concords/metadata-UMLS.yaml',
     run:
-        taxon.build_taxon_umls_relationships(input.mrconso, input.infile, output.outfile)
+        taxon.build_taxon_umls_relationships(input.mrconso, input.infile, output.outfile, output.metadata_yaml)
 
 rule get_taxon_relationships:
     input:
         meshfile=config['download_directory']+"/MESH/mesh.nt",
         meshids=config['intermediate_directory']+"/taxon/ids/MESH",
     output:
-        outfile=config['intermediate_directory']+'/taxon/concords/NCBI_MESH'
+        outfile=config['intermediate_directory']+'/taxon/concords/NCBI_MESH',
+        metadata_yaml=config['intermediate_directory']+'/taxon/concords/metadata-NCBI_MESH.yaml',
     run:
-        taxon.build_relationships(output.outfile,input.meshids)
+        taxon.build_relationships(output.outfile,input.meshids, output.metadata_yaml)
 
 rule taxon_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['taxon_labels']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['taxon_synonyms']),
         concords=expand("{dd}/taxon/concords/{ap}",dd=config['intermediate_directory'],ap=config['taxon_concords']),
+        metadata_yamls=expand("{dd}/taxon/concords/metadata-{ap}.yaml",dd=config['intermediate_directory'],ap=config['taxon_concords']),
         idlists=expand("{dd}/taxon/ids/{ap}",dd=config['intermediate_directory'],ap=config['taxon_ids']),
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['taxon_outputs']),
-        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs']))
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs'])),
+        output_metadata=expand("{od}/metadata/{ap}.yaml", od = config['output_directory'], ap = config['taxon_outputs']),
     run:
-        taxon.build_compendia(input.concords,input.idlists, input.icrdf_filename)
+        taxon.build_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
 
 rule check_taxon_completeness:
     input:

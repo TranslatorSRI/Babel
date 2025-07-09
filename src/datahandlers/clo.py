@@ -1,6 +1,7 @@
 import logging
 import re
 
+from src.metadata.provenance import write_download_metadata
 from src.prefixes import CLO
 from src.categories import CELL_LINE
 from src.babel_utils import pull_via_urllib
@@ -10,8 +11,12 @@ import pyoxigraph
 
 logger = LoggingUtil.init_logging(__name__, level=logging.WARNING)
 
-def pull_clo():
+def pull_clo(metadata_file):
     _=pull_via_urllib('http://purl.obolibrary.org/obo/','clo.owl', subpath='CLO', decompress=False)
+    write_download_metadata(metadata_file,
+                            name='Cell Line Ontology',
+                            url='http://purl.obolibrary.org/obo/clo.owl',
+                            )
 
 class CLOgraph:
     """Load the file for querying"""

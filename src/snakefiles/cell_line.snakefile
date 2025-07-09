@@ -11,7 +11,7 @@ rule get_clo_ids:
     input:
         infile=config['download_directory']+"/CLO/clo.owl"
     output:
-        outfile=config['intermediate_directory']+"/cell_line/ids/CLO"
+        outfile=config['intermediate_directory']+"/cell_line/ids/CLO",
     run:
         clo.write_clo_ids(input.infile, output.outfile)
 
@@ -24,12 +24,14 @@ rule cell_line_compendia:
         ids=config['intermediate_directory']+"/cell_line/ids/CLO",
         labelfile=config['download_directory'] + '/CLO/labels',
         synonymfile=config['download_directory'] + '/CLO/synonyms',
+        metadatafile=config['download_directory'] + '/CLO/metadata.yaml',
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         config['output_directory']+"/compendia/CellLine.txt",
-        temp(config['output_directory']+"/synonyms/CellLine.txt")
+        temp(config['output_directory']+"/synonyms/CellLine.txt"),
+        config['output_directory']+"/metadata/CellLine.txt.yaml",
     run:
-        cell_line.build_compendia(input.ids,input.icrdf_filename)
+        cell_line.build_compendia(input.ids, [input.metadatafile], input.icrdf_filename)
 
 rule check_cell_line_completeness:
     input:
@@ -52,6 +54,7 @@ rule cell_line:
         config['output_directory']+'/reports/cell_line_completeness.txt',
         config['output_directory'] + "/reports/CellLine.txt",
         cell_line_synonyms=config['output_directory'] + "/synonyms/CellLine.txt",
+        metadata=config['output_directory']+"/metadata/CellLine.txt.yaml",
     output:
         config['output_directory'] + "/synonyms/CellLine.txt.gz",
         x=config['output_directory']+'/reports/cell_line_done'

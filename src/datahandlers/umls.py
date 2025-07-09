@@ -1,3 +1,4 @@
+from src.metadata.provenance import write_concord_metadata
 from src.prefixes import UMLS, RXCUI
 from src.babel_utils import make_local_name
 from src.categories import DRUG, CHEMICAL_ENTITY, MOLECULAR_MIXTURE
@@ -77,19 +78,23 @@ def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls
     output_lines = defaultdict(list)
     semantic_type_trees = defaultdict(set)
     tree_names = defaultdict(set)
-    categories = set(category_map.keys())
     with open(mrsty,'r') as inf, open(umls_output,'w') as outf:
         for line in inf:
             x = line.strip().split('|')
             cat = x[2]
             cat_name = x[3]
 
+            # Is this on the UMLS ID blocklist? If so, skip it!
+            if x[0] in blocklist_umls_ids:
+                continue
+
             curie = f"{prefix}:{x[0]}"
 
             tree_names[cat].add(cat_name)
             semantic_type_trees[curie].add(cat)
 
-            if cat in categories and x[0] not in blocklist_umls_ids:
+            # Do we know what Biolink type (i.e. category) to assign this to?
+            if cat in category_map:
                 output_lines[curie].append(category_map[cat])
 
         if blocklist_umls_semantic_type_tree:
@@ -101,7 +106,7 @@ def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls
                     # Note that this only works if the UMLS semantic tree type is exactly identical to the semantic
                     # tree type on the blocklist: so if you try to block "A1.2.3", then UMLS IDs with a semantic tree
                     # type of "A1.2.3.4" will NOT be blocked.
-                    
+
                     # Write out a log message.
                     sty_trees_with_names = ", ".join(map(lambda sty_tree: f"{sty_tree}={tree_names[sty_tree]}", semantic_type_trees[curie]))
                     blocklist_sty_trees_with_names = ", ".join(map(lambda sty_tree: f"{sty_tree}={tree_names[sty_tree]}", blocklist_umls_semantic_type_tree))
@@ -110,7 +115,10 @@ def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls
                     # Delete this CURIE from the output.
                     del output_lines[curie]
 
-        outf.write("\n".join(output_lines))
+        for curie in output_lines:
+            # We only write out the first type we found for this UMLS ID.
+            types = output_lines[curie]
+            outf.write(f"{curie}\t{types[0]}\n")
 
 
 def write_rxnorm_ids(category_map, bad_categories, infile, outfile,prefix=RXCUI,styfile="RXNSTY.RRF",blacklist=set()):
@@ -193,8 +201,8 @@ def write_rxnorm_ids(category_map, bad_categories, infile, outfile,prefix=RXCUI,
 # One is to keep from having to pass through the umls file more than once, but that's a bad reason
 # The second is because I want to use the UMLS as a source for some terminologies (SNOMED) even if there's another
 #  way.  I'm going to modify this to do one thing at a time, and if it takes a little longer, then so be it.
-def build_sets(mrconso,umls_input, umls_output , other_prefixes, bad_mappings=defaultdict(set), acceptable_identifiers={},
-               cui_prefix = UMLS):
+def build_sets(mrconso, umls_input, umls_output , other_prefixes, bad_mappings=defaultdict(set), acceptable_identifiers={},
+               cui_prefix = UMLS, provenance_metadata_yaml=None):
     """Given a list of umls identifiers we want to generate all the concordances
     between UMLS and that other entity"""
     # On UMLS / MESH: we have been getting all UMLS / MESH relationships.   This has led to some clear mistakes
@@ -251,6 +259,18 @@ def build_sets(mrconso,umls_input, umls_output , other_prefixes, bad_mappings=de
             if tup not in pairs:
                 concordfile.write(f'{tup[0]}\teq\t{tup[1]}\n')
                 pairs.add(tup)
+
+    # Write provenance for this build_sets() call.
+    if provenance_metadata_yaml is not None:
+        write_concord_metadata(provenance_metadata_yaml,
+           name='umls.build_sets()',
+           sources=[{
+               'type': 'UMLS',
+               'name': 'MRCONSO'
+           }],
+           description=f'umls.build_sets() using UMLS MRCONSO with prefixes: {other_prefixes} with cui_prefix set to {cui_prefix}',
+           concord_filename=umls_output,
+       )
 
 def read_umls_priority():
     mrp = os.path.join('input_data', 'umls_precedence.txt')
