@@ -160,7 +160,10 @@ def build_disease_umls_relationships(mrconso, idfile, outfile, omimfile, ncitfil
             for line in inf:
                 x = line.split()[0]
                 good_ids[prefix].add(x)
-    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM},acceptable_identifiers=good_ids, metadata_yaml=metadata_yaml)
+    umls.build_sets(mrconso, idfile, outfile,
+                    {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM},
+                    acceptable_identifiers=good_ids,
+                    provenance_metadata_yaml=metadata_yaml)
 
 def build_disease_doid_relationships(idfile,outfile, metadata_yaml):
     other_prefixes = {'ICD10CM':ICD10, 'ICD9CM':ICD9, 'ICDO': ICD0, 'NCI': NCIT,

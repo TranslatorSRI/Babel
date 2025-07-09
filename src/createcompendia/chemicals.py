@@ -79,18 +79,7 @@ def build_chemical_umls_relationships(mrconso, idfile,outfile, metadata_yaml):
     umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK, 'RXNORM': RXCUI }, provenance_metadata_yaml=metadata_yaml)
 
 def build_chemical_rxnorm_relationships(conso, idfile, outfile, metadata_yaml):
-    umls.build_sets(conso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, cui_prefix=RXCUI)
-
-    write_concord_metadata(
-        metadata_yaml,
-        name='build_chemical_rxnorm_relationships()',
-        sources=[{
-            'type': 'UMLS',
-            'name': 'MRCONSO'
-        }],
-        description=f'umls.build_sets() of {RXCUI} MRCONSO with prefixes: {MESH}, {DRUGBANK}',
-        concord_filename=outfile,
-    )
+    umls.build_sets(conso, idfile, outfile, {'MSH': MESH,  'DRUGBANK': DRUGBANK}, cui_prefix=RXCUI, provenance_metadata_yaml=metadata_yaml)
 
 def write_pubchem_ids(labelfile,smilesfile,outfile):
     #Trying to be memory efficient here.  We could just ingest the whole smilesfile which would make this code easier
