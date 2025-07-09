@@ -1,0 +1,380 @@
+input_directory: input_data
+download_directory: babel_downloads
+intermediate_directory: babel_outputs/intermediate
+output_directory: babel_outputs
+
+biolink_version: "4.2.6-rc5"
+umls_version: "2024AB"
+rxnorm_version: "03032025"
+drugbank_version: "5-1-13"
+
+UMLS_UniProtKB_download_raw_url: "https://raw.githubusercontent.com/cbizon/UMLS_UniProtKB/refs/heads/main/outputs/UMLS_UniProtKB.tsv"
+
+ncbi_files:
+  - gene2ensembl.gz
+  - gene_info.gz
+  - gene_orthologs.gz
+  - gene_refseq_uniprotkb_collab.gz
+  - mim2gene_medgen
+
+ubergraph_ontologies:
+  - UBERON
+  - CL
+  - GO
+  - NCIT
+  - ECO
+  - ECTO
+  - ENVO
+  - HP
+  - UPHENO
+  - BFO
+  - BSPO
+  - CARO
+  - CHEBI
+  - CP
+  - GOREL
+  - IAO
+  - MAXO
+  - MONDO
+  - PATO
+  - PR
+  - RO
+  - UBPROP
+
+mods:
+  - WormBase
+  - FB
+  - MGI
+  - ZFIN
+  - RGD
+  - SGD
+
+common:
+  labels:
+    - ubergraph/labels
+  synonyms:
+    - ubergraph/synonyms.jsonl
+  descriptions:
+    - ubergraph/descriptions.jsonl
+
+anatomy_prefixes:
+  - UBERON
+  - GO
+  - CL
+  - UMLS
+  - MESH
+  - NCIT
+  - SNOMEDCT
+
+anatomy_ids:
+  - UBERON
+  - GO
+  - CL
+  - UMLS
+  - MESH
+  - NCIT
+
+anatomy_concords:
+  - UBERON
+  - GO
+  - CL
+  - UMLS
+  - WIKIDATA
+
+anatomy_outputs:
+  - AnatomicalEntity.txt
+  - Cell.txt
+  - CellularComponent.txt
+  - GrossAnatomicalStructure.txt
+
+gene_labels:
+  - HGNC
+  - NCBIGene
+  - UMLS
+
+gene_ids:
+  - ENSEMBL
+  - HGNC
+  - NCBIGene
+  - UMLS
+  - OMIM
+  - ZFIN
+  - WormBase
+  - FB
+  - MGI
+  - RGD
+  - SGD
+
+gene_concords:
+  - NCBIGene
+  - NCBIGeneENSEMBL
+  - medgen
+  - UMLS
+  - UMLS_NCBIGene
+
+gene_outputs:
+  - Gene.txt
+
+protein_labels:
+  - UniProtKB
+  - PR
+  - UMLS
+
+protein_synonyms:
+  - PR
+  - UMLS
+
+protein_ids:
+  - ENSEMBL
+  - UniProtKB
+  - PR
+  - UMLS
+
+protein_concords:
+  - UniProtKB
+  - PR
+  - NCIT_UniProtKB
+  - NCIT_UMLS
+  - UMLS_UniProtKB
+
+protein_outputs:
+  - Protein.txt
+
+disease_labelsandsynonyms:
+  - MONDO
+  - DOID
+  - Orphanet
+  - HP
+  - MESH
+  - NCIT
+  - UMLS
+  - SNOMEDCT
+  - EFO
+
+disease_ids:
+  - MONDO
+  - DOID
+  - Orphanet
+  - HP
+  - MESH
+  - NCIT
+  - UMLS
+  - OMIM
+  - EFO
+
+disease_concords:
+  - HP
+  - MONDO
+  - UMLS
+  - DOID
+  - EFO
+  - Manual
+
+disease_outputs:
+  - Disease.txt
+  - PhenotypicFeature.txt
+
+process_labels:
+  - GO
+  - REACT
+  - RHEA
+  - EC
+  - SMPDB
+  - PANTHER.PATHWAY
+  - UMLS
+
+process_ids:
+  - GO
+  - REACT
+  - RHEA
+  - EC
+  - SMPDB
+  - PANTHER.PATHWAY
+  - UMLS
+
+process_concords:
+  - GO
+  - RHEA
+  - UMLS
+
+process_outputs:
+  - Pathway.txt
+  - BiologicalProcess.txt
+  - MolecularActivity.txt
+
+unichem_datasources:
+  - CHEMBL.COMPOUND
+  - DRUGBANK
+  - GTOPDB
+  - KEGG.COMPOUND
+  - CHEBI
+  - UNII
+  - HMDB
+  - PUBCHEM.COMPOUND
+  - DrugCentral
+
+chemical_labels:
+  - CHEMBL.COMPOUND
+  - GTOPDB
+  - KEGG.COMPOUND
+  - CHEBI
+  - UNII
+  - HMDB
+  - PUBCHEM.COMPOUND
+  - DrugCentral
+  - UMLS
+  - DRUGBANK
+
+chemical_synonyms:
+  - GTOPDB
+  - CHEBI
+  - UNII
+  - HMDB
+  - PUBCHEM.COMPOUND
+  - UMLS
+  - DRUGBANK
+
+chemical_concords:
+  - wikipedia_mesh_chebi
+  - PUBCHEM_MESH
+  - mesh_cas
+  - mesh_unii
+  - PUBCHEM_CAS
+  - GTOPDB
+  - CHEBI
+  - UMLS
+  - DrugCentral
+  - RXNORM
+
+chemical_ids:
+  - CHEMBL.COMPOUND
+  - GTOPDB
+  - KEGG.COMPOUND
+  - CHEBI
+  - UNII
+  - HMDB
+  - PUBCHEM.COMPOUND
+  - DrugCentral
+  - DRUGBANK
+  - MESH
+  - UMLS
+  - RXNORM
+
+chemical_outputs:
+  - MolecularMixture.txt
+  - SmallMolecule.txt
+  - Polypeptide.txt
+  - ComplexMolecularMixture.txt
+  - ChemicalEntity.txt
+  - ChemicalMixture.txt
+  - Drug.txt
+
+drugchemicalconflated_synonym_outputs:
+  - DrugChemicalConflated.txt
+
+taxon_labels:
+  - NCBITaxon
+  - MESH
+  - UMLS
+
+taxon_synonyms:
+  - NCBITaxon
+  - UMLS
+
+taxon_ids:
+  - NCBITaxon
+  - MESH
+  - UMLS
+
+taxon_concords:
+  - NCBI_MESH
+  - UMLS
+
+taxon_outputs:
+  - OrganismTaxon.txt
+
+cell_line_outputs:
+  - CellLine.txt
+
+genefamily_labels:
+  - PANTHER.FAMILY
+  - HGNC.FAMILY
+
+genefamily_ids:
+  - PANTHER.FAMILY
+  - HGNC.FAMILY
+
+genefamily_outputs:
+  - GeneFamily.txt
+
+umls_outputs:
+  - umls.txt
+
+macromolecularcomplex_outputs:
+  - MacromolecularComplex.txt
+
+ubergraph_iri_stem_to_prefix_map:
+  "https://identifiers.org/ncbigene/": NCBIGene
+  "http://www.ncbi.nlm.nih.gov/gene/": NCBIGene
+  "http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=": HGNC
+  "http://www.informatics.jax.org/marker/MGI:": MGI
+  "http://www.pombase.org/spombe/result/": PomBase
+  "http://www.wormbase.org/species/c_elegans/gene/": WormBase
+  "http://flybase.org/reports/": FB
+  "http://www.ecogene.org/gene/": ecogene
+  "http://zfin.org/action/marker/view/": ZFIN
+  "http://birdgenenames.org/cgnc/GeneReport?id=": cgnc
+  "http://www.ensemblgenomes.org/id/": ENSEMBL
+  "http://www.ensembl.org/id/": ENSEMBL
+  "http://purl.obolibrary.org/obo/AISM_": AISM
+  "http://purl.obolibrary.org/obo/BCO_": BCO
+  "http://purl.obolibrary.org/obo/CDNO_": CDNO
+  "http://purl.obolibrary.org/obo/CLAO_": CLAO
+  "http://purl.obolibrary.org/obo/GNO_": GNO
+  "http://purl.obolibrary.org/obo/HAO_": HAO
+  "http://purl.obolibrary.org/obo/LEPAO_": LEPAO
+  "http://purl.obolibrary.org/obo/MMO_": MMO
+  "http://purl.obolibrary.org/obo/MRO_": MRO
+  "http://purl.obolibrary.org/obo/MmusDv_": MmusDv
+  "http://purl.obolibrary.org/obo/OARCS_": OARCS
+  "http://purl.obolibrary.org/obo/OBA_": OBA
+  "http://purl.obolibrary.org/obo/PCL_": PCL
+  "http://purl.obolibrary.org/obo/PECO_": PECO
+  "http://purl.obolibrary.org/obo/PPO_": PPO
+  "http://purl.obolibrary.org/obo/TS_": TS
+  "http://purl.obolibrary.org/obo/UO_": UO
+  "http://purl.obolibrary.org/obo/PCO_": PCO
+  "http://rgd.mcw.edu/rgdweb/report/gene/main.html?id=": RGD
+
+publication_outputs:
+  - Publication.txt
+
+geneprotein_outputs:
+  - GeneProtein.txt
+
+drugchemical_outputs:
+  - DrugChemical.txt
+
+preferred_name_boost_prefixes:
+  biolink:ChemicalEntity:
+    - DRUGBANK
+    - DrugCentral
+    - CHEBI
+    - MESH
+    - CHEMBL.COMPOUND
+    - GTOPDB
+    - HMDB
+    - RXCUI
+    - PUBCHEM.COMPOUND
+
+ensembl_datasets_to_skip:
+  - elucius_gene_ensembl
+  - hgfemale_gene_ensembl
+  - charengus_gene_ensembl
+  - otshawytscha_gene_ensembl
+  - aocellaris_gene_ensembl
+
+duckdb_config: {}
+
+demote_labels_longer_than: 15
+

@@ -1,6 +1,6 @@
+import yaml
 import json
 import logging
-from json import load
 import os
 from collections import defaultdict
 from urllib.parse import urlparse
@@ -15,13 +15,13 @@ from src.prefixes import PUBCHEMCOMPOUND
 
 def get_config():
     """
-    Retrieve the configuration data from the 'config.json' file.
+    Retrieve the configuration data from the 'config.yaml' file.
 
-    :return: The configuration data loaded from the 'config.json' file.
+    :return: The configuration data loaded from the 'config.yaml' file.
     """
-    cname = os.path.join(os.path.dirname(__file__),'..', 'config.json')
-    with open(cname,'r') as json_file:
-        data = load(json_file)
+    cname = os.path.join(os.path.dirname(__file__),'..', 'config.yaml')
+    with open(cname,'r') as yaml_file:
+        data = yaml.safe_load(yaml_file)
     return data
 
 

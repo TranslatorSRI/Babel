@@ -18,7 +18,7 @@ import src.snakefiles.util as util
 ##    but eventually any significant gaps in UMLS should be filled in.
 ##
 
-configfile: "config.json"
+configfile: "config.yaml"
 
 rule leftover_umls:
     input:
