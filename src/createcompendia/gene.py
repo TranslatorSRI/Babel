@@ -84,7 +84,8 @@ def build_gene_ensembl_relationships(ensembl_dir, outfile, metadata_yaml):
         sources=[{
             'name': 'ENSEMBL',
             'filename': ensembl_dir,
-        }]
+        }],
+        concord_filename=outfile,
     )
 
 def write_zfin_ids(infile,outfile):
@@ -203,7 +204,8 @@ def build_gene_ncbi_ensembl_relationships(infile,ncbi_idfile,outfile, metadata_y
             'type': 'NCBIGENE',
             'name': 'NCBIGene gene2ensembl.gz',
             'filename': infile,
-        }]
+        }],
+        concord_filename=outfile,
     )
 
 def build_gene_ncbigene_xrefs(infile,ncbi_idfile,outfile, metadata_yaml):
@@ -236,7 +238,8 @@ def build_gene_ncbigene_xrefs(infile,ncbi_idfile,outfile, metadata_yaml):
             'type': 'NCBIGENE',
             'name': 'NCBIGene gene_info.gz',
             'filename': infile,
-        }]
+        }],
+        concord_filename=outfile,
     )
 
 def build_gene_medgen_relationships(infile,outfile, metadata_yaml):
@@ -261,7 +264,8 @@ def build_gene_medgen_relationships(infile,outfile, metadata_yaml):
         sources=[{
             'name': 'MIM2Gene MEDGEN',
             'filename': infile,
-        }]
+        }],
+        concord_filename=outfile,
     )
 
 def write_ensembl_ids(ensembl_dir, outfile):

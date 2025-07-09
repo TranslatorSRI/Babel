@@ -88,7 +88,8 @@ def build_relationships(outfile,mesh_ids, metadata_yaml):
         sources=[{
             'type': 'MeSH',
             'name': 'MeSH Registry',
-        }]
+        }],
+        concord_filename=outfile,
     )
 
 

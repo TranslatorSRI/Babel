@@ -269,6 +269,7 @@ def build_sets(mrconso, umls_input, umls_output , other_prefixes, bad_mappings=d
                'name': 'MRCONSO'
            }],
            description=f'umls.build_sets() using UMLS MRCONSO with prefixes: {other_prefixes} with cui_prefix set to {cui_prefix}',
+           concord_filename=umls_output,
        )
 
 def read_umls_priority():

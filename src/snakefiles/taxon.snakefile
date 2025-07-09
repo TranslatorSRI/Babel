@@ -57,7 +57,8 @@ rule taxon_compendia:
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['taxon_outputs']),
-        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs']))
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['taxon_outputs'])),
+        output_metadata=expand("{od}/metadata/{ap}.yaml", od = config['output_directory'], ap = config['taxon_outputs']),
     run:
         taxon.build_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
 

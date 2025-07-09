@@ -64,6 +64,7 @@ def build_process_obo_relationships(outdir, metadata_yaml):
             'type': 'UberGraph',
             'name': 'GO-GO relationships from UberGraph',
         }],
+        concord_filename=f'{outdir}/{GO}'
     )
 
 def build_process_rhea_relationships(outfile, metadata_yaml):

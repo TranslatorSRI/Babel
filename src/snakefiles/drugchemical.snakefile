@@ -59,6 +59,7 @@ rule drugchemical_conflation:
                 'url': 'https://github.com/TranslatorSRI/Babel',
             }],
             url='https://github.com/TranslatorSRI/Babel/blob/master/input_data/manual_concords/drugchemical.tsv',
+            concord_filename=input.drugchemical_manual_concord,
         )
         drugchemical.build_conflation(
             input.drugchemical_manual_concord,
