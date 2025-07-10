@@ -36,7 +36,7 @@ def test_pull_ensembl(tmp_path):
     single_uamericanus = single_query_report['choffmanni_gene_ensembl']
     split_uamericanus = split_query_report['choffmanni_gene_ensembl']
 
-    assert len(single_uamericanus['batches']) == 1
+    assert len(single_uamericanus['batches']) == 0
     assert len(split_uamericanus['batches']) == 2
 
     assert split_uamericanus['num_rows'] == single_uamericanus['num_rows']

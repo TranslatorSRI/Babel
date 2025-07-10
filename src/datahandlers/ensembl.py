@@ -9,7 +9,7 @@ import os
 # error from BioMart: Too many attributes selected for External References
 # This is the real MAX minus one: for every batch, we'll query the ensembl_gene_id so that we can
 # put the batches back together again afterward.
-BIOMART_MAX_ATTRIBUTE_COUNT = 7
+BIOMART_MAX_ATTRIBUTE_COUNT = 9
 
 
 # Note that Ensembl doesn't seem to assign its own labels or synonyms to its gene identifiers.  It appears that
