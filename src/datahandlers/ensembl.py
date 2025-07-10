@@ -94,7 +94,8 @@ def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None, max_at
                 }
             else:
                 # We need to retrieve all the attributes in batches.
-                # We'll remove ensembl_gene_id from the list to
+                # We'll remove ensembl_gene_id from the list so we can use that to stitch the individual
+                # results back together again.
                 attributes_to_retrieve = list(attsIcanGet)
                 attributes_to_retrieve.remove('ensembl_gene_id')
                 df = None
@@ -104,19 +105,26 @@ def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None, max_at
                     'batches': [],
                     'output_file': outfile,
                 }
+                # Go through the list of attributes stepping at max_attribute_count.
                 for i in range(0, len(attributes_to_retrieve), max_attribute_count):
+                    # Create a batch of attributes to query.
                     attr_batch = attributes_to_retrieve[i:i + max_attribute_count]
                     logging.info(f"Querying batch of {len(attr_batch)} attributes for {ds} (+ 'ensembl_gene_id'): {attr_batch}")
+
+                    # Download the list of Biomart records for this set of attributes for this dataset.
                     batch_df = query(attributes=['ensembl_gene_id'] + list(attr_batch), filters={}, dataset=ds)
                     report[ds]['batches'].append({
                         'attributes': attr_batch,
                         'num_rows': len(batch_df),
                     })
                     if df is None:
+                        # If we're the first df, we don't need to merge anything.
                         df = batch_df
                     else:
+                        # Merge these new results with the earlier results.
                         df = df.merge(batch_df, on='Gene stable ID', how='outer', sort=True)
 
+                # Note that we downloaded all the batches.
                 report[ds]['status'] = 'downloaded'
                 report[ds]['message'] =  f"Dataset {ds} has more than {max_attribute_count} attributes for single query, so they were downloaded in batches."
                 report[ds]['attributes'] = list(attsIcanGet)
@@ -133,7 +141,7 @@ def pull_ensembl(ensembl_dir, complete_file, only_download_datasets=None, max_at
                 os.rmdir(biomart_dir)
             raise exc
 
-    # Write out a complete file with the report.
+    # Write out a complete file with the report as a JSON object.
     with open(complete_file, 'w') as outf:
         json.dump(report, outf, indent=2, sort_keys=True)
 
