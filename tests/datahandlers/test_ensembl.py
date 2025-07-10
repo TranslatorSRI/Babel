@@ -58,9 +58,11 @@ def test_pull_ensembl(tmp_path):
     single_uamericanus = single_query_report['choffmanni_gene_ensembl']
     split_uamericanus = split_query_report['choffmanni_gene_ensembl']
 
+    # No batches with the single query, two batches with the artificially lowered max_attribute_count limit.
     assert len(single_uamericanus['batches']) == 0
     assert len(split_uamericanus['batches']) == 2
 
+    # Make sure we have the right counts in the reports returned by pull_ensembl().
     assert split_uamericanus['num_rows'] == single_uamericanus['num_rows']
     expected_attributes = set(single_uamericanus['attributes'])
     assert set(split_uamericanus['attributes']) == expected_attributes
