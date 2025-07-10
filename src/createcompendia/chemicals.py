@@ -10,7 +10,7 @@ from gzip import GzipFile
 
 import yaml
 
-from src.metadata.provenance import write_concord_metadata
+from src.metadata.provenance import write_concord_metadata, write_combined_metadata
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
 from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_MOLECULAR_MIXTURE, CHEMICAL_MIXTURE, DRUG
@@ -642,18 +642,15 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
             outf.write(f'{set(s)}\n')
 
     # Build the metadata file by combining the input metadata_yamls.
-    metadata = {
-        'type': 'untyped_compendium',
-        'name': 'build_untyped_compendia()',
-        'created_at': datetime.now().isoformat(),
-        'sources': []
-    }
-    for metadata_yaml in input_metadata_yamls:
-        with open(metadata_yaml, 'r') as metaf:
-            metadata_block = yaml.safe_load(metaf)
-            if metadata_block is None:
-                raise ValueError("Metadata file {metadata_yaml} is empty.")
-            metadata['sources'].append(metadata_block)
+    write_combined_metadata(
+        filename=metadata_yaml,
+        typ='untyped_compendium',
+        name='chemicals.build_untyped_compendia()',
+        description=f'Generate an untyped compendium from concordances {concordances}, identifiers {identifiers}, " +'
+                    f'unichem_partial {unichem_partial}, untyped_concord {untyped_concord}, and type file {type_file}.',
+        # sources=None, url='', counts=None,
+        combined_from_filenames=input_metadata_yamls,
+    )
 
 def build_compendia(type_file, untyped_compendia_file, metadata_yamls, icrdf_filename):
     types = {}
