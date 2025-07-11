@@ -155,9 +155,6 @@ rule disease_manual_concord:
                 'url': 'https://github.com/TranslatorSRI/Babel',
             }],
             url='https://github.com/TranslatorSRI/Babel/blob/master/input_data/manual_concords/disease.txt',
-            counts={
-                'concords': count_manual_concords,
-            },
             concord_filename=output.outfile,
         )
 
