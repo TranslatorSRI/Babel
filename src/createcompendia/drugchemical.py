@@ -313,11 +313,9 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             manual_concords_curies.add(row['subject'])
             manual_concords_curies.add(row['object'])
 
-            subject_prefix = row['subject'].split(':')[0]
-            manual_concords_curie_prefix_counts[subject_prefix] += 1
-
-            object_prefix = row['object'].split(':')[0]
-            manual_concords_curie_prefix_counts[object_prefix] += 1
+            sorted_curies = sorted([row['subject'], row['object']])
+            prefix_count_label = row['predicate'] + '(' + (' ,'.join(sorted_curies)) + ')'
+            manual_concords_curie_prefix_counts[prefix_count_label] += 1
     print(f"{len(manual_concords)} manual concords loaded.")
 
     print("load all chemical conflations so we can normalize identifiers")
