@@ -49,18 +49,7 @@ rule drugchemical_conflation:
     output:
         outfile=config['output_directory']+'/conflation/DrugChemical.txt',
         metadata_yaml=config['output_directory']+'/conflation/metadata.yaml',
-        drugchemical_manual_metadata=config['intermediate_directory']+'/drugchemical/concords/metadata-Manual.yaml',
     run:
-        write_concord_metadata(output.drugchemical_manual_metadata,
-            name='Manual DrugChemical Concords',
-            description='Manually curated DrugChemical conflation cross-references from the Babel repository',
-            sources=[{
-                'name': 'Babel repository',
-                'url': 'https://github.com/TranslatorSRI/Babel',
-            }],
-            url='https://github.com/TranslatorSRI/Babel/blob/master/input_data/manual_concords/drugchemical.tsv',
-            concord_filename=input.drugchemical_manual_concord,
-        )
         drugchemical.build_conflation(
             input.drugchemical_manual_concord,
             input.rxnorm_concord,
@@ -74,7 +63,6 @@ rule drugchemical_conflation:
                 'RXNORM': input.rxnorm_metadata,
                 'UMLS': input.umls_metadata,
                 'PUBCHEM_RXNORM': input.pubchem_metadata,
-                'Manual': output.drugchemical_manual_metadata,
             }, output_metadata_yaml=output.metadata_yaml)
 
 rule drugchemical_conflated_synonyms:

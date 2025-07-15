@@ -52,7 +52,7 @@ def write_concord_metadata(filename, *, name, concord_filename, url='', descript
 
     write_metadata(filename, 'concord', name, url=url, description=description, sources=sources, counts=counts)
 
-def write_combined_metadata(filename, typ, name, *, sources=None, url='', description='', counts=None, combined_from_filenames=None):
+def write_combined_metadata(filename, typ, name, *, sources=None, url='', description='', counts=None, combined_from_filenames=None, also_combined_from=None):
     combined_from = {}
     if combined_from_filenames is not None:
         for metadata_yaml in combined_from_filenames:
@@ -76,6 +76,8 @@ def write_combined_metadata(filename, typ, name, *, sources=None, url='', descri
                     combined_from[metadata_name].append(metadata_block)
                 else:
                     combined_from[metadata_name] = metadata_block
+    if also_combined_from is not None:
+        combined_from.update(also_combined_from)
 
     write_metadata(
         filename,

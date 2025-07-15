@@ -297,6 +297,9 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
 
     print("Loading manual concords ...")
     manual_concords = []
+    manual_concords_curies = set()
+    manual_concords_predicate_counts = defaultdict(int)
+    manual_concords_curie_prefix_counts = defaultdict(int)
     with open(manual_concord_filename,"r") as manualf:
         csv_reader = csv.DictReader(manualf, dialect=csv.excel_tab)
         for row in csv_reader:
@@ -306,6 +309,15 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             if row['subject'].strip() == '' or row['object'].strip() == '':
                 raise RuntimeError(f"Empty subject or object fields in {manual_concord_filename}: {row}")
             manual_concords.append((row['subject'], row['object']))
+            manual_concords_predicate_counts[row['predicate']] += 1
+            manual_concords_curies.add(row['subject'])
+            manual_concords_curies.add(row['object'])
+
+            subject_prefix = row['subject'].split(':')[0]
+            manual_concords_curie_prefix_counts[subject_prefix] += 1
+
+            object_prefix = row['object'].split(':')[0]
+            manual_concords_curie_prefix_counts[object_prefix] += 1
     print(f"{len(manual_concords)} manual concords loaded.")
 
     print("load all chemical conflations so we can normalize identifiers")
@@ -608,7 +620,19 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
         typ='conflation',
         name='drugchemical.build_conflation()',
         description='Build DrugChemical conflation.',
-        combined_from_filenames=input_metadata_yamls
+        combined_from_filenames=input_metadata_yamls,
+        also_combined_from={
+            'Manual': {
+                'name': 'DrugChemical Manual',
+                'filename': manual_concord_filename,
+                'counts': {
+                    'count_concords': len(manual_concords),
+                    'count_distinct_curies': len(manual_concords_curies),
+                    'predicates': dict(manual_concords_predicate_counts),
+                    'prefix_counts': dict(manual_concords_curie_prefix_counts),
+                }
+            }
+        }
     )
 
 
