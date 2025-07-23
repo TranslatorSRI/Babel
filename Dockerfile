@@ -66,4 +66,4 @@ ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 RUN pip3 install -r requirements.txt
 
 # Our default entrypoint is to start the Babel run.
-ENTRYPOINT bash -c 'snakemake --cores ${CORES}'
+ENTRYPOINT ["bash", "-c", "snakemake --cores ${CORES}"]
