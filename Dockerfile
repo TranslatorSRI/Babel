@@ -1,13 +1,7 @@
 # Dockerfile for building a Babel image.
 
-# Use the RENCI Python image to make it easier to work with other
-# RENCI Docker packages and to make sure we have an up to date image.
-# (https://github.com/TranslatorSRI/RENCI-Python-image)
-# FROM renciorg/renci-python-image:latest
-#
-# Unfortunately, one of our dependencies doesn't work properly on
-# Python 3.12+, so we pin ourselves to Python 3.12 specifically.
-FROM python:3.12
+# Let's pick up the latest Debian-based Python image.
+FROM python:latest
 
 # Configuration options:
 # - ${ROOT} is where Babel source code will be copied.
@@ -72,4 +66,4 @@ ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 RUN pip3 install -r requirements.txt
 
 # Our default entrypoint is to start the Babel run.
-ENTRYPOINT bash -c 'snakemake --cores ${CORES}'
+ENTRYPOINT ["bash", "-c", "snakemake --cores ${CORES}"]
