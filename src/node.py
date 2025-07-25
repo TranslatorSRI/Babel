@@ -25,6 +25,16 @@ def get_config():
     return data
 
 
+def get_biolink_model_toolkit(biolink_version):
+    """
+    Return a BMT Toolkit object for the specified Biolink Model version.
+
+    :param biolink_version: The Biolink Model version to use (e.g. "v4.2.6-rc5").
+    :return: A Toolkit instance from the bmt library using the specified Biolink version.
+    """
+    return Toolkit(f'https://raw.githubusercontent.com/biolink/biolink-model/v{biolink_version}/biolink-model.yaml')
+
+
 def get_biolink_prefix_map():
     """
     Get the prefix map for the BioLink Model.
@@ -322,7 +332,7 @@ class InformationContentFactory:
 
 class NodeFactory:
     def __init__(self,label_dir,biolink_version):
-        self.toolkit = Toolkit(f'https://raw.githubusercontent.com/biolink/biolink-model/v{biolink_version}/biolink-model.yaml')
+        self.toolkit = get_biolink_model_toolkit(biolink_version)
         self.ancestor_map = {}
         self.prefix_map = {}
         self.ignored_prefixes = set()
