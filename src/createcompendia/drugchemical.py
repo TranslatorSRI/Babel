@@ -1,6 +1,6 @@
 import csv
 
-from src.node import NodeFactory, get_config, InformationContentFactory
+from src.node import NodeFactory, InformationContentFactory
 from src.prefixes import RXCUI, PUBCHEMCOMPOUND, UMLS
 from src.categories import (CHEMICAL_ENTITY, DRUG, MOLECULAR_MIXTURE, FOOD, COMPLEX_MOLECULAR_MIXTURE,
                             SMALL_MOLECULE, NUCLEIC_ACID_ENTITY, MOLECULAR_ENTITY, FOOD_ADDITIVE,
@@ -10,7 +10,8 @@ from collections import defaultdict
 import os,json
 
 import logging
-from src.util import LoggingUtil
+from src.util import LoggingUtil, get_config
+
 logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 
 # RXNORM has lots of relationships.

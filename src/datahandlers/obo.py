@@ -2,12 +2,12 @@ import json
 
 from src.ubergraph import UberGraph
 from src.babel_utils import make_local_name, pull_via_ftp
-from src.node import get_config
 from collections import defaultdict
 import os, gzip
 from json import loads,dumps
 
-from src.util import Text
+from src.util import Text, get_config
+
 
 def pull_uber_icRDF(icrdf_filename):
     """

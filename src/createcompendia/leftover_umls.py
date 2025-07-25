@@ -5,7 +5,8 @@ from pathlib import Path
 
 from snakemake.logging import Logger
 
-from src.node import NodeFactory, get_biolink_model_toolkit
+from src.node import NodeFactory
+from src.util import get_biolink_model_toolkit
 from src.datahandlers import umls
 from src.prefixes import UMLS
 from src.categories import ACTIVITY, AGENT, DEVICE, DRUG, FOOD, SMALL_MOLECULE, PHYSICAL_ENTITY, PUBLICATION, PROCEDURE
