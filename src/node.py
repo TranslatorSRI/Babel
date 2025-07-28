@@ -231,7 +231,7 @@ class InformationContentFactory:
                     unmapped_urls.append(x[0])
 
                 ic = x[1]
-                self.ic[node_id] = ic
+                self.ic[node_id] = float(ic)
 
                 # Track IC values by prefix.
                 if isinstance(node_id, str):
@@ -275,7 +275,9 @@ class InformationContentFactory:
         for ident in node['identifiers']:
             thisid = ident['identifier']
             if thisid in self.ic:
-               ICs.append(self.ic[thisid])
+                # IC values are numeric values between 0 and 100.
+                # Make sure this is a float for min() purposes.
+                ICs.append(float(self.ic[thisid]))
         if len(ICs) == 0:
             return None
         return min(ICs)
