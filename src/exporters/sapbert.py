@@ -18,8 +18,7 @@ from itertools import combinations
 
 import logging
 
-from src.node import get_config
-from src.util import LoggingUtil
+from src.util import LoggingUtil, get_config
 
 # Default logger for this file.
 logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
