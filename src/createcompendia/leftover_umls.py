@@ -1,5 +1,6 @@
-import logging
 import json
+import logging
+
 import jsonlines
 from pathlib import Path
 
