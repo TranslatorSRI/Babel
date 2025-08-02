@@ -5,7 +5,7 @@ import requests
 
 from src.prefixes import UNII
 from src.babel_utils import pull_via_urllib
-from src.node import get_config
+from src.util import get_config
 
 
 def pull_unii():

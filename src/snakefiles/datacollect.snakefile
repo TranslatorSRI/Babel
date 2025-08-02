@@ -36,8 +36,6 @@ import src.datahandlers.complexportal as complexportal
 import src.datahandlers.drugbank as drugbank
 from src.babel_utils import pull_via_wget
 
-import src.prefixes as prefixes
-
 #####
 #
 # Data sets: pull data sets, and parse them to get labels and synonyms

@@ -1,10 +1,15 @@
 import logging
 import json
 import os
+
+import curies
 import yaml
 from collections import namedtuple
 import copy
 from logging.handlers import RotatingFileHandler
+
+from bmt import Toolkit
+
 from src.LabeledID import LabeledID
 from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10, ICD10CM, ICD11FOUNDATION
 import src.prefixes as prefixes
@@ -278,3 +283,50 @@ class DataStructure:
     @staticmethod
     def to_named_tuple (type_name, d):
         return namedtuple(type_name, d.keys())(**d)
+
+
+def get_config():
+    """
+    Retrieve the configuration data from the 'config.yaml' file.
+
+    :return: The configuration data loaded from the 'config.yaml' file.
+    """
+    cname = os.path.join(os.path.dirname(__file__),'..', 'config.yaml')
+    with open(cname,'r') as yaml_file:
+        data = yaml.safe_load(yaml_file)
+    return data
+
+
+def get_biolink_model_toolkit(biolink_version):
+    """
+    Return a BMT Toolkit object for the specified Biolink Model version.
+
+    :param biolink_version: The Biolink Model version to use (e.g. "v4.2.6-rc5").
+    :return: A Toolkit instance from the bmt library using the specified Biolink version.
+    """
+    return Toolkit(f'https://raw.githubusercontent.com/biolink/biolink-model/v{biolink_version}/biolink-model.yaml')
+
+
+def get_biolink_prefix_map():
+    """
+    Get the prefix map for the BioLink Model.
+
+    :return: The prefix map for the BioLink Model.
+    :raises RuntimeError: If the BioLink version is not supported.
+    """
+    config = get_config()
+    biolink_version = config['biolink_version']
+    if biolink_version.startswith('1.') or biolink_version.startswith('2.'):
+        raise RuntimeError(f"Biolink version {biolink_version} is not supported.")
+    elif biolink_version.startswith('3.'):
+        # biolink-model v3.* releases keeps the prefix map in a different place.
+        return curies.Converter.from_prefix_map(
+            'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
+            '/prefix-map/biolink-model-prefix-map.json'
+        )
+    else:
+        # biolink-model v4.0.0 and beyond is in the /project directory.
+        return curies.Converter.from_prefix_map(
+            f'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
+            '/project/prefixmap/biolink_model_prefix_map.json'
+        )

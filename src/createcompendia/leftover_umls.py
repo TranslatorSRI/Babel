@@ -3,9 +3,8 @@ import json
 import jsonlines
 from pathlib import Path
 
-from bmt import Toolkit
-
 from src.node import NodeFactory
+from src.util import get_biolink_model_toolkit
 from src.datahandlers import umls
 from src.prefixes import UMLS
 from src.categories import ACTIVITY, AGENT, DEVICE, DRUG, FOOD, SMALL_MOLECULE, PHYSICAL_ENTITY, PUBLICATION, PROCEDURE
@@ -26,6 +25,7 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
     :param umls_compendium: The UMLS compendium file to write out.
     :param umls_synonyms: The synonyms file to generate for this compendium.
     :param report: The report file to write out.
+    :param biolink_version: The Biolink Model version to use.
     :return: Nothing.
     """
 
@@ -47,7 +47,7 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
 
     with open(umls_compendium, 'w') as compendiumf, open(report, 'w') as reportf:
         # This defaults to the version of the Biolink model that is included with this BMT.
-        biolink_toolkit = Toolkit()
+        biolink_toolkit = get_biolink_model_toolkit(biolink_version)
 
         for compendium in compendia:
             logging.info(f"Starting compendium: {compendium}")

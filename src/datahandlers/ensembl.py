@@ -1,6 +1,8 @@
 import json
 
 from src.babel_utils import get_config
+from src.babel_utils import make_local_name
+from src.util import get_config
 from apybiomart import find_datasets, query, find_attributes
 import logging
 import os

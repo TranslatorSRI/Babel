@@ -1,53 +1,14 @@
 import json
 import logging
-from json import load
 import os
 from collections import defaultdict
 from urllib.parse import urlparse
 
 import curies
 
-from src.util import Text
+from src.util import Text, get_config, get_biolink_model_toolkit, get_biolink_prefix_map
 from src.LabeledID import LabeledID
-from bmt import Toolkit
 from src.prefixes import PUBCHEMCOMPOUND
-
-
-def get_config():
-    """
-    Retrieve the configuration data from the 'config.json' file.
-
-    :return: The configuration data loaded from the 'config.json' file.
-    """
-    cname = os.path.join(os.path.dirname(__file__),'..', 'config.json')
-    with open(cname,'r') as json_file:
-        data = load(json_file)
-    return data
-
-
-def get_biolink_prefix_map():
-    """
-    Get the prefix map for the BioLink Model.
-
-    :return: The prefix map for the BioLink Model.
-    :raises RuntimeError: If the BioLink version is not supported.
-    """
-    config = get_config()
-    biolink_version = config['biolink_version']
-    if biolink_version.startswith('1.') or biolink_version.startswith('2.'):
-        raise RuntimeError(f"Biolink version {biolink_version} is not supported.")
-    elif biolink_version.startswith('3.'):
-        # biolink-model v3.* releases keeps the prefix map in a different place.
-        return curies.Converter.from_prefix_map(
-            'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
-            '/prefix-map/biolink-model-prefix-map.json'
-        )
-    else:
-        # biolink-model v4.0.0 and beyond is in the /project directory.
-        return curies.Converter.from_prefix_map(
-            f'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
-            '/project/prefixmap/biolink_model_prefix_map.json'
-        )
 
 
 class SynonymFactory:
@@ -270,7 +231,7 @@ class InformationContentFactory:
                     unmapped_urls.append(x[0])
 
                 ic = x[1]
-                self.ic[node_id] = ic
+                self.ic[node_id] = float(ic)
 
                 # Track IC values by prefix.
                 if isinstance(node_id, str):
@@ -314,7 +275,9 @@ class InformationContentFactory:
         for ident in node['identifiers']:
             thisid = ident['identifier']
             if thisid in self.ic:
-               ICs.append(self.ic[thisid])
+                # IC values are numeric values between 0 and 100.
+                # Make sure this is a float for min() purposes.
+                ICs.append(float(self.ic[thisid]))
         if len(ICs) == 0:
             return None
         return min(ICs)
@@ -322,7 +285,7 @@ class InformationContentFactory:
 
 class NodeFactory:
     def __init__(self,label_dir,biolink_version):
-        self.toolkit = Toolkit(f'https://raw.githubusercontent.com/biolink/biolink-model/v{biolink_version}/biolink-model.yaml')
+        self.toolkit = get_biolink_model_toolkit(biolink_version)
         self.ancestor_map = {}
         self.prefix_map = {}
         self.ignored_prefixes = set()

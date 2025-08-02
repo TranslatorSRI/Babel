@@ -69,8 +69,8 @@ rule get_anatomy_umls_relationships:
 
 rule anatomy_compendia:
     input:
-        labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['anatomy_prefixes']),
-        synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['anatomy_prefixes']),
+        labels=os.path.join(config["download_directory"], 'common', config["common"]["labels"][0]),
+        synonyms=os.path.join(config["download_directory"], 'common', config["common"]["synonyms"][0]),
         concords=expand("{dd}/anatomy/concords/{ap}",dd=config['intermediate_directory'],ap=config['anatomy_concords']),
         idlists=expand("{dd}/anatomy/ids/{ap}",dd=config['intermediate_directory'],ap=config['anatomy_ids']),
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
