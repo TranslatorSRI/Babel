@@ -77,19 +77,23 @@ def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls
     output_lines = defaultdict(list)
     semantic_type_trees = defaultdict(set)
     tree_names = defaultdict(set)
-    categories = set(category_map.keys())
     with open(mrsty,'r') as inf, open(umls_output,'w') as outf:
         for line in inf:
             x = line.strip().split('|')
             cat = x[2]
             cat_name = x[3]
 
+            # Is this on the UMLS ID blocklist? If so, skip it!
+            if x[0] in blocklist_umls_ids:
+                continue
+
             curie = f"{prefix}:{x[0]}"
 
             tree_names[cat].add(cat_name)
             semantic_type_trees[curie].add(cat)
 
-            if cat in categories and x[0] not in blocklist_umls_ids:
+            # Do we know what Biolink type (i.e. category) to assign this to?
+            if cat in category_map:
                 output_lines[curie].append(category_map[cat])
 
         if blocklist_umls_semantic_type_tree:
@@ -101,7 +105,7 @@ def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls
                     # Note that this only works if the UMLS semantic tree type is exactly identical to the semantic
                     # tree type on the blocklist: so if you try to block "A1.2.3", then UMLS IDs with a semantic tree
                     # type of "A1.2.3.4" will NOT be blocked.
-                    
+
                     # Write out a log message.
                     sty_trees_with_names = ", ".join(map(lambda sty_tree: f"{sty_tree}={tree_names[sty_tree]}", semantic_type_trees[curie]))
                     blocklist_sty_trees_with_names = ", ".join(map(lambda sty_tree: f"{sty_tree}={tree_names[sty_tree]}", blocklist_umls_semantic_type_tree))
@@ -110,7 +114,10 @@ def write_umls_ids(mrsty, category_map, umls_output, prefix=UMLS, blocklist_umls
                     # Delete this CURIE from the output.
                     del output_lines[curie]
 
-        outf.write("\n".join(output_lines))
+        for curie in output_lines:
+            # We only write out the first type we found for this UMLS ID.
+            types = output_lines[curie]
+            outf.write(f"{curie}\t{types[0]}\n")
 
 
 def write_rxnorm_ids(category_map, bad_categories, infile, outfile,prefix=RXCUI,styfile="RXNSTY.RRF",blacklist=set()):

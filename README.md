@@ -27,7 +27,7 @@ The [`./kubernetes`](./kubernetes/README.md) directory contains Kubernetes manif
 that can be used to set up a Pod to run Babel in. They'll give you an idea of the disk
 space and memory requirements needed to run this pipeline.
 
-Before running, read through `config.json` and make sure that the settings look correct.
+Before running, read through `config.yaml` and make sure that the settings look correct.
 You will need to update the version numbers of some databases that need to be downloaded,
 or change the download and output directories.
 

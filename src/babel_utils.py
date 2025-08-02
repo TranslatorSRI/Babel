@@ -12,8 +12,8 @@ import requests
 import os
 import urllib
 import jsonlines
-from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory, get_config
-from src.util import Text
+from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory
+from src.util import Text, get_config
 from src.LabeledID import LabeledID
 from collections import defaultdict
 import sqlite3

@@ -4,7 +4,7 @@ import os.path
 
 import duckdb
 
-from src.node import get_config
+from src.util import get_config
 
 
 def setup_duckdb(duckdb_filename):

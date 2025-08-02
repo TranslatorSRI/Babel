@@ -1,4 +1,3 @@
-apybiomart
 biopython
 bmt
 datrie
@@ -12,7 +11,8 @@ pytest-cov
 python-Levenshtein-wheels
 pyyaml
 requests
-snakemake
+PuLP==2.7.0
+snakemake==7.32.4
 sparqlwrapper
 # Added by Gaurav, Jan 2022
 xmltodict
@@ -25,3 +25,9 @@ beautifulsoup4
 curies
 # Added by Gaurav, May 2024
 duckdb
+# Updated by Gaurav, Jul 2025
+# We used to install apybiomart (https://github.com/robertopreste/apybiomart/tree/master) from
+# https://pypi.org/project/apybiomart/, but this hasn't been modified in five years and it depends
+# on checking if it's online via http://httpstat.us/200, which is often offline. My branch of this
+# https://github.com/gaurav/apybiomart/tree/change-check-url and changes that to https://example.org.
+git+https://github.com/gaurav/apybiomart.git@change-check-url

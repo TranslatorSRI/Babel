@@ -5,7 +5,7 @@ import os.path
 import shutil
 from zipfile import ZipFile
 
-from src.node import get_config
+from src.util import get_config
 import requests
 
 from src.prefixes import DRUGBANK
