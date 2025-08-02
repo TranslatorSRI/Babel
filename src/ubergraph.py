@@ -1,3 +1,5 @@
+import logging
+
 from src.triplestore import TripleStore
 from src.util import Text
 from collections import defaultdict
@@ -64,7 +66,7 @@ class UberGraph:
                 try:
                     y['iri'] = Text.opt_to_curie(x['thing'])
                 except ValueError as verr:
-                    print(f"WARNING: Unable to translate {x['thing']} to a CURIE; it will be used as-is: {verr}")
+                    logging.warning(f"WARNING: Unable to translate {x['thing']} to a CURIE; it will be used as-is: {verr}")
                     y['iri'] = x['thing']
                 y['label'] = x['label']
                 results.append(y)

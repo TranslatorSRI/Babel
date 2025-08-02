@@ -34,8 +34,6 @@ import src.datahandlers.complexportal as complexportal
 import src.datahandlers.drugbank as drugbank
 from src.babel_utils import pull_via_wget
 
-import src.prefixes as prefixes
-
 #####
 #
 # Data sets: pull data sets, and parse them to get labels and synonyms
@@ -183,15 +181,33 @@ rule get_umls_labels_and_synonyms:
 
 rule get_obo_labels:
     output:
-        obo_labels=config['download_directory']+'/common/ubergraph/labels'
+        obo_labels=config['download_directory']+'/common/ubergraph/labels',
+
+        # A bunch of files depend on UberGraph labels being created in prefix directories (e.g. babel_downloads/GO/labels),
+        # but these are now only included in the common labels file (i.e. babel_downloads/common/ubergraph/labels).
+        # However, since they are needed to make Snakemake work, we'll generate these here.
+        generated_labels = expand(
+            "{download_directory}/{prefix}/labels",
+            download_directory=config['download_directory'],
+            prefix=config['generate_dirs_for_labels_and_synonyms_prefixes']
+        ),
     run:
-        obo.pull_uber_labels(output.obo_labels)
+        obo.pull_uber_labels(output.obo_labels, output.generated_labels)
 
 rule get_obo_synonyms:
     output:
-        obo_synonyms=config['download_directory']+'/common/ubergraph/synonyms.jsonl'
+        obo_synonyms=config['download_directory']+'/common/ubergraph/synonyms.jsonl',
+
+        # A bunch of files depend on UberGraph labels being created in prefix directories (e.g. babel_downloads/GO/labels),
+        # but these are now only included in the common labels file (i.e. babel_downloads/common/ubergraph/labels).
+        # However, since they are needed to make Snakemake work, we'll generate these here.
+        generated_synonyms = expand(
+            "{download_directory}/{prefix}/synonyms",
+            download_directory=config['download_directory'],
+            prefix=config['generate_dirs_for_labels_and_synonyms_prefixes']
+        ),
     run:
-        obo.pull_uber_synonyms(output.obo_synonyms)
+        obo.pull_uber_synonyms(output.obo_synonyms, output.generated_synonyms)
 
 rule get_obo_descriptions:
     output:

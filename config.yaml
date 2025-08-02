@@ -17,6 +17,16 @@ ncbi_files:
   - gene_refseq_uniprotkb_collab.gz
   - mim2gene_medgen
 
+generate_dirs_for_labels_and_synonyms_prefixes:
+  - GO
+  - CL
+  - NCIT
+  - UBERON
+  - CHEBI
+  - HP
+  - MONDO
+  - PR
+
 ubergraph_ontologies:
   - UBERON
   - CL
