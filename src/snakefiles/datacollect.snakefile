@@ -1,5 +1,3 @@
-from snakemake.linting.links import params
-
 import src.node as node
 import src.datahandlers.mesh as mesh
 import src.datahandlers.clo as clo
@@ -35,8 +33,6 @@ import src.datahandlers.pantherfamily as pantherfamily
 import src.datahandlers.complexportal as complexportal
 import src.datahandlers.drugbank as drugbank
 from src.babel_utils import pull_via_wget
-
-import src.prefixes as prefixes
 
 #####
 #
