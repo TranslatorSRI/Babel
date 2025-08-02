@@ -1,3 +1,5 @@
+from snakemake.linting.links import params
+
 import src.node as node
 import src.datahandlers.mesh as mesh
 import src.datahandlers.clo as clo
@@ -255,9 +257,10 @@ rule get_ncbigene_labels_synonyms_and_taxa:
 
 rule get_ensembl:
     output:
-        outfile=config['download_directory']+'/ENSEMBL/BioMartDownloadComplete'
+        ensembl_dir=dir(config['download_directory']+'/ENSEMBL'),
+        complete_file=config['download_directory']+'/ENSEMBL/BioMartDownloadComplete'
     run:
-        ensembl.pull_ensembl(output.outfile)
+        ensembl.pull_ensembl(output.ensembl_dir, output.complete_file)
 
 ### HGNC
 
