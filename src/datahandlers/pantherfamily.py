@@ -43,7 +43,7 @@ def pull_labels(infile,outfile, metadata_yaml):
     write_metadata(
         metadata_yaml,
         typ='transform',
-        name='HGNC Gene Family labels',
+        name='pantherfamily.pull_labels()',
         description='Main families and subfamily labels extracted from PANTHER Sequence Classification human.',
         sources=[{
             'type': 'download',
