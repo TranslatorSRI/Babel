@@ -51,7 +51,8 @@ def download_pubmed(download_file,
         timestamping=True)
 
     # Step 3. Download the PMC/PMID mapping file from PMC.
-    pull_via_wget(pmc_base, 'PMC-ids.csv.gz', decompress=True, subpath='PubMed')
+    # We don't actually use this file -- we currently only use the PMC IDs already included in the PubMed XML files.
+    # pull_via_wget(pmc_base, 'PMC-ids.csv.gz', decompress=True, subpath='PubMed')
 
     # We're all done!
     Path.touch(download_file)
@@ -253,12 +254,16 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
         description="Parse PubMed files into TSVs and JSONL status files.",
         sources=[{
             'type': 'download',
-            'name': 'PubMed Baseline and updates'
+            'name': 'PubMed Baseline',
+            'url': 'ftp://ftp.ncbi.nlm.nih.gov/pubmed/baseline/'
         }, {
             'type': 'download',
-            'name': 'PubMed PMC-ids.csv.gz',
-            'url': 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz',
+            'name': 'PubMed Updates',
+            'url': 'ftp://ftp.ncbi.nlm.nih.gov/pubmed/updatefiles/'
         }],
+        counts={
+            'pmid_count': len(pmid_status.keys()),
+        },
         concord_filename=pmid_doi_concord_file,
     )
 
