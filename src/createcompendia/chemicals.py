@@ -1,3 +1,4 @@
+import json
 import logging
 from collections import defaultdict
 import jsonlines
@@ -435,7 +436,7 @@ def make_gtopdb_relations(infile,outfile):
             inchi = f'{INCHIKEY}:{x[inchi_index][1:-1]}'
             outf.write(f'{gid}\txref\t{inchi}\n')
 
-def make_chebi_relations(sdf,dbx,outfile):
+def make_chebi_relations(sdf,dbx,outfile,propfile):
     """CHEBI contains relations both about chemicals with and without inchikeys.  You might think that because
     everything is based on unichem, we could avoid the with structures part, but history has shown that we lose
     links in that case, so we will use both the structured and unstructured chemical entries."""
@@ -451,9 +452,17 @@ def make_chebi_relations(sdf,dbx,outfile):
         dbxdata = inf.read()
     kk = 'keggcompounddatabaselinks'
     pk = 'pubchemdatabaselinks'
-    with open(outfile,'w') as outf:
+    secondary_chebi_id = 'secondarychebiid'
+    with open(outfile,'w') as outf, open(propfile,'w') as propf:
         #Write SDF structured things
         for cid,props in chebi_sdf_dat.items():
+            if secondary_chebi_id in props:
+                propf.write(json.dumps({
+                    'curie': cid,
+                    'property': 'OIO:hasAlternativeId',
+                    'value': props[secondary_chebi_id],
+                    'description': 'Listed as a CHEBI secondard ID in the ChEBI SDF file'
+                }))
             if kk in props:
                 outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{props[kk]}\n')
             if pk in props:
@@ -478,6 +487,7 @@ def make_chebi_relations(sdf,dbx,outfile):
                 outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{x[4]}\n')
             if x[3] == 'Pubchem accession':
                 outf.write(f'{cid}\txref\t{PUBCHEMCOMPOUND}:{x[4]}\n')
+
 
 
 

@@ -187,9 +187,10 @@ rule get_chebi_concord:
         sdf=config['download_directory']+'/CHEBI/ChEBI_complete.sdf',
         dbx=config['download_directory']+'/CHEBI/database_accession.tsv'
     output:
-        outfile=config['intermediate_directory']+'/chemicals/concords/CHEBI'
+        outfile=config['intermediate_directory']+'/chemicals/concords/CHEBI',
+        propfile=config['intermediate_directory']+'/chemicals/properties/CHEBI'
     run:
-        chemicals.make_chebi_relations(input.sdf,input.dbx,output.outfile)
+        chemicals.make_chebi_relations(input.sdf,input.dbx,output.outfile,output.propfile)
 
 rule chemical_unichem_concordia:
     input:
