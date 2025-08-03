@@ -11,6 +11,7 @@ import xml.etree.ElementTree as ET
 
 from src.babel_utils import pull_via_wget, WgetRecursionOptions, glom, read_identifier_file, write_compendium
 from src.categories import JOURNAL_ARTICLE, PUBLICATION
+from src.metadata.provenance import write_concord_metadata
 from src.prefixes import PMID, DOI, PMC
 
 
@@ -50,7 +51,8 @@ def download_pubmed(download_file,
         timestamping=True)
 
     # Step 3. Download the PMC/PMID mapping file from PMC.
-    pull_via_wget(pmc_base, 'PMC-ids.csv.gz', decompress=True, subpath='PubMed')
+    # We don't actually use this file -- we currently only use the PMC IDs already included in the PubMed XML files.
+    # pull_via_wget(pmc_base, 'PMC-ids.csv.gz', decompress=True, subpath='PubMed')
 
     # We're all done!
     Path.touch(download_file)
@@ -136,7 +138,7 @@ def verify_pubmed_downloads(pubmed_directories,
 
 
 def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_file, pmid_id_file,
-                           pmid_doi_concord_file):
+                           pmid_doi_concord_file, metadata_yaml):
     """
     Read through the PubMed files in the baseline_dir and updatefiles_dir, and writes out label and status information.
 
@@ -145,6 +147,7 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
     :param titles_file: An output TSV file in the format `<PMID>\t<TITLE>`.
     :param status_file: A JSON file containing publication status information.
     :param pmid_doi_concord_file: A concord file in the format `<PMID>\teq\t<DOI>` and other identifiers.
+    :param metadata_yaml: The metadata YAML file to write.
     """
 
     # We can write labels and concords as we go.
@@ -245,8 +248,26 @@ def parse_pubmed_into_tsvs(baseline_dir, updatefiles_dir, titles_file, status_fi
         for pmid, statuses in pmid_status.items():
             statusf.write(json.dumps({'id': pmid, 'statuses': sorted(statuses)}, sort_keys=True) + '\n')
 
+    write_concord_metadata(
+        metadata_yaml,
+        name='parse_pubmed_into_tsvs()',
+        description="Parse PubMed files into TSVs and JSONL status files.",
+        sources=[{
+            'type': 'download',
+            'name': 'PubMed Baseline',
+            'url': 'ftp://ftp.ncbi.nlm.nih.gov/pubmed/baseline/'
+        }, {
+            'type': 'download',
+            'name': 'PubMed Updates',
+            'url': 'ftp://ftp.ncbi.nlm.nih.gov/pubmed/updatefiles/'
+        }],
+        counts={
+            'pmid_count': len(pmid_status.keys()),
+        },
+        concord_filename=pmid_doi_concord_file,
+    )
 
-def generate_compendium(concordances, identifiers, titles, publication_compendium, icrdf_filename):
+def generate_compendium(concordances, metadata_yamls, identifiers, titles, publication_compendium, icrdf_filename):
     """
     Generate a Publication compendium using the ID and Concord files provided.
 
@@ -295,5 +316,5 @@ def generate_compendium(concordances, identifiers, titles, publication_compendiu
     # Write out the compendium.
     publication_sets = set([frozenset(x) for x in dicts.values()])
     baretype = PUBLICATION.split(':')[-1]
-    write_compendium(publication_sets, os.path.basename(publication_compendium), PUBLICATION, labels,
+    write_compendium(metadata_yamls, publication_sets, os.path.basename(publication_compendium), PUBLICATION, labels,
                      icrdf_filename=icrdf_filename)
