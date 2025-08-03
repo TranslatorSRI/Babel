@@ -42,7 +42,7 @@ rule protein_ensembl_ids:
     output:
         outfile=config['intermediate_directory']+"/protein/ids/ENSEMBL"
     run:
-        protein.write_ensembl_ids(config['download_directory'] + '/ENSEMBL',output.outfile)
+        protein.write_ensembl_protein_ids(config['download_directory'] + '/ENSEMBL',output.outfile)
 
 rule get_protein_uniprotkb_ensembl_relationships:
     input:
