@@ -7,6 +7,7 @@ import ast
 import gzip
 from gzip import GzipFile
 
+from src.properties import PropertyStore, PropertyValue, HAS_ADDITIONAL_ID
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
 from src.categories import MOLECULAR_MIXTURE, SMALL_MOLECULE, CHEMICAL_ENTITY, POLYPEPTIDE, COMPLEX_MOLECULAR_MIXTURE, CHEMICAL_MIXTURE, DRUG
@@ -453,16 +454,18 @@ def make_chebi_relations(sdf,dbx,outfile,propfile):
     kk = 'keggcompounddatabaselinks'
     pk = 'pubchemdatabaselinks'
     secondary_chebi_id = 'secondarychebiid'
-    with open(outfile,'w') as outf, open(propfile,'w') as propf:
+    with open(outfile,'w') as outf, PropertyStore(propfile) as propstore:
+        properties = []
+
         #Write SDF structured things
         for cid,props in chebi_sdf_dat.items():
             if secondary_chebi_id in props:
-                propf.write(json.dumps({
-                    'curie': cid,
-                    'property': 'OIO:hasAlternativeId',
-                    'value': props[secondary_chebi_id],
-                    'description': 'Listed as a CHEBI secondard ID in the ChEBI SDF file'
-                }))
+                properties.append(PropertyValue(
+                    curie = cid,
+                    property = HAS_ADDITIONAL_ID,
+                    value = props[secondary_chebi_id],
+                    description = 'Listed as a CHEBI secondard ID in the ChEBI SDF file'
+                ))
             if kk in props:
                 outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{props[kk]}\n')
             if pk in props:
@@ -487,6 +490,9 @@ def make_chebi_relations(sdf,dbx,outfile,propfile):
                 outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{x[4]}\n')
             if x[3] == 'Pubchem accession':
                 outf.write(f'{cid}\txref\t{PUBCHEMCOMPOUND}:{x[4]}\n')
+
+        # Write out the properties.
+        propstore.insert_all(properties)
 
 
 

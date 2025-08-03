@@ -188,7 +188,7 @@ rule get_chebi_concord:
         dbx=config['download_directory']+'/CHEBI/database_accession.tsv'
     output:
         outfile=config['intermediate_directory']+'/chemicals/concords/CHEBI',
-        propfile=config['intermediate_directory']+'/chemicals/properties/CHEBI'
+        propfile=config['intermediate_directory']+'/chemicals/properties.sqlite'
     run:
         chemicals.make_chebi_relations(input.sdf,input.dbx,output.outfile,output.propfile)
 
