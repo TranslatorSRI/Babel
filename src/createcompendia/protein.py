@@ -30,7 +30,7 @@ def extract_taxon_ids_from_uniprotkb(idmapping_filename, uniprotkb_taxa_filename
                 outf.write(f'{UNIPROTKB}:{x[0]}\t{NCBITAXON}:{x[2]}\n')
 
 
-def write_ensembl_ids(ensembl_dir, outfile):
+def write_ensembl_gene_ids(ensembl_dir, outfile):
     """Loop over all the ensembl species.  Find any protein-coding gene"""
     with open(outfile,'w') as outf:
         #find all the ensembl directories
@@ -69,7 +69,7 @@ def write_pr_ids(outfile):
     obo.write_obo_ids([(protein_id, PROTEIN)], outfile, [PROTEIN])
 
 
-def write_ensembl_ids(ensembl_dir, outfile):
+def write_ensembl_protein_ids(ensembl_dir, outfile):
     """Loop over all the ensembl species.  Find any protein-coding gene"""
     with open(outfile, 'w') as outf:
         # find all the ensembl directories
