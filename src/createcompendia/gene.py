@@ -217,7 +217,7 @@ def build_gene_medgen_relationships(infile,outfile):
                 umls_id = f'{UMLS}:{x[4]}'
                 outf.write(f'{ncbigene_id}\teq\t{umls_id}\n')
 
-def write_ensembl_ids(ensembl_dir, outfile):
+def write_ensembl_gene_ids(ensembl_dir, outfile):
     """Loop over all the ensembl species.  Find any protein-coding gene"""
     with open(outfile,'w') as outf:
         #find all the ensembl directories
