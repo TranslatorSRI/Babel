@@ -31,35 +31,6 @@ def extract_taxon_ids_from_uniprotkb(idmapping_filename, uniprotkb_taxa_filename
                 outf.write(f'{UNIPROTKB}:{x[0]}\t{NCBITAXON}:{x[2]}\n')
 
 
-def write_ensembl_ids(ensembl_dir, outfile):
-    """Loop over all the ensembl species.  Find any protein-coding gene"""
-    with open(outfile,'w') as outf:
-        #find all the ensembl directories
-        dirlisting = os.listdir(ensembl_dir)
-        for dl in dirlisting:
-            dlpath = os.path.join(ensembl_dir,dl)
-            if os.path.isdir(dlpath):
-                infname = os.path.join(dlpath,'BioMart.tsv')
-                if os.path.exists(infname):
-                    #open each ensembl file, find the id column, and put it in the output
-                    with open(infname,'r') as inf:
-                        wrote=set()
-                        h = inf.readline()
-                        x = h[:-1].split('\t')
-                        gene_column = x.index('Gene stable ID')
-                        protein_column = x.index('Protein stable ID')
-                        for line in inf:
-                            x = line[:-1].split('\t')
-                            #Is it protein coding?
-                            if x[protein_column] == '':
-                                continue
-                            gid = f'{ENSEMBL}:{x[gene_column]}'
-                            #The gid is not unique, so don't write the same one over again
-                            if gid in wrote:
-                                continue
-                            wrote.add(gid)
-                            outf.write(f'{gid}\n')
-
 def write_umls_ids(mrsty, outfile):
     umlsmap = {}
     umlsmap['A1.4.1.2.1.7'] = PROTEIN
@@ -70,7 +41,7 @@ def write_pr_ids(outfile):
     obo.write_obo_ids([(protein_id, PROTEIN)], outfile, [PROTEIN])
 
 
-def write_ensembl_ids(ensembl_dir, outfile):
+def write_ensembl_protein_ids(ensembl_dir, outfile):
     """Loop over all the ensembl species.  Find any protein-coding gene"""
     with open(outfile, 'w') as outf:
         # find all the ensembl directories
