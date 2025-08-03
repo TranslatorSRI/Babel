@@ -84,10 +84,11 @@ def build_relationships(outfile,mesh_ids, metadata_yaml):
     write_concord_metadata(
         metadata_yaml,
         name='build_relationships()',
-        description=f'Builds relationships between MeSH and NCBI Taxon from the MeSH registry.',
+        description='Builds relationships between MeSH and NCBI Taxon from the MeSH registry.',
         sources=[{
             'type': 'MeSH',
             'name': 'MeSH Registry',
+            'url': 'ftp://ftp.nlm.nih.gov/online/mesh/rdf/mesh.nt.gz',
         }],
         concord_filename=outfile,
     )
