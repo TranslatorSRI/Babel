@@ -101,40 +101,26 @@ def build_anatomy_obo_relationships(outdir, metadata_yamls):
         # CL is now being handled by Wikidata (build_wikidata_cell_relationships), so we can probably remove it from here.
 
     # Write out metadata.
-    write_concord_metadata(metadata_yamls['UBERON'],
-        name='build_anatomy_obo_relationships()',
-        sources=[
-            {
-                'type': 'UberGraph',
-                'name': 'UBERON'
-            }
-        ],
-        description=f'get_subclasses_and_xrefs() of {UBERON}:0001062',
-        concord_filename=f'{outdir}/{UBERON}',
-    )
-    write_concord_metadata(metadata_yamls['GO'],
-       name='build_anatomy_obo_relationships()',
-       sources=[
-           {
-               'type': 'UberGraph',
-               'name': 'GO'
-           }
-       ],
-       description=f'get_subclasses_and_xrefs() of {GO}:0005575',
-       concord_filename=f'{outdir}/{GO}',
-    )
-    # TODO: delete
-    write_concord_metadata(metadata_yamls['CL'],
-       name='build_anatomy_obo_relationships()',
-       sources=[
-           {
-               'type': 'UberGraph',
-               'name': 'CL'
-           }
-       ],
-       description='CL relationships (not used?)',
-       concord_filename=f'{outdir}/{CL}',
-    )
+    for metadata_name in [UBERON, GO, CL]:
+        write_concord_metadata(metadata_yamls[metadata_name],
+           name='build_anatomy_obo_relationships()',
+           sources=[
+               {
+                   'type': 'UberGraph',
+                   'name': 'UBERON'
+               },
+               {
+                   'type': 'UberGraph',
+                   'name': 'GO'
+               },
+               {
+                   'type': 'UberGraph',
+                   'name': 'CL'
+               }
+           ],
+           description=f'get_subclasses_and_xrefs() of {UBERON}:0001062 and {GO}:0005575',
+           concord_filename=f'{outdir}/{metadata_name}',
+        )
 
 def build_wikidata_cell_relationships(outdir, metadata_yaml):
     #This sparql returns all the wikidata items that have a UMLS identifier and a CL identifier
