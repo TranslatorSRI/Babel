@@ -460,17 +460,21 @@ def make_chebi_relations(sdf,dbx,outfile,propfile):
         #Write SDF structured things
         for cid,props in chebi_sdf_dat.items():
             if secondary_chebi_id in props:
-                properties.append(PropertyValue(
-                    curie = cid,
-                    property = HAS_ADDITIONAL_ID,
-                    value = props[secondary_chebi_id],
-                    description = 'Listed as a CHEBI secondard ID in the ChEBI SDF file'
-                ))
+                secondary_ids = props[secondary_chebi_id]
+                for secondary_id in secondary_ids:
+                    properties.append(PropertyValue(
+                        curie = cid,
+                        property = HAS_ADDITIONAL_ID,
+                        value = secondary_id,
+                        description = 'Listed as a CHEBI secondary ID in the ChEBI SDF file'
+                    ))
             if kk in props:
                 outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{props[kk]}\n')
             if pk in props:
                 #Apparently there's a lot of structure here?
-                v = props[pk]
+                database_links = props[pk]
+                # To simulate previous behavior, I'll concatenate previous values together.
+                v = "".join(database_links)
                 parts = v.split('SID: ')
                 for p in parts:
                     if 'CID' in p:

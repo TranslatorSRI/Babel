@@ -58,13 +58,13 @@ class PropertyStore(AbstractContextManager):
         return cursor.execute(sql, params)
 
     def get_by_curie(self, curie) -> list[PropertyValue]:
-        results = self.query("SELECT curie, property, value, source FROM properties WHERE curie=:curie", params={
+        results = self.query("SELECT curie, property, value, description FROM properties WHERE curie=:curie", params={
             "curie": curie,
         })
         return [PropertyValue(result[0], result[1], result[2], result[3]) for result in results]
 
     def get_all(self) -> list[PropertyValue]:
-        results = self.query("SELECT curie, property, value, source FROM properties")
+        results = self.query("SELECT curie, property, value, description FROM properties")
         return [PropertyValue(result[0], result[1], result[2], result[3]) for result in results]
 
     def insert_all(self, pvs):
@@ -77,7 +77,7 @@ class PropertyStore(AbstractContextManager):
                 "curie": pv.curie,
                 "property": supported_properties[pv.property],
                 "value": pv.value,
-                "source": pv.source,
+                "description": pv.description,
             })
-        cursor.executemany("INSERT OR IGNORE INTO properties VALUES (:curie, :property, :value, :source)", data)
+        cursor.executemany("INSERT OR IGNORE INTO properties VALUES (:curie, :property, :value, :description)", data)
         self.connection.commit()
