@@ -1,3 +1,4 @@
+import logging
 import os.path
 from collections import defaultdict
 from datetime import datetime
@@ -21,9 +22,11 @@ def write_concord_metadata(filename, *, name, concord_filename, url='', descript
     curie_prefix_counts = defaultdict(int)
     with open(concord_filename, 'r') as concordf:
         for line in concordf:
-            row = line.split('\t')
+            row = line.strip().split('\t')
             if len(row) != 3:
-                raise ValueError(f"Concord file {concord_filename} has a line with {len(row)} columns, not 3: {line}")
+                logging.warning(f"Concord file {concord_filename} has a line with {len(row)} columns, not 3 -- skipping: '{line}'")
+                # raise ValueError(f"Concord file {concord_filename} has a line with {len(row)} columns, not 3: {line}")
+                continue
             curie1 = row[0]
             predicate = row[1]
             curie2 = row[2]
