@@ -42,29 +42,32 @@ rule protein_ensembl_ids:
     output:
         outfile=config['intermediate_directory']+"/protein/ids/ENSEMBL"
     run:
-        protein.write_ensembl_ids(config['download_directory'] + '/ENSEMBL',output.outfile)
+        protein.write_ensembl_protein_ids(config['download_directory'] + '/ENSEMBL',output.outfile)
 
 rule get_protein_uniprotkb_ensembl_relationships:
     input:
         infile = config['download_directory'] + '/UniProtKB/idmapping.dat'
     output:
-        outfile = config['intermediate_directory'] + '/protein/concords/UniProtKB'
+        outfile = config['intermediate_directory'] + '/protein/concords/UniProtKB',
+        metadata_yaml = config['intermediate_directory'] + '/protein/concords/metadata-UniProtKB.yaml',
     run:
-        protein.build_protein_uniprotkb_ensemble_relationships(input.infile,output.outfile)
+        protein.build_protein_uniprotkb_ensemble_relationships(input.infile,output.outfile, output.metadata_yaml)
 
 rule get_protein_pr_uniprotkb_relationships:
     output:
-        outfile  = config['intermediate_directory'] + '/protein/concords/PR'
+        outfile  = config['intermediate_directory'] + '/protein/concords/PR',
+        metadata_yaml = config['intermediate_directory'] + '/protein/concords/metadata-PR.yaml'
     run:
-        protein.build_pr_uniprot_relationships(output.outfile)
+        protein.build_pr_uniprot_relationships(output.outfile, metadata_yaml=output.metadata_yaml)
 
 rule get_protein_ncit_uniprotkb_relationships:
     input:
         infile = config['download_directory'] + '/NCIT/NCIt-SwissProt_Mapping.txt'
     output:
-        outfile  = config['intermediate_directory'] + '/protein/concords/NCIT_UniProtKB'
+        outfile  = config['intermediate_directory'] + '/protein/concords/NCIT_UniProtKB',
+        metadata_yaml = config['intermediate_directory'] + '/protein/concords/metadata-NCIT_UniProtKB.yaml',
     run:
-        protein.build_ncit_uniprot_relationships(input.infile, output.outfile)
+        protein.build_ncit_uniprot_relationships(input.infile, output.outfile, output.metadata_yaml)
 
 rule get_protein_ncit_umls_relationships:
     input:
@@ -72,14 +75,16 @@ rule get_protein_ncit_umls_relationships:
         infile=config['intermediate_directory']+"/protein/ids/UMLS"
     output:
         outfile=config['intermediate_directory']+'/protein/concords/NCIT_UMLS',
+        metadata_yaml=config['intermediate_directory']+'/protein/concords/metadata-NCIT_UMLS.yaml'
     run:
-        protein.build_umls_ncit_relationships(input.mrconso, input.infile, output.outfile)
+        protein.build_umls_ncit_relationships(input.mrconso, input.infile, output.outfile, output.metadata_yaml)
 
 rule protein_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['protein_labels']),
         synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['protein_synonyms']),
         concords=expand("{dd}/protein/concords/{ap}",dd=config['intermediate_directory'],ap=config['protein_concords']),
+        metadata_yamls=expand("{dd}/protein/concords/metadata-{ap}.yaml",dd=config['intermediate_directory'],ap=config['protein_concords']),
         idlists=expand("{dd}/protein/ids/{ap}",dd=config['intermediate_directory'],ap=config['protein_ids']),
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
         # Include the taxon information from UniProtKB
@@ -88,7 +93,7 @@ rule protein_compendia:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
         temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs']))
     run:
-        protein.build_protein_compendia(input.concords,input.idlists, input.icrdf_filename)
+        protein.build_protein_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
 
 rule check_protein_completeness:
     input:

@@ -36,6 +36,7 @@ rule generate_pubmed_concords:
         status_file = config['download_directory'] + '/PubMed/statuses.jsonl.gz',
         pmid_id_file = config['intermediate_directory'] + '/publications/ids/PMID',
         pmid_doi_concord_file = config['intermediate_directory'] + '/publications/concords/PMID_DOI',
+        metadata_yaml = config['intermediate_directory'] + '/publications/concords/metadata.yaml',
     run:
         publications.parse_pubmed_into_tsvs(
             input.baseline_dir,
@@ -43,7 +44,8 @@ rule generate_pubmed_concords:
             output.titles_file,
             output.status_file,
             output.pmid_id_file,
-            output.pmid_doi_concord_file)
+            output.pmid_doi_concord_file,
+            output.metadata_yaml)
 
 rule generate_pubmed_compendia:
     input:
@@ -52,6 +54,7 @@ rule generate_pubmed_compendia:
         titles = [
             config['download_directory'] + '/PubMed/titles.tsv',
         ],
+        metadata_yaml = config['intermediate_directory'] + '/publications/concords/metadata.yaml',
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         publication_compendium = config['output_directory'] + '/compendia/Publication.txt',
@@ -60,6 +63,7 @@ rule generate_pubmed_compendia:
     run:
         publications.generate_compendium(
             [input.pmid_doi_concord_file],
+            [input.metadata_yaml],
             [input.pmid_id_file],
             input.titles,
             output.publication_compendium,

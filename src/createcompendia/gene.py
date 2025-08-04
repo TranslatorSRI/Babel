@@ -1,6 +1,7 @@
 import re
 
 from src import babel_utils
+from src.metadata.provenance import write_concord_metadata
 from src.prefixes import OMIM,ENSEMBL,NCBIGENE,WORMBASE, MGI, ZFIN, DICTYBASE, FLYBASE, RGD, SGD, HGNC, UMLS
 from src.categories import GENE
 
@@ -23,8 +24,18 @@ def write_mods_ids(dd,id,modlist):
                 x = line.split('\t')[0]
                 outf.write(f'{x}\n')
 
-def build_gene_ensembl_relationships(ensembl_dir, outfile):
+def build_gene_ensembl_relationships(ensembl_dir, outfile, metadata_yaml):
     """Loop over all the ensembl species.  Find any protein-coding gene"""
+    # Identifiers to extract.
+    column_to_prefix = { 'NCBI gene (formerly Entrezgene) ID': {NCBIGENE},
+                         'ZFIN ID': {ZFIN},
+                         'SGD gene name ID': {SGD},
+                         'WormBase Gene ID': {WORMBASE},
+                         'FlyBase ID': {FLYBASE},
+                         'MGI ID': {MGI},
+                         'RGD ID': {RGD}
+                         }
+
     with open(outfile,'w') as outf:
         #find all the ensembl directories
         dirlisting = os.listdir(ensembl_dir)
@@ -39,14 +50,6 @@ def build_gene_ensembl_relationships(ensembl_dir, outfile):
                         h = inf.readline()
                         x = h[:-1].split('\t')
                         gene_column = x.index('Gene stable ID')
-                        column_to_prefix = { 'NCBI gene (formerly Entrezgene) ID': {NCBIGENE},
-                                             'ZFIN ID': {ZFIN},
-                                             'SGD gene name ID': {SGD},
-                                             'WormBase Gene ID': {WORMBASE},
-                                             'FlyBase ID': {FLYBASE},
-                                             'MGI ID': {MGI},
-                                             'RGD ID': {RGD}
-                                             }
                         protein_column = x.index('Protein stable ID')
                         columnno_to_prefix = {}
                         for i,v in enumerate(x):
@@ -73,6 +76,17 @@ def build_gene_ensembl_relationships(ensembl_dir, outfile):
                                     if res:
                                         ensembl_id_without_version = res.group(1)
                                         outf.write(f'{ENSEMBL}:{ensembl_id_without_version}\teq\t{gid}\n')
+
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_gene_ensembl_relationships()',
+        description=f'Extracts gene-ensembl relationships from the ensembl files ({ensembl_dir}) for prefixes: {column_to_prefix.values()}',
+        sources=[{
+            'name': 'ENSEMBL',
+            'filename': ensembl_dir,
+        }],
+        concord_filename=outfile,
+    )
 
 def write_zfin_ids(infile,outfile):
     with open(infile,'r') as inf, open(outfile,'w') as outf:
@@ -155,7 +169,7 @@ def read_ncbi_idfile(ncbi_idfile):
             ncbi_ids.add(x)
     return ncbi_ids
 
-def build_gene_ncbi_ensembl_relationships(infile,ncbi_idfile,outfile):
+def build_gene_ncbi_ensembl_relationships(infile,ncbi_idfile,outfile, metadata_yaml):
     ncbi_ids = read_ncbi_idfile(ncbi_idfile)
     with gzip.open(infile,'r') as inf, open(outfile,'w') as outf:
         h = inf.readline()
@@ -181,7 +195,20 @@ def build_gene_ncbi_ensembl_relationships(infile,ncbi_idfile,outfile):
                 ensembl_id_without_version = res.group(1)
                 outf.write(f'{ncbigene_id}\teq\t{ENSEMBL}:{ensembl_id_without_version}\n')
 
-def build_gene_ncbigene_xrefs(infile,ncbi_idfile,outfile):
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_gene_ncbi_ensembl_relationships()',
+        description=f'Extracts gene-ensembl relationships from the NCBIGene gene2ensembl.gz file ({infile}), filtering to ' +
+                    f'NCBIGene IDs in {ncbi_idfile}',
+        sources=[{
+            'type': 'NCBIGENE',
+            'name': 'NCBIGene gene2ensembl.gz',
+            'filename': infile,
+        }],
+        concord_filename=outfile,
+    )
+
+def build_gene_ncbigene_xrefs(infile,ncbi_idfile,outfile, metadata_yaml):
     mappings = {'WormBase': WORMBASE, 'FLYBASE': FLYBASE, 'ZFIN': ZFIN,
                 'HGNC': HGNC, 'MGI': MGI, 'RGD': RGD, 'dictyBase': DICTYBASE,
                 'SGD': SGD }
@@ -202,7 +229,20 @@ def build_gene_ncbigene_xrefs(infile,ncbi_idfile,outfile):
                 if found_prefix in mappings:
                     outf.write(f'{ncbigene_id}\txref\t{mappings[found_prefix]}:{xref_parts[-1]}\n')
 
-def build_gene_medgen_relationships(infile,outfile):
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_gene_ncbigene_xrefs()',
+        description=f'Extracts gene-xref relationships from the NCBIGene gene_info.gz file ({infile}), filtering to ' +
+                    f'NCBIGene IDs in {ncbi_idfile} and extracting mappings for prefixes {mappings.values()}',
+        sources=[{
+            'type': 'NCBIGENE',
+            'name': 'NCBIGene gene_info.gz',
+            'filename': infile,
+        }],
+        concord_filename=outfile,
+    )
+
+def build_gene_medgen_relationships(infile,outfile, metadata_yaml):
     with open(infile, 'r') as inf, open(outfile, 'w') as outf:
         h = inf.readline()
         for line in inf:
@@ -217,7 +257,18 @@ def build_gene_medgen_relationships(infile,outfile):
                 umls_id = f'{UMLS}:{x[4]}'
                 outf.write(f'{ncbigene_id}\teq\t{umls_id}\n')
 
-def write_ensembl_ids(ensembl_dir, outfile):
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_gene_medgen_relationships()',
+        description=f'Extracts gene-OMIM relationships from the mim2gene_medgen file ({infile})',
+        sources=[{
+            'name': 'MIM2Gene MEDGEN',
+            'filename': infile,
+        }],
+        concord_filename=outfile,
+    )
+
+def write_ensembl_gene_ids(ensembl_dir, outfile):
     """Loop over all the ensembl species.  Find any protein-coding gene"""
     with open(outfile,'w') as outf:
         #find all the ensembl directories
@@ -247,11 +298,11 @@ def write_ensembl_ids(ensembl_dir, outfile):
                             outf.write(f'{gid}\n')
 
 
-def build_gene_umls_hgnc_relationships(mrconso, umls_idfile, outfile):
+def build_gene_umls_hgnc_relationships(mrconso, umls_idfile, outfile, metadata_yaml):
     #Could also add MESH, if that were a valid gene prefix
-    umls.build_sets(mrconso, umls_idfile, outfile, {'HGNC':HGNC})
+    umls.build_sets(mrconso, umls_idfile, outfile, {'HGNC':HGNC}, provenance_metadata_yaml=metadata_yaml)
 
-def build_gene_compendia(concordances, identifiers, icrdf_filename):
+def build_gene_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
@@ -273,5 +324,5 @@ def build_gene_compendia(concordances, identifiers, icrdf_filename):
         glom(dicts, pairs, unique_prefixes=uniques)
     gene_sets = set([frozenset(x) for x in dicts.values()])
     baretype = GENE.split(':')[-1]
-    write_compendium(gene_sets, f'{baretype}.txt', GENE, {}, icrdf_filename=icrdf_filename)
+    write_compendium(metadata_yamls, gene_sets, f'{baretype}.txt', GENE, {}, icrdf_filename=icrdf_filename)
 

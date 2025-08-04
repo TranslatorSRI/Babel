@@ -2,7 +2,7 @@ from src.categories import CELL_LINE
 
 from src.babel_utils import read_identifier_file,glom,write_compendium
 
-def build_compendia(ifile, icrdf_filename):
+def build_compendia(ifile, metadata_yamls, icrdf_filename):
     """:identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
     types = {}
@@ -13,5 +13,5 @@ def build_compendia(ifile, icrdf_filename):
     types.update(new_types)
     idsets = set([frozenset(x) for x in dicts.values()])
     baretype = CELL_LINE.split(':')[-1]
-    write_compendium(idsets, f'{baretype}.txt', CELL_LINE, {}, icrdf_filename=icrdf_filename)
+    write_compendium(metadata_yamls, idsets, f'{baretype}.txt', CELL_LINE, {}, icrdf_filename=icrdf_filename)
 

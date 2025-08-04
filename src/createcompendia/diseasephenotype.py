@@ -2,6 +2,7 @@ from os import path
 from collections import defaultdict
 
 import src.datahandlers.obo as obo
+from src.metadata.provenance import write_concord_metadata
 
 from src.prefixes import MESH, NCIT, MONDO, OMIM, HP, SNOMEDCT, MEDDRA, EFO, ORPHANET, ICD0, ICD9, ICD10, UMLS, KEGGDISEASE
 from src.categories import DISEASE, PHENOTYPIC_FEATURE
@@ -87,28 +88,69 @@ def write_umls_ids(mrsty, outfile,badumlsfile):
     umls.write_umls_ids(mrsty, umlsmap, outfile, blocklist_umls_ids=badumls)
 
 
-def build_disease_obo_relationships(outdir):
+def build_disease_obo_relationships(outdir, metadata_yamls):
     #Create the equivalence pairs
     with open(f'{outdir}/{HP}', 'w') as outfile:
+        other_prefixes = {'MSH':MESH,'SNOMEDCT_US':SNOMEDCT,'SNOMED_CT': SNOMEDCT, 'ORPHANET':ORPHANET, 'ICD-9':ICD9, 'ICD-10':ICD10, 'ICD-0':ICD0, 'ICD-O':ICD0 }
         build_sets(f'{HP}:0000118', {HP:outfile},
                    ignore_list=['ICD'],
-                   other_prefixes={'MSH':MESH,'SNOMEDCT_US':SNOMEDCT,'SNOMED_CT': SNOMEDCT, 'ORPHANET':ORPHANET, 'ICD-9':ICD9, 'ICD-10':ICD10, 'ICD-0':ICD0, 'ICD-O':ICD0 },
+                   other_prefixes=other_prefixes,
                    set_type='xref')
+
+    write_concord_metadata(
+        metadata_yamls['HP'],
+        name='build_disease_obo_relationships()',
+        sources=[
+            {
+                'type': 'UberGraph',
+                'name': 'HP'
+            }
+        ],
+        description=f'ubergraph.build_sets() of {HP}:0000118 with other_prefixes {other_prefixes}',
+        concord_filename=f'{outdir}/{HP}'
+    )
+
     with open(f'{outdir}/{MONDO}', 'w') as outfile:
         #Orphanet here is confusing.  In mondo it comes out mixed case like "Orphanet" and we want to cap it.  We have a normer
         # in build sets, but it is based on the UPPERCASED prefix.  So we're passing in that we want to change uppercase orphanet to uppercase
         # orphanet.  In actuality that matching key will pick up any case orphanet, including the one that actually occurs.
         build_sets('MONDO:0000001', {MONDO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
         build_sets('MONDO:0042489', {MONDO:outfile}, set_type='exact', other_prefixes={'ORPHANET':ORPHANET})
+
+    write_concord_metadata(metadata_yamls['MONDO'],
+       name='build_disease_obo_relationships()',
+       sources=[
+           {
+               'type': 'UberGraph',
+               'name': 'MONDO'
+           }
+       ],
+       description=f'ubergraph.build_sets() (exact) of {MONDO}:0000001 and {MONDO}:0042489, including ORPHANET prefixes',
+       concord_filename=f'{outdir}/{MONDO}'
+    )
+
     with open(f'{outdir}/{MONDO}_close', 'w') as outfile:
         build_sets('MONDO:0000001', {MONDO:outfile}, set_type='close', other_prefixes={'ORPHANET':ORPHANET})
         build_sets('MONDO:0042489', {MONDO:outfile}, set_type='close', other_prefixes={'ORPHANET':ORPHANET})
 
-def build_disease_efo_relationships(idfile,outfile):
-    efo.make_concords(idfile, outfile)
+    write_concord_metadata(
+        metadata_yamls['MONDO_close'],
+        name='build_disease_obo_relationships()',
+        sources=[
+            {
+               'type': 'UberGraph',
+               'name': 'MONDO'
+           }
+        ],
+        description=f'ubergraph.build_sets() (close matches) of {MONDO}:0000001 and {MONDO}:0042489, including ORPHANET prefixes',
+        concord_filename=f'{outdir}/{MONDO}_close'
+    )
+
+def build_disease_efo_relationships(idfile,outfile, metadata_yaml):
+    efo.make_concords(idfile, outfile, provenance_metadata=metadata_yaml)
 
 
-def build_disease_umls_relationships(mrconso, idfile, outfile, omimfile, ncitfile):
+def build_disease_umls_relationships(mrconso, idfile, outfile, omimfile, ncitfile, metadata_yaml):
     #UMLS contains xrefs between a disease UMLS and a gene OMIM. So here we are saying: if you are going to link to
     # an omim identifier, make sure it's a disease omim, not some other thing.
     good_ids = {}
@@ -118,15 +160,31 @@ def build_disease_umls_relationships(mrconso, idfile, outfile, omimfile, ncitfil
             for line in inf:
                 x = line.split()[0]
                 good_ids[prefix].add(x)
-    umls.build_sets(mrconso, idfile, outfile, {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM},acceptable_identifiers=good_ids)
+    umls.build_sets(mrconso, idfile, outfile,
+                    {'SNOMEDCT_US':SNOMEDCT,'MSH': MESH, 'NCI': NCIT, 'HPO': HP, 'MDR':MEDDRA, 'OMIM': OMIM},
+                    acceptable_identifiers=good_ids,
+                    provenance_metadata_yaml=metadata_yaml)
 
-def build_disease_doid_relationships(idfile,outfile):
-    doid.build_xrefs(idfile, outfile, other_prefixes={'ICD10CM':ICD10, 'ICD9CM':ICD9, 'ICDO': ICD0, 'NCI': NCIT,
-                                                      'SNOMEDCT_US_2018_03_01': SNOMEDCT, 'SNOMEDCT_US_2019_09_01': SNOMEDCT,
-                                                      'SNOMEDCT_US_2020_03_01': SNOMEDCT, 'SNOMEDCT_US_2020_09_01': SNOMEDCT,
-                                                      'UMLS_CUI': UMLS, 'KEGG': KEGGDISEASE})
+def build_disease_doid_relationships(idfile,outfile, metadata_yaml):
+    other_prefixes = {'ICD10CM':ICD10, 'ICD9CM':ICD9, 'ICDO': ICD0, 'NCI': NCIT,
+                      'SNOMEDCT_US_2018_03_01': SNOMEDCT, 'SNOMEDCT_US_2019_09_01': SNOMEDCT,
+                      'SNOMEDCT_US_2020_03_01': SNOMEDCT, 'SNOMEDCT_US_2020_09_01': SNOMEDCT,
+                      'UMLS_CUI': UMLS, 'KEGG': KEGGDISEASE}
+    doid.build_xrefs(idfile, outfile, other_prefixes=other_prefixes)
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_disease_doid_relationships()',
+        description=f'build_disease_doid_relationships() using the DOID ID file {idfile} and other_prefixes {other_prefixes}',
+        concord_filename=outfile,
+        sources=[
+            {
+                'type': 'DOID',
+                'name': 'doid.build_xrefs'
+            }
+        ]
+    )
 
-def build_compendium(concordances, identifiers, mondoclose, badxrefs, icrdf_filename):
+def build_compendium(concordances, metadata_yamls, identifiers, mondoclose, badxrefs, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
@@ -173,7 +231,7 @@ def build_compendium(concordances, identifiers, mondoclose, badxrefs, icrdf_file
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]),types)
     for biotype,sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
-        write_compendium(sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
+        write_compendium(metadata_yamls, sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
 
 def create_typed_sets(eqsets,types):
     """Given a set of sets of equivalent identifiers, we want to type each one into
@@ -231,6 +289,7 @@ def read_badxrefs(fn):
     return morebad
 
 def load_diseases_and_phenotypes(concords,idlists,badhpos,badhpoxrefs, icrdf_filename):
+    metadata_yamls = []
     #print('disease/phenotype')
     #print('get and write hp sets')
     #bad_mappings = read_bad_hp_mappings(badhpos)
@@ -301,8 +360,8 @@ def load_diseases_and_phenotypes(concords,idlists,badhpos,badhpoxrefs, icrdf_fil
     print('dump it')
     fs = set([frozenset(x) for x in dicts.values()])
     diseases,phenotypes = create_typed_sets(fs)
-    write_compendium(diseases,'disease.txt','biolink:Disease',labels, icrdf_filename=icrdf_filename)
-    write_compendium(phenotypes,'phenotypes.txt','biolink:PhenotypicFeature',labels, icrdf_filename=icrdf_filename)
+    write_compendium(metadata_yamls, diseases,'disease.txt','biolink:Disease',labels, icrdf_filename=icrdf_filename)
+    write_compendium(metadata_yamls, phenotypes,'phenotypes.txt','biolink:PhenotypicFeature',labels, icrdf_filename=icrdf_filename)
 
 if __name__ == '__main__':
     with open('crapfile','w') as crapfile:
