@@ -245,7 +245,7 @@ rule get_ncbigene_labels_synonyms_and_taxa:
 
 rule get_ensembl:
     output:
-        ensembl_dir=dir(config['download_directory']+'/ENSEMBL'),
+        ensembl_dir=directory(config['download_directory']+'/ENSEMBL'),
         complete_file=config['download_directory']+'/ENSEMBL/BioMartDownloadComplete'
     run:
         ensembl.pull_ensembl(output.ensembl_dir, output.complete_file)
