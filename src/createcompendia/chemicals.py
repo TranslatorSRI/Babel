@@ -380,7 +380,7 @@ def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile):
     # first mapping is the 'best' i.e. the one most frequently reported.
     # We will only use the first one
     used_pubchem = set()
-    with open(pubcheminput,'r') as inf, open(outfile,'w') as outf:
+    with open(pubcheminput,'r', encoding='ISO-8859-1') as inf, open(outfile,'w') as outf:
         for line in inf:
             x = line.strip().split('\t') # x[0] = puchemid (no prefix), x[1] = mesh label
             if x[0] in used_pubchem:
