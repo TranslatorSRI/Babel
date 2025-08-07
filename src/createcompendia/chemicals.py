@@ -1,17 +1,12 @@
-import json
 import logging
 from collections import defaultdict
-from datetime import datetime
 
 import jsonlines
 import requests
 import ast
 import gzip
-from gzip import GzipFile
 
-from src.properties import PropertyStore, PropertyValue, HAS_ADDITIONAL_ID
-import yaml
-
+from src.properties import Property, HAS_ADDITIONAL_ID
 from src.metadata.provenance import write_concord_metadata, write_combined_metadata
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
@@ -471,7 +466,7 @@ def make_gtopdb_relations(infile,outfile, metadata_yaml):
         concord_filename=outfile,
     )
 
-def make_chebi_relations(sdf,dbx,outfile,metadata_yaml):
+def make_chebi_relations(sdf,dbx,outfile,propfile_gz,metadata_yaml):
     """CHEBI contains relations both about chemicals with and without inchikeys.  You might think that because
     everything is based on unichem, we could avoid the with structures part, but history has shown that we lose
     links in that case, so we will use both the structured and unstructured chemical entries."""
@@ -488,20 +483,18 @@ def make_chebi_relations(sdf,dbx,outfile,metadata_yaml):
     kk = 'keggcompounddatabaselinks'
     pk = 'pubchemdatabaselinks'
     secondary_chebi_id = 'secondarychebiid'
-    with open(outfile,'w') as outf, PropertyStore(propfile) as propstore:
-        properties = []
-
+    with open(outfile,'w') as outf, gzip.open(propfile_gz, 'wt') as propf:
         #Write SDF structured things
         for cid,props in chebi_sdf_dat.items():
             if secondary_chebi_id in props:
                 secondary_ids = props[secondary_chebi_id]
                 for secondary_id in secondary_ids:
-                    properties.append(PropertyValue(
+                    propf.write(Property(
                         curie = cid,
-                        property = HAS_ADDITIONAL_ID,
+                        predicate = HAS_ADDITIONAL_ID,
                         value = secondary_id,
-                        description = 'Listed as a CHEBI secondary ID in the ChEBI SDF file'
-                    ))
+                        source = f'Listed as a CHEBI secondary ID in the ChEBI SDF file ({sdf})'
+                    ).to_json_line())
             if kk in props:
                 outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{props[kk]}\n')
             if pk in props:
@@ -528,10 +521,6 @@ def make_chebi_relations(sdf,dbx,outfile,metadata_yaml):
                 outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{x[4]}\n')
             if x[3] == 'Pubchem accession':
                 outf.write(f'{cid}\txref\t{PUBCHEMCOMPOUND}:{x[4]}\n')
-
-        # Write out the properties.
-        propstore.insert_all(properties)
-
 
     write_concord_metadata(
         metadata_yaml,
@@ -672,7 +661,7 @@ def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_c
         combined_from_filenames=input_metadata_yamls,
     )
 
-def build_compendia(type_file, untyped_compendia_file, metadata_yamls, icrdf_filename):
+def build_compendia(type_file, untyped_compendia_file, properties_jsonl_gz_files, metadata_yamls, icrdf_filename):
     types = {}
     with open(type_file,'r') as inf:
         for line in inf:
@@ -687,9 +676,9 @@ def build_compendia(type_file, untyped_compendia_file, metadata_yamls, icrdf_fil
     for biotype, sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
         if biotype == DRUG:
-            write_compendium(metadata_yamls, sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[MESH,UNII], icrdf_filename=icrdf_filename)
+            write_compendium(metadata_yamls, sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[MESH,UNII], icrdf_filename=icrdf_filename, properties_jsonl_gz_files=properties_jsonl_gz_files)
         else:
-            write_compendium(metadata_yamls, sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[RXCUI], icrdf_filename=icrdf_filename)
+            write_compendium(metadata_yamls, sets, f'{baretype}.txt', biotype, {}, extra_prefixes=[RXCUI], icrdf_filename=icrdf_filename, properties_jsonl_gz_files=properties_jsonl_gz_files)
 
 def create_typed_sets(eqsets, types):
     """
