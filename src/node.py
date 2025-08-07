@@ -412,8 +412,7 @@ class NodeFactory:
         labeled_list = []
         for iid in input_identifiers:
             if isinstance(iid,LabeledID):
-                print('LabeledID dont belong here, pass in labels seperately',iid)
-                exit()
+                raise ValueError(f"LabeledID don't belong here ({iid}), pass in labels separately.")
             if iid in labels:
                 labeled_list.append( LabeledID(identifier=iid, label = labels[iid]))
             else:
@@ -442,7 +441,7 @@ class NodeFactory:
         if len(input_identifiers) == 0:
             return None
         if len(input_identifiers) > 1000:
-            print(f'this seems like a lot of input_identifiers in node.create_node() [{len(input_identifiers)}]: {input_identifiers}')
+            logging.warning(f'this seems like a lot of input_identifiers in node.create_node() [{len(input_identifiers)}]: {input_identifiers}')
         cleaned = self.apply_labels(input_identifiers,labels)
         try:
             idmap = defaultdict(list)
@@ -457,7 +456,7 @@ class NodeFactory:
                 print(type(i))
                 print(Text.get_curie(i))
                 print(Text.get_curie(i).upper())
-            exit()
+            raise ValueError('something very bad')
         identifiers = []
         accepted_ids = set()
         #Converting identifiers from LabeledID to dicts
