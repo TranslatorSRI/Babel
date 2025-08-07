@@ -5,13 +5,16 @@ from enum import Enum
 from ftplib import FTP
 from io import BytesIO
 import gzip
-from datetime import datetime as dt
+from datetime import datetime as dt, datetime
 from datetime import timedelta
 import time
 import requests
 import os
 import urllib
 import jsonlines
+import yaml
+
+from src.metadata.provenance import write_combined_metadata
 from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory
 from src.util import Text, get_config
 from src.LabeledID import LabeledID
@@ -349,10 +352,11 @@ def get_numerical_curie_suffix(curie):
     return None
 
 
-def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],icrdf_filename=None):
+def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={}, extra_prefixes=[], icrdf_filename=None):
     """
+    :param metadata_yaml: The YAML files containing the metadata for this compendium.
     :param synonym_list:
-    :param ofname:
+    :param ofname: Output filename. A file with this filename will be created in both the `compendia` and `synonyms` output directories.
     :param node_type:
     :param labels: A map of identifiers
         Not needed if each identifier will have a label in the correct directory (i.e. downloads/PMID/labels for PMID:xxx).
@@ -389,11 +393,19 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
     os.makedirs(os.path.join(cdir, 'compendia'), exist_ok=True)
     os.makedirs(os.path.join(cdir, 'synonyms'), exist_ok=True)
 
+    # Counts.
+    count_cliques = 0
+    count_eq_ids = 0
+    count_synonyms = 0
+
     # Write compendium and synonym files.
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
             if node is not None:
+                count_cliques += 1
+                count_eq_ids += len(slist)
+
                 nw = {"type": node['type']}
                 ic = ic_factory.get_ic(node)
                 nw['ic'] = ic
@@ -498,6 +510,8 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                                 "names": synonyms_list,
                                 "types": [t[8:] for t in types]} # remove biolink:
 
+                    count_synonyms += len(synonyms_list)
+
                     # Write out the preferred name.
                     if preferred_name:
                         document["preferred_name"] = preferred_name
@@ -544,6 +558,19 @@ def write_compendium(synonym_list,ofname,node_type,labels={},extra_prefixes=[],i
                     print(node_factory.get_ancestors(node["type"]))
                     traceback.print_exc()
                     exit()
+
+    # Write out the metadata.yaml file combining information from all the metadata.yaml files.
+    write_combined_metadata(
+        os.path.join(cdir, 'metadata', ofname + '.yaml'),
+        typ='compendium',
+        name=ofname,
+        counts={
+            'cliques': count_cliques,
+            'eq_ids': count_eq_ids,
+            'synonyms': count_synonyms,
+        },
+        combined_from_filenames=metadata_yamls,
+    )
 
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.

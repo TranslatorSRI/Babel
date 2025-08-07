@@ -1,3 +1,4 @@
+from src.metadata.provenance import write_concord_metadata
 from src.prefixes import UNIPROTKB, NCBIGENE
 from src.babel_utils import glom
 from collections import defaultdict
@@ -8,7 +9,7 @@ import logging
 from src.util import LoggingUtil
 logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
-def build_uniprotkb_ncbigene_relationships(infile,outfile):
+def build_uniprotkb_ncbigene_relationships(infile,outfile, metadata_yaml):
     #The trick is that the uniprot mapping file can have more than one gene per protein.
     # Our model is 1 gene, many proteins, so this causes trouble.
     # For the moment, we will not include that have more than one gene per protein
@@ -25,6 +26,18 @@ def build_uniprotkb_ncbigene_relationships(infile,outfile):
             if len(ncbigene_ids) == 1:
                 ncbigene_id = ncbigene_ids[0]
                 outf.write(f'{uniprot_id}\trelated_to\t{ncbigene_id}\n')
+
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_uniprotkb_ncbigene_relationships()',
+        description='Extract NCBIGene-UniProtKB relationships from UniProtKB id-mapping file {infile}',
+        sources=[{
+            'type': 'UniProtKB',
+            'name': 'UniProtKB idmapping file',
+            'filename': infile,
+        }],
+        concord_filename=outfile,
+    )
 
 
 def merge(geneproteinlist):

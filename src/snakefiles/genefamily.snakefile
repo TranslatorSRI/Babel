@@ -15,7 +15,7 @@ rule genefamily_hgncfamily_ids:
     input:
         infile=config['download_directory']+'/HGNC.FAMILY/labels'
     output:
-        outfile=config['intermediate_directory']+"/genefamily/ids/HGNC.FAMILY"
+        outfile=config['intermediate_directory']+"/genefamily/ids/HGNC.FAMILY",
     shell:
         #This one is a simple enough transform to do with awk
         "awk '{{print $1\"\tbiolink:GeneFamily\"}}' {input.infile} > {output.outfile}"
@@ -24,12 +24,14 @@ rule genefamily_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['genefamily_labels']),
         idlists=expand("{dd}/genefamily/ids/{ap}",dd=config['intermediate_directory'],ap=config['genefamily_ids']),
+        metadata_yamls=expand("{dd}/{ap}/metadata.yaml",dd=config['download_directory'],ap=config['genefamily_labels']),
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['genefamily_outputs']),
-        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['genefamily_outputs']))
+        temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['genefamily_outputs'])),
+        metadata_yaml=config['output_directory']+'/metadata/GeneFamily.txt.yaml',
     run:
-        genefamily.build_compendia(input.idlists, input.icrdf_filename)
+        genefamily.build_compendia(input.idlists, input.metadata_yamls, input.icrdf_filename)
 
 rule check_genefamily_completeness:
     input:
