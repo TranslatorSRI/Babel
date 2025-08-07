@@ -11,7 +11,7 @@
 import gzip
 import json
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 #
 # SUPPORTED PROPERTIES
@@ -22,7 +22,7 @@ from dataclasses import dataclass
 HAS_ADDITIONAL_ID = 'http://www.geneontology.org/formats/oboInOwl#hasAlternativeId'
 
 # Properties currently supported in the property store in one set for validation.
-supported_properties = {
+supported_predicates = {
     HAS_ADDITIONAL_ID,
 }
 
@@ -38,35 +38,42 @@ class Property:
     """
 
     curie: str
-    property: str
+    predicate: str
     value: str
-    source: str
+    sources: list[str] = field(default_factory=list[str])
 
     @staticmethod
     def valid_keys():
-        return ['curie', 'property', 'value', 'source']
+        return ['curie', 'predicate', 'value', 'sources']
 
     def __post_init__(self):
         """
         Make sure this Property makes sense.
         """
-        if self.property not in supported_properties:
-            raise ValueError(f'Property {self.property} is not supported (supported properties: {supported_properties})')
+        if self.predicate not in supported_predicates:
+            raise ValueError(f'Predicate {self.predicate} is not supported (supported predicates: {supported_predicates})')
 
     @staticmethod
-    def from_dict(prop):
+    def from_dict(prop_dict, source=None):
         """
         Read this dictionary into a Property.
 
+        :param prop_dict: A dictionary containing the property values.
+        :param source: The source of this property, if any.
         :return: A Property version of this JSON line.
         """
 
         # Check if this dictionary includes keys that aren't valid in a Property.
-        unexpected_keys = prop.keys() - Property.valid_keys()
+        unexpected_keys = prop_dict.keys() - Property.valid_keys()
         if len(unexpected_keys) > 0:
-            raise ValueError(f'Unexpected keys in dictionary to be converted to Property ({unexpected_keys}): {json.dumps(prop, sort_keys=True, indent=2)}')
+            raise ValueError(f'Unexpected keys in dictionary to be converted to Property ({unexpected_keys}): {json.dumps(prop_dict, sort_keys=True, indent=2)}')
 
-        return Property(**prop)
+        prop = Property(**prop_dict)
+        if source is not None:
+            # Add the source to the end of the sources list.
+            prop.sources.append(source)
+
+        return prop
 
     # TODO: we should have some validation code in here so people don't make nonsense properties, which means
     # validating both the property and the value.
@@ -79,9 +86,9 @@ class Property:
         """
         return json.dumps({
             'curie': self.curie,
-            'property': self.property,
+            'predicate': self.predicate,
             'value': self.value,
-            'source': self.source,
+            'sources': self.sources,
         }) + '\n'
 
 #
@@ -116,20 +123,27 @@ class PropertyList:
     def properties(self) -> set[Property]:
         return self._properties
 
-    def __getitem__(self, curie: str) -> set[Property]:
+    def get_all(self, curie: str, predicate: str = None) -> set[Property]:
         """
         Get all properties for a given CURIE.
 
         :param curie: The CURIE to look up properties.
+        :param predicate: If specified, only return properties with this predicate.
         :return: The set of properties for this CURIE.
         """
-        return self._properties_by_curie[curie]
+        props = self._properties_by_curie[curie]
+
+        if predicate not in supported_predicates:
+            raise ValueError(f'Predicate {predicate} is not supported (supported predicates: {supported_predicates})')
+
+        return set(filter(lambda p: p.predicate == predicate, props))
 
     def add_properties(self, props: set[Property]):
         """
         Add a set of Property values to the list.
 
         :param props: A set of Property values.
+        :param source: The source of these properties, if any.
         :return: The number of unique properties added.
         """
 
@@ -152,6 +166,6 @@ class PropertyList:
         props_to_add = set[Property]()
         with gzip.open(filename_gz, 'rt') as f:
             for line in f:
-                props_to_add.add(Property.from_dict(json.loads(line)))
+                props_to_add.add(Property.from_dict(json.loads(line), source=filename_gz))
 
         return self.add_properties(props_to_add)
