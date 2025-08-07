@@ -1,5 +1,7 @@
 import logging
+import os
 from collections import defaultdict
+from os.path import dirname
 
 import jsonlines
 import requests
@@ -483,6 +485,10 @@ def make_chebi_relations(sdf,dbx,outfile,propfile_gz,metadata_yaml):
     kk = 'keggcompounddatabaselinks'
     pk = 'pubchemdatabaselinks'
     secondary_chebi_id = 'secondarychebiid'
+
+    # What if we don't have a propfile directory?
+    os.makedirs(dirname(propfile_gz), exist_ok=True)
+
     with open(outfile,'w') as outf, gzip.open(propfile_gz, 'wt') as propf:
         #Write SDF structured things
         for cid,props in chebi_sdf_dat.items():
