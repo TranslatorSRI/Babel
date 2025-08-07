@@ -1,83 +1,157 @@
 #
 # properties.py: handle node- and clique-level properties for Babel.
 #
-# It would be great if we could get all Babel properties (labels, synonyms, etc.) stored in the same database
-# store, but that appears to be impractical given how long it takes to write into a database. So we'll leave
-# labels, synonyms and descriptions working in the current system, and start putting new properties (starting with
-# hasAdditionalId) into this database. I'd love to get descriptions moved in here as well.
+# Property files are JSONL files that can be read into and out of the Property dataclass.
+# So writing them is easy: you just add each property on its own line, and if you go through
+# Property(...).to_json_line() we can even validate it for you (eventually).
 #
-import os
-from contextlib import AbstractContextManager
+# We generally need to read multiple properties files so you can run queries over all of them, which you can do by
+# using the PropertyList class.
+#
+import gzip
+import json
+from collections import defaultdict
 from dataclasses import dataclass
 
-import sqlite3
+#
+# SUPPORTED PROPERTIES
+#
 
-from src.babel_utils import make_local_name
+# HAS_ADDITIONAL_ID indicates
+#   - Used by write_compendia() to
+HAS_ADDITIONAL_ID = 'http://www.geneontology.org/formats/oboInOwl#hasAlternativeId'
 
-# Properties currently supported in the property store:
+# Properties currently supported in the property store in one set for validation.
 supported_properties = {
-    'hasAdditionalId': 'http://www.geneontology.org/formats/oboInOwl#hasAlternativeId',
+    HAS_ADDITIONAL_ID,
 }
 
-HAS_ADDITIONAL_ID = 'hasAdditionalId'
+#
+# The Property dataclass can be used to encapsulate a property for a CURIE. It has helper code to read
+# and write these properties.
+#
 
-# A single property value.
 @dataclass
-class PropertyValue:
+class Property:
+    """
+    A property value for a CURIE.
+    """
+
     curie: str
     property: str
     value: str
-    description: str
+    source: str
 
+    @staticmethod
+    def valid_keys():
+        return ['curie', 'property', 'value', 'source']
 
-# A property store for a properties file.
-class PropertyStore(AbstractContextManager):
-    def __init__(self, db3file_path, validate_properties=True, autocommit=True):
-        self.validate_properties = validate_properties
-        self.autocommit = autocommit
+    def __post_init__(self):
+        """
+        Make sure this Property makes sense.
+        """
+        if self.property not in supported_properties:
+            raise ValueError(f'Property {self.property} is not supported (supported properties: {supported_properties})')
 
-        # Make the prefix directory if it doesn't exist.
-        os.makedirs(os.path.dirname(db3file_path), exist_ok=True)
+    @staticmethod
+    def from_dict(prop):
+        """
+        Read this dictionary into a Property.
 
-        self.connection = sqlite3.connect(db3file_path)
-        cur = self.connection.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS properties (curie TEXT, property TEXT, value TEXT, description TEXT) ;")
-        # Create a UNIQUE index on the property values -- this means that if someone tries to set the same value for
-        # a property either duplicatively or from another source, we simply ignore it.
-        cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS properties_propvalues ON properties (curie, property, value);")
-        self.connection.commit()
+        :return: A Property version of this JSON line.
+        """
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.connection.close()
+        # Check if this dictionary includes keys that aren't valid in a Property.
+        unexpected_keys = prop.keys() - Property.valid_keys()
+        if len(unexpected_keys) > 0:
+            raise ValueError(f'Unexpected keys in dictionary to be converted to Property ({unexpected_keys}): {json.dumps(prop, sort_keys=True, indent=2)}')
 
-    def commit(self):
-        self.connection.commit()
+        return Property(**prop)
 
-    def query(self, sql, params=None):
-        cursor = self.connection.cursor()
-        return cursor.execute(sql, params)
+    # TODO: we should have some validation code in here so people don't make nonsense properties, which means
+    # validating both the property and the value.
 
-    def get_by_curie(self, curie) -> list[PropertyValue]:
-        results = self.query("SELECT curie, property, value, description FROM properties WHERE curie=:curie", params={
-            "curie": curie,
-        })
-        return [PropertyValue(result[0], result[1], result[2], result[3]) for result in results]
+    def to_json_line(self):
+        """
+        Returns this property as a JSONL line, including the final newline (so you can write it directly to a file).
 
-    def get_all(self) -> list[PropertyValue]:
-        results = self.query("SELECT curie, property, value, description FROM properties")
-        return [PropertyValue(result[0], result[1], result[2], result[3]) for result in results]
+        :return: A string containing the JSONL line of this property.
+        """
+        return json.dumps({
+            'curie': self.curie,
+            'property': self.property,
+            'value': self.value,
+            'source': self.source,
+        }) + '\n'
 
-    def insert_all(self, pvs):
-        cursor = self.connection.cursor()
-        data = []
-        for pv in pvs:
-            if self.validate_properties and pv.property not in supported_properties:
-                raise ValueError(f"Unable to insert_all({pvs}): unsupported property {pv.property} in {pv}.")
-            data.append({
-                "curie": pv.curie,
-                "property": supported_properties[pv.property],
-                "value": pv.value,
-                "description": pv.description,
-            })
-        cursor.executemany("INSERT OR IGNORE INTO properties VALUES (:curie, :property, :value, :description)", data)
-        self.connection.commit()
+#
+# The PropertyList object can be used to load and query properties from multiple sources.
+#
+# We could write them into a DuckDB file as we load them so they can overflow onto disk as needed, but that's overkill
+# for right now, so we'll just load them all into memory.
+#
+
+class PropertyList:
+    """
+    This class can be used to load multiple property files for simultaneous querying.
+
+    In order to support the existing property files, we will additionally support the two main alternate formats we use:
+    - A three column TSV file, with columns: CURIE, property, value
+    - A four column TSV file, with columns: CURIE, property, value, source
+
+    But eventually all of those files will be subsumed into JSONL files.
+    """
+
+    def __init__(self):
+        """
+        Create a new PropertyList object.
+
+        Since most of our queries will be CURIE-based, we'll index properties by CURIE, but we'll also keep
+        a set of all properties.
+        """
+        self._properties = set[Property]()
+        self._properties_by_curie = defaultdict(set[Property])
+
+    @property
+    def properties(self) -> set[Property]:
+        return self._properties
+
+    def __getitem__(self, curie: str) -> set[Property]:
+        """
+        Get all properties for a given CURIE.
+
+        :param curie: The CURIE to look up properties.
+        :return: The set of properties for this CURIE.
+        """
+        return self._properties_by_curie[curie]
+
+    def add_properties(self, props: set[Property]):
+        """
+        Add a set of Property values to the list.
+
+        :param props: A set of Property values.
+        :return: The number of unique properties added.
+        """
+
+        props_to_be_added = (props - self._properties)
+
+        self._properties.update(props)
+        for prop in props:
+            self._properties_by_curie[prop.curie].add(prop)
+
+        return len(props_to_be_added)
+
+    def add_properties_jsonl_gz(self, filename_gz: str):
+        """
+        Add all the properties in a JSONL Gzipped file.
+
+        :param filename_gz: The properties JSONL Gzipped filename to load.
+        :return: The number of unique properties loaded.
+        """
+
+        props_to_add = set[Property]()
+        with gzip.open(filename_gz, 'rt') as f:
+            for line in f:
+                props_to_add.add(Property.from_dict(json.loads(line)))
+
+        return self.add_properties(props_to_add)
