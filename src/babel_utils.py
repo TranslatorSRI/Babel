@@ -16,6 +16,7 @@ import yaml
 
 from src.metadata.provenance import write_combined_metadata
 from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory
+from src.properties import PropertyList, HAS_ADDITIONAL_ID
 from src.util import Text, get_config
 from src.LabeledID import LabeledID
 from collections import defaultdict
@@ -352,7 +353,7 @@ def get_numerical_curie_suffix(curie):
     return None
 
 
-def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={}, extra_prefixes=[], icrdf_filename=None):
+def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=None, extra_prefixes=None, icrdf_filename=None, properties_jsonl_gz_files=None):
     """
     :param metadata_yaml: The YAML files containing the metadata for this compendium.
     :param synonym_list:
@@ -367,8 +368,13 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={},
         write_compendium() will throw a RuntimeError if it is not specified. This is to ensure that it has been
         properly specified as a prerequisite in a Snakemake file, so that write_compendium() is not run until after
         icRDF.tsv has been generated.
+    :param properties_files: (OPTIONAL) A list of SQLite3 files containing properties to be added to the output.
     :return:
     """
+    if extra_prefixes is None:
+        extra_prefixes = []
+    if labels is None:
+        labels = {}
     config = get_config()
     cdir = config['output_directory']
     biolink_version = config['biolink_version']
@@ -393,6 +399,14 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={},
     os.makedirs(os.path.join(cdir, 'compendia'), exist_ok=True)
     os.makedirs(os.path.join(cdir, 'synonyms'), exist_ok=True)
 
+    # Load all the properties.
+    property_list = PropertyList()
+    if properties_jsonl_gz_files:
+        for properties_jsonl_gz_file in properties_jsonl_gz_files:
+            property_list.add_properties_jsonl_gz(properties_jsonl_gz_file)
+
+    property_source_count = defaultdict(int)
+
     # Counts.
     count_cliques = 0
     count_eq_ids = 0
@@ -401,6 +415,20 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={},
     # Write compendium and synonym files.
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         for slist in synonym_list:
+            # At this point, we insert any HAS_ADDITIONAL_ID properties we have.
+            # The logic we use is: we insert all additional IDs for a CURIE *AFTER* that CURIE, in a random order, as long
+            # as the additional CURIE is not already in the list of CURIEs.
+            identifier_list = []
+            for iid in slist:
+                identifier_list.append(iid)
+                additional_curies = property_list.get_all(iid, HAS_ADDITIONAL_ID)
+                if additional_curies:
+                    for ac in additional_curies:
+                        if ac.curie not in slist:
+                            identifier_list.append(ac.curie)
+                            for source in ac.sources:
+                                property_source_count[source] += 1
+
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
             if node is not None:
                 count_cliques += 1
@@ -568,6 +596,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels={},
             'cliques': count_cliques,
             'eq_ids': count_eq_ids,
             'synonyms': count_synonyms,
+            'property_sources': property_source_count,
         },
         combined_from_filenames=metadata_yamls,
     )

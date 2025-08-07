@@ -30,10 +30,10 @@ def chebi_sdf_entry_to_dict(sdf_chunk, interesting_keys = {}):
                 current_key = line.replace('>','').replace('<','').strip().replace(' ', '').lower()
                 current_key = 'formula' if current_key == 'formulae' else current_key
                 if current_key in interesting_keys:
-                    final_dict[interesting_keys[current_key]] = ''
+                    final_dict[interesting_keys[current_key]] = []
                 continue
             if current_key == 'chebiid':
                 chebi_id = line
             if current_key in interesting_keys:
-                final_dict[interesting_keys[current_key]] += line
+                final_dict[interesting_keys[current_key]].append(line)
     return (chebi_id, final_dict)
