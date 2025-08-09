@@ -1,3 +1,4 @@
+from src.metadata.provenance import write_concord_metadata
 from src.prefixes import NCBITAXON,MESH,UMLS
 from src.categories import ORGANISM_TAXON
 
@@ -61,10 +62,10 @@ def write_umls_ids(mrsty, outfile):
     ]}
     umls.write_umls_ids(mrsty, umlsmap,outfile)
 
-def build_taxon_umls_relationships(mrconso, idfile, outfile):
-    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH, 'NCBITaxon': NCBITAXON})
+def build_taxon_umls_relationships(mrconso, idfile, outfile, metadata_yaml):
+    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH, 'NCBITaxon': NCBITAXON}, provenance_metadata_yaml=metadata_yaml)
 
-def build_relationships(outfile,mesh_ids):
+def build_relationships(outfile,mesh_ids, metadata_yaml):
     regis = mesh.pull_mesh_registry()
     with open(mesh_ids,'r') as inf:
         lines = inf.read().strip().split('\n')
@@ -80,9 +81,20 @@ def build_relationships(outfile,mesh_ids):
         #left = list(all_mesh_taxa.difference( set([x[0] for x in regis]) ))
         #eutil.lookup(left)
 
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_relationships()',
+        description='Builds relationships between MeSH and NCBI Taxon from the MeSH registry.',
+        sources=[{
+            'type': 'MeSH',
+            'name': 'MeSH Registry',
+            'url': 'ftp://ftp.nlm.nih.gov/online/mesh/rdf/mesh.nt.gz',
+        }],
+        concord_filename=outfile,
+    )
 
 
-def build_compendia(concordances, identifiers, icrdf_filename):
+def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = {}
@@ -106,5 +118,5 @@ def build_compendia(concordances, identifiers, icrdf_filename):
     baretype = ORGANISM_TAXON.split(':')[-1]
     # We need to use extra_prefixes since UMLS is not listed as an identifier prefix at
     # https://biolink.github.io/biolink-model/docs/OrganismTaxon.html
-    write_compendium(gene_sets, f'{baretype}.txt', ORGANISM_TAXON, {}, icrdf_filename=icrdf_filename)
+    write_compendium(metadata_yamls, gene_sets, f'{baretype}.txt', ORGANISM_TAXON, {}, icrdf_filename=icrdf_filename)
 

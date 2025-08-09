@@ -1,4 +1,5 @@
 from src.babel_utils import make_local_name, pull_via_ftp
+from src.metadata.provenance import write_metadata
 from src.prefixes import PANTHERFAMILY
 
 def pull_pantherfamily():
@@ -7,7 +8,7 @@ def pull_pantherfamily():
     # If you need to check this quickly, it's also available on HTTP at:
     # - http://data.pantherdb.org/ftp/sequence_classifications/current_release/PANTHER_Sequence_Classification_files/
 
-def pull_labels(infile,outfile):
+def pull_labels(infile,outfile, metadata_yaml):
     with open(infile,'r') as inf:
         data = inf.read()
     lines = data.strip().split('\n')
@@ -38,3 +39,15 @@ def pull_labels(infile,outfile):
                 #labels[sub_family]=sfname
                 labelf.write(f'{sub_family}\t{sfname}\n')
                 done.add(sf)
+
+    write_metadata(
+        metadata_yaml,
+        typ='transform',
+        name='pantherfamily.pull_labels()',
+        description='Main families and subfamily labels extracted from PANTHER Sequence Classification human.',
+        sources=[{
+            'type': 'download',
+            'name': 'PANTHER Sequence Classification: Human',
+            'url': 'ftp://ftp.pantherdb.org/sequence_classifications/current_release/PANTHER_Sequence_Classification_files/PTHR19.0_human',
+        }]
+    )
