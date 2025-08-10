@@ -26,6 +26,7 @@ def get_logger(name=None, level=logging.INFO):
     so that Snakemake can capture it is fine. However, we
     """
     if name is None:
+        # TODO: what we really want to get here is the Snakemake job we're currently in, but that's tricky.
         name = f"{__name__} ({__file__})"
 
     # Set up a logger.
