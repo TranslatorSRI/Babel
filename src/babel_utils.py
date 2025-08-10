@@ -17,7 +17,7 @@ import yaml
 from src.metadata.provenance import write_combined_metadata
 from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory
 from src.properties import PropertyList, HAS_ADDITIONAL_ID
-from src.util import Text, get_config
+from src.util import Text, get_config, get_memory_usage_summary
 from src.LabeledID import LabeledID
 from collections import defaultdict
 import sqlite3
@@ -371,6 +371,9 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
     :param properties_files: (OPTIONAL) A list of SQLite3 files containing properties to be added to the output.
     :return:
     """
+    logging.info(f"Starting write_compendium({metadata_yamls}, {synonym_list}, {ofname}, {node_type}, {labels}, {extra_prefixes}, {icrdf_filename}, {properties_jsonl_gz_files})")
+    logging.info(f" - Memory usage: {get_memory_usage_summary()}")
+
     if extra_prefixes is None:
         extra_prefixes = []
     if labels is None:
@@ -414,7 +417,27 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
     # Write compendium and synonym files.
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
+        # Calculate an estimated time to completion.
+        start_time = time.time_ns()
+        count_slist = 0
+        total_slist = len(synonym_list)
+
         for slist in synonym_list:
+            # Before we get started, let's estimate where we're at.
+            count_slist += 1
+            if count_slist % 1000000 == 0:
+                time_elapsed_seconds = (time.time_ns() - start_time) / 1E9
+                remaining_slist = total_slist - count_slist
+                # count_slist --> time_elapsed_seconds
+                # remaining_slist --> remaining_slist/count_slit*time_elapsed_seconds
+                logging.info(f"Generated compendia and synonyms for {count_slist:,} out of {total_slist:,} ({count_slist/total_slist*100:.2f}%).")
+                logging.info(f" - Current rate: {count_slist/time_elapsed_seconds:.2f} cliques/second or {time_elapsed_seconds/count_slist:.2f} seconds/clique.")
+
+                time_remaining_seconds = (time_elapsed_seconds / count_slist * remaining_slist)
+                hours, remainder = divmod(time_remaining_seconds, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                logging.info(f" - Estimated time remaining: {time_remaining_seconds:.2f} seconds ({hours:} hours, {minutes:02} minutes, {seconds:02} seconds)")
+
             # At this point, we insert any HAS_ADDITIONAL_ID properties we have.
             # The logic we use is: we insert all additional IDs for a CURIE *AFTER* that CURIE, in a random order, as long
             # as the additional CURIE is not already in the list of CURIEs.

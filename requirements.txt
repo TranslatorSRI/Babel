@@ -31,3 +31,6 @@ duckdb
 # on checking if it's online via http://httpstat.us/200, which is often offline. My branch of this
 # https://github.com/gaurav/apybiomart/tree/change-check-url and changes that to https://example.org.
 git+https://github.com/gaurav/apybiomart.git@change-check-url
+
+# Added by Gaurav, Aug 2025 to check for memory information while Babel is running.
+psutil
