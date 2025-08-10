@@ -430,7 +430,9 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                                 property_source_count[source] += 1
 
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
-            if node is not None:
+            if node is None:
+                raise RuntimeError(f"Could not create node for ({slist}, {node_type}, {labels}, {extra_prefixes}): returned None.")
+            else:
                 count_cliques += 1
                 count_eq_ids += len(slist)
 
