@@ -371,7 +371,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
     :param properties_files: (OPTIONAL) A list of SQLite3 files containing properties to be added to the output.
     :return:
     """
-    logging.info(f"Starting write_compendium({metadata_yamls}, {synonym_list}, {ofname}, {node_type}, {labels}, {extra_prefixes}, {icrdf_filename}, {properties_jsonl_gz_files})")
+    logging.info(f"Starting write_compendium({metadata_yamls}, {len(synonym_list)} slists, {ofname}, {node_type}, {len(labels)} labels, {extra_prefixes}, {icrdf_filename}, {properties_jsonl_gz_files})")
     logging.info(f" - Memory usage: {get_memory_usage_summary()}")
 
     if extra_prefixes is None:
