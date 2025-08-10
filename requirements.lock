@@ -92,7 +92,7 @@ pronto==2.7.0
 propcache==0.3.1
 psutil==7.0.0
 psycopg2-binary==2.9.10
-PuLP==3.1.1
+PuLP==2.7.0
 pydantic==2.11.4
 pydantic_core==2.33.2
 PyJSG==0.11.10
@@ -128,7 +128,7 @@ ShExJSG==0.8.2
 six==1.17.0
 smart-open==7.1.0
 smmap==5.0.2
-snakemake==9.3.3
+snakemake==7.32.4
 snakemake-interface-common==1.17.4
 snakemake-interface-executor-plugins==9.3.5
 snakemake-interface-logger-plugins==1.2.3
@@ -142,10 +142,12 @@ SQLAlchemy==2.0.40
 SQLAlchemy-Utils==0.38.3
 sssom==0.4.15
 sssom-schema==1.0.0
+stopit==1.1.2
 stringcase==1.2.0
 tabulate==0.9.0
 tenacity==8.5.0
 throttler==1.2.2
+toposort==1.10
 tqdm==4.67.1
 traitlets==5.14.3
 types-python-dateutil==2.9.0.20241206
