@@ -1,4 +1,3 @@
-import logging
 import subprocess
 import traceback
 from enum import Enum
@@ -18,11 +17,14 @@ from humanfriendly import format_timespan
 from src.metadata.provenance import write_combined_metadata
 from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory
 from src.properties import PropertyList, HAS_ADDITIONAL_ID
-from src.util import Text, get_config, get_memory_usage_summary
+from src.util import Text, get_config, get_memory_usage_summary, get_logger
 from src.LabeledID import LabeledID
 from collections import defaultdict
 import sqlite3
 from typing import List, Tuple
+
+# Set up logger.
+logger = get_logger()
 
 def make_local_name(fname,subpath=None):
     config = get_config()
@@ -284,7 +286,7 @@ def pull_via_wget(
             wget_command_line.extend(['--recursive', '--no-parent', '--no-directories', '--level=1', '--directory-prefix=' + dl_file_name])
 
     # Execute wget.
-    logging.info(f"Downloading {dl_file_name} using wget: {wget_command_line}")
+    logger.info(f"Downloading {dl_file_name} using wget: {wget_command_line}")
     process = subprocess.run(wget_command_line)
     if process.returncode != 0:
         raise RuntimeError(f"Could not execute wget {wget_command_line}: {process.stderr}")
@@ -302,17 +304,17 @@ def pull_via_wget(
 
         if os.path.isfile(uncompressed_filename):
             file_size = os.path.getsize(uncompressed_filename)
-            logging.info(f"Downloaded {uncompressed_filename} from {url}, file size {file_size} bytes.")
+            logger.info(f"Downloaded {uncompressed_filename} from {url}, file size {file_size} bytes.")
         else:
             raise RuntimeError(f'Expected uncompressed file {uncompressed_filename} does not exist.')
     else:
         if os.path.isfile(dl_file_name):
             file_size = os.path.getsize(dl_file_name)
-            logging.info(f"Downloaded {dl_file_name} from {url}, file size {file_size} bytes.")
+            logger.info(f"Downloaded {dl_file_name} from {url}, file size {file_size} bytes.")
         elif os.path.isdir(dl_file_name):
             # Count the number of files in directory dl_file_name
             dir_size = sum(os.path.getsize(os.path.join(dl_file_name, f)) for f in os.listdir(dl_file_name) if os.path.isfile(os.path.join(dl_file_name, f)))
-            logging.info(f"Downloaded {dir_size} files from {url} to {dl_file_name}.")
+            logger.info(f"Downloaded {dir_size} files from {url} to {dl_file_name}.")
         else:
             raise RuntimeError(f'Unknown file type {dl_file_name}')
 
@@ -372,8 +374,8 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
     :param properties_files: (OPTIONAL) A list of SQLite3 files containing properties to be added to the output.
     :return:
     """
-    logging.info(f"Starting write_compendium({metadata_yamls}, {len(synonym_list)} slists, {ofname}, {node_type}, {len(labels)} labels, {extra_prefixes}, {icrdf_filename}, {properties_jsonl_gz_files})")
-    logging.info(f" - Memory usage: {get_memory_usage_summary()}")
+    logger.info(f"Starting write_compendium({metadata_yamls}, {len(synonym_list)} slists, {ofname}, {node_type}, {len(labels)} labels, {extra_prefixes}, {icrdf_filename}, {properties_jsonl_gz_files})")
+    logger.info(f" - Memory usage: {get_memory_usage_summary()}")
 
     if extra_prefixes is None:
         extra_prefixes = []
@@ -431,14 +433,14 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                 remaining_slist = total_slist - count_slist
                 # count_slist --> time_elapsed_seconds
                 # remaining_slist --> remaining_slist/count_slit*time_elapsed_seconds
-                logging.info(f"Generated compendia and synonyms for {count_slist:,} out of {total_slist:,} ({count_slist/total_slist*100:.2f}%).")
-                logging.info(f" - Current rate: {count_slist/time_elapsed_seconds:.2f} cliques/second or {time_elapsed_seconds/count_slist:.2f} seconds/clique.")
+                logger.info(f"Generated compendia and synonyms for {count_slist:,} out of {total_slist:,} ({count_slist/total_slist*100:.2f}%).")
+                logger.info(f" - Current rate: {count_slist/time_elapsed_seconds:.2f} cliques/second or {time_elapsed_seconds/count_slist:.2f} seconds/clique.")
 
                 time_remaining_seconds = (time_elapsed_seconds / count_slist * remaining_slist)
                 hours, remainder = divmod(time_remaining_seconds, 3600)
                 minutes, seconds = divmod(remainder, 60)
-                logging.info(f" - Estimated time remaining: {time_remaining_seconds:.2f} seconds ({hours:} hours, {minutes:02} minutes, {seconds:02} seconds)")
-                logging.info(f" - Estimated time remaining: {format_timespan(time_remaining_seconds)}")
+                logger.info(f" - Estimated time remaining: {time_remaining_seconds:.2f} seconds ({hours:} hours, {minutes:02} minutes, {seconds:02} seconds)")
+                logger.info(f" - Estimated time remaining: {format_timespan(time_remaining_seconds)}")
 
             # At this point, we insert any HAS_ADDITIONAL_ID properties we have.
             # The logic we use is: we insert all additional IDs for a CURIE *AFTER* that CURIE, in a random order, as long
@@ -571,7 +573,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                     if preferred_name:
                         document["preferred_name"] = preferred_name
                     else:
-                        logging.debug(
+                        logger.debug(
                             f"No preferred name for {node}, probably because all names were filtered out, skipping."
                         )
                         continue
@@ -584,7 +586,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
                     # Since synonyms_list is sorted, we can use the length of the first term as the synonym.
                     if len(synonyms_list) == 0:
-                        logging.debug(f"Synonym list for {node} is empty: no valid name. Skipping.")
+                        logger.debug(f"Synonym list for {node} is empty: no valid name. Skipping.")
                         continue
                     else:
                         document["shortest_name_length"] = len(synonyms_list[0])

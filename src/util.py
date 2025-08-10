@@ -1,6 +1,8 @@
 import logging
 import json
 import os
+import sys
+from time import gmtime
 
 import curies
 import yaml
@@ -15,6 +17,31 @@ from humanfriendly import format_size
 from src.LabeledID import LabeledID
 from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10, ICD10CM, ICD11FOUNDATION
 import src.prefixes as prefixes
+
+def get_logger(name=None, level=logging.INFO):
+    """
+    Get a logger with the specified name.
+
+    The LoggingUtil is inconsistently used, and we don't want rolling logs anyway -- just logging everything to STDOUT
+    so that Snakemake can capture it is fine. However, we
+    """
+    if name is None:
+        name = f"{__name__} ({__file__})"
+
+    # Set up a logger.
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    # Set up a formatter. We want to use UTC time.
+    formatter = logging.Formatter('%(levelname)s %(name)s [%(asctime)s]: %(message)s')
+    formatter.converter = gmtime
+
+    # Set up a stream handler for STDERR.
+    stream_handler = logging.StreamHandler(sys.stderr)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+
+    return logger
 
 #loggers = {}
 class LoggingUtil(object):
