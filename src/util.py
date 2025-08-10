@@ -342,4 +342,4 @@ def get_memory_usage_summary():
     process.memory_percent()
     mem_info = process.memory_info()
 
-    return f"Using {process.memory_percent():.2f}% of available memory (RSS: {mem_info.rss / 1024 ** 2:.2f} MB, VMS: {mem_info.vms / 1024 ** 2:.2f} MB)"
+    return f"Using {process.memory_percent():.2f}% of available memory (RSS: {mem_info.rss / 1024 ** 3:.2f} GB, VMS: {mem_info.vms / 1024 ** 3:.2f} GB)"
