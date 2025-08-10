@@ -240,7 +240,7 @@ rule chemical_compendia:
         temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs'])),
         expand("{od}/metadata/{ap}.yaml", od = config['output_directory'], ap = config['chemical_outputs']),
     run:
-        chemicals.build_compendia(input.typesfile, input.untyped_file, input.properties_jsonl_gz, input.icrdf_filename)
+        chemicals.build_compendia(input.typesfile, input.untyped_file, input.properties_jsonl_gz, input.metadata_yamls, input.icrdf_filename)
 
 rule check_chemical_completeness:
     input:
