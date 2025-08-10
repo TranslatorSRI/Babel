@@ -173,7 +173,7 @@ def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_fil
         pairs = []
         with open(infile, 'r') as inf:
             for line_index, line in enumerate(inf):
-                if line_index % 100000 == 0:
+                if line_index % 1000000 == 0:
                     logging.info(f"Loading concordance file {infile}: line {line_index:,}")
                 x = line.strip().split('\t')
                 pairs.append(set([x[0], x[2]]))
