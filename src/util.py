@@ -10,6 +10,7 @@ import copy
 from logging.handlers import RotatingFileHandler
 
 from bmt import Toolkit
+from humanfriendly import format_size
 
 from src.LabeledID import LabeledID
 from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10, ICD10CM, ICD11FOUNDATION
@@ -342,4 +343,4 @@ def get_memory_usage_summary():
     process.memory_percent()
     mem_info = process.memory_info()
 
-    return f"Using {process.memory_percent():.2f}% of available memory (RSS: {mem_info.rss / 1024 ** 3:.2f} GB, VMS: {mem_info.vms / 1024 ** 3:.2f} GB)"
+    return f"Using {process.memory_percent():.2f}% of available memory (RSS: {format_size(mem_info.rss, binary=True)}, VMS: {format_size(mem_info.vms, binary=True)})"

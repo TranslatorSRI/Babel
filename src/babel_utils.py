@@ -13,6 +13,7 @@ import os
 import urllib
 import jsonlines
 import yaml
+from humanfriendly import format_timespan
 
 from src.metadata.provenance import write_combined_metadata
 from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory
@@ -437,6 +438,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                 hours, remainder = divmod(time_remaining_seconds, 3600)
                 minutes, seconds = divmod(remainder, 60)
                 logging.info(f" - Estimated time remaining: {time_remaining_seconds:.2f} seconds ({hours:} hours, {minutes:02} minutes, {seconds:02} seconds)")
+                logging.info(f" - Estimated time remaining: {format_timespan(time_remaining_seconds)}")
 
             # At this point, we insert any HAS_ADDITIONAL_ID properties we have.
             # The logic we use is: we insert all additional IDs for a CURIE *AFTER* that CURIE, in a random order, as long
