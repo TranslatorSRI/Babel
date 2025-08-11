@@ -23,8 +23,8 @@ from collections import defaultdict
 import sqlite3
 from typing import List, Tuple
 
-# Set up logger.
-logger = get_logger()
+# Set up a logger.
+logger = get_logger(__name__)
 
 def make_local_name(fname,subpath=None):
     config = get_config()
@@ -374,8 +374,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
     :param properties_files: (OPTIONAL) A list of SQLite3 files containing properties to be added to the output.
     :return:
     """
-    logger.info(f"Starting write_compendium({metadata_yamls}, {len(synonym_list)} slists, {ofname}, {node_type}, {len(labels)} labels, {extra_prefixes}, {icrdf_filename}, {properties_jsonl_gz_files})")
-    logger.info(f" - Memory usage: {get_memory_usage_summary()}")
+    logger.info(f"Starting write_compendium({metadata_yamls}, {len(synonym_list)} slists, {ofname}, {node_type}, {len(labels)} labels, {extra_prefixes}, {icrdf_filename}, {properties_jsonl_gz_files}): {get_memory_usage_summary()}")
 
     if extra_prefixes is None:
         extra_prefixes = []
@@ -384,8 +383,11 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
     config = get_config()
     cdir = config['output_directory']
     biolink_version = config['biolink_version']
+
     node_factory = NodeFactory(make_local_name(''),biolink_version)
+    logger.info(f"NodeFactory ready: {node_factory} with {get_memory_usage_summary()}")
     synonym_factory = SynonymFactory(make_local_name(''))
+    logger.info(f"SynonymFactory ready: {synonym_factory} with {get_memory_usage_summary()}")
 
     # Load the preferred_name_boost_prefixes -- this tells us which prefixes to boost when
     # coming up with a preferred label for a particular Biolink class.
@@ -396,10 +398,16 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
     if not icrdf_filename:
         raise RuntimeError("No icrdf_filename parameter provided to write_compendium() -- this is required!")
     ic_factory = InformationContentFactory(icrdf_filename)
+    logger.info(f"InformationContentFactory ready: {ic_factory} with {get_memory_usage_summary()}")
 
     description_factory = DescriptionFactory(make_local_name(''))
+    logger.info(f"DescriptionFactory ready: {description_factory} with {get_memory_usage_summary()}")
+
     taxon_factory = TaxonFactory(make_local_name(''))
+    logger.info(f"TaxonFactory ready: {taxon_factory} with {get_memory_usage_summary()}")
+
     node_test = node_factory.create_node(input_identifiers=[],node_type=node_type,labels={},extra_prefixes = extra_prefixes)
+    logger.info(f"NodeFactory test complete: {node_test} with {get_memory_usage_summary()}")
 
     # Create compendia and synonyms directories, just in case they haven't been created yet.
     os.makedirs(os.path.join(cdir, 'compendia'), exist_ok=True)
@@ -409,7 +417,10 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
     property_list = PropertyList()
     if properties_jsonl_gz_files:
         for properties_jsonl_gz_file in properties_jsonl_gz_files:
+            logger.info(f"Loading properties from {properties_jsonl_gz_file}...")
             property_list.add_properties_jsonl_gz(properties_jsonl_gz_file)
+            logger.info(f"Loaded {properties_jsonl_gz_file}")
+    logger.info(f"All property files loaded: {get_memory_usage_summary()}")
 
     property_source_count = defaultdict(int)
 
@@ -422,13 +433,13 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         # Calculate an estimated time to completion.
         start_time = time.time_ns()
-        count_slist = -1 # So that we display one when we start.
+        count_slist = 0
         total_slist = len(synonym_list)
 
         for slist in synonym_list:
             # Before we get started, let's estimate where we're at.
             count_slist += 1
-            if count_slist % 100000 == 0:
+            if (count_slist == 1) or (count_slist % 100000 == 0):
                 time_elapsed_seconds = (time.time_ns() - start_time) / 1E9
                 if time_elapsed_seconds < 0.001:
                     # We don't want to divide by zero.

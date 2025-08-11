@@ -13,7 +13,7 @@ from src.babel_utils import read_identifier_file,glom,write_compendium,Text
 import os
 from src.util import get_memory_usage_summary, get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 def extract_taxon_ids_from_uniprotkb(idmapping_filename, uniprotkb_taxa_filename):
@@ -162,7 +162,7 @@ def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_fil
         new_identifiers, new_types = read_identifier_file(ifile)
         glom(dicts, new_identifiers, unique_prefixes= uniques)
         types.update(new_types)
-        logger.info(f"Loaded identifier file {ifile}")
+        logger.info(f"Loaded identifier file {ifile}: {get_memory_usage_summary()}")
     logger.info(f"Finished loading identifiers, memory usage: {get_memory_usage_summary()}")
     for infile in concordances:
         logger.info(f"Loading concordance file {infile}")
@@ -175,7 +175,7 @@ def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_fil
                 pairs.append(set([x[0], x[2]]))
         # print("glomming", infile) # This takes a while, but doesn't add much to the memory
         glom(dicts, pairs, unique_prefixes=uniques)
-        logger.info(f"Loaded concordance file {infile}")
+        logger.info(f"Loaded concordance file {infile}: {get_memory_usage_summary()}")
     logger.info(f"Finished loading concordances, memory usage: {get_memory_usage_summary()}")
     logger.info(f"Building gene sets")
     gene_sets = set([frozenset(x) for x in dicts.values()])

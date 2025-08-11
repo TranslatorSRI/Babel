@@ -16,7 +16,7 @@ from src.util import (
 from src.LabeledID import LabeledID
 from src.prefixes import PUBCHEMCOMPOUND
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 class SynonymFactory:
     """

@@ -18,39 +18,28 @@ from src.LabeledID import LabeledID
 from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10, ICD10CM, ICD11FOUNDATION
 import src.prefixes as prefixes
 
-babel_loggers = {}
-def get_logger(name=None, level=logging.INFO):
+def get_logger(name, loglevel=logging.INFO):
     """
     Get a logger with the specified name.
 
-    The LoggingUtil is inconsistently used, and we don't want rolling logs anyway -- just logging everything to STDOUT
-    so that Snakemake can capture it is fine. However, we
+    The LoggingUtil is inconsistently used, and we don't want rolling logs anyway -- just logging everything to STDERR
+    so that Snakemake can capture it is fine. However, we do want every logger to be configured identically and without
+    duplicated handlers.
     """
 
-    if name is None:
-        # TODO: what we really want to get here is the Snakemake job we're currently in, but that's tricky.
-        name = f"{__name__} ({__file__})"
-
-    global babel_loggers
-    if name in babel_loggers:
-        return babel_loggers[name]
-
-    # Set up a logger.
-    babel_logger = logging.getLogger(name)
-    babel_logger.setLevel(level)
-
-    # Set up a formatter. We want to use UTC time.
+    # Set up the root handler for a logger. Ideally we would call this in one central location, but I'm not sure
+    # what they would be for Snakemake. basicConfig() should be safe to call from multiple threads after
     formatter = logging.Formatter('%(levelname)s %(name)s [%(asctime)s]: %(message)s')
     formatter.converter = gmtime
 
-    # Set up a stream handler for STDERR.
     stream_handler = logging.StreamHandler(sys.stderr)
     stream_handler.setFormatter(formatter)
-    babel_logger.addHandler(stream_handler)
+    logging.basicConfig(level=logging.INFO, handlers=[stream_handler])
 
-    babel_loggers[name] = babel_logger
-
-    return babel_logger
+    # Set up a logger for the specified loglevel and return it.
+    logger = logging.getLogger(name)
+    logger.setLevel(loglevel)
+    return logger
 
 #loggers = {}
 class LoggingUtil(object):
