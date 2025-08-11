@@ -29,7 +29,7 @@ def get_logger(name, loglevel=logging.INFO):
 
     # Set up the root handler for a logger. Ideally we would call this in one central location, but I'm not sure
     # what they would be for Snakemake. basicConfig() should be safe to call from multiple threads after
-    formatter = logging.Formatter('%(levelname)s %(name)s [%(asctime)s]: %(message)s')
+    formatter = logging.Formatter('%(levelname)s %(name)s [%(asctime)s]: %(message)s', "%Y-%m-%dT%H:%M:%S%z")
     formatter.converter = gmtime
 
     stream_handler = logging.StreamHandler(sys.stderr)
