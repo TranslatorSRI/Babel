@@ -411,7 +411,7 @@ class NodeFactory:
                                 continue
                         self.common_labels[x[0]] = x[1]
                         count_common_file_labels += 1
-                logger.info(f"Loaded {count_common_file_labels} common labels from {common_labels_path}")
+                logger.info(f"Loaded {count_common_file_labels} common labels from {common_labels_path}: {get_memory_usage_summary()}")
 
         #Originally we needed to clean up the identifer lists, because there would be both labeledids and
         # string ids and we had to reconcile them.

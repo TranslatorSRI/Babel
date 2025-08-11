@@ -451,9 +451,6 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                 logger.info(f" - Current rate: {count_slist/time_elapsed_seconds:.2f} cliques/second or {time_elapsed_seconds/count_slist:.2f} seconds/clique.")
 
                 time_remaining_seconds = (time_elapsed_seconds / count_slist * remaining_slist)
-                hours, remainder = divmod(time_remaining_seconds, 3600)
-                minutes, seconds = divmod(remainder, 60)
-                logger.info(f" - Estimated time remaining: {time_remaining_seconds:.2f} seconds ({hours:} hours, {minutes:02} minutes, {seconds:02} seconds)")
                 logger.info(f" - Estimated time remaining: {format_timespan(time_remaining_seconds)}")
 
             # At this point, we insert any HAS_ADDITIONAL_ID properties we have.
