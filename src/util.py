@@ -18,6 +18,7 @@ from src.LabeledID import LabeledID
 from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10, ICD10CM, ICD11FOUNDATION
 import src.prefixes as prefixes
 
+babel_loggers = {}
 def get_logger(name=None, level=logging.INFO):
     """
     Get a logger with the specified name.
@@ -25,13 +26,18 @@ def get_logger(name=None, level=logging.INFO):
     The LoggingUtil is inconsistently used, and we don't want rolling logs anyway -- just logging everything to STDOUT
     so that Snakemake can capture it is fine. However, we
     """
+
     if name is None:
         # TODO: what we really want to get here is the Snakemake job we're currently in, but that's tricky.
         name = f"{__name__} ({__file__})"
 
+    global babel_loggers
+    if name in babel_loggers:
+        return babel_loggers[name]
+
     # Set up a logger.
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
+    babel_logger = logging.getLogger(name)
+    babel_logger.setLevel(level)
 
     # Set up a formatter. We want to use UTC time.
     formatter = logging.Formatter('%(levelname)s %(name)s [%(asctime)s]: %(message)s')
@@ -40,9 +46,11 @@ def get_logger(name=None, level=logging.INFO):
     # Set up a stream handler for STDERR.
     stream_handler = logging.StreamHandler(sys.stderr)
     stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
+    babel_logger.addHandler(stream_handler)
 
-    return logger
+    babel_loggers[name] = babel_logger
+
+    return babel_logger
 
 #loggers = {}
 class LoggingUtil(object):
