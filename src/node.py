@@ -11,6 +11,7 @@ from src.util import (
     get_biolink_model_toolkit,
     get_biolink_prefix_map,
     get_logger,
+    get_memory_usage_summary,
 )
 from src.LabeledID import LabeledID
 from src.prefixes import PUBCHEMCOMPOUND
@@ -46,7 +47,7 @@ class SynonymFactory:
     def load_synonyms(self,prefix):
         lbs = defaultdict(set)
         labelfname = os.path.join(self.synonym_dir, prefix, 'labels')
-        logger.info(f'Loading synonyms for {prefix} from {labelfname}')
+        logger.info(f'Loading synonyms for {prefix} from {labelfname}: {get_memory_usage_summary()}')
         count_labels = 0
         count_synonyms = 0
         if os.path.exists(labelfname):
@@ -65,7 +66,7 @@ class SynonymFactory:
                     lbs[x[0]].add( (x[1], x[2]) )
                     count_synonyms += 1
         self.synonyms[prefix] = lbs
-        logger.info(f'Loaded {count_labels:,} labels and {count_synonyms:,} synonyms for {prefix} from {labelfname}')
+        logger.info(f'Loaded {count_labels:,} labels and {count_synonyms:,} synonyms for {prefix} from {labelfname}: {get_memory_usage_summary()}')
 
     def get_synonyms(self,node):
         config = get_config()
@@ -83,7 +84,7 @@ class SynonymFactory:
                         row = json.loads(line)
                         self.common_synonyms[row['curie']].add((row['predicate'], row['synonym']))
                         count_common_file_synonyms += 1
-                logger.info(f"Loaded {count_common_file_synonyms:,} common synonyms from {common_synonyms_path}")
+                logger.info(f"Loaded {count_common_file_synonyms:,} common synonyms from {common_synonyms_path}: {get_memory_usage_summary()}")
 
         node_synonyms = set()
         for ident in node['identifiers']:
@@ -160,7 +161,7 @@ class TaxonFactory:
         self.taxa = {}
 
     def load_taxa(self, prefix):
-        logger.info(f'Loading taxa for {prefix}')
+        logger.info(f'Loading taxa for {prefix}: {get_memory_usage_summary()}')
         taxa_per_prefix = defaultdict(set)
         taxafilename = os.path.join(self.root_dir, prefix, 'taxa')
         taxon_count = 0
@@ -171,7 +172,7 @@ class TaxonFactory:
                     taxa_per_prefix[x[0]].add("\t".join(x[1:]))
                     taxon_count += 1
         self.taxa[prefix] = taxa_per_prefix
-        logger.info(f'Loaded {taxon_count} taxon-CURIE mappings for {prefix}')
+        logger.info(f'Loaded {taxon_count} taxon-CURIE mappings for {prefix}: {get_memory_usage_summary()}')
 
     def get_taxa(self, node):
         node_taxa = defaultdict(set)
