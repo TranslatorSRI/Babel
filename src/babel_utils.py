@@ -428,7 +428,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
         for slist in synonym_list:
             # Before we get started, let's estimate where we're at.
             count_slist += 1
-            if count_slist % 1000000 == 0:
+            if count_slist % 100000 == 0:
                 time_elapsed_seconds = (time.time_ns() - start_time) / 1E9
                 remaining_slist = total_slist - count_slist
                 # count_slist --> time_elapsed_seconds
