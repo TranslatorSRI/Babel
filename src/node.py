@@ -180,10 +180,10 @@ class TaxonFactory:
         logger.info(f'Loaded {taxon_count:,} taxon-CURIE mappings for {prefix}: {get_memory_usage_summary()}')
 
     def get_taxa(self, node):
-        node_taxa = dict(set)
+        node_taxa = dict[str, set]
         for ident in node['identifiers']:
             thisid = ident['identifier']
-            pref = thisid.split(':', 1)[0]
+            pref = Text.get_prefix(thisid)
             if pref not in self.taxa:
                 self.load_taxa(pref)
             node_taxa[thisid] = set(self.taxa[pref][thisid])
@@ -416,7 +416,7 @@ class NodeFactory:
                                 continue
                         self.common_labels[x[0]] = x[1]
                         count_common_file_labels += 1
-                logger.info(f"Loaded {count_common_file_labels} common labels from {common_labels_path}: {get_memory_usage_summary()}")
+                logger.info(f"Loaded {count_common_file_labels:,} common labels from {common_labels_path}: {get_memory_usage_summary()}")
 
         #Originally we needed to clean up the identifer lists, because there would be both labeledids and
         # string ids and we had to reconcile them.
