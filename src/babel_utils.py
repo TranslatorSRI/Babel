@@ -422,7 +422,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
     with jsonlines.open(os.path.join(cdir,'compendia',ofname),'w') as outf, jsonlines.open(os.path.join(cdir,'synonyms',ofname),'w') as sfile:
         # Calculate an estimated time to completion.
         start_time = time.time_ns()
-        count_slist = 0
+        count_slist = -1 # So that we display one when we start.
         total_slist = len(synonym_list)
 
         for slist in synonym_list:
@@ -430,6 +430,9 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
             count_slist += 1
             if count_slist % 100000 == 0:
                 time_elapsed_seconds = (time.time_ns() - start_time) / 1E9
+                if time_elapsed_seconds < 0.001:
+                    # We don't want to divide by zero.
+                    time_elapsed_seconds = 0.001
                 remaining_slist = total_slist - count_slist
                 # count_slist --> time_elapsed_seconds
                 # remaining_slist --> remaining_slist/count_slit*time_elapsed_seconds
