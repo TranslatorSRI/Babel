@@ -433,7 +433,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                 remaining_slist = total_slist - count_slist
                 # count_slist --> time_elapsed_seconds
                 # remaining_slist --> remaining_slist/count_slit*time_elapsed_seconds
-                logger.info(f"Generated compendia and synonyms for {count_slist:,} out of {total_slist:,} ({count_slist/total_slist*100:.2f}%).")
+                logger.info(f"Generating compendia and synonyms for {ofname} currently at {count_slist:,} out of {total_slist:,} ({count_slist/total_slist*100:.2f}%).")
                 logger.info(f" - Current rate: {count_slist/time_elapsed_seconds:.2f} cliques/second or {time_elapsed_seconds/count_slist:.2f} seconds/clique.")
 
                 time_remaining_seconds = (time_elapsed_seconds / count_slist * remaining_slist)
