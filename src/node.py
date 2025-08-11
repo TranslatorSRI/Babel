@@ -162,24 +162,29 @@ class TaxonFactory:
 
     def load_taxa(self, prefix):
         logger.info(f'Loading taxa for {prefix}: {get_memory_usage_summary()}')
-        taxa_per_prefix = defaultdict(set)
+        taxa_per_prefix = dict(list)
         taxafilename = os.path.join(self.root_dir, prefix, 'taxa')
         taxon_count = 0
         if os.path.exists(taxafilename):
             with open(taxafilename, 'r') as inf:
                 for line in inf:
-                    x = line.strip().split('\t')
-                    taxa_per_prefix[x[0]].add("\t".join(x[1:]))
-                    taxon_count += 1
+                    x = line.strip().split('\t', 1)
+                    curie = x[0]
+                    taxon_id = x[1]
+                    if curie not in taxa_per_prefix:
+                        taxa_per_prefix[curie] = list()
+                    if taxon_id not in taxa_per_prefix[curie]:
+                        taxa_per_prefix[curie].add(taxon_id)
+                        taxon_count += 1
         self.taxa[prefix] = taxa_per_prefix
-        logger.info(f'Loaded {taxon_count} taxon-CURIE mappings for {prefix}: {get_memory_usage_summary()}')
+        logger.info(f'Loaded {taxon_count:,} taxon-CURIE mappings for {prefix}: {get_memory_usage_summary()}')
 
     def get_taxa(self, node):
         node_taxa = defaultdict(set)
         for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = thisid.split(':', 1)[0]
-            if not pref in self.taxa:
+            if pref not in self.taxa:
                 self.load_taxa(pref)
             node_taxa[thisid].update(self.taxa[pref][thisid])
         return node_taxa
