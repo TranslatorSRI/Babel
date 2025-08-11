@@ -174,19 +174,19 @@ class TaxonFactory:
                     if curie not in taxa_per_prefix:
                         taxa_per_prefix[curie] = list()
                     if taxon_id not in taxa_per_prefix[curie]:
-                        taxa_per_prefix[curie].add(taxon_id)
+                        taxa_per_prefix[curie].append(taxon_id)
                         taxon_count += 1
         self.taxa[prefix] = taxa_per_prefix
         logger.info(f'Loaded {taxon_count:,} taxon-CURIE mappings for {prefix}: {get_memory_usage_summary()}')
 
     def get_taxa(self, node):
-        node_taxa = defaultdict(set)
+        node_taxa = dict(set)
         for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = thisid.split(':', 1)[0]
             if pref not in self.taxa:
                 self.load_taxa(pref)
-            node_taxa[thisid].update(self.taxa[pref][thisid])
+            node_taxa[thisid] = set(self.taxa[pref][thisid])
         return node_taxa
 
 
