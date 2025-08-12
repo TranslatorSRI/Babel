@@ -1,9 +1,13 @@
+import itertools
 import json
 import os
+import uuid
 from collections import defaultdict
+from contextlib import AbstractContextManager
 from urllib.parse import urlparse
 
 import curies
+import duckdb
 
 from src.util import (
     Text,
@@ -162,7 +166,7 @@ class TaxonFactory:
 
     def load_taxa(self, prefix):
         logger.info(f'Loading taxa for {prefix}: {get_memory_usage_summary()}')
-        taxa_per_prefix = dict(list)
+        taxa_per_prefix = dict()
         taxafilename = os.path.join(self.root_dir, prefix, 'taxa')
         taxon_count = 0
         if os.path.exists(taxafilename):
@@ -180,7 +184,7 @@ class TaxonFactory:
         logger.info(f'Loaded {taxon_count:,} taxon-CURIE mappings for {prefix}: {get_memory_usage_summary()}')
 
     def get_taxa(self, node):
-        node_taxa = dict[str, set]
+        node_taxa = dict()
         for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = Text.get_prefix(thisid)
@@ -189,6 +193,128 @@ class TaxonFactory:
             node_taxa[thisid] = set(self.taxa[pref][thisid])
         return node_taxa
 
+
+class TSVDuckDBLoader(AbstractContextManager):
+    """
+    All of the files we load here (SynonymFactory, DescriptionFactory, TaxonFactory and InformationContentFactory)
+    are TSV files in very similar formats (either <curie>\t<value> or <curie>\t<predicate>\t<value>). Some of these
+    TSV files are very large, so we don't want to load them all into memory at once. Instead, we use DuckDB to:
+    1.  Load them into DuckDB files (e.g. `UniProtKB/taxa` -> `UniProtKB/duckdbs/{random}.duckdb`), but without explicitly saving
+        them -- they're just there so that DuckDB can dump to disk if needed. There are a bunch of configuration
+        items so we can specify what kind of file we have.
+    2.  Query identifiers by identifier prefix.
+    3.  Close and delete the DuckDB files when we're done.
+    """
+
+    def __init__(self, download_dir, filename, file_format):
+        self.download_dir = download_dir
+        self.filename = filename
+        self.duckdbs = {}
+        self.duckdb_filenames = {}
+
+        # We only support one format for now.
+        self.format = format
+        if file_format in {'curie-curie'}:
+            # Acceptable format!
+            pass
+        else:
+            raise ValueError(f"Unknown TSVDuckDBLoader file format: {file_format}")
+
+    def __str__(self):
+        duckdb_counts = self.get_duckdb_counts()
+        duckdb_counts_str = ", ".join(
+            f"{prefix}: {count:,} rows"
+            for prefix, count in sorted(duckdb_counts.items(), key=lambda x: x[1], reverse=True)
+        )
+        return f"TSVDuckDBLoader({self.download_dir}, {self.filename}, {self.format}) containing {len(self.duckdbs)} DuckDBs ({duckdb_counts_str})"
+
+    def get_duckdb_counts(self):
+        counts = dict()
+        for prefix in self.duckdbs:
+            counts[prefix] = self.duckdbs[prefix].execute(f"SELECT COUNT(*) FROM {prefix}").fetchone()[0]
+        return counts
+
+    def load_prefix(self, prefix):
+        if prefix in self.duckdbs:
+            # We've already loaded this prefix!
+            return True
+
+        # Set up filenames.
+        tsv_filename = os.path.join(self.download_dir, prefix, self.filename)
+
+        # If the TSV file doesn't exist, we don't need to do anything.
+        if not os.path.exists(tsv_filename):
+            return False
+
+        # If we knew that only a single DuckDB process was going to load a prefix at a time (or -- even better -- that
+        # the DuckDB file was created by Snakemake before we got to this point), then we could simply open and reuse
+        # that DuckDB file between these jobs. Unfortunately, we have to account for the possibility that:
+        #   1. Multiple processes or threads might create overlapping TSVDuckDBLoaders on the same prefix, and
+        #   2. We don't know when the DuckDB file is completely loaded and therefore safe for another process to use.
+        #
+        # Luckily, there's an easy way to ensure that both criteria don't matter: give the DuckDB file a random name,
+        # and delete it once the TSVDuckDBLoader is done.
+        duckdbs_dir = os.path.join(self.download_dir, prefix, "duckdbs")
+        os.makedirs(duckdbs_dir, exist_ok=True)
+        duckdb_filename = os.path.join(str(duckdbs_dir), f"{prefix}_{self.filename}_{uuid.uuid4()}.duckdb")
+
+        # Set up a DuckDB instance.
+        logger.info(f"Loading {prefix} into {duckdb_filename}...")
+        conn = duckdb.connect(duckdb_filename)
+        conn.execute(f"CREATE TABLE {prefix} AS SELECT curie1, curie2 FROM read_csv($tsv_filename, header=false, sep='\\t', column_names=['curie1', 'curie2'])", {
+            'tsv_filename': tsv_filename,
+        })
+        self.duckdb_filenames[prefix] = duckdb_filename
+        self.duckdbs[prefix] = conn
+        logger.info(f"Loaded {prefix} into {duckdb_filename}")
+        return True
+
+    def get_curies(self, curies_to_query: list) -> dict[str, set[str]]:
+        results = defaultdict(set)
+
+        curies_sorted_by_prefix = sorted(curies_to_query, key=lambda curie: Text.get_prefix(curie))
+        curies_grouped_by_prefix = itertools.groupby(curies_sorted_by_prefix, key=lambda curie: Text.get_prefix(curie))
+        for prefix, curies_group in curies_grouped_by_prefix:
+            curies = list(curies_group)
+            logger.info(f"Looking up {prefix} for {curies} curies")
+            if prefix not in self.duckdbs:
+                logger.info(f"No DuckDB for {prefix} found, attempting to load it.")
+                if not self.load_prefix(prefix):
+                    # Nothing to load.
+                    logger.warning(f"No DuckDB for {prefix} found, so can't query it for {curies}")
+                    for curie in curies:
+                        results[curie] = set()
+                    continue
+
+            # Query the DuckDB.
+            query = f"SELECT DISTINCT curie1, curie2 FROM {prefix} WHERE curie1 = ?"
+            for curie in curies:
+                query_result = self.duckdbs[prefix].execute(query, [curie]).fetchall()
+                if not query_result:
+                    results[curie] = set()
+                    continue
+
+                for row in query_result:
+                    curie1 = row[0]
+                    curie2 = row[1]
+                    results[curie1].add(curie2)
+
+        return dict(results)
+
+    def close(self):
+        """
+        Close all of the DuckDB connections and delete the DuckDB files.
+        """
+        for prefix, db in self.duckdbs.items():
+            db.close()
+            os.remove(self.duckdb_filenames[prefix])
+        self.duckdbs = dict()
+
+    def __del__(self):
+        self.close()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
 class InformationContentFactory:
     """
@@ -565,3 +691,19 @@ def pubchemsort(pc_ids, labeled_ids):
             best_pubchem = pcelement
     pc_ids.remove(best_pubchem)
     return [best_pubchem] + pc_ids
+
+if __name__ == '__main__':
+    if False:
+        tf = TaxonFactory('babel_downloads/')
+        logger.info(f"Started: {get_memory_usage_summary()}")
+        result = tf.get_taxa({
+            'identifiers': [{'identifier': 'UniProtKB:I6L8L4'}, {'identifier': 'UniProtKB:C6H147'}],
+        })
+        logger.info(f"Got result from {tf}: {result} with {get_memory_usage_summary()}")
+        del tf
+
+    tsvdb = TSVDuckDBLoader('babel_downloads/', filename='taxa', file_format='curie-curie')
+    logger.info(f"Started TSVDuckDBLoader {tsvdb}: {get_memory_usage_summary()}")
+    result = tsvdb.get_curies(['UniProtKB:I6L8L4', 'UniProtKB:C6H147'])
+    logger.info(f"Got result from {tsvdb}: {result} with {get_memory_usage_summary()}")
+    tsvdb.close()
