@@ -1,6 +1,7 @@
 import itertools
 import json
 import os
+import sqlite3
 import uuid
 from collections import defaultdict
 from contextlib import AbstractContextManager
@@ -162,7 +163,7 @@ class TaxonFactory:
 
     def __init__(self, rootdir):
         self.root_dir = rootdir
-        self.tsvloader = TSVDuckDBLoader(rootdir, 'taxa', 'curie-curie')
+        self.tsvloader = TSVSQLiteLoader(rootdir, 'taxa', 'curie-curie')
 
     def load_taxa(self, prefix):
         return self.tsvloader.load_prefix(prefix)
@@ -175,23 +176,21 @@ class TaxonFactory:
         self.tsvloader.close()
 
 
-class TSVDuckDBLoader:
+class TSVSQLiteLoader:
     """
     All of the files we load here (SynonymFactory, DescriptionFactory, TaxonFactory and InformationContentFactory)
     are TSV files in very similar formats (either <curie>\t<value> or <curie>\t<predicate>\t<value>). Some of these
-    TSV files are very large, so we don't want to load them all into memory at once. Instead, we use DuckDB to:
-    1.  Load them into DuckDB files (e.g. `UniProtKB/taxa` -> `UniProtKB/duckdbs/{random}.duckdb`), but without explicitly saving
-        them -- they're just there so that DuckDB can dump to disk if needed. There are a bunch of configuration
-        items so we can specify what kind of file we have.
+    TSV files are very large, so we don't want to load them all into memory at once. Instead, we use SQLite to:
+    1.  Load them into SQLite files. SQLite supports "temporary databases" (https://www.sqlite.org/inmemorydb.html) --
+        the database is kept in memory, but data can spill onto the disk if the database gets large.
     2.  Query identifiers by identifier prefix.
-    3.  Close and delete the DuckDB files when we're done.
+    3.  Close and delete the SQLite files when we're done.
     """
 
     def __init__(self, download_dir, filename, file_format):
         self.download_dir = download_dir
         self.filename = filename
-        self.duckdbs = {}
-        self.duckdb_filenames = {}
+        self.sqlites = {}
 
         # We only support one format for now.
         self.format = format
@@ -199,24 +198,24 @@ class TSVDuckDBLoader:
             # Acceptable format!
             pass
         else:
-            raise ValueError(f"Unknown TSVDuckDBLoader file format: {file_format}")
+            raise ValueError(f"Unknown TSVSQLiteLoader file format: {file_format}")
 
     def __str__(self):
-        duckdb_counts = self.get_duckdb_counts()
-        duckdb_counts_str = ", ".join(
+        sqlite_counts = self.get_sqlite_counts()
+        sqlite_counts_str = ", ".join(
             f"{prefix}: {count:,} rows"
-            for prefix, count in sorted(duckdb_counts.items(), key=lambda x: x[1], reverse=True)
+            for prefix, count in sorted(sqlite_counts.items(), key=lambda x: x[1], reverse=True)
         )
-        return f"TSVDuckDBLoader({self.download_dir}, {self.filename}, {self.format}) containing {len(self.duckdbs)} DuckDBs ({duckdb_counts_str})"
+        return f"TSVSQLiteLoader({self.download_dir}, {self.filename}, {self.format}) containing {len(self.sqlites)} SQLite DBs ({sqlite_counts_str})"
 
-    def get_duckdb_counts(self):
+    def get_sqlite_counts(self):
         counts = dict()
-        for prefix in self.duckdbs:
-            counts[prefix] = self.duckdbs[prefix].execute(f"SELECT COUNT(*) FROM {prefix}").fetchone()[0]
+        for prefix in self.sqlites:
+            counts[prefix] = self.sqlites[prefix].execute(f"SELECT COUNT(*) FROM {prefix}").fetchone()[0]
         return counts
 
     def load_prefix(self, prefix):
-        if prefix in self.duckdbs:
+        if prefix in self.sqlites:
             # We've already loaded this prefix!
             return True
 
@@ -227,29 +226,27 @@ class TSVDuckDBLoader:
         if not os.path.exists(tsv_filename):
             return False
 
-        # If we knew that only a single DuckDB process was going to load a prefix at a time (or -- even better -- that
-        # the DuckDB file was created by Snakemake before we got to this point), then we could simply open and reuse
-        # that DuckDB file between these jobs. Unfortunately, we have to account for the possibility that:
-        #   1. Multiple processes or threads might create overlapping TSVDuckDBLoaders on the same prefix, and
-        #   2. We don't know when the DuckDB file is completely loaded and therefore safe for another process to use.
-        #
-        # Luckily, there's an easy way to ensure that both criteria don't matter: give the DuckDB file a random name,
-        # and delete it once the TSVDuckDBLoader is done.
-        duckdbs_dir = os.path.join(self.download_dir, prefix, "duckdbs")
-        os.makedirs(duckdbs_dir, exist_ok=True)
-        duckdb_filename = os.path.join(str(duckdbs_dir), f"{prefix}_{self.filename}_{uuid.uuid4()}.duckdb")
-
-        # Set up a DuckDB instance.
-        logger.info(f"Loading {prefix} into {duckdb_filename}...")
-        conn = duckdb.connect(":memory:")
-        conn.execute(f"CREATE TABLE {prefix} AS SELECT UPPER(curie1_in) AS curie1, curie2 FROM read_csv($tsv_filename, header=false, sep='\\t', column_names=['curie1_in', 'curie2']) ORDER BY curie1", {
-            'tsv_filename': tsv_filename,
-        })
+        # Write to a SQLite in-memory database so we don't need to hold it in memory all at once.
+        logger.info(f"Loading {prefix} into SQLite: {get_memory_usage_summary()}")
+        # Setting a SQLite database as "" does exactly what we want: create an in-memory database that will spill onto
+        # a temporary file if needed.
+        conn = sqlite3.connect('')
+        conn.execute(f"CREATE TABLE {prefix} (curie1 TEXT, curie2 TEXT)")
         conn.execute(f"CREATE INDEX curie1_idx ON {prefix}(curie1)")
+
+        # Load taxa into memory.
+        logger.info(f"Loading taxa for {prefix} into memory: {get_memory_usage_summary()}")
+        records = []
+        record_count = 0
+        if os.path.exists(tsv_filename):
+            with open(tsv_filename, 'r') as inf:
+                for line in inf:
+                    x = line.strip().split('\t', maxsplit=1)
+                    records.append([x[0], x[1]])
+                    record_count += 1
+        conn.executemany(f"INSERT INTO {prefix} VALUES (?, ?)", records)
         conn.commit()
-        self.duckdb_filenames[prefix] = duckdb_filename
-        self.duckdbs[prefix] = conn
-        logger.info(f"Loaded {prefix} into {duckdb_filename}")
+        logger.info(f"Loaded {record_count:,} taxa for {prefix} into SQLite: {get_memory_usage_summary()}")
         return True
 
     def get_curies(self, curies_to_query: list) -> dict[str, set[str]]:
@@ -260,19 +257,19 @@ class TSVDuckDBLoader:
         for prefix, curies_group in curies_grouped_by_prefix:
             curies = list(curies_group)
             logger.debug(f"Looking up {prefix} for {curies} curies")
-            if prefix not in self.duckdbs:
-                logger.debug(f"No DuckDB for {prefix} found, attempting to load it.")
+            if prefix not in self.sqlites:
+                logger.debug(f"No SQLite for {prefix} found, attempting to load it.")
                 if not self.load_prefix(prefix):
                     # Nothing to load.
-                    logger.debug(f"No DuckDB for {prefix} found, so can't query it for {curies}")
+                    logger.debug(f"No TSV file for {prefix} found, so can't query it for {curies}")
                     for curie in curies:
                         results[curie] = set()
                     continue
 
-            # Query the DuckDB.
+            # Query the SQLite.
             query = f"SELECT curie1, curie2 FROM {prefix} WHERE curie1 = ?"
             for curie in curies:
-                query_result = self.duckdbs[prefix].execute(query, [curie.upper()]).fetchall()
+                query_result = self.sqlites[prefix].execute(query, [curie.upper()]).fetchall()
                 if not query_result:
                     results[curie] = set()
                     continue
@@ -286,12 +283,11 @@ class TSVDuckDBLoader:
 
     def close(self):
         """
-        Close all of the DuckDB connections and delete the DuckDB files.
+        Close all of the SQLite connections.
         """
-        for prefix, db in self.duckdbs.items():
+        for prefix, db in self.sqlites.items():
             db.close()
-            os.remove(self.duckdb_filenames[prefix])
-        self.duckdbs = dict()
+        self.sqlites = dict()
 
     def __del__(self):
         self.close()
@@ -685,7 +681,7 @@ if __name__ == '__main__':
         logger.info(f"Got result from {tf}: {result} with {get_memory_usage_summary()}")
         del tf
 
-    tsvdb = TSVDuckDBLoader('babel_downloads/', filename='taxa', file_format='curie-curie')
+    tsvdb = TSVSQLiteLoader('babel_downloads/', filename='taxa', file_format='curie-curie')
     logger.info(f"Started TSVDuckDBLoader {tsvdb}: {get_memory_usage_summary()}")
     result = tsvdb.get_curies(['UniProtKB:I6L8L4', 'UniProtKB:C6H147'])
     logger.info(f"Got result from {tsvdb}: {result} with {get_memory_usage_summary()}")
