@@ -245,6 +245,7 @@ class TSVDuckDBLoader:
         conn.execute(f"CREATE TABLE {prefix} AS SELECT curie1, curie2 FROM read_csv($tsv_filename, header=false, sep='\\t', column_names=['curie1', 'curie2'])", {
             'tsv_filename': tsv_filename,
         })
+        conn.commit()
         self.duckdb_filenames[prefix] = duckdb_filename
         self.duckdbs[prefix] = conn
         logger.info(f"Loaded {prefix} into {duckdb_filename}")
