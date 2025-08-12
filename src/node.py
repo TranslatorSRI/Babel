@@ -242,9 +242,9 @@ class TSVSQLiteLoader:
                 x = line.strip().split('\t', maxsplit=1)
                 records.append([x[0].upper(), x[1]])
                 record_count += 1
-                if len(records) % 1_000_000 == 0:
-                    # Insert every 1,000,000 records.
-                    logger.info(f"Inserting {len(records):,} records from {tsv_filename} into SQLite: {get_memory_usage_summary()}")
+                if len(records) % 10_000_000 == 0:
+                    # Insert every 10,000,000 records.
+                    logger.info(f"Inserting {len(records):,} records (total so far: {record_count:,}) from {tsv_filename} into SQLite: {get_memory_usage_summary()}")
                     conn.executemany(f"INSERT INTO {prefix} VALUES (?, ?)", records)
                     records = []
 
