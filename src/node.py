@@ -245,6 +245,7 @@ class TSVDuckDBLoader:
         conn.execute(f"CREATE TABLE {prefix} AS SELECT curie1, curie2 FROM read_csv($tsv_filename, header=false, sep='\\t', column_names=['curie1', 'curie2'])", {
             'tsv_filename': tsv_filename,
         })
+        conn.execute(f"CREATE INDEX curie1_idx ON {prefix}(curie1)")
         conn.commit()
         self.duckdb_filenames[prefix] = duckdb_filename
         self.duckdbs[prefix] = conn
@@ -269,7 +270,7 @@ class TSVDuckDBLoader:
                     continue
 
             # Query the DuckDB.
-            query = f"SELECT DISTINCT curie1, curie2 FROM {prefix} WHERE curie1 = ?"
+            query = f"SELECT curie1, curie2 FROM {prefix} WHERE curie1 = ?"
             for curie in curies:
                 query_result = self.duckdbs[prefix].execute(query, [curie]).fetchall()
                 if not query_result:
