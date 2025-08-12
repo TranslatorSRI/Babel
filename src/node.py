@@ -228,6 +228,7 @@ class TSVSQLiteLoader:
 
         # Write to a SQLite in-memory database so we don't need to hold it in memory all at once.
         logger.info(f"Loading {prefix} into SQLite: {get_memory_usage_summary()}")
+
         # Setting a SQLite database as "" does exactly what we want: create an in-memory database that will spill onto
         # a temporary file if needed.
         conn = sqlite3.connect('')
@@ -255,6 +256,7 @@ class TSVSQLiteLoader:
         conn.execute(f"CREATE INDEX curie1_idx ON {prefix}(curie1)")
         conn.commit()
         logger.info(f"Loaded {record_count:,} records from {tsv_filename} into SQLite table {prefix}: {get_memory_usage_summary()}")
+        self.sqlites[prefix] = conn
         return True
 
     def get_curies(self, curies_to_query: list) -> dict[str, set[str]]:
