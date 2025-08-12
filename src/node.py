@@ -278,7 +278,7 @@ class TSVDuckDBLoader:
                     continue
 
                 for row in query_result:
-                    curie1 = row[0]
+                    curie1 = curie
                     curie2 = row[1]
                     results[curie1].add(curie2)
 
