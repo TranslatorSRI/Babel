@@ -257,12 +257,12 @@ class TSVDuckDBLoader:
         curies_grouped_by_prefix = itertools.groupby(curies_sorted_by_prefix, key=lambda curie: Text.get_prefix(curie))
         for prefix, curies_group in curies_grouped_by_prefix:
             curies = list(curies_group)
-            logger.info(f"Looking up {prefix} for {curies} curies")
+            logger.debug(f"Looking up {prefix} for {curies} curies")
             if prefix not in self.duckdbs:
-                logger.info(f"No DuckDB for {prefix} found, attempting to load it.")
+                logger.debug(f"No DuckDB for {prefix} found, attempting to load it.")
                 if not self.load_prefix(prefix):
                     # Nothing to load.
-                    logger.warning(f"No DuckDB for {prefix} found, so can't query it for {curies}")
+                    logger.debug(f"No DuckDB for {prefix} found, so can't query it for {curies}")
                     for curie in curies:
                         results[curie] = set()
                     continue
