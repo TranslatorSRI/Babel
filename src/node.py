@@ -234,19 +234,27 @@ class TSVSQLiteLoader:
         conn.execute(f"CREATE TABLE {prefix} (curie1 TEXT, curie2 TEXT)")
 
         # Load taxa into memory.
-        logger.info(f"Loading taxa for {prefix} into memory: {get_memory_usage_summary()}")
+        logger.info(f"Reading records from {tsv_filename} into memory to load into SQLite: {get_memory_usage_summary()}")
         records = []
         record_count = 0
-        if os.path.exists(tsv_filename):
-            with open(tsv_filename, 'r') as inf:
-                for line in inf:
-                    x = line.strip().split('\t', maxsplit=1)
-                    records.append([x[0], x[1]])
-                    record_count += 1
+        with open(tsv_filename, 'r') as inf:
+            for line in inf:
+                x = line.strip().split('\t', maxsplit=1)
+                records.append([x[0].upper(), x[1]])
+                record_count += 1
+                if len(records) % 1_000_000 == 0:
+                    # Insert every 1,000,000 records.
+                    logger.info(f"Inserting {len(records):,} records from {tsv_filename} into SQLite: {get_memory_usage_summary()}")
+                    conn.executemany(f"INSERT INTO {prefix} VALUES (?, ?)", records)
+                    records = []
+
+        # Insert any remaining records.
+        logger.info(f"Inserting {len(records):,} records from {tsv_filename} into SQLite: {get_memory_usage_summary()}")
         conn.executemany(f"INSERT INTO {prefix} VALUES (?, ?)", records)
+        logger.info(f"Creating a case-insensitive index for the {record_count:,} records loaded into SQLite: {get_memory_usage_summary()}")
         conn.execute(f"CREATE INDEX curie1_idx ON {prefix}(curie1)")
         conn.commit()
-        logger.info(f"Loaded {record_count:,} taxa for {prefix} into SQLite: {get_memory_usage_summary()}")
+        logger.info(f"Loaded {record_count:,} records from {tsv_filename} into SQLite table {prefix}: {get_memory_usage_summary()}")
         return True
 
     def get_curies(self, curies_to_query: list) -> dict[str, set[str]]:
