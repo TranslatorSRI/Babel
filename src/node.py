@@ -185,6 +185,10 @@ class TSVSQLiteLoader:
         the database is kept in memory, but data can spill onto the disk if the database gets large.
     2.  Query identifiers by identifier prefix.
     3.  Close and delete the SQLite files when we're done.
+
+    TODO: note that on Sterling, SQLite might not be able to detect when it's running out of memory (we have a limit
+    of around 500Gi, but the node will have 1.5Ti, so SQLite won't detect a low-mem situation correctly). We should
+    figure out how to configure that.
     """
 
     def __init__(self, download_dir, filename, file_format):
