@@ -672,15 +672,6 @@ def pubchemsort(pc_ids, labeled_ids):
     return [best_pubchem] + pc_ids
 
 if __name__ == '__main__':
-    if False:
-        tf = TaxonFactory('babel_downloads/')
-        logger.info(f"Started: {get_memory_usage_summary()}")
-        result = tf.get_taxa({
-            'identifiers': [{'identifier': 'UniProtKB:I6L8L4'}, {'identifier': 'UniProtKB:C6H147'}],
-        })
-        logger.info(f"Got result from {tf}: {result} with {get_memory_usage_summary()}")
-        del tf
-
     tsvdb = TSVSQLiteLoader('babel_downloads/', filename='taxa', file_format='curie-curie')
     logger.info(f"Started TSVDuckDBLoader {tsvdb}: {get_memory_usage_summary()}")
     result = tsvdb.get_curies(['UniProtKB:I6L8L4', 'UniProtKB:C6H147'])
