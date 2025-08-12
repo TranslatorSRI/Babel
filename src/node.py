@@ -2,13 +2,10 @@ import itertools
 import json
 import os
 import sqlite3
-import uuid
 from collections import defaultdict
-from contextlib import AbstractContextManager
 from urllib.parse import urlparse
 
 import curies
-import duckdb
 
 from src.util import (
     Text,

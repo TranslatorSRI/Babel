@@ -3,6 +3,7 @@ input_directory: input_data
 download_directory: babel_downloads
 intermediate_directory: babel_outputs/intermediate
 output_directory: babel_outputs
+tmp_directory: babel_downloads/tmp
 
 # Versions that need to be updated on every release.
 biolink_version: "4.2.6-rc5"
