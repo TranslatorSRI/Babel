@@ -232,7 +232,6 @@ class TSVSQLiteLoader:
         # a temporary file if needed.
         conn = sqlite3.connect('')
         conn.execute(f"CREATE TABLE {prefix} (curie1 TEXT, curie2 TEXT)")
-        conn.execute(f"CREATE INDEX curie1_idx ON {prefix}(curie1)")
 
         # Load taxa into memory.
         logger.info(f"Loading taxa for {prefix} into memory: {get_memory_usage_summary()}")
@@ -245,6 +244,7 @@ class TSVSQLiteLoader:
                     records.append([x[0], x[1]])
                     record_count += 1
         conn.executemany(f"INSERT INTO {prefix} VALUES (?, ?)", records)
+        conn.execute(f"CREATE INDEX curie1_idx ON {prefix}(curie1)")
         conn.commit()
         logger.info(f"Loaded {record_count:,} taxa for {prefix} into SQLite: {get_memory_usage_summary()}")
         return True
