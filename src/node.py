@@ -225,6 +225,7 @@ class TSVSQLiteLoader:
 
         # If the TSV file doesn't exist, we don't need to do anything.
         if not os.path.exists(tsv_filename):
+            self.sqlites[prefix] = None
             return False
 
         # Write to a SQLite in-memory database so we don't need to hold it in memory all at once.
@@ -268,7 +269,7 @@ class TSVSQLiteLoader:
         for prefix, curies_group in curies_grouped_by_prefix:
             curies = list(curies_group)
             logger.debug(f"Looking up {prefix} for {curies} curies")
-            if prefix not in self.sqlites:
+            if prefix not in self.sqlites and self.sqlites[prefix] is not None:
                 logger.debug(f"No SQLite for {prefix} found, attempting to load it.")
                 if not self.load_prefix(prefix):
                     # Nothing to load.
