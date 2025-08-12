@@ -241,8 +241,8 @@ class TSVDuckDBLoader:
 
         # Set up a DuckDB instance.
         logger.info(f"Loading {prefix} into {duckdb_filename}...")
-        conn = duckdb.connect(duckdb_filename)
-        conn.execute(f"CREATE TABLE {prefix} AS SELECT curie1, curie2 FROM read_csv($tsv_filename, header=false, sep='\\t', column_names=['curie1', 'curie2'])", {
+        conn = duckdb.connect(":memory:")
+        conn.execute(f"CREATE TABLE {prefix} AS SELECT curie1, curie2 FROM read_csv($tsv_filename, header=false, sep='\\t', column_names=['curie1', 'curie2']) ORDER BY curie1", {
             'tsv_filename': tsv_filename,
         })
         conn.execute(f"CREATE INDEX curie1_idx ON {prefix}(curie1)")
