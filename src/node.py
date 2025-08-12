@@ -242,7 +242,7 @@ class TSVDuckDBLoader:
         # Set up a DuckDB instance.
         logger.info(f"Loading {prefix} into {duckdb_filename}...")
         conn = duckdb.connect(":memory:")
-        conn.execute(f"CREATE TABLE {prefix} AS SELECT curie1, curie2 FROM read_csv($tsv_filename, header=false, sep='\\t', column_names=['curie1', 'curie2']) ORDER BY curie1", {
+        conn.execute(f"CREATE TABLE {prefix} AS SELECT UPPER(curie1_in) AS curie1, curie2 FROM read_csv($tsv_filename, header=false, sep='\\t', column_names=['curie1_in', 'curie2']) ORDER BY curie1", {
             'tsv_filename': tsv_filename,
         })
         conn.execute(f"CREATE INDEX curie1_idx ON {prefix}(curie1)")
@@ -272,7 +272,7 @@ class TSVDuckDBLoader:
             # Query the DuckDB.
             query = f"SELECT curie1, curie2 FROM {prefix} WHERE curie1 = ?"
             for curie in curies:
-                query_result = self.duckdbs[prefix].execute(query, [curie]).fetchall()
+                query_result = self.duckdbs[prefix].execute(query, [curie.upper()]).fetchall()
                 if not query_result:
                     results[curie] = set()
                     continue
