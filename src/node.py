@@ -160,41 +160,22 @@ class TaxonFactory:
     """ A factory for loading taxa for CURIEs where available.
     """
 
-    def __init__(self,rootdir):
+    def __init__(self, rootdir):
         self.root_dir = rootdir
-        self.taxa = {}
+        self.tsvloader = TSVDuckDBLoader(rootdir, 'taxa', 'curie-curie')
 
     def load_taxa(self, prefix):
-        logger.info(f'Loading taxa for {prefix}: {get_memory_usage_summary()}')
-        taxa_per_prefix = dict()
-        taxafilename = os.path.join(self.root_dir, prefix, 'taxa')
-        taxon_count = 0
-        if os.path.exists(taxafilename):
-            with open(taxafilename, 'r') as inf:
-                for line in inf:
-                    x = line.strip().split('\t', 1)
-                    curie = x[0]
-                    taxon_id = x[1]
-                    if curie not in taxa_per_prefix:
-                        taxa_per_prefix[curie] = list()
-                    if taxon_id not in taxa_per_prefix[curie]:
-                        taxa_per_prefix[curie].append(taxon_id)
-                        taxon_count += 1
-        self.taxa[prefix] = taxa_per_prefix
-        logger.info(f'Loaded {taxon_count:,} taxon-CURIE mappings for {prefix}: {get_memory_usage_summary()}')
+        return self.tsvloader.load_prefix(prefix)
 
     def get_taxa(self, node):
-        node_taxa = dict()
-        for ident in node['identifiers']:
-            thisid = ident['identifier']
-            pref = Text.get_prefix(thisid)
-            if pref not in self.taxa:
-                self.load_taxa(pref)
-            node_taxa[thisid] = set(self.taxa[pref][thisid])
-        return node_taxa
+        curies = list({ident['identifier'] for ident in node['identifiers']})
+        return self.tsvloader.get_curies(curies)
+
+    def close(self):
+        self.tsvloader.close()
 
 
-class TSVDuckDBLoader(AbstractContextManager):
+class TSVDuckDBLoader:
     """
     All of the files we load here (SynonymFactory, DescriptionFactory, TaxonFactory and InformationContentFactory)
     are TSV files in very similar formats (either <curie>\t<value> or <curie>\t<predicate>\t<value>). Some of these
