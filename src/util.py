@@ -314,16 +314,22 @@ class DataStructure:
         return namedtuple(type_name, d.keys())(**d)
 
 
+# Cache the config.yaml so we don't need to load it every time get_config() is called.
+config_yaml = None
 def get_config():
     """
     Retrieve the configuration data from the 'config.yaml' file.
 
     :return: The configuration data loaded from the 'config.yaml' file.
     """
+    global config_yaml
+    if config_yaml is not None:
+        return config_yaml
+
     cname = os.path.join(os.path.dirname(__file__),'..', 'config.yaml')
     with open(cname,'r') as yaml_file:
-        data = yaml.safe_load(yaml_file)
-    return data
+        config_yaml = yaml.safe_load(yaml_file)
+    return config_yaml
 
 
 def get_biolink_model_toolkit(biolink_version):
