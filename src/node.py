@@ -141,7 +141,7 @@ class DescriptionFactory:
         for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = thisid.split(':', 1)[0]
-            if not pref in self.descriptions:
+            if pref not in self.descriptions:
                 self.load_descriptions(pref)
             node_descriptions[thisid].update( self.descriptions[pref][thisid] )
             node_descriptions[thisid].update( self.common_descriptions.get(thisid, {}) )
@@ -175,7 +175,7 @@ class TaxonFactory:
         for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = thisid.split(':', 1)[0]
-            if not pref in self.taxa:
+            if pref not in self.taxa:
                 self.load_taxa(pref)
             node_taxa[thisid].update(self.taxa[pref][thisid])
         return node_taxa
