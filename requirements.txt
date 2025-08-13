@@ -35,4 +35,3 @@ git+https://github.com/gaurav/apybiomart.git@change-check-url
 # Added by Gaurav, Aug 2025 to check for memory information while Babel is running.
 psutil
 humanfriendly
-sqlite3
