@@ -625,7 +625,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                     print(node["type"])
                     print(node_factory.get_ancestors(node["type"]))
                     traceback.print_exc()
-                    exit()
+                    raise ex
 
     # Write out the metadata.yaml file combining information from all the metadata.yaml files.
     write_combined_metadata(
