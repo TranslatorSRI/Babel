@@ -269,14 +269,19 @@ class TSVSQLiteLoader:
         for prefix, curies_group in curies_grouped_by_prefix:
             curies = list(curies_group)
             logger.debug(f"Looking up {prefix} for {curies} curies")
-            if prefix not in self.sqlites and self.sqlites[prefix] is not None:
-                logger.debug(f"No SQLite for {prefix} found, attempting to load it.")
+            if prefix not in self.sqlites:
+                logger.debug(f"No SQLite for {prefix} found, trying to load it.")
                 if not self.load_prefix(prefix):
                     # Nothing to load.
                     logger.debug(f"No TSV file for {prefix} found, so can't query it for {curies}")
                     for curie in curies:
                         results[curie] = set()
                     continue
+            if self.sqlites[prefix] is None:
+                logger.debug(f"No {self.filename} file for {prefix} found, so can't query it for {curies}")
+                for curie in curies:
+                    results[curie] = set()
+                continue
 
             # Query the SQLite.
             query = f"SELECT curie1, curie2 FROM {prefix} WHERE curie1 = ?"
