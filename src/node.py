@@ -44,7 +44,7 @@ class SynonymFactory:
         self.config = get_config()
 
         # Load the common synonyms.
-        common_synonyms = defaultdict(set)
+        self.common_synonyms = defaultdict(set)
 
         for common_synonyms_file in self.config['common']['synonyms']:
             common_synonyms_path = os.path.join(self.config['download_directory'], 'common', common_synonyms_file)
@@ -58,7 +58,6 @@ class SynonymFactory:
                     count_common_file_synonyms += 1
             logger.info(f"Loaded {count_common_file_synonyms:,} common synonyms from {common_synonyms_path}: {get_memory_usage_summary()}")
 
-        self.common_synonyms = common_synonyms
         logger.info(f"Created SynonymFactory for directory {syndir}")
 
     def load_synonyms(self,prefix):
@@ -108,7 +107,7 @@ class DescriptionFactory:
         self.common_descriptions = None
 
         self.config = get_config()
-        common_descriptions = defaultdict(list)
+        self.common_descriptions = defaultdict(list)
         for common_descriptions_file in self.config['common']['descriptions']:
             common_descriptions_path = os.path.join(self.config['download_directory'], 'common', common_descriptions_file)
             count_common_file_descriptions = 0
@@ -120,7 +119,6 @@ class DescriptionFactory:
                     self.common_descriptions[row['curie']].extend(row['descriptions'])
                     count_common_file_descriptions += 1
             logger.info(f"Loaded {count_common_file_descriptions} common descriptions from {common_descriptions_path}")
-        self.common_descriptions = common_descriptions
 
         logger.info(f"Created DescriptionFactory for directory {rootdir}")
 
