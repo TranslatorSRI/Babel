@@ -31,7 +31,7 @@ supported_predicates = {
 # and write these properties.
 #
 
-@dataclass
+@dataclass(frozen=True)
 class Property:
     """
     A property value for a CURIE.
@@ -40,7 +40,7 @@ class Property:
     curie: str
     predicate: str
     value: str
-    sources: list[str] = field(default_factory=list[str])
+    sources: tuple[str] = field(default_factory=tuple)
 
     @staticmethod
     def valid_keys():
@@ -88,7 +88,7 @@ class Property:
             'curie': self.curie,
             'predicate': self.predicate,
             'value': self.value,
-            'sources': self.sources,
+            'sources': list(self.sources),
         }) + '\n'
 
 #
@@ -169,3 +169,14 @@ class PropertyList:
                 props_to_add.add(Property.from_dict(json.loads(line), source=filename_gz))
 
         return self.add_properties(props_to_add)
+
+if __name__ == '__main__':
+    pl = PropertyList()
+    ps = set[Property]()
+    ps.add(Property('A', HAS_ADDITIONAL_ID, 'B'))
+    ps.add(Property('A', HAS_ADDITIONAL_ID, 'C'))
+    ps.add(Property('A', HAS_ADDITIONAL_ID, 'D'))
+    ps.add(Property('A', HAS_ADDITIONAL_ID, 'C'))
+    pl.add_properties(ps)
+    print(pl.properties)
+    assert len(pl.properties) == 3
