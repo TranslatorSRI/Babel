@@ -499,7 +499,7 @@ def make_chebi_relations(sdf,dbx,outfile,propfile_gz,metadata_yaml):
                         curie = cid,
                         predicate = HAS_ALTERNATIVE_ID,
                         value = secondary_id,
-                        sources = [f'Listed as a CHEBI secondary ID in the ChEBI SDF file ({sdf})']
+                        source = f'Listed as a CHEBI secondary ID in the ChEBI SDF file ({sdf})'
                     ).to_json_line())
             if kk in props:
                 outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{props[kk]}\n')

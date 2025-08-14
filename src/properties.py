@@ -41,11 +41,12 @@ class Property:
     curie: str
     predicate: str
     value: str
-    sources: tuple[str] = field(default_factory=tuple)
+    source: str = ""    # TODO: making this a list would be better, but that would make a Property non-frozen, which
+                        # would make it harder to uniquify.
 
     @staticmethod
     def valid_keys():
-        return ['curie', 'predicate', 'value', 'sources']
+        return ['curie', 'predicate', 'value', 'source']
 
     def __post_init__(self):
         """
@@ -70,10 +71,6 @@ class Property:
             raise ValueError(f'Unexpected keys in dictionary to be converted to Property ({unexpected_keys}): {json.dumps(prop_dict, sort_keys=True, indent=2)}')
 
         prop = Property(**prop_dict)
-        if source is not None:
-            # Add the source to the end of the sources list.
-            prop.sources.append(source)
-
         return prop
 
     # TODO: we should have some validation code in here so people don't make nonsense properties, which means
@@ -89,11 +86,11 @@ class Property:
             'curie': self.curie,
             'predicate': self.predicate,
             'value': self.value,
-            'sources': list(self.sources),
+            'source': list(self.source),
         }) + '\n'
 
 #
-# The PropertyList object can be used to load and query properties from multiple sources.
+# The PropertyList object can be used to load and query properties from a particular source.
 #
 # We could write them into a DuckDB file as we load them so they can overflow onto disk as needed, but that's overkill
 # for right now, so we'll just load them all into memory.
@@ -174,7 +171,7 @@ class PropertyList:
 if __name__ == '__main__':
     pl = PropertyList()
     ps = set[Property]()
-    ps.add(Property('A', HAS_ALTERNATIVE_ID, 'B', sources=['E', 'F']))
+    ps.add(Property('A', HAS_ALTERNATIVE_ID, 'B', source='E and F'))
     ps.add(Property('A', HAS_ALTERNATIVE_ID, 'C'))
     ps.add(Property('A', HAS_ALTERNATIVE_ID, 'D'))
     ps.add(Property('A', HAS_ALTERNATIVE_ID, 'C'))
