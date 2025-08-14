@@ -20,6 +20,11 @@ include: "src/snakefiles/duckdb.snakefile"
 include: "src/snakefiles/reports.snakefile"
 include: "src/snakefiles/exports.snakefile"
 
+# Some global settings.
+import os
+os.environ['TMPDIR'] = config['tmp_directory']
+
+# Top-level rules.
 rule all:
     input:
         # See rule all_outputs later in this file for how we generate all the outputs.

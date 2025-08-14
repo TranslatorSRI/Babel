@@ -1,15 +1,22 @@
 import json
-import logging
 import os
 from collections import defaultdict
 from urllib.parse import urlparse
 
 import curies
 
-from src.util import Text, get_config, get_biolink_model_toolkit, get_biolink_prefix_map
+from src.util import (
+    Text,
+    get_config,
+    get_biolink_model_toolkit,
+    get_biolink_prefix_map,
+    get_logger,
+    get_memory_usage_summary,
+)
 from src.LabeledID import LabeledID
 from src.prefixes import PUBCHEMCOMPOUND
 
+logger = get_logger(__name__)
 
 class SynonymFactory:
     """
@@ -34,13 +41,29 @@ class SynonymFactory:
     def __init__(self,syndir):
         self.synonym_dir = syndir
         self.synonyms = {}
-        self.common_synonyms = None
-        print(f"Created SynonymFactory for directory {syndir}")
+        self.config = get_config()
+
+        # Load the common synonyms.
+        self.common_synonyms = defaultdict(set)
+
+        for common_synonyms_file in self.config['common']['synonyms']:
+            common_synonyms_path = os.path.join(self.config['download_directory'], 'common', common_synonyms_file)
+            count_common_file_synonyms = 0
+            with open(common_synonyms_path, 'r') as synonymsf:
+                # Note that these files may contain ANY prefix -- we should only fallback to this if we have no other
+                # option.
+                for line in synonymsf:
+                    row = json.loads(line)
+                    self.common_synonyms[row['curie']].add((row['predicate'], row['synonym']))
+                    count_common_file_synonyms += 1
+            logger.info(f"Loaded {count_common_file_synonyms:,} common synonyms from {common_synonyms_path}: {get_memory_usage_summary()}")
+
+        logger.info(f"Created SynonymFactory for directory {syndir}")
 
     def load_synonyms(self,prefix):
         lbs = defaultdict(set)
         labelfname = os.path.join(self.synonym_dir, prefix, 'labels')
-        print(f'Loading synonyms for {prefix} from {labelfname}')
+        logger.info(f'Loading synonyms for {prefix} from {labelfname}: {get_memory_usage_summary()}')
         count_labels = 0
         count_synonyms = 0
         if os.path.exists(labelfname):
@@ -59,26 +82,9 @@ class SynonymFactory:
                     lbs[x[0]].add( (x[1], x[2]) )
                     count_synonyms += 1
         self.synonyms[prefix] = lbs
-        print(f'Loaded {count_labels} labels and {count_synonyms} synonyms for {prefix} from {labelfname}')
+        logger.info(f'Loaded {count_labels:,} labels and {count_synonyms:,} synonyms for {prefix} from {labelfname}: {get_memory_usage_summary()}')
 
     def get_synonyms(self,node):
-        config = get_config()
-        if self.common_synonyms is None:
-            # Load the common synonyms.
-            self.common_synonyms = defaultdict(set)
-
-            for common_synonyms_file in config['common']['synonyms']:
-                common_synonyms_path = os.path.join(config['download_directory'], 'common', common_synonyms_file)
-                count_common_file_synonyms = 0
-                with open(common_synonyms_path, 'r') as synonymsf:
-                    # Note that these files may contain ANY prefix -- we should only fallback to this if we have no other
-                    # option.
-                    for line in synonymsf:
-                        row = json.loads(line)
-                        self.common_synonyms[row['curie']].add((row['predicate'], row['synonym']))
-                        count_common_file_synonyms += 1
-                logging.info(f"Loaded {count_common_file_synonyms} common synonyms from {common_synonyms_path}")
-
         node_synonyms = set()
         for ident in node['identifiers']:
             thisid = ident['identifier']
@@ -99,10 +105,25 @@ class DescriptionFactory:
         self.root_dir = rootdir
         self.descriptions = {}
         self.common_descriptions = None
-        print(f"Created DescriptionFactory for directory {rootdir}")
+
+        self.config = get_config()
+        self.common_descriptions = defaultdict(list)
+        for common_descriptions_file in self.config['common']['descriptions']:
+            common_descriptions_path = os.path.join(self.config['download_directory'], 'common', common_descriptions_file)
+            count_common_file_descriptions = 0
+            with open(common_descriptions_path, 'r') as descriptionsf:
+                # Note that these files may contain ANY CURIE -- we should only fallback to this if we have no other
+                # option.
+                for line in descriptionsf:
+                    row = json.loads(line)
+                    self.common_descriptions[row['curie']].extend(row['descriptions'])
+                    count_common_file_descriptions += 1
+            logger.info(f"Loaded {count_common_file_descriptions} common descriptions from {common_descriptions_path}")
+
+        logger.info(f"Created DescriptionFactory for directory {rootdir}")
 
     def load_descriptions(self,prefix):
-        print(f'Loading descriptions for {prefix}')
+        logger.info(f'Loading descriptions for {prefix}')
         descs = defaultdict(set)
         descfname = os.path.join(self.root_dir, prefix, 'descriptions')
         desc_count = 0
@@ -113,32 +134,14 @@ class DescriptionFactory:
                     descs[x[0]].add("\t".join(x[1:]))
                     desc_count += 1
         self.descriptions[prefix] = descs
-        print(f'Loaded {desc_count} descriptions for {prefix}')
+        logger.info(f'Loaded {desc_count:,} descriptions for {prefix}')
 
     def get_descriptions(self,node):
-        config = get_config()
-        if self.common_descriptions is None:
-            # Load the common synonyms.
-            self.common_descriptions = defaultdict(list)
-
-            for common_descriptions_file in config['common']['descriptions']:
-                common_descriptions_path = os.path.join(config['download_directory'], 'common', common_descriptions_file)
-                count_common_file_descriptions = 0
-                with open(common_descriptions_path, 'r') as descriptionsf:
-                    # Note that these files may contain ANY CURIE -- we should only fallback to this if we have no other
-                    # option.
-                    for line in descriptionsf:
-                        row = json.loads(line)
-                        self.common_descriptions[row['curie']].extend(row['descriptions'])
-                        count_common_file_descriptions += 1
-                logging.info(f"Loaded {count_common_file_descriptions} common descriptions from {common_descriptions_path}")
-
-
         node_descriptions = defaultdict(set)
         for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = thisid.split(':', 1)[0]
-            if not pref in self.descriptions:
+            if pref not in self.descriptions:
                 self.load_descriptions(pref)
             node_descriptions[thisid].update( self.descriptions[pref][thisid] )
             node_descriptions[thisid].update( self.common_descriptions.get(thisid, {}) )
@@ -154,7 +157,7 @@ class TaxonFactory:
         self.taxa = {}
 
     def load_taxa(self, prefix):
-        print(f'Loading taxa for {prefix}')
+        logger.info(f'Loading taxa for {prefix}: {get_memory_usage_summary()}')
         taxa_per_prefix = defaultdict(set)
         taxafilename = os.path.join(self.root_dir, prefix, 'taxa')
         taxon_count = 0
@@ -165,14 +168,14 @@ class TaxonFactory:
                     taxa_per_prefix[x[0]].add("\t".join(x[1:]))
                     taxon_count += 1
         self.taxa[prefix] = taxa_per_prefix
-        print(f'Loaded {taxon_count} taxon-CURIE mappings for {prefix}')
+        logger.info(f'Loaded {taxon_count} taxon-CURIE mappings for {prefix}: {get_memory_usage_summary()}')
 
     def get_taxa(self, node):
         node_taxa = defaultdict(set)
         for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = thisid.split(':', 1)[0]
-            if not pref in self.taxa:
+            if pref not in self.taxa:
                 self.load_taxa(pref)
             node_taxa[thisid].update(self.taxa[pref][thisid])
         return node_taxa
@@ -244,10 +247,10 @@ class InformationContentFactory:
         # Sort the dictionary items by value in descending order
         sorted_by_prefix = sorted(count_by_prefix.items(), key=lambda item: item[1], reverse=True)
 
-        print(f"Loaded {len(self.ic)} InformationContent values from {len(count_by_prefix.keys())} prefixes:")
+        logger.info(f"Loaded {len(self.ic)} InformationContent values from {len(count_by_prefix.keys())} prefixes:")
         # Now you can print the sorted items
         for key, value in sorted_by_prefix:
-            print(f'- {key}: {value}')
+            logger.info(f'- {key}: {value}')
 
         # We see a number of URLs being mapped to None (250,871 at present). Let's optionally raise an error if that
         # happens.
@@ -259,12 +262,12 @@ class InformationContentFactory:
                 unmapped_urls_by_netloc[netloc].append(url)
 
             # Print them in reverse count order.
-            print(f"Found {len(unmapped_urls)} unmapped URLs:")
+            logger.info(f"Found {len(unmapped_urls)} unmapped URLs:")
             netlocs_by_count = sorted(unmapped_urls_by_netloc.items(), key=lambda item: len(item[1]), reverse=True)
             for netloc, urls in netlocs_by_count:
-                print(f" - {netloc} [{len(urls)}]")
+                logger.info(f" - {netloc} [{len(urls)}]")
                 for url in sorted(urls):
-                    print(f"   - {url}")
+                    logger.info(f"   - {url}")
 
             assert None not in sorted_by_prefix, ("Found invalid CURIEs in information content values, probably "
                                                   "because they couldn't be mapped from URLs to CURIEs.")
@@ -285,6 +288,7 @@ class InformationContentFactory:
 
 class NodeFactory:
     def __init__(self,label_dir,biolink_version):
+        self.biolink_version = biolink_version
         self.toolkit = get_biolink_model_toolkit(biolink_version)
         self.ancestor_map = {}
         self.prefix_map = {}
@@ -306,7 +310,7 @@ class NodeFactory:
     def get_prefixes(self,input_type):
         if input_type in self.prefix_map:
             return self.prefix_map[input_type]
-        print(input_type)
+        logger.info(f"NodeFactory({self.label_dir}, {self.biolink_version}).get_prefixes({input_type}) called")
         j = self.toolkit.get_element(input_type)
         prefs = j['id_prefixes']
         # biolink doesnt yet include UMLS as a valid prefix for biological process. There is a PR here:
@@ -361,16 +365,15 @@ class NodeFactory:
                         wrote = True
                         break
                 if not wrote:
-                    print(input_identifiers)
-                    exit()
+                    raise ValueError(f"Can't clean up list {v}")
         return cleaned
 
     def load_extra_labels(self,prefix):
         if self.label_dir is None:
-            print (f"WARNING: no label_dir specified in load_extra_labels({self}, {prefix}), can't load extra labels for {prefix}. Skipping.")
+            logger.warning(f"no label_dir specified in load_extra_labels({self}, {prefix}), can't load extra labels for {prefix}. Skipping.")
             return
         if prefix is None:
-            print (f"WARNING: no prefix specified in load_extra_labels({self}, {prefix}), can't load extra labels. Skipping.")
+            logger.warning(f"no prefix specified in load_extra_labels({self}, {prefix}), can't load extra labels. Skipping.")
             return
         labelfname = os.path.join(self.label_dir,prefix,'labels')
         lbs = {}
@@ -404,7 +407,7 @@ class NodeFactory:
                                 continue
                         self.common_labels[x[0]] = x[1]
                         count_common_file_labels += 1
-                logging.info(f"Loaded {count_common_file_labels} common labels from {common_labels_path}")
+                logger.info(f"Loaded {count_common_file_labels} common labels from {common_labels_path}: {get_memory_usage_summary()}")
 
         #Originally we needed to clean up the identifer lists, because there would be both labeledids and
         # string ids and we had to reconcile them.
@@ -419,7 +422,7 @@ class NodeFactory:
                 try:
                     prefix = Text.get_prefix(iid)
                 except ValueError as e:
-                    print(f"ERROR: Unable to apply_labels({self}, {input_identifiers}, {labels}): could not obtain prefix for identifier {iid}")
+                    logger.error(f"Unable to apply_labels({self}, {input_identifiers}, {labels}): could not obtain prefix for identifier {iid}")
                     raise e
                 if prefix not in self.extra_labels:
                     self.load_extra_labels(prefix)
@@ -441,7 +444,7 @@ class NodeFactory:
         if len(input_identifiers) == 0:
             return None
         if len(input_identifiers) > 1000:
-            logging.warning(f'this seems like a lot of input_identifiers in node.create_node() [{len(input_identifiers)}]: {input_identifiers}')
+            logger.warning(f'this seems like a lot of input_identifiers in node.create_node() [{len(input_identifiers)}]: {input_identifiers}')
         cleaned = self.apply_labels(input_identifiers,labels)
         try:
             idmap = defaultdict(list)
@@ -476,7 +479,7 @@ class NodeFactory:
                 try:
                     newids.sort()
                 except TypeError as e:
-                    print(newids)
+                    logger.error(f"Could not sort {newids} because of a TypeError: {e}")
                     raise e
                 if pupper == PUBCHEMCOMPOUND.upper() and len(newids) > 1:
                     newids = pubchemsort(newids,cleaned)
@@ -485,7 +488,7 @@ class NodeFactory:
         for k,vals in idmap.items():
             for v in vals:
                 if v not in accepted_ids and (k,node_type) not in self.ignored_prefixes:
-                    print(f'Ignoring prefix {k} for type {node_type}, identifier {v}')
+                    logger.warning(f'Ignoring prefix {k} for type {node_type}, identifier {v}')
                     self.ignored_prefixes.add( (k,node_type) )
         if len(identifiers) == 0:
             return None
