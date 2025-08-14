@@ -299,7 +299,8 @@ class TSVSQLiteLoader:
         Close all of the SQLite connections.
         """
         for prefix, db in self.sqlites.items():
-            db.close()
+            if db is not None:
+                db.close()
         self.sqlites = dict()
 
     def __del__(self):
