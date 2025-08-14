@@ -174,7 +174,7 @@ class PropertyList:
 if __name__ == '__main__':
     pl = PropertyList()
     ps = set[Property]()
-    ps.add(Property('A', HAS_ALTERNATIVE_ID, 'B'))
+    ps.add(Property('A', HAS_ALTERNATIVE_ID, 'B', sources=['E', 'F']))
     ps.add(Property('A', HAS_ALTERNATIVE_ID, 'C'))
     ps.add(Property('A', HAS_ALTERNATIVE_ID, 'D'))
     ps.add(Property('A', HAS_ALTERNATIVE_ID, 'C'))
