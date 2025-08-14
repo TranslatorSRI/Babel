@@ -23,6 +23,9 @@ from collections import defaultdict
 import sqlite3
 from typing import List, Tuple
 
+# Configuration items
+WRITE_COMPENDIUM_LOG_EVERY_X_CLIQUES = 1_000_000
+
 # Set up a logger.
 logger = get_logger(__name__)
 
@@ -439,7 +442,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
         for slist in synonym_list:
             # Before we get started, let's estimate where we're at.
             count_slist += 1
-            if (count_slist == 1) or (count_slist % 100000 == 0):
+            if (count_slist == 1) or (count_slist % WRITE_COMPENDIUM_LOG_EVERY_X_CLIQUES == 0):
                 time_elapsed_seconds = (time.time_ns() - start_time) / 1E9
                 if time_elapsed_seconds < 0.001:
                     # We don't want to divide by zero.
