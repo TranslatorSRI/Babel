@@ -23,6 +23,9 @@ from collections import defaultdict
 import sqlite3
 from typing import List, Tuple
 
+# Configuration items
+WRITE_COMPENDIUM_LOG_EVERY_X_CLIQUES = 1_000_000
+
 # Set up a logger.
 logger = get_logger(__name__)
 
@@ -439,7 +442,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
         for slist in synonym_list:
             # Before we get started, let's estimate where we're at.
             count_slist += 1
-            if (count_slist == 1) or (count_slist % 100000 == 0):
+            if (count_slist == 1) or (count_slist % WRITE_COMPENDIUM_LOG_EVERY_X_CLIQUES == 0):
                 time_elapsed_seconds = (time.time_ns() - start_time) / 1E9
                 if time_elapsed_seconds < 0.001:
                     # We don't want to divide by zero.
@@ -447,8 +450,8 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                 remaining_slist = total_slist - count_slist
                 # count_slist --> time_elapsed_seconds
                 # remaining_slist --> remaining_slist/count_slit*time_elapsed_seconds
-                logger.info(f"Generating compendia and synonyms for {ofname} currently at {count_slist:,} out of {total_slist:,} ({count_slist/total_slist*100:.2f}%): {get_memory_usage_summary()}")
-                logger.info(f" - Current rate: {count_slist/time_elapsed_seconds:.2f} cliques/second or {time_elapsed_seconds/count_slist:.4f} seconds/clique.")
+                logger.info(f"Generating compendia and synonyms for {ofname} currently at {count_slist:,} out of {total_slist:,} ({count_slist/total_slist*100:.2f}%) in {format_timespan(time_elapsed_seconds)}: {get_memory_usage_summary()}")
+                logger.info(f" - Current rate: {count_slist/time_elapsed_seconds:.2f} cliques/second or {time_elapsed_seconds/count_slist:.6f} seconds/clique.")
 
                 time_remaining_seconds = (time_elapsed_seconds / count_slist * remaining_slist)
                 logger.info(f" - Estimated time remaining: {format_timespan(time_remaining_seconds)}")
