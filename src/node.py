@@ -3,7 +3,6 @@ import json
 import os
 import uuid
 from collections import defaultdict
-from contextlib import AbstractContextManager
 from urllib.parse import urlparse
 
 import curies
@@ -45,7 +44,23 @@ class SynonymFactory:
     def __init__(self,syndir):
         self.synonym_dir = syndir
         self.synonyms = {}
-        self.common_synonyms = None
+        self.config = get_config()
+
+        # Load the common synonyms.
+        self.common_synonyms = defaultdict(set)
+
+        for common_synonyms_file in self.config['common']['synonyms']:
+            common_synonyms_path = os.path.join(self.config['download_directory'], 'common', common_synonyms_file)
+            count_common_file_synonyms = 0
+            with open(common_synonyms_path, 'r') as synonymsf:
+                # Note that these files may contain ANY prefix -- we should only fallback to this if we have no other
+                # option.
+                for line in synonymsf:
+                    row = json.loads(line)
+                    self.common_synonyms[row['curie']].add((row['predicate'], row['synonym']))
+                    count_common_file_synonyms += 1
+            logger.info(f"Loaded {count_common_file_synonyms:,} common synonyms from {common_synonyms_path}: {get_memory_usage_summary()}")
+
         logger.info(f"Created SynonymFactory for directory {syndir}")
 
     def load_synonyms(self,prefix):
@@ -73,23 +88,6 @@ class SynonymFactory:
         logger.info(f'Loaded {count_labels:,} labels and {count_synonyms:,} synonyms for {prefix} from {labelfname}: {get_memory_usage_summary()}')
 
     def get_synonyms(self,node):
-        config = get_config()
-        if self.common_synonyms is None:
-            # Load the common synonyms.
-            self.common_synonyms = defaultdict(set)
-
-            for common_synonyms_file in config['common']['synonyms']:
-                common_synonyms_path = os.path.join(config['download_directory'], 'common', common_synonyms_file)
-                count_common_file_synonyms = 0
-                with open(common_synonyms_path, 'r') as synonymsf:
-                    # Note that these files may contain ANY prefix -- we should only fallback to this if we have no other
-                    # option.
-                    for line in synonymsf:
-                        row = json.loads(line)
-                        self.common_synonyms[row['curie']].add((row['predicate'], row['synonym']))
-                        count_common_file_synonyms += 1
-                logger.info(f"Loaded {count_common_file_synonyms:,} common synonyms from {common_synonyms_path}: {get_memory_usage_summary()}")
-
         node_synonyms = set()
         for ident in node['identifiers']:
             thisid = ident['identifier']
@@ -110,6 +108,21 @@ class DescriptionFactory:
         self.root_dir = rootdir
         self.descriptions = {}
         self.common_descriptions = None
+
+        self.config = get_config()
+        self.common_descriptions = defaultdict(list)
+        for common_descriptions_file in self.config['common']['descriptions']:
+            common_descriptions_path = os.path.join(self.config['download_directory'], 'common', common_descriptions_file)
+            count_common_file_descriptions = 0
+            with open(common_descriptions_path, 'r') as descriptionsf:
+                # Note that these files may contain ANY CURIE -- we should only fallback to this if we have no other
+                # option.
+                for line in descriptionsf:
+                    row = json.loads(line)
+                    self.common_descriptions[row['curie']].extend(row['descriptions'])
+                    count_common_file_descriptions += 1
+            logger.info(f"Loaded {count_common_file_descriptions} common descriptions from {common_descriptions_path}")
+
         logger.info(f"Created DescriptionFactory for directory {rootdir}")
 
     def load_descriptions(self,prefix):
@@ -127,29 +140,11 @@ class DescriptionFactory:
         logger.info(f'Loaded {desc_count:,} descriptions for {prefix}')
 
     def get_descriptions(self,node):
-        config = get_config()
-        if self.common_descriptions is None:
-            # Load the common synonyms.
-            self.common_descriptions = defaultdict(list)
-
-            for common_descriptions_file in config['common']['descriptions']:
-                common_descriptions_path = os.path.join(config['download_directory'], 'common', common_descriptions_file)
-                count_common_file_descriptions = 0
-                with open(common_descriptions_path, 'r') as descriptionsf:
-                    # Note that these files may contain ANY CURIE -- we should only fallback to this if we have no other
-                    # option.
-                    for line in descriptionsf:
-                        row = json.loads(line)
-                        self.common_descriptions[row['curie']].extend(row['descriptions'])
-                        count_common_file_descriptions += 1
-                logger.info(f"Loaded {count_common_file_descriptions} common descriptions from {common_descriptions_path}")
-
-
         node_descriptions = defaultdict(set)
         for ident in node['identifiers']:
             thisid = ident['identifier']
             pref = thisid.split(':', 1)[0]
-            if not pref in self.descriptions:
+            if pref not in self.descriptions:
                 self.load_descriptions(pref)
             node_descriptions[thisid].update( self.descriptions[pref][thisid] )
             node_descriptions[thisid].update( self.common_descriptions.get(thisid, {}) )
@@ -208,6 +203,14 @@ class TSVDuckDBLoader:
             for prefix, count in sorted(duckdb_counts.items(), key=lambda x: x[1], reverse=True)
         )
         return f"TSVDuckDBLoader({self.download_dir}, {self.filename}, {self.format}) containing {len(self.duckdbs)} DuckDBs ({duckdb_counts_str})"
+        node_taxa = defaultdict(set)
+        for ident in node['identifiers']:
+            thisid = ident['identifier']
+            pref = thisid.split(':', 1)[0]
+            if pref not in self.taxa:
+                self.load_taxa(pref)
+            node_taxa[thisid].update(self.taxa[pref][thisid])
+        return node_taxa
 
     def get_duckdb_counts(self):
         counts = dict()
