@@ -8,7 +8,7 @@ import requests
 import ast
 import gzip
 
-from src.properties import Property, HAS_ADDITIONAL_ID
+from src.properties import Property, HAS_ALTERNATIVE_ID
 from src.metadata.provenance import write_concord_metadata, write_combined_metadata
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
@@ -497,7 +497,7 @@ def make_chebi_relations(sdf,dbx,outfile,propfile_gz,metadata_yaml):
                 for secondary_id in secondary_ids:
                     propf.write(Property(
                         curie = cid,
-                        predicate = HAS_ADDITIONAL_ID,
+                        predicate = HAS_ALTERNATIVE_ID,
                         value = secondary_id,
                         sources = [f'Listed as a CHEBI secondary ID in the ChEBI SDF file ({sdf})']
                     ).to_json_line())

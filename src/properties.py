@@ -17,13 +17,14 @@ from dataclasses import dataclass, field
 # SUPPORTED PROPERTIES
 #
 
-# HAS_ADDITIONAL_ID indicates
-#   - Used by write_compendia() to
-HAS_ADDITIONAL_ID = 'http://www.geneontology.org/formats/oboInOwl#hasAlternativeId'
+# HAS_ALTERNATIVE_ID indicates that CURIE has an alternative ID that should be included in the clique, but NOT
+# treated as part of the clique for the purposes of choosing the clique leader. This is used for e.g. ChEBI secondary
+# IDs or other deprecated identifiers.
+HAS_ALTERNATIVE_ID = 'http://www.geneontology.org/formats/oboInOwl#hasAlternativeId'
 
 # Properties currently supported in the property store in one set for validation.
 supported_predicates = {
-    HAS_ADDITIONAL_ID,
+    HAS_ALTERNATIVE_ID,
 }
 
 #
@@ -173,10 +174,10 @@ class PropertyList:
 if __name__ == '__main__':
     pl = PropertyList()
     ps = set[Property]()
-    ps.add(Property('A', HAS_ADDITIONAL_ID, 'B'))
-    ps.add(Property('A', HAS_ADDITIONAL_ID, 'C'))
-    ps.add(Property('A', HAS_ADDITIONAL_ID, 'D'))
-    ps.add(Property('A', HAS_ADDITIONAL_ID, 'C'))
+    ps.add(Property('A', HAS_ALTERNATIVE_ID, 'B'))
+    ps.add(Property('A', HAS_ALTERNATIVE_ID, 'C'))
+    ps.add(Property('A', HAS_ALTERNATIVE_ID, 'D'))
+    ps.add(Property('A', HAS_ALTERNATIVE_ID, 'C'))
     pl.add_properties(ps)
     print(pl.properties)
     assert len(pl.properties) == 3
