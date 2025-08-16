@@ -230,7 +230,9 @@ rule chemical_compendia:
     input:
         typesfile    = config['intermediate_directory'] + '/chemicals/partials/types',
         untyped_file = config['intermediate_directory'] + '/chemicals/partials/untyped_compendium',
-        metadata_yamls = config['intermediate_directory'] + '/chemicals/partials/metadata-untyped_compendium.yaml',
+        metadata_yamls = [
+            config['intermediate_directory'] + '/chemicals/partials/metadata-untyped_compendium.yaml'
+        ],
         properties_jsonl_gz = [
             config['intermediate_directory'] + '/chemicals/properties/get_chebi_concord.jsonl.gz'
         ],

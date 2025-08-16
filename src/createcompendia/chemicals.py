@@ -610,7 +610,7 @@ def get_wikipedia_relationships(outfile, metadata_yaml):
         concord_filename=outfile,
     )
 
-def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_concord, type_file, metadata_yaml, input_metadata_yamls):
+def build_untyped_compendia(concordances, identifiers, unichem_partial, untyped_concord, type_file, metadata_yaml, input_metadata_yamls):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = read_partial_unichem(unichem_partial)
