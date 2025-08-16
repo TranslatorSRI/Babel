@@ -16,7 +16,7 @@ from humanfriendly import format_timespan
 
 from src.metadata.provenance import write_combined_metadata
 from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory
-from src.properties import PropertyList, HAS_ADDITIONAL_ID
+from src.properties import PropertyList, HAS_ALTERNATIVE_ID
 from src.util import Text, get_config, get_memory_usage_summary, get_logger
 from src.LabeledID import LabeledID
 from collections import defaultdict
@@ -462,7 +462,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
             identifier_list = []
             for iid in slist:
                 identifier_list.append(iid)
-                additional_curies = property_list.get_all(iid, HAS_ADDITIONAL_ID)
+                additional_curies = property_list.get_all(iid, HAS_ALTERNATIVE_ID)
                 if additional_curies:
                     for ac in additional_curies:
                         if ac.curie not in slist:

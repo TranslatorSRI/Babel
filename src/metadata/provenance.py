@@ -1,5 +1,6 @@
 import logging
 import os.path
+import traceback
 from collections import defaultdict
 from datetime import datetime
 
@@ -55,9 +56,13 @@ def write_concord_metadata(filename, *, name, concord_filename, url='', descript
 
     write_metadata(filename, 'concord', name, url=url, description=description, sources=sources, counts=counts)
 
-def write_combined_metadata(filename, typ, name, *, sources=None, url='', description='', counts=None, combined_from_filenames=None, also_combined_from=None):
+def write_combined_metadata(filename, typ, name, *, sources=None, url='', description='', counts=None, combined_from_filenames:list[str]=None, also_combined_from=None):
     combined_from = {}
     if combined_from_filenames is not None:
+        if isinstance(combined_from_filenames, str):
+            logging.warning(f"write_combined_metadata() got a single string for combined_from_files ('{combined_from_filenames}'), converting to a single item list, at: "
+                            f"{''.join(traceback.format_stack())}")
+            combined_from_filenames = [combined_from_filenames]
         for metadata_yaml in combined_from_filenames:
             with open(metadata_yaml, 'r') as metaf:
                 metadata_block = yaml.safe_load(metaf)
