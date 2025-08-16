@@ -86,7 +86,7 @@ class Property:
             'curie': self.curie,
             'predicate': self.predicate,
             'value': self.value,
-            'source': list(self.source),
+            'source': self.source,
         }) + '\n'
 
 #
