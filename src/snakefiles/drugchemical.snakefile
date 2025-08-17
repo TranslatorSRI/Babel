@@ -48,7 +48,7 @@ rule drugchemical_conflation:
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         outfile=config['output_directory']+'/conflation/DrugChemical.txt',
-        metadata_yaml=config['output_directory']+'/conflation/metadata.yaml',
+        metadata_yaml=config['output_directory']+'/metadata/DrugChemical.yaml',
     run:
         drugchemical.build_conflation(
             input.drugchemical_manual_concord,
