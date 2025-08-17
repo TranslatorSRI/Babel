@@ -57,7 +57,7 @@ rule generate_pubmed_compendia:
         metadata_yaml = config['intermediate_directory'] + '/publications/concords/metadata.yaml',
         icrdf_filename=config['download_directory'] + '/icRDF.tsv',
     output:
-        publication_compendium = config['output_directory'] + '/compendia/Publication.txt',
+        publication_compendium = temp(config['output_directory'] + '/compendia/Publication.txt'),
         # We generate an empty Publication Synonyms files, but we still need to generate one.
         publication_synonyms_gz = config['output_directory'] + '/synonyms/Publication.txt.gz',
     run:
