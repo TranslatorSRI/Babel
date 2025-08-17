@@ -59,11 +59,12 @@ rule drugchemical_conflation:
             input.chemical_compendia,
             input.icrdf_filename,
             output.outfile,
-            input_metadata_yamls={
-                'RXNORM': input.rxnorm_metadata,
-                'UMLS': input.umls_metadata,
-                'PUBCHEM_RXNORM': input.pubchem_metadata,
-            }, output_metadata_yaml=output.metadata_yaml)
+            input_metadata_yamls=[
+                input.rxnorm_metadata,
+                input.umls_metadata,
+                input.pubchem_metadata
+            ],
+            output_metadata_yaml=output.metadata_yaml)
 
 rule drugchemical_conflated_synonyms:
     input:
