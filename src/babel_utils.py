@@ -472,7 +472,11 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
             if node is None:
-                raise RuntimeError(f"Could not create node for ({slist}, {node_type}, {labels}, {extra_prefixes}): returned None.")
+                # This usually happens because every CURIE in the node is not in the id_prefixes list for that node_type.
+                # Something to fix at some point, but we don't want to break the pipeline for this, so
+                # we emit a warning and skip this clique.
+                logger.warning(f"Could not create node for ({slist}, {node_type}, {labels}, {extra_prefixes}): returned None.")
+                continue
             else:
                 count_cliques += 1
                 count_eq_ids += len(slist)
