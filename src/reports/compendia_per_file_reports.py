@@ -36,8 +36,10 @@ def assert_files_in_directory(dir, expected_files, report_file):
     # These shouldn't interfere with these tests.
     file_list = filter(lambda fn: not fn.startswith('.nfs'), all_file_list)
 
-    assert set(file_list) == set(expected_files), f"Expected files in directory {dir} to be equal to {expected_files} but found {set(file_list)}: " + \
-        f"{set(file_list) - set(expected_files)} added, {set(expected_files) - set(file_list)} missing."
+    file_list_set = set(file_list)
+    expected_files_set = set(expected_files)
+    assert file_list_set == expected_files_set, f"Expected files in directory {dir} to be equal to {expected_files_set} but found {file_list_set}: " + \
+        f"{file_list_set - expected_files_set} added, {expected_files_set - file_list_set} missing."
 
     # If we passed, write the output to the check_file.
     with open(report_file, "w") as f:
