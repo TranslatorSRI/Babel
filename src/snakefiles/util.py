@@ -62,6 +62,7 @@ def get_all_synonyms(config):
         config['cell_line_outputs'] +
         config['genefamily_outputs'] +
         config['drugchemicalconflated_synonym_outputs'] +
+        config['geneproteinconflated_synonym_outputs'] +
         config['umls_outputs'] +
         config['macromolecularcomplex_outputs'] +
         # Publication.txt is empty, but it's still created, so it needs to be here.
@@ -87,6 +88,7 @@ def get_all_synonyms_except_drugchemicalconflated(config):
             config['cell_line_outputs'] +
             config['genefamily_outputs'] +
             # config['drugchemicalconflated_synonym_outputs'] +
+            config['geneproteinconflated_synonym_outputs'] +
             config['umls_outputs'] +
             config['macromolecularcomplex_outputs']
     )
@@ -110,6 +112,7 @@ def get_all_synonyms_with_drugchemicalconflated(config):
             config['cell_line_outputs'] +
             config['genefamily_outputs'] +
             config['drugchemicalconflated_synonym_outputs'] +
+            config['geneproteinconflated_synonym_outputs'] +
             config['umls_outputs'] +
             config['macromolecularcomplex_outputs']
     )

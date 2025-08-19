@@ -295,6 +295,9 @@ chemical_outputs:
 drugchemicalconflated_synonym_outputs:
   - DrugChemicalConflated.txt
 
+geneproteinconflated_synonym_outputs:
+  - GeneProteinConflated.txt
+
 taxon_labels:
   - NCBITaxon
   - MESH
