@@ -26,20 +26,18 @@ rule geneprotein_conflation:
 rule geneprotein_conflated_synonyms:
     input:
         geneprotein_conflations=[config['output_directory']+'/conflation/GeneProtein.txt'],
-        gene_outputs=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['gene_outputs']),
-        protein_outputs=expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['protein_outputs'])
-    output:
-        geneprotein_conflated_synonyms=temp(config['output_directory']+'/synonyms/GeneProteinConflated.txt')
-    run:
-        synonymconflation.conflate_synonyms(input.gene_outputs + input.protein_outputs, input.geneprotein_conflations, output.geneprotein_conflated_synonyms)
-
-rule geneprotein_conflated_synonyms_gz:
-    input:
-        geneprotein_conflated_synonyms=config['output_directory']+'/synonyms/GeneProteinConflated.txt'
+        gene_compendia=expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['gene_outputs']),
+        protein_compendia=expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
+        gene_synonyms_gz=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['gene_outputs']),
+        protein_synonyms_gz=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['protein_outputs'])
     output:
         geneprotein_conflated_synonyms_gz=config['output_directory']+'/synonyms/GeneProteinConflated.txt.gz'
     run:
-        gzip_files(input.geneprotein_conflated_synonyms)
+        synonymconflation.conflate_synonyms(
+            input.gene_synonyms_gz + input.protein_synonyms_gz,
+            input.gene_compendia + input.protein_compendia,
+            input.geneprotein_conflations,
+            output.geneprotein_conflated_synonyms_gz)
 
 rule geneprotein:
     input:
