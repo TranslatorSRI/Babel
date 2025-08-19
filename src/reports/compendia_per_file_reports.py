@@ -20,28 +20,30 @@ def get_datetime_as_string():
     return datetime.now().isoformat()
 
 
-def assert_files_in_directory(dir, files, report_file):
+def assert_files_in_directory(dir, expected_files, report_file):
     """
     Asserts that the list of files in a given directory are the list of files provided.
 
     :param dir: The directory to check files in.
-    :param files: The files to compare the list against.
+    :param expected_files: The files to compare the list against.
     :param report_file: Write a report to this file. We assume that this file is not intended
         to be read, but is created so that we can check this assertion has been checked.
     """
 
-    logging.info(f"Expect files in directory {dir} to be equal to {files}")
     all_file_list = os.listdir(dir)
 
     # On Sterling, we sometimes have `.nfs*` files that represent NFS cached files that weren't properly deleted.
     # These shouldn't interfere with these tests.
     file_list = filter(lambda fn: not fn.startswith('.nfs'), all_file_list)
 
-    assert set(file_list) == set(files)
+    file_list_set = set(file_list)
+    expected_files_set = set(expected_files)
+    assert file_list_set == expected_files_set, f"Expected files in directory {dir} to be equal to {expected_files_set} but found {file_list_set}: " + \
+        f"{file_list_set - expected_files_set} added, {expected_files_set - file_list_set} missing."
 
     # If we passed, write the output to the check_file.
     with open(report_file, "w") as f:
-        f.write(f"Confirmed that {dir} contains only the files {files} at {get_datetime_as_string()}\n")
+        f.write(f"Confirmed that {dir} contains only the files {expected_files} at {get_datetime_as_string()}\n")
 
 
 def generate_content_report_for_compendium(compendium_path, report_path):

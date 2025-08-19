@@ -16,7 +16,7 @@ from humanfriendly import format_timespan
 
 from src.metadata.provenance import write_combined_metadata
 from src.node import NodeFactory, SynonymFactory, DescriptionFactory, InformationContentFactory, TaxonFactory
-from src.properties import PropertyList, HAS_ADDITIONAL_ID
+from src.properties import PropertyList, HAS_ALTERNATIVE_ID
 from src.util import Text, get_config, get_memory_usage_summary, get_logger
 from src.LabeledID import LabeledID
 from collections import defaultdict
@@ -462,7 +462,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
             identifier_list = []
             for iid in slist:
                 identifier_list.append(iid)
-                additional_curies = property_list.get_all(iid, HAS_ADDITIONAL_ID)
+                additional_curies = property_list.get_all(iid, HAS_ALTERNATIVE_ID)
                 if additional_curies:
                     for ac in additional_curies:
                         if ac.curie not in slist:
@@ -472,7 +472,11 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
             if node is None:
-                raise RuntimeError(f"Could not create node for ({slist}, {node_type}, {labels}, {extra_prefixes}): returned None.")
+                # This usually happens because every CURIE in the node is not in the id_prefixes list for that node_type.
+                # Something to fix at some point, but we don't want to break the pipeline for this, so
+                # we emit a warning and skip this clique.
+                logger.warning(f"Could not create node for ({slist}, {node_type}, {labels}, {extra_prefixes}): returned None.")
+                continue
             else:
                 count_cliques += 1
                 count_eq_ids += len(slist)
