@@ -213,7 +213,7 @@ def conflate_synonyms(synonym_files_gz, compendia_files, conflation_file, output
                         if 'taxa' in synonym:
                             if 'taxa' not in final_conflation:
                                 final_conflation['taxa'] = set()
-                            final_conflation.update(synonym['taxa'])
+                            final_conflation['taxa'].update(synonym['taxa'])
 
             # Convert the taxa into a list.
             final_conflation['taxa'] = sorted(final_conflation['taxa'])
