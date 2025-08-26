@@ -421,9 +421,9 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
     if properties_jsonl_gz_files:
         for properties_jsonl_gz_file in properties_jsonl_gz_files:
             logger.info(f"Loading properties from {properties_jsonl_gz_file}...")
-            property_list.add_properties_jsonl_gz(properties_jsonl_gz_file)
-            logger.info(f"Loaded {properties_jsonl_gz_file}")
-    logger.info(f"All property files loaded: {get_memory_usage_summary()}")
+            count_loaded = property_list.add_properties_jsonl_gz(properties_jsonl_gz_file)
+            logger.info(f"Loaded {count_loaded} unique properties from {properties_jsonl_gz_file}")
+    logger.info(f"All property files loaded (total unique properties: {len(property_list)}: {get_memory_usage_summary()}")
 
     property_source_count = defaultdict(int)
 
@@ -467,10 +467,9 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                     for ac in additional_curies:
                         if ac.curie not in slist:
                             identifier_list.append(ac.curie)
-                            for source in ac.sources:
-                                property_source_count[source] += 1
+                            property_source_count[ac.source] += 1
 
-            node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
+            node = node_factory.create_node(input_identifiers=identifier_list, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
             if node is None:
                 # This usually happens because every CURIE in the node is not in the id_prefixes list for that node_type.
                 # Something to fix at some point, but we don't want to break the pipeline for this, so

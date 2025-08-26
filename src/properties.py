@@ -118,6 +118,10 @@ class PropertyList:
         self._properties_by_curie = defaultdict(set[Property])
 
     @property
+    def __sizeof__(self):
+        return len(self._properties)
+
+    @property
     def properties(self) -> set[Property]:
         return self._properties
 
