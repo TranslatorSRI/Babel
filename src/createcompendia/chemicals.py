@@ -502,7 +502,12 @@ def make_chebi_relations(sdf,dbx,outfile,propfile_gz,metadata_yaml):
                         source = f'Listed as a CHEBI secondary ID in the ChEBI SDF file ({sdf})'
                     ).to_json_line())
             if kk in props:
-                outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{props[kk]}\n')
+                # This is apparently a list now sometimes?
+                kegg_ids = props[kk]
+                if not isinstance(kegg_ids, list):
+                    kegg_ids = [kegg_ids]
+                for kegg_id in kegg_ids:
+                    outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{kegg_id}\n')
             if pk in props:
                 #Apparently there's a lot of structure here?
                 database_links = props[pk]
