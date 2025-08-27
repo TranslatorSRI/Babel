@@ -158,6 +158,7 @@ protein_concords:
   - PR
   - NCIT_UniProtKB
   - NCIT_UMLS
+  - UMLS_MESH
   - UMLS_UniProtKB
 
 protein_outputs:

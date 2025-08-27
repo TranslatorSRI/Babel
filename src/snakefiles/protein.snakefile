@@ -79,6 +79,17 @@ rule get_protein_ncit_umls_relationships:
     run:
         protein.build_umls_ncit_relationships(input.mrconso, input.infile, output.outfile, output.metadata_yaml)
 
+rule get_protein_umls_mesh_relationships:
+    input:
+        mrconso=config['download_directory']+"/UMLS/MRCONSO.RRF",
+        infile=config['intermediate_directory']+"/protein/ids/UMLS"
+    output:
+        outfile=config['intermediate_directory']+'/protein/concords/UMLS_MESH',
+        metadata_yaml=config['intermediate_directory']+'/protein/concords/metadata-UMLS_MESH.yaml'
+    run:
+        protein.build_umls_mesh_relationships(input.mrconso, input.infile, output.outfile, output.metadata_yaml)
+
+
 rule protein_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['protein_labels']),

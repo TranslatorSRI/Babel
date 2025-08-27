@@ -1,7 +1,7 @@
 import re
 
 from src.metadata.provenance import write_concord_metadata
-from src.prefixes import ENSEMBL, UMLS, PR, UNIPROTKB, NCIT, NCBITAXON
+from src.prefixes import ENSEMBL, UMLS, PR, UNIPROTKB, NCIT, NCBITAXON, MESH
 from src.categories import PROTEIN
 
 import src.datahandlers.umls as umls
@@ -149,6 +149,9 @@ def build_ncit_uniprot_relationships(infile,outfile, metadata_yaml):
 
 def build_umls_ncit_relationships(mrconso, idfile, outfile, metadata_yaml):
     umls.build_sets(mrconso, idfile, outfile, {'NCI': NCIT}, provenance_metadata_yaml=metadata_yaml)
+
+def build_umls_mesh_relationships(mrconso, idfile, outfile, metadata_yaml):
+    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH}, provenance_metadata_yaml=metadata_yaml)
 
 def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
