@@ -1,7 +1,7 @@
 import re
 
 from src.metadata.provenance import write_concord_metadata
-from src.prefixes import ENSEMBL, UMLS, PR, UNIPROTKB, NCIT, NCBITAXON, MESH
+from src.prefixes import ENSEMBL, UMLS, PR, UNIPROTKB, NCIT, NCBITAXON, MESH, DRUGBANK
 from src.categories import PROTEIN
 
 import src.datahandlers.umls as umls
@@ -150,8 +150,14 @@ def build_ncit_uniprot_relationships(infile,outfile, metadata_yaml):
 def build_umls_ncit_relationships(mrconso, idfile, outfile, metadata_yaml):
     umls.build_sets(mrconso, idfile, outfile, {'NCI': NCIT}, provenance_metadata_yaml=metadata_yaml)
 
-def build_umls_mesh_relationships(mrconso, idfile, outfile, metadata_yaml):
-    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH}, provenance_metadata_yaml=metadata_yaml)
+def build_umls_relationships(mrconso, idfile, outfile, metadata_yaml):
+    # The corresponding code in chemicals also includes (1) {'RXNORM': RXCUI}, and (2) we also pull in RxNorm to
+    # provide the inverse concords (i.e. RxNorm -> MESH and DRUGBANK). Doing so will probably fix some RXCUI IDs,
+    # but assigning RXCUI to proteins seems like a bridge too far for me.
+    #
+    # TODO: we should probably add some kind of filtering so we don't include concords that point to chemicals rather
+    # than proteins, which could result in duplicates (if the same ID is picked up in both chemicals and proteins).
+    umls.build_sets(mrconso, idfile, outfile, {'MSH': MESH, 'DRUGBANK': DRUGBANK}, provenance_metadata_yaml=metadata_yaml)
 
 def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
