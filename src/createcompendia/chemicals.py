@@ -8,6 +8,7 @@ import requests
 import ast
 import gzip
 
+from src import util
 from src.properties import Property, HAS_ALTERNATIVE_ID
 from src.metadata.provenance import write_concord_metadata, write_combined_metadata
 from src.ubergraph import UberGraph
@@ -20,6 +21,9 @@ from src.babel_utils import write_compendium, glom, get_prefixes, read_identifie
 
 import src.datahandlers.mesh as mesh
 import src.datahandlers.umls as umls
+from src.util import get_memory_usage_summary
+
+logger = util.get_logger(__name__)
 
 def get_type_from_smiles(smiles):
     if '.' in smiles:
@@ -678,12 +682,18 @@ def build_compendia(type_file, untyped_compendia_file, properties_jsonl_gz_files
         for line in inf:
             x = line.strip().split('\t')
             types[x[0]] = x[1]
+    logger.info(f'Loaded {len(types)} types from {type_file}: {get_memory_usage_summary()}')
+
     untyped_sets = set()
     with open(untyped_compendia_file,'r') as inf:
         for line in inf:
             s = ast.literal_eval(line.strip())
             untyped_sets.add(frozenset(s))
+    logger.info(f'Loaded {len(untyped_sets)} untyped sets from {untyped_compendia_file}: {get_memory_usage_summary()}')
+
     typed_sets = create_typed_sets(untyped_sets, types)
+    logger.info(f'Created {len(typed_sets)} typed sets from {len(untyped_sets)} untyped sets: {get_memory_usage_summary()}')
+
     for biotype, sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
         if biotype == DRUG:
