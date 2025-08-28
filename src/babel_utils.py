@@ -467,8 +467,8 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                 additional_curies = property_list.get_all(iid, HAS_ALTERNATIVE_ID)
                 if additional_curies:
                     for ac in additional_curies:
-                        if ac.curie not in slist:
-                            identifier_list.append(ac.curie)
+                        if ac.value not in slist:
+                            identifier_list.append(ac.value)
                             property_source_count[ac.source] += 1
 
             node = node_factory.create_node(input_identifiers=identifier_list, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)

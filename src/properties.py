@@ -139,6 +139,9 @@ class PropertyList:
         """
         props = self._properties_by_curie[curie]
 
+        if predicate is None:
+            return props
+
         if predicate not in supported_predicates:
             raise ValueError(f'Predicate {predicate} is not supported (supported predicates: {supported_predicates})')
 
