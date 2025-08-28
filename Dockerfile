@@ -27,6 +27,7 @@ RUN apt-get install -y screen
 RUN apt-get install -y vim
 RUN apt-get install -y rsync
 RUN apt-get install -y jq
+RUN apt-get install -y duckdb
 
 # Create a non-root-user.
 RUN adduser --home ${ROOT} --uid 1000 nru
