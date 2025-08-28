@@ -198,5 +198,5 @@ def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_fil
 
     baretype = PROTEIN.split(':')[-1]
     logger.info(f"Writing compendium for {baretype}, memory usage: {get_memory_usage_summary()}")
-    write_compendium(metadata_yamls, gene_sets, f'{baretype}.txt', PROTEIN, {}, icrdf_filename=icrdf_filename)
+    write_compendium(metadata_yamls, gene_sets, f'{baretype}.txt', PROTEIN, {}, extra_prefixes=[DRUGBANK], icrdf_filename=icrdf_filename)
     logger.info(f"Wrote compendium for {baretype}, memory usage: {get_memory_usage_summary()}")
