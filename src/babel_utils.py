@@ -423,7 +423,9 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
             logger.info(f"Loading properties from {properties_jsonl_gz_file}...")
             count_loaded = property_list.add_properties_jsonl_gz(properties_jsonl_gz_file)
             logger.info(f"Loaded {count_loaded} unique properties from {properties_jsonl_gz_file}")
-    logger.info(f"All {len(properties_jsonl_gz_files)} property files loaded ({property_list.count_unique()} total unique properties): {get_memory_usage_summary()}")
+        logger.info(f"All {len(properties_jsonl_gz_files)} property files loaded ({property_list.count_unique()} total unique properties): {get_memory_usage_summary()}")
+    else:
+        logger.info("No property files provided or loaded.")
 
     property_source_count = defaultdict(int)
 
