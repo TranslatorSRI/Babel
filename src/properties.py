@@ -118,7 +118,12 @@ class PropertyList:
         self._properties_by_curie = defaultdict(set[Property])
 
     @property
-    def __sizeof__(self):
+    def count_unique(self):
+        """
+        Return the number of unique Properties in this PropertyList.
+
+        :return: The number of unique Properties in this PropertyList.
+        """
         return len(self._properties)
 
     @property
