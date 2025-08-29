@@ -458,7 +458,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                 time_remaining_seconds = (time_elapsed_seconds / count_slist * remaining_slist)
                 logger.info(f" - Estimated time remaining: {format_timespan(time_remaining_seconds)}")
 
-            node = node_factory.create_node(input_identifiers=identifier_list, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
+            node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
             if node is None:
                 # This usually happens because every CURIE in the node is not in the id_prefixes list for that node_type.
                 # Something to fix at some point, but we don't want to break the pipeline for this, so
