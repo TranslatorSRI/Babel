@@ -553,8 +553,11 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                         curie_labels[iid] = nid['label']
 
                     # Are there any additional CURIEs for this CURIE?
-                    additional_curies = property_list.get_all(iid, HAS_ALTERNATIVE_ID)
-                    if additional_curies:
+                    props = property_list.get_all(iid, HAS_ALTERNATIVE_ID)
+                    if props:
+                        # Get just the additional CURIEs.
+                        additional_curies = [prop.value for prop in props]
+
                         # ac_labelled will be a list that consists of either LabeledID (if the CURIE could be labeled)
                         # or str objects (consisting of an unlabeled CURIE).
                         ac_labelled = node_factory.apply_labels(input_identifiers=additional_curies, labels=labels)
