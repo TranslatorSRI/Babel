@@ -585,14 +585,20 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
                     if iid in curie_labels:
                         id_info['l'] = curie_labels[iid]
+                    else:
+                        id_info['l'] = ''
 
                     if id_info['i'] in descs:
                         # Sort descriptions from the shortest to the longest.
                         id_info['d'] = list(sorted(descs[id_info['i']], key=lambda x: len(x)))
+                    else:
+                        id_info['d'] = []
 
                     if id_info['i'] in taxa:
                         # Sort taxa by CURIE suffix.
                         id_info['t'] = list(sorted(taxa[id_info['i']], key=get_numerical_curie_suffix))
+                    else:
+                        id_info['t'] = []
 
                     nw['identifiers'].append(id_info)
 
