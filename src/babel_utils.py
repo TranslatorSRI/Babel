@@ -562,14 +562,14 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                         # or str objects (consisting of an unlabeled CURIE).
                         ac_labelled = node_factory.apply_labels(input_identifiers=additional_curies, labels=labels)
 
-                        for ac, label in zip(additional_curies, list(ac_labelled)):
+                        for prop, label in zip(props, ac_labelled):
                             additional_curie = Text.get_curie(label)
                             if additional_curie not in current_curies:
                                 identifier_list.append(additional_curie)
                                 current_curies.add(additional_curie)
 
                                 # Track the property sources we used.
-                                property_source_count[ac.source] += 1
+                                property_source_count[prop.source] += 1
 
                                 if isinstance(label, LabeledID) and label.label:
                                     curie_labels[additional_curie] = label.label
