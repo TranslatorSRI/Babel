@@ -4,7 +4,6 @@ import jsonlines
 import requests
 import ast
 import gzip
-from gzip import GzipFile
 
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
