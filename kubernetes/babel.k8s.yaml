@@ -32,9 +32,11 @@ spec:
       requests:
         memory: "500G"
         cpu: "4"
+        ephemeral-storage: "1G"
       limits:
         memory: "500G"
         cpu: "4"
+        ephemeral-storage: "1G"
   volumes:
     - name: babel-downloads
       persistentVolumeClaim:
