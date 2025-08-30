@@ -563,7 +563,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                         ac_labelled = node_factory.apply_labels(input_identifiers=additional_curies, labels=labels)
 
                         for prop, label in zip(props, ac_labelled):
-                            additional_curie = Text.get_prefix_or_none(label)
+                            additional_curie = Text.get_curie(label)
                             if additional_curie not in current_curies:
                                 identifier_list.append(additional_curie)
                                 current_curies.add(additional_curie)
