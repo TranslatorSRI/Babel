@@ -9,7 +9,7 @@ import os
 from itertools import combinations
 
 import logging
-from src.util import LoggingUtil
+from src.util import LoggingUtil, get_memory_usage_summary
 
 # Default logger for this file.
 logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
@@ -139,7 +139,7 @@ def convert_compendium_to_kgx(compendium_filename, kgx_nodes_filename, kgx_edges
 
                     # Count total lines
                     count_lines += line_counter
-                    logger.debug(f"Processed {count_lines} lines from {compendium_filename}")
+                    logger.debug(f"Processed {count_lines:,} lines from {compendium_filename}: {get_memory_usage_summary()}")
 
                     # reset the line counter for the next group
                     line_counter = 0
@@ -157,7 +157,7 @@ def convert_compendium_to_kgx(compendium_filename, kgx_nodes_filename, kgx_edges
 
             # Count total lines
             count_lines += line_counter
-            logger.info(f"Processed a total of {count_lines} lines from {compendium_filename}")
+            logger.info(f"Processed a total of {count_lines} lines from {compendium_filename}: {get_memory_usage_summary()}")
 
     logger.info(f"Converted {compendium_filename} to KGX: " +
                 f"wrote {count_nodes} nodes to {kgx_nodes_filename} and " +

@@ -138,11 +138,10 @@ class DescriptionFactory:
         self.descriptions[prefix] = descs
         logger.info(f'Loaded {desc_count:,} descriptions for {prefix}')
 
-    def get_descriptions(self,node):
+    def get_descriptions(self, ids: list[str]):
         node_descriptions = defaultdict(set)
-        for ident in node['identifiers']:
-            thisid = ident['identifier']
-            pref = thisid.split(':', 1)[0]
+        for thisid in ids:
+            pref = Text.get_prefix(thisid)
             if pref not in self.descriptions:
                 self.load_descriptions(pref)
             node_descriptions[thisid].update( self.descriptions[pref][thisid] )
@@ -161,8 +160,7 @@ class TaxonFactory:
     def load_taxa(self, prefix):
         return self.tsvloader.load_prefix(prefix)
 
-    def get_taxa(self, node):
-        curies = list({ident['identifier'] for ident in node['identifiers']})
+    def get_taxa(self, curies: list[str]):
         return self.tsvloader.get_curies(curies)
 
     def close(self):
