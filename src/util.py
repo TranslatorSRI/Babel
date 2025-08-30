@@ -107,7 +107,7 @@ class Text:
     prefixmap = { x.lower(): x for k,x in vars(prefixes).items() if not k.startswith("__")}
 
     @staticmethod
-    def get_curie (text):
+    def get_prefix_or_none (text):
         if isinstance(text,LabeledID):
             text = text.identifier
         return text.upper().split(':', 1)[0] if ':' in text else None

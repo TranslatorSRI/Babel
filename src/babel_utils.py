@@ -563,7 +563,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                         ac_labelled = node_factory.apply_labels(input_identifiers=additional_curies, labels=labels)
 
                         for prop, label in zip(props, ac_labelled):
-                            additional_curie = Text.get_curie(label)
+                            additional_curie = Text.get_prefix_or_none(label)
                             if additional_curie not in current_curies:
                                 identifier_list.append(additional_curie)
                                 current_curies.add(additional_curie)
@@ -761,7 +761,7 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
                     fs = frozenset(s)
                     wrote.add(fs)
                 for gel in group:
-                    if Text.get_curie(gel) == pref:
+                    if Text.get_prefix_or_none(gel) == pref:
                         killer = gel
                 #for preset in wrote:
                 #    print(f'{killer}\t{set(group).intersection(preset)}\t{preset}\n')
@@ -840,9 +840,9 @@ def get_prefixes(idlist):
         if isinstance(ident,LabeledID):
             print('nonono')
             exit()
-            prefs.add(Text.get_curie(ident.identifier))
+            prefs.add(Text.get_prefix_or_none(ident.identifier))
         else:
-            prefs[Text.get_curie(ident)].append(ident)
+            prefs[Text.get_prefix_or_none(ident)].append(ident)
     return prefs
 
 
@@ -934,7 +934,7 @@ def remove_overused_xrefs(pairlist: List[Tuple], bothways:bool = False):
 
 def norm(x,op):
     #Get curie returns the uppercase
-    pref = Text.get_curie(x)
+    pref = Text.get_prefix_or_none(x)
     if pref in op:
         return Text.recurie(x,op[pref])
     return x

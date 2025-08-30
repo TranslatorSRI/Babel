@@ -575,7 +575,7 @@ class NodeFactory:
         try:
             idmap = defaultdict(list)
             for i in list(cleaned):
-                idmap[Text.get_curie(i).upper()].append(i)
+                idmap[Text.get_prefix_or_none(i).upper()].append(i)
         except AttributeError:
             print('something very bad')
             print(input_identifiers)
@@ -583,8 +583,8 @@ class NodeFactory:
             for i in list(input_identifiers):
                 print(i)
                 print(type(i))
-                print(Text.get_curie(i))
-                print(Text.get_curie(i).upper())
+                print(Text.get_prefix_or_none(i))
+                print(Text.get_prefix_or_none(i).upper())
             raise RuntimeError('something very bad')
         identifiers = []
         accepted_ids = set()
