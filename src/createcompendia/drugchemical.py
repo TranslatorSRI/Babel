@@ -1,4 +1,7 @@
 import csv
+import sys
+
+import jsonlines
 
 from src.metadata.provenance import write_combined_metadata, write_concord_metadata
 from src.node import NodeFactory, InformationContentFactory
@@ -439,26 +442,32 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
 
     # Write out all the resulting cliques.
     written = set()
-    with open(outfilename,"w") as outfile:
-        for clique_member,clique in gloms.items():
+    with jsonlines.open(outfilename, "w") as outf:
+        for clique in gloms.values():
+            # 1. Prepare a list of identifiers so we can iterate over them.
             fs = frozenset(clique)
             if fs in written:
                 continue
             conflation_id_list = list(clique)
 
-            # Now we need to figure out the type of this conflation. One possibility would be to use the
-            # clique size (number of IDs in each clique) to determine this, but this approach might fail
-            # if a conflation has one oversized clique that pulls us away from the right path. Instead,
-            # we determine a preference order of Biolink types and follow that to choose a type for each
-            # conflation.
-            #
-            # To do this is a two-step process:
-            # 1. Figure out all the possible types (of the remaining IDs).
-            conflation_possible_types = map(
-                lambda id: type_for_preferred_curie[preferred_curie_for_curie[id]],
-                conflation_id_list
-            )
-            # 2. Sort possible types in our preferred order of types.
+            # 2. Group identifiers by Biolink type, preserving the order of the clique members.
+            conflation_ids_by_type = defaultdict(list)
+            normalized_conflation_id_list = list()
+            for iid in conflation_id_list:
+                # Normalization shouldn't be needed here, because they're all clique leaders, but just in case.
+                preferred_curie = preferred_curie_for_curie[iid]
+                if preferred_curie != iid:
+                    logger.warning(f"Conflation leader {iid} should have been normalized to {preferred_curie}, normalizing now.")
+                if preferred_curie not in normalized_conflation_id_list:
+                    normalized_conflation_id_list.append(preferred_curie)
+
+                # Add it to the dictionary of types in the order of the clique members.
+                # At the moment, we get these from glomming, so the order should not actually be significant.
+                # But maybe in the future it will be if that changes? And it doesn't cost us much to maintain
+                # insertion order.
+                conflation_ids_by_type[type_for_preferred_curie[preferred_curie]].append(iid)
+
+            # 3. There's a particular order we'd like to arrange the conflation in.
             # I've also listed the number of entities as of 2024mar24 to give an idea of how common these are.
             PREFERRED_CONFLATION_TYPE_ORDER = {
                 SMALL_MOLECULE: 1,                      # 107,459,280 cliques
@@ -475,141 +484,53 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
                 ENVIRONMENTAL_FOOD_CONTAMINANT: 12,     # N/A
                 CHEMICAL_ENTITY: 13,                    # 7,398,124 cliques
             }
-            sorted_possible_types = sorted(conflation_possible_types,
-                                           key=lambda typ: PREFERRED_CONFLATION_TYPE_ORDER.get(typ, 100))
-            if len(sorted_possible_types) > 0:
-                conflation_type = sorted_possible_types[0]
-            else:
-                logger.warning(f"Could not determine type for {conflation_id_list} with " +
-                               f"conflation possible types: {conflation_possible_types}, defaulting to {CHEMICAL_ENTITY}.")
-                conflation_type = CHEMICAL_ENTITY
 
-            # Determine the prefixes to be used for this conflation list based on the prefixes from the NodeFactory
-            # (which gets them from Biolink Model).
-            prefixes_for_type = nodefactory.get_prefixes(conflation_type)
-            logger.info(f"Conflation {conflation_id_list} determined to have conflation type {conflation_type} " +
-                        f"with prefixes: {prefixes_for_type}")
-
-            # Normalize all the identifiers. Any IDs that couldn't be normalized will show up as None.
-            normalized_conflation_id_list = [preferred_curie_for_curie.get(id) for id in conflation_id_list]
-
-            # Turn the conflation CURIE list into a prefix map, which maps prefixes to lists of CURIEs.
-            # This allows us to sort each prefix separately.
-            # Skip CURIE prefixes that aren't good conflation list leaders and ignore duplicates.
-            prefix_map = defaultdict(list)
-            ids_already_added = set()
-            for index, curie in enumerate(normalized_conflation_id_list):
-                # Remove Nones, which are IDs that could not be normalized.
-                if curie is None:
-                    logger.warning(f"Could not normalize CURIE {conflation_id_list[index]} in conflation {conflation_id_list}, skipping.")
-                    continue
-
-                # Remove duplicates
-                if curie in ids_already_added:
-                    continue
-
-                # Group by prefix.
-                curie_prefix = curie.split(':')[0]
-                if curie_prefix == RXCUI:
-                    # Drug has RXCUI rated highly as a prefix, but that's not a good ID for Babel, so let's skip
-                    # this for now.
-                    continue
-
-                if curie_prefix == UMLS:
-                    # UMLS is a particularly bad identifier for us because we tend not to conflate on it, so let's
-                    # skip this for now.
-                    continue
-
-                prefix_map[curie_prefix].append(curie)
-                ids_already_added.add(curie)
-
-            # Produce a final conflation list in the prefix order specified for the type of the conflation leader.
+            # Within each of those classes, we want to sort by:
+            #   - information_content (lowest to highest, so that more general concepts are front-loaded)
+            #   - clique size (largest to smallest, so that larger cliques are front-loaded)
+            #   - numerical suffix (lowest to highest)
+            # Note that this does NOT include prefix order for the Biolink type. I think mixing that with multiple
+            # Biolink types will just make the output lists more confusing. Most people will only care about the
+            # clique conflation leader.
             final_conflation_id_list = []
-            ids_already_added = set()
-            for prefix in prefixes_for_type:
-                if prefix in prefix_map:
-                    ids_to_add = []
-                    for id in prefix_map[prefix]:
-                        ids_already_added.add(id)
-                        ids_to_add.append(id)
+            for biolink_type, ids in sorted(conflation_ids_by_type.items(), key=lambda x: PREFERRED_CONFLATION_TYPE_ORDER.get(x[0], 100)):
+                # To sort the identifiers, we'll need to calculate a tuple for each identifier to sort on.
+                sorted_ids = {}
+                for id in ids:
+                    clique_for_id = clique_for_preferred_curie[id]
 
-                    # Sort this set of CURIEs from the numerically smallest CURIE suffix to the largest, with
-                    # non-numerical CURIE suffixes sorted to the end.
-                    final_conflation_id_list.extend(list(sorted(ids_to_add, key=sort_by_curie_suffix)))
+                    # Criteria 1: the information content of the clique represented by this identifier (lowest -> highest).
+                    clique_ic = ic_factory.get_ic({
+                        'identifiers': list(map(lambda c: {'identifier': c}, clique_for_id))
+                    })
+                    if clique_ic is None:
+                        clique_ic = 100.0
 
-            # Add any identifiers that weren't in the prefix_map in the original order (which is not significant).
-            ids_to_add = []
-            for id in normalized_conflation_id_list:
-                if id not in ids_already_added:
-                    ids_to_add.append(id)
+                    # Criteria 2: the size of the clique represented by this identifier (highest -> lowest)
+                    clique_size = len(clique_for_id)
 
-            # Sort this final set of CURIEs from the numerically smallest CURIE suffix to the largest, with
-            # non-numerical CURIE suffixes sorted to the end.
-            final_conflation_id_list.extend(list(sorted(ids_to_add, key=sort_by_curie_suffix)))
+                    # Criteria 3: the numerical suffix of the identifier (lowest -> highest)
+                    numerical_suffix = get_numerical_curie_suffix(curie)
+                    if numerical_suffix is None:
+                        numerical_suffix = sys.maxsize
 
-            # At this point, final_conflation_id_list is a list of all the identifiers for this conflation
-            # arranged in two ways:
-            #   - This is sorted by prefix in the prefix order specified for the type we've come up with for this
-            #     conflation (conflation_type).
-            #   - Within each prefix, we've sorted identifiers by CURIE suffix, so that the smallest identifier goes
-            #     first.
-            # This generally gives us the right identifier for the conflation, but there are a few cases where we can
-            # improve this:
-            #   - We might end up with a conflation clique leader that's not the right type.
-            #   - We might end up with a conflation clique leader that's a more complex chemical than the simplest
-            #     one (e.g. the conflated clique for CHEBI:45783 "imanitib" is currently lead by
-            #     CHEBI:31690 "imatinib methanesulfonate", just because it's numerically smaller).
-            #     - See https://github.com/TranslatorSRI/Babel/issues/341 for examples.
-            #   - We might end up with a conflation clique leader that has a higher information content
-            # To work around this, we take this chance to pick an alternate conflation clique leader.
-            conflation_clique_leader = final_conflation_id_list[0]
-            conflation_clique_leader_prefix = conflation_clique_leader.split(':')[0]
-            conflation_clique_leader_ic = ic_factory.get_ic({
-                'identifiers': list(map(lambda curie: {'identifier': curie}, clique_for_preferred_curie[conflation_clique_leader]))
-            })
-            if conflation_clique_leader_ic is None:
-                conflation_clique_leader_ic = float(100.0)
-            else:
-                conflation_clique_leader_ic = float(conflation_clique_leader_ic)
+                    # Put all that information into a tuple for sorting.
+                    sorted_ids[id] = (
+                        clique_ic,                  # clique_ic (smallest -> largest)
+                        -clique_size,               # clique_size DESC (largest -> smallest)
+                        numerical_suffix            # numerical_suffix ASC (smallest -> largest)
+                    )
 
-            for curie in final_conflation_id_list:
-                curie_prefix = curie.split(':')[0]
-                if curie_prefix != conflation_clique_leader_prefix:
-                    # Let's stick will the same prefix as the first entry.
-                    continue
+                sorted_ids = sorted(ids, key=sorted_ids.get)
+                final_conflation_id_list.extend(sorted_ids)
 
-                # Note that this works because curie is always a clique leader here.
-                curie_type = type_for_preferred_curie[curie]
-                if curie_type != conflation_type:
-                    # Only consider clique leaders that are of the calculated type.
-                    continue
+            # This should account for every type (including the ones not included in the PREFERRED_CONFLATION_TYPE_ORDER),
+            # but just out of paranoia, we'll double-check that here.
+            assert set(final_conflation_id_list) == set(normalized_conflation_id_list)
 
-                # Is this a lower information content value? If so, prefer this CURIE.
-                curie_ic = ic_factory.get_ic({
-                    'identifiers': list(map(lambda curie: {'identifier': curie}, clique_for_preferred_curie[curie]))
-                })
-                if curie_ic is not None and float(curie_ic) < float(conflation_clique_leader_ic):
-                    logging.info(f"Found better IC with CURIE {curie} (IC {curie_ic}) than previous conflation clique "
-                                 f"leader {final_conflation_id_list[0]} (IC {conflation_clique_leader_ic}).")
-                    conflation_clique_leader = curie
-                    conflation_clique_leader_ic = float(curie_ic)
-
-                # Is this a shorter label? If so, we would like to prefer this
-                # CURIE, but loading all the labels into memory would take a
-                # lot of memory. So let's see how good we can do with just the
-                # information content values.
-
-            # If we've picked a new clique leader, move it to the front of the list.
-            if conflation_clique_leader != final_conflation_id_list[0]:
-                logging.info(f"Replacing conflation clique leader {final_conflation_id_list[0]} with improved "
-                             f"conflation clique leader {conflation_clique_leader}")
-                final_conflation_id_list.remove(conflation_clique_leader)
-                final_conflation_id_list.insert(0, conflation_clique_leader)
-
-                # Write out all the identifiers.
+            # Write out all the identifiers.
             logger.info(f"Ordered DrugChemical conflation {final_conflation_id_list}")
-
-            outfile.write(f"{json.dumps(final_conflation_id_list)}\n")
+            outf.write(final_conflation_id_list)
             written.add(fs)
 
     # Write out metadata.yaml
