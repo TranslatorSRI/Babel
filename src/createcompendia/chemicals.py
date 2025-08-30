@@ -325,11 +325,20 @@ def combine_unichem(concordances,output):
         print(infile)
         print('loading',infile)
         pairs = []
+        prefix_to_check = None
         with open(infile,'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
                 pairs.append( ([x[0], x[2]]) )
-        newpairs = remove_overused_xrefs(pairs)
+                # Get the prefix from the first row to determine if we need to remove overused xrefs
+                if prefix_to_check is None:
+                    prefix_to_check = x[0].split(':')[0] + ':'
+        
+        # Only remove overused xrefs for specific prefixes
+        if prefix_to_check in [UNII, KEGGCOMPOUND, DRUGCENTRAL]:
+            newpairs = remove_overused_xrefs(pairs)
+        else:
+            newpairs = pairs
         setpairs = [ set(x) for x in newpairs ]
         glom(dicts, setpairs, unique_prefixes=[INCHIKEY])
     chem_sets = set([frozenset(x) for x in dicts.values()])
