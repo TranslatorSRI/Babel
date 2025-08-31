@@ -564,6 +564,8 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
                         for prop, label in zip(props, ac_labelled):
                             additional_curie = Text.get_curie(label)
+                            if ':' not in additional_curie:
+                                raise ValueError(f"Additional ID '{additional_curie}' for '{iid}' is not a valid CURIE: {prop}, {label} (from {ac_labelled})")
                             if additional_curie not in current_curies:
                                 identifier_list.append(additional_curie)
                                 current_curies.add(additional_curie)
@@ -575,6 +577,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                                     curie_labels[additional_curie] = label.label
 
                 # Add description and taxon information and construct the final nw object.
+                logger.info(f"Getting descriptions and taxa for {len(identifier_list)} identifiers: {identifier_list}")
                 descs = description_factory.get_descriptions(identifier_list)
                 taxa = taxon_factory.get_taxa(identifier_list)
 
