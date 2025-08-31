@@ -452,6 +452,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
         for clique in cliques:
             # 0. Provide ongoing tracking of this task. There are only ~10K conflations, but
             # it's useful to know how quickly they are being processed.
+            clique_count += 1
             if (clique_count == 1) or (clique_count % 1000 == 0):
                 time_elapsed_seconds = (time.time_ns() - start_time) / 1E9
                 if time_elapsed_seconds < 0.001:
