@@ -577,7 +577,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                                     curie_labels[additional_curie] = label.label
 
                 # Add description and taxon information and construct the final nw object.
-                logger.info(f"Getting descriptions and taxa for {len(identifier_list)} identifiers: {identifier_list}")
+                logger.debug(f"Getting descriptions and taxa for {len(identifier_list)} identifiers: {identifier_list}")
                 descs = description_factory.get_descriptions(identifier_list)
                 taxa = taxon_factory.get_taxa(identifier_list)
 
