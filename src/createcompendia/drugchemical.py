@@ -535,7 +535,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
                         numerical_suffix = sys.maxsize
 
                     # Put all that information into a tuple for sorting.
-                    sorted_ids[id] = (
+                    sorted_ids[curie] = (
                         clique_ic,                  # clique_ic (smallest -> largest)
                         -clique_size,               # clique_size DESC (largest -> smallest)
                         numerical_suffix            # numerical_suffix ASC (smallest -> largest)
