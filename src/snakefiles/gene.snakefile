@@ -35,7 +35,7 @@ rule gene_ensembl_ids:
     output:
         outfile=config['intermediate_directory']+"/gene/ids/ENSEMBL"
     run:
-        gene.write_ensembl_ids(config['download_directory'] + '/ENSEMBL',output.outfile)
+        gene.write_ensembl_gene_ids(config['download_directory'] + '/ENSEMBL',output.outfile)
 
 rule gene_hgnc_ids:
     input:
