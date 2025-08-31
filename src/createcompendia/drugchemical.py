@@ -109,7 +109,7 @@ def get_aui_to_cui(consofile):
                 print("What the all time fuck?")
                 print(aui,cui)
                 print(aui_to_cui[aui])
-                exit()
+                raise RuntimeError("Something has gone very wrong")
             aui_to_cui[aui] = cui
             if sdui[1]=="":
                 continue
@@ -135,13 +135,13 @@ def get_cui(x,indicator_column,cui_column,aui_column,aui_to_cui,sdui_to_cui):
             print("sdui garbage hell")
             print(x)
             print(cuis)
-            exit()
+            raise RuntimeError("Something has gone very wrong with SDUI")
         elif x[indicator_column] == "SCUI":
             #SCUI is source cui, i.e. what the source calls it.  We might be able to pull this out of CONSO if we have to.
             return None
         print("cmon man")
         print(x)
-        exit()
+        raise RuntimeError("Something has gone very wrong with CUI")
 
 def build_rxnorm_relationships(conso, relfile, outfile, metadata_yaml):
     """RXNREL is a lousy file.
