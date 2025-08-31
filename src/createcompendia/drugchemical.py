@@ -1,7 +1,9 @@
 import csv
 import sys
+import time
 
 import jsonlines
+from humanfriendly import format_timespan
 
 from src.metadata.provenance import write_combined_metadata, write_concord_metadata
 from src.node import NodeFactory, InformationContentFactory
@@ -14,7 +16,7 @@ from collections import defaultdict
 import os,json
 
 import logging
-from src.util import LoggingUtil, get_config
+from src.util import LoggingUtil, get_config, get_memory_usage_summary
 
 logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 
@@ -295,10 +297,10 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
     We also want to get all the clique leaders as well.  For those, we only need to worry if there are RXCUIs
     in the clique."""
 
-    print("Loading information content values...")
+    logger.info("Loading information content values...")
     ic_factory = InformationContentFactory(icrdf_filename)
 
-    print("Loading manual concords ...")
+    logger.info("Loading manual concords ...")
     manual_concords = []
     manual_concords_curies = set()
     manual_concords_predicate_counts = defaultdict(int)
@@ -319,15 +321,15 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             sorted_curies = sorted([row['subject'], row['object']])
             prefix_count_label = row['predicate'] + '(' + (' ,'.join(sorted_curies)) + ')'
             manual_concords_curie_prefix_counts[prefix_count_label] += 1
-    print(f"{len(manual_concords)} manual concords loaded.")
+    logger.info(f"{len(manual_concords)} manual concords loaded.")
 
-    print("load all chemical conflations so we can normalize identifiers")
+    logger.info("load all chemical conflations so we can normalize identifiers")
     preferred_curie_for_curie = {}
     type_for_preferred_curie = {}
     clique_for_preferred_curie = {}
     for chemical_compendium in chemical_compendia:
         with open(chemical_compendium, 'r') as compendiumf:
-            logger.info(f"Loading {chemical_compendium}")
+            logger.info(f"Loading {chemical_compendium}: {get_memory_usage_summary()}")
             for line in compendiumf:
                 clique = json.loads(line)
                 preferred_id = clique['identifiers'][0]['i']
@@ -337,15 +339,15 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
                     id = ident['i']
                     preferred_curie_for_curie[id] = preferred_id
 
-    print(f"Loaded preferred CURIEs for {len(preferred_curie_for_curie)} CURIEs from the chemical compendia.")
+    logger.info(f"Loaded preferred CURIEs for {len(preferred_curie_for_curie)} CURIEs from the chemical compendia: {get_memory_usage_summary()}")
 
-    print("load drugs")
+    logger.info("load drugs")
     drug_rxcui_to_clique = load_cliques(drug_compendium)
     chemical_rxcui_to_clique = {}
     for chemical_compendium in chemical_compendia:
         if chemical_compendium == drug_compendium:
             continue
-        print(f"load {chemical_compendium}")
+        logger.info(f"load {chemical_compendium}: {get_memory_usage_summary()}")
         chemical_rxcui_to_clique.update(load_cliques(chemical_compendium))
 
     pairs = []
@@ -433,7 +435,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             pairs_to_be_glommed.append((obj, preferred_curie_for_curie[obj]))
 
     # Glommin' time
-    print("glom")
+    logger.info(f"glom: {get_memory_usage_summary()}")
     gloms = {}
     glom(gloms, pairs_to_be_glommed)
 
@@ -443,7 +445,25 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
     # Write out all the resulting cliques.
     written = set()
     with jsonlines.open(outfilename, "w") as outf:
-        for clique in gloms.values():
+        cliques = list(gloms.values())
+        total_clique_count = len(gloms)
+        clique_count = 0
+        start_time = time.time_ns()
+        for clique in cliques:
+            # 0. Provide ongoing tracking of this task. There are only ~10K conflations, but
+            # it's useful to know how quickly they are being processed.
+            if (clique_count == 1) or (clique_count % 1000 == 0):
+                time_elapsed_seconds = (time.time_ns() - start_time) / 1E9
+                if time_elapsed_seconds < 0.001:
+                    # We don't want to divide by zero.
+                    time_elapsed_seconds = 0.001
+                remaining_cliques = total_clique_count - clique_count
+                logger.info(f"Generating DrugChemical conflations currently at {clique_count:,} out of {total_clique_count:,} ({clique_count/total_clique_count*100:.2f}%) in {format_timespan(time_elapsed_seconds)}: {get_memory_usage_summary()}")
+                logger.info(f" - Current rate: {clique_count/time_elapsed_seconds:.2f} cliques/second or {time_elapsed_seconds/clique_count:.6f} seconds/clique.")
+
+                time_remaining_seconds = (time_elapsed_seconds / clique_count * remaining_cliques)
+                logger.info(f" - Estimated time remaining: {format_timespan(time_remaining_seconds)}")
+
             # 1. Prepare a list of identifiers so we can iterate over them.
             fs = frozenset(clique)
             if fs in written:
