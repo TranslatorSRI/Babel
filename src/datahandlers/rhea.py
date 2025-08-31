@@ -1,3 +1,4 @@
+from src.metadata.provenance import write_concord_metadata
 from src.prefixes import RHEA,EC
 from src.babel_utils import pull_via_urllib
 from src.babel_utils import make_local_name, pull_via_ftp
@@ -12,6 +13,7 @@ class Rhea:
     """Load the mesh rdf file for querying"""
     def __init__(self):
         ifname = make_local_name('rhea.rdf', subpath='RHEA')
+        self.filename = ifname
         from datetime import datetime as dt
         print('loading rhea')
         start = dt.now()
@@ -37,7 +39,7 @@ class Rhea:
                 #The rhea ids in the rdf use the currently approved prefix, but just to be sure...
                 rheaid = iterm.split(':')[-1]
                 outf.write(f'{RHEA}:{rheaid}\t{label}\n')
-    def pull_rhea_ec_concs(self,ofname):
+    def pull_rhea_ec_concs(self,ofname, metadata_yaml):
         s="""   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                 PREFIX rh: <http://rdf.rhea-db.org/>
 
@@ -55,12 +57,29 @@ class Rhea:
                 rheaid = iterm.split(':')[-1]
                 outf.write(f'{RHEA}:{rheaid}\toio:equivalent\t{ec}\n')
 
+        write_concord_metadata(
+            metadata_yaml,
+            name='Rhea.pull_rhea_ec_concs()',
+            description=f'pull_rhea_ec_concs() extracts the EC number/accession number mappings from the Rhea RDF file ({self.filename}).',
+            sources=[{
+                'type': 'rdf',
+                'name': 'rhea.rdf',
+                'filename': self.filename,
+                'sources': [{
+                    'type': 'download',
+                    'name': 'rhea.rdf',
+                    'url': 'https://ftp.expasy.org/databases/rhea/rdf/rhea.rdf.gz',
+                }]
+            }],
+            concord_filename=ofname,
+        )
+
 
 #Ids are handled by just getting everything from the labels
 def make_labels(labelfile):
     m = Rhea()
     m.pull_rhea_labels(labelfile)
 
-def make_concord(concfile):
+def make_concord(concfile, metadata_yaml):
     m = Rhea()
-    m.pull_rhea_ec_concs(concfile)
+    m.pull_rhea_ec_concs(concfile, metadata_yaml)

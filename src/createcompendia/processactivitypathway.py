@@ -6,6 +6,7 @@ import src.datahandlers.reactome as reactome
 import src.datahandlers.rhea as rhea
 import src.datahandlers.ec as ec
 import src.datahandlers.umls as umls
+from src.metadata.provenance import write_concord_metadata
 
 from src.prefixes import GO, REACT, WIKIPATHWAYS, RHEA, SMPDB, EC, PANTHERPATHWAY, TCDB
 from src.categories import BIOLOGICAL_PROCESS, MOLECULAR_ACTIVITY, PATHWAY
@@ -42,10 +43,10 @@ def write_umls_ids(mrsty, outfile):
                 }
     umls.write_umls_ids(mrsty, umlsmap, outfile)
 
-def build_process_umls_relationships(mrconso, idfile,outfile):
-    umls.build_sets(mrconso, idfile, outfile, {'GO': GO})
+def build_process_umls_relationships(mrconso, idfile,outfile, metadata_yaml):
+    umls.build_sets(mrconso, idfile, outfile, {'GO': GO}, provenance_metadata_yaml=metadata_yaml)
 
-def build_process_obo_relationships(outdir):
+def build_process_obo_relationships(outdir, metadata_yaml):
     #Create the equivalence pairs
     #op={'MSH':MESH,'SNOMEDCT_US':SNOMEDCT,'SNOMED_CT': SNOMEDCT, 'ORPHANET':ORPHANET, 'ICD-9':ICD9, 'ICD-10':ICD10, 'ICD-0':ICD0, 'ICD-O':ICD0 }
     op={'WIKIPEDIA': WIKIPATHWAYS, 'REACTOME':REACT, 'TC':TCDB }
@@ -54,11 +55,23 @@ def build_process_obo_relationships(outdir):
         build_sets(f'{GO}:0008150', {GO:outfile}, set_type='xref', other_prefixes=op )
         build_sets(f'{GO}:0003674', {GO:outfile}, set_type='xref', other_prefixes=op )
 
-def build_process_rhea_relationships(outfile):
-    rhea.make_concord(outfile)
+    write_concord_metadata(
+        metadata_yaml,
+        name='build_process_obo_relationships()',
+        description=f"Extract GO-GO relationships from UberGraph with get_subclasses_and_xrefs() from {GO}:0007165, {GO}:0008150 and {GO}:0003674,"
+                    f"with other_prefixes {op.values()}",
+        sources=[{
+            'type': 'UberGraph',
+            'name': 'GO-GO relationships from UberGraph',
+        }],
+        concord_filename=f'{outdir}/{GO}'
+    )
+
+def build_process_rhea_relationships(outfile, metadata_yaml):
+    rhea.make_concord(outfile, metadata_yaml)
 
 
-def build_compendia(concordances, identifiers, icrdf_filename):
+def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     #These are concords that cause problems and are being special cased out.  In disease/process we put these in some
@@ -105,7 +118,7 @@ def build_compendia(concordances, identifiers, icrdf_filename):
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]),types)
     for biotype,sets in typed_sets.items():
         baretype = biotype.split(':')[-1]
-        write_compendium(sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
+        write_compendium(metadata_yamls, sets,f'{baretype}.txt',biotype,{}, icrdf_filename=icrdf_filename)
 
 def create_typed_sets(eqsets,types):
     """Given a set of sets of equivalent identifiers, we want to type each one into

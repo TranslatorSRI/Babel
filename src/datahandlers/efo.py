@@ -1,6 +1,7 @@
 import logging
 import re
 
+from src.metadata.provenance import write_concord_metadata
 from src.prefixes import EFO,ORPHANET
 from src.babel_utils import pull_via_urllib
 from src.babel_utils import make_local_name
@@ -165,7 +166,7 @@ def make_ids(roots,idfname):
     m = EFOgraph()
     m.pull_EFO_ids(roots,idfname)
 
-def make_concords(idfilename, outfilename):
+def make_concords(idfilename, outfilename, provenance_metadata=None):
     """Given a list of identifiers, find out all of the equivalent identifiers from the owl"""
     m = EFOgraph()
     with open(idfilename,"r") as inf, open(outfilename,"w") as concfile:
@@ -174,3 +175,15 @@ def make_concords(idfilename, outfilename):
             nexacts = m.get_exacts(efo_id,concfile)
             if nexacts == 0:
                 m.get_xrefs(efo_id,concfile)
+
+    if provenance_metadata is not None:
+        write_concord_metadata(
+            provenance_metadata,
+            name='Experimental Factor Ontology (EFO) cross-references',
+            description=f'Cross-references from the Experimental Factor Ontology (EFO) for the EFO IDs in {idfilename}',
+            sources=[{
+                'name': 'Experimental Factor Ontology',
+                'url': 'http://www.ebi.ac.uk/efo/efo.owl',
+            }],
+            concord_filename=outfilename,
+        )

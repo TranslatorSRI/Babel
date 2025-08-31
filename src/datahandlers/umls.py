@@ -1,3 +1,4 @@
+from src.metadata.provenance import write_concord_metadata
 from src.prefixes import UMLS, RXCUI
 from src.babel_utils import make_local_name
 from src.categories import DRUG, CHEMICAL_ENTITY, MOLECULAR_MIXTURE
@@ -200,8 +201,8 @@ def write_rxnorm_ids(category_map, bad_categories, infile, outfile,prefix=RXCUI,
 # One is to keep from having to pass through the umls file more than once, but that's a bad reason
 # The second is because I want to use the UMLS as a source for some terminologies (SNOMED) even if there's another
 #  way.  I'm going to modify this to do one thing at a time, and if it takes a little longer, then so be it.
-def build_sets(mrconso,umls_input, umls_output , other_prefixes, bad_mappings=defaultdict(set), acceptable_identifiers={},
-               cui_prefix = UMLS):
+def build_sets(mrconso, umls_input, umls_output , other_prefixes, bad_mappings=defaultdict(set), acceptable_identifiers={},
+               cui_prefix = UMLS, provenance_metadata_yaml=None):
     """Given a list of umls identifiers we want to generate all the concordances
     between UMLS and that other entity"""
     # On UMLS / MESH: we have been getting all UMLS / MESH relationships.   This has led to some clear mistakes
@@ -258,6 +259,18 @@ def build_sets(mrconso,umls_input, umls_output , other_prefixes, bad_mappings=de
             if tup not in pairs:
                 concordfile.write(f'{tup[0]}\teq\t{tup[1]}\n')
                 pairs.add(tup)
+
+    # Write provenance for this build_sets() call.
+    if provenance_metadata_yaml is not None:
+        write_concord_metadata(provenance_metadata_yaml,
+           name='umls.build_sets()',
+           sources=[{
+               'type': 'UMLS',
+               'name': 'MRCONSO'
+           }],
+           description=f'umls.build_sets() using UMLS MRCONSO with prefixes: {other_prefixes} with cui_prefix set to {cui_prefix}',
+           concord_filename=umls_output,
+       )
 
 def read_umls_priority():
     mrp = os.path.join('input_data', 'umls_precedence.txt')

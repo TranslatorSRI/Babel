@@ -73,9 +73,10 @@ rule get_complexportal_labels_and_synonyms:
         infile = config['download_directory']+'/ComplexPortal'+'/559292.tsv'
     output:
         lfile = config['download_directory']+'/ComplexPortal'+'/559292_labels.tsv',
-        sfile = config['download_directory']+'/ComplexPortal'+'/559292_synonyms.tsv'
+        sfile = config['download_directory']+'/ComplexPortal'+'/559292_synonyms.tsv',
+        metadata_yaml = config['download_directory']+'/ComplexPortal/metadata.yaml'
     run:
-        complexportal.make_labels_and_synonyms(input.infile, output.lfile, output.sfile)
+        complexportal.make_labels_and_synonyms(input.infile, output.lfile, output.sfile, output.metadata_yaml)
 
 ### MODS
 
@@ -121,19 +122,6 @@ rule get_uniprotkb_labels:
         outfile=config['download_directory']+'/UniProtKB/labels'
     run:
         uniprotkb.pull_uniprot_labels(input.sprot_input,input.trembl_input,output.outfile)
-
-rule get_umls_gene_protein_mappings:
-    output:
-        umls_uniprotkb_filename=config['download_directory']+'/UMLS_UniProtKB/UMLS_UniProtKB.tsv',
-        umls_gene_concords=config['output_directory']+'/intermediate/gene/concords/UMLS_NCBIGene',
-        umls_protein_concords=config['output_directory']+'/intermediate/protein/concords/UMLS_UniProtKB',
-    run:
-        uniprotkb.download_umls_gene_protein_mappings(
-            config['UMLS_UniProtKB_download_raw_url'],
-            output.umls_uniprotkb_filename,
-            output.umls_gene_concords,
-            output.umls_protein_concords,
-        )
 
 ### MESH
 
@@ -292,8 +280,9 @@ rule get_hgncfamily_labels:
         infile=rules.get_hgncfamily.output.outfile
     output:
         outfile = config['download_directory'] + '/HGNC.FAMILY/labels',
+        metadata_yaml = config['download_directory'] + '/HGNC.FAMILY/metadata.yaml',
     run:
-        hgncfamily.pull_labels(input.infile,output.outfile)
+        hgncfamily.pull_labels(input.infile,output.outfile, output.metadata_yaml)
 
 ### PANTHER.FAMILY
 
@@ -308,8 +297,9 @@ rule get_pantherfamily_labels:
         infile=rules.get_pantherfamily.output.outfile
     output:
         outfile = config['download_directory'] + '/PANTHER.FAMILY/labels',
+        metadata_yaml = config['download_directory'] + '/PANTHER.FAMILY/metadata.yaml',
     run:
-        pantherfamily.pull_labels(input.infile,output.outfile)
+        pantherfamily.pull_labels(input.infile,output.outfile, output.metadata_yaml)
 
 
 ### OMIM
@@ -641,9 +631,10 @@ rule get_chebi:
 
 rule get_clo:
     output:
-        config['download_directory']+'/CLO/clo.owl'
+        config['download_directory']+'/CLO/clo.owl',
+        metadata=config['download_directory']+'/CLO/metadata.yaml',
     run:
-        clo.pull_clo()
+        clo.pull_clo(output.metadata)
 
 rule get_CLO_labels:
     input:
