@@ -64,16 +64,18 @@ rule process_umls_ids:
 rule get_process_go_relationships:
     output:
         config['intermediate_directory']+'/process/concords/GO',
+        metadata_yaml = config['intermediate_directory']+'/process/concords/metadata-GO.yaml'
     run:
-        pap.build_process_obo_relationships(config['intermediate_directory']+'/process/concords')
+        pap.build_process_obo_relationships(config['intermediate_directory']+'/process/concords', output.metadata_yaml)
 
 rule get_process_rhea_relationships:
     input:
         infile=config['download_directory']+"/RHEA/rhea.rdf",
     output:
         outfile=config['intermediate_directory']+'/process/concords/RHEA',
+        metadata_yaml=config['intermediate_directory']+'/process/concords/metadata-RHEA.yaml',
     run:
-        pap.build_process_rhea_relationships(output.outfile)
+        pap.build_process_rhea_relationships(output.outfile, output.metadata_yaml)
 
 
 rule get_process_umls_relationships:
@@ -82,21 +84,23 @@ rule get_process_umls_relationships:
         infile=config['intermediate_directory']+"/process/ids/UMLS",
     output:
         outfile=config['intermediate_directory']+'/process/concords/UMLS',
+        metadata_yaml=config['intermediate_directory']+'/process/concords/metadata-UMLS.yaml'
     run:
-        pap.build_process_umls_relationships(input.mrconso, input.infile, output.outfile)
+        pap.build_process_umls_relationships(input.mrconso, input.infile, output.outfile, output.metadata_yaml)
 
 rule process_compendia:
     input:
         labels=expand("{dd}/{ap}/labels",dd=config['download_directory'],ap=config['process_labels']),
         #synonyms=expand("{dd}/{ap}/synonyms",dd=config['download_directory'],ap=config['process_labelsandsynonyms']),
         concords=expand("{dd}/process/concords/{ap}",dd=config['intermediate_directory'],ap=config['process_concords']),
+        metadata_yamls=expand("{dd}/process/concords/metadata-{ap}.yaml",dd=config['intermediate_directory'],ap=config['process_concords']),
         idlists=expand("{dd}/process/ids/{ap}",dd=config['intermediate_directory'],ap=config['process_ids']),
         icrdf_filename=config['download_directory']+'/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['process_outputs']),
         temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['process_outputs']))
     run:
-        pap.build_compendia(input.concords,input.idlists,input.icrdf_filename)
+        pap.build_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
 
 rule check_process_completeness:
     input:

@@ -7,9 +7,10 @@ rule geneprotein_uniprot_relationships:
     input:
         infile = config['download_directory'] + '/UniProtKB/idmapping.dat'
     output:
-        outfile_concords = config['intermediate_directory'] + '/geneprotein/concords/UniProtNCBI'
+        outfile_concords = config['intermediate_directory'] + '/geneprotein/concords/UniProtNCBI',
+        metadata_yaml = config['intermediate_directory'] + '/geneprotein/concords/metadata-UniProtNCBI.yaml'
     run:
-        geneprotein.build_uniprotkb_ncbigene_relationships(input.infile,output.outfile_concords)
+        geneprotein.build_uniprotkb_ncbigene_relationships(input.infile,output.outfile_concords, output.metadata_yaml)
 
 rule geneprotein_conflation:
     input:
