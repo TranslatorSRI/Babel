@@ -465,7 +465,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
                 # At the moment, we get these from glomming, so the order should not actually be significant.
                 # But maybe in the future it will be if that changes? And it doesn't cost us much to maintain
                 # insertion order.
-                conflation_ids_by_type[type_for_preferred_curie[preferred_curie]].append(iid)
+                conflation_ids_by_type[type_for_preferred_curie[preferred_curie]].append(preferred_curie)
 
             # 3. There's a particular order we'd like to arrange the conflation in.
             # I've also listed the number of entities as of 2024mar24 to give an idea of how common these are.
@@ -496,8 +496,8 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             for biolink_type, ids in sorted(conflation_ids_by_type.items(), key=lambda x: PREFERRED_CONFLATION_TYPE_ORDER.get(x[0], 100)):
                 # To sort the identifiers, we'll need to calculate a tuple for each identifier to sort on.
                 sorted_ids = {}
-                for id in ids:
-                    clique_for_id = clique_for_preferred_curie[id]
+                for curie in ids:
+                    clique_for_id = clique_for_preferred_curie[curie]
 
                     # Criteria 1: the information content of the clique represented by this identifier (lowest -> highest).
                     clique_ic = ic_factory.get_ic({
