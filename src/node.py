@@ -1,5 +1,7 @@
+import itertools
 import json
 import os
+import sqlite3
 from collections import defaultdict
 from urllib.parse import urlparse
 
@@ -152,34 +154,160 @@ class TaxonFactory:
     """ A factory for loading taxa for CURIEs where available.
     """
 
-    def __init__(self,rootdir):
+    def __init__(self, rootdir):
         self.root_dir = rootdir
-        self.taxa = {}
+        self.tsvloader = TSVSQLiteLoader(rootdir, 'taxa', 'curie-curie')
 
     def load_taxa(self, prefix):
-        logger.info(f'Loading taxa for {prefix}: {get_memory_usage_summary()}')
-        taxa_per_prefix = defaultdict(set)
-        taxafilename = os.path.join(self.root_dir, prefix, 'taxa')
-        taxon_count = 0
-        if os.path.exists(taxafilename):
-            with open(taxafilename, 'r') as inf:
-                for line in inf:
-                    x = line.strip().split('\t')
-                    taxa_per_prefix[x[0]].add("\t".join(x[1:]))
-                    taxon_count += 1
-        self.taxa[prefix] = taxa_per_prefix
-        logger.info(f'Loaded {taxon_count} taxon-CURIE mappings for {prefix}: {get_memory_usage_summary()}')
+        return self.tsvloader.load_prefix(prefix)
 
     def get_taxa(self, node):
-        node_taxa = defaultdict(set)
-        for ident in node['identifiers']:
-            thisid = ident['identifier']
-            pref = thisid.split(':', 1)[0]
-            if pref not in self.taxa:
-                self.load_taxa(pref)
-            node_taxa[thisid].update(self.taxa[pref][thisid])
-        return node_taxa
+        curies = list({ident['identifier'] for ident in node['identifiers']})
+        return self.tsvloader.get_curies(curies)
 
+    def close(self):
+        self.tsvloader.close()
+
+
+class TSVSQLiteLoader:
+    """
+    All of the files we load here (SynonymFactory, DescriptionFactory, TaxonFactory and InformationContentFactory)
+    are TSV files in very similar formats (either <curie>\t<value> or <curie>\t<predicate>\t<value>). Some of these
+    TSV files are very large, so we don't want to load them all into memory at once. Instead, we use SQLite to:
+    1.  Load them into SQLite files. SQLite supports "temporary databases" (https://www.sqlite.org/inmemorydb.html) --
+        the database is kept in memory, but data can spill onto the disk if the database gets large.
+    2.  Query identifiers by identifier prefix.
+    3.  Close and delete the SQLite files when we're done.
+
+    TODO: note that on Sterling, SQLite might not be able to detect when it's running out of memory (we have a limit
+    of around 500Gi, but the node will have 1.5Ti, so SQLite won't detect a low-mem situation correctly). We should
+    figure out how to configure that.
+    """
+
+    def __init__(self, download_dir, filename, file_format):
+        self.download_dir = download_dir
+        self.filename = filename
+        self.sqlites = {}
+
+        # We only support one format for now.
+        self.format = format
+        if file_format in {'curie-curie'}:
+            # Acceptable format!
+            pass
+        else:
+            raise ValueError(f"Unknown TSVSQLiteLoader file format: {file_format}")
+
+    def __str__(self):
+        sqlite_counts = self.get_sqlite_counts()
+        sqlite_counts_str = ", ".join(
+            f"{prefix}: {count:,} rows"
+            for prefix, count in sorted(sqlite_counts.items(), key=lambda x: x[1], reverse=True)
+        )
+        return f"TSVSQLiteLoader({self.download_dir}, {self.filename}, {self.format}) containing {len(self.sqlites)} SQLite DBs ({sqlite_counts_str})"
+
+    def get_sqlite_counts(self):
+        counts = dict()
+        for prefix in self.sqlites:
+            counts[prefix] = self.sqlites[prefix].execute(f"SELECT COUNT(*) FROM {prefix}").fetchone()[0]
+        return counts
+
+    def load_prefix(self, prefix):
+        if prefix in self.sqlites:
+            # We've already loaded this prefix!
+            return True
+
+        # Set up filenames.
+        tsv_filename = os.path.join(self.download_dir, prefix, self.filename)
+
+        # If the TSV file doesn't exist, we don't need to do anything.
+        if not os.path.exists(tsv_filename):
+            self.sqlites[prefix] = None
+            return False
+
+        # Write to a SQLite in-memory database so we don't need to hold it in memory all at once.
+        logger.info(f"Loading {prefix} into SQLite: {get_memory_usage_summary()}")
+
+        # Setting a SQLite database as "" does exactly what we want: create an in-memory database that will spill onto
+        # a temporary file if needed.
+        conn = sqlite3.connect('')
+        conn.execute(f"CREATE TABLE {prefix} (curie1 TEXT, curie2 TEXT)")
+
+        # Load taxa into memory.
+        logger.info(f"Reading records from {tsv_filename} into memory to load into SQLite: {get_memory_usage_summary()}")
+        records = []
+        record_count = 0
+        with open(tsv_filename, 'r') as inf:
+            for line in inf:
+                x = line.strip().split('\t', maxsplit=1)
+                records.append([x[0].upper(), x[1]])
+                record_count += 1
+                if len(records) % 10_000_000 == 0:
+                    # Insert every 10,000,000 records.
+                    logger.info(f"Inserting {len(records):,} records (total so far: {record_count:,}) from {tsv_filename} into SQLite: {get_memory_usage_summary()}")
+                    conn.executemany(f"INSERT INTO {prefix} VALUES (?, ?)", records)
+                    records = []
+
+        # Insert any remaining records.
+        logger.info(f"Inserting {len(records):,} records from {tsv_filename} into SQLite: {get_memory_usage_summary()}")
+        conn.executemany(f"INSERT INTO {prefix} VALUES (?, ?)", records)
+        logger.info(f"Creating a case-insensitive index for the {record_count:,} records loaded into SQLite: {get_memory_usage_summary()}")
+        conn.execute(f"CREATE INDEX curie1_idx ON {prefix}(curie1)")
+        conn.commit()
+        logger.info(f"Loaded {record_count:,} records from {tsv_filename} into SQLite table {prefix}: {get_memory_usage_summary()}")
+        self.sqlites[prefix] = conn
+        return True
+
+    def get_curies(self, curies_to_query: list) -> dict[str, set[str]]:
+        results = defaultdict(set)
+
+        curies_sorted_by_prefix = sorted(curies_to_query, key=lambda curie: Text.get_prefix(curie))
+        curies_grouped_by_prefix = itertools.groupby(curies_sorted_by_prefix, key=lambda curie: Text.get_prefix(curie))
+        for prefix, curies_group in curies_grouped_by_prefix:
+            curies = list(curies_group)
+            logger.debug(f"Looking up {prefix} for {curies} curies")
+            if prefix not in self.sqlites:
+                logger.debug(f"No SQLite for {prefix} found, trying to load it.")
+                if not self.load_prefix(prefix):
+                    # Nothing to load.
+                    logger.debug(f"No TSV file for {prefix} found, so can't query it for {curies}")
+                    for curie in curies:
+                        results[curie] = set()
+                    continue
+            if self.sqlites[prefix] is None:
+                logger.debug(f"No {self.filename} file for {prefix} found, so can't query it for {curies}")
+                for curie in curies:
+                    results[curie] = set()
+                continue
+
+            # Query the SQLite.
+            query = f"SELECT curie1, curie2 FROM {prefix} WHERE curie1 = ?"
+            for curie in curies:
+                query_result = self.sqlites[prefix].execute(query, [curie.upper()]).fetchall()
+                if not query_result:
+                    results[curie] = set()
+                    continue
+
+                for row in query_result:
+                    curie1 = curie
+                    curie2 = row[1]
+                    results[curie1].add(curie2)
+
+        return dict(results)
+
+    def close(self):
+        """
+        Close all of the SQLite connections.
+        """
+        for prefix, db in self.sqlites.items():
+            if db is not None:
+                db.close()
+        self.sqlites = dict()
+
+    def __del__(self):
+        self.close()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
 class InformationContentFactory:
     """
@@ -407,7 +535,7 @@ class NodeFactory:
                                 continue
                         self.common_labels[x[0]] = x[1]
                         count_common_file_labels += 1
-                logger.info(f"Loaded {count_common_file_labels} common labels from {common_labels_path}: {get_memory_usage_summary()}")
+                logger.info(f"Loaded {count_common_file_labels:,} common labels from {common_labels_path}: {get_memory_usage_summary()}")
 
         #Originally we needed to clean up the identifer lists, because there would be both labeledids and
         # string ids and we had to reconcile them.
@@ -556,3 +684,10 @@ def pubchemsort(pc_ids, labeled_ids):
             best_pubchem = pcelement
     pc_ids.remove(best_pubchem)
     return [best_pubchem] + pc_ids
+
+if __name__ == '__main__':
+    tsvdb = TSVSQLiteLoader('babel_downloads/', filename='taxa', file_format='curie-curie')
+    logger.info(f"Started TSVDuckDBLoader {tsvdb}: {get_memory_usage_summary()}")
+    result = tsvdb.get_curies(['UniProtKB:I6L8L4', 'UniProtKB:C6H147'])
+    logger.info(f"Got result from {tsvdb}: {result} with {get_memory_usage_summary()}")
+    tsvdb.close()
