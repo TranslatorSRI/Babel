@@ -93,6 +93,7 @@ propcache==0.3.1
 psutil==7.0.0
 psycopg2-binary==2.9.10
 PuLP==2.7.0
+py-spy==0.4.1
 pydantic==2.11.4
 pydantic_core==2.33.2
 PyJSG==0.11.10
@@ -128,11 +129,12 @@ ShExJSG==0.8.2
 six==1.17.0
 smart-open==7.1.0
 smmap==5.0.2
-snakemake==7.32.4
-snakemake-interface-common==1.17.4
+snakemake==9.10.0
+snakemake-interface-common==1.21.0
 snakemake-interface-executor-plugins==9.3.5
 snakemake-interface-logger-plugins==1.2.3
 snakemake-interface-report-plugins==1.1.0
+snakemake-interface-scheduler-plugins==2.0.0
 snakemake-interface-storage-plugins==4.2.1
 sortedcontainers==2.4.0
 soupsieve==2.7
