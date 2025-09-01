@@ -11,7 +11,6 @@ import requests
 import os
 import urllib
 import jsonlines
-import yaml
 from humanfriendly import format_timespan
 
 from src.metadata.provenance import write_combined_metadata
@@ -615,12 +614,12 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
                 # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
                 # But we're only interested in the synonyms themselves, so we can skip the relationship for now.
-                curie = node["identifiers"][0]["identifier"]
+                curie = nw["identifiers"][0]["identifier"]
 
                 # get_synonyms() returns a list of tuples, where each tuple is a relation and a synonym.
                 # So we extract just the synonyms here, ditching the relations (result[0]), then unique-ify the
                 # synonyms.
-                synonyms = [result[1] for result in synonym_factory.get_synonyms(node)]
+                synonyms = [result[1] for result in synonym_factory.get_synonyms(nw)]
                 synonyms_list = sorted(set(synonyms), key=lambda x: len(x))
 
                 try:
@@ -635,7 +634,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                         document["preferred_name"] = preferred_name
                     else:
                         logger.debug(
-                            f"No preferred name for {node}, probably because all names were filtered out, skipping."
+                            f"No preferred name for {nw}, probably because all names were filtered out, skipping."
                         )
                         continue
 
@@ -647,14 +646,14 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
                     # Since synonyms_list is sorted, we can use the length of the first term as the synonym.
                     if len(synonyms_list) == 0:
-                        logger.debug(f"Synonym list for {node} is empty: no valid name. Skipping.")
+                        logger.debug(f"Synonym list for {nw} is empty: no valid name. Skipping.")
                         continue
                     else:
                         document["shortest_name_length"] = len(synonyms_list[0])
 
                     # Cliques with more identifiers might be better than cliques with smaller identifiers.
                     # So let's try to incorporate that here.
-                    document["clique_identifier_count"] = len(node["identifiers"])
+                    document["clique_identifier_count"] = len(nw["identifiers"])
 
                     # We want to see if we can use the CURIE suffix to sort concepts with similar identifiers.
                     # We want to sort this numerically, so we only do this if the CURIE suffix is numerical.
@@ -672,8 +671,8 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                     sfile.write( document )
                 except Exception as ex:
                     print(f"Exception thrown while write_compendium() was generating {ofname}: {ex}")
-                    print(node["type"])
-                    print(node_factory.get_ancestors(node["type"]))
+                    print(nw["type"])
+                    print(node_factory.get_ancestors(nw["type"]))
                     traceback.print_exc()
                     raise ex
 
