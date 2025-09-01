@@ -11,13 +11,9 @@ from src.ubergraph import UberGraph
 from src.babel_utils import read_identifier_file,glom,write_compendium,Text
 
 import os
-import json
-import gzip
+from src.util import get_memory_usage_summary, get_logger
 
-import logging
-from src.util import LoggingUtil, get_memory_usage_summary
-
-logger = LoggingUtil.init_logging(__name__, level=logging.WARNING)
+logger = get_logger(__name__)
 
 
 def extract_taxon_ids_from_uniprotkb(idmapping_filename, uniprotkb_taxa_filename):
@@ -160,30 +156,30 @@ def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_fil
     dicts = {}
     types = {}
     uniques = [UNIPROTKB,PR]
-    logging.info(f"Started building protein comendium ({concordances}, {metadata_yamls}, {identifiers}, {icrdf_filename}) with uniques {uniques}")
+    logger.info(f"Started building protein compendia ({concordances}, {metadata_yamls}, {identifiers}, {icrdf_filename}) with uniques {uniques}")
     for ifile in identifiers:
-        logging.info(f"Loading identifier file {ifile}")
+        logger.info(f"Loading identifier file {ifile}")
         new_identifiers, new_types = read_identifier_file(ifile)
         glom(dicts, new_identifiers, unique_prefixes= uniques)
         types.update(new_types)
-        logging.info(f"Loaded identifier file {ifile}")
-    logging.info(f"Finished loading identifiers, memory usage: {get_memory_usage_summary()}")
+        logger.info(f"Loaded identifier file {ifile}: {get_memory_usage_summary()}")
+    logger.info(f"Finished loading identifiers, memory usage: {get_memory_usage_summary()}")
     for infile in concordances:
-        logging.info(f"Loading concordance file {infile}")
+        logger.info(f"Loading concordance file {infile}")
         pairs = []
         with open(infile, 'r') as inf:
             for line_index, line in enumerate(inf):
                 if line_index % 1000000 == 0:
-                    logging.info(f"Loading concordance file {infile}: line {line_index:,}")
+                    logger.info(f"Loading concordance file {infile}: line {line_index:,}")
                 x = line.strip().split('\t')
                 pairs.append(set([x[0], x[2]]))
         # print("glomming", infile) # This takes a while, but doesn't add much to the memory
         glom(dicts, pairs, unique_prefixes=uniques)
-        logging.info(f"Loaded concordance file {infile}")
-    logging.info(f"Finished loading concordances, memory usage: {get_memory_usage_summary()}")
-    logging.info(f"Building gene sets")
+        logger.info(f"Loaded concordance file {infile}: {get_memory_usage_summary()}")
+    logger.info(f"Finished loading concordances, memory usage: {get_memory_usage_summary()}")
+    logger.info(f"Building gene sets")
     gene_sets = set([frozenset(x) for x in dicts.values()])
-    logging.info(f"Gene sets built, memory usage: {get_memory_usage_summary()}")
+    logger.info(f"Gene sets built, memory usage: {get_memory_usage_summary()}")
     #Try to preserve some memory here.
     dicts.clear()
 
@@ -192,6 +188,6 @@ def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_fil
     # only then generate the compendium from those input files.
 
     baretype = PROTEIN.split(':')[-1]
-    logging.info(f"Writing compendium for {baretype}, memory usage: {get_memory_usage_summary()}")
+    logger.info(f"Writing compendium for {baretype}, memory usage: {get_memory_usage_summary()}")
     write_compendium(metadata_yamls, gene_sets, f'{baretype}.txt', PROTEIN, {}, icrdf_filename=icrdf_filename)
-    logging.info(f"Wrote compendium for {baretype}, memory usage: {get_memory_usage_summary()}")
+    logger.info(f"Wrote compendium for {baretype}, memory usage: {get_memory_usage_summary()}")

@@ -1,6 +1,8 @@
 import logging
 import json
 import os
+import sys
+from time import gmtime
 
 import curies
 import yaml
@@ -15,6 +17,31 @@ from humanfriendly import format_size
 from src.LabeledID import LabeledID
 from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10, ICD10CM, ICD11FOUNDATION
 import src.prefixes as prefixes
+
+def get_logger(name, loglevel=logging.INFO):
+    """
+    Get a logger with the specified name.
+
+    The LoggingUtil is inconsistently used, and we don't want rolling logs anyway -- just logging everything to STDERR
+    so that Snakemake can capture it is fine. However, we do want every logger to be configured identically and without
+    duplicated handlers.
+    """
+
+    # Set up the root handler for a logger. Ideally we would call this in one central location, but I'm not sure
+    # what they would be for Snakemake. basicConfig() should be safe to call from multiple threads after Python 3.2, but
+    # we might as well check.
+    if not logging.getLogger().hasHandlers():
+        formatter = logging.Formatter('%(levelname)s %(name)s [%(asctime)s]: %(message)s', "%Y-%m-%dT%H:%M:%S%z")
+        formatter.converter = gmtime
+
+        stream_handler = logging.StreamHandler(sys.stderr)
+        stream_handler.setFormatter(formatter)
+        logging.basicConfig(level=logging.INFO, handlers=[stream_handler])
+
+    # Set up a logger for the specified loglevel and return it.
+    logger = logging.getLogger(name)
+    logger.setLevel(loglevel)
+    return logger
 
 #loggers = {}
 class LoggingUtil(object):
@@ -287,16 +314,22 @@ class DataStructure:
         return namedtuple(type_name, d.keys())(**d)
 
 
+# Cache the config.yaml so we don't need to load it every time get_config() is called.
+config_yaml = None
 def get_config():
     """
     Retrieve the configuration data from the 'config.yaml' file.
 
     :return: The configuration data loaded from the 'config.yaml' file.
     """
+    global config_yaml
+    if config_yaml is not None:
+        return config_yaml
+
     cname = os.path.join(os.path.dirname(__file__),'..', 'config.yaml')
     with open(cname,'r') as yaml_file:
-        data = yaml.safe_load(yaml_file)
-    return data
+        config_yaml = yaml.safe_load(yaml_file)
+    return config_yaml
 
 
 def get_biolink_model_toolkit(biolink_version):
