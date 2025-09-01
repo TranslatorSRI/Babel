@@ -86,10 +86,9 @@ class SynonymFactory:
         self.synonyms[prefix] = lbs
         logger.info(f'Loaded {count_labels:,} labels and {count_synonyms:,} synonyms for {prefix} from {labelfname}: {get_memory_usage_summary()}')
 
-    def get_synonyms(self,node):
+    def get_synonyms(self, identifiers: list[str]):
         node_synonyms = set()
-        for ident in node['identifiers']:
-            thisid = ident['identifier']
+        for thisid in identifiers:
             pref = Text.get_prefix(thisid)
             if pref not in self.synonyms:
                 self.load_synonyms(pref)

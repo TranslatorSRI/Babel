@@ -614,12 +614,12 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
                 # get_synonyms() returns tuples in the form ('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym', 'Caudal articular process of eighteenth thoracic vertebra')
                 # But we're only interested in the synonyms themselves, so we can skip the relationship for now.
-                curie = nw["identifiers"][0]["identifier"]
+                curie = node["identifiers"][0]["identifier"]
 
                 # get_synonyms() returns a list of tuples, where each tuple is a relation and a synonym.
                 # So we extract just the synonyms here, ditching the relations (result[0]), then unique-ify the
                 # synonyms.
-                synonyms = [result[1] for result in synonym_factory.get_synonyms(nw)]
+                synonyms = [result[1] for result in synonym_factory.get_synonyms(identifier_list)]
                 synonyms_list = sorted(set(synonyms), key=lambda x: len(x))
 
                 try:
@@ -653,6 +653,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
                     # Cliques with more identifiers might be better than cliques with smaller identifiers.
                     # So let's try to incorporate that here.
+                    # Note that this includes all the alternative IDs.
                     document["clique_identifier_count"] = len(nw["identifiers"])
 
                     # We want to see if we can use the CURIE suffix to sort concepts with similar identifiers.
