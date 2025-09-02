@@ -6,4 +6,4 @@
 # SYNOPSIS
 #   bash rsync-to-server.sh username@ssh.server.org:/location/to/write/to
 
-rsync -avP babel_output/ --exclude 'babel_outputs/duckdb' "$1"
+rsync -avP --exclude 'babel_outputs/duckdb' babel_outputs/ "$1"
