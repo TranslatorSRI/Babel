@@ -30,7 +30,7 @@ def assess_completeness(input_dir,compendia,reportfile):
             outf.write(f'{missing_id}\n')
 
 def makecountset(j):
-    eids = [Text.get_curie(x['i']) for x in j['identifiers']]
+    eids = [Text.get_prefix_or_none(x['i']) for x in j['identifiers']]
     pcounts = defaultdict(int)
     for p in eids:
         pcounts[p] += 1

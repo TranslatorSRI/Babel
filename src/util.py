@@ -108,6 +108,21 @@ class Text:
 
     @staticmethod
     def get_curie (text):
+        """
+        Return a CURIE from either a text string or a LabeledID.
+        Intended to be used with the output from NodeFactory.apply_labels().
+
+        :param text: A LabeledID or a string.
+        :return: The CURIE as a string, without changing its case.
+        """
+        if isinstance(text, LabeledID):
+            return text.identifier
+        if isinstance(text, str):
+            return text
+        raise ValueError(f"Unable to get_curie({text}) with type {type(text)}")
+
+    @staticmethod
+    def get_prefix_or_none (text):
         if isinstance(text,LabeledID):
             text = text.identifier
         return text.upper().split(':', 1)[0] if ':' in text else None

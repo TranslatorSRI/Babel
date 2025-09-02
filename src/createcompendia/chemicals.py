@@ -21,7 +21,7 @@ from src.babel_utils import write_compendium, glom, get_prefixes, read_identifie
 
 import src.datahandlers.mesh as mesh
 import src.datahandlers.umls as umls
-from src.util import get_memory_usage_summary
+from src.util import get_memory_usage_summary, Text
 
 logger = util.get_logger(__name__)
 
@@ -328,16 +328,35 @@ def read_inchikeys(struct_file):
     return inchikeys
 
 def combine_unichem(concordances,output):
+    PREFIXES_TO_REMOVE_OVERUSED_XREFS = [UNII, KEGGCOMPOUND, DRUGCENTRAL]
+
     dicts = {}
     for infile in concordances:
         print(infile)
         print('loading',infile)
         pairs = []
+
+        # We will want to only remove overused xrefs for specific prefixes.
+        # UniChem files should only have a single prefix in the first column,
+        # but out of paranoia we'll double-check that.
+        prefixes_in_file = set()
+
         with open(infile,'r') as inf:
             for line in inf:
                 x = line.strip().split('\t')
                 pairs.append( ([x[0], x[2]]) )
-        newpairs = remove_overused_xrefs(pairs)
+                # Get the prefix from the first row to determine if we need to remove overused xrefs
+                prefixes_in_file.add(Text.get_prefix(x[0]))
+
+        # Was there more than one prefix in the first column?
+        if len(prefixes_in_file) != 1:
+            raise RuntimeError(f"More than one prefix found in {infile}: {prefixes_in_file}. All UNICHEM files should have only one prefix.")
+        prefix_to_check = prefixes_in_file.pop()
+
+        # Only remove overused xrefs for specific prefixes
+        newpairs = pairs
+        if prefix_to_check in PREFIXES_TO_REMOVE_OVERUSED_XREFS:
+            newpairs = remove_overused_xrefs(pairs)
         setpairs = [ set(x) for x in newpairs ]
         glom(dicts, setpairs, unique_prefixes=[INCHIKEY])
     chem_sets = set([frozenset(x) for x in dicts.values()])

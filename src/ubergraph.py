@@ -480,7 +480,7 @@ class UberGraph:
 def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={}, hop_ontologies=False ):
     """Given an IRI create a list of sets.  Each set is a set of equivalent LabeledIDs, and there
     is a set for each subclass of the input iri.  Write these lists to concord files, indexed by the prefix"""
-    prefix = Text.get_curie(iri)
+    prefix = Text.get_prefix_or_none(iri)
     types2relations={'xref':'xref', 'exact': 'oio:exactMatch', 'close': 'oio:closeMatch'}
     if set_type not in types2relations:
         return
@@ -493,13 +493,13 @@ def build_sets(iri, concordfiles, set_type, ignore_list = [], other_prefixes={},
         uberres = uber.get_subclasses_and_close(iri)
     for k,v in uberres.items():
         if not hop_ontologies:
-            subclass_prefix = Text.get_curie(k)
+            subclass_prefix = Text.get_prefix_or_none(k)
             if subclass_prefix != prefix:
                 continue
         v = set([ norm(x,other_prefixes) for x in v ])
         for x in v:
-            if Text.get_curie(x) not in ignore_list:
-                p = Text.get_curie(k)
+            if Text.get_prefix_or_none(x) not in ignore_list:
+                p = Text.get_prefix_or_none(k)
                 if p in concordfiles:
                     concordfiles[p].write(f'{k}\t{types2relations[set_type]}\t{x}\n')
 

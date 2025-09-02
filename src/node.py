@@ -86,10 +86,9 @@ class SynonymFactory:
         self.synonyms[prefix] = lbs
         logger.info(f'Loaded {count_labels:,} labels and {count_synonyms:,} synonyms for {prefix} from {labelfname}: {get_memory_usage_summary()}')
 
-    def get_synonyms(self,node):
+    def get_synonyms(self, identifiers: list[str]):
         node_synonyms = set()
-        for ident in node['identifiers']:
-            thisid = ident['identifier']
+        for thisid in identifiers:
             pref = Text.get_prefix(thisid)
             if pref not in self.synonyms:
                 self.load_synonyms(pref)
@@ -575,7 +574,7 @@ class NodeFactory:
         try:
             idmap = defaultdict(list)
             for i in list(cleaned):
-                idmap[Text.get_curie(i).upper()].append(i)
+                idmap[Text.get_prefix_or_none(i).upper()].append(i)
         except AttributeError:
             print('something very bad')
             print(input_identifiers)
@@ -583,8 +582,8 @@ class NodeFactory:
             for i in list(input_identifiers):
                 print(i)
                 print(type(i))
-                print(Text.get_curie(i))
-                print(Text.get_curie(i).upper())
+                print(Text.get_prefix_or_none(i))
+                print(Text.get_prefix_or_none(i).upper())
             raise RuntimeError('something very bad')
         identifiers = []
         accepted_ids = set()

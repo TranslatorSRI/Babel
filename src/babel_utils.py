@@ -11,7 +11,6 @@ import requests
 import os
 import urllib
 import jsonlines
-import yaml
 from humanfriendly import format_timespan
 
 from src.metadata.provenance import write_combined_metadata
@@ -564,6 +563,8 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
                         for prop, label in zip(props, ac_labelled):
                             additional_curie = Text.get_curie(label)
+                            if ':' not in additional_curie:
+                                raise ValueError(f"Additional ID '{additional_curie}' for '{iid}' is not a valid CURIE: {prop}, {label} (from {ac_labelled})")
                             if additional_curie not in current_curies:
                                 identifier_list.append(additional_curie)
                                 current_curies.add(additional_curie)
@@ -575,6 +576,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                                     curie_labels[additional_curie] = label.label
 
                 # Add description and taxon information and construct the final nw object.
+                logger.debug(f"Getting descriptions and taxa for {len(identifier_list)} identifiers: {identifier_list}")
                 descs = description_factory.get_descriptions(identifier_list)
                 taxa = taxon_factory.get_taxa(identifier_list)
 
@@ -617,7 +619,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                 # get_synonyms() returns a list of tuples, where each tuple is a relation and a synonym.
                 # So we extract just the synonyms here, ditching the relations (result[0]), then unique-ify the
                 # synonyms.
-                synonyms = [result[1] for result in synonym_factory.get_synonyms(node)]
+                synonyms = [result[1] for result in synonym_factory.get_synonyms(identifier_list)]
                 synonyms_list = sorted(set(synonyms), key=lambda x: len(x))
 
                 try:
@@ -632,7 +634,7 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                         document["preferred_name"] = preferred_name
                     else:
                         logger.debug(
-                            f"No preferred name for {node}, probably because all names were filtered out, skipping."
+                            f"No preferred name for {nw}, probably because all names were filtered out, skipping."
                         )
                         continue
 
@@ -644,14 +646,15 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
                     # Since synonyms_list is sorted, we can use the length of the first term as the synonym.
                     if len(synonyms_list) == 0:
-                        logger.debug(f"Synonym list for {node} is empty: no valid name. Skipping.")
+                        logger.debug(f"Synonym list for {nw} is empty: no valid name. Skipping.")
                         continue
                     else:
                         document["shortest_name_length"] = len(synonyms_list[0])
 
                     # Cliques with more identifiers might be better than cliques with smaller identifiers.
                     # So let's try to incorporate that here.
-                    document["clique_identifier_count"] = len(node["identifiers"])
+                    # Note that this includes all the alternative IDs.
+                    document["clique_identifier_count"] = len(nw["identifiers"])
 
                     # We want to see if we can use the CURIE suffix to sort concepts with similar identifiers.
                     # We want to sort this numerically, so we only do this if the CURIE suffix is numerical.
@@ -669,8 +672,8 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                     sfile.write( document )
                 except Exception as ex:
                     print(f"Exception thrown while write_compendium() was generating {ofname}: {ex}")
-                    print(node["type"])
-                    print(node_factory.get_ancestors(node["type"]))
+                    print(nw["type"])
+                    print(node_factory.get_ancestors(nw["type"]))
                     traceback.print_exc()
                     raise ex
 
@@ -761,7 +764,7 @@ def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
                     fs = frozenset(s)
                     wrote.add(fs)
                 for gel in group:
-                    if Text.get_curie(gel) == pref:
+                    if Text.get_prefix_or_none(gel) == pref:
                         killer = gel
                 #for preset in wrote:
                 #    print(f'{killer}\t{set(group).intersection(preset)}\t{preset}\n')
@@ -840,9 +843,9 @@ def get_prefixes(idlist):
         if isinstance(ident,LabeledID):
             print('nonono')
             exit()
-            prefs.add(Text.get_curie(ident.identifier))
+            prefs.add(Text.get_prefix_or_none(ident.identifier))
         else:
-            prefs[Text.get_curie(ident)].append(ident)
+            prefs[Text.get_prefix_or_none(ident)].append(ident)
     return prefs
 
 
@@ -934,7 +937,7 @@ def remove_overused_xrefs(pairlist: List[Tuple], bothways:bool = False):
 
 def norm(x,op):
     #Get curie returns the uppercase
-    pref = Text.get_curie(x)
+    pref = Text.get_prefix_or_none(x)
     if pref in op:
         return Text.recurie(x,op[pref])
     return x
