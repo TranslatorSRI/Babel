@@ -101,7 +101,7 @@ rule normalize_ubergraph_hierarchy:
         predicate_labels = db.read_csv(input.edge_labels_tsv, sep='\t', header=None, names=['predicate_id', 'predicate_iri'])
         ubergraph_edges = db.read_csv(input.edge_tsv, sep='\t', header=None, names=['subject_id', 'predicate_id', 'object_id'])
         harmonized_edges = db.sql("""
-            SELECT
+            SELECT DISTINCT
                 result_subj.node_id AS subject_id,
                 result_subj.iri AS subject_iri,
                 result_subj.curie AS subject_curie,
