@@ -43,6 +43,9 @@ rule all:
         # Build all the exports.
         config['output_directory'] + '/kgx/done',
         config['output_directory'] + '/sapbert-training-data/done',
+
+        # Build the Ubergraph/Translator Hierarchy.
+        config['output_directory'] + '/reports/ubergraph_hierarchy_done',
     output:
         x = config['output_directory'] + '/reports/all_done'
     shell:
