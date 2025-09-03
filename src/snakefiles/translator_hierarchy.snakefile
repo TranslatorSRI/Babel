@@ -97,7 +97,7 @@ rule normalize_ubergraph_hierarchy:
                                cliques.biolink_type AS biolink_type
                   FROM node_labels
                   LEFT JOIN edges ON node_labels.curie = edges.curie
-                  JOIN cliques ON edges.clique_leader = cliques.clique_leader
+                  LEFT JOIN cliques ON edges.clique_leader = cliques.clique_leader
                   ORDER BY node_id ASC""")
 
         # Write out the harmonization results.
