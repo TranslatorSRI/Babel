@@ -5,6 +5,7 @@ import pandas as pd
 
 from src.babel_utils import pull_via_wget
 from src.exporters.duckdb_exporters import setup_duckdb
+from src.snakefiles.util import gzip_files
 from src.util import get_biolink_prefix_map, get_logger
 
 # Step 1. Download the Ubergraph hierarchy.
@@ -121,11 +122,22 @@ rule normalize_ubergraph_hierarchy:
 
         # TODO: make mappings non-redundant.
 
+rule compress_ubergraph_hierarchy:
+    input:
+        ubergraph_redundant_triples_tsv = config['output_directory'] + '/UbergraphHierarchy/ubergraph-redundant-triples-harmonized.tsv',
+    output:
+        ubergraph_redundant_triples_tsv_gz = config['output_directory'] + '/UbergraphHierarchy/ubergraph-redundant-triples-harmonized.tsv.gz',
+    run:
+        gzip_files([
+            input.ubergraph_redundant_triples_tsv
+        ])
+        os.remove(input.ubergraph_redundant_triples_tsv)
 
-# Step 3. Confirm that all the Ubergraph Hierarchy work is done.
+# Step 4. Confirm that all the Ubergraph Hierarchy work is done.
 rule ubergraph_hierarchy_done:
     input:
         node_labels_harmonized = config['output_directory'] + '/UbergraphHierarchy/node-labels-harmonized.tsv',
+        ubergraph_redundant_triples_tsv_gz = config['output_directory'] + '/UbergraphHierarchy/ubergraph-redundant-triples-harmonized.tsv.gz',
     output:
         done_file = config['output_directory'] + '/reports/ubergraph_hierarchy_done'
     run:
