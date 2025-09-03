@@ -88,7 +88,13 @@ rule normalize_ubergraph_hierarchy:
         edges = db.from_parquet(config['output_directory'] + '/duckdb/parquet/filename=*/Edge.parquet')
 
         # Harmonize!
-        result = db.sql("""SELECT node_id, iri, node_labels.curie, edges.clique_leader AS normalized_curie, cliques.preferred_name AS preferred_name
+        result = db.sql("""SELECT
+                               node_id,
+                               iri,
+                               node_labels.curie,
+                               edges.clique_leader AS normalized_curie,
+                               cliques.preferred_name AS preferred_name,
+                               cliques.biolink_type AS biolink_type
                   FROM node_labels
                   LEFT JOIN edges ON node_labels.curie = edges.curie
                   JOIN cliques ON edges.clique_leader = cliques.clique_leader
