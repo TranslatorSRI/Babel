@@ -20,6 +20,8 @@ include: "src/snakefiles/duckdb.snakefile"
 include: "src/snakefiles/reports.snakefile"
 include: "src/snakefiles/exports.snakefile"
 
+include: "src/snakefiles/translator_hierarchy.snakefile"
+
 # Some global settings.
 import os
 os.environ['TMPDIR'] = config['tmp_directory']
