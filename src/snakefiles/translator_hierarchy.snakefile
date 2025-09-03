@@ -4,6 +4,7 @@ from src.babel_utils import pull_via_wget
 # Step 1. Download the Ubergraph hierarchy.
 rule download_ubergraph_hierarchy:
     output:
+        build_metadata_nt = config['output_directory'] + '/UbergraphHierarchy/nonredundant-graph-table/build-metadata.nt',
         node_labels_tsv = config['download_directory'] + '/UbergraphHierarchy/nonredundant-graph-table/node-labels.tsv',
         edge_labels_tsv = config['download_directory'] + '/UbergraphHierarchy/nonredundant-graph-table/edge-labels.tsv',
     run:
@@ -12,6 +13,7 @@ rule download_ubergraph_hierarchy:
             'nonredundant-graph-table.tgz',
             subpath='UbergraphHierarchy',
             uncompressed_filenames=[
+                'nonredundant-graph-table/build-metadata.nt',
                 'nonredundant-graph-table/node-labels.tsv',
                 'nonredundant-graph-table/edge-labels.tsv'
             ],
