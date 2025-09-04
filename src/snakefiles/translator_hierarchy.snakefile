@@ -114,6 +114,7 @@ rule normalize_ubergraph_hierarchy:
                 result_subj.curie AS subject_curie,
                 result_subj.normalized_curie AS subject_curie_normalized,
                 result_subj.preferred_name AS subject_preferred_name,
+                ubergraph_edges.predicate_id AS predicate_id,
                 predicate_iri AS predicate,
                 result_obj.node_id AS object_id,
                 result_obj.iri AS object_iri,
@@ -123,7 +124,9 @@ rule normalize_ubergraph_hierarchy:
             FROM ubergraph_edges
             JOIN predicate_labels ON predicate_labels.predicate_id = ubergraph_edges.predicate_id
             JOIN result result_subj ON ubergraph_edges.subject_id = result_subj.node_id AND result_subj.normalized_curie IS NOT NULL
-            JOIN result result_obj ON ubergraph_edges.object_id = result_obj.node_id AND result_obj.normalized_curie IS NOT NULL""")
+            JOIN result result_obj ON ubergraph_edges.object_id = result_obj.node_id AND result_obj.normalized_curie IS NOT NULL
+            WHERE result_subj.normalized_curie <> result_obj.normalized_curie
+            """)
         harmonized_edges.to_csv(output.ubergraph_redundant_triples_tsv, sep='\t', header=True)
 
         # TODO: make mappings non-redundant.
