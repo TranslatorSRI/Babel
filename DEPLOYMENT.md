@@ -4,7 +4,7 @@ There are two main installations of NodeNorm that would be of interest
 to users who aren't system administrators for these tools:
 
 * ITRB Production
-  * NodeNorm: https://nodenorm.transltr.io/1.3/docs
+  * NodeNorm: https://nodenorm.transltr.io/docs
   * NameRes: https://name-lookup.transltr.io/docs
 * RENCI Development
   * NodeNorm: https://nodenormalization-sri.renci.org/docs

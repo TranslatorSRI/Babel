@@ -499,11 +499,14 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
                 CHEMICAL_MIXTURE: 6,                    # 498 cliques
                 MOLECULAR_MIXTURE: 7,                   # 10,371,847 cliques
                 PROCESSED_MATERIAL: 8,                  # N/A
-                DRUG: 9,                                # 145,677 cliques
                 FOOD_ADDITIVE: 10,                      # N/A
                 FOOD: 11,                               # N/A
                 ENVIRONMENTAL_FOOD_CONTAMINANT: 12,     # N/A
                 CHEMICAL_ENTITY: 13,                    # 7,398,124 cliques
+                DRUG: 14,                               # 145,677 cliques -- previously at number 9, but
+                                                        # valid ID prefixes for Drug are not great, so
+                                                        # let's make it the worst option for now:
+                                                        # https://biolink.github.io/biolink-model/Drug/#valid-id-prefixes
             }
 
             # Within each of those classes, we want to sort by:
