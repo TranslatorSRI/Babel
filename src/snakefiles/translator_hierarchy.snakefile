@@ -86,6 +86,8 @@ rule normalize_ubergraph_hierarchy:
         # For now, we'll load the Parquet files instead, because I have some.
         cliques = db.from_parquet(config['output_directory'] + '/duckdb/parquet/filename=*/Clique.parquet')
         edges = db.from_parquet(config['output_directory'] + '/duckdb/parquet/filename=*/Edge.parquet')
+        conflations = db.from_parquet(config['output_directory'] + '/duckdb/parquet/filename=*/Conflation.parquet')
+        # conflation_lists = db.from_parquet(config['output_directory'] + '/duckdb/parquet/filename=*/ConflationList.parquet')
 
         # Harmonize!
         result = db.sql("""SELECT
@@ -93,11 +95,15 @@ rule normalize_ubergraph_hierarchy:
                                iri,
                                node_labels.curie,
                                edges.clique_leader AS normalized_curie,
+                               COALESCE(conflations.preferred_curie, edges.clique_leader) AS normalized_conflated_curie,
+                               conflations.conflation AS conflation_type,
                                cliques.preferred_name AS preferred_name,
                                cliques.biolink_type AS biolink_type
                   FROM node_labels
                   LEFT JOIN edges ON node_labels.curie = edges.curie
                   LEFT JOIN cliques ON edges.clique_leader = cliques.clique_leader
+                  LEFT JOIN conflations ON node_labels.curie = conflations.curie AND
+                                           (conflations.conflation = 'DrugChemical' OR conflations.conflation = 'GeneProtein')
                   ORDER BY node_id ASC""")
 
         # Write out the harmonization results.
@@ -112,19 +118,19 @@ rule normalize_ubergraph_hierarchy:
                 result_subj.node_id AS subject_id,
                 result_subj.iri AS subject_iri,
                 result_subj.curie AS subject_curie,
-                result_subj.normalized_curie AS subject_curie_normalized,
+                result_subj.normalized_conflated_curie AS subject_curie_normalized,
                 result_subj.preferred_name AS subject_preferred_name,
                 ubergraph_edges.predicate_id AS predicate_id,
                 predicate_iri AS predicate,
                 result_obj.node_id AS object_id,
                 result_obj.iri AS object_iri,
                 result_obj.curie AS object_curie,
-                result_obj.normalized_curie AS object_curie_normalized,
+                result_obj.normalized_conflated_curie AS object_curie_normalized,
                 result_obj.preferred_name AS object_preferred_name
             FROM ubergraph_edges
             JOIN predicate_labels ON predicate_labels.predicate_id = ubergraph_edges.predicate_id
-            JOIN result result_subj ON ubergraph_edges.subject_id = result_subj.node_id AND result_subj.normalized_curie IS NOT NULL
-            JOIN result result_obj ON ubergraph_edges.object_id = result_obj.node_id AND result_obj.normalized_curie IS NOT NULL
+            JOIN result result_subj ON ubergraph_edges.subject_id = result_subj.node_id AND result_subj.normalized_conflated_curie IS NOT NULL
+            JOIN result result_obj ON ubergraph_edges.object_id = result_obj.node_id AND result_obj.normalized_conflated_curie IS NOT NULL
             WHERE result_subj.normalized_curie <> result_obj.normalized_curie
             """)
         harmonized_edges.to_csv(output.ubergraph_redundant_triples_tsv, sep='\t', header=True)
