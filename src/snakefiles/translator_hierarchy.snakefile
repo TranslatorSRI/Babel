@@ -32,7 +32,7 @@ rule download_ubergraph_hierarchy:
 # Step 2. Normalize the Ubergraph hierarchy.
 rule normalize_ubergraph_hierarchy:
     input:
-        # duckdb_done = config['output_directory'] + '/reports/duckdb/done',
+        duckdb_done = config['output_directory'] + '/reports/duckdb/done',
         node_labels_tsv = config['download_directory'] + '/UbergraphHierarchy/redundant-graph-table/node-labels.tsv',
         edge_labels_tsv = config['download_directory'] + '/UbergraphHierarchy/redundant-graph-table/edge-labels.tsv',
         edge_tsv = config['download_directory'] + '/UbergraphHierarchy/redundant-graph-table/edges.tsv',
