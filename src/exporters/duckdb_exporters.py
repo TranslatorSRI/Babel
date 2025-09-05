@@ -192,9 +192,9 @@ def export_conflation_to_parquet(conflation_filename, duckdb_filename, conflatio
 
         # Step 3. Create a Conflation table with all the conflations from this file.
         db.sql("CREATE TABLE Conflation (preferred_curie TEXT, conflation TEXT, curie TEXT)")
-        db.sql("""INSERT INTO Conflation SELECT
+        db.sql("""INSERT INTO Conflation SELECT DISTINCT
                 preferred_curie,
-                conflation,
+                    conflation,
                 unnest(curies) AS curie
             FROM ConflationList""")
         db.sql("CREATE INDEX curie_index ON Conflation(curie)")
