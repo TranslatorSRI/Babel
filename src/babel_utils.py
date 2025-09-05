@@ -228,6 +228,7 @@ def pull_via_wget(
         decompress=True,
         subpath:str=None,
         outpath:str=None,
+        uncompressed_filenames: list[str] = None,
         continue_incomplete:bool=True,
         timestamping=True,
         recurse:WgetRecursionOptions = WgetRecursionOptions.NO_RECURSION,
@@ -243,6 +244,8 @@ def pull_via_wget(
     :param decompress: Whether this is a Gzip file that should be decompressed after download.
     :param subpath: The subdirectory of `babel_download` where this file should be stored.
     :param outpath: The full output directory to write this file to. Both subpath and outpath cannot be set at the same time.
+    :param uncompressed_filenames: A list of files to check for after decompression. Should be relative to the directory where wget downloaded the file.
+        Note that we won't guarantee that all of these files exist, just that these files exist.
     :param continue_incomplete: Should wget continue an incomplete download?
     :param recurse: Do we want to download recursively? Should be from Wget_Recursion_Options, such as Wget_Recursion_Options.NO_RECURSION.
     :param retries: The number of retries to attempt.
@@ -291,24 +294,31 @@ def pull_via_wget(
     logger.info(f"Downloading {dl_file_name} using wget: {wget_command_line}")
     process = subprocess.run(wget_command_line)
     if process.returncode != 0:
-        raise RuntimeError(f"Could not execute wget {wget_command_line}: {process.stderr}")
+        raise RuntimeError(f"Executing wget {wget_command_line} returned {process.returncode}: stderr=<<{process.stderr}>>, stdout=<<{process.stdout}>>")
 
     # Decompress the downloaded file if needed.
-    uncompressed_filename = None
+    if uncompressed_filenames is None:
+        uncompressed_filenames = []
     if decompress:
         if dl_file_name.endswith('.gz'):
-            uncompressed_filename = dl_file_name[:-3]
             process = subprocess.run(['gunzip', dl_file_name])
             if process.returncode != 0:
-                raise RuntimeError(f"Could not execute gunzip ['gunzip', {dl_file_name}]: {process.stderr}")
+                raise RuntimeError(f"Executing ['gunzip', {dl_file_name}] returned {process.returncode}: stderr = <<{process.stderr}>>, stdout = <<{process.stdout}>>")
+            uncompressed_filenames.append(in_file_name[:-3])
+        if dl_file_name.endswith('.tgz') or dl_file_name.endswith('.tar.gz'):
+            process = subprocess.run(['tar', 'zxvf', dl_file_name, '-C', os.path.dirname(dl_file_name)])
+            if process.returncode != 0:
+                raise RuntimeError(f"Executing tar-gunzip ['tar', 'zxvf', {dl_file_name}] returned {process.returncode}: stderr = <<{process.stderr}>>, stdout = <<{process.stdout}>>")
         else:
             raise RuntimeError(f"Don't know how to decompress {in_file_name}")
 
-        if os.path.isfile(uncompressed_filename):
-            file_size = os.path.getsize(uncompressed_filename)
-            logger.info(f"Downloaded {uncompressed_filename} from {url}, file size {file_size} bytes.")
-        else:
-            raise RuntimeError(f'Expected uncompressed file {uncompressed_filename} does not exist.')
+        for uncompressed_fn in uncompressed_filenames:
+            uncompressed_filename = os.path.join(os.path.dirname(dl_file_name), uncompressed_fn)
+            if os.path.isfile(uncompressed_filename):
+                file_size = os.path.getsize(uncompressed_filename)
+                logger.info(f"Downloaded {uncompressed_filename} from {url}, file size {file_size} bytes.")
+            else:
+                raise RuntimeError(f'Expected uncompressed file {uncompressed_filename} does not exist.')
     else:
         if os.path.isfile(dl_file_name):
             file_size = os.path.getsize(dl_file_name)

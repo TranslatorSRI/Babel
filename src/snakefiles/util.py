@@ -42,6 +42,15 @@ def get_all_compendia(config):
             config['macromolecularcomplex_outputs'] +
             config['publication_outputs'])
 
+def get_all_conflations(config):
+    """
+    Return a list of all the conflation files.
+
+    :param config: The base configuration.
+    :return: A list of filenames expected in the `conflation/` directory.
+    """
+    return (config['geneprotein_outputs'] +
+            config['drugchemical_outputs'])
 
 def get_all_synonyms(config):
     """

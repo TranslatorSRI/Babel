@@ -1,5 +1,5 @@
 import src.reports.duckdb_reports
-from src.snakefiles.util import get_all_compendia, get_all_synonyms_with_drugchemicalconflated
+from src.snakefiles.util import get_all_compendia, get_all_synonyms_with_drugchemicalconflated, get_all_conflations
 import src.exporters.duckdb_exporters as duckdb_exporters
 import os
 
@@ -53,13 +53,36 @@ rule export_synonyms_to_duckdb:
         duckdb_exporters.export_synonyms_to_parquet(input.synonyms_file, output.duckdb_filename, output.synonyms_parquet_filename)
 
 
-# TODO: convert all conflations to Parquet via DuckDB (https://github.com/TranslatorSRI/Babel/issues/378).
+# Write all conflation files to DuckDB and Parquet, then create `babel_outputs/duckdb/conflation_done` to signal that we're done.
+rule export_all_conflation_to_duckdb:
+    input:
+        conflation_duckdb_files=expand("{od}/duckdb/duckdbs/filename={fn}/conflations.duckdb",
+            od=config['output_directory'],
+            fn=map(lambda fn: os.path.splitext(fn)[0], get_all_conflations(config))
+        )
+    output:
+        x = config['output_directory'] + '/duckdb/conflations_done',
+    shell:
+        "echo 'done' >> {output.x}"
+
+
+# Generic rule for generating the Parquet files for a particular compendia file.
+rule export_conflation_to_duckdb:
+    input:
+        conflation_file=config['output_directory'] + "/conflation/{filename}.txt",
+    output:
+        duckdb_filename=config['output_directory'] + "/duckdb/duckdbs/filename={filename}/conflations.duckdb",
+        conflation_parquet_file=config['output_directory'] + "/duckdb/parquet/filename={filename}/Conflation.parquet",
+    run:
+        duckdb_exporters.export_conflation_to_parquet(input.conflation_file, output.duckdb_filename, output.conflation_parquet_file)
+
 
 # Create `babel_outputs/duckdb/done` once all the files have been converted.
 rule export_all_to_duckdb:
     input:
         compendia_done=config['output_directory'] + '/duckdb/compendia_done',
-        synonyms_done=config['output_directory'] + '/duckdb/synonyms_done'
+        synonyms_done=config['output_directory'] + '/duckdb/synonyms_done',
+        conflations_done=config['output_directory'] + '/duckdb/conflations_done',
     output:
         x = config['output_directory'] + '/duckdb/done',
     shell:
