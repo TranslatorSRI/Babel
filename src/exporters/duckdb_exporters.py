@@ -158,15 +158,13 @@ def export_conflation_to_parquet(conflation_filename, duckdb_filename, conflatio
     :return:
     """
     # Make sure that duckdb_filename doesn't exist.
-    #if os.path.exists(duckdb_filename):
-    #    raise RuntimeError(f"Will not overwrite existing file {duckdb_filename}")
+    if os.path.exists(duckdb_filename):
+        raise RuntimeError(f"Will not overwrite existing file {duckdb_filename}")
 
     duckdb_dir = os.path.dirname(duckdb_filename)
     conflation_parquet_dir = os.path.dirname(conflation_parquet_filename)
     os.makedirs(duckdb_dir, exist_ok=True)
     os.makedirs(conflation_parquet_dir, exist_ok=True)
-
-    os.remove(duckdb_filename)
 
     # Set up the conflation_list_parquet_filename.
     conflation_list_parquet_filename = conflation_parquet_filename.replace('Conflation.parquet', 'ConflationList.parquet')
