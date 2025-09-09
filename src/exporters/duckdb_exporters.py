@@ -3,9 +3,11 @@
 import os.path
 
 import duckdb
+import pandas as pd
 
-from src.util import get_config
+from src.util import get_config, get_logger
 
+logger = get_logger(__name__)
 
 def setup_duckdb(duckdb_filename):
     """
@@ -140,3 +142,75 @@ def export_synonyms_to_parquet(synonyms_filename_gz, duckdb_filename, synonyms_p
         db.sql("SELECT clique_leader, preferred_name, preferred_name_lc, biolink_type, label, label_lc FROM Synonym").write_parquet(
             synonyms_parquet_filename
         )
+
+def export_conflation_to_parquet(conflation_filename, duckdb_filename, conflation_parquet_filename: str):
+    """
+    Export a conflation file to DuckDB and Parquet.
+
+    We will create two tables to make this happen:
+        - Conflation (preferred_curie TEXT, conflation TEXT, curie TEXT)
+        - ConflationList (preferred_curie TEXT, conflation TEXT, curie_list TEXT[])
+
+    :param conflation_filename: The conflation filename to load. The name of this file minus its extension is assumed
+        to be the conflation name.
+    :param duckdb_filename: The DuckDB database to write.
+    :param conflation_parquet_filename: The Parquet file to write.
+    :return:
+    """
+    # Make sure that duckdb_filename doesn't exist.
+    if os.path.exists(duckdb_filename):
+        raise RuntimeError(f"Will not overwrite existing file {duckdb_filename}")
+
+    duckdb_dir = os.path.dirname(duckdb_filename)
+    conflation_parquet_dir = os.path.dirname(conflation_parquet_filename)
+    os.makedirs(duckdb_dir, exist_ok=True)
+    os.makedirs(conflation_parquet_dir, exist_ok=True)
+
+    # Set up the conflation_list_parquet_filename.
+    conflation_list_parquet_filename = conflation_parquet_filename.replace('Conflation.parquet', 'ConflationList.parquet')
+
+    # Determine the conflation type:
+    conflation_type = os.path.splitext(os.path.basename(conflation_filename))[0]
+    if conflation_type not in {'DrugChemical', 'GeneProtein'}:
+        raise ValueError(f"Could not determine conflation type for filename {conflation_filename}: {conflation_type}")
+
+    with setup_duckdb(duckdb_filename) as db:
+        # Step 1. Load the entire conflation file.
+        conflation_jsonl = db.read_json(conflation_filename, format='nd')
+
+        # result = db.sql("SELECT json_extract(json, '$[*]') FROM conflation_jsonl").fetchall()
+
+        # Step 2. Create a ConflationList table with all the conflation lists from this file.
+        db.sql("CREATE TABLE ConflationList (preferred_curie TEXT, conflation TEXT, curies TEXT[])")
+        db.sql("""INSERT INTO ConflationList SELECT
+                json_extract_string(json, '$[0]') AS preferred_curie,
+                ? AS conflation_type,
+                json_extract_string(json, '$[*]') AS curies
+            FROM conflation_jsonl""", params=[conflation_type])
+        db.sql("CREATE INDEX preferred_curie_index ON ConflationList(preferred_curie)")
+        db.sql("CREATE INDEX conflationlist_conflation_index ON ConflationList(conflation)")
+
+        # Step 3. Create a Conflation table with all the conflations from this file.
+        db.sql("CREATE TABLE Conflation (preferred_curie TEXT, conflation TEXT, curie TEXT)")
+        db.sql("""INSERT INTO Conflation SELECT DISTINCT
+                preferred_curie,
+                    conflation,
+                unnest(curies) AS curie
+            FROM ConflationList""")
+        db.sql("CREATE INDEX curie_index ON Conflation(curie)")
+        db.sql("CREATE INDEX conflation_conflation_index ON Conflation(conflation)")
+
+    # Step 4. Export as Parquet files.
+        db.sql("SELECT preferred_curie, conflation, curie FROM Conflation").write_parquet(
+            conflation_parquet_filename
+        )
+        db.sql("SELECT preferred_curie, conflation, curies FROM ConflationList").write_parquet(
+            conflation_list_parquet_filename
+        )
+
+if __name__ == '__main__':
+    export_conflation_to_parquet(
+        'babel_outputs/conflation/DrugChemical.txt',
+        'babel_outputs/duckdb/duckdbs/filename=DrugChemical/conflations.duckdb',
+        'babel_outputs/duckdb/parquet/filename=DrugChemical/Conflation.parquet'
+    )
