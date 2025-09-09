@@ -35,6 +35,7 @@ def get_bulk_normalizer_file_list(path):
 
 rule bulk_normalize_all_files:
     input:
+        file_list = config['download_directory'] + '/bulk-normalizer/file-list.txt',
         completed_files=get_bulk_normalizer_file_list(config['output_directory'] + '/bulk-normalizer/'),
     output:
         normalizer_done = config['output_directory'] + '/bulk-normalizer/done',
