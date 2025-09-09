@@ -5,11 +5,12 @@ import jsonlines
 from pathlib import Path
 
 from src.node import NodeFactory
-from src.util import get_biolink_model_toolkit
+from src.util import get_biolink_model_toolkit, get_logger
 from src.datahandlers import umls
 from src.prefixes import UMLS
 from src.categories import ACTIVITY, AGENT, DEVICE, DRUG, FOOD, SMALL_MOLECULE, PHYSICAL_ENTITY, PUBLICATION, PROCEDURE
 
+logger = get_logger(__name__)
 
 def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonyms, umls_compendium, umls_synonyms, report, biolink_version):
     """
@@ -30,7 +31,7 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
     :return: Nothing.
     """
 
-    logging.info(f"write_leftover_umls({compendia}, {umls_labels_filename}, {mrconso}, {mrsty}, {synonyms}, {umls_compendium}, {umls_synonyms}, {report}, {biolink_version})")
+    logger.info(f"write_leftover_umls({compendia}, {umls_labels_filename}, {mrconso}, {mrsty}, {synonyms}, {umls_compendium}, {umls_synonyms}, {report}, {biolink_version})")
 
     # For now, we have many more UMLS entities in MRCONSO than in the compendia, so
     # we'll make an in-memory list of those first. Once that flips, this should be
@@ -51,7 +52,7 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
         biolink_toolkit = get_biolink_model_toolkit(biolink_version)
 
         for compendium in compendia:
-            logging.info(f"Starting compendium: {compendium}")
+            logger.info(f"Starting compendium: {compendium}")
             umls_ids = set()
 
             with open(compendium, 'r') as f:
@@ -61,10 +62,10 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
                         if id['i'].startswith(UMLS + ':'):
                             umls_ids.add(id['i'])
 
-            logging.info(f"Completed compendium {compendium} with {len(umls_ids)} UMLS IDs")
+            logger.info(f"Completed compendium {compendium} with {len(umls_ids)} UMLS IDs")
             umls_ids_in_other_compendia.update(umls_ids)
 
-        logging.info(f"Completed all compendia with {len(umls_ids_in_other_compendia)} UMLS IDs.")
+        logger.info(f"Completed all compendia with {len(umls_ids_in_other_compendia)} UMLS IDs.")
         reportf.write(f"Completed all compendia with {len(umls_ids_in_other_compendia)} UMLS IDs.\n")
         # print(umls_ids_in_other_compendia)
 
@@ -91,7 +92,7 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
                     types_by_tui[tui] = set()
                 types_by_tui[tui].add(sty)
 
-        logging.info(f"Completed loading {len(types_by_id.keys())} UMLS IDs from MRSTY.RRF.")
+        logger.info(f"Completed loading {len(types_by_id.keys())} UMLS IDs from MRSTY.RRF.")
         reportf.write(f"Completed loading {len(types_by_id.keys())} UMLS IDs from MRSTY.RRF.\n")
 
         with open('babel_outputs/reports/umls-types.tsv', 'w') as outf:
@@ -111,10 +112,10 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
                 cui = x[0]
                 umls_id = f"{UMLS}:{cui}"
                 if umls_id in umls_ids_in_other_compendia:
-                    logging.debug(f"UMLS ID {umls_id} is in another compendium, skipping.")
+                    logger.debug(f"UMLS ID {umls_id} is in another compendium, skipping.")
                     continue
                 if umls_id in umls_ids_in_this_compendium:
-                    logging.debug(f"UMLS ID {umls_id} has already been included in this compendium, skipping.")
+                    logger.debug(f"UMLS ID {umls_id} has already been included in this compendium, skipping.")
                     continue
 
                 # The STR value should be the label.
@@ -124,7 +125,7 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
                 def umls_type_to_biolink_type(umls_tui):
                     biolink_type = biolink_toolkit.get_element_by_mapping(f'STY:{umls_tui}', most_specific=True, formatted=True, mixin=True)
                     if biolink_type is None:
-                        logging.debug(f"No Biolink type found for UMLS TUI {umls_tui}")
+                        logger.debug(f"No Biolink type found for UMLS TUI {umls_tui}")
                     return biolink_type
 
                 umls_type_results = types_by_id.get(umls_id, {'biolink:NamedThing': {'Named thing'}})
@@ -157,14 +158,14 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
                     # We skip this CURIE, but we don't want to print multiple warnings for the same CURIE.
                     if umls_id not in curies_no_umls_type:
                         curies_no_umls_type.add(umls_id)
-                        logging.warning(f"No UMLS type found for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
+                        logger.warning(f"No UMLS type found for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
                         reportf.write(f"NO_UMLS_TYPE [{umls_id}]: {umls_type_results} -> {biolink_types}\n")
                     continue
                 if len(biolink_types) > 1:
                     # We skip this CURIE, but we don't want to print multiple warnings for the same CURIE.
                     if umls_id not in curies_multiple_umls_type:
                         curies_multiple_umls_type.add(umls_id)
-                        logging.debug(f"Multiple UMLS types not yet supported for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
+                        logger.debug(f"Multiple UMLS types not yet supported for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
                         reportf.write(f"MULTIPLE_UMLS_TYPES [{umls_id}]\t{biolink_types_as_str}\t{umls_type_results} -> {biolink_types}\n")
                     continue
                 biolink_type = list(biolink_types)[0]
@@ -184,12 +185,12 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
                 }
                 compendiumf.write(json.dumps(cluster) + "\n")
                 umls_ids_in_this_compendium.add(umls_id)
-                logging.debug(f"Writing {cluster} to {compendiumf}")
+                logger.debug(f"Writing {cluster} to {compendiumf}")
 
-        logging.info(f"Wrote out {len(umls_ids_in_this_compendium)} UMLS IDs into the leftover UMLS compendium.")
+        logger.info(f"Wrote out {len(umls_ids_in_this_compendium)} UMLS IDs into the leftover UMLS compendium.")
         reportf.write(f"Wrote out {len(umls_ids_in_this_compendium)} UMLS IDs into the leftover UMLS compendium.\n")
 
-        logging.info(f"Found {len(curies_no_umls_type)} UMLS IDs without UMLS types and {len(curies_multiple_umls_type)} UMLS IDs with multiple UMLS types.")
+        logger.info(f"Found {len(curies_no_umls_type)} UMLS IDs without UMLS types and {len(curies_multiple_umls_type)} UMLS IDs with multiple UMLS types.")
         reportf.write(f"Found {len(curies_no_umls_type)} UMLS IDs without UMLS types and {len(curies_multiple_umls_type)} UMLS IDs with multiple UMLS types.\n")
 
         # Collected synonyms for all IDs in this compendium.
@@ -206,7 +207,7 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
                     # We don't record the synonym relation (https://github.com/TranslatorSRI/Babel/pull/113#issuecomment-1516450124),
                     # so we don't need to write that out now.
 
-        logging.info(f"Collected synonyms for {len(synonyms_by_id)} UMLS IDs into the leftover UMLS synonyms file.")
+        logger.info(f"Collected synonyms for {len(synonyms_by_id)} UMLS IDs into the leftover UMLS synonyms file.")
         reportf.write(f"Collected synonyms for {len(synonyms_by_id)} UMLS IDs into the leftover UMLS synonyms file.\n")
 
         # Write out synonyms to synonym file.
@@ -244,7 +245,7 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
                 umls_synonymsf.write(document)
                 count_synonym_objs += 1
 
-        logging.info(f"Wrote out {count_synonym_objs} synonym objects into the leftover UMLS synonyms file.")
+        logger.info(f"Wrote out {count_synonym_objs} synonym objects into the leftover UMLS synonyms file.")
         reportf.write(f"Wrote out {count_synonym_objs} synonym objects into the leftover UMLS synonyms file.\n")
 
-    logging.info("Complete")
+    logger.info("Complete")
