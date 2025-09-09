@@ -25,8 +25,10 @@ rule bulk_normalize_files:
     input:
         duckdb_done = config['output_directory'] + '/reports/duckdb/done',
         download_done = config['download_directory'] + '/bulk-normalizer/done',
-        input_files = config['download_directory'] + '/bulk-normalizer/bulk_normalizer/{basename}.gz',
+        input_files = config['download_directory'] + '/bulk-normalizer/bulk_normalizer/{basename}',
     output:
-        ubergraph_normalized = config['output_directory'] + '/reports/ubergraph/normalized'
+        output_files = config['output_directory'] + '/bulk-normalizer/{basename}',
+    wildcard_constraints:
+        basename=".*(?:tsv|txt).*"
     run:
         print(f"Gonna process: {input.input_files}")
