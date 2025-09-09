@@ -5,11 +5,15 @@
 # but I won't judge you if you use it for one-off bulk normalization.
 #
 from src.babel_utils import pull_via_wget, WgetRecursionOptions
+from src.util import get_logger
+
+logger = get_logger(__name__)
 
 # Step 1. Download bulk identifiers to normalize.
 rule download_bulk_normalizer_files:
     output:
-        download_done = config['download_directory'] + '/bulk-normalizer/done'
+        bulk_normalizer_dir = directory(config['download_directory'] + '/bulk-normalizer/bulk_normalizer'),
+        file_list = config['download_directory'] + '/bulk-normalizer/file-list.txt',
     run:
         pull_via_wget(
             url_prefix='https://stars.renci.org/var/babel_outputs/',
@@ -18,17 +22,31 @@ rule download_bulk_normalizer_files:
             decompress=False,
             recurse=WgetRecursionOptions.RECURSE_DIRECTORY_ONLY,
         )
-        with open(output.download_done, 'w') as f:
+        with open(output.file_list, 'w') as f:
+            # Get the list of files in bulk_normalizer_dir
+            all_files = os.listdir(output.bulk_normalizer_dir)
+            filtered_files = [fname for fname in all_files if '.tsv' in fname or '.txt' in fname]
+            f.write("\n".join(filtered_files))
+
+def get_bulk_normalizer_file_list(path):
+    with open(config['download_directory'] + '/bulk-normalizer/file-list.txt', 'r') as inf:
+        for line in inf:
+            yield os.path.join(path, line.strip())
+
+rule bulk_normalize_all_files:
+    input:
+        completed_files=get_bulk_normalizer_file_list(config['output_directory'] + '/bulk-normalizer/'),
+    output:
+        normalizer_done = config['output_directory'] + '/bulk-normalizer/done',
+    run:
+        with open(output.normalizer_done, 'w') as f:
             f.write('done')
 
-rule bulk_normalize_files:
+rule bulk_normalize_file:
     input:
         duckdb_done = config['output_directory'] + '/reports/duckdb/done',
-        download_done = config['download_directory'] + '/bulk-normalizer/done',
-        input_files = config['download_directory'] + '/bulk-normalizer/bulk_normalizer/{basename}',
+        input_file = config['download_directory'] + '/bulk-normalizer/bulk_normalizer/{basename}',
     output:
-        output_files = config['output_directory'] + '/bulk-normalizer/{basename}',
-    wildcard_constraints:
-        basename=".*(?:tsv|txt).*"
+        output_file = config['output_directory'] + '/bulk-normalizer/{basename}',
     run:
-        print(f"Gonna process: {input.input_files}")
+        logger.info(f"Gonna transform {input.input_file} into {output.output_file}")
