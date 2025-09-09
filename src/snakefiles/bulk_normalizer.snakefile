@@ -28,7 +28,7 @@ rule download_bulk_normalizer_files:
             filtered_files = [fname for fname in all_files if '.tsv' in fname or '.txt' in fname]
             f.write("\n".join(filtered_files))
 
-def get_bulk_normalizer_output_file_list():
+def get_bulk_normalizer_output_file_list(wc):
     path = config['output_directory'] + '/bulk-normalizer/'
     if not os.path.exists(path):
         os.makedirs(path)
