@@ -11,7 +11,7 @@ from src.util import get_logger
 logger = get_logger(__name__)
 
 # Step 1. Download bulk identifiers to normalize.
-checkpoint download_bulk_normalizer_files:
+rule download_bulk_normalizer_files:
     output:
         bulk_normalizer_dir = directory(config['download_directory'] + '/bulk-normalizer/bulk_normalizer'),
         file_list = config['download_directory'] + '/bulk-normalizer/file-list.txt',
