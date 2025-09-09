@@ -100,8 +100,8 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
                     outf.write(f"{tui}\t{sty}\n")
 
         # Create a compendium that consists solely of all MRCONSO entries that haven't been referenced.
-        count_no_umls_type = 0
-        count_multiple_umls_type = 0
+        curies_no_umls_type = set()
+        curies_multiple_umls_type = set()
         with open(mrconso, 'r') as inf:
             for line in inf:
                 if not umls.check_mrconso_line(line):
@@ -154,14 +154,18 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
                     biolink_types = [FOOD]
 
                 if len(biolink_types) == 0:
-                    logging.debug(f"No UMLS type found for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
-                    reportf.write(f"NO_UMLS_TYPE [{umls_id}]: {umls_type_results} -> {biolink_types}\n")
-                    count_no_umls_type += 1
+                    # We skip this CURIE, but we don't want to print multiple warnings for the same CURIE.
+                    if umls_id not in curies_no_umls_type:
+                        curies_no_umls_type.add(umls_id)
+                        logging.warning(f"No UMLS type found for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
+                        reportf.write(f"NO_UMLS_TYPE [{umls_id}]: {umls_type_results} -> {biolink_types}\n")
                     continue
                 if len(biolink_types) > 1:
-                    logging.debug(f"Multiple UMLS types not yet supported for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
-                    reportf.write(f"MULTIPLE_UMLS_TYPES [{umls_id}]\t{biolink_types_as_str}\t{umls_type_results} -> {biolink_types}\n")
-                    count_multiple_umls_type += 1
+                    # We skip this CURIE, but we don't want to print multiple warnings for the same CURIE.
+                    if umls_id not in curies_multiple_umls_type:
+                        curies_multiple_umls_type.add(umls_id)
+                        logging.debug(f"Multiple UMLS types not yet supported for {umls_id}: {umls_type_results} -> {biolink_types}, skipping")
+                        reportf.write(f"MULTIPLE_UMLS_TYPES [{umls_id}]\t{biolink_types_as_str}\t{umls_type_results} -> {biolink_types}\n")
                     continue
                 biolink_type = list(biolink_types)[0]
                 umls_type_by_id[umls_id] = biolink_type
@@ -185,8 +189,8 @@ def write_leftover_umls(compendia, umls_labels_filename, mrconso, mrsty, synonym
         logging.info(f"Wrote out {len(umls_ids_in_this_compendium)} UMLS IDs into the leftover UMLS compendium.")
         reportf.write(f"Wrote out {len(umls_ids_in_this_compendium)} UMLS IDs into the leftover UMLS compendium.\n")
 
-        logging.info(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.")
-        reportf.write(f"Found {count_no_umls_type} UMLS IDs without UMLS types and {count_multiple_umls_type} UMLS IDs with multiple UMLS types.\n")
+        logging.info(f"Found {len(curies_no_umls_type)} UMLS IDs without UMLS types and {len(curies_multiple_umls_type)} UMLS IDs with multiple UMLS types.")
+        reportf.write(f"Found {len(curies_no_umls_type)} UMLS IDs without UMLS types and {len(curies_multiple_umls_type)} UMLS IDs with multiple UMLS types.\n")
 
         # Collected synonyms for all IDs in this compendium.
         synonyms_by_id = dict()
