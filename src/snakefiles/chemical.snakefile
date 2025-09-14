@@ -197,9 +197,10 @@ rule get_chebi_concord:
         dbx=config['download_directory']+'/CHEBI/database_accession.tsv'
     output:
         outfile=config['intermediate_directory']+'/chemicals/concords/CHEBI',
+        propfile=config['intermediate_directory']+'/chemicals/properties/get_chebi_concord.jsonl.gz',
         metadata_yaml=config['intermediate_directory']+'/chemicals/concords/metadata-CHEBI.yaml'
     run:
-        chemicals.make_chebi_relations(input.sdf,input.dbx,output.outfile, output.metadata_yaml)
+        chemicals.make_chebi_relations(input.sdf,input.dbx,output.outfile,propfile_gz=output.propfile,metadata_yaml=output.metadata_yaml)
 
 rule chemical_unichem_concordia:
     input:
@@ -230,13 +231,16 @@ rule chemical_compendia:
         typesfile    = config['intermediate_directory'] + '/chemicals/partials/types',
         untyped_file = config['intermediate_directory'] + '/chemicals/partials/untyped_compendium',
         metadata_yamls = config['intermediate_directory'] + '/chemicals/partials/metadata-untyped_compendium.yaml',
+        properties_jsonl_gz = [
+            config['intermediate_directory'] + '/chemicals/properties/get_chebi_concord.jsonl.gz'
+        ],
         icrdf_filename = config['download_directory'] + '/icRDF.tsv',
     output:
         expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['chemical_outputs']),
         temp(expand("{od}/synonyms/{ap}", od = config['output_directory'], ap = config['chemical_outputs'])),
         expand("{od}/metadata/{ap}.yaml", od = config['output_directory'], ap = config['chemical_outputs']),
     run:
-        chemicals.build_compendia(input.typesfile, input.untyped_file, [input.metadata_yamls], input.icrdf_filename)
+        chemicals.build_compendia(input.typesfile, input.untyped_file, input.properties_jsonl_gz, input.metadata_yamls, input.icrdf_filename)
 
 rule check_chemical_completeness:
     input:
