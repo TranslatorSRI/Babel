@@ -4,11 +4,13 @@ import os
 
 import curies
 import yaml
+import psutil
 from collections import namedtuple
 import copy
 from logging.handlers import RotatingFileHandler
 
 from bmt import Toolkit
+from humanfriendly import format_size
 
 from src.LabeledID import LabeledID
 from src.prefixes import OMIM, OMIMPS, UMLS, SNOMEDCT, KEGGPATHWAY, KEGGREACTION, NCIT, ICD10, ICD10CM, ICD11FOUNDATION
@@ -72,7 +74,7 @@ class Munge(object):
     @staticmethod
     def gene (gene):
         return gene.split ("/")[-1:][0] if gene.startswith ("http://") else gene
-    
+
 class Text:
     """ Utilities for processing text. """
     prefixmap = { x.lower(): x for k,x in vars(prefixes).items() if not k.startswith("__")}
@@ -114,7 +116,7 @@ class Text:
     @staticmethod
     def un_curie (text):
         return ':'.join(text.split (':', 1)[1:]) if ':' in text else text
-        
+
     @staticmethod
     def short (obj, limit=80):
         text = str(obj) if obj else None
@@ -171,7 +173,7 @@ class Text:
             return Text.recurie(r)
         else:
             raise ValueError(f"Unable to opt_to_curie({text}): output calculated as {r}, which has no colon.")
-        
+
         return r
 
     @staticmethod
@@ -217,7 +219,7 @@ class Resource:
         with open (path, 'r') as stream:
             result = yaml.load (stream.read ())
         return result
-    
+
     def get_resource_obj (resource_name, format='json'):
         result = None
         path = Resource.get_resource_path (resource_name)
@@ -330,3 +332,15 @@ def get_biolink_prefix_map():
             f'https://raw.githubusercontent.com/biolink/biolink-model/v' + biolink_version +
             '/project/prefixmap/biolink_model_prefix_map.json'
         )
+
+def get_memory_usage_summary():
+    """
+    Provide a short summary of current memory usage to write into logs.
+
+    :return: A string summarizing current memory usage.
+    """
+    process = psutil.Process()
+    process.memory_percent()
+    mem_info = process.memory_info()
+
+    return f"Using {process.memory_percent():.2f}% of available memory (RSS: {format_size(mem_info.rss, binary=True)}, VMS: {format_size(mem_info.vms, binary=True)})"

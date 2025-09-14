@@ -11,8 +11,7 @@ pytest-cov
 python-Levenshtein-wheels
 pyyaml
 requests
-PuLP==2.7.0
-snakemake==7.32.4
+snakemake
 sparqlwrapper
 # Added by Gaurav, Jan 2022
 xmltodict
@@ -31,3 +30,8 @@ duckdb
 # on checking if it's online via http://httpstat.us/200, which is often offline. My branch of this
 # https://github.com/gaurav/apybiomart/tree/change-check-url and changes that to https://example.org.
 git+https://github.com/gaurav/apybiomart.git@change-check-url
+
+# Added by Gaurav, Aug 2025 to check for memory information while Babel is running.
+psutil
+humanfriendly
+py-spy

@@ -456,7 +456,7 @@ class NodeFactory:
                 print(type(i))
                 print(Text.get_curie(i))
                 print(Text.get_curie(i).upper())
-            raise ValueError('something very bad')
+            raise RuntimeError('something very bad')
         identifiers = []
         accepted_ids = set()
         #Converting identifiers from LabeledID to dicts
@@ -489,19 +489,10 @@ class NodeFactory:
                     self.ignored_prefixes.add( (k,node_type) )
         if len(identifiers) == 0:
             return None
-        best_id = identifiers[0]['identifier']
-        # identifiers is in preferred order, so choose the first non-empty label to be the node label
-        labels = list(filter(lambda x:len(x) > 0, [ l['label'] for l in identifiers if 'label' in l ]))
-        label = None
-        if len(labels) > 0:
-            label = labels[0]
-
         node = {
             'identifiers': identifiers,
             'type': node_type
         }
-        #if label is not None:
-        #    node['id']['label'] =  label
         return node
 
 def pubchemsort(pc_ids, labeled_ids):
