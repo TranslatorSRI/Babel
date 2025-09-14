@@ -644,6 +644,10 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
         combined_from_filenames=metadata_yamls,
     )
 
+    # Close all the factories.
+    taxon_factory.close()
+
+
 def glom(conc_set, newgroups, unique_prefixes=['INCHIKEY'],pref='HP',close={}):
     """We want to construct sets containing equivalent identifiers.
     conc_set is a dictionary where the values are these equivalent identifier sets and
