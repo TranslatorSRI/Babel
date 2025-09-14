@@ -8,9 +8,7 @@ import requests
 import ast
 import gzip
 
-import yaml
-
-from src.properties import Property, HAS_ADDITIONAL_ID
+from src.properties import Property, HAS_ALTERNATIVE_ID
 from src.metadata.provenance import write_concord_metadata, write_combined_metadata
 from src.ubergraph import UberGraph
 from src.prefixes import MESH, CHEBI, UNII, DRUGBANK, INCHIKEY, PUBCHEMCOMPOUND,GTOPDB, KEGGCOMPOUND, DRUGCENTRAL, CHEMBLCOMPOUND, UMLS, RXCUI
@@ -520,9 +518,9 @@ def make_chebi_relations(sdf,dbx,outfile,propfile_gz,metadata_yaml):
                 for secondary_id in secondary_ids:
                     propf.write(Property(
                         curie = cid,
-                        predicate = HAS_ADDITIONAL_ID,
+                        predicate = HAS_ALTERNATIVE_ID,
                         value = secondary_id,
-                        sources = [f'Listed as a CHEBI secondary ID in the ChEBI SDF file ({sdf})']
+                        source = f'Listed as a CHEBI secondary ID in the ChEBI SDF file ({sdf})'
                     ).to_json_line())
             if kk in props:
                 outf.write(f'{cid}\txref\t{KEGGCOMPOUND}:{props[kk]}\n')
@@ -633,7 +631,7 @@ def get_wikipedia_relationships(outfile, metadata_yaml):
         concord_filename=outfile,
     )
 
-def build_untyped_compendia(concordances, identifiers,unichem_partial, untyped_concord, type_file, metadata_yaml, input_metadata_yamls):
+def build_untyped_compendia(concordances, identifiers, unichem_partial, untyped_concord, type_file, metadata_yaml, input_metadata_yamls):
     """:concordances: a list of files from which to read relationships
        :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = read_partial_unichem(unichem_partial)
