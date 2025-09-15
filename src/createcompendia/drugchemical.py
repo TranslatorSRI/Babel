@@ -486,7 +486,10 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
                 # At the moment, we get these from glomming, so the order should not actually be significant.
                 # But maybe in the future it will be if that changes? And it doesn't cost us much to maintain
                 # insertion order.
-                conflation_ids_by_type[type_for_preferred_curie[preferred_curie]].append(preferred_curie)
+                preferred_curie_type = type_for_preferred_curie[preferred_curie]
+                if preferred_curie not in conflation_ids_by_type[preferred_curie_type]:
+                    # Don't add duplicates!
+                    conflation_ids_by_type[preferred_curie_type].append(preferred_curie)
 
             # 3. There's a particular order we'd like to arrange the conflation in.
             # I've also listed the number of entities as of 2024mar24 to give an idea of how common these are.
