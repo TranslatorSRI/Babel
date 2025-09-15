@@ -8,7 +8,6 @@ import requests
 import ast
 import gzip
 
-from src import util
 from src.properties import Property, HAS_ALTERNATIVE_ID
 from src.metadata.provenance import write_concord_metadata, write_combined_metadata
 from src.ubergraph import UberGraph
@@ -21,9 +20,9 @@ from src.babel_utils import write_compendium, glom, get_prefixes, read_identifie
 
 import src.datahandlers.mesh as mesh
 import src.datahandlers.umls as umls
-from src.util import get_memory_usage_summary, Text
+from src.util import get_memory_usage_summary, Text, get_logger
 
-logger = util.get_logger(__name__)
+logger = get_logger(__name__)
 
 def get_type_from_smiles(smiles):
     if '.' in smiles:
@@ -415,7 +414,7 @@ def make_pubchem_mesh_concord(pubcheminput,meshlabels,outfile, metadata_yaml):
     # first mapping is the 'best' i.e. the one most frequently reported.
     # We will only use the first one
     used_pubchem = set()
-    with open(pubcheminput,'r', encoding='ISO-8859-1') as inf, open(outfile,'w') as outf:
+    with open(pubcheminput, 'r') as inf, open(outfile,'w') as outf:
         for line in inf:
             x = line.strip().split('\t') # x[0] = puchemid (no prefix), x[1] = mesh label
             if x[0] in used_pubchem:
