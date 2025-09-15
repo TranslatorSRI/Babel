@@ -12,10 +12,16 @@ rxnorm_version: "07072025"
 drugbank_version: "5-1-13"
 
 #
+# PROTEINS
+#
+
+# Chris Bizon prepared a list of UMLS/UniProtKB mappings which we download and use.
+UMLS_UniProtKB_download_raw_url: "https://raw.githubusercontent.com/cbizon/UMLS_UniProtKB/refs/heads/main/outputs/UMLS_UniProtKB.tsv"
+
+#
 # The rest of these configs need to be cleaned up.
 #
 
-UMLS_UniProtKB_download_raw_url: "https://raw.githubusercontent.com/cbizon/UMLS_UniProtKB/refs/heads/main/outputs/UMLS_UniProtKB.tsv"
 
 ncbi_files:
   - gene2ensembl.gz

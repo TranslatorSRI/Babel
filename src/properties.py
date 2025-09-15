@@ -117,6 +117,14 @@ class PropertyList:
         self._properties = set[Property]()
         self._properties_by_curie = defaultdict(set[Property])
 
+    def count_unique(self):
+        """
+        Return the number of unique Properties in this PropertyList.
+
+        :return: The number of unique Properties in this PropertyList.
+        """
+        return len(self._properties)
+
     @property
     def properties(self) -> set[Property]:
         return self._properties
@@ -130,6 +138,9 @@ class PropertyList:
         :return: The set of properties for this CURIE.
         """
         props = self._properties_by_curie[curie]
+
+        if predicate is None:
+            return props
 
         if predicate not in supported_predicates:
             raise ValueError(f'Predicate {predicate} is not supported (supported predicates: {supported_predicates})')

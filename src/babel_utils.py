@@ -421,9 +421,11 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
     if properties_jsonl_gz_files:
         for properties_jsonl_gz_file in properties_jsonl_gz_files:
             logger.info(f"Loading properties from {properties_jsonl_gz_file}...")
-            property_list.add_properties_jsonl_gz(properties_jsonl_gz_file)
-            logger.info(f"Loaded {properties_jsonl_gz_file}")
-    logger.info(f"All property files loaded: {get_memory_usage_summary()}")
+            count_loaded = property_list.add_properties_jsonl_gz(properties_jsonl_gz_file)
+            logger.info(f"Loaded {count_loaded} unique properties from {properties_jsonl_gz_file}")
+        logger.info(f"All {len(properties_jsonl_gz_files)} property files loaded ({property_list.count_unique()} total unique properties): {get_memory_usage_summary()}")
+    else:
+        logger.info("No property files provided or loaded.")
 
     property_source_count = defaultdict(int)
 
@@ -455,20 +457,6 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
 
                 time_remaining_seconds = (time_elapsed_seconds / count_slist * remaining_slist)
                 logger.info(f" - Estimated time remaining: {format_timespan(time_remaining_seconds)}")
-
-            # At this point, we insert any HAS_ADDITIONAL_ID properties we have.
-            # The logic we use is: we insert all additional IDs for a CURIE *AFTER* that CURIE, in a random order, as long
-            # as the additional CURIE is not already in the list of CURIEs.
-            identifier_list = []
-            for iid in slist:
-                identifier_list.append(iid)
-                additional_curies = property_list.get_all(iid, HAS_ALTERNATIVE_ID)
-                if additional_curies:
-                    for ac in additional_curies:
-                        if ac.curie not in slist:
-                            identifier_list.append(ac.curie)
-                            for source in ac.sources:
-                                property_source_count[source] += 1
 
             node = node_factory.create_node(input_identifiers=slist, node_type=node_type,labels = labels, extra_prefixes = extra_prefixes)
             if node is None:
@@ -543,22 +531,74 @@ def write_compendium(metadata_yamls, synonym_list, ofname, node_type, labels=Non
                 else:
                     preferred_name = ''
 
-                # Generate the node.
-                descs = description_factory.get_descriptions(node)
-                taxa = taxon_factory.get_taxa(node)
-                nw['identifiers'] = []
-                for nids in node['identifiers']:
-                    id_info = {'i': nids['identifier']}
+                # At this point, we insert any HAS_ADDITIONAL_ID IDs we have.
+                # The logic we use is: we insert all additional IDs for a CURIE *AFTER* that CURIE, in a random order, as long
+                # as the additional CURIE is not already in the list of CURIEs.
+                #
+                # We will attempt to retrieve a label or description for this ID as well.
+                current_curies = set()
+                identifier_list = []
+                curie_labels = dict()
+                for nid in node['identifiers']:
+                    iid = nid['identifier']
 
-                    if 'label' in nids:
-                        id_info['l'] = nids['label']
+                    # Prevent duplicates (might happen if e.g. we have an additional CURIE that duplicates an existing one later in the list).
+                    if iid in current_curies:
+                        continue
+
+                    identifier_list.append(iid)
+                    current_curies.add(iid)
+
+                    if 'label' in nid:
+                        curie_labels[iid] = nid['label']
+
+                    # Are there any additional CURIEs for this CURIE?
+                    props = property_list.get_all(iid, HAS_ALTERNATIVE_ID)
+                    if props:
+                        # Get just the additional CURIEs.
+                        additional_curies = [prop.value for prop in props]
+
+                        # ac_labelled will be a list that consists of either LabeledID (if the CURIE could be labeled)
+                        # or str objects (consisting of an unlabeled CURIE).
+                        ac_labelled = node_factory.apply_labels(input_identifiers=additional_curies, labels=labels)
+
+                        for prop, label in zip(props, ac_labelled):
+                            additional_curie = Text.get_curie(label)
+                            if additional_curie not in current_curies:
+                                identifier_list.append(additional_curie)
+                                current_curies.add(additional_curie)
+
+                                # Track the property sources we used.
+                                property_source_count[prop.source] += 1
+
+                                if isinstance(label, LabeledID) and label.label:
+                                    curie_labels[additional_curie] = label.label
+
+                # Add description and taxon information and construct the final nw object.
+                descs = description_factory.get_descriptions(identifier_list)
+                taxa = taxon_factory.get_taxa(identifier_list)
+
+                # Construct the written-out identifier objects.
+                nw['identifiers'] = []
+                for iid in identifier_list:
+                    id_info = {'i': iid}
+
+                    if iid in curie_labels:
+                        id_info['l'] = curie_labels[iid]
+                    else:
+                        id_info['l'] = ''
 
                     if id_info['i'] in descs:
                         # Sort descriptions from the shortest to the longest.
                         id_info['d'] = list(sorted(descs[id_info['i']], key=lambda x: len(x)))
+                    else:
+                        id_info['d'] = []
 
+                    if id_info['i'] in taxa:
                         # Sort taxa by CURIE suffix.
                         id_info['t'] = list(sorted(taxa[id_info['i']], key=get_numerical_curie_suffix))
+                    else:
+                        id_info['t'] = []
 
                     nw['identifiers'].append(id_info)
 
