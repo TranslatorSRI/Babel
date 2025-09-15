@@ -1,5 +1,6 @@
 import src.createcompendia.geneprotein as geneprotein
-import src.assess_compendia as assessments
+from src.synonyms import synonymconflation
+from util import gzip_files
 
 ### Gene / Protein
 
@@ -22,9 +23,26 @@ rule geneprotein_conflation:
     run:
         geneprotein.build_conflation(input.geneprotein_concord,input.gene_compendium,input.protein_compendium,output.outfile)
 
+rule geneprotein_conflated_synonyms:
+    input:
+        geneprotein_conflations=[config['output_directory']+'/conflation/GeneProtein.txt'],
+        gene_compendia=expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['gene_outputs']),
+        protein_compendia=expand("{od}/compendia/{ap}", od = config['output_directory'], ap = config['protein_outputs']),
+        gene_synonyms_gz=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['gene_outputs']),
+        protein_synonyms_gz=expand("{od}/synonyms/{ap}.gz", od = config['output_directory'], ap = config['protein_outputs'])
+    output:
+        geneprotein_conflated_synonyms_gz=config['output_directory']+'/synonyms/GeneProteinConflated.txt.gz'
+    run:
+        synonymconflation.conflate_synonyms(
+            input.gene_synonyms_gz + input.protein_synonyms_gz,
+            input.gene_compendia + input.protein_compendia,
+            input.geneprotein_conflations,
+            output.geneprotein_conflated_synonyms_gz)
+
 rule geneprotein:
     input:
-        config['output_directory']+'/conflation/GeneProtein.txt'
+        config['output_directory']+'/conflation/GeneProtein.txt',
+        config['output_directory']+'/synonyms/GeneProteinConflated.txt.gz'
     output:
         x=config['output_directory']+'/reports/geneprotein_done'
     shell:
