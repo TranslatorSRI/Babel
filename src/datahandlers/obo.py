@@ -152,7 +152,7 @@ def write_obo_ids(irisandtypes,outfile,order,exclude=[]):
     for excluded_iri in exclude:
         excludes += uber.get_subclasses_of(excluded_iri)
     excluded_iris = set( [k['descendent'] for k in excludes ])
-    prefix = Text.get_curie(iri)
+    prefix = Text.get_prefix_or_none(iri)
     with open(outfile, 'w') as idfile:
         for kd,typeset in iris_to_types.items():
             if kd not in excluded_iris and kd.startswith(prefix):
