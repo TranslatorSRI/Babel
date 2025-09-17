@@ -491,6 +491,13 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
                     # Don't add duplicates!
                     conflation_ids_by_type[preferred_curie_type].append(preferred_curie)
 
+            # After all the normalization, it's possible that we'll end up with a conflation that only has a
+            # single identifier in it. If so, we don't need to add it to the conflation list, because it won't
+            # do anything there.
+            if len(normalized_conflation_id_list) == 1:
+                logger.debug(f"Found a DrugChemical conflation with a single identifier, skipping: {normalized_conflation_id_list}.")
+                continue
+
             # 3. There's a particular order we'd like to arrange the conflation in.
             # I've also listed the number of entities as of 2024mar24 to give an idea of how common these are.
             PREFERRED_CONFLATION_TYPE_ORDER = {
