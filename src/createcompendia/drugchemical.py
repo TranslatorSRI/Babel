@@ -297,6 +297,8 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
     We also want to get all the clique leaders as well.  For those, we only need to worry if there are RXCUIs
     in the clique."""
 
+    config = get_config()
+
     logger.info("Loading information content values...")
     ic_factory = InformationContentFactory(icrdf_filename)
 
@@ -498,23 +500,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
                 logger.debug(f"Found a DrugChemical conflation with a single identifier, skipping: {normalized_conflation_id_list}.")
                 continue
 
-            # 3. There's a particular order we'd like to arrange the conflation in.
-            # I've also listed the number of entities as of 2024mar24 to give an idea of how common these are.
-            PREFERRED_CONFLATION_TYPE_ORDER = {
-                SMALL_MOLECULE: 1,                      # 107,459,280 cliques
-                POLYPEPTIDE: 2,                         # 622 cliques
-                NUCLEIC_ACID_ENTITY: 3,                 # N/A
-                MOLECULAR_ENTITY: 4,                    # N/A
-                COMPLEX_MOLECULAR_MIXTURE: 5,           # 177 cliques
-                CHEMICAL_MIXTURE: 6,                    # 498 cliques
-                MOLECULAR_MIXTURE: 7,                   # 10,371,847 cliques
-                PROCESSED_MATERIAL: 8,                  # N/A
-                DRUG: 9,                                # 145,677 cliques
-                FOOD_ADDITIVE: 10,                      # N/A
-                FOOD: 11,                               # N/A
-                ENVIRONMENTAL_FOOD_CONTAMINANT: 12,     # N/A
-                CHEMICAL_ENTITY: 13,                    # 7,398,124 cliques
-            }
+            # 3. There's a particular order we'd like to arrange the conflation in (see config.yaml: preferred_conflation_type_order)
 
             # Within each of those classes, we want to sort by:
             #   - information_content (lowest to highest, so that more general concepts are front-loaded)
@@ -524,7 +510,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             # Biolink types will just make the output lists more confusing. Most people will only care about the
             # clique conflation leader.
             final_conflation_id_list = []
-            for biolink_type, ids in sorted(conflation_ids_by_type.items(), key=lambda x: PREFERRED_CONFLATION_TYPE_ORDER.get(x[0], 100)):
+            for biolink_type, ids in sorted(conflation_ids_by_type.items(), key=lambda x: config.preferred_conflation_type_order.get(x[0], 100)):
                 # To sort the identifiers, we'll need to calculate a tuple for each identifier to sort on.
                 sorted_ids = {}
                 for curie in ids:
