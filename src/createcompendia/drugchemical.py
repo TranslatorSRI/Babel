@@ -510,7 +510,7 @@ def build_conflation(manual_concord_filename, rxn_concord, umls_concord, pubchem
             # Biolink types will just make the output lists more confusing. Most people will only care about the
             # clique conflation leader.
             final_conflation_id_list = []
-            for biolink_type, ids in sorted(conflation_ids_by_type.items(), key=lambda x: config.preferred_conflation_type_order.get(x[0], 100)):
+            for biolink_type, ids in sorted(conflation_ids_by_type.items(), key=lambda bt: config['preferred_conflation_type_order'].get(bt[0], 100)):
                 # To sort the identifiers, we'll need to calculate a tuple for each identifier to sort on.
                 sorted_ids = {}
                 for curie in ids:
