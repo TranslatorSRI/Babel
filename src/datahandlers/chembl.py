@@ -77,7 +77,7 @@ class ChemblRDF:
 
                 # Sometimes the CHEMBL label is identical to the chemblid. We don't want those (https://github.com/TranslatorSRI/Babel/issues/430).
                 if label == chemblid:
-                    continue
+                    label = ''
 
                 outf.write(f'{CHEMBLCOMPOUND}:{chemblid}\t{label}\n')
 
