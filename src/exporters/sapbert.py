@@ -52,6 +52,40 @@ def pair_key(biolink_type, name_pair):
     return hash((biolink_type, *sorted(name_pair)))
 
 
+def sample_name_pairs(names, max_pairs):
+    """
+    Return up to max_pairs distinct pairs drawn from names, without building the full list of pairs
+    unless it is small.
+
+    A clique with n names has n*(n-1)/2 pairs, of which we keep at most max_pairs, so enumerating
+    them all is wasted work that grows quadratically with the size of the clique: today's largest
+    disease clique has 179 names, but nothing stops a conflated gene/protein clique from having
+    thousands. Above a few times max_pairs we therefore draw random pairs directly and reject
+    repeats, which needs a number of draws proportional to max_pairs rather than to n.
+
+    :param names: The distinct names to pair up, in a stable order.
+    :param max_pairs: The largest number of pairs to return.
+    :return: A list of up to max_pairs (name, name) tuples, each pair appearing at most once.
+    """
+    count_names = len(names)
+    total_pairs = count_names * (count_names - 1) // 2
+
+    # Rejection sampling only pays off when repeats are rare, and it slows to a crawl as the number
+    # of pairs we want approaches the number that exist. Below that point, enumerate them instead:
+    # the list is at most a few times max_pairs long, so it is cheap either way.
+    if total_pairs <= 4 * max_pairs:
+        name_pairs = list(itertools.combinations(names, 2))
+        if len(name_pairs) > max_pairs:
+            name_pairs = random.sample(name_pairs, max_pairs)
+        return name_pairs
+
+    index_pairs = set()
+    while len(index_pairs) < max_pairs:
+        first, second = sorted(random.sample(range(count_names), 2))
+        index_pairs.add((first, second))
+    return [(names[first], names[second]) for first, second in index_pairs]
+
+
 def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
     """
     Convert a synonyms file to the training format for SAPBERT (https://github.com/RENCI-NER/sapbert).
@@ -145,13 +179,13 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
                     continue
                 name_pairs = [(preferred_name_normalized, names[0])]
             else:
-                name_pairs = list(itertools.combinations(set(names), 2))
+                name_pairs = sample_name_pairs(sorted(set(names)), MAX_SYNONYM_PAIRS)
 
+            # Drop the pairs we have already written out. This happens after sampling rather than
+            # before it, since filtering first would mean enumerating every pair; an entry whose
+            # sampled pairs were mostly written out already contributes fewer than MAX_SYNONYM_PAIRS
+            # rows, which is what we want anyway.
             name_pairs = [name_pair for name_pair in name_pairs if pair_key(biolink_type, name_pair) not in seen_pairs]
-
-            if len(name_pairs) > MAX_SYNONYM_PAIRS:
-                # Randomly select 50 pairs.
-                name_pairs = random.sample(name_pairs, MAX_SYNONYM_PAIRS)
 
             for name_pair in name_pairs:
                 seen_pairs.add(pair_key(biolink_type, name_pair))

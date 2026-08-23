@@ -1,6 +1,7 @@
 """Tests for SAPBERT training-data export."""
 
 import gzip
+import itertools
 import json
 
 import pytest
@@ -175,3 +176,28 @@ def test_convert_synonyms_to_sapbert_deduplicates_pairs_within_biolink_type(tmp_
     assert rows[0][:3] == ["biolink:Disease", "MONDO:0000001", "Disease One"]
     assert rows[1][:3] == ["biolink:PhenotypicFeature", "HP:0000001", "Phenotype One"]
     assert {frozenset(row[3:]) for row in rows} == {frozenset({"shared one", "shared two"})}
+
+
+# SYNONYM PAIR SAMPLING
+
+
+@pytest.mark.unit
+def test_sample_name_pairs_returns_every_pair_when_under_the_cap():
+    """A clique with fewer pairs than the cap should contribute all of them."""
+    names = ["a", "b", "c", "d"]
+    assert sorted(sapbert.sample_name_pairs(names, 50)) == sorted(itertools.combinations(names, 2))
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("count_names", [12, 40, 500])
+def test_sample_name_pairs_samples_distinct_pairs_over_the_cap(count_names):
+    """Above the cap, both the enumerating and the rejection-sampling branch return distinct real pairs."""
+    names = [f"name {i}" for i in range(count_names)]
+    name_pairs = sapbert.sample_name_pairs(names, 50)
+
+    assert len(name_pairs) == 50
+    assert len({tuple(sorted(name_pair)) for name_pair in name_pairs}) == 50
+    for first, second in name_pairs:
+        assert first in names
+        assert second in names
+        assert first != second
