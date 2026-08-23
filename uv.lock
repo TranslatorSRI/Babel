@@ -2379,7 +2379,7 @@ wheels = [
 
 [[package]]
 name = "snakemake"
-version = "9.25.1"
+version = "9.25.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "conda-inject" },
@@ -2414,9 +2414,9 @@ dependencies = [
     { name = "wrapt" },
     { name = "yte" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/dc/c6/38cd19d10460d5a556f412b64c4e8975e7b56cc17240d044ce909e5c2d27/snakemake-9.25.1.tar.gz", hash = "sha256:5a0486d397370a19b636fd1f734765520fa744bc5071c309e3393b62f5d87aa5", size = 6805662, upload-time = "2026-08-04T21:38:37.304Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ac/20/ae6d3794cfc522f5d50c1b6415b5fba5b6277c56f22774f536c1dc1a02e6/snakemake-9.25.2.tar.gz", hash = "sha256:dac732795a43eeb25c2a4f3f1441c66385911703493c6059efd8bc2efac956da", size = 6808194, upload-time = "2026-08-18T11:57:37.505Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f8/c6/77661486250c5b6765ad42e82457492b219003c165f57d26d4e22967ded3/snakemake-9.25.1-py3-none-any.whl", hash = "sha256:0683a5fbf0729c1e5c03f0ccf6f45164a6fa56df3b3e71cd95ee47a9943f5e78", size = 1163544, upload-time = "2026-08-04T21:38:34.694Z" },
+    { url = "https://files.pythonhosted.org/packages/00/32/ea681b0de70882e7bd4368a7e15557487d869dbd6b1644bf91b2bf76beaa/snakemake-9.25.2-py3-none-any.whl", hash = "sha256:0a0d71f064eb8f99b660bb31c70372de23950449b9f3176c66970bea7fd18625", size = 1163611, upload-time = "2026-08-18T11:57:35.78Z" },
 ]
 
 [[package]]
