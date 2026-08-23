@@ -21,6 +21,10 @@ logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 
 # Configuration options
 # Should we generate a DrugChemicalSmaller.txt.gz file at all?
+# Note that the smaller file is filtered out of the rows written to the full file, so a pair first
+# seen on a long-labelled clique is deduplicated away before any short-labelled clique can
+# contribute it to the smaller file. Turning this back on means giving the smaller file its own
+# set of seen pairs.
 GENERATE_DRUG_CHEMICAL_SMALLER_FILE = False
 # Limit DrugChemicalSmaller.txt.gz to terms that have a preferred name of 50 characters or more.
 DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH = 40
