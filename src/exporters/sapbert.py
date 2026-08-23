@@ -133,7 +133,7 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
 
             # How many names do we have?
             if len(names) == 0:
-                # This shouldn't happen, but let's anticipate this anyway.
+                # Not useful for training, so let's skip it.
                 continue
             elif len(names) == 1:
                 # If we have less than two names, we don't have anything to randomize.
