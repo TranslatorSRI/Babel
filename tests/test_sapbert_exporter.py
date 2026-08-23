@@ -5,6 +5,7 @@ import json
 
 import pytest
 
+from src.exporters import sapbert
 from src.exporters.sapbert import convert_synonyms_to_sapbert
 
 
@@ -88,6 +89,54 @@ def test_convert_synonyms_to_sapbert_deduplicates_after_normalization(tmp_path):
     assert len(rows) == 1
     assert rows[0][:3] == ["biolink:NamedThing", "EXAMPLE:1", "Example Label"]
     assert set(rows[0][3:]) == {"alpha|beta", "gamma"}
+
+
+@pytest.mark.unit
+def test_convert_synonyms_to_sapbert_skips_singleton_pair_without_lowercasing(tmp_path, monkeypatch):
+    """With LOWERCASE_ALL_NAMES off, a lone name identical to the preferred name should still be dropped."""
+    monkeypatch.setattr(sapbert, "LOWERCASE_ALL_NAMES", False)
+    synonym_file = tmp_path / "CellLine.txt.gz"
+    sapbert_file = tmp_path / "sapbert" / "CellLine.txt.gz"
+    _write_synonyms(
+        synonym_file,
+        [
+            {
+                "curie": "CLO:0022591",
+                "preferred_name": "GM12814 cell",
+                "names": ["GM12814 cell"],
+                "types": ["CellLine"],
+            }
+        ],
+    )
+
+    convert_synonyms_to_sapbert(str(synonym_file), str(sapbert_file))
+
+    assert _read_sapbert_rows(sapbert_file) == []
+
+
+@pytest.mark.unit
+def test_convert_synonyms_to_sapbert_cleans_pipes_in_preferred_name(tmp_path):
+    """A preferred name containing '||' should be collapsed to a single pipe so the row keeps five columns."""
+    synonym_file = tmp_path / "Example.txt.gz"
+    sapbert_file = tmp_path / "sapbert" / "Example.txt.gz"
+    _write_synonyms(
+        synonym_file,
+        [
+            {
+                "curie": "EXAMPLE:2",
+                "preferred_name": "Alpha||Beta",
+                "names": ["one", "two"],
+                "types": ["NamedThing"],
+            }
+        ],
+    )
+
+    convert_synonyms_to_sapbert(str(synonym_file), str(sapbert_file))
+
+    rows = _read_sapbert_rows(sapbert_file)
+    assert len(rows) == 1
+    assert rows[0][:3] == ["biolink:NamedThing", "EXAMPLE:2", "Alpha|Beta"]
+    assert set(rows[0][3:]) == {"one", "two"}
 
 
 @pytest.mark.unit

@@ -30,6 +30,24 @@ MAX_SYNONYM_PAIRS = 50
 LOWERCASE_ALL_NAMES = True
 
 
+def pair_key(biolink_type, name_pair):
+    """
+    Return a 64-bit digest identifying a (Biolink type, name, name) triple, independent of the
+    order of the two names.
+
+    We remember digests rather than the names themselves because the set of pairs already written
+    grows with the size of the output: GeneProteinConflated has hundreds of millions of cliques, so
+    holding on to the name strings would need hundreds of gigabytes, while the digests need roughly
+    a fifth of that. At 64 bits, the chance of even a single collision across a billion pairs is
+    around 3%, and a collision costs us one redundant training row.
+
+    :param biolink_type: The Biolink type the pair was generated for (without the `biolink:` prefix).
+    :param name_pair: The two names making up this synonym pair.
+    :return: A hash of the type and the two names, in a canonical order.
+    """
+    return hash((biolink_type, *sorted(name_pair)))
+
+
 def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
     """
     Convert a synonyms file to the training format for SAPBERT (https://github.com/RENCI-NER/sapbert).
@@ -62,6 +80,8 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
     count_entry = 0
     count_training_rows = 0
     count_smaller_rows = 0
+    # Digests (see pair_key()) of the synonym pairs already written out, so that we only write each
+    # (Biolink type, name, name) triple once across the entire file.
     seen_pairs = set()
     with (
         gzip.open(synonym_filename_gz, "rt", encoding="utf-8") as synonymf,
@@ -96,6 +116,10 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
             # confuse it up with our delimiter.
             names = [re.sub(r"\|\|+", "|", name) for name in names]
 
+            # The preferred name is written out as its own column, so it needs the same pipe cleanup
+            # as the names, or a label containing '||' would split into extra columns.
+            preferred_name = re.sub(r"\|\|+", "|", preferred_name)
+
             # Figure out the Biolink type to report.
             types = entry["types"]
             if len(types) == 0:
@@ -109,8 +133,9 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
                 continue
             elif len(names) == 1:
                 # If we have less than two names, we don't have anything to randomize.
-                preferred_name_normalized = preferred_name.lower()
-                preferred_name_normalized = re.sub(r"\|\|+", "|", preferred_name_normalized)
+                # Normalize the preferred name the same way the names were normalized above, so the
+                # identity check compares like with like whatever LOWERCASE_ALL_NAMES is set to.
+                preferred_name_normalized = preferred_name.lower() if LOWERCASE_ALL_NAMES else preferred_name
                 if preferred_name_normalized == names[0]:
                     # no need to write the synonym pair if they are identical
                     continue
@@ -118,14 +143,14 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
             else:
                 name_pairs = list(itertools.combinations(set(names), 2))
 
-            name_pairs = [name_pair for name_pair in name_pairs if (biolink_type, *sorted(name_pair)) not in seen_pairs]
+            name_pairs = [name_pair for name_pair in name_pairs if pair_key(biolink_type, name_pair) not in seen_pairs]
 
             if len(name_pairs) > MAX_SYNONYM_PAIRS:
                 # Randomly select 50 pairs.
                 name_pairs = random.sample(name_pairs, MAX_SYNONYM_PAIRS)
 
             for name_pair in name_pairs:
-                seen_pairs.add((biolink_type, *sorted(name_pair)))
+                seen_pairs.add(pair_key(biolink_type, name_pair))
                 line = f"biolink:{biolink_type}||{curie}||{preferred_name}||{name_pair[0]}||{name_pair[1]}\n"
                 sapbertf.write(line)
                 count_training_rows += 1
