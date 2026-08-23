@@ -24,7 +24,7 @@ logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 # Note that the smaller file is filtered out of the rows written to the full file, so a pair first
 # seen on a long-labelled clique is deduplicated away before any short-labelled clique can
 # contribute it to the smaller file. Turning this back on means giving the smaller file its own
-# set of seen pairs.
+# set of seen pairs (https://github.com/NCATSTranslator/Babel/issues/1057).
 GENERATE_DRUG_CHEMICAL_SMALLER_FILE = False
 # Limit DrugChemicalSmaller.txt.gz to terms that have a preferred name of 50 characters or more.
 DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH = 40
