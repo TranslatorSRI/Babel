@@ -121,6 +121,7 @@ These rules have hard-coded `resources:` overrides and should not be reduced wit
 | `geneprotein_conflated_synonyms` | `geneprotein.snakefile` | 512G | 6h | Conflated synonym merge |
 | `drugchemical_conflation` | `drugchemical.snakefile` | 96G | — | Drug/chemical conflation (61.2 GB peak, was 96% of 64G) |
 | `geneprotein_conflation` | `geneprotein.snakefile` | 64G | — | Gene/protein conflation (~48G peak) |
+| `generate_sapbert_training_data` | `exports.snakefile` | 64G | 3h | Slowest wildcard instance 1.9h; estimate for the pair deduplication set, recheck against the benchmarks |
 | `get_uniprotkb_labels` | `datacollect.snakefile` | 48G | — | UniProtKB label parse (~40G peak) |
 | `hmdb_labels_and_synonyms` | `datacollect.snakefile` | 48G | — | HMDB XML parse (~30G peak) |
 | `check_protein_completeness` | `protein.snakefile` | 24G | — | Loads full Protein compendium (~21G peak) |
@@ -129,7 +130,6 @@ These rules have hard-coded `resources:` overrides and should not be reduced wit
 | `taxon_compendia` | `taxon.snakefile` | 24G | — | 15.1 GB peak, was 95% of the 16G default |
 | `chemical` | `chemical.snakefile` | — | 4h | Gzips every chemical synonyms file; 1.9h on both runs, 93% of the 2h default |
 | `generate_kgx` | `exports.snakefile` | — | 4h | Slowest wildcard instance 2.7h |
-| `generate_sapbert_training_data` | `exports.snakefile` | — | 3h | Slowest wildcard instance 1.9h |
 | `protein` | `protein.snakefile` | — | 4h | Gzips protein synonyms; `cpus_per_task=6` |
 | `drugchemical_conflated_synonyms` | `drugchemical.snakefile` | — | 4h | 2.7h on 2026jul22 |
 
