@@ -30,6 +30,12 @@ GENERATE_DRUG_CHEMICAL_SMALLER_FILE = False
 DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH = 40
 # Include up to 50 synonym pairs for each synonym.
 MAX_SYNONYM_PAIRS = 50
+# When sampling those pairs out of a large clique (see sample_name_pairs()), how many random draws
+# are we willing to make per pair we want? Draws that repeat an earlier draw or land on a pair
+# already written out don't count towards MAX_SYNONYM_PAIRS, so without a budget a clique whose
+# pairs have nearly all been written out already would keep drawing to no purpose. Eight is enough
+# that reaching the budget means the clique has very few usable pairs left, not that we were unlucky.
+SYNONYM_PAIR_DRAWS_PER_PAIR = 8
 # Should we lowercase all the names?
 LOWERCASE_ALL_NAMES = True
 
@@ -52,10 +58,10 @@ def pair_key(biolink_type, name_pair):
     return hash((biolink_type, *sorted(name_pair)))
 
 
-def sample_name_pairs(names, max_pairs):
+def sample_name_pairs(names, max_pairs, biolink_type, seen_pairs):
     """
-    Return up to max_pairs distinct pairs drawn from names, without building the full list of pairs
-    unless it is small.
+    Return up to max_pairs distinct pairs of names that have not already been written out, without
+    building the full list of pairs unless it is small.
 
     A clique with n names has n*(n-1)/2 pairs, of which we keep at most max_pairs, so enumerating
     them all is wasted work that grows quadratically with the size of the clique: today's largest
@@ -63,27 +69,46 @@ def sample_name_pairs(names, max_pairs):
     thousands. Above a few times max_pairs we therefore draw random pairs directly and reject
     repeats, which needs a number of draws proportional to max_pairs rather than to n.
 
+    Since a drawn pair may turn out to have been written out already, drawing continues past the
+    rejected pairs until max_pairs of them survive or we run out of the draw budget (see
+    SYNONYM_PAIR_DRAWS_PER_PAIR) -- otherwise a clique overlapping heavily with an earlier one would
+    contribute fewer rows than a clique of the same size that happened to come first.
+
     :param names: The distinct names to pair up, in a stable order.
     :param max_pairs: The largest number of pairs to return.
+    :param biolink_type: The Biolink type this clique is being written out as.
+    :param seen_pairs: Digests (see pair_key()) of the pairs already written out, which are skipped.
     :return: A list of up to max_pairs (name, name) tuples, each pair appearing at most once.
     """
     count_names = len(names)
     total_pairs = count_names * (count_names - 1) // 2
 
-    # Rejection sampling only pays off when repeats are rare, and it slows to a crawl as the number
-    # of pairs we want approaches the number that exist. Below that point, enumerate them instead:
-    # the list is at most a few times max_pairs long, so it is cheap either way.
+    # Rejection sampling only pays off when repeat draws are rare, and it slows to a crawl as the
+    # number of pairs we want approaches the number that exist. Below that point, enumerate them
+    # instead: the list is at most a few times max_pairs long, so it is cheap either way.
     if total_pairs <= 4 * max_pairs:
-        name_pairs = list(itertools.combinations(names, 2))
+        name_pairs = [
+            name_pair
+            for name_pair in itertools.combinations(names, 2)
+            if pair_key(biolink_type, name_pair) not in seen_pairs
+        ]
         if len(name_pairs) > max_pairs:
             name_pairs = random.sample(name_pairs, max_pairs)
         return name_pairs
 
-    index_pairs = set()
-    while len(index_pairs) < max_pairs:
-        first, second = sorted(random.sample(range(count_names), 2))
-        index_pairs.add((first, second))
-    return [(names[first], names[second]) for first, second in index_pairs]
+    drawn_indices = set()
+    name_pairs = []
+    for _ in range(SYNONYM_PAIR_DRAWS_PER_PAIR * max_pairs):
+        if len(name_pairs) >= max_pairs:
+            break
+        index_pair = tuple(sorted(random.sample(range(count_names), 2)))
+        if index_pair in drawn_indices:
+            continue
+        drawn_indices.add(index_pair)
+        name_pair = (names[index_pair[0]], names[index_pair[1]])
+        if pair_key(biolink_type, name_pair) not in seen_pairs:
+            name_pairs.append(name_pair)
+    return name_pairs
 
 
 def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
@@ -177,15 +202,12 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
                 if preferred_name_normalized == names[0]:
                     # no need to write the synonym pair if they are identical
                     continue
-                name_pairs = [(preferred_name_normalized, names[0])]
+                name_pair = (preferred_name_normalized, names[0])
+                # Skip the pair if we have already written it out for this Biolink type.
+                name_pairs = [] if pair_key(biolink_type, name_pair) in seen_pairs else [name_pair]
             else:
-                name_pairs = sample_name_pairs(sorted(set(names)), MAX_SYNONYM_PAIRS)
-
-            # Drop the pairs we have already written out. This happens after sampling rather than
-            # before it, since filtering first would mean enumerating every pair; an entry whose
-            # sampled pairs were mostly written out already contributes fewer than MAX_SYNONYM_PAIRS
-            # rows, which is what we want anyway.
-            name_pairs = [name_pair for name_pair in name_pairs if pair_key(biolink_type, name_pair) not in seen_pairs]
+                # sample_name_pairs() applies the same already-written check as it draws.
+                name_pairs = sample_name_pairs(sorted(set(names)), MAX_SYNONYM_PAIRS, biolink_type, seen_pairs)
 
             for name_pair in name_pairs:
                 seen_pairs.add(pair_key(biolink_type, name_pair))

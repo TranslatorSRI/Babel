@@ -185,7 +185,7 @@ def test_convert_synonyms_to_sapbert_deduplicates_pairs_within_biolink_type(tmp_
 def test_sample_name_pairs_returns_every_pair_when_under_the_cap():
     """A clique with fewer pairs than the cap should contribute all of them."""
     names = ["a", "b", "c", "d"]
-    assert sorted(sapbert.sample_name_pairs(names, 50)) == sorted(itertools.combinations(names, 2))
+    assert sorted(sapbert.sample_name_pairs(names, 50, "Disease", set())) == sorted(itertools.combinations(names, 2))
 
 
 @pytest.mark.unit
@@ -193,7 +193,7 @@ def test_sample_name_pairs_returns_every_pair_when_under_the_cap():
 def test_sample_name_pairs_samples_distinct_pairs_over_the_cap(count_names):
     """Above the cap, both the enumerating and the rejection-sampling branch return distinct real pairs."""
     names = [f"name {i}" for i in range(count_names)]
-    name_pairs = sapbert.sample_name_pairs(names, 50)
+    name_pairs = sapbert.sample_name_pairs(names, 50, "Disease", set())
 
     assert len(name_pairs) == 50
     assert len({tuple(sorted(name_pair)) for name_pair in name_pairs}) == 50
@@ -201,3 +201,32 @@ def test_sample_name_pairs_samples_distinct_pairs_over_the_cap(count_names):
         assert first in names
         assert second in names
         assert first != second
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("count_names", [12, 40, 500])
+def test_sample_name_pairs_keeps_drawing_past_already_written_pairs(count_names):
+    """A clique overlapping an earlier one should still fill the cap, not stop short at rejected draws."""
+    names = [f"name {i}" for i in range(count_names)]
+    # Mark four fifths of the clique's pairs as already written out.
+    all_pairs = list(itertools.combinations(names, 2))
+    seen_pairs = {sapbert.pair_key("Disease", pair) for pair in all_pairs[: len(all_pairs) * 4 // 5]}
+
+    name_pairs = sapbert.sample_name_pairs(names, 50, "Disease", seen_pairs)
+
+    # A 12-name clique has only 14 unwritten pairs left to give; the larger two can fill the cap.
+    assert len(name_pairs) == min(50, len(all_pairs) - len(seen_pairs))
+    assert not [pair for pair in name_pairs if sapbert.pair_key("Disease", pair) in seen_pairs]
+
+
+@pytest.mark.unit
+def test_sample_name_pairs_gives_up_when_almost_every_pair_is_written():
+    """When the draw budget runs out, the sampler should return what it found rather than spin."""
+    names = [f"name {i}" for i in range(500)]
+    all_pairs = list(itertools.combinations(names, 2))
+    # Leave a single pair undrawn: 8 * 50 draws out of 124,750 pairs will almost never find it.
+    seen_pairs = {sapbert.pair_key("Disease", pair) for pair in all_pairs[1:]}
+
+    name_pairs = sapbert.sample_name_pairs(names, 50, "Disease", seen_pairs)
+
+    assert len(name_pairs) < 50
