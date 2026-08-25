@@ -49,7 +49,7 @@ def pair_key(biolink_type, name_pair):
     grows with the size of the output: GeneProteinConflated has hundreds of millions of cliques, so
     holding on to the name strings would need hundreds of gigabytes, while the digests need roughly
     a fifth of that. At 64 bits, the chance of even a single collision across a billion pairs is
-    around 3%, and a collision costs us one redundant training row.
+    around 3%, and a collision costs us one correct training row.
 
     :param biolink_type: The Biolink type the pair was generated for (without the `biolink:` prefix).
     :param name_pair: The two names making up this synonym pair.
