@@ -140,6 +140,53 @@ over-merges predate this PR and ship today**; GARD's mappings are what pull them
 strongest single argument for the `MONDO_GARD` concord, and the rows an SME should read first: the
 full 29 are in the CSV with before/after sizes and example members.
 
+**They are improvements, not repairs, and two of them are visibly partial.** After the neurofibroma
+split, `MONDO:0021061` "neurofibromatosis" takes only `DOID:8712` and one UMLS concept, while
+`MESH:D017253` "Neurofibromatoses", `NCIT:C6727` "Neurofibromatosis" and `UMLS:C0162678`
+"Neurofibromatoses" all stay behind in the *neurofibroma* clique — which is still wrong, just less
+wrong than one fused clique. Peutz-Jeghers is cleaner but leaves `NCIT:C7755` "Peutz-Jeghers Polyp
+of the Small Intestine" on the syndrome side. GARD moves what its own mappings reach and nothing
+else; the bad cross-references are all still there.
+
+#### What causes the ten over-merges
+
+Traced by rebuilding `main`'s clique for each row and finding the edges that connect the members
+that move to the members that stay. **Every crossing in all ten is asserted by the `DOID` concord**
+— not one comes from MONDO, UMLS, HP, EFO or Manual. Beyond that they split into two kinds, and the
+distinction decides what can be done about them:
+
+**Five involve an overused xref target** — one identifier claimed by two or more DOID subjects,
+which is what `remove_overused_xrefs` is for:
+
+| target | claimed by | fuses |
+| --- | --- | --- |
+| `SNOMEDCT:157033002` | 2 DOID terms | situs inversus + tuberous sclerosis |
+| `MESH:D006223` "Hamartoma Syndrome, Multiple" | 2 DOID terms | Cowden disease + PTEN hamartoma tumor syndrome |
+| `MESH:D016715` "Proteus Syndrome" | 2 DOID terms | Cowden disease + Proteus syndrome |
+| `MESH:D011546` "Pseudohypoaldosteronism" | **3** DOID terms | pseudohypoaldosteronism + its type IB1 subtype |
+
+These are #1032's territory, and unfiltered only because `OVERUSE_FILTERED_CONCORDS["DOID"]` is
+scoped to ICD and GARD.
+
+**Five are a single DOID xref crossing a granularity boundary**, claimed by exactly one DOID term
+each — so counting subjects reveals nothing and **the overuse filter can never catch them**:
+
+- [`DOID:3852`](http://purl.obolibrary.org/obo/DOID_3852) "Peutz-Jeghers syndrome" xrefs
+  `NCIT:C4733` "Peutz-Jeghers **Polyp**" and `UMLS:C0456487` — a syndrome asserted equal to the
+  lesion it produces.
+- [`DOID:4624`](http://purl.obolibrary.org/obo/DOID_4624) "Ollier disease" xrefs `NCIT:C3213` and
+  `UMLS:C0024454` "**Maffucci** Syndrome" — two distinct conditions.
+- [`DOID:8712`](http://purl.obolibrary.org/obo/DOID_8712) "neurofibromatosis" xrefs MeSH, NCIT and
+  UMLS "Neurofibromato**ses**" while sitting in the neurofibro**ma** clique.
+- [`DOID:10041`](http://purl.obolibrary.org/obo/DOID_10041) "dysplastic nevus syndrome" ↔
+  `MESH:D004416`, pulling familial atypical multiple mole melanoma syndrome into cutaneous melanoma.
+- [`DOID:0050787`](http://purl.obolibrary.org/obo/DOID_0050787) "juvenile polyposis syndrome" ↔
+  `MESH:C537702` / `OMIM:174900`, pulling it into chromosome 10q23 deletion syndrome.
+
+That second kind is a wrong equivalence asserted once, which no counting rule detects; it needs
+either upstream correction or a bad-xrefs entry. Neither kind is fixed by this PR, and both would
+re-fuse their cliques if MONDO stopped mapping the diseases to different GARD terms.
+
 ##### Worked example: why tuberous sclerosis was in the situs inversus clique
 
 The first row is the one to read, because nothing about it is obvious from the CSV: tuberous
