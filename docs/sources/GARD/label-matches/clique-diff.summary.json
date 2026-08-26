@@ -1,12 +1,12 @@
 {
   "about": {
-    "after": "feat/gard-disease with GARD_LABEL",
-    "before": "feat/gard-disease without GARD_LABEL",
+    "after": "feat/gard-disease with GARD_label",
+    "before": "feat/gard-disease without GARD_label",
     "files": [
       "Disease.txt",
       "PhenotypicFeature.txt"
     ],
-    "note": "Isolates the GARD_LABEL concord"
+    "note": "Isolates the GARD_label concord"
   },
   "compendia": {
     "Disease.txt": {

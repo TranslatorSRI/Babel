@@ -1,4 +1,4 @@
-# GARD label matches: the GARD_LABEL concord
+# GARD label matches: the GARD_label concord
 
 GARD asserts no cross-references of its own, so its terms reach Babel cliques only through MONDO's
 and DOID's inbound xrefs. 277 of the 16,214 ingested registry terms are mapped by neither, and
@@ -11,12 +11,12 @@ with the identical label:
 | [`GARD:27460`](https://rarediseases.info.nih.gov/?gard_id=27460) "Oral Cavity Langerhans Cell Histiocytosis" | `UMLS:C5420233` + [`NCIT:C173487`](http://purl.obolibrary.org/obo/NCIT_C173487) "Oral Cavity Langerhans Cell Histiocytosis" |
 
 `build_gard_label_concord()` in `src/createcompendia/diseasephenotype.py` links them, writing the
-`GARD_LABEL` concord. This page is the evidence: what it emits, how often the same rule is wrong,
+`GARD_label` concord. This page is the evidence: what it emits, how often the same rule is wrong,
 and what was checked before resorting to a label match at all. Regenerate it — and
 [`label-matches.csv`](label-matches.csv), the full per-row record — with:
 
 ```bash
-uv run python docs/sources/GARD/scripts/gard_label_match_report.py
+uv run python docs/sources/GARD/label-matches/scripts/gard_label_match_report.py
 ```
 
 ## No authoritative mapping exists
@@ -180,7 +180,9 @@ disjoint on purpose. Guard 3 covers the indirect case; the pool exclusion covers
 
 ## Effect on the build
 
-`babel-clique-diff` between builds that differ only in this concord:
+`babel-clique-diff` between builds that differ only in this concord
+([`clique-diff.summary.json`](clique-diff.summary.json); the narrative is in
+[`../clique-diff.md`](../clique-diff.md)):
 
 | | Changed cliques | Dropped members | Moved | Leader changes |
 | --- | --- | --- | --- | --- |

@@ -14,7 +14,7 @@ committed.
 
 Two diffs are recorded here, in the order the work happened. The first is the GARD **ingest**:
 `main` against this branch with its ids file, labels and the `MONDO_GARD` concord, and no
-`GARD_LABEL`. The second isolates `GARD_LABEL` on top of it.
+`GARD_label`. The second isolates `GARD_label` on top of it.
 
 ## Diff 1: adding the GARD ingest
 
@@ -142,13 +142,14 @@ against itself with the entry disabled does show it, as one `regrouped` row:
 What surfaced it was reading the two cliques out of the finished compendia directly, which is the
 rule [`AGENTS.md`](../../../AGENTS.md) states for clique-membership questions.
 
-## Diff 2: adding the GARD_LABEL concord
+## Diff 2: adding the GARD_label concord
 
 The ingest above leaves 277 registry terms that neither MONDO nor DOID maps as single-identifier
-cliques. The `GARD_LABEL` concord links 265 of them to an identically labelled identifier already in
-the pipeline; [`label-matches.md`](label-matches.md) is the evidence for the match rule, and
-[`label-matches.csv`](label-matches.csv) is the per-row record, so only the summary is committed
-here: [`label-match/clique-diff.summary.json`](./label-match/clique-diff.summary.json).
+cliques. The `GARD_label` concord links 265 of them to an identically labelled identifier already in
+the pipeline; [`label-matches/README.md`](label-matches/README.md) is the evidence for the match
+rule, and [`label-matches/label-matches.csv`](label-matches/label-matches.csv) is the per-row
+record, so only the summary is committed here:
+[`label-matches/clique-diff.summary.json`](./label-matches/clique-diff.summary.json).
 
 | compendium | before | after | diff |
 | --- | ---: | ---: | ---: |
@@ -187,8 +188,8 @@ Both sides were built from the **same cached intermediates**
 
 | | before | after |
 | --- | --- | --- |
-| `on-addition/` (diff 1) | `main` at `a3ae3e4d` — no GARD ingest, no `MONDO_GARD` concord, DOID concord built without GARD unpadding | this branch, before `GARD_LABEL` |
-| `label-match/` (diff 2) | this branch with `GARD_LABEL` removed from `disease_concords` | this branch |
+| `on-addition/` (diff 1) | `main` at `a3ae3e4d` — no GARD ingest, no `MONDO_GARD` concord, DOID concord built without GARD unpadding | this branch, before `GARD_label` |
+| `label-matches/` (diff 2) | this branch with `GARD_label` removed from `disease_concords` | this branch |
 | the isolating diff (not committed) | this branch, with the `DOID:0061030 GARD:418` concord row kept | this branch, row dropped |
 
 Reproduce with:

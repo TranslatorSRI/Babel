@@ -1,9 +1,10 @@
 # Source impact report: GARD
 
-- Generated: 2026-08-26 02:11:39 UTC
-- Babel commit: 80948dcc0896969c3a19da04fa5de29cf7629869
+- Generated: 2026-08-26 02:25:50 UTC
+- Babel commit: 05ce1c49d2f04f68f54598c31ee4e14c7c023def
 - Source pipelines: disease
 - Source prefixes: GARD
+- Source concords: GARD_label
 - Comparison mode: synthetic
 
 ## 1. Identifiers added
@@ -35,31 +36,34 @@ Totals: 16,214 identifiers across 1 prefix(es) in 1 pipeline(s).
 
 ## 3. Cross-references added
 
-Totals: 0 cross-reference rows across 0 concord file(s).
+Totals: 265 cross-reference rows across 1 concord file(s).
 
 ### By pipeline
 
-- disease / GARD: 0
+- disease / GARD: 265
 
 ### Partner prefix breakdown (per pipeline)
 
 - disease
-  - (no concord rows)
+  - NCIT: 210
+  - MONDO: 42
+  - orphanet: 7
+  - MESH: 6
 
 ### Join pathways (every asserted cross-reference, not only this source's own)
 
-`status` is `added` when GARD's own concord file asserts the pathway and `from_other_source` when
-another source's does — the latter may predate this addition. The prefix pair is sorted, so
+`status` is `added` when one of GARD's own concord files asserts the pathway and `from_other_source`
+when another source's does — the latter may predate this addition. The prefix pair is sorted, so
 `asserted_by` is what tells you which side declared it.
 
 | pipeline | predicate | prefix pair | asserted by | status | xrefs |
 |---|---|---|---|---|---|
 | disease | `xref` | GARD ↔ MONDO | `MONDO_GARD` | from_other_source | 15,936 |
 | disease | `xref` | DOID ↔ GARD | `DOID` | from_other_source | 1,902 |
-| disease | `xref` | GARD ↔ NCIT | `GARD_LABEL` | from_other_source | 210 |
-| disease | `xref` | GARD ↔ MONDO | `GARD_LABEL` | from_other_source | 42 |
-| disease | `xref` | GARD ↔ orphanet | `GARD_LABEL` | from_other_source | 7 |
-| disease | `xref` | GARD ↔ MESH | `GARD_LABEL` | from_other_source | 6 |
+| disease | `xref` | GARD ↔ NCIT | `GARD_label` | added | 210 |
+| disease | `xref` | GARD ↔ MONDO | `GARD_label` | added | 42 |
+| disease | `xref` | GARD ↔ orphanet | `GARD_label` | added | 7 |
+| disease | `xref` | GARD ↔ MESH | `GARD_label` | added | 6 |
 
 ## 4. Clique impact
 

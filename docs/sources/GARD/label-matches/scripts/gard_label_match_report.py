@@ -1,4 +1,4 @@
-"""Measure the GARD_LABEL concord: what it links, and how often the same rule would be wrong.
+"""Measure the GARD_label concord: what it links, and how often the same rule would be wrong.
 
 The concord itself only ever runs on the GARD ids no other concord places, so its own rows cannot be
 checked against anything. This script gets a precision number by running the *same rule* over the
@@ -12,10 +12,10 @@ conclusion"). The precision pass reuses the same helpers the concord does.
 
 Run from the repo root against a finished disease build:
 
-    uv run python docs/sources/GARD/scripts/gard_label_match_report.py
+    uv run python docs/sources/GARD/label-matches/scripts/gard_label_match_report.py
 
-It writes docs/sources/GARD/label-matches.csv (one row per emitted link) and prints the summary that
-docs/sources/GARD/label-matches.md records.
+It writes docs/sources/GARD/label-matches/label-matches.csv (one row per emitted link) and prints the summary that
+docs/sources/GARD/label-matches/README.md records.
 
 Last result (2026-08-25, GARD Jun2026, MONDO/DOID/NCIt/UMLS 2026AA): 265 rows emitted; the same rule
 over the 15,937 held-out GARD ids picks a target for 15,370 and disagrees with the curated clique 33
@@ -36,7 +36,7 @@ from src.createcompendia.diseasephenotype import (
 from src.util import get_config, get_repo_root
 
 REPO = get_repo_root()
-OUT_CSV = REPO / "docs/sources/GARD/label-matches.csv"
+OUT_CSV = REPO / "docs/sources/GARD/label-matches/label-matches.csv"
 NCIT_BLOCK = range(27000, 29000)  # the contiguous GARD id block most of the unmapped terms fall in
 
 
@@ -50,7 +50,7 @@ def _clique_index(compendia):
     """CURIE -> (leader, preferred label, biolink type, non-GARD member count, compendium).
 
     The member count excludes GARD identifiers so it reads the same whether this runs against a
-    build that already has the GARD_LABEL concord or one that does not -- it is the size of the
+    build that already has the GARD_label concord or one that does not -- it is the size of the
     clique a GARD term joins, not the size after it joined.
     """
     index = {}
@@ -77,7 +77,7 @@ def main(build_dir=None):
     # the current code even if the build predates a change to it.
     scratch = REPO / "data/scratch"
     scratch.mkdir(parents=True, exist_ok=True)
-    other_concords = [str(concords / c) for c in config["disease_concords"] if c != "GARD_LABEL"]
+    other_concords = [str(concords / c) for c in config["disease_concords"] if c != "GARD_label"]
     build_gard_label_concord(
         str(downloads / "GARD/labels"),
         [str(intermediate / f"disease/ids/{p}") for p in pool],
@@ -86,10 +86,10 @@ def main(build_dir=None):
         other_concords,
         str(concords / "MONDO_close"),
         DEFAULT_BAD_XREFS,
-        str(scratch / "GARD_LABEL.report"),
-        str(scratch / "GARD_LABEL.report.yaml"),
+        str(scratch / "GARD_label.report"),
+        str(scratch / "GARD_label.report.yaml"),
     )
-    rows = [line.rstrip("\n").split("\t") for line in open(scratch / "GARD_LABEL.report")]
+    rows = [line.rstrip("\n").split("\t") for line in open(scratch / "GARD_label.report")]
 
     gard_labels = _labels(downloads / "GARD/labels")
     cliques = _clique_index([build / "compendia/Disease.txt", build / "compendia/PhenotypicFeature.txt"])

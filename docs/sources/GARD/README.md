@@ -12,12 +12,12 @@ vocabularies (no MONDO/DOID/UMLS/Orphanet mappings). It therefore contributes **
 labels/synonyms only** -- it asserts nothing Babel can build a concord from. Every GARD term is
 typed `biolink:Disease`, so each lands in `Disease.txt`.
 
-Babel does build one concord *about* GARD from GARD's own data: `GARD_LABEL` links the ~277 registry
+Babel does build one concord *about* GARD from GARD's own data: `GARD_label` links the ~277 registry
 terms that neither MONDO nor DOID maps to an identically labelled identifier already in the
 pipeline, so they join the clique they duplicate instead of shipping as single-identifier cliques.
 It is the only concord in this pipeline derived from labels rather than an asserted mapping; the
 measurement that justifies it, and the three guards that make it safe, are in
-[`label-matches.md`](label-matches.md).
+[`label-matches/README.md`](label-matches/README.md).
 
 Cliques still merge, in the other direction: **MONDO and DOID both cross-reference GARD.** MONDO
 maps 15,930 registry terms and DOID a further 2,195, so between them almost the whole registry is
@@ -29,7 +29,7 @@ forming its own. MONDO's mappings needed a new concord to reach Babel at all: it
 Measured on the finished build: the two disease compendia hold 16,508 distinct GARD identifiers
 across 16,363 cliques — **16,351 of them shared with another vocabulary, and only 12 GARD-only.**
 Ingesting GARD adds 258 net cliques to `Disease.txt` (365,087 → 365,345, +0.07%) before the
-`GARD_LABEL` concord, which then merges 265 of them away (365,345 → 365,080).
+`GARD_label` concord, which then merges 265 of them away (365,345 → 365,080).
 
 DOID also asserts 300 GARD ids the current registry no longer publishes (MONDO asserts none). Those
 join their DOID clique without a label, exactly like any other xref target Babel does not ingest —
@@ -164,9 +164,9 @@ to go in.
 | `extra_prefixes=[GARD]` | `disease_extra_prefixes` in `config.yaml`, read by `build_compendium` in `src/createcompendia/diseasephenotype.py` |
 | MONDO's GARD xrefs | `MONDO_GARD` concord, written by `build_disease_obo_relationships()`; see [`docs/sources/MONDO/README.md`](../MONDO/README.md) |
 | Doubly-claimed DOID xrefs | `OVERUSE_FILTERED_CONCORDS["DOID"]` (ICD + GARD) and `["MONDO_GARD"]` in `src/createcompendia/diseasephenotype.py` |
-| Label-match concord | `build_gard_label_concord()` in `src/createcompendia/diseasephenotype.py`, rule `disease_gard_label_concord`; evidence in [`label-matches.md`](label-matches.md) |
+| Label-match concord | `build_gard_label_concord()` in `src/createcompendia/diseasephenotype.py`, rule `disease_gard_label_concord`; evidence in [`label-matches/README.md`](label-matches/README.md) |
 | Label-match pool | `disease_gard_label_match_prefixes` in `config.yaml` (priority order; HP and MP deliberately excluded) |
-| Config lists | `disease_ids`, `disease_labelsandsynonyms`, `disease_concords` (`MONDO_GARD`, `GARD_LABEL`), `disease_extra_prefixes`, `disease_gard_label_match_prefixes`, `gard_download_url` in `config.yaml` |
+| Config lists | `disease_ids`, `disease_labelsandsynonyms`, `disease_concords` (`MONDO_GARD`, `GARD_label`), `disease_extra_prefixes`, `disease_gard_label_match_prefixes`, `gard_download_url` in `config.yaml` |
 
 The `disease_gard_ids` rule is a simple `awk` transform of the labels file (every GARD term is a
 Disease), mirroring the DOID/Orphanet ids rules.
@@ -183,19 +183,19 @@ Summary:
 - **16,214 identifiers** added (all `GARD:`, all `biolink:Disease`).
 - **12 new cliques** -- one single-identifier clique per registry term that neither MONDO, DOID nor
   a label match places (a 0.00% increase over the 440,647 pre-existing disease cliques). Before the
-  `GARD_LABEL` concord this figure was 277.
+  `GARD_label` concord this figure was 277.
 - **15,872 existing cliques contain GARD identifiers.** The report excludes `MONDO_GARD` and
-  `GARD_LABEL` along with GARD's ids file (`is_excluded()` splits a compound concord name on `_`, so
+  `GARD_label` along with GARD's ids file (`is_excluded()` splits a compound concord name on `_`, so
   both are recognized as GARD data; a "before" state that kept either would already hold GARD
   CURIEs), which is why it sees 14,304 cliques gaining a structurally new GARD identifier and 22
   merges.
-- **Section 3 reports 0 cross-reference rows, and that is a reporting artifact, not the truth.**
-  `discover_source()` looks for a concord file named exactly `GARD`, so it does not find
-  `GARD_LABEL`, and the join-pathway table below it labels `GARD_LABEL`'s 265 rows
-  `from_other_source`. The inbound pathways it lists are right -- `MONDO_GARD` (15,936 rows) and
-  `DOID` (1,902) -- and the GARD_LABEL rows are the 210 NCIT, 42 MONDO, 7 orphanet and 6 MESH
-  entries in the same table. Tracked as
-  [#1059](https://github.com/NCATSTranslator/Babel/issues/1059).
+- **265 cross-reference rows** contributed, all from `GARD_label`: 210 NCIT, 42 MONDO, 7 orphanet,
+  6 MESH. `discover_source()` finds a concord named after its source, so `GARD_label` has to be
+  named on the command line (below) -- without `--concord` the report counts zero and the
+  join-pathway table calls those rows `from_other_source`. The report header records which concords
+  it counted, so a regeneration that forgets the flag is visible rather than silent.
+- Section 3's join-pathway table also shows both **inbound** pathways, which belong to the sources
+  that assert them: `MONDO_GARD` (15,936 rows) and `DOID` (1,902), both `from_other_source`.
 - **Section 4 is a worst-case (upper-bound) view:** it is computed before the Biolink per-class
   prefix filter runs, so the sample cliques are flagged "NOT emitted -- prefix not registered in
   Biolink Model for `biolink:Disease`". That flag is *exactly* why the build passes
@@ -204,10 +204,11 @@ Summary:
 - Section 2's "Final compendium-assigned" line confirms all 16,214 GARD identifiers reach
   `Disease.txt` in the finished build, which is the check `extra_prefixes` exists to pass.
 
-Regenerate after a typing or extraction change:
+Regenerate after a typing or extraction change. `--concord` must name both files, or
+`GARD_label`'s rows are attributed to another source:
 
 ```bash
-uv run source-impact-report --source GARD
+uv run source-impact-report --source GARD --concord GARD --concord GARD_label
 ```
 
 ## Build-vs-build clique diff
