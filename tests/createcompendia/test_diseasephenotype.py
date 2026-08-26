@@ -982,6 +982,36 @@ def test_disease_phenotype_boundary_badxrefs_are_shipped_and_parse():
 
 
 @pytest.mark.unit
+def test_hp_neurofibroma_badxrefs_are_all_three_present():
+    """All three HP:0001067 bad-xref pairs must stay, or the fix silently does nothing.
+
+    HP:0001067 "Neurofibroma" is the benign nerve-sheath tumour; its xref to NCIT:C3272 is right,
+    and its other three point into the *neurofibromatosis* UMLS concept (UMLS:C0162678 and two
+    SNOMED atoms of it). Together they fused MONDO:0016755 "neurofibroma" with every major
+    neurofibromatosis identifier while MONDO:0021061 "neurofibromatosis" led a separate clique --
+    the disease represented twice (#1065).
+
+    Because HP:0001067 has *three* crossing xrefs, removing any one leaves the other two and the
+    clique does not split at all. A partial list therefore looks exactly like a working fix and
+    costs nothing visible, which is why this asserts the set rather than trusting the file comment.
+    Drop all three together if HPO corrects them upstream.
+    """
+    hp_pairs = diseasephenotype.read_badxrefs("input_data/badHPx.txt")
+    required = {
+        ("HP:0001067", "UMLS:C0162678"),
+        ("HP:0001067", "SNOMEDCT:19133005"),
+        ("HP:0001067", "SNOMEDCT:81669005"),
+    }
+
+    assert required <= hp_pairs, (
+        f"missing HP:0001067 bad-xref pair(s) {sorted(required - hp_pairs)}; with any one absent, "
+        "neurofibroma and neurofibromatosis re-fuse into one clique"
+    )
+    # The correct xref must NOT be suppressed: HP:0001067 really is NCIT:C3272 "Neurofibroma".
+    assert ("HP:0001067", "NCIT:C3272") not in hp_pairs
+
+
+@pytest.mark.unit
 def test_mondo_gard_concord_is_registered_in_disease_concords():
     """The MONDO_GARD concord must be listed in config.yaml: disease_concords.
 
