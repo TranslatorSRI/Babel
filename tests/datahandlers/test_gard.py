@@ -15,12 +15,15 @@ import warnings
 from pathlib import Path
 
 import pytest
+import yaml
 
 from src.categories import DISEASE
 from src.datahandlers.gard import (
+    content_version_id,
     fetch_gard_about_page,
     find_gard_download_links,
     normalize_gard_curie,
+    published_filename,
     pull_gard,
     pull_gard_labels_and_synonyms,
 )
@@ -129,13 +132,17 @@ def test_normalize_gard_curie(curie, expected):
 class _FakeResponse:
     """Stand-in for urllib's response: a content type and a body, usable as a context manager."""
 
-    def __init__(self, content_type, body):
+    def __init__(self, content_type, body, headers=None):
         self._content_type = content_type
         self._body = body
+        self._headers = headers or {}
         self.headers = self
 
     def get_content_type(self):
         return self._content_type
+
+    def get(self, header, default=None):
+        return self._headers.get(header, default)
 
     def read(self):
         return self._body
@@ -336,3 +343,104 @@ def test_gard_download_url_is_current():
         "gard_download_url is no longer linked from the GARD About page; repoint config.yaml to the "
         f"current link: {others}"
     )
+
+
+# --- download provenance -------------------------------------------------------
+#
+# GARD publishes no release number, so babel_downloads/GARD/metadata.yaml has to reconstruct
+# "which upload is this?" from the HTTP exchange. Both signals are visible only during the
+# download, so if pull_gard does not capture them nothing downstream can.
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "url,expected",
+    [
+        # The configured link's shape, abbreviated: the ContentVersion id is the `ids` parameter.
+        (
+            "https://ncats.file.force.com/sfc/dist/version/download/?oid=00Dt0&ids=068SJ00001HZAaEYAX&asPdf=false",
+            "068SJ00001HZAaEYAX",
+        ),
+        ("https://example.invalid/download?ids=068ABC", "068ABC"),
+        ("https://example.invalid/download?oid=00Dt0", ""),  # no ids= at all
+        ("https://example.invalid/download", ""),  # no query string
+    ],
+)
+def test_content_version_id_extracts_the_upload_identifier(url, expected):
+    """The ContentVersion id names one uploaded file, which is the closest thing GARD has to a
+    version: two builds sharing it read the same bytes. Missing is "" rather than an error, since
+    this is provenance and must never fail a download."""
+    assert content_version_id(url) == expected
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "header,expected",
+    [
+        # Verbatim from the live response on 2026-08-26 -- percent-encoded, and the only place the
+        # dated label ("Jun2026") appears anywhere in the exchange.
+        (
+            'attachment; filename="GARD%20Disease%20List%20Website%20Jun2026.csv"',
+            "GARD Disease List Website Jun2026.csv",
+        ),
+        ("attachment; filename=plain.csv", "plain.csv"),
+        ("attachment", ""),  # header present, no filename
+        (None, ""),  # header absent
+    ],
+)
+def test_published_filename_decodes_the_content_disposition(header, expected):
+    """Salesforce percent-encodes the filename, and the decoded form carries the dated label the
+    About page advertises. There is no Last-Modified and no ETag on this response, so losing this
+    header means losing every clue about which upload a build read."""
+    assert published_filename(header) == expected
+
+
+@pytest.mark.unit
+def test_pull_gard_writes_download_provenance(tmp_path, monkeypatch):
+    """pull_gard records which upload it fetched, because nothing downstream can.
+
+    The parse sees only the CSV bytes: no version, no filename, no content type. Whether two builds
+    read the same GARD list is answerable afterwards only if this file was written at download time.
+    """
+    body = b"ID,DisplayName,Synonyms,URL\nGARD:0006038,Chikungunya fever,,\n"
+    response = _FakeResponse(
+        "text/csv",
+        body,
+        headers={"Content-Disposition": 'attachment; filename="GARD%20Disease%20List%20Website%20Jun2026.csv"'},
+    )
+    _patch_opener(monkeypatch, response)
+    url = "https://ncats.file.force.com/sfc/dist/version/download/?oid=00Dt0&ids=068SJ00001HZAaEYAX"
+    metadata_yaml = tmp_path / "metadata.yaml"
+
+    pull_gard(url, str(tmp_path / "gard.csv"), str(metadata_yaml))
+
+    metadata = yaml.safe_load(metadata_yaml.read_text())
+    assert metadata["type"] == "download"
+    assert metadata["url"] == url
+    source = metadata["sources"][0]
+    assert source["version"] == "GARD Disease List Website Jun2026.csv"
+    assert source["content_version_id"] == "068SJ00001HZAaEYAX"
+    assert metadata["counts"] == {"bytes": len(body), "lines": 2}
+    # The whole published list is ingested; if that ever changes, this description must too.
+    assert "No term is filtered out" in metadata["description"]
+
+
+@pytest.mark.unit
+def test_pull_gard_still_downloads_without_a_metadata_path(tmp_path, monkeypatch):
+    """metadata_yaml is optional, so a caller that only wants the CSV is not forced to name one."""
+    _patch_opener(monkeypatch, _FakeResponse("text/csv", b"ID,DisplayName,Synonyms,URL\n"))
+    out = tmp_path / "gard.csv"
+    assert pull_gard("https://example.invalid/gard", str(out)) == str(out)
+    assert not (tmp_path / "metadata.yaml").exists()
+
+
+@pytest.mark.unit
+def test_write_download_metadata_forwards_counts(tmp_path):
+    """write_download_metadata used to accept counts and then hardcode None on the way through, so
+    a caller's counts were silently dropped. GARD passes counts, so pin the forwarding."""
+    from src.metadata.provenance import write_download_metadata
+
+    out = tmp_path / "metadata.yaml"
+    write_download_metadata(out, name="test", counts={"bytes": 7})
+
+    assert yaml.safe_load(out.read_text())["counts"] == {"bytes": 7}

@@ -631,6 +631,10 @@ rule get_gard:
     # than via pull_via_urllib (whose url + in_file_name assembly does not fit a query string).
     output:
         outfile=config["download_directory"] + "/GARD/gard.csv",
+        # Provenance for the download: which upload, from where, when, and what Babel keeps of it.
+        # Written here because this rule is the only place that sees the HTTP response, and the
+        # response carries the two strings that stand in for GARD's missing version number.
+        metadata_yaml=config["download_directory"] + "/GARD/metadata.yaml",
     benchmark:
         config["output_directory"] + "/benchmarks/get_gard.tsv"
     retries: 3  # Salesforce CDN occasionally fails transiently.
@@ -639,7 +643,7 @@ rule get_gard:
         # gard_download_url actually retriggers the download instead of reusing a stale CSV.
         url=config["gard_download_url"],
     run:
-        gard.pull_gard(params.url, output.outfile)
+        gard.pull_gard(params.url, output.outfile, output.metadata_yaml)
 
 
 rule get_gard_labels_and_synonyms:

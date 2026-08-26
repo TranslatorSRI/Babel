@@ -52,10 +52,13 @@ empty ``DisplayName``) rather than left resting on a finding that nothing re-che
 """
 
 import csv
+import re
+import urllib.parse
 import urllib.request
 from html.parser import HTMLParser
 
 from src.babel_utils import get_user_agent
+from src.metadata.provenance import write_download_metadata
 from src.prefixes import GARD, OIO
 from src.util import get_logger
 
@@ -125,6 +128,32 @@ def _reject_tsv_control_chars(curie, field, value):
         raise ValueError(f"GARD term {curie} has a tab or newline in its {field} ({value!r}); it would corrupt the TSV")
 
 
+def content_version_id(url):
+    """The Salesforce ContentVersion id (``ids=068...``) from a GARD distribution URL, or "".
+
+    This is the closest thing GARD publishes to a version number. It names *one uploaded file*
+    rather than a release of the registry, so it changes whenever NCATS re-uploads the list --
+    which is exactly what makes it worth recording: two builds with the same id read the same
+    bytes, and two with different ids did not.
+    """
+    return urllib.parse.parse_qs(urllib.parse.urlparse(url).query).get("ids", [""])[0]
+
+
+def published_filename(content_disposition):
+    """The filename Salesforce declares for the download, from a ``Content-Disposition`` header.
+
+    The header is the only place the distribution names itself: it answers
+    ``attachment; filename="GARD%20Disease%20List%20Website%20Jun2026.csv"``, percent-encoded. That
+    "Jun2026" is the dated label the About page advertises, and nothing else in the response carries
+    it -- there is no ``Last-Modified`` and no ``ETag``. Returns "" if the header is absent or
+    malformed, since it is provenance rather than something the build depends on.
+    """
+    if not content_disposition:
+        return ""
+    match = re.search(r'filename="?([^";]+)"?', content_disposition)
+    return urllib.parse.unquote(match.group(1)) if match else ""
+
+
 def normalize_gard_curie(curie):
     """Strip the zero-padding from a ``GARD:`` local id, leaving non-GARD CURIEs untouched.
 
@@ -142,7 +171,7 @@ def normalize_gard_curie(curie):
     return f"{GARD}:{int(local_id)}"
 
 
-def pull_gard(url, outfile):
+def pull_gard(url, outfile, metadata_yaml=None):
     """Download the GARD term CSV from ``url`` to ``outfile`` and return the path.
 
     The distribution is a Salesforce ContentVersion download link -- a single URL with a query
@@ -154,6 +183,12 @@ def pull_gard(url, outfile):
     `text/csv`, but a valid CSV served as `text/plain` or `application/vnd.ms-excel` is still a
     CSV. The URL lives in ``config.yaml`` (``gard_download_url``) and is passed in as a
     Snakemake ``params`` value so that repointing it retriggers the download.
+
+    When ``metadata_yaml`` is given, writes the source's provenance there -- when, from where, and
+    which upload. This is the only point in the build that sees the HTTP response, and the response
+    is the only place the distribution names itself (``Content-Disposition``) or identifies its
+    version (the ContentVersion id in the URL); neither survives to the parse. GARD publishes no
+    release number, so those two strings *are* the version.
     """
     opener = urllib.request.build_opener(urllib.request.HTTPRedirectHandler())
     request = urllib.request.Request(url, headers={"User-Agent": get_user_agent()})
@@ -166,10 +201,55 @@ def pull_gard(url, outfile):
                 f"The Salesforce ContentVersion link has probably expired or been repointed; "
                 f"update gard_download_url in config.yaml."
             )
+        filename = published_filename(response.headers.get("Content-Disposition"))
         body = response.read()
     with open(outfile, "wb") as out:
         out.write(body)
+    if metadata_yaml:
+        write_gard_download_metadata(metadata_yaml, url=url, content_type=content_type, filename=filename, body=body)
     return outfile
+
+
+def write_gard_download_metadata(metadata_yaml, *, url, content_type, filename, body):
+    """Record what this download was and what Babel does with it.
+
+    Two things are worth having here that are lost by the time anything else runs. The
+    ``Content-Disposition`` filename and the ContentVersion id are GARD's only version signals, and
+    they live in the HTTP exchange. And the *whole* list is ingested -- 16,214 terms, of which only
+    ~6,265 have a public page on rarediseases.info.nih.gov -- which is a deliberate choice rather
+    than an oversight (docs/sources/GARD/README.md, "The published list is larger than the
+    website"), and one NCATS has not confirmed is the right reading
+    (https://github.com/NCATSTranslator/Babel/issues/1062).
+    """
+    write_download_metadata(
+        metadata_yaml,
+        name="GARD Rare Disease List",
+        url=url,
+        description=(
+            "NCATS Genetic and Rare Diseases registry term list: a CSV of GARD:<id>, preferred "
+            "label and pipe-separated synonyms, fetched directly from the Salesforce "
+            "file-distribution link in config.yaml: gard_download_url (see pull_gard). No term is "
+            "filtered out -- the whole published list is ingested, including the ~9,949 terms with "
+            "no public GARD page. Rows are rejected only when malformed: the download refuses an "
+            "HTML body (an expired link serves one with HTTP 200), and the parse raises on a "
+            "missing ID/DisplayName/Synonyms header, an empty DisplayName, a tab or newline inside "
+            "a value, or a parse yielding zero terms. Local ids are unpadded by "
+            "normalize_gard_curie (GARD:0006038 -> GARD:6038) so they join DOID's xrefs."
+        ),
+        sources=[
+            {
+                "name": "GARD Rare Disease List",
+                # GARD has no release number; these two strings are what distinguishes one upload
+                # from the next, and neither is derivable from the CSV itself.
+                "version": filename or "unknown (no Content-Disposition filename)",
+                "content_version_id": content_version_id(url) or "unknown (no ids= in the URL)",
+                "url": url,
+                "content_type": content_type,
+                "about_page": GARD_ABOUT_PAGE_URL,
+            }
+        ],
+        counts={"bytes": len(body), "lines": body.count(b"\n")},
+    )
 
 
 def pull_gard_labels_and_synonyms(infile, labelfile, synonymfile):
