@@ -306,11 +306,27 @@ def _render_join_pathways(name: str, xref_groups: list[XrefGroup] | None) -> lis
     return lines
 
 
+# The detail files the repository commits. Everything else the report writes beside them is
+# excluded by `.gitignore` (`docs/sources/*/impact-report/`) as megabytes nobody reads, so a
+# *link* to one of those resolves on the machine that generated the report and nowhere else --
+# which tests/test_docs_links.py fails on, correctly. Name those files instead of linking them.
+COMMITTED_DETAIL_FILES = frozenset({"new-cliques-top-100.csv", "new-xrefs-summary.csv"})
+
+
 def _detail_link(details_dirname: str | None, filename: str, text: str) -> str | None:
-    """Render a bullet linking to one of the full detail files, or None if not emitted."""
+    """Render a bullet for one of the detail files, or None if not emitted.
+
+    A committed file gets a relative link; an uncommitted one is named in a code span and says how
+    to produce it, because a link to a file no checkout has is worse than no link.
+    """
     if not details_dirname:
         return None
-    return f"- {text}: [`{details_dirname}/{filename}`]({details_dirname}/{filename})"
+    if filename in COMMITTED_DETAIL_FILES:
+        return f"- {text}: [`{details_dirname}/{filename}`]({details_dirname}/{filename})"
+    return (
+        f"- {text}: `{details_dirname}/{filename}` -- not committed (see `.gitignore`); "
+        f"regenerate it with `uv run source-impact-report`"
+    )
 
 
 def _reg_marker(curie: str, biolink_type: str | None, prefix_priority_by_type: dict[str, list[str]]) -> str:
