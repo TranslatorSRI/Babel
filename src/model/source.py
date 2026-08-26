@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import pathlib
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable, Sequence
 from dataclasses import dataclass
 from functools import cached_property
 
@@ -103,14 +103,15 @@ class XrefGroup:
 def summarize_xref_groups(
     rows: Iterable[tuple[str, str, str, str]],
     pipeline: str,
-    source_name: str,
+    own_concords: Collection[str],
     examples_per_group: int = XREF_EXAMPLES_PER_GROUP,
 ) -> list[XrefGroup]:
     """Group scanned concord rows into join pathways with counts and example rows.
 
     *rows* are ``(subject, predicate, object, asserted_by)`` tuples as returned by
-    ``scan_concords_for_curies``. ``status`` is ``added`` when the row comes from *source_name*'s own
-    concord file and ``from_other_source`` otherwise — the same test the detail-file writer applies.
+    ``scan_concords_for_curies``. ``status`` is ``added`` when the row comes from one of
+    *own_concords* -- the concord files this source writes, which ``discover_source`` was told
+    about -- and ``from_other_source`` otherwise, the same test the detail-file writer applies.
 
     Returned groups are sorted with the biggest pathway first, so a reader sees the dominant join
     route before the long tail. Identical triples asserted by two different files are deliberately
@@ -119,7 +120,7 @@ def summarize_xref_groups(
     grouped: dict[tuple[str, str, str, str, str], list[tuple[str, str]]] = defaultdict(list)
     for subject, predicate, obj, asserted_by in rows:
         prefix_1, prefix_2 = sorted((_prefix_of(subject), _prefix_of(obj)))
-        status = "added" if asserted_by == source_name else "from_other_source"
+        status = "added" if asserted_by in own_concords else "from_other_source"
         grouped[(predicate, prefix_1, prefix_2, asserted_by, status)].append((subject, obj))
 
     groups = [
@@ -161,7 +162,7 @@ class PipelineContribution:
 
     pipeline: str
     ids_path: pathlib.Path | None
-    concords_path: pathlib.Path | None
+    concords_paths: list[pathlib.Path]
 
     @cached_property
     def _ids_rows(self) -> list[tuple[str, str | None]]:
@@ -211,15 +212,17 @@ class PipelineContribution:
 
     @cached_property
     def concord_pairs(self) -> list[tuple[str, str, str]]:
-        if self.concords_path is None or not self.concords_path.exists():
-            return []
+        """Every row of every concord file this source contributes, concatenated."""
         triples: list[tuple[str, str, str]] = []
-        with self.concords_path.open() as f:
-            for line in f:
-                parts = line.rstrip("\n").split("\t")
-                if len(parts) < 3:
-                    continue
-                triples.append((parts[0], parts[1], parts[2]))
+        for concords_path in self.concords_paths:
+            if not concords_path.exists():
+                continue
+            with concords_path.open() as f:
+                for line in f:
+                    parts = line.rstrip("\n").split("\t")
+                    if len(parts) < 3:
+                        continue
+                    triples.append((parts[0], parts[1], parts[2]))
         return triples
 
     @cached_property
@@ -286,32 +289,52 @@ class SourceContribution:
     def total_concord_row_count(self) -> int:
         return sum(len(pc.concord_pairs) for pc in self.by_pipeline.values())
 
+    @property
+    def concord_names(self) -> frozenset[str]:
+        """Basenames of the concord files counted as this source's own (see discover_source)."""
+        return frozenset(path.name for pc in self.by_pipeline.values() for path in pc.concords_paths)
 
-def discover_source(name: str, intermediate_root: pathlib.Path | str) -> SourceContribution:
+
+def discover_source(
+    name: str,
+    intermediate_root: pathlib.Path | str,
+    concord_names: Sequence[str] | None = None,
+) -> SourceContribution:
     """Discover where a named source contributes across the intermediate build outputs.
 
     Walks ``<intermediate_root>/<pipeline>/ids/<name>`` and
-    ``<intermediate_root>/<pipeline>/concords/<name>`` for every pipeline subdirectory
-    and records a PipelineContribution wherever the source has either file. Returns a
+    ``<intermediate_root>/<pipeline>/concords/<concord_name>`` for every pipeline subdirectory
+    and records a PipelineContribution wherever the source has any of those files. Returns a
     SourceContribution; callers can check ``by_pipeline`` to detect a source name that is
     not present anywhere.
+
+    ``concord_names`` defaults to ``[name]``, which is the common case: a source whose concord
+    file is named after it. A source is free to write more than one concord, or to name one
+    something other than its own name -- ``GARD_label`` is GARD's label-match concord -- and no
+    naming rule can reliably tell those apart from another source's concord *about* this one
+    (``MONDO_GARD`` is MONDO's data about GARD, and belongs to MONDO). So the caller names them:
+    ``source-impact-report --source GARD --concord GARD_label``. The concords used are recorded
+    in the report header, so a regeneration that forgets the flag is visible rather than silent.
     """
     intermediate_root = pathlib.Path(intermediate_root)
     if not intermediate_root.exists():
         raise FileNotFoundError(f"Intermediate root does not exist: {intermediate_root}")
+    if concord_names is None:
+        concord_names = [name]
     by_pipeline: dict[str, PipelineContribution] = {}
     for pipeline_dir in sorted(intermediate_root.iterdir()):
         if not pipeline_dir.is_dir():
             continue
         ids_path = pipeline_dir / "ids" / name
-        concords_path = pipeline_dir / "concords" / name
+        concords_paths = [
+            path for path in (pipeline_dir / "concords" / concord for concord in concord_names) if path.exists()
+        ]
         has_ids = ids_path.exists()
-        has_concords = concords_path.exists()
-        if not (has_ids or has_concords):
+        if not (has_ids or concords_paths):
             continue
         by_pipeline[pipeline_dir.name] = PipelineContribution(
             pipeline=pipeline_dir.name,
             ids_path=ids_path if has_ids else None,
-            concords_path=concords_path if has_concords else None,
+            concords_paths=concords_paths,
         )
     return SourceContribution(name=name, by_pipeline=by_pipeline)
