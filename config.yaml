@@ -177,8 +177,28 @@ disease_ids:               [MONDO, DOID, Orphanet, GARD, HP, MP, MESH, NCIT, UML
 # MONDO maps to MONDO:0015541; docs/sources/GARD/scripts/count_doid_mondo_gard_disagreements.py). MONDO is a unique prefix, so glom() cannot merge the two cliques and the
 # id stays with whichever concord claimed it first; listing MONDO's own mapping first is what makes
 # MONDO, not DOID, the authority. A unit test pins the relative order.
-disease_concords:          [HP, MP, MONDO, MONDO_GARD, UMLS, DOID, EFO, Manual]
+#
+# GARD_LABEL must be LAST. It is the only concord in this pipeline derived from labels rather than
+# from an asserted mapping, so it should decide nothing another concord has an opinion about; and
+# its safety guard is "skip any GARD id another concord names", which is defined by the rest of
+# this list. A unit test pins its position.
+disease_concords:          [HP, MP, MONDO, MONDO_GARD, UMLS, DOID, EFO, Manual, GARD_LABEL]
 disease_outputs:           [Disease.txt, PhenotypicFeature.txt]
+
+# The vocabularies build_gard_label_concord() may match a GARD label against, in PRIORITY ORDER:
+# the first entry holding an identifier with the GARD term's label wins, and the term is skipped if
+# that vocabulary holds two. MONDO/DOID/Orphanet lead because a curated disease ontology is a better
+# thing to join than a Metathesaurus concept; UMLS is last of the large ones because it is the
+# noisiest. Each entry names both an ids file (intermediate/disease/ids/<entry>, the authoritative
+# identifier set for this pipeline) and a labels file (babel_downloads/<entry>/labels), so an entry
+# must appear in BOTH disease_ids and disease_labelsandsynonyms -- a unit test checks that.
+#
+# HP and MP are deliberately absent. split_mutually_exclusive_cliques() keeps phenotype and disease
+# cliques disjoint on purpose and disease_gard_ids types every registry term biolink:Disease, so
+# matching a GARD term onto an HP or MP term asserts an identity this pipeline is built to refuse.
+# OMIM is absent for a duller reason: it has an ids file but no babel_downloads/OMIM/labels.
+# SNOMEDCT is absent because it has no disease ids file.
+disease_gard_label_match_prefixes: [MONDO, DOID, Orphanet, MESH, NCIT, UMLS, EFO]
 
 # Prefixes written into Disease.txt even though the Biolink Model does not register them for
 # biolink:Disease. write_compendium() otherwise drops an unregistered prefix silently, *after* it
@@ -195,9 +215,10 @@ disease_outputs:           [Disease.txt, PhenotypicFeature.txt]
 # remove this entry when https://github.com/NCATSTranslator/Babel/issues/1033 is resolved.
 #
 # GARD is the NCATS rare-disease registry, also unregistered. Without it ~16k rare-disease terms
-# vanish from Disease.txt. GARD has no concord of its own; its ids reach cliques through MONDO's
-# hasDbXrefs (MONDO_GARD, ~15.9k) and DOID's xrefs (~2.2k). Registering GARD with the Biolink
-# team is the long-term fix (same situation as GTDB, PR #978).
+# vanish from Disease.txt. GARD asserts no cross-references of its own; its ids reach cliques
+# through MONDO's hasDbXrefs (MONDO_GARD, ~15.9k), DOID's xrefs (~2.2k), and -- for the ~277 terms
+# neither maps -- the label matches in GARD_LABEL. Registering GARD with the Biolink team is the
+# long-term fix (same situation as GTDB, PR #978).
 #
 # ICD0 is deliberately NOT here: ICD-O codes are tumour *morphology* codes and may not be disease
 # equivalents at all, so emitting them would assert something we have not decided. See

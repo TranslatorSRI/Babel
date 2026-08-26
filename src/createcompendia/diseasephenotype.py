@@ -511,6 +511,197 @@ def build_disease_doid_relationships(idfile, outfile, metadata_yaml):
     )
 
 
+def normalize_label_for_matching(label):
+    """Fold a label to the key `build_gard_label_concord()` matches on.
+
+    Case-insensitive: a source that writes "Genu varum" and one that writes "Genu Varum" mean the
+    same disease, and requiring identical casing does not merely lose those matches -- measured
+    against the GARD ids MONDO and DOID already place, case-sensitive matching is ten times *worse*
+    (2.64% wrong against 0.21%), because it skips past the right clique on a capital letter and then
+    matches some other clique that happens to be capitalized the same way.
+    """
+    return label.strip().lower()
+
+
+def build_gard_label_concord(
+    gard_labels,
+    match_ids_files,
+    match_labels_files,
+    all_ids_files,
+    other_concords,
+    mondoclose,
+    badxrefs,
+    outfile,
+    metadata_yaml,
+):
+    """Link GARD registry terms to identically labelled identifiers already in this pipeline.
+
+    GARD is a registry, not an ontology: it publishes no cross-references at all, so its terms reach
+    cliques only through MONDO's and DOID's inbound xrefs (the MONDO_GARD and DOID concords). ~277
+    registry terms are mapped by neither and ship as single-identifier cliques that duplicate a
+    concept Babel already names -- `GARD:27461` "Odontogenic Carcinoma" sits alone beside the
+    existing `UMLS:C5401355` + `NCIT:C173720` clique carrying the identical label. No source Babel
+    ingests connects them: the registry CSV has no xref column, MRCONSO has no GARD source
+    vocabulary, and NCIt asserts no GARD provenance. The label is the only signal there is, and it
+    measures well -- see docs/sources/GARD/label-matches.md for the numbers and how to reproduce
+    them.
+
+    The rule, for each GARD id **no other disease concord mentions**: walk `match_ids_files` in order
+    (the order of `config.yaml: disease_gard_label_match_prefixes`) and stop at the first vocabulary
+    holding an identifier with the same normalized label. Emit one row if that vocabulary holds
+    exactly one such identifier; skip the term otherwise.
+
+    Three guards carry the safety of this concord, and none is optional:
+
+    1. **Skip GARD ids another concord already places.** Those already sit in a curated clique, and
+       re-deciding them by label would be a licence to fuse. Run over them as a held-out test, the
+       rule disagrees with the xref-derived clique 33 times in 15,370 -- harmless as an error rate,
+       catastrophic as 33 attempted merges of curated MONDO cliques.
+
+    2. **At most one row per GARD id.** Because guard 1 leaves only GARD ids that appear in no other
+       concord, each is a single-identifier clique, so one pair can only union `{GARD:x}` into the
+       target's clique. This concord is therefore *structurally incapable* of merging two
+       pre-existing cliques -- the invariant is enforced here, by construction, rather than detected
+       downstream by a warning nobody reads (AGENTS.md, "A log warning is not a control"). Emitting
+       every matching identifier instead would have put 475 existing clique pairs at risk of fusion.
+
+    3. **Skip a target whose clique is not `biolink:Disease`.** `write_compendium`'s per-class prefix
+       filter keeps GARD alive in Disease.txt only (`config.yaml: disease_extra_prefixes` is a
+       Disease-only allowlist, and Biolink registers GARD for no class at all), so a GARD id that
+       joins a phenotype clique is not moved to PhenotypicFeature.txt -- it is dropped from the
+       build entirely, trading a working single-identifier clique for a vanished identifier. Five
+       registry terms are in that position today (Cementoblastoma, Ileal Atresia, Phocomelia of the
+       Lower Limb, Chilblains, Myokymia): Babel holds each as a phenotype because HP names it, while
+       GARD calls it a rare disease. They stay as they are until GARD is registered in the Biolink
+       Model, which is https://github.com/NCATSTranslator/Babel/issues/1051.
+
+       This is the one guard that cannot be decided from labels: the clique that makes those five
+       phenotypes is formed through UMLS, two hops from the target, so no amount of label or
+       ids-file inspection sees it. So this glommed the other concords -- the same
+       `compute_cliques_for_impact_report()` the build itself calls, and the same
+       `classify_disease_clique()` that assigns the type -- and asks the question directly. It costs
+       about five seconds and is exact; a hand-rolled proxy was tried first and was not.
+
+    HP and MP are absent from `disease_gard_label_match_prefixes` for a related but separate reason:
+    `split_mutually_exclusive_cliques()` keeps phenotype and disease cliques disjoint on purpose and
+    `disease_gard_ids` types every registry term `biolink:Disease`, so matching a GARD term directly
+    onto an HP or MP term asserts an identity this pipeline is built to refuse.
+
+    There is no OVERUSE_FILTERED_CONCORDS entry. An identifier claimed by two GARD ids means the
+    registry carries the same label twice; both joining the same clique is the right outcome, not an
+    overuse to filter.
+
+    :param gard_labels: `babel_downloads/GARD/labels`, the registry's labels (unpadded CURIEs).
+    :param match_ids_files: this pipeline's ids files for the match pool, in priority order. The ids
+        file, not the labels file, is the authoritative identifier set: `babel_downloads/NCIT/labels`
+        carries every NCIt term, chemicals and anatomy included, and matching against those would
+        link a rare disease to whatever else happens to share its name.
+    :param match_labels_files: the corresponding `babel_downloads/<PREFIX>/labels`, same order.
+    :param all_ids_files: every disease ids file, for the guard-3 glom. Passing only the match pool
+        would rebuild a different clique structure than the build's, and the guard would answer for
+        cliques that do not exist.
+    :param other_concords: every other disease concord. Any GARD CURIE they name is skipped (guard
+        1), and they are the input to the guard-3 glom.
+    :param mondoclose: the MONDO_close concord, passed through to the guard-3 glom.
+    :param badxrefs: the bad-xrefs map, passed through to the guard-3 glom.
+    """
+    if len(match_ids_files) != len(match_labels_files):
+        raise ValueError(
+            f"match_ids_files ({len(match_ids_files)}) and match_labels_files ({len(match_labels_files)}) "
+            "must be parallel lists in the same priority order"
+        )
+
+    # Guard 1. Read the GARD ids from the concord files themselves rather than from a hardcoded
+    # (MONDO_GARD, DOID) pair, so a third source that starts emitting GARD xrefs cannot silently
+    # escape this.
+    claimed = set()
+    for concord in other_concords:
+        with open(concord) as inf:
+            for line in inf:
+                for curie in line.rstrip("\n").split("\t"):
+                    if Text.get_prefix_or_none(curie) == GARD:
+                        claimed.add(curie)
+
+    # normalized label -> CURIEs, one dict per pool vocabulary, in priority order.
+    labels_by_vocabulary = []
+    for idsfile, labelsfile in zip(match_ids_files, match_labels_files):
+        with open(idsfile) as inf:
+            known_ids = {line.split("\t")[0] for line in inf}
+        matchable = defaultdict(set)
+        with open(labelsfile) as inf:
+            for line in inf:
+                curie, _, label = line.rstrip("\n").partition("\t")
+                if curie in known_ids and label.strip():
+                    matchable[normalize_label_for_matching(label)].add(curie)
+        labels_by_vocabulary.append(matchable)
+        logger.info(f"build_gard_label_concord(): {len(matchable)} matchable labels from {labelsfile} ({idsfile})")
+
+    # Guard 2: one candidate row per GARD id, at most.
+    candidates = []
+    count_skipped_claimed = count_skipped_ambiguous = count_unmatched = 0
+    with open(gard_labels) as inf:
+        for line in inf:
+            gard_curie, _, gard_label = line.rstrip("\n").partition("\t")
+            if gard_curie in claimed:
+                count_skipped_claimed += 1
+                continue
+            key = normalize_label_for_matching(gard_label)
+            for matchable in labels_by_vocabulary:
+                if key not in matchable:
+                    continue
+                if len(matchable[key]) == 1:
+                    candidates.append((gard_curie, next(iter(matchable[key]))))
+                else:
+                    # Two identifiers of one vocabulary share this label: the vocabulary itself does
+                    # not say which concept the registry means, so neither can we.
+                    count_skipped_ambiguous += 1
+                break
+            else:
+                count_unmatched += 1
+
+    # Guard 3: rebuild the cliques the other concords make, and drop any candidate whose target
+    # clique the build would not type biolink:Disease.
+    dicts, types = compute_cliques_for_impact_report(
+        other_concords, all_ids_files, mondoclose=mondoclose, badxrefs=badxrefs
+    )
+    count_skipped_not_disease = 0
+    with open(outfile, "w") as outf:
+        for gard_curie, target in candidates:
+            joined = set(dicts.get(target, {target})) | {gard_curie}
+            clique_type = classify_disease_clique(joined, {**types, gard_curie: DISEASE})
+            if clique_type != DISEASE:
+                logger.info(
+                    f"build_gard_label_concord(): not linking {gard_curie} to {target}, whose clique is "
+                    f"{clique_type} and would drop the GARD identifier (see guard 3 in the docstring)"
+                )
+                count_skipped_not_disease += 1
+                continue
+            outf.write(f"{gard_curie}\txref\t{target}\n")
+
+    logger.info(
+        f"build_gard_label_concord(): wrote {len(candidates) - count_skipped_not_disease} rows to {outfile}; "
+        f"skipped {count_skipped_claimed} GARD ids already placed by another concord, "
+        f"{count_skipped_ambiguous} ambiguous within a vocabulary, {count_unmatched} with no label match, "
+        f"and {count_skipped_not_disease} whose target clique is not biolink:Disease"
+    )
+
+    write_concord_metadata(
+        metadata_yaml,
+        name="build_gard_label_concord()",
+        sources=[{"type": "GARD", "name": "GARD registry labels"}],
+        description=(
+            "build_gard_label_concord() links each GARD term that no other disease concord places to the one "
+            "identically labelled identifier (case-insensitive) in the first of "
+            f"{[path.basename(f) for f in match_ids_files]} that holds exactly one, skipping targets whose clique "
+            "is not biolink:Disease. GARD publishes no cross-references, so a label match is the only signal "
+            "available; one row per GARD id means this concord can join a GARD id to an existing clique but never "
+            "merge two of them. Measured precision and the full row list: docs/sources/GARD/label-matches.md"
+        ),
+        url="https://github.com/NCATSTranslator/Babel/blob/main/docs/sources/GARD/label-matches.md",
+        concord_filename=outfile,
+    )
+
+
 def compute_cliques_for_impact_report(
     concordances,
     identifiers,

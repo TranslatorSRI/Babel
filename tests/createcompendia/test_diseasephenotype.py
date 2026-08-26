@@ -1004,3 +1004,246 @@ def test_badxrefs_files_are_registered_for_the_concords_they_name():
     )
     for name, path in diseasephenotype.DEFAULT_BAD_XREFS.items():
         assert diseasephenotype.read_badxrefs(path) is not None, f"{name} bad-xrefs file failed to parse"
+
+
+# --- GARD_LABEL concord (build_gard_label_concord) ---
+#
+# GARD publishes no cross-references, so the registry terms MONDO and DOID do not map can only reach
+# a clique through a label match. These pin the three guards that make that safe -- skip GARD ids
+# another concord places, emit at most one row each, and never target a non-Disease clique -- plus
+# the config wiring the guards depend on. Numbers and provenance: docs/sources/GARD/label-matches.md.
+
+
+def _run_gard_label_concord(tmp_path, *, gard, vocabularies, other_concords=(), extra_ids=()):
+    """Run build_gard_label_concord() over tiny inputs, returning the concord rows it wrote.
+
+    :param gard: {gard_curie: label}, written as a GARD labels file.
+    :param vocabularies: ordered [(name, {curie: (label, biolink_type)})]; each becomes one ids file
+        and one labels file, in that priority order.
+    :param other_concords: iterable of iterables of (subject, predicate, object) rows.
+    :param extra_ids: extra (curie, biolink_type) pairs, so the guard-3 glom can see identifiers
+        that are in a clique but not in the match pool (an HP term, typically).
+    """
+    gard_labels = tmp_path / "gard_labels"
+    gard_labels.write_text("".join(f"{curie}\t{label}\n" for curie, label in gard.items()))
+
+    match_ids, match_labels = [], []
+    for name, members in vocabularies:
+        idsfile = tmp_path / f"ids_{name}"
+        labelsfile = tmp_path / f"labels_{name}"
+        idsfile.write_text("".join(f"{curie}\t{biotype}\n" for curie, (_, biotype) in members.items()))
+        labelsfile.write_text("".join(f"{curie}\t{label}\n" for curie, (label, _) in members.items()))
+        match_ids.append(str(idsfile))
+        match_labels.append(str(labelsfile))
+
+    # The guard-3 glom needs every ids file the build has, or its cliques carry no declared types.
+    gard_ids = tmp_path / "ids_GARD"
+    gard_ids.write_text("".join(f"{curie}\t{DISEASE}\n" for curie in gard))
+    other_ids = tmp_path / "ids_extra"
+    other_ids.write_text("".join(f"{curie}\t{biotype}\n" for curie, biotype in extra_ids))
+
+    concord_paths = []
+    for i, rows in enumerate(other_concords):
+        concord = tmp_path / f"concord_{i}"
+        concord.write_text("".join("\t".join(row) + "\n" for row in rows))
+        concord_paths.append(str(concord))
+
+    mondoclose = tmp_path / "MONDO_close"
+    mondoclose.write_text("")
+    outfile = tmp_path / "GARD_LABEL"
+    diseasephenotype.build_gard_label_concord(
+        str(gard_labels),
+        match_ids,
+        match_labels,
+        match_ids + [str(gard_ids), str(other_ids)],
+        concord_paths,
+        str(mondoclose),
+        {},
+        str(outfile),
+        str(tmp_path / "metadata.yaml"),
+    )
+    return [tuple(line.split("\t")) for line in outfile.read_text().splitlines()]
+
+
+@pytest.mark.unit
+def test_gard_label_concord_matches_case_insensitively(tmp_path):
+    """ "Genu Varum" and "Genu varum" name one disease. Case-sensitive matching is not merely
+    stricter, it is measurably *worse* (2.64% wrong against 0.21%): it walks past the right clique on
+    a capital letter and then matches some other clique that is capitalized the same way."""
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Odontogenic Carcinoma"},
+        vocabularies=[("NCIT", {"NCIT:C173720": ("odontogenic carcinoma", DISEASE)})],
+    )
+    assert rows == [("GARD:1", "xref", "NCIT:C173720")]
+
+
+@pytest.mark.unit
+def test_gard_label_concord_walks_the_pool_in_priority_order(tmp_path):
+    """The first vocabulary with a match wins, and matching stops there -- the priority order of
+    config.yaml: disease_gard_label_match_prefixes is the whole tie-break."""
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Nephroblastoma"},
+        vocabularies=[
+            ("MONDO", {"MONDO:0006058": ("Nephroblastoma", DISEASE)}),
+            ("NCIT", {"NCIT:C3267": ("nephroblastoma", DISEASE)}),
+        ],
+    )
+    assert rows == [("GARD:1", "xref", "MONDO:0006058")], "MONDO precedes NCIT, and only one row is written"
+
+
+@pytest.mark.unit
+def test_gard_label_concord_skips_a_label_two_identifiers_of_one_vocabulary_share(tmp_path):
+    """If the vocabulary itself does not say which of its two concepts the registry means, neither
+    can we -- and the term is skipped outright rather than falling through to the next vocabulary,
+    because an ambiguity in the most-trusted vocabulary is evidence about the label, not about
+    MONDO."""
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Erythropoietic protoporphyria"},
+        vocabularies=[
+            (
+                "MONDO",
+                {
+                    "MONDO:0001676": ("Erythropoietic protoporphyria", DISEASE),
+                    "MONDO:0008319": ("erythropoietic protoporphyria", DISEASE),
+                },
+            ),
+            ("NCIT", {"NCIT:C1": ("Erythropoietic protoporphyria", DISEASE)}),
+        ],
+    )
+    assert rows == []
+
+
+@pytest.mark.unit
+def test_gard_label_concord_leaves_gard_ids_another_concord_places(tmp_path):
+    """Guard 1. A GARD id another concord names already sits in a curated clique; re-deciding it by
+    label is what turns a 0.21% error rate into 33 attempted merges of curated MONDO cliques. The
+    check reads the concord files rather than a hardcoded (MONDO_GARD, DOID) pair, so a source that
+    starts emitting GARD xrefs is covered without touching this code."""
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Kartagener syndrome", "GARD:2": "Odontogenic Carcinoma"},
+        vocabularies=[
+            ("NCIT", {"NCIT:C1": ("Kartagener syndrome", DISEASE), "NCIT:C2": ("Odontogenic Carcinoma", DISEASE)})
+        ],
+        other_concords=[[("MONDO:0009484", "xref", "GARD:1")]],
+    )
+    assert rows == [("GARD:2", "xref", "NCIT:C2")], "GARD:1 is claimed by another concord and must be left alone"
+
+
+@pytest.mark.unit
+def test_gard_label_concord_cannot_merge_two_pre_existing_cliques(tmp_path):
+    """Guard 2, end to end and this is the invariant the whole design rests on.
+
+    Guard 1 leaves only GARD ids that appear in no other concord, so each is a single-identifier
+    clique; emitting at most one row each means a GARD_LABEL pair can only union {GARD:x} into one
+    existing clique. Even when a GARD term's label is carried by identifiers in two different
+    cliques, the two must stay separate. Emitting every matching identifier instead would have put
+    475 existing clique pairs at risk of fusion, which is why this is enforced by construction
+    rather than detected by a warning downstream (AGENTS.md, "A log warning is not a control")."""
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Torticollis"},
+        vocabularies=[
+            ("MESH", {"MESH:D014103": ("Torticollis", DISEASE)}),
+            ("NCIT", {"NCIT:C1": ("torticollis", DISEASE)}),
+        ],
+        other_concords=[[("MESH:D014103", "xref", "UMLS:C1"), ("NCIT:C1", "xref", "UMLS:C2")]],
+        extra_ids=[("UMLS:C1", DISEASE), ("UMLS:C2", DISEASE)],
+    )
+    assert rows == [("GARD:1", "xref", "MESH:D014103")]
+
+    ids = {}
+    for name in ("ids_MESH", "ids_NCIT", "ids_GARD", "ids_extra"):
+        ids[name] = str(tmp_path / name)
+    dicts, _ = diseasephenotype.compute_cliques_for_impact_report(
+        [str(tmp_path / "concord_0"), str(tmp_path / "GARD_LABEL")],
+        list(ids.values()),
+        mondoclose=str(tmp_path / "MONDO_close"),
+        badxrefs={},
+    )
+    assert dicts["MESH:D014103"] == {"MESH:D014103", "UMLS:C1", "GARD:1"}
+    assert dicts["NCIT:C1"] == {"NCIT:C1", "UMLS:C2"}, "the two cliques the shared label spans must not fuse"
+
+
+@pytest.mark.unit
+def test_gard_label_concord_skips_a_target_whose_clique_is_not_a_disease(tmp_path):
+    """Guard 3. write_compendium()'s prefix filter keeps GARD alive in Disease.txt only
+    (disease_extra_prefixes is a per-class allowlist, and Biolink registers GARD for no class at
+    all), so a GARD id that joins a phenotype clique is not moved to PhenotypicFeature.txt -- it is
+    dropped from the build entirely, trading a working single-identifier clique for a vanished
+    identifier. Five registry terms are in that position today; a clique diff of the first
+    implementation is how they were found.
+
+    The clique that makes them phenotypes forms through UMLS, two hops from the target, so no label
+    or ids-file inspection sees it -- hence the reglom. Remove this guard when GARD is registered in
+    the Biolink Model (https://github.com/NCATSTranslator/Babel/issues/1051)."""
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Myokymia", "GARD:2": "Odontogenic Carcinoma"},
+        vocabularies=[("MESH", {"MESH:D020385": ("Myokymia", DISEASE), "MESH:D2": ("Odontogenic Carcinoma", DISEASE)})],
+        # MESH:D020385 reaches HP:0002411 through UMLS, exactly as the real Myokymia clique does.
+        other_concords=[[("MESH:D020385", "xref", "UMLS:C1"), ("UMLS:C1", "xref", "HP:0002411")]],
+        extra_ids=[("UMLS:C1", DISEASE), ("HP:0002411", PHENOTYPIC_FEATURE)],
+    )
+    assert rows == [("GARD:2", "xref", "MESH:D2")], "the HP-led clique must not gain a GARD identifier"
+
+
+@pytest.mark.unit
+def test_gard_label_concord_is_registered_last_in_disease_concords():
+    """GARD_LABEL must be in config.yaml: disease_concords, and must be LAST.
+
+    It is the only concord in this pipeline derived from labels rather than an asserted mapping, so
+    it should decide nothing another concord has an opinion about. More concretely, guard 1 -- skip
+    any GARD id another concord names -- is *defined* by the rest of this list, and the Snakemake
+    rule builds that list by excluding GARD_LABEL from it. Dropping the entry silently reverts 265
+    rare diseases to single-identifier cliques with no error anywhere, the same failure mode
+    test_mondo_gard_concord_is_registered_in_disease_concords guards."""
+    concords = get_config()["disease_concords"]
+    assert "GARD_LABEL" in concords
+    assert concords[-1] == "GARD_LABEL", f"GARD_LABEL must be glommed last, but disease_concords is {concords}"
+
+
+@pytest.mark.unit
+def test_gard_label_match_prefixes_are_buildable_and_exclude_the_phenotype_ontologies():
+    """Every disease_gard_label_match_prefixes entry names both an ids file (disease_ids) and a
+    labels file (disease_labelsandsynonyms); the Snakemake rule expands the same list over both
+    directories, so an entry in only one of them fails the build with a missing-input error rather
+    than anything readable.
+
+    HP and MP must stay out. split_mutually_exclusive_cliques() keeps phenotype and disease cliques
+    disjoint on purpose and disease_gard_ids types every registry term biolink:Disease, so matching
+    a GARD term onto an HP or MP term asserts an identity this pipeline is built to refuse. (Guard 3
+    covers the indirect case, where the target reaches HP through some other clique member.)"""
+    config = get_config()
+    pool = config["disease_gard_label_match_prefixes"]
+
+    assert set(pool) <= set(config["disease_ids"]), (
+        f"no disease ids file for: {sorted(set(pool) - set(config['disease_ids']))}"
+    )
+    assert set(pool) <= set(config["disease_labelsandsynonyms"]), (
+        f"no labels file for: {sorted(set(pool) - set(config['disease_labelsandsynonyms']))}"
+    )
+    assert "HP" not in pool and "MP" not in pool, "the phenotype ontologies must not be label-match targets"
+    assert GARD not in pool, "GARD cannot match against itself"
+
+
+@pytest.mark.unit
+def test_gard_label_concord_rejects_mismatched_pool_lists(tmp_path):
+    """The ids and labels lists are positional and must stay in the same priority order; a length
+    mismatch means the Snakemake rule's two expand() calls have drifted, and zip() would silently
+    match NCIT ids against UMLS labels."""
+    with pytest.raises(ValueError, match="parallel lists"):
+        diseasephenotype.build_gard_label_concord(
+            str(tmp_path / "gard_labels"),
+            ["ids_a", "ids_b"],
+            ["labels_a"],
+            [],
+            [],
+            None,
+            {},
+            str(tmp_path / "out"),
+            str(tmp_path / "metadata.yaml"),
+        )

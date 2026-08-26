@@ -272,6 +272,65 @@ rule disease_manual_concord:
         )
 
 
+rule disease_gard_label_concord:
+    # GARD publishes no cross-references, so the ~277 registry terms MONDO and DOID do not map
+    # would otherwise ship as single-identifier cliques duplicating concepts Babel already names.
+    # This links each of them to an identically labelled identifier -- see
+    # docs/sources/GARD/label-matches.md and build_gard_label_concord()'s docstring.
+    input:
+        gard_labels=config["download_directory"] + "/GARD/labels",
+        match_ids=expand(
+            "{dd}/disease/ids/{ap}",
+            dd=config["intermediate_directory"],
+            ap=config["disease_gard_label_match_prefixes"],
+        ),
+        match_labels=expand(
+            "{dd}/{ap}/labels",
+            dd=config["download_directory"],
+            ap=config["disease_gard_label_match_prefixes"],
+        ),
+        # Every OTHER disease concord: a GARD id any of them names is left alone. Derived from the
+        # config list rather than naming MONDO_GARD and DOID, so a source that starts emitting GARD
+        # xrefs is covered without editing this rule.
+        other_concords=expand(
+            "{dd}/disease/concords/{ap}",
+            dd=config["intermediate_directory"],
+            ap=[concord for concord in config["disease_concords"] if concord != "GARD_LABEL"],
+        ),
+        # Guard 3 reglommed the concords above to ask what type the clique a GARD id would join is,
+        # so it needs everything disease_compendia feeds glom(): every ids file, the close matches
+        # and the bad xrefs. Anything less and it answers for a clique structure the build does not
+        # have. Keep this list in step with rule disease_compendia's.
+        all_ids=expand("{dd}/disease/ids/{ap}", dd=config["intermediate_directory"], ap=config["disease_ids"]),
+        close_matches=config["intermediate_directory"] + "/disease/concords/MONDO_close",
+        bad_hpo_xrefs="input_data/badHPx.txt",
+        bad_mondo_xrefs="input_data/mondo_badxrefs.txt",
+        bad_mp_xrefs="input_data/mp_badxrefs.txt",
+        bad_umls_xrefs="input_data/umls_badxrefs.txt",
+    output:
+        outfile=config["intermediate_directory"] + "/disease/concords/GARD_LABEL",
+        metadata_yaml=config["intermediate_directory"] + "/disease/concords/metadata-GARD_LABEL.yaml",
+    benchmark:
+        config["output_directory"] + "/benchmarks/disease_gard_label_concord.tsv"
+    run:
+        diseasephenotype.build_gard_label_concord(
+            input.gard_labels,
+            input.match_ids,
+            input.match_labels,
+            input.all_ids,
+            input.other_concords,
+            input.close_matches,
+            {
+                "HP": input.bad_hpo_xrefs,
+                "MONDO": input.bad_mondo_xrefs,
+                "MP": input.bad_mp_xrefs,
+                "UMLS": input.bad_umls_xrefs,
+            },
+            output.outfile,
+            output.metadata_yaml,
+        )
+
+
 rule disease_compendia:
     input:
         bad_hpo_xrefs="input_data/badHPx.txt",
