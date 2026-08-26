@@ -4,6 +4,10 @@ The question this answers is whether the ~9,949 terms with no page are deprecate
 should be filtering out. They are not: the CSV's own ``URL`` column marks which terms have a public
 page, the partition is exact, and the page-less majority is overwhelmingly mapped by MONDO.
 
+That is a reading of the data, not a documented fact -- GARD says nothing about the difference
+between its list and its site. https://github.com/NCATSTranslator/Babel/issues/1062 asks NCATS to
+confirm it; re-run this if their answer, or a new download, might have changed the picture.
+
 Three checks, all of them cheap and all of them re-runnable against next month's download:
 
 1. Are the website's ids a subset of the CSV's, and how do the two sets sit by id range?

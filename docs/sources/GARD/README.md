@@ -84,6 +84,12 @@ not list entries, so it will not match Babel's counts. And a GARD CURIE Babel em
 resolvable page even though `?gard_id=` returns 200 — the check is whether the CSV row carries a
 URL.
 
+All of the above is read off the data; **GARD documents none of it**, and nothing in the
+distribution marks a term's status either way.
+[#1062](https://github.com/NCATSTranslator/Babel/issues/1062) asks NCATS to confirm which list is
+authoritative — if the website turns out to be, this ingest should be filtered on the `URL` column
+instead of taking the whole list.
+
 Regenerate this comparison with
 [`label-matches/scripts/gard_website_coverage.py`](label-matches/scripts/gard_website_coverage.py).
 
