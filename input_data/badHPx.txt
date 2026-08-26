@@ -308,3 +308,15 @@ HP:0002762 SNOMEDCT:254044004
 # through this MedDRA code. HP:0005227's own UMLS mapping, UMLS:C1868071 "Adenomatous polyposis of
 # colon", is a leaf and is deliberately left alone.
 HP:0005227 MEDDRA:10056981
+
+# https://github.com/NCATSTranslator/Babel/issues/1065
+# HP:0001067 "Neurofibroma" is the benign nerve-sheath tumour, and its xref to NCIT:C3272
+# "Neurofibroma" is right. These three are neurofibromatosis, the inherited disease:
+# UMLS:C0162678 "Neurofibromatoses" and two SNOMED codes that are atoms of that same concept.
+# Together they fused MONDO:0016755 "neurofibroma" with every major neurofibromatosis identifier,
+# leaving MESH:D017253, NCIT:C6727 and UMLS:C0162678 in the tumour's clique while MONDO:0021061
+# "neurofibromatosis" led a separate one -- the disease represented twice. All three must go: with
+# any one left, HP:0001067 still bridges the two concepts and the clique does not split.
+HP:0001067 UMLS:C0162678
+HP:0001067 SNOMEDCT:19133005
+HP:0001067 SNOMEDCT:81669005

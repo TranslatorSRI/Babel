@@ -6,7 +6,7 @@
       "Disease.txt",
       "PhenotypicFeature.txt"
     ],
-    "note": "Whole-PR effect: GARD ingest + MONDO_GARD + GARD_label + per-class extra_prefixes"
+    "note": "Whole-PR effect: GARD ingest + MONDO_GARD + GARD_label + per-class extra_prefixes + the #1065 badHPx entries"
   },
   "compendia": {
     "Disease.txt": {
@@ -21,7 +21,7 @@
       "dropped_member_count": 0,
       "leader_changed_count": 0,
       "moved_member_count": 0,
-      "regrouped_member_count": 248
+      "regrouped_member_count": 256
     },
     "PhenotypicFeature.txt": {
       "changed_before_cliques": 6,

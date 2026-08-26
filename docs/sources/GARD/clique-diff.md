@@ -12,10 +12,12 @@ Artifacts in [`on-addition/`](./on-addition/): `clique-diff.summary.json`, and
 reduction worth reading. The full per-row CSV is 16,133 rows, almost all `kept`, and is not
 committed.
 
-Three diffs are recorded here. The first is the whole PR against `main`, which is the number a
-reviewer wants; the other two decompose it, in the order the work happened. Diff 1 is the GARD
+Four diffs are recorded here. The first is the whole PR against `main`, which is the number a
+reviewer wants; the others decompose it, in the order the work happened. Diff 1 is the GARD
 **ingest** — `main` against this branch with its ids file, labels and the `MONDO_GARD` concord, and
-no `GARD_label`. Diff 2 isolates `GARD_label` on top of it.
+no `GARD_label`. Diff 2 isolates `GARD_label` on top of it, and diff 3 the `badHPx.txt` fix that the
+ingest exposed. Diffs 1 and 2 were measured as each change landed and so do not include diff 3; diff
+0 was re-run afterwards and does.
 
 ## Diff 0: the whole PR
 
@@ -36,7 +38,7 @@ ingest adds.
 | destination_kind | rows | members | meaning |
 | --- | ---: | ---: | --- |
 | `kept` | 16,359 | — | an existing clique gained GARD identifiers and kept its leader |
-| `regrouped` | 29 | 248 | members moved to a different leader in the same compendium |
+| `regrouped` | 29 | 256 | members moved to a different leader in the same compendium |
 | `leader_changed` | 0 | 0 | no clique's preferred identifier was reassigned |
 | `moved` | 0 | 0 | no `main` member retyped into a different compendium file |
 | `dropped` | 0 | 0 | **no identifier disappeared from the compendia** |
@@ -140,16 +142,16 @@ over-merges predate this PR and ship today**; GARD's mappings are what pull them
 strongest single argument for the `MONDO_GARD` concord, and the rows an SME should read first: the
 full 29 are in the CSV with before/after sizes and example members.
 
-**They are improvements, not repairs, and two of them are visibly partial.** After the neurofibroma
-split, `MONDO:0021061` "neurofibromatosis" takes only `DOID:8712` and one UMLS concept, while
+**They are improvements, not repairs.** GARD moves what its own mappings reach and nothing else, so
+each split goes only as far as MONDO's GARD coverage takes it, and the bad cross-references stay
+where they are. Peutz-Jeghers, for instance, leaves `NCIT:C7755` "Peutz-Jeghers Polyp of the Small
+Intestine" on the syndrome side.
+
+The neurofibroma split was the most visibly partial, and is the one this branch went on to fix
+properly — see diff 3. On the ingest alone it moved only `DOID:8712` and one UMLS concept, leaving
 `MESH:D017253` "Neurofibromatoses", `NCIT:C6727` "Neurofibromatosis" and `UMLS:C0162678`
-"Neurofibromatoses" all stay behind in the *neurofibroma* clique — which is still wrong, just less
-wrong than one fused clique. Neurofibromatosis therefore ends up represented twice, and the cause is
-`HP:0001067` "Neurofibroma" carrying three xrefs into the neurofibromatosis UMLS concept; tracked
-with the proposed `badHPx.txt` fix as [#1065](https://github.com/NCATSTranslator/Babel/issues/1065).
-Peutz-Jeghers is cleaner but leaves `NCIT:C7755` "Peutz-Jeghers Polyp of the Small Intestine" on the
-syndrome side. GARD moves what its own mappings reach and nothing else; the bad cross-references are
-all still there.
+"Neurofibromatoses" behind in the *neurofibroma* clique, so neurofibromatosis shipped represented
+twice.
 
 #### What causes the ten over-merges
 
@@ -345,6 +347,49 @@ deleted the most expensive thing in `build_gard_label_concord()`: the guard had 
 other concord, because the clique that types those five forms through UMLS two hops from the target,
 where no label or ids-file inspection reaches it.
 
+## Diff 3: the `badHPx.txt` entries for HP:0001067 (#1065)
+
+Not part of the GARD ingest — included because the ingest is what exposed it. Chasing why the
+neurofibroma split above was partial found `HP:0001067` "Neurofibroma", the benign nerve-sheath
+tumour, carrying three xrefs into the *neurofibromatosis* UMLS concept alongside its one correct
+one:
+
+```text
+HP:0001067 --xref--> NCIT:C3272         "Neurofibroma"       <- correct, the tumour
+HP:0001067 --xref--> UMLS:C0162678      "Neurofibromatoses"  <- the disease
+HP:0001067 --xref--> SNOMEDCT:19133005  (an atom of C0162678)
+HP:0001067 --xref--> SNOMEDCT:81669005  (an atom of C0162678)
+```
+
+Those three glued two internally coherent UMLS concepts — `UMLS:C0027830` "neurofibroma" and
+`UMLS:C0162678` "Neurofibromatoses" — into one 20-member clique led by `MONDO:0016755`
+"neurofibroma", while `MONDO:0021061` "neurofibromatosis" led a separate 8-member one. Neither an
+overuse filter nor a prefix rule reaches this: `UMLS:C0162678` is claimed by exactly one HP subject.
+`input_data/badHPx.txt` exists for precisely this shape, and the three pairs are now entries there
+with a comment naming [#1065](https://github.com/NCATSTranslator/Babel/issues/1065).
+
+| compendium | before | after | diff |
+| --- | ---: | ---: | ---: |
+| `Disease.txt` | 365,075 | 365,075 | 0 |
+| `PhenotypicFeature.txt` | 75,477 | 75,477 | 0 |
+
+Three change rows, **0 dropped, 0 moved, 0 leader changes**: eight members regroup from
+`MONDO:0016755` to `MONDO:0021061`, and no clique is created or destroyed because both already
+existed. Both sides now read correctly:
+
+| clique | after the fix |
+| --- | --- |
+| `MONDO:0016755` "neurofibroma" (12) | `DOID:962`, `MESH:D009455`, `NCIT:C3272`, `UMLS:C0027830`, `HP:0001067`, `orphanet:252183` — every one labelled "Neurofibroma" |
+| `MONDO:0021061` "neurofibromatosis" (16) | `DOID:8712`, `MESH:D017253`, `NCIT:C6727`, `UMLS:C0162678`, `UMLS:C0495632`, `GARD:10420` |
+
+`UMLS:C1314735` "Recklinghausen's disease (except of Bone)" was the open question when the entries
+were proposed, since it reached the disease side only through `SNOMEDCT:81669005`. It moves with
+them, which is right: Recklinghausen's disease is neurofibromatosis type 1.
+
+**All three entries are needed.** `HP:0001067` has three crossing xrefs, so removing any one leaves
+the other two and the clique does not split at all — a partial fix looks exactly like no fix, which
+is worth knowing before anyone trims the list.
+
 ## What was compared
 
 Both sides were built from the **same cached intermediates**
@@ -352,9 +397,10 @@ Both sides were built from the **same cached intermediates**
 
 | | before | after |
 | --- | --- | --- |
-| `whole-pr/` (diff 0) | `main` at `dd9b07cf`, rebuilt in a worktree from the same cached intermediates | this branch at `1438ddee` |
+| `whole-pr/` (diff 0) | `main` at `dd9b07cf`, rebuilt in a worktree from the same cached intermediates | this branch (re-run after diff 3) |
 | `on-addition/` (diff 1) | `main` at `a3ae3e4d` — no GARD ingest, no `MONDO_GARD` concord, DOID concord built without GARD unpadding | this branch, before `GARD_label` |
 | `label-matches/` (diff 2) | this branch with `GARD_label` removed from `disease_concords` | this branch |
+| diff 3 (not committed) | this branch without the three `HP:0001067` lines in `input_data/badHPx.txt` | this branch |
 | the isolating diff (not committed) | this branch, with the `DOID:0061030 GARD:418` concord row kept | this branch, row dropped |
 
 Reproduce with:
