@@ -52,22 +52,22 @@ cluster the way they do, not as evidence that anything was imported from anywher
 
 ## What the concord emits
 
-265 rows, one per GARD term, against the 2026-08-25 build (GARD Jun2026; MONDO, DOID, NCIt and UMLS
+270 rows, one per GARD term, against the 2026-08-26 build (GARD Jun2026; MONDO, DOID, NCIt and UMLS
 2026AA):
 
 | Target vocabulary | Rows |
 | --- | --- |
-| NCIT | 210 |
+| NCIT | 213 |
 | MONDO | 42 |
+| MESH | 8 |
 | orphanet | 7 |
-| MESH | 6 |
 
 **Every subject is a single-identifier clique, and the median target has two non-GARD members** —
-172 of the 265 join a clique of exactly two. This change overwhelmingly attaches one lonely
+172 of the 270 join a clique of exactly two. This change overwhelmingly attaches one lonely
 identifier to two lonely identifiers; it is not reaching into large curated cliques.
 
-Twelve registry terms are left alone. Seven have no label match anywhere and are, as far as this
-build can tell, genuinely new concepts:
+Seven registry terms are left alone, having no label match anywhere. As far as this build can tell
+they are genuinely new concepts:
 
 ```text
 GARD:15005  Pacak-Zhung syndrome
@@ -78,8 +78,6 @@ GARD:24658  Heart, malformation of
 GARD:27070  TUBB2A-related tubulinopathy
 GARD:28300  Camurati-Engelmann disease, type 2
 ```
-
-The other five match, but their target's clique is not `biolink:Disease` — see guard 3 below.
 
 ## How often the same rule is wrong
 
@@ -128,10 +126,10 @@ Case-sensitivity does not filter bad matches; it walks past the *right* clique o
 and then matches some other clique capitalized the same way. `normalize_label_for_matching()` folds
 case for this reason.
 
-## The three guards
+## The guards
 
-Full rationale is in `build_gard_label_concord()`'s docstring; the short version, and why each one
-is not optional:
+Full rationale is in `build_gard_label_concord()`'s docstring; the short version, and why neither is
+optional:
 
 1. **Skip a GARD id another concord already places.** Those 15,937 ids sit in a curated clique
    already. Without this guard the 33 disagreements above stop being an error rate and become 33
@@ -144,39 +142,35 @@ is not optional:
    Emitting every matching identifier instead would have put 475 existing clique pairs at risk of
    fusion. The invariant is enforced by construction rather than detected by a warning downstream.
 
-3. **Skip a target whose clique is not `biolink:Disease`.** `write_compendium()`'s per-class prefix
-   filter keeps GARD alive in `Disease.txt` only (`config.yaml: disease_extra_prefixes` is a
-   Disease-only allowlist, and Biolink registers GARD for no class at all), so a GARD id that joins
-   a phenotype clique is *not* moved to `PhenotypicFeature.txt` — it is dropped from the build
-   entirely, trading a working single-identifier clique for a vanished identifier.
+A third guard used to sit here and is worth knowing about, because the temptation to add it back is
+real. `disease_gard_ids` types every registry term `biolink:Disease`, but five of the matched terms
+name concepts HP also names — Cementoblastoma, Ileal Atresia, Phocomelia of the Lower Limb,
+Chilblains, Myokymia — and the clique type vote rightly follows HP. While `config.yaml`'s
+extra-prefixes allowlist named GARD for `biolink:Disease` only, joining such a clique **deleted**
+the GARD identifier rather than moving it to `PhenotypicFeature.txt`, so the concord refused those
+five links and shipped a duplicate single-identifier Disease clique beside the phenotype clique
+naming the same thing. A `babel-clique-diff` run reporting `5 dropped members` is what surfaced it;
+nothing else would have, since the impact report cannot see a dropped identifier at all — a CURIE
+absent from both sides is not a difference.
 
-Guard 3 was added because a `babel-clique-diff` of the first implementation reported five dropped
-members, which is exactly what that diff exists to catch:
+The fix was not a better guard but a correct allowlist: GARD is unregistered for *every* Biolink
+class, so its exemption was never one earned on disease grounds, and
+`disease_extra_prefixes_by_biolink_class` now names it under `biolink:PhenotypicFeature` too. The
+identifier follows its clique, the guard has nothing left to prevent, and the five links are made.
 
-```text
-GARD:27493  Cementoblastoma                → NCIT:C4308,     clique led by HP:0012328
-GARD:28330  Ileal Atresia                  → NCIT:C101026,   clique led by HP:0011102
-GARD:28364  Phocomelia of the Lower Limb   → NCIT:C35323,    clique led by HP:0009819
-GARD:28368  Chilblains                     → MESH:D002647,   clique led by HP:0009710
-GARD:28372  Myokymia                       → MESH:D020385,   clique led by HP:0002411
-```
-
-Each is the same concept under both names; Babel holds it as a phenotype because HP names it, while
-GARD calls it a rare disease. They stay as they are until GARD is registered in the Biolink Model
-([#1051](https://github.com/NCATSTranslator/Babel/issues/1051)), at which point this guard can go.
-
-Two cheaper proxies were tried first and both failed. Vetoing labels that HP or MP also carries
-catches only 3 of the 5 (HP's label for Cementoblastoma and Phocomelia differs from GARD's), and the
-target's declared type in the ids file says `biolink:Disease` for all five — the type comes from the
-*clique*, not the identifier. The clique that makes them phenotypes forms through UMLS, two hops
-from the target, so nothing local sees it. So guard 3 asks the question directly: it reglommed the
-other concords with `compute_cliques_for_impact_report()` and types the result with
-`classify_disease_clique()`, the same two functions the build itself uses. It costs about five
-seconds and is exact.
+Two cheaper proxies for that guard were tried before it was deleted, and both failed, which is the
+other reason not to reintroduce it: vetoing any label HP or MP also carries catches only three of
+the five, because HP's labels for Cementoblastoma and Phocomelia differ from GARD's; and the
+target's declared type in the ids file says `biolink:Disease` for all five, because the type is a
+property of the *clique*, and the clique that makes them phenotypes forms through UMLS two hops from
+the target. The working version had to reglom every other concord — by far the most expensive thing
+in the module, for a question that no longer needs asking.
 
 HP and MP are also absent from `config.yaml: disease_gard_label_match_prefixes`, for the related but
 separate reason that `split_mutually_exclusive_cliques()` keeps phenotype and disease cliques
-disjoint on purpose. Guard 3 covers the indirect case; the pool exclusion covers the direct one.
+disjoint on purpose. That is about matching a GARD term *directly* onto an HP or MP term; reaching
+an HP-led clique through one of its other members, as five of the 270 do, is a different thing and
+is fine.
 
 ## Effect on the build
 
@@ -186,12 +180,16 @@ disjoint on purpose. Guard 3 covers the indirect case; the pool exclusion covers
 
 | | Changed cliques | Dropped members | Moved | Leader changes |
 | --- | --- | --- | --- | --- |
-| `Disease.txt` | 528 | 0 | 0 | 0 |
-| `PhenotypicFeature.txt` | 0 | 0 | 0 | 0 |
+| `Disease.txt` | 533 | 0 | 5 | 0 |
+| `PhenotypicFeature.txt` | 5 | 0 | 0 | 0 |
 
-The 528 are the 265 GARD singletons that stop existing plus the 263 cliques that gain a member (two
-cliques gain two GARD ids each, where the registry carries a label twice). `Disease.txt` goes from
-365,345 to 365,080 cliques, and all 16,214 GARD identifiers still reach a compendium.
+`Disease.txt` goes from 365,345 to 365,075 cliques. Its 533 rows are 265 GARD singletons that merge
+into an existing disease clique, 263 cliques that gain a member (two gain two GARD ids each, where
+the registry carries a label twice), and the **5 `moved`** — the terms whose match puts them in an
+HP-led clique, so they retype into `PhenotypicFeature.txt` rather than staying diseases. That is the
+`moved` column doing exactly what it is for: a member changing compendium is neither a merge nor a
+loss, and it is the one outcome the impact report cannot express. `PhenotypicFeature.txt` gains
+those five members and no cliques, and all 16,214 GARD identifiers still reach a compendium.
 
 ## Deliberate omissions
 
@@ -205,7 +203,7 @@ cliques gain two GARD ids each, where the registry carries a label twice). `Dise
 
 ## The better fix is upstream
 
-MONDO already maps 15,930 registry terms with `oboInOwl:hasDbXref`, so these 265 fit its existing
+MONDO already maps 15,930 registry terms with `oboInOwl:hasDbXref`, so these 270 fit its existing
 practice exactly. Sending them upstream would turn a heuristic into curation, and each term MONDO
 takes up drops out of this concord automatically (guard 1). That is tracked as
 [#1058](https://github.com/NCATSTranslator/Babel/issues/1058).

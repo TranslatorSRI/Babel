@@ -1,7 +1,7 @@
 # Source impact report: GARD
 
-- Generated: 2026-08-26 02:43:59 UTC
-- Babel commit: 1438ddeeb7c465453e52f497d322248b283dc923
+- Generated: 2026-08-26 03:43:38 UTC
+- Babel commit: 0d9aee2363fa91f2b2d3fdd1e19fb877b72136b4
 - Source pipelines: disease
 - Source prefixes: GARD
 - Source concords: GARD_label
@@ -32,23 +32,24 @@ Totals: 16,214 identifiers across 1 prefix(es) in 1 pipeline(s).
 
 ### Final compendium-assigned (after glom)
 
-- disease / Disease.txt: 16,214 GARD identifiers
+- disease / Disease.txt: 16,209 GARD identifiers
+- disease / PhenotypicFeature.txt: 5 GARD identifiers
 
 ## 3. Cross-references added
 
-Totals: 265 cross-reference rows across 1 concord file(s).
+Totals: 270 cross-reference rows across 1 concord file(s).
 
 ### By pipeline
 
-- disease / GARD: 265
+- disease / GARD: 270
 
 ### Partner prefix breakdown (per pipeline)
 
 - disease
-  - NCIT: 210
+  - NCIT: 213
   - MONDO: 42
+  - MESH: 8
   - orphanet: 7
-  - MESH: 6
 
 ### Join pathways (every asserted cross-reference, not only this source's own)
 
@@ -60,10 +61,10 @@ when another source's does — the latter may predate this addition. The prefix 
 |---|---|---|---|---|---|
 | disease | `xref` | GARD ↔ MONDO | `MONDO_GARD` | from_other_source | 15,936 |
 | disease | `xref` | DOID ↔ GARD | `DOID` | from_other_source | 1,902 |
-| disease | `xref` | GARD ↔ NCIT | `GARD_label` | added | 210 |
+| disease | `xref` | GARD ↔ NCIT | `GARD_label` | added | 213 |
 | disease | `xref` | GARD ↔ MONDO | `GARD_label` | added | 42 |
+| disease | `xref` | GARD ↔ MESH | `GARD_label` | added | 8 |
 | disease | `xref` | GARD ↔ orphanet | `GARD_label` | added | 7 |
-| disease | `xref` | GARD ↔ MESH | `GARD_label` | added | 6 |
 
 ## 4. Clique impact
 
@@ -75,17 +76,17 @@ change the source could introduce before that filtering is applied.
 
 ### disease
 
-- 12 new cliques composed only of GARD identifiers (a 0.00% increase over the 440,647 pre-existing
+- 7 new cliques composed only of GARD identifiers (a 0.00% increase over the 440,647 pre-existing
   cliques)
-- 15,872 existing cliques contain GARD identifiers in the after state (3.60% of the 440,647
-  pre-existing cliques). Of these, 14,304 cliques gain at least one structurally new identifier from
+- 15,877 existing cliques contain GARD identifiers in the after state (3.60% of the 440,647
+  pre-existing cliques). Of these, 14,309 cliques gain at least one structurally new identifier from
   GARD, and 1,568 already contained the GARD CURIE via an xref from another source — GARD's ids file
   now also lists those existing CURIEs as first-class typed identifiers.
 - 22 existing cliques will be merged because of new GARD cross-references
-- 14,314 structurally-new GARD identifiers are added to existing cliques (14,314 via expansion, 0
-  via merges). This is distinct from the 14,326 existing cliques that change, since one clique can
+- 14,319 structurally-new GARD identifiers are added to existing cliques (14,319 via expansion, 0
+  via merges). This is distinct from the 14,331 existing cliques that change, since one clique can
   gain several identifiers.
-- Total cliques in this pipeline go from 440,647 to 440,640
+- Total cliques in this pipeline go from 440,647 to 440,635
 - Sample of new cliques (top 100, unsurvivable and largest first):
   [`impact-report/new-cliques-top-100.csv`](impact-report/new-cliques-top-100.csv)
 - Full list of modified cliques (one row per added/preexisting GARD identifier):
@@ -111,7 +112,7 @@ change the source could introduce before that filtering is applied.
 
 #### Sample expanded cliques (up to 3)
 
-Of the 15,872 cliques that contain GARD identifiers in the after state, 0 would also see their
+Of the 15,877 cliques that contain GARD identifiers in the after state, 0 would also see their
 preferred identifier change as a result of adding GARD. The sample below leads with
 preferred-id-change cliques (if any), then structurally grown cliques, then cliques where GARD only
 adds CURIEs that were already present via xref. Within each clique, identifiers are listed in the

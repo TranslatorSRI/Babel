@@ -28,6 +28,7 @@ GARD:27492,Benign Odontogenic Neoplasm,NCIT:C4306,Benign Odontogenic Neoplasm,UM
 GARD:28293,Bladder urachal carcinoma,MONDO:0003715,bladder urachal carcinoma,MONDO:0003715,biolink:Disease,7
 GARD:28292,Bladder urachal squamous cell carcinoma,MONDO:0003714,bladder urachal squamous cell carcinoma,MONDO:0003714,biolink:Disease,5
 GARD:27503,Calcifying Cystic Odontogenic Tumor,NCIT:C54319,Calcifying Cystic Odontogenic Tumor,UMLS:C0206740,biolink:Disease,5
+GARD:27493,Cementoblastoma,NCIT:C4308,Cementoblastoma,HP:0012328,biolink:PhenotypicFeature,7
 GARD:28307,Central auditory processing disorder,NCIT:C97170,Central Auditory Processing Disorder,MONDO:0024422,biolink:Disease,10
 GARD:28203,Central Nervous System Erdheim-Chester Disease,NCIT:C129808,Central Nervous System Erdheim-Chester Disease,UMLS:C4329631,biolink:Disease,2
 GARD:28285,Central Nervous System Histiocytic and Dendritic Cell Neoplasm,NCIT:C92944,Central Nervous System Histiocytic and Dendritic Cell Neoplasm,UMLS:C2985357,biolink:Disease,2
@@ -36,6 +37,7 @@ GARD:28201,Central Nervous System Langerhans Cell Histiocytosis,NCIT:C129806,Cen
 GARD:27466,Central Nervous System Rosai-Dorfman-Destombes Disease,NCIT:C186663,Central Nervous System Rosai-Dorfman-Destombes Disease,UMLS:C5670693,biolink:Disease,2
 GARD:28244,Central Odontogenic Fibroma,NCIT:C202077,Central Odontogenic Fibroma,UMLS:C1260966,biolink:Disease,3
 GARD:28345,Cerebral Adrenoleukodystrophy,NCIT:C142852,Cerebral Adrenoleukodystrophy,UMLS:C4684865,biolink:Disease,2
+GARD:28368,Chilblains,MESH:D002647,Chilblains,HP:0009710,biolink:PhenotypicFeature,10
 GARD:28235,Childhood Adamantinomatous Craniopharyngioma,NCIT:C188948,Childhood Adamantinomatous Craniopharyngioma,UMLS:C5708143,biolink:Disease,2
 GARD:28238,Childhood Adenomatoid Odontogenic Tumor,NCIT:C190156,Childhood Adenomatoid Odontogenic Tumor,UMLS:C5783529,biolink:Disease,2
 GARD:27474,Childhood Adrenal Cortical Carcinoma,NCIT:C190069,Childhood Adrenal Cortical Carcinoma,UMLS:C5783480,biolink:Disease,2
@@ -135,6 +137,7 @@ GARD:28248,Hybrid Odontogenic Fibroma with Central Giant Cell Granuloma,NCIT:C20
 GARD:28326,Hyperacute transplant rejection,MONDO:1010186,hyperacute transplant rejection,MONDO:1010186,biolink:Disease,1
 GARD:28341,Hyperpipecolatemia,NCIT:C125593,Hyperpipecolatemia,MONDO:0019609,biolink:Disease,18
 GARD:28323,ICHAD syndrome,MONDO:0979234,ICHAD syndrome,MONDO:0979234,biolink:Disease,6
+GARD:28330,Ileal Atresia,NCIT:C101026,Ileal Atresia,HP:0011102,biolink:PhenotypicFeature,5
 GARD:28354,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 1,NCIT:C188936,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 1,UMLS:C5539144,biolink:Disease,2
 GARD:28355,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 2,NCIT:C188937,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 2,UMLS:C5539145,biolink:Disease,2
 GARD:28356,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 3,NCIT:C188939,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 3,UMLS:C5539321,biolink:Disease,2
@@ -178,6 +181,7 @@ GARD:28346,Mitochondrially Inherited Nonsyndromic Sensorineural Deafness,NCIT:C1
 GARD:28259,Multiple Mastocytomas of the Skin,NCIT:C212107,Multiple Mastocytomas of the Skin,UMLS:C5983853,biolink:Disease,2
 GARD:28349,Muscular Dystrophy Secondary to Mitochondrial Disorder,NCIT:C168331,Muscular Dystrophy Secondary to Mitochondrial Disorder,UMLS:C5238795,biolink:Disease,2
 GARD:28350,Muscular Dystrophy Secondary to Oxidative Phosphorylation Disorder,NCIT:C168332,Muscular Dystrophy Secondary to Oxidative Phosphorylation Disorder,NCIT:C168332,biolink:Disease,1
+GARD:28372,Myokymia,MESH:D020385,Myokymia,HP:0002411,biolink:PhenotypicFeature,7
 GARD:28291,Nephrocalcinosis,MONDO:0001567,nephrocalcinosis,MONDO:0001567,biolink:Disease,12
 GARD:28373,Neurocysticercosis,MESH:D020019,Neurocysticercosis,UMLS:C0338437,biolink:Disease,5
 GARD:28313,Neurodevelopmental disorder with microcephaly and structural brain anomalies,MONDO:0032779,neurodevelopmental disorder with microcephaly and structural brain anomalies,MONDO:0032779,biolink:Disease,5
@@ -201,6 +205,7 @@ GARD:28286,Penicilliosis,MONDO:0000304,penicilliosis,MONDO:0000304,biolink:Disea
 GARD:27496,Peripheral Odontogenic Fibroma,NCIT:C4315,Peripheral Odontogenic Fibroma,UMLS:C0334571,biolink:Disease,3
 GARD:28374,Peritoneal Panniculitis,NCIT:C85004,Peritoneal Panniculitis,UMLS:C0030330,biolink:Disease,3
 GARD:28297,Peritoneal well differentiated papillary mesothelioma,MONDO:0006364,peritoneal well differentiated papillary mesothelioma,MONDO:0006364,biolink:Disease,6
+GARD:28364,Phocomelia of the Lower Limb,NCIT:C35323,Phocomelia of the Lower Limb,HP:0009819,biolink:PhenotypicFeature,4
 GARD:28351,PIK3R1 Deficiency,NCIT:C176631,PIK3R1 Deficiency,UMLS:C5447337,biolink:Disease,2
 GARD:28342,Plasma Kallikrein Deficiency,NCIT:C131648,Plasma Kallikrein Deficiency,UMLS:C4331013,biolink:Disease,2
 GARD:28347,POLG-Related Spectrum Disorders,NCIT:C157267,POLG-Related Spectrum Disorders,UMLS:C4763519,biolink:Disease,2

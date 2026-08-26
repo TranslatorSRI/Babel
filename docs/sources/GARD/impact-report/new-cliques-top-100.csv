@@ -5,9 +5,4 @@ disease,GARD:15009,"Monocytosis/myelocytosis, Autoimmunity, Gain of function, Im
 disease,GARD:15863,Usher syndrome type 1J,biolink:Disease,1,GARD:15863,false,true,GARD
 disease,GARD:24658,"Heart, malformation of",biolink:Disease,1,GARD:24658,false,true,GARD
 disease,GARD:27070,TUBB2A-related tubulinopathy,biolink:Disease,1,GARD:27070,false,true,GARD
-disease,GARD:27493,Cementoblastoma,biolink:Disease,1,GARD:27493,false,true,GARD
 disease,GARD:28300,"Camurati-Engelmann disease, type 2",biolink:Disease,1,GARD:28300,false,true,GARD
-disease,GARD:28330,Ileal Atresia,biolink:Disease,1,GARD:28330,false,true,GARD
-disease,GARD:28364,Phocomelia of the Lower Limb,biolink:Disease,1,GARD:28364,false,true,GARD
-disease,GARD:28368,Chilblains,biolink:Disease,1,GARD:28368,false,true,GARD
-disease,GARD:28372,Myokymia,biolink:Disease,1,GARD:28372,false,true,GARD

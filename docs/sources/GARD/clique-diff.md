@@ -25,28 +25,30 @@ Summary in [`whole-pr/clique-diff.summary.json`](./whole-pr/clique-diff.summary.
 
 | compendium | before | after | diff |
 | --- | ---: | ---: | ---: |
-| `Disease.txt` | 365,087 | 365,080 | **−7** |
+| `Disease.txt` | 365,087 | 365,075 | **−12** |
 | `PhenotypicFeature.txt` | 75,477 | 75,477 | 0 |
 
-**Adding 16,214 identifiers makes the disease compendium seven cliques smaller.** That is the whole
+**Adding 16,214 identifiers makes the disease compendium twelve cliques smaller.** That is the whole
 argument for the two concords: GARD's terms merge into cliques that already exist rather than
-forming new ones beside them, and the 265 `GARD_label` merges more than cancel the 258 cliques the
+forming new ones beside them, and the 270 `GARD_label` merges more than cancel the 258 cliques the
 ingest adds.
 
 | destination_kind | rows | members | meaning |
 | --- | ---: | ---: | --- |
-| `kept` | 16,353 | 109,340 | an existing clique gained GARD identifiers and kept its leader |
+| `kept` | 16,359 | — | an existing clique gained GARD identifiers and kept its leader |
 | `regrouped` | 29 | 248 | members moved to a different leader in the same compendium |
 | `leader_changed` | 0 | 0 | no clique's preferred identifier was reassigned |
-| `moved` | 0 | 0 | no member retyped into a different compendium file |
+| `moved` | 0 | 0 | no `main` member retyped into a different compendium file |
 | `dropped` | 0 | 0 | **no identifier disappeared from the compendia** |
 
 Checked directly as well as through the diff, since `babel-clique-diff` cannot see a CURIE absent
-from both sides: the two compendia hold 746,552 identifiers on `main` and 763,060 on this branch,
-the 16,508 added are **all** `GARD:`, and **not one `main` identifier is missing**.
+from both sides: the two compendia hold 746,552 identifiers on `main` and 763,061 on this branch,
+the 16,509 added are **all** `GARD:`, and **not one `main` identifier is missing**. Six of those
+GARD identifiers are in `PhenotypicFeature.txt`, where GARD names a concept HP also names; the rest
+are in `Disease.txt`.
 
-The 29 `regrouped` rows are byte-for-byte the same 29 as diff 1 below. `GARD_label` restructures
-nothing of its own — every one of its 265 rows attaches a single-identifier GARD clique to an
+The 29 `regrouped` rows are byte-for-byte the same 29 as diff 1 below. `GARD_label` restructures no
+pre-existing clique of its own — each of its 270 rows attaches a single-identifier GARD clique to an
 existing one — so all of this PR's clique restructuring comes from the ingest and `MONDO_GARD`, and
 is analysed there.
 
@@ -56,10 +58,13 @@ Two other properties worth stating because they are easy to assume rather than c
   `MONDO_close`, `HP`, `MP`, `UMLS`, `EFO`, `Manual`), including after re-running the UberGraph walk
   on `main`'s code. `DOID` has the same 39,264 rows on both sides and differs only in how its GARD
   targets are spelled. So the diff isolates the intended inputs and nothing else.
-- **`extra_prefixes` scoping changes nothing in this build.** Scoping the list to `biolink:Disease`
-  closes a hole rather than fixing an active leak: `ICD10CM` appears 2,012 times in `Disease.txt`
-  and zero times in `PhenotypicFeature.txt` on *both* sides, so no identifier was going through it
-  today. See [`README.md`](README.md), "Biolink registration".
+- **The per-class allowlist changes nothing for `ICD10CM` and everything for six GARD identifiers.**
+  Keying `extra_prefixes` by Biolink class stops a list argued for one class being granted to
+  another; for `ICD10CM` that is a hole closed rather than a leak fixed, since it appears 2,012
+  times in `Disease.txt` and zero times in `PhenotypicFeature.txt` on *both* sides. For GARD it is
+  load-bearing: naming GARD under `biolink:PhenotypicFeature` as well is what lets six identifiers
+  survive in the phenotype cliques they belong to instead of being deleted. See
+  [`README.md`](README.md), "Biolink registration".
 
 ## Diff 1: adding the GARD ingest
 
@@ -80,8 +85,8 @@ xrefs — the same 16,214 identifiers produce **14,319** single-identifier cliqu
 [`docs/AddingNewSources.md`](../../AddingNewSources.md) ("Prefer joining an existing clique") and
 [`docs/sources/MONDO/README.md`](../MONDO/README.md).
 
-`PhenotypicFeature.txt` is untouched, as expected: `disease_extra_prefixes` is a per-class allowlist
-applied to `biolink:Disease` only, so no GARD CURIE can survive in a phenotype clique.
+`PhenotypicFeature.txt` is untouched at this stage: the ingest's GARD identifiers all land in
+disease cliques. Six reach phenotype cliques once `GARD_label` runs — see diff 2.
 
 ### Nothing is lost; 29 cliques are restructured
 
@@ -190,7 +195,7 @@ rule [`AGENTS.md`](../../../AGENTS.md) states for clique-membership questions.
 ## Diff 2: adding the GARD_label concord
 
 The ingest above leaves 277 registry terms that neither MONDO nor DOID maps as single-identifier
-cliques. The `GARD_label` concord links 265 of them to an identically labelled identifier already in
+cliques. The `GARD_label` concord links 270 of them to an identically labelled identifier already in
 the pipeline; [`label-matches/README.md`](label-matches/README.md) is the evidence for the match
 rule, and [`label-matches/label-matches.csv`](label-matches/label-matches.csv) is the per-row
 record, so only the summary is committed here:
@@ -198,33 +203,43 @@ record, so only the summary is committed here:
 
 | compendium | before | after | diff |
 | --- | ---: | ---: | ---: |
-| `Disease.txt` | 365,345 | 365,080 | **−265** |
+| `Disease.txt` | 365,345 | 365,075 | **−270** |
 | `PhenotypicFeature.txt` | 75,477 | 75,477 | 0 |
 
-| destination_kind | rows | meaning |
-| --- | ---: | --- |
-| `kept` | 263 | a clique gained a GARD member and kept its leader |
-| `regrouped` | 265 | a GARD single-identifier clique merged into an existing clique |
-| `leader_changed` | 0 | no clique's preferred identifier was reassigned |
-| `moved` | 0 | no member retyped into a different compendium file |
-| `dropped` | 0 | **no identifier disappeared from the compendia** |
+| destination_kind | compendium | rows | meaning |
+| --- | --- | ---: | --- |
+| `regrouped` | `Disease.txt` | 265 | a GARD single-identifier clique merged into an existing disease clique |
+| `kept` | `Disease.txt` | 263 | a disease clique gained a GARD member and kept its leader |
+| `moved` | `Disease.txt` | 5 | a GARD term retyped out of `Disease.txt` into a phenotype clique |
+| `kept` | `PhenotypicFeature.txt` | 5 | the phenotype cliques those five joined |
+| `dropped` | — | 0 | **no identifier disappeared** |
+| `leader_changed` | — | 0 | no clique's preferred identifier was reassigned |
 
-263 rather than 265 destinations because two cliques gain two GARD ids each, where the registry
-carries the same label twice. All 16,214 GARD identifiers still reach a compendium.
+263 rather than 265 `kept` destinations because two cliques gain two GARD ids each, where the
+registry carries the same label twice.
 
-### The dropped-members run that produced guard 3
+### The five `moved` rows, and the guard that used to prevent them
 
-The first implementation of this concord reported **5 dropped members** on this diff, and that is
-how `build_gard_label_concord()`'s third guard came to exist. Five registry terms matched an
-identifier whose clique Babel types `biolink:PhenotypicFeature` — Cementoblastoma, Ileal Atresia,
-Phocomelia of the Lower Limb, Chilblains, Myokymia. `disease_extra_prefixes` is a per-class
-allowlist naming GARD for `biolink:Disease` only, so those GARD ids were not moved into
-`PhenotypicFeature.txt`; they were dropped from the build, trading a working single-identifier
-clique for a vanished identifier.
+`disease_gard_ids` types every registry term `biolink:Disease`, but five of the matched terms name
+concepts HP also names — Cementoblastoma, Ileal Atresia, Phocomelia of the Lower Limb, Chilblains,
+Myokymia — and the clique type vote rightly follows HP. They therefore retype into
+`PhenotypicFeature.txt`, which is what the `moved` column is for: a member changing compendium is
+neither a merge nor a loss, and it is the one outcome the source-impact report cannot express.
 
-Nothing else would have caught it. The impact report cannot see a dropped identifier at all — a
-CURIE absent from both sides is not a difference — and the concord looked correct on disk. Guard 3
-skips those five targets, and the diff above is the result.
+The first version of this concord refused those five links, and an earlier run of this diff is why.
+While `config.yaml`'s extra-prefixes allowlist named GARD for `biolink:Disease` only, joining an
+HP-led clique **deleted** the GARD identifier rather than moving it, and the diff reported
+`5 dropped members`. Nothing else would have caught it — the impact report cannot see a dropped
+identifier at all, since a CURIE absent from both sides is not a difference — so a guard was added
+that refused any target whose clique was not `biolink:Disease`.
+
+That guard was the wrong fix and has been removed. GARD is unregistered for *every* Biolink class,
+so its exemption was never one earned on disease grounds;
+`disease_extra_prefixes_by_biolink_class` now names GARD under both classes, the identifier follows
+its clique, and `dropped` is 0 without anything having to refuse a correct link. The removal also
+deleted the most expensive thing in `build_gard_label_concord()`: the guard had to reglom every
+other concord, because the clique that types those five forms through UMLS two hops from the target,
+where no label or ids-file inspection reaches it.
 
 ## What was compared
 

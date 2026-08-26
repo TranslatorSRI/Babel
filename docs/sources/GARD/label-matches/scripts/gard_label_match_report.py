@@ -17,7 +17,7 @@ Run from the repo root against a finished disease build:
 It writes docs/sources/GARD/label-matches/label-matches.csv (one row per emitted link) and prints the summary that
 docs/sources/GARD/label-matches/README.md records.
 
-Last result (2026-08-25, GARD Jun2026, MONDO/DOID/NCIt/UMLS 2026AA): 265 rows emitted; the same rule
+Last result (2026-08-26, GARD Jun2026, MONDO/DOID/NCIt/UMLS 2026AA): 270 rows emitted; the same rule
 over the 15,937 held-out GARD ids picks a target for 15,370 and disagrees with the curated clique 33
 times (0.21%).
 """
@@ -28,11 +28,7 @@ import json
 import sys
 from pathlib import Path
 
-from src.createcompendia.diseasephenotype import (
-    DEFAULT_BAD_XREFS,
-    build_gard_label_concord,
-    normalize_label_for_matching,
-)
+from src.createcompendia.diseasephenotype import build_gard_label_concord, normalize_label_for_matching
 from src.util import get_config, get_repo_root
 
 REPO = get_repo_root()
@@ -82,10 +78,7 @@ def main(build_dir=None):
         str(downloads / "GARD/labels"),
         [str(intermediate / f"disease/ids/{p}") for p in pool],
         [str(downloads / f"{p}/labels") for p in pool],
-        [str(intermediate / f"disease/ids/{p}") for p in config["disease_ids"]],
         other_concords,
-        str(concords / "MONDO_close"),
-        DEFAULT_BAD_XREFS,
         str(scratch / "GARD_label.report"),
         str(scratch / "GARD_label.report.yaml"),
     )

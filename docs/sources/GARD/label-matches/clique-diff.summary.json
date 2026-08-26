@@ -10,21 +10,21 @@
   },
   "compendia": {
     "Disease.txt": {
-      "changed_before_cliques": 528,
+      "changed_before_cliques": 533,
       "clique_count": {
-        "after": 365080,
+        "after": 365075,
         "before": 365345,
-        "diff": -265,
+        "diff": -270,
         "diff_percent": -0.07
       },
       "cliques_with_dropped_members": 0,
       "dropped_member_count": 0,
       "leader_changed_count": 0,
-      "moved_member_count": 0,
+      "moved_member_count": 5,
       "regrouped_member_count": 265
     },
     "PhenotypicFeature.txt": {
-      "changed_before_cliques": 0,
+      "changed_before_cliques": 5,
       "clique_count": {
         "after": 75477,
         "before": 75477,
