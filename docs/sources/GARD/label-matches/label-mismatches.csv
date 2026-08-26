@@ -1,0 +1,34 @@
+gard_id,gard_label,mapped_clique_leader,mapped_clique_label,label_matches,label_matches_clique_leader,label_matches_clique_label
+GARD:10867,Familial multiple trichoepitheliomata,MONDO:0011114,familial multiple trichoepithelioma,UMLS:C1275122,DOID:0061187,multiple familial trichoepithelioma 1
+GARD:10957,Iron-refractory iron deficiency anemia,MONDO:0008788,IRIDA syndrome,UMLS:C0085576,MONDO:0001245,microcytic anemia
+GARD:11984,Hereditary pheochromocytoma and paraganglioma,MONDO:0017366,hereditary pheochromocytoma-paraganglioma,UMLS:C4274332,UMLS:C4274332,Hereditary pheochromocytoma and paraganglioma
+GARD:12827,Hypotrichosis-lymphedema-telangiectasia syndrome,MONDO:0007670,hypotrichosis-lymphedema-telangiectasia syndrome (grouping),MONDO:0011914,MONDO:0011914,hypotrichosis-lymphedema-telangiectasia syndrome
+GARD:13809,Pigmentary retinal dystrophy,MONDO:0007639,fundus albipunctatus,UMLS:C4551633,UMLS:C4551633,Pigmentary retinal dystrophy
+GARD:15142,Congenital cleft nose,MONDO:0008866,"bifid nose, autosomal recessive",UMLS:C4759655,MONDO:0015414,paramedian nasal cleft
+GARD:1638,Cutis laxa with osteodystrophy,MONDO:0018163,autosomal recessive cutis laxa type 2A,UMLS:C5550995,MONDO:0009054,"autosomal recessive cutis laxa type 2, classic type"
+GARD:16798,"Ptosis, hereditary congenital, 1",MONDO:0008340,congenital ptosis,MONDO:0979905,MONDO:0979905,"ptosis, hereditary congenital, 1"
+GARD:17091,Cleft upper lip,MONDO:0016043,isolated cleft lip,UMLS:C0008924,MONDO:0004747,cleft lip
+GARD:17098,Factor I deficiency,MONDO:0012594,complement factor I deficiency,NCIT:C26692,UMLS:C4316812,Fibrinogen Deficiency
+GARD:17159,Rhabdoid tumor predisposition syndrome,MONDO:0016473,familial rhabdoid tumor,DOID:0070617,DOID:0070617,rhabdoid tumor predisposition syndrome
+GARD:17278,Euthyroid goiter,MONDO:0007681,"goiter, multinodular 1, with or without Sertoli-Leydig cell tumors",UMLS:C0302859,HP:0009798,Euthyroid goiter
+GARD:19078,Peripheral T-cell lymphoma,MONDO:0019476,primary cutaneous peripheral T-cell lymphoma not otherwise specified,DOID:0050749,MONDO:0000430,mature T-cell and NK-cell non-Hodgkin lymphoma
+GARD:19281,Primary hypophysitis,MONDO:0019835,lymphocytic hypophysitis,orphanet:95506,orphanet:95506,Primary hypophysitis
+GARD:21731,Tracheobronchomalacia,MONDO:0008888,Williams-Campbell syndrome,MESH:D055089,HP:0002786,Tracheobronchomalacia
+GARD:22267,Triglyceride deposit cardiomyovasculopathy,MONDO:0035423,primary triglyceride deposit cardiomyovasculopathy,MONDO:0979259,MONDO:0979259,triglyceride deposit cardiomyovasculopathy
+GARD:24674,Kartagener syndrome,MONDO:0009484,primary ciliary dyskinesia 1,DOID:0050144,MONDO:0016575,primary ciliary dyskinesia
+GARD:24738,Aarskog syndrome,MONDO:0010589,"Aarskog-Scott syndrome, X-linked",DOID:0111824,MONDO:0021005,faciodigitogenital syndrome
+GARD:25146,Astrocytoma,MONDO:0019781,astrocytoma (excluding glioblastoma),orphanet:94,MONDO:0021636,astrocytic tumor
+GARD:25275,Benign hereditary chorea,MONDO:0021011,hereditary progressive chorea without dementia,orphanet:1429,MONDO:0001595,choreatic disease
+GARD:26277,Primary open angle glaucoma,MONDO:0100553,OPTN-related open angle glaucoma,DOID:1070,MONDO:0005338,open-angle glaucoma
+GARD:27530,Writer's cramp,MONDO:0000482,focal hand dystonia,UMLS:C4316810,UMLS:C4316810,Writer's Cramp
+GARD:27564,Keratoconjunctivitis sicca,MONDO:0000948,xerophthalmia,DOID:12895,MONDO:0006733,dry eye syndrome
+GARD:27737,Nephroblastoma,MONDO:0006058,Wilms tumor,DOID:2154,MONDO:0019004,kidney Wilms tumor
+GARD:2906,Primary hypomagnesemia,MONDO:0009550,renal hypomagnesemia 3,DOID:0060879,MONDO:0018100,familial primary hypomagnesemia
+GARD:307,11q partial monosomy syndrome,MONDO:0007838,Jacobsen syndrome,UMLS:C5886918,UMLS:C5886918,11q partial monosomy syndrome
+GARD:3672,Hemolytic anemia due to hexokinase deficiency,MONDO:0009340,non-spherocytic hemolytic anemia due to hexokinase deficiency,UMLS:C0472792,UMLS:C0472792,Hemolytic anemia due to hexokinase deficiency
+GARD:4908,Torticollis,MONDO:0008583,inherited torticollis,MESH:D014103,MONDO:0000481,cervical dystonia
+GARD:5506,Vitreoretinopathy,MONDO:0020248,vitreoretinal degeneration,orphanet:98668,MONDO:0020246,inherited vitreoretinopathy
+GARD:8397,Hepatic methionine adenosyltransferase deficiency,MONDO:0009607,methionine adenosyltransferase deficiency,UMLS:C0268621,MONDO:0000351,disorder of methionine catabolism
+GARD:8433,King Denborough syndrome,MONDO:0020485,King-Denborough syndrome,DOID:0080990,MONDO:0007783,"malignant hyperthermia, susceptibility to, 1"
+GARD:9497,Ichthyosis hystrix gravior,MONDO:0007809,"ichthyosis histrix, Lambert type",orphanet:79504,orphanet:79504,Ichthyosis hystrix gravior
+GARD:9991,Ehlers-Danlos syndrome progeroid type,MONDO:0007526,"Ehlers-Danlos syndrome, spondylodysplastic type",UMLS:C4552003,MONDO:0020682,"Ehlers-Danlos syndrome, spondylodysplastic type, 1"

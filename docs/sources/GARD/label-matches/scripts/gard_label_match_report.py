@@ -14,8 +14,9 @@ Run from the repo root against a finished disease build:
 
     uv run python docs/sources/GARD/label-matches/scripts/gard_label_match_report.py
 
-It writes docs/sources/GARD/label-matches/label-matches.csv (one row per emitted link) and prints the summary that
-docs/sources/GARD/label-matches/README.md records.
+It writes two CSVs beside docs/sources/GARD/label-matches/README.md, which records the summary:
+label-matches.csv (one row per emitted link) and label-mismatches.csv (the held-out disagreements,
+which are upstream mappings worth a second look rather than a Babel defect -- see #1063).
 
 Last result (2026-08-26, GARD Jun2026, MONDO/DOID/NCIt/UMLS 2026AA): 270 rows emitted; the same rule
 over the 15,937 held-out GARD ids picks a target for 15,370 and disagrees with the curated clique 33
@@ -33,6 +34,11 @@ from src.util import get_config, get_repo_root
 
 REPO = get_repo_root()
 OUT_CSV = REPO / "docs/sources/GARD/label-matches/label-matches.csv"
+# The held-out disagreements: GARD ids whose label exactly names a clique other than the one MONDO's
+# or DOID's own xref places them in. GARD_label never acts on these (guard 1 skips them), so they
+# are not a Babel defect -- they are a list of upstream mappings worth a second look, which is what
+# https://github.com/NCATSTranslator/Babel/issues/1063 sends to MONDO.
+MISMATCH_CSV = REPO / "docs/sources/GARD/label-matches/label-mismatches.csv"
 NCIT_BLOCK = range(27000, 29000)  # the contiguous GARD id block most of the unmapped terms fall in
 
 
@@ -137,12 +143,29 @@ def main(build_dir=None):
         elif cliques[target][0] == cliques[gard_id][0]:
             right += 1
         else:
-            wrong.append((gard_id, gard_labels[gard_id], cliques[gard_id][0], target))
+            wrong.append((gard_id, gard_labels[gard_id], cliques[gard_id], target, cliques[target]))
     decided = right + len(wrong)
     print(f"\nheld-out precision over {right + len(wrong) + undecided} GARD ids other concords place:")
     print(f"  rule picks a target for {decided}: correct {right}, wrong {len(wrong)} ({len(wrong) / decided:.2%})")
-    for gard_id, label, placed, target in wrong[:8]:
-        print(f'    {gard_id} "{label}" is on {placed}; the label also names {target}')
+    for gard_id, label, placed, target, other in wrong[:8]:
+        print(f'    {gard_id} "{label}" is on {placed[0]}; the label also names {target} ({other[0]})')
+
+    with open(MISMATCH_CSV, "w", newline="") as outf:
+        writer = csv.writer(outf, lineterminator="\n")
+        writer.writerow(
+            [
+                "gard_id",
+                "gard_label",
+                "mapped_clique_leader",
+                "mapped_clique_label",
+                "label_matches",
+                "label_matches_clique_leader",
+                "label_matches_clique_label",
+            ]
+        )
+        for gard_id, label, placed, target, other in wrong:
+            writer.writerow([gard_id, label, placed[0], placed[1], target, other[0], other[1]])
+    print(f"  full list written to {MISMATCH_CSV.relative_to(REPO)}")
 
     # The NCIt label overlap of the 27000-28999 block, stated as an observation: no source documents
     # where those registry terms came from.

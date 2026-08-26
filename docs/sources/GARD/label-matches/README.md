@@ -107,6 +107,13 @@ GARD:1638   "Cutis laxa with osteodystrophy"             is on MONDO:0018163; th
 GARD:16798  "Ptosis, hereditary congenital, 1"           is on MONDO:0008340; the label also names MONDO:0979905
 ```
 
+Those 33 are worth something on their own: a GARD label exactly naming a different concept than
+MONDO's own xref chose is a cheap curation signal, and 21 of the 33 are MONDO against MONDO. The
+full list is [`label-mismatches.csv`](label-mismatches.csv), and
+[#1063](https://github.com/NCATSTranslator/Babel/issues/1063) sends them upstream — as a "please
+check" list rather than asserted corrections, since a label collision says two terms are described
+the same way, not which mapping is right.
+
 Read this as an **upper bound**, for two reasons. The held-out population is harder — curated MONDO
 cliques full of near-synonymous siblings — than the median-size-2 NCIT/UMLS pairs the concord
 actually targets. And the concord skips exactly the terms this measurement is taken on, so a
