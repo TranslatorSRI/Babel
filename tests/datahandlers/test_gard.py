@@ -19,6 +19,7 @@ import yaml
 
 from src.categories import DISEASE
 from src.datahandlers.gard import (
+    _DISTRIBUTION_URL_STEM,
     content_version_id,
     fetch_gard_about_page,
     find_gard_download_links,
@@ -42,6 +43,25 @@ _WITH_SYNS_NAME = "10q22.3q23.3 microduplication syndrome"
 _WITH_SYNS_SYNS = ["dup(10)(q22.3q23.3)", "trisomy 10q22.3q23.3"]
 _NO_SYNS = "GARD:27416"  # published as GARD:0027416; no synonyms and no URL -- still kept
 _NO_SYNS_NAME = "10p13-p14 deletion syndrome"
+
+# The `ids=` value of the currently configured gard_download_url: a Salesforce ContentVersion id,
+# naming one uploaded file. Kept here because it is both an input and an expected value across the
+# provenance tests, where the same literal appearing in two places reads as a coincidence.
+# A repoint of gard_download_url does not need to touch this -- these tests only need *a* realistic
+# id -- but test_find_gard_download_links_decodes_href_and_reads_link_text will fail until
+# _ABOUT_PAGE_ANCHOR below is recopied, which is the intended prompt.
+_CONTENT_VERSION_ID = "068SJ00001HZAaEYAX"
+
+# A distribution URL of the real shape, abbreviated (the live one also carries a long `d=` blob).
+# Built from the parser's own _DISTRIBUTION_URL_STEM so a change there cannot leave these fixtures
+# matching a host find_gard_download_links no longer looks for.
+_DISTRIBUTION_URL = f"https://{_DISTRIBUTION_URL_STEM}?oid=00Dt0&ids={_CONTENT_VERSION_ID}"
+
+# The Content-Disposition header of the live response on 2026-08-26, and the filename it decodes to.
+# Salesforce percent-encodes it, and this is the only place in the whole exchange where the dated
+# label appears -- there is no Last-Modified and no ETag -- so it stands in for a version string.
+_CONTENT_DISPOSITION = 'attachment; filename="GARD%20Disease%20List%20Website%20Jun2026.csv"'
+_PUBLISHED_FILENAME = "GARD Disease List Website Jun2026.csv"
 
 
 @pytest.mark.unit
@@ -304,6 +324,14 @@ def test_labels_and_synonyms_are_written_utf8_under_a_c_locale(tmp_path, monkeyp
 # ContentVersion URL. The config pins one; these tests notice when the page has moved on.
 
 # The anchor, verbatim from https://rarediseases.info.nih.gov/about on 2026-08-21.
+#
+# Deliberately NOT built from _DISTRIBUTION_URL / _CONTENT_VERSION_ID, though it repeats both. The
+# test below asserts the parsed href equals config.yaml's gard_download_url byte-for-byte, and that
+# assertion only means something because this string is a copy of what NCATS actually serves --
+# `&amp;` entities, icon markup inside the anchor and all. Interpolating constants into it would
+# turn the fixture into a construction of what we think the page looks like, which is the failure
+# tests/CLAUDE.md warns about ("fixtures for a real-data bug must be copied verbatim"). Recopy it
+# from the page when the link is repointed.
 _ABOUT_PAGE_ANCHOR = (
     '<a href="https://ncats.file.force.com/sfc/dist/version/download/?oid=00Dt00000004XG2&amp;ids=068SJ00001HZAaEYAX'
     '&amp;d=%2Fa%2FSJ00000BC4Xl%2FUj7U9WuHII571Akz5AUBLe6WSCeelaMBynbjWybmhuA&amp;asPdf=false" target="_blank" '
@@ -353,14 +381,29 @@ def test_gard_download_url_is_current():
 
 
 @pytest.mark.unit
+def test_the_shared_fixture_constants_match_the_real_distribution():
+    """The constants above must stay a description of the live link, not just of each other.
+
+    _DISTRIBUTION_URL is built from _CONTENT_VERSION_ID, so an assertion that
+    content_version_id(_DISTRIBUTION_URL) == _CONTENT_VERSION_ID is true for any string at all --
+    the extraction bought readability and cost the realism check that the two separate literals
+    used to provide. This restores it against the one fixture in this file that is a verbatim copy
+    of what NCATS serves: recopy _ABOUT_PAGE_ANCHOR after a repoint and this fails until
+    _CONTENT_VERSION_ID is updated to match, which is the prompt the anchor's comment promises.
+    """
+    assert _CONTENT_VERSION_ID in _ABOUT_PAGE_ANCHOR, (
+        "_CONTENT_VERSION_ID is no longer the ids= value in the About-page anchor; update it so the "
+        "provenance fixtures keep the shape of a real distribution URL"
+    )
+    assert _DISTRIBUTION_URL_STEM in _ABOUT_PAGE_ANCHOR, "the parser's URL stem is not what the page serves"
+
+
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "url,expected",
     [
-        # The configured link's shape, abbreviated: the ContentVersion id is the `ids` parameter.
-        (
-            "https://ncats.file.force.com/sfc/dist/version/download/?oid=00Dt0&ids=068SJ00001HZAaEYAX&asPdf=false",
-            "068SJ00001HZAaEYAX",
-        ),
+        # The configured link's shape: the ContentVersion id is the `ids` parameter.
+        (f"{_DISTRIBUTION_URL}&asPdf=false", _CONTENT_VERSION_ID),
         ("https://example.invalid/download?ids=068ABC", "068ABC"),
         ("https://example.invalid/download?oid=00Dt0", ""),  # no ids= at all
         ("https://example.invalid/download", ""),  # no query string
@@ -377,12 +420,7 @@ def test_content_version_id_extracts_the_upload_identifier(url, expected):
 @pytest.mark.parametrize(
     "header,expected",
     [
-        # Verbatim from the live response on 2026-08-26 -- percent-encoded, and the only place the
-        # dated label ("Jun2026") appears anywhere in the exchange.
-        (
-            'attachment; filename="GARD%20Disease%20List%20Website%20Jun2026.csv"',
-            "GARD Disease List Website Jun2026.csv",
-        ),
+        (_CONTENT_DISPOSITION, _PUBLISHED_FILENAME),
         ("attachment; filename=plain.csv", "plain.csv"),
         ("attachment", ""),  # header present, no filename
         (None, ""),  # header absent
@@ -406,20 +444,19 @@ def test_pull_gard_writes_download_provenance(tmp_path, monkeypatch):
     response = _FakeResponse(
         "text/csv",
         body,
-        headers={"Content-Disposition": 'attachment; filename="GARD%20Disease%20List%20Website%20Jun2026.csv"'},
+        headers={"Content-Disposition": _CONTENT_DISPOSITION},
     )
     _patch_opener(monkeypatch, response)
-    url = "https://ncats.file.force.com/sfc/dist/version/download/?oid=00Dt0&ids=068SJ00001HZAaEYAX"
     metadata_yaml = tmp_path / "metadata.yaml"
 
-    pull_gard(url, str(tmp_path / "gard.csv"), str(metadata_yaml))
+    pull_gard(_DISTRIBUTION_URL, str(tmp_path / "gard.csv"), str(metadata_yaml))
 
     metadata = yaml.safe_load(metadata_yaml.read_text())
     assert metadata["type"] == "download"
-    assert metadata["url"] == url
+    assert metadata["url"] == _DISTRIBUTION_URL
     source = metadata["sources"][0]
-    assert source["version"] == "GARD Disease List Website Jun2026.csv"
-    assert source["content_version_id"] == "068SJ00001HZAaEYAX"
+    assert source["version"] == _PUBLISHED_FILENAME
+    assert source["content_version_id"] == _CONTENT_VERSION_ID
     assert metadata["counts"] == {"bytes": len(body), "lines": 2}
     # The whole published list is ingested; if that ever changes, this description must too.
     assert "No term is filtered out" in metadata["description"]
