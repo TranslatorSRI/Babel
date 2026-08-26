@@ -1,9 +1,10 @@
 # GARD — NCATS Genetic and Rare Diseases registry
 
-GARD is the NCATS Genetic and Rare Diseases information center's rare-disease registry at https://rarediseases.info.nih.gov/. It is a
-flat list of rare-disease terms -- each a `GARD:` CURIE with a preferred label and pipe-separated
-synonyms -- distributed by NCATS as a single CSV. Babel ingests it as a `biolink:Disease` source in
-the existing `disease` (`diseasephenotype`) pipeline.
+GARD is the NCATS Genetic and Rare Diseases information center's rare-disease registry at
+<https://rarediseases.info.nih.gov/>. It is a flat list of rare-disease terms -- each a `GARD:`
+CURIE with a preferred label and pipe-separated synonyms -- distributed by NCATS as a single CSV.
+Babel ingests it as a `biolink:Disease` source in the existing `disease` (`diseasephenotype`)
+pipeline.
 
 ## What GARD contributes
 
