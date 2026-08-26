@@ -868,20 +868,25 @@ def test_doid_xref_prefix_map_covers_every_prefix_doid_emits():
 
 @pytest.mark.unit
 def test_disease_extra_prefixes_are_registered_and_deliberate():
-    """config.yaml: disease_extra_prefixes overrides the Biolink Model, so it must stay short.
+    """config.yaml's extra-prefixes allowlist overrides the Biolink Model, so it must stay short.
 
-    Each entry ships a prefix Biolink does not register for biolink:Disease -- deliberately, since
+    Each entry ships a prefix Biolink does not register for that class -- deliberately, since
     write_compendium() would otherwise drop it silently *after* it had already merged cliques. The
-    entries must be real prefixes from src/prefixes.py, and ICD0 must stay out: an ICD-O code is a
-    tumour morphology, so emitting one asserts a disease equivalence nobody has decided (#1037).
-    Update this test alongside the config, not instead of it."""
+    entries must be real prefixes from src/prefixes.py, and ICD0 must stay out of every class: an
+    ICD-O code is a tumour morphology, so emitting one asserts a disease equivalence nobody has
+    decided (#1037). Update this test alongside the config, not instead of it."""
     from src.prefixes import GARD, ICD0, ICD10CM
 
-    extra = get_config()["disease_extra_prefixes"]
+    allowlist = get_config()["disease_extra_prefixes_by_biolink_class"]
 
-    assert extra == [ICD10CM, GARD], "adding a prefix here overrides Biolink; say why in config.yaml first"
-    assert set(extra) <= set(Text.prefixmap.values()), "every entry must be a src/prefixes.py constant"
-    assert ICD0 not in extra
+    assert allowlist == {DISEASE: [ICD10CM, GARD], PHENOTYPIC_FEATURE: [GARD]}, (
+        "adding a prefix here overrides Biolink; say why in config.yaml first, with the issue that removes it"
+    )
+    for biolink_class, prefixes in allowlist.items():
+        assert set(prefixes) <= set(Text.prefixmap.values()), (
+            f"every entry under {biolink_class} must be a src/prefixes.py constant"
+        )
+        assert ICD0 not in prefixes
 
 
 @pytest.mark.unit
@@ -895,14 +900,14 @@ def test_icd10cm_override_expires_when_the_spelling_is_unified():
     ICD10, the override becomes dead weight that keeps a non-Biolink prefix alive for no reason.
 
     Nothing else would notice, so this fails the moment the two config entries disagree: if MONDO
-    renames ICD10CM away, ICD10CM must come out of disease_extra_prefixes in the same change."""
+    renames ICD10CM away, ICD10CM must come out of the allowlist in the same change."""
     mondo_renames = get_config()["disease_xref_prefixes"][MONDO]
-    extra = get_config()["disease_extra_prefixes"]
+    extra = get_config()["disease_extra_prefixes_by_biolink_class"][DISEASE]
 
     if "ICD10CM" in mondo_renames:
         assert ICD10CM not in extra, (
             "MONDO now renames ICD10CM, so nothing emits that prefix any more -- drop it from "
-            "config.yaml: disease_extra_prefixes (see issue #1033)."
+            "config.yaml: disease_extra_prefixes_by_biolink_class (see issues #1033 and #1060)."
         )
 
 
@@ -916,18 +921,22 @@ def test_build_compendium_passes_the_extra_prefixes_through():
     ):
         diseasephenotype.build_compendium([], {}, [], None, {}, "icRDF.tsv")
 
-    assert mock_write.call_args.kwargs["extra_prefixes"] == get_config()["disease_extra_prefixes"]
+    expected = get_config()["disease_extra_prefixes_by_biolink_class"][DISEASE]
+    assert mock_write.call_args.kwargs["extra_prefixes"] == expected
 
 
 @pytest.mark.unit
-def test_extra_prefixes_are_scoped_to_disease():
-    """The override must reach Disease.txt and NOT PhenotypicFeature.txt.
+def test_extra_prefixes_are_looked_up_per_biolink_class():
+    """Each class gets its own list, and never another class's.
 
-    extra_prefixes is a per-class allowlist, and every entry in disease_extra_prefixes is justified
-    on disease grounds -- ICD10CM is a disease classification, GARD a rare-disease registry. Passing
-    the list unscoped would let both into a phenotype clique without either facing
-    PhenotypicFeature's own prefix filter, which is the check that is supposed to catch a
-    disease/phenotype merge going wrong."""
+    extra_prefixes is a per-class allowlist and this loop writes two classes, so passing one list
+    to both grants each of them an exemption argued for the other -- which is what `main` does.
+    ICD10CM is argued on disease grounds (an ICD-10 code names a disease family, not a phenotype)
+    and must not reach PhenotypicFeature; GARD is argued on "unregistered for every class" grounds
+    and must reach both, or its identifiers are deleted from whichever compendium their clique
+    lands in."""
+    from src.prefixes import GARD, ICD10CM
+
     typed = {DISEASE: [["MONDO:1"]], PHENOTYPIC_FEATURE: [["HP:1"]]}
     with (
         patch.object(diseasephenotype, "compute_cliques_for_impact_report", return_value=({}, {})),
@@ -937,9 +946,12 @@ def test_extra_prefixes_are_scoped_to_disease():
         diseasephenotype.build_compendium([], {}, [], None, {}, "icRDF.tsv")
 
     by_type = {call.args[3]: call.kwargs["extra_prefixes"] for call in mock_write.call_args_list}
+    allowlist = get_config()["disease_extra_prefixes_by_biolink_class"]
 
-    assert by_type[DISEASE] == get_config()["disease_extra_prefixes"]
-    assert by_type[PHENOTYPIC_FEATURE] == []
+    assert by_type[DISEASE] == allowlist[DISEASE]
+    assert by_type[PHENOTYPIC_FEATURE] == allowlist[PHENOTYPIC_FEATURE]
+    assert ICD10CM in by_type[DISEASE] and ICD10CM not in by_type[PHENOTYPIC_FEATURE]
+    assert GARD in by_type[DISEASE] and GARD in by_type[PHENOTYPIC_FEATURE]
 
 
 @pytest.mark.unit
@@ -1009,9 +1021,9 @@ def test_badxrefs_files_are_registered_for_the_concords_they_name():
 # --- GARD_label concord (build_gard_label_concord) ---
 #
 # GARD publishes no cross-references, so the registry terms MONDO and DOID do not map can only reach
-# a clique through a label match. These pin the three guards that make that safe -- skip GARD ids
-# another concord places, emit at most one row each, and never target a non-Disease clique -- plus
-# the config wiring the guards depend on. Numbers and provenance: docs/sources/GARD/label-matches/README.md.
+# a clique through a label match. These pin the two guards that make that safe -- skip GARD ids
+# another concord places, and emit at most one row each -- plus the config wiring they depend on.
+# Numbers and provenance: docs/sources/GARD/label-matches/README.md.
 
 
 def _run_gard_label_concord(tmp_path, *, gard, vocabularies, other_concords=(), extra_ids=()):
@@ -1021,8 +1033,8 @@ def _run_gard_label_concord(tmp_path, *, gard, vocabularies, other_concords=(), 
     :param vocabularies: ordered [(name, {curie: (label, biolink_type)})]; each becomes one ids file
         and one labels file, in that priority order.
     :param other_concords: iterable of iterables of (subject, predicate, object) rows.
-    :param extra_ids: extra (curie, biolink_type) pairs, so the guard-3 glom can see identifiers
-        that are in a clique but not in the match pool (an HP term, typically).
+    :param extra_ids: extra (curie, biolink_type) pairs, written to an ids file the concord builder
+        does not read, for tests that go on to glom the result.
     """
     gard_labels = tmp_path / "gard_labels"
     gard_labels.write_text("".join(f"{curie}\t{label}\n" for curie, label in gard.items()))
@@ -1036,7 +1048,7 @@ def _run_gard_label_concord(tmp_path, *, gard, vocabularies, other_concords=(), 
         match_ids.append(str(idsfile))
         match_labels.append(str(labelsfile))
 
-    # The guard-3 glom needs every ids file the build has, or its cliques carry no declared types.
+    # Not read by the concord builder; here for tests that glom its output afterwards.
     gard_ids = tmp_path / "ids_GARD"
     gard_ids.write_text("".join(f"{curie}\t{DISEASE}\n" for curie in gard))
     other_ids = tmp_path / "ids_extra"
@@ -1048,17 +1060,13 @@ def _run_gard_label_concord(tmp_path, *, gard, vocabularies, other_concords=(), 
         concord.write_text("".join("\t".join(row) + "\n" for row in rows))
         concord_paths.append(str(concord))
 
-    mondoclose = tmp_path / "MONDO_close"
-    mondoclose.write_text("")
+    (tmp_path / "MONDO_close").write_text("")
     outfile = tmp_path / "GARD_label"
     diseasephenotype.build_gard_label_concord(
         str(gard_labels),
         match_ids,
         match_labels,
-        match_ids + [str(gard_ids), str(other_ids)],
         concord_paths,
-        str(mondoclose),
-        {},
         str(outfile),
         str(tmp_path / "metadata.yaml"),
     )
@@ -1169,26 +1177,71 @@ def test_gard_label_concord_cannot_merge_two_pre_existing_cliques(tmp_path):
 
 
 @pytest.mark.unit
-def test_gard_label_concord_skips_a_target_whose_clique_is_not_a_disease(tmp_path):
-    """Guard 3. write_compendium()'s prefix filter keeps GARD alive in Disease.txt only
-    (disease_extra_prefixes is a per-class allowlist, and Biolink registers GARD for no class at
-    all), so a GARD id that joins a phenotype clique is not moved to PhenotypicFeature.txt -- it is
-    dropped from the build entirely, trading a working single-identifier clique for a vanished
-    identifier. Five registry terms are in that position today; a clique diff of the first
-    implementation is how they were found.
+def test_gard_label_concord_links_a_target_whose_clique_is_a_phenotype(tmp_path):
+    """A GARD term whose clique the build types biolink:PhenotypicFeature is linked like any other,
+    and follows its clique into PhenotypicFeature.txt.
 
-    The clique that makes them phenotypes forms through UMLS, two hops from the target, so no label
-    or ids-file inspection sees it -- hence the reglom. Remove this guard when GARD is registered in
-    the Biolink Model (https://github.com/NCATSTranslator/Babel/issues/1051)."""
+    An earlier version of this concord refused those links. `disease_gard_ids` types every registry
+    term biolink:Disease, but a handful name concepts HP also names and the clique type vote rightly
+    follows HP; while the extra-prefixes allowlist named GARD for biolink:Disease only, joining such
+    a clique *deleted* the GARD identifier instead of moving it, so refusing was the lesser evil and
+    shipped a duplicate single-identifier Disease clique beside the phenotype clique naming the same
+    thing. The allowlist now names GARD for both classes
+    (test_extra_prefixes_allowlist_is_keyed_by_biolink_class), so the identifier survives either
+    way and there is nothing left to refuse. Five real terms are affected, "Chilblains" among them.
+    """
     rows = _run_gard_label_concord(
         tmp_path,
-        gard={"GARD:1": "Myokymia", "GARD:2": "Odontogenic Carcinoma"},
-        vocabularies=[("MESH", {"MESH:D020385": ("Myokymia", DISEASE), "MESH:D2": ("Odontogenic Carcinoma", DISEASE)})],
+        gard={"GARD:1": "Myokymia"},
+        vocabularies=[("MESH", {"MESH:D020385": ("Myokymia", DISEASE)})],
         # MESH:D020385 reaches HP:0002411 through UMLS, exactly as the real Myokymia clique does.
         other_concords=[[("MESH:D020385", "xref", "UMLS:C1"), ("UMLS:C1", "xref", "HP:0002411")]],
         extra_ids=[("UMLS:C1", DISEASE), ("HP:0002411", PHENOTYPIC_FEATURE)],
     )
-    assert rows == [("GARD:2", "xref", "MESH:D2")], "the HP-led clique must not gain a GARD identifier"
+    assert rows == [("GARD:1", "xref", "MESH:D020385")]
+
+    ids = [str(tmp_path / name) for name in ("ids_MESH", "ids_GARD", "ids_extra")]
+    dicts, types = diseasephenotype.compute_cliques_for_impact_report(
+        [str(tmp_path / "concord_0"), str(tmp_path / "GARD_label")],
+        ids,
+        mondoclose=str(tmp_path / "MONDO_close"),
+        badxrefs={},
+    )
+    clique = dicts["GARD:1"]
+    assert clique == {"GARD:1", "MESH:D020385", "UMLS:C1", "HP:0002411"}
+    assert diseasephenotype.classify_disease_clique(clique, types) == PHENOTYPIC_FEATURE, (
+        "HP must still win the type vote; GARD's Disease vote does not retype an HP-led clique"
+    )
+
+
+@pytest.mark.unit
+def test_extra_prefixes_allowlist_is_keyed_by_biolink_class():
+    """config.yaml's extra-prefixes allowlist is a map from Biolink class to prefixes, and GARD is
+    on both classes this pipeline writes.
+
+    write_compendium()'s extra_prefixes is a **per-class** allowlist, and build_compendium writes
+    several classes from one call, so a flat list passed to every class grants each of them an
+    exemption argued for one -- which is what `main` does. Keying the config by class is what makes
+    that unspellable, so the shape is pinned here.
+
+    GARD must be on both: it is registered for no Biolink class at all, so a GARD identifier is
+    dropped from whichever compendium its clique lands in unless that class names it. Listing it
+    only under Disease is what made build_gard_label_concord() refuse five correct links.
+
+    Every entry is temporary; https://github.com/NCATSTranslator/Babel/issues/1061 tracks the test
+    that will fail once Biolink registers one, so the entry is deleted rather than left to rot.
+    """
+    allowlist = get_config()["disease_extra_prefixes_by_biolink_class"]
+
+    assert isinstance(allowlist, dict), f"expected a map keyed by biolink class, got {type(allowlist)}"
+    assert set(allowlist) == {DISEASE, PHENOTYPIC_FEATURE}, (
+        f"the disease pipeline writes {DISEASE} and {PHENOTYPIC_FEATURE}; allowlist keys are {sorted(allowlist)}"
+    )
+    for biolink_class, prefixes in allowlist.items():
+        assert GARD in prefixes, f"GARD must be allowed for {biolink_class} or its identifiers are dropped there"
+    assert "ICD10CM" not in allowlist[PHENOTYPIC_FEATURE], (
+        "ICD-10 codes name disease families, not phenotypes; that entry is argued on disease grounds only"
+    )
 
 
 @pytest.mark.unit
@@ -1241,9 +1294,6 @@ def test_gard_label_concord_rejects_mismatched_pool_lists(tmp_path):
             ["ids_a", "ids_b"],
             ["labels_a"],
             [],
-            [],
-            None,
-            {},
             str(tmp_path / "out"),
             str(tmp_path / "metadata.yaml"),
         )

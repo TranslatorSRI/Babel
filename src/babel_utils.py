@@ -691,7 +691,7 @@ def write_compendium(
         never win the preferred-CURIE contest -- which also means such an identifier will not
         normalize on its own, and is visible only in the clique's equivalent identifiers. That is the
         intended shape for shipping a prefix ahead of the Biolink Model (see
-        `config.yaml: disease_extra_prefixes`), and the reason it is safe to do so.
+        `config.yaml: disease_extra_prefixes_by_biolink_class`), and the reason it is safe to do so.
 
         It is a **per-class** allowlist. A caller that loops over several node types must scope the
         list to the class it was reasoned about, or an exemption earned on one class's grounds is

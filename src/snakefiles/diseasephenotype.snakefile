@@ -297,16 +297,6 @@ rule disease_gard_label_concord:
             dd=config["intermediate_directory"],
             ap=[concord for concord in config["disease_concords"] if concord != "GARD_label"],
         ),
-        # Guard 3 reglommed the concords above to ask what type the clique a GARD id would join is,
-        # so it needs everything disease_compendia feeds glom(): every ids file, the close matches
-        # and the bad xrefs. Anything less and it answers for a clique structure the build does not
-        # have. Keep this list in step with rule disease_compendia's.
-        all_ids=expand("{dd}/disease/ids/{ap}", dd=config["intermediate_directory"], ap=config["disease_ids"]),
-        close_matches=config["intermediate_directory"] + "/disease/concords/MONDO_close",
-        bad_hpo_xrefs="input_data/badHPx.txt",
-        bad_mondo_xrefs="input_data/mondo_badxrefs.txt",
-        bad_mp_xrefs="input_data/mp_badxrefs.txt",
-        bad_umls_xrefs="input_data/umls_badxrefs.txt",
     output:
         outfile=config["intermediate_directory"] + "/disease/concords/GARD_label",
         metadata_yaml=config["intermediate_directory"] + "/disease/concords/metadata-GARD_label.yaml",
@@ -317,15 +307,7 @@ rule disease_gard_label_concord:
             input.gard_labels,
             input.match_ids,
             input.match_labels,
-            input.all_ids,
             input.other_concords,
-            input.close_matches,
-            {
-                "HP": input.bad_hpo_xrefs,
-                "MONDO": input.bad_mondo_xrefs,
-                "MP": input.bad_mp_xrefs,
-                "UMLS": input.bad_umls_xrefs,
-            },
             output.outfile,
             output.metadata_yaml,
         )

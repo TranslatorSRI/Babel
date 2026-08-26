@@ -39,7 +39,7 @@ their DOID clique without a label, the same as any other xref target Babel does 
 Every GARD term is typed ``biolink:Disease``. ``GARD`` is registered neither in the Biolink Model's
 ``disease`` ``id_prefixes`` nor in its prefix map (verified against the pinned
 ``biolink_version``), so the disease compendium build passes ``extra_prefixes=[GARD]`` to keep the
-identifiers (``disease_extra_prefixes`` in ``config.yaml``, read by
+identifiers (``disease_extra_prefixes_by_biolink_class`` in ``config.yaml``, read by
 ``src/createcompendia/diseasephenotype.py``); registering GARD with the Biolink
 team is the long-term fix, the same situation GTDB is in (see PR #978).
 

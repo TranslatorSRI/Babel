@@ -200,30 +200,52 @@ disease_outputs:           [Disease.txt, PhenotypicFeature.txt]
 # SNOMEDCT is absent because it has no disease ids file.
 disease_gard_label_match_prefixes: [MONDO, DOID, Orphanet, MESH, NCIT, UMLS, EFO]
 
-# Prefixes written into Disease.txt even though the Biolink Model does not register them for
-# biolink:Disease. write_compendium() otherwise drops an unregistered prefix silently, *after* it
-# has already merged cliques in glom() -- so the merge effect ships and the identifier does not.
+# Prefixes this pipeline ships even though the Biolink Model does not register them for the clique's
+# class. write_compendium() otherwise drops an unregistered prefix silently, *after* glom() has
+# already merged cliques on it -- so the merge effect ships and the identifier does not.
 #
-# Applied to biolink:Disease ONLY (see build_compendium): extra_prefixes is a per-class allowlist,
-# and one of these CURIEs landing in a phenotype clique must still face PhenotypicFeature's own
-# filter rather than inheriting an exemption granted on disease grounds.
+# KEYED BY BIOLINK CLASS, because extra_prefixes is a per-class allowlist and build_compendium
+# writes several classes from one call. A single flat list passed to every class grants each of
+# them an exemption that was argued for one of them; spelling the map out per class is what makes
+# that unspellable. Look up each class's registered prefixes with
+# get_biolink_model_toolkit(biolink_version).get_element(<class>).id_prefixes.
 #
-# ICD10CM is MONDO's spelling of ICD-10 (DOID/EFO/HP write ICD10:), covering ~2,030 xref rows that
-# are near-perfectly 1:1. Emitting them is deliberately ahead of the Biolink Model: they will not
-# normalize until ICD10CM is registered or the spelling is unified onto ICD10, but having them in
-# the output beats discarding curated mappings we would then have to re-derive. Reconcile and
-# remove this entry when https://github.com/NCATSTranslator/Babel/issues/1033 is resolved.
+# EVERY ENTRY IS TEMPORARY AND EVERY ENTRY LINKS TO THE ISSUE THAT REMOVES IT. Once Biolink
+# registers a prefix, its entry becomes a no-op that still suppresses the CURIE from leading its
+# clique (extra prefixes are appended *after* the registered ones, so they can never win the
+# preferred-CURIE contest) -- a stale entry is worse than dead config. Adding a prefix here without
+# an issue link leaves nothing to close the loop. https://github.com/NCATSTranslator/Babel/issues/1061
+# tracks the test that will fail when an entry goes stale.
 #
-# GARD is the NCATS rare-disease registry, also unregistered. Without it ~16k rare-disease terms
-# vanish from Disease.txt. GARD asserts no cross-references of its own; its ids reach cliques
-# through MONDO's hasDbXrefs (MONDO_GARD, ~15.9k), DOID's xrefs (~2.2k), and -- for the ~277 terms
-# neither maps -- the label matches in GARD_label. Registering GARD with the Biolink team is the
-# long-term fix (same situation as GTDB, PR #978).
-#
-# ICD0 is deliberately NOT here: ICD-O codes are tumour *morphology* codes and may not be disease
-# equivalents at all, so emitting them would assert something we have not decided. See
-# https://github.com/NCATSTranslator/Babel/issues/1037.
-disease_extra_prefixes:    [ICD10CM, GARD]
+# ICD0 is deliberately NOT here under any class: ICD-O codes are tumour *morphology* codes and may
+# not be disease equivalents at all, so emitting them would assert something we have not decided.
+# See https://github.com/NCATSTranslator/Babel/issues/1037.
+disease_extra_prefixes_by_biolink_class:
+  biolink:Disease:
+    # MONDO's spelling of ICD-10 (DOID/EFO/HP write ICD10:), ~2,030 near-perfectly 1:1 xref rows.
+    # Biolink registers ICD10 for biolink:Disease but not ICD10CM, so the fix is to normalise onto
+    # the registered spelling rather than to ask for a second one; until then, shipping the rows
+    # beats discarding curated MONDO mappings we would have to re-derive.
+    # Retire with https://github.com/NCATSTranslator/Babel/issues/1060 (blocked on #1033).
+    - ICD10CM
+    # The NCATS rare-disease registry, unregistered for every Biolink class. Without this ~16k rare
+    # diseases vanish from Disease.txt. GARD asserts no cross-references of its own; its ids reach
+    # cliques through MONDO's hasDbXrefs (MONDO_GARD, ~15.9k), DOID's xrefs (~2.2k), and -- for the
+    # ~277 terms neither maps -- the label matches in GARD_label. Same situation as GTDB for
+    # biolink:OrganismTaxon (PR #978).
+    # Retire with https://github.com/NCATSTranslator/Babel/issues/1051.
+    - GARD
+  biolink:PhenotypicFeature:
+    # GARD again, and for the same reason: it is unregistered for *every* class, so this exemption
+    # is not one earned on disease grounds and lent to phenotypes. disease_gard_ids types every
+    # registry term biolink:Disease, but a handful name concepts HP also names, and the clique type
+    # vote (classify_disease_clique) rightly trusts HP -- five terms today, "Chilblains" among them.
+    # Without this entry those GARD ids are deleted rather than moved, so build_gard_label_concord()
+    # had to refuse to link them at all and shipped a duplicate single-identifier Disease clique
+    # beside the phenotype clique naming the same thing. One concept, one clique, wherever the
+    # clique lands.
+    # Retire with https://github.com/NCATSTranslator/Babel/issues/1051, the same issue as above.
+    - GARD
 
 # How each disease source spells *other* vocabularies' prefixes in its cross-references, and the
 # Babel prefix each one becomes. Applied by babel_utils.norm() while the source's concord is built,
