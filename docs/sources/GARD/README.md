@@ -92,7 +92,7 @@ authoritative — if the website turns out to be, this ingest should be filtered
 instead of taking the whole list.
 
 Regenerate this comparison with
-[`label-matches/scripts/gard_website_coverage.py`](label-matches/scripts/gard_website_coverage.py).
+[`scripts/gard_website_coverage.py`](scripts/gard_website_coverage.py).
 
 ## Local-id form: unpadded
 

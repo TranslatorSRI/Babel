@@ -12,6 +12,10 @@ identifiers' worth of disagreement -- in practice, each clique named in a suppli
 lands on in a reference build, and reports every concord row that crosses the split, flagging
 whether the target is overused.
 
+It does not find the over-merged cliques itself: it takes its (clique_leader, other_leader) pairs
+from a clique-diff CSV, so it only examines cliques something else already flagged. Generalising it
+into a detector that runs per release is https://github.com/NCATSTranslator/Babel/issues/1066.
+
 Run from the repo root against a disease build, giving it a clique-diff CSV to take its pairs from:
 
     uv run python docs/sources/DOID/scripts/find_cross_disease_xrefs.py \

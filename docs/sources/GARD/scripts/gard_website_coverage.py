@@ -21,7 +21,7 @@ check 2.
 
 Run from the repo root against a disease build (needs network for the website asset):
 
-    uv run python docs/sources/GARD/label-matches/scripts/gard_website_coverage.py
+    uv run python docs/sources/GARD/scripts/gard_website_coverage.py
 
 Last result (2026-08-26, "GARD Rare Disease List Jun2026.csv"): 6,265 browsable of 16,214 published,
 partitioned exactly by the URL column; 9,677 of the 9,949 page-less terms are mapped by MONDO.
