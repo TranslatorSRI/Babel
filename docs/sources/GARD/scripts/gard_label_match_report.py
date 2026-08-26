@@ -99,7 +99,9 @@ def main(build_dir=None):
 
     OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
     with open(OUT_CSV, "w", newline="") as outf:
-        writer = csv.writer(outf)
+        # lineterminator="\n" overrides csv's default "\r\n", matching the impact report's writers
+        # so the committed file uses LF and diffs cleanly.
+        writer = csv.writer(outf, lineterminator="\n")
         writer.writerow(
             ["gard_id", "gard_label", "target", "target_label", "clique_leader", "clique_type", "clique_members_joined"]
         )
