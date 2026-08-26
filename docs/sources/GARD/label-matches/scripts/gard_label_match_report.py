@@ -150,6 +150,18 @@ def main(build_dir=None):
     for gard_id, label, placed, target, other in wrong[:8]:
         print(f'    {gard_id} "{label}" is on {placed[0]}; the label also names {target} ({other[0]})')
 
+    # Which of these the label merely *suggests*, and which another source actually asserts. A pair
+    # some concord already asserts is stronger evidence for an upstream report: it is not a label
+    # coincidence but a live disagreement between two sources that glom() had to refuse, because
+    # both candidate cliques hold a MONDO identifier.
+    asserted_pairs = {}
+    for concord in other_concords:
+        with open(concord) as inf:
+            for line in inf:
+                parts = line.rstrip("\n").split("\t")
+                if len(parts) >= 3:
+                    asserted_pairs.setdefault(frozenset((parts[0], parts[2])), set()).add(Path(concord).name)
+
     with open(MISMATCH_CSV, "w", newline="") as outf:
         writer = csv.writer(outf, lineterminator="\n")
         writer.writerow(
@@ -161,11 +173,16 @@ def main(build_dir=None):
                 "label_matches",
                 "label_matches_clique_leader",
                 "label_matches_clique_label",
+                "pair_also_asserted_by",
             ]
         )
         for gard_id, label, placed, target, other in wrong:
-            writer.writerow([gard_id, label, placed[0], placed[1], target, other[0], other[1]])
+            also = asserted_pairs.get(frozenset((gard_id, target)), set())
+            writer.writerow([gard_id, label, placed[0], placed[1], target, other[0], other[1], ";".join(sorted(also))])
+    also_asserted = sum(1 for g, _, _, t, _ in wrong if frozenset((g, t)) in asserted_pairs)
     print(f"  full list written to {MISMATCH_CSV.relative_to(REPO)}")
+    print(f"  of those, {also_asserted} is a pair another concord also asserts -- a live source")
+    print("    disagreement glom() already refused, not just a label coincidence")
 
     # The NCIt label overlap of the 27000-28999 block, stated as an observation: no source documents
     # where those registry terms came from.

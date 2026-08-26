@@ -108,8 +108,15 @@ GARD:16798  "Ptosis, hereditary congenital, 1"           is on MONDO:0008340; th
 ```
 
 Those 33 are worth something on their own: a GARD label exactly naming a different concept than
-MONDO's own xref chose is a cheap curation signal, and 21 of the 33 are MONDO against MONDO. The
-full list is [`label-mismatches.csv`](label-mismatches.csv), and
+MONDO's own xref chose is a cheap curation signal, and 21 of the 33 are MONDO against MONDO. **None
+of them reaches the compendia** — guard 1 skips every one, so `GARD_label` emits no row for these
+GARD ids, no concord asserts the pair, and all 33 land in the clique MONDO's or DOID's curated xref
+chose rather than the one the label names. One exception is worth knowing about and is flagged in
+the CSV's `pair_also_asserted_by` column: for `GARD:8433` "King Denborough syndrome" the label's
+target is *also* a DOID xref (`DOID:0080990`), so that row is a live disagreement between DOID and
+MONDO which `glom()` already refused because both cliques hold a MONDO identifier — stronger
+evidence for an upstream report than a label coincidence, not weaker. The full list is
+[`label-mismatches.csv`](label-mismatches.csv), and
 [#1063](https://github.com/NCATSTranslator/Babel/issues/1063) sends them upstream — as a "please
 check" list rather than asserted corrections, since a label collision says two terms are described
 the same way, not which mapping is right.
