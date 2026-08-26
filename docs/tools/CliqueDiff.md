@@ -105,6 +105,28 @@ after-cliques gets one row per destination.
 `(dropped)`, and `destination_label`, `destination_compendium`, `destination_type` are empty
 with `after_size` 0.
 
+### A row says members moved, not that they moved *correctly*
+
+The kinds describe what happened to a clique's membership; none of them is a quality judgement, and
+reading a `regrouped` row as "this got fixed" is the easy mistake. Two failures that cost real time
+on the GARD ingest, both invisible from the CSV alone:
+
+- **A split can be partial.** `MONDO:0016755` "neurofibroma" shed `DOID:8712` "neurofibromatosis"
+  into its own clique — one tidy `regrouped` row — while `MESH:D017253`, `NCIT:C6727` and
+  `UMLS:C0162678`, all "Neurofibromato*ses*", stayed behind in the tumour's clique. The row is
+  identical in shape to a clean split. Only reading the *after*-cliques out of the compendia showed
+  the disease was still represented twice.
+- **A split can leave the underlying defect untouched.** Adding a source that gives both halves of
+  an over-merged clique a `unique_prefixes` identifier makes `glom()` refuse the union, so the
+  cliques come apart without the bad cross-reference going anywhere. That reads as a repair and is
+  not one — it reverts the moment the new source stops mapping either side.
+
+So when a diff shows an over-merge coming apart, follow it with the two cheap checks the row cannot
+answer: print both after-cliques in full, and find the edges that used to connect them (rebuild the
+before-clique and ask which concord rows cross the split). `docs/sources/GARD/clique-diff.md` works
+both through, and `docs/sources/DOID/scripts/find_cross_disease_xrefs.py` does the second
+mechanically for a list of clique pairs.
+
 Labels and Biolink types are not part of change detection, but they *are* emitted as
 read-only annotation columns to make the CSV legible without a separate lookup. So is
 `example_members`, which lists up to five members as `CURIE "label"` using before-build
