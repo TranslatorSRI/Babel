@@ -144,9 +144,12 @@ full 29 are in the CSV with before/after sizes and example members.
 split, `MONDO:0021061` "neurofibromatosis" takes only `DOID:8712` and one UMLS concept, while
 `MESH:D017253` "Neurofibromatoses", `NCIT:C6727` "Neurofibromatosis" and `UMLS:C0162678`
 "Neurofibromatoses" all stay behind in the *neurofibroma* clique — which is still wrong, just less
-wrong than one fused clique. Peutz-Jeghers is cleaner but leaves `NCIT:C7755` "Peutz-Jeghers Polyp
-of the Small Intestine" on the syndrome side. GARD moves what its own mappings reach and nothing
-else; the bad cross-references are all still there.
+wrong than one fused clique. Neurofibromatosis therefore ends up represented twice, and the cause is
+`HP:0001067` "Neurofibroma" carrying three xrefs into the neurofibromatosis UMLS concept; tracked
+with the proposed `badHPx.txt` fix as [#1065](https://github.com/NCATSTranslator/Babel/issues/1065).
+Peutz-Jeghers is cleaner but leaves `NCIT:C7755` "Peutz-Jeghers Polyp of the Small Intestine" on the
+syndrome side. GARD moves what its own mappings reach and nothing else; the bad cross-references are
+all still there.
 
 #### What causes the ten over-merges
 
