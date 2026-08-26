@@ -120,9 +120,11 @@ Normalization answered differently depending on which identifier you held.
 
 #### Shape 2 — a pre-existing over-merge splits (10 rows)
 
-A clique that had absorbed a second disease sheds it. `glom()` cannot hold two MONDO identifiers
-(`DISEASE_UNIQUE_PREFIXES`), so where the new GARD edges give a better-supported home to members
-that were only loosely attached, those members move. The largest:
+A clique that had absorbed a second disease sheds it. Worth being precise about how, because GARD
+does not repair the bad cross-reference that caused the merge — it makes it **inert**. The
+over-merge survives on `main` only because one side of it has no MONDO identifier to collide with;
+once MONDO's GARD mappings give both sides one, `DISEASE_UNIQUE_PREFIXES` refuses the union and the
+two diseases fall apart. The largest:
 
 | before leader | members move to | count |
 | --- | --- | ---: |
@@ -137,6 +139,50 @@ it produces, a hamartoma syndrome from Cowden disease, tuberous sclerosis from s
 over-merges predate this PR and ship today**; GARD's mappings are what pull them apart. They are the
 strongest single argument for the `MONDO_GARD` concord, and the rows an SME should read first: the
 full 29 are in the CSV with before/after sizes and example members.
+
+##### Worked example: why tuberous sclerosis was in the situs inversus clique
+
+The first row is the one to read, because nothing about it is obvious from the CSV: tuberous
+sclerosis has nothing to do with situs inversus, and the after-clique looks entirely sensible.
+
+On `main`, `MONDO:0010029` "situs inversus" leads a 39-member clique holding *both* diseases. Every
+edge between the two halves runs through a single identifier:
+
+```text
+DOID:13515 "tuberous sclerosis"     --xref--> SNOMEDCT:157033002
+DOID:758   "visceral heterotaxy 5"  --xref--> SNOMEDCT:157033002
+```
+
+One SNOMED code claimed by two DOID terms. [`DOID:758`](http://purl.obolibrary.org/obo/DOID_758)
+"visceral heterotaxy 5" genuinely belongs with situs inversus;
+[`DOID:13515`](http://purl.obolibrary.org/obo/DOID_13515) "tuberous sclerosis" does not, and it
+drags 18 tuberous-sclerosis identifiers in with it. Removing either edge separates the two
+diseases; nothing else joins them.
+
+This is exactly the failure `remove_overused_xrefs` exists for — and it is not filtered, because
+`OVERUSE_FILTERED_CONCORDS["DOID"]` is scoped to `DOID_ICD_XREF_PREFIXES + [GARD]` and **SNOMEDCT is
+not in that list**. Scoping is what keeps the filter from savaging DOID's 1:1 SNOMED and MeSH rows,
+so widening it is a decision with its own evidence, tracked as
+[#1032](https://github.com/NCATSTranslator/Babel/issues/1032).
+
+GARD ends the merge without touching that. MONDO maps the two diseases to different registry terms,
+and so does DOID, both correctly:
+
+| | MONDO's `hasDbXref` | DOID's xref |
+| --- | --- | --- |
+| tuberous sclerosis | `MONDO:0001734` → `GARD:7830` "Tuberous sclerosis syndrome" | `DOID:13515` → `GARD:7830` |
+| situs inversus | `MONDO:0010029` → `GARD:4883` "Situs inversus" | `DOID:758` → `GARD:4883` |
+
+`MONDO_GARD` is glommed **before** `DOID` (the load-bearing order in `disease_concords`), so by the
+time DOID's rows are read, `GARD:7830` already sits with `MONDO:0001734` and `GARD:4883` with
+`MONDO:0010029`. The bad SNOMED edge would now have to union two cliques that each hold a MONDO
+identifier, and `glom()` refuses it. The result is 21 members under `MONDO:0001734` and 16 under
+`MONDO:0010029`.
+
+Two consequences worth keeping in view. The repair is **incidental**: it depends on MONDO mapping
+both diseases to GARD, and it would come back if MONDO dropped either mapping — #1032 is still the
+real fix. And `SNOMEDCT:157033002` itself does not go away; `glom()` awards a contested identifier
+to whichever concord claimed it first, and here that is the tuberous sclerosis clique.
 
 #### Two splits that were wrong, and the filter that undoes them
 
