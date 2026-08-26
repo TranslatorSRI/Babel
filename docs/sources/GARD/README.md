@@ -109,7 +109,11 @@ silently drops the rest, so without intervention every GARD CURIE would vanish f
 -- both the ~16k registry terms and the 2,186 that arrive via DOID's concord. The disease
 compendium build therefore passes `extra_prefixes=[GARD]` (the
 [documented escape hatch](../../AddingNewSources.md)) at the `write_compendium` call site in
-`src/createcompendia/diseasephenotype.py`.
+`src/createcompendia/diseasephenotype.py`, scoped to `biolink:Disease` -- `extra_prefixes` is a
+per-class allowlist, so an unscoped list grants every class an exemption argued for one of them.
+That scoping closes a hole rather than fixing an active leak: measured against `main`, `ICD10CM`
+appears 2,012 times in `Disease.txt` and zero times in `PhenotypicFeature.txt` either way (see
+[`clique-diff.md`](clique-diff.md), diff 0).
 
 Registering GARD with the Biolink team for `biolink:Disease` is the long-term fix; once registered,
 GARD can be dropped from `disease_extra_prefixes` in `config.yaml`. This is the same situation GTDB

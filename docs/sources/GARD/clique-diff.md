@@ -12,9 +12,54 @@ Artifacts in [`on-addition/`](./on-addition/): `clique-diff.summary.json`, and
 reduction worth reading. The full per-row CSV is 16,133 rows, almost all `kept`, and is not
 committed.
 
-Two diffs are recorded here, in the order the work happened. The first is the GARD **ingest**:
-`main` against this branch with its ids file, labels and the `MONDO_GARD` concord, and no
-`GARD_label`. The second isolates `GARD_label` on top of it.
+Three diffs are recorded here. The first is the whole PR against `main`, which is the number a
+reviewer wants; the other two decompose it, in the order the work happened. Diff 1 is the GARD
+**ingest** — `main` against this branch with its ids file, labels and the `MONDO_GARD` concord, and
+no `GARD_label`. Diff 2 isolates `GARD_label` on top of it.
+
+## Diff 0: the whole PR
+
+`main` at `dd9b07cf` against this branch at `1438ddee`, both built from the same cached
+`babel_downloads/` and the same disease `ids/`, with only the code and configuration differing.
+Summary in [`whole-pr/clique-diff.summary.json`](./whole-pr/clique-diff.summary.json).
+
+| compendium | before | after | diff |
+| --- | ---: | ---: | ---: |
+| `Disease.txt` | 365,087 | 365,080 | **−7** |
+| `PhenotypicFeature.txt` | 75,477 | 75,477 | 0 |
+
+**Adding 16,214 identifiers makes the disease compendium seven cliques smaller.** That is the whole
+argument for the two concords: GARD's terms merge into cliques that already exist rather than
+forming new ones beside them, and the 265 `GARD_label` merges more than cancel the 258 cliques the
+ingest adds.
+
+| destination_kind | rows | members | meaning |
+| --- | ---: | ---: | --- |
+| `kept` | 16,353 | 109,340 | an existing clique gained GARD identifiers and kept its leader |
+| `regrouped` | 29 | 248 | members moved to a different leader in the same compendium |
+| `leader_changed` | 0 | 0 | no clique's preferred identifier was reassigned |
+| `moved` | 0 | 0 | no member retyped into a different compendium file |
+| `dropped` | 0 | 0 | **no identifier disappeared from the compendia** |
+
+Checked directly as well as through the diff, since `babel-clique-diff` cannot see a CURIE absent
+from both sides: the two compendia hold 746,552 identifiers on `main` and 763,060 on this branch,
+the 16,508 added are **all** `GARD:`, and **not one `main` identifier is missing**.
+
+The 29 `regrouped` rows are byte-for-byte the same 29 as diff 1 below. `GARD_label` restructures
+nothing of its own — every one of its 265 rows attaches a single-identifier GARD clique to an
+existing one — so all of this PR's clique restructuring comes from the ingest and `MONDO_GARD`, and
+is analysed there.
+
+Two other properties worth stating because they are easy to assume rather than check:
+
+- **Every non-DOID disease concord is byte-identical between the two builds** (`MONDO`,
+  `MONDO_close`, `HP`, `MP`, `UMLS`, `EFO`, `Manual`), including after re-running the UberGraph walk
+  on `main`'s code. `DOID` has the same 39,264 rows on both sides and differs only in how its GARD
+  targets are spelled. So the diff isolates the intended inputs and nothing else.
+- **`extra_prefixes` scoping changes nothing in this build.** Scoping the list to `biolink:Disease`
+  closes a hole rather than fixing an active leak: `ICD10CM` appears 2,012 times in `Disease.txt`
+  and zero times in `PhenotypicFeature.txt` on *both* sides, so no identifier was going through it
+  today. See [`README.md`](README.md), "Biolink registration".
 
 ## Diff 1: adding the GARD ingest
 
@@ -188,6 +233,7 @@ Both sides were built from the **same cached intermediates**
 
 | | before | after |
 | --- | --- | --- |
+| `whole-pr/` (diff 0) | `main` at `dd9b07cf`, rebuilt in a worktree from the same cached intermediates | this branch at `1438ddee` |
 | `on-addition/` (diff 1) | `main` at `a3ae3e4d` — no GARD ingest, no `MONDO_GARD` concord, DOID concord built without GARD unpadding | this branch, before `GARD_label` |
 | `label-matches/` (diff 2) | this branch with `GARD_label` removed from `disease_concords` | this branch |
 | the isolating diff (not committed) | this branch, with the `DOID:0061030 GARD:418` concord row kept | this branch, row dropped |

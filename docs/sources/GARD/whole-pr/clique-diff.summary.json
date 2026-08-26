@@ -1,0 +1,41 @@
+{
+  "about": {
+    "after": "feat/gard-disease (1438ddee)",
+    "before": "main (dd9b07cf)",
+    "files": [
+      "Disease.txt",
+      "PhenotypicFeature.txt"
+    ],
+    "note": "Whole-PR effect: GARD ingest + MONDO_GARD + GARD_label + extra_prefixes scoping"
+  },
+  "compendia": {
+    "Disease.txt": {
+      "changed_before_cliques": 16372,
+      "clique_count": {
+        "after": 365080,
+        "before": 365087,
+        "diff": -7,
+        "diff_percent": -0.0
+      },
+      "cliques_with_dropped_members": 0,
+      "dropped_member_count": 0,
+      "leader_changed_count": 0,
+      "moved_member_count": 0,
+      "regrouped_member_count": 248
+    },
+    "PhenotypicFeature.txt": {
+      "changed_before_cliques": 0,
+      "clique_count": {
+        "after": 75477,
+        "before": 75477,
+        "diff": 0,
+        "diff_percent": 0.0
+      },
+      "cliques_with_dropped_members": 0,
+      "dropped_member_count": 0,
+      "leader_changed_count": 0,
+      "moved_member_count": 0,
+      "regrouped_member_count": 0
+    }
+  }
+}
