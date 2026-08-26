@@ -219,7 +219,14 @@ A release is also the natural cadence for re-checking SLURM sizing against the r
 
 ## Adding a new data source
 
-`docs/AddingNewSources.md` is the full guide: how to wire a source (prefix, data handler, compendium
+**Read [`docs/AddingNewSources.md`](docs/AddingNewSources.md) end to end before writing any code.**
+It is a checklist, not background reading, and the steps that get skipped are the ones that decide
+whether the addition is any good: whether the source's identifiers *join* existing cliques or pile
+up beside them ("Prefer joining an existing clique"), which prefix restrictions the new source makes
+compete (step 3), and what the source-impact report and clique diff have to show before it ships.
+Every one of those is cheaper to get right first than to discover from a finished build.
+
+The guide covers: how to wire a source (prefix, data handler, compendium
 hook, Snakemake rules, `config.yaml`, docs, tests), then generate and read its source-impact report
 — including assembling the intermediate inputs from a `stars.renci.org` snapshot when a full local
 build (~500 GB RAM) is impractical. Two things the report exists to catch: an ids file missing its
