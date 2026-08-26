@@ -276,7 +276,7 @@ rule disease_gard_label_concord:
     # GARD publishes no cross-references, so the ~277 registry terms MONDO and DOID do not map
     # would otherwise ship as single-identifier cliques duplicating concepts Babel already names.
     # This links each of them to an identically labelled identifier -- see
-    # docs/sources/GARD/label-matches.md and build_gard_label_concord()'s docstring.
+    # docs/sources/GARD/label-matches/README.md and build_gard_label_concord()'s docstring.
     input:
         gard_labels=config["download_directory"] + "/GARD/labels",
         match_ids=expand(
@@ -295,7 +295,7 @@ rule disease_gard_label_concord:
         other_concords=expand(
             "{dd}/disease/concords/{ap}",
             dd=config["intermediate_directory"],
-            ap=[concord for concord in config["disease_concords"] if concord != "GARD_LABEL"],
+            ap=[concord for concord in config["disease_concords"] if concord != "GARD_label"],
         ),
         # Guard 3 reglommed the concords above to ask what type the clique a GARD id would join is,
         # so it needs everything disease_compendia feeds glom(): every ids file, the close matches
@@ -308,8 +308,8 @@ rule disease_gard_label_concord:
         bad_mp_xrefs="input_data/mp_badxrefs.txt",
         bad_umls_xrefs="input_data/umls_badxrefs.txt",
     output:
-        outfile=config["intermediate_directory"] + "/disease/concords/GARD_LABEL",
-        metadata_yaml=config["intermediate_directory"] + "/disease/concords/metadata-GARD_LABEL.yaml",
+        outfile=config["intermediate_directory"] + "/disease/concords/GARD_label",
+        metadata_yaml=config["intermediate_directory"] + "/disease/concords/metadata-GARD_label.yaml",
     benchmark:
         config["output_directory"] + "/benchmarks/disease_gard_label_concord.tsv"
     run:

@@ -1,12 +1,12 @@
-"""Pipeline tests for the GARD_LABEL concord, run against a real built concord.
+"""Pipeline tests for the GARD_label concord, run against a real built concord.
 
 Skipped by default unless pytest is run with --pipeline.  Run with:
     uv run pytest tests/pipeline/test_gard_label.py --pipeline --no-cov -v
 
-GARD_LABEL is the only concord in this pipeline derived from labels rather than an asserted mapping,
+GARD_label is the only concord in this pipeline derived from labels rather than an asserted mapping,
 which is safe only because of the three guards in ``build_gard_label_concord()``'s docstring. The
 unit tests pin the guards against synthetic inputs; these say whether the real registry and the real
-vocabularies still have the properties the guards assume. See docs/sources/GARD/label-matches.md.
+vocabularies still have the properties the guards assume. See docs/sources/GARD/label-matches/README.md.
 """
 
 import collections
@@ -21,8 +21,8 @@ from tests.pipeline.conftest import _intermediate_concord_path
 
 @pytest.fixture
 def gard_label_concord():
-    """The built disease/concords/GARD_LABEL file, or skip if this checkout has no disease build."""
-    path = _intermediate_concord_path("diseasephenotype", "GARD_LABEL")
+    """The built disease/concords/GARD_label file, or skip if this checkout has no disease build."""
+    path = _intermediate_concord_path("diseasephenotype", "GARD_label")
     if not os.path.exists(path):
         pytest.skip(f"{path} not built; run `uv run snakemake -c all {path}` first")
     return path
@@ -42,7 +42,7 @@ def test_gard_label_rows_are_well_formed(gard_label_concord):
     normalize_gard_curie() exists to prevent.
     """
     pairs = _pairs(gard_label_concord)
-    assert pairs, "GARD_LABEL is empty; either the registry is fully mapped now or the match broke"
+    assert pairs, "GARD_label is empty; either the registry is fully mapped now or the match broke"
 
     # Compared case-insensitively: disease_gard_label_match_prefixes names ids/labels *directories*
     # ("Orphanet"), while the CURIEs those files carry use Babel's prefix spelling ("orphanet:").
@@ -75,17 +75,17 @@ def test_gard_label_subjects_appear_in_no_other_disease_concord(gard_label_conco
     """Guard 1, on the real concord: every subject is a GARD id no other concord places.
 
     Read from the concord files rather than from MONDO_GARD and DOID by name, so a source that
-    starts emitting GARD xrefs is covered here too. If this fails, GARD_LABEL is re-deciding a GARD
+    starts emitting GARD xrefs is covered here too. If this fails, GARD_label is re-deciding a GARD
     id that already sits in a curated clique, and glom() will drop the pair (both cliques hold a
     unique prefix) or fuse them (neither does) depending on the pair -- neither outcome intended.
     """
     subjects = {subject for subject, _, _ in _pairs(gard_label_concord)}
     for concord in get_config()["disease_concords"]:
-        if concord == "GARD_LABEL":
+        if concord == "GARD_label":
             continue
         path = _intermediate_concord_path("diseasephenotype", concord)
         if not os.path.exists(path):
             pytest.skip(f"{path} not built")
         with open(path) as inf:
             claimed = {curie for line in inf for curie in line.rstrip("\n").split("\t") if curie in subjects}
-        assert not claimed, f"{concord} already places GARD ids GARD_LABEL matched: {sorted(claimed)[:5]}"
+        assert not claimed, f"{concord} already places GARD ids GARD_label matched: {sorted(claimed)[:5]}"

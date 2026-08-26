@@ -178,11 +178,11 @@ disease_ids:               [MONDO, DOID, Orphanet, GARD, HP, MP, MESH, NCIT, UML
 # id stays with whichever concord claimed it first; listing MONDO's own mapping first is what makes
 # MONDO, not DOID, the authority. A unit test pins the relative order.
 #
-# GARD_LABEL must be LAST. It is the only concord in this pipeline derived from labels rather than
+# GARD_label must be LAST. It is the only concord in this pipeline derived from labels rather than
 # from an asserted mapping, so it should decide nothing another concord has an opinion about; and
 # its safety guard is "skip any GARD id another concord names", which is defined by the rest of
 # this list. A unit test pins its position.
-disease_concords:          [HP, MP, MONDO, MONDO_GARD, UMLS, DOID, EFO, Manual, GARD_LABEL]
+disease_concords:          [HP, MP, MONDO, MONDO_GARD, UMLS, DOID, EFO, Manual, GARD_label]
 disease_outputs:           [Disease.txt, PhenotypicFeature.txt]
 
 # The vocabularies build_gard_label_concord() may match a GARD label against, in PRIORITY ORDER:
@@ -217,7 +217,7 @@ disease_gard_label_match_prefixes: [MONDO, DOID, Orphanet, MESH, NCIT, UMLS, EFO
 # GARD is the NCATS rare-disease registry, also unregistered. Without it ~16k rare-disease terms
 # vanish from Disease.txt. GARD asserts no cross-references of its own; its ids reach cliques
 # through MONDO's hasDbXrefs (MONDO_GARD, ~15.9k), DOID's xrefs (~2.2k), and -- for the ~277 terms
-# neither maps -- the label matches in GARD_LABEL. Registering GARD with the Biolink team is the
+# neither maps -- the label matches in GARD_label. Registering GARD with the Biolink team is the
 # long-term fix (same situation as GTDB, PR #978).
 #
 # ICD0 is deliberately NOT here: ICD-O codes are tumour *morphology* codes and may not be disease

@@ -543,7 +543,7 @@ def build_gard_label_concord(
     existing `UMLS:C5401355` + `NCIT:C173720` clique carrying the identical label. No source Babel
     ingests connects them: the registry CSV has no xref column, MRCONSO has no GARD source
     vocabulary, and NCIt asserts no GARD provenance. The label is the only signal there is, and it
-    measures well -- see docs/sources/GARD/label-matches.md for the numbers and how to reproduce
+    measures well -- see docs/sources/GARD/label-matches/README.md for the numbers and how to reproduce
     them.
 
     The rule, for each GARD id **no other disease concord mentions**: walk `match_ids_files` in order
@@ -695,9 +695,9 @@ def build_gard_label_concord(
             f"{[path.basename(f) for f in match_ids_files]} that holds exactly one, skipping targets whose clique "
             "is not biolink:Disease. GARD publishes no cross-references, so a label match is the only signal "
             "available; one row per GARD id means this concord can join a GARD id to an existing clique but never "
-            "merge two of them. Measured precision and the full row list: docs/sources/GARD/label-matches.md"
+            "merge two of them. Measured precision and the full row list: docs/sources/GARD/label-matches/README.md"
         ),
-        url="https://github.com/NCATSTranslator/Babel/blob/main/docs/sources/GARD/label-matches.md",
+        url="https://github.com/NCATSTranslator/Babel/blob/main/docs/sources/GARD/label-matches/README.md",
         concord_filename=outfile,
     )
 

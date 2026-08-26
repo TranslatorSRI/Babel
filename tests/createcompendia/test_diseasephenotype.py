@@ -1006,12 +1006,12 @@ def test_badxrefs_files_are_registered_for_the_concords_they_name():
         assert diseasephenotype.read_badxrefs(path) is not None, f"{name} bad-xrefs file failed to parse"
 
 
-# --- GARD_LABEL concord (build_gard_label_concord) ---
+# --- GARD_label concord (build_gard_label_concord) ---
 #
 # GARD publishes no cross-references, so the registry terms MONDO and DOID do not map can only reach
 # a clique through a label match. These pin the three guards that make that safe -- skip GARD ids
 # another concord places, emit at most one row each, and never target a non-Disease clique -- plus
-# the config wiring the guards depend on. Numbers and provenance: docs/sources/GARD/label-matches.md.
+# the config wiring the guards depend on. Numbers and provenance: docs/sources/GARD/label-matches/README.md.
 
 
 def _run_gard_label_concord(tmp_path, *, gard, vocabularies, other_concords=(), extra_ids=()):
@@ -1050,7 +1050,7 @@ def _run_gard_label_concord(tmp_path, *, gard, vocabularies, other_concords=(), 
 
     mondoclose = tmp_path / "MONDO_close"
     mondoclose.write_text("")
-    outfile = tmp_path / "GARD_LABEL"
+    outfile = tmp_path / "GARD_label"
     diseasephenotype.build_gard_label_concord(
         str(gard_labels),
         match_ids,
@@ -1138,7 +1138,7 @@ def test_gard_label_concord_cannot_merge_two_pre_existing_cliques(tmp_path):
     """Guard 2, end to end and this is the invariant the whole design rests on.
 
     Guard 1 leaves only GARD ids that appear in no other concord, so each is a single-identifier
-    clique; emitting at most one row each means a GARD_LABEL pair can only union {GARD:x} into one
+    clique; emitting at most one row each means a GARD_label pair can only union {GARD:x} into one
     existing clique. Even when a GARD term's label is carried by identifiers in two different
     cliques, the two must stay separate. Emitting every matching identifier instead would have put
     475 existing clique pairs at risk of fusion, which is why this is enforced by construction
@@ -1159,7 +1159,7 @@ def test_gard_label_concord_cannot_merge_two_pre_existing_cliques(tmp_path):
     for name in ("ids_MESH", "ids_NCIT", "ids_GARD", "ids_extra"):
         ids[name] = str(tmp_path / name)
     dicts, _ = diseasephenotype.compute_cliques_for_impact_report(
-        [str(tmp_path / "concord_0"), str(tmp_path / "GARD_LABEL")],
+        [str(tmp_path / "concord_0"), str(tmp_path / "GARD_label")],
         list(ids.values()),
         mondoclose=str(tmp_path / "MONDO_close"),
         badxrefs={},
@@ -1193,17 +1193,17 @@ def test_gard_label_concord_skips_a_target_whose_clique_is_not_a_disease(tmp_pat
 
 @pytest.mark.unit
 def test_gard_label_concord_is_registered_last_in_disease_concords():
-    """GARD_LABEL must be in config.yaml: disease_concords, and must be LAST.
+    """GARD_label must be in config.yaml: disease_concords, and must be LAST.
 
     It is the only concord in this pipeline derived from labels rather than an asserted mapping, so
     it should decide nothing another concord has an opinion about. More concretely, guard 1 -- skip
     any GARD id another concord names -- is *defined* by the rest of this list, and the Snakemake
-    rule builds that list by excluding GARD_LABEL from it. Dropping the entry silently reverts 265
+    rule builds that list by excluding GARD_label from it. Dropping the entry silently reverts 265
     rare diseases to single-identifier cliques with no error anywhere, the same failure mode
     test_mondo_gard_concord_is_registered_in_disease_concords guards."""
     concords = get_config()["disease_concords"]
-    assert "GARD_LABEL" in concords
-    assert concords[-1] == "GARD_LABEL", f"GARD_LABEL must be glommed last, but disease_concords is {concords}"
+    assert "GARD_label" in concords
+    assert concords[-1] == "GARD_label", f"GARD_label must be glommed last, but disease_concords is {concords}"
 
 
 @pytest.mark.unit
