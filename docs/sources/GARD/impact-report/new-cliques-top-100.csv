@@ -3,99 +3,11 @@ disease,GARD:15005,Pacak-Zhung syndrome,biolink:Disease,1,GARD:15005,false,true,
 disease,GARD:15006,STAT5 Haploinsufficiency,biolink:Disease,1,GARD:15006,false,true,GARD
 disease,GARD:15009,"Monocytosis/myelocytosis, Autoimmunity, Gain of function, Immunodeficiency, Short stature",biolink:Disease,1,GARD:15009,false,true,GARD
 disease,GARD:15863,Usher syndrome type 1J,biolink:Disease,1,GARD:15863,false,true,GARD
-disease,GARD:16958,Hereditary sensory and autonomic neuropathy type 1B,biolink:Disease,1,GARD:16958,false,true,GARD
-disease,GARD:17996,Autosomal recessive extra-oral halitosis,biolink:Disease,1,GARD:17996,false,true,GARD
-disease,GARD:22068,Cleft lip and palate-craniofacial dysmorphism-congenital heart defect-hearing loss syndrome,biolink:Disease,1,GARD:22068,false,true,GARD
-disease,GARD:22313,Infantile-onset pulmonary alveolar proteinosis-hypogammaglobulinemia,biolink:Disease,1,GARD:22313,false,true,GARD
-disease,GARD:22369,GNAO1-related developmental delay-seizures-movement disorder spectrum,biolink:Disease,1,GARD:22369,false,true,GARD
-disease,GARD:22370,TRAF7-associated heart defect-digital anomalies-facial dysmorphism-motor and speech delay syndrome,biolink:Disease,1,GARD:22370,false,true,GARD
-disease,GARD:22416,NRXN1-related severe neurodevelopmental disorder-motor stereotypies-chronic constipation-sleep-wake cycle disturbance,biolink:Disease,1,GARD:22416,false,true,GARD
 disease,GARD:24658,"Heart, malformation of",biolink:Disease,1,GARD:24658,false,true,GARD
 disease,GARD:27070,TUBB2A-related tubulinopathy,biolink:Disease,1,GARD:27070,false,true,GARD
-disease,GARD:27442,Childhood Colorectal Carcinoma,biolink:Disease,1,GARD:27442,false,true,GARD
-disease,GARD:27443,Childhood Breast Carcinoma,biolink:Disease,1,GARD:27443,false,true,GARD
-disease,GARD:27444,Childhood Laryngeal Carcinoma,biolink:Disease,1,GARD:27444,false,true,GARD
-disease,GARD:27445,Childhood Esophageal Carcinoma,biolink:Disease,1,GARD:27445,false,true,GARD
-disease,GARD:27446,Childhood Lung Non-Small Cell Carcinoma,biolink:Disease,1,GARD:27446,false,true,GARD
-disease,GARD:27447,Childhood Lung Small Cell Carcinoma,biolink:Disease,1,GARD:27447,false,true,GARD
-disease,GARD:27448,Childhood Malignant Penile Neoplasm,biolink:Disease,1,GARD:27448,false,true,GARD
-disease,GARD:27449,Childhood Rectal Carcinoma,biolink:Disease,1,GARD:27449,false,true,GARD
-disease,GARD:27450,Childhood Thyroid Gland Carcinoma,biolink:Disease,1,GARD:27450,false,true,GARD
-disease,GARD:27451,Childhood Langerhans Cell Histiocytosis with Risk Organ Involvement,biolink:Disease,1,GARD:27451,false,true,GARD
-disease,GARD:27452,Childhood Thyroid Gland Papillary Carcinoma,biolink:Disease,1,GARD:27452,false,true,GARD
-disease,GARD:27453,Childhood Thyroid Gland Follicular Carcinoma,biolink:Disease,1,GARD:27453,false,true,GARD
-disease,GARD:27454,Childhood Thyroid Gland Medullary Carcinoma,biolink:Disease,1,GARD:27454,false,true,GARD
-disease,GARD:27455,Childhood Small Intestinal Leiomyosarcoma,biolink:Disease,1,GARD:27455,false,true,GARD
-disease,GARD:27456,"Langerhans Cell Histiocytosis, Polyostotic",biolink:Disease,1,GARD:27456,false,true,GARD
-disease,GARD:27457,Thyroid Gland Rosai-Dorfman-Destombes Disease,biolink:Disease,1,GARD:27457,false,true,GARD
-disease,GARD:27458,Cutaneous Indeterminate Dendritic Cell Tumor,biolink:Disease,1,GARD:27458,false,true,GARD
-disease,GARD:27459,Cutaneous Rosai-Dorfman-Destombes Disease,biolink:Disease,1,GARD:27459,false,true,GARD
-disease,GARD:27460,Oral Cavity Langerhans Cell Histiocytosis,biolink:Disease,1,GARD:27460,false,true,GARD
-disease,GARD:27461,Odontogenic Carcinoma,biolink:Disease,1,GARD:27461,false,true,GARD
-disease,GARD:27462,Sclerosing Odontogenic Carcinoma,biolink:Disease,1,GARD:27462,false,true,GARD
-disease,GARD:27463,Odontogenic Sarcoma,biolink:Disease,1,GARD:27463,false,true,GARD
-disease,GARD:27464,Ameloblastic Fibro-Odontosarcoma,biolink:Disease,1,GARD:27464,false,true,GARD
-disease,GARD:27465,Mediastinal Follicular Dendritic Cell Sarcoma,biolink:Disease,1,GARD:27465,false,true,GARD
-disease,GARD:27466,Central Nervous System Rosai-Dorfman-Destombes Disease,biolink:Disease,1,GARD:27466,false,true,GARD
-disease,GARD:27467,Aggressive Systemic Mastocytosis with an Associated Germ Cell Tumor,biolink:Disease,1,GARD:27467,false,true,GARD
-disease,GARD:27468,Childhood ALK-Rearranged Renal Cell Carcinoma,biolink:Disease,1,GARD:27468,false,true,GARD
-disease,GARD:27469,Childhood Eosinophilic Solid and Cystic Renal Cell Carcinoma,biolink:Disease,1,GARD:27469,false,true,GARD
-disease,GARD:27470,Childhood Fibrolamellar Carcinoma,biolink:Disease,1,GARD:27470,false,true,GARD
-disease,GARD:27471,Childhood Pancreatic Acinar Cell Carcinoma,biolink:Disease,1,GARD:27471,false,true,GARD
-disease,GARD:27472,Childhood Pancreatic Acinar Cell Cystadenocarcinoma,biolink:Disease,1,GARD:27472,false,true,GARD
-disease,GARD:27473,Childhood Thyroid Gland Spindle Epithelial Tumor with Thymus-Like Elements,biolink:Disease,1,GARD:27473,false,true,GARD
-disease,GARD:27474,Childhood Adrenal Cortical Carcinoma,biolink:Disease,1,GARD:27474,false,true,GARD
-disease,GARD:27475,Childhood Odontogenic Neoplasm,biolink:Disease,1,GARD:27475,false,true,GARD
-disease,GARD:27476,Childhood Mucoepidermoid Carcinoma,biolink:Disease,1,GARD:27476,false,true,GARD
-disease,GARD:27477,Childhood Salivary Gland Mucoepidermoid Carcinoma,biolink:Disease,1,GARD:27477,false,true,GARD
-disease,GARD:27478,Childhood Salivary Gland Acinic Cell Carcinoma,biolink:Disease,1,GARD:27478,false,true,GARD
-disease,GARD:27479,Childhood Carcinoma,biolink:Disease,1,GARD:27479,false,true,GARD
-disease,GARD:27480,Childhood Nasopharyngeal Carcinoma,biolink:Disease,1,GARD:27480,false,true,GARD
-disease,GARD:27481,Childhood NUT Carcinoma,biolink:Disease,1,GARD:27481,false,true,GARD
-disease,GARD:27482,Childhood Head and Neck NUT Carcinoma,biolink:Disease,1,GARD:27482,false,true,GARD
-disease,GARD:27483,Childhood Cutaneous Melanoma,biolink:Disease,1,GARD:27483,false,true,GARD
-disease,GARD:27484,Recurrent Mast Cell Leukemia,biolink:Disease,1,GARD:27484,false,true,GARD
-disease,GARD:27485,Mature Plasmacytoid Dendritic Cell Proliferation Associated with Myeloid Neoplasm,biolink:Disease,1,GARD:27485,false,true,GARD
-disease,GARD:27486,Cutaneous Plasmacytoid Dendritic Cell Neoplasm,biolink:Disease,1,GARD:27486,false,true,GARD
-disease,GARD:27487,Cutaneous ALK-Positive Histiocytosis,biolink:Disease,1,GARD:27487,false,true,GARD
-disease,GARD:27488,Cutaneous Histiocytic Sarcoma,biolink:Disease,1,GARD:27488,false,true,GARD
-disease,GARD:27489,Ameloblastic Fibro-Odontoma,biolink:Disease,1,GARD:27489,false,true,GARD
-disease,GARD:27490,Conventional Ameloblastoma,biolink:Disease,1,GARD:27490,false,true,GARD
-disease,GARD:27491,Unicystic Ameloblastoma,biolink:Disease,1,GARD:27491,false,true,GARD
-disease,GARD:27492,Benign Odontogenic Neoplasm,biolink:Disease,1,GARD:27492,false,true,GARD
 disease,GARD:27493,Cementoblastoma,biolink:Disease,1,GARD:27493,false,true,GARD
-disease,GARD:27494,Ghost Cell Odontogenic Carcinoma,biolink:Disease,1,GARD:27494,false,true,GARD
-disease,GARD:27495,Odontogenic Fibroma,biolink:Disease,1,GARD:27495,false,true,GARD
-disease,GARD:27496,Peripheral Odontogenic Fibroma,biolink:Disease,1,GARD:27496,false,true,GARD
-disease,GARD:27497,Ameloblastic Fibroma,biolink:Disease,1,GARD:27497,false,true,GARD
-disease,GARD:27498,Malignant Odontogenic Neoplasm,biolink:Disease,1,GARD:27498,false,true,GARD
-disease,GARD:27499,Metastasizing Ameloblastoma,biolink:Disease,1,GARD:27499,false,true,GARD
-disease,GARD:27500,"Ameloblastic Carcinoma-Secondary Type (Dedifferentiated), Intraosseous",biolink:Disease,1,GARD:27500,false,true,GARD
-disease,GARD:27501,"Ameloblastic Carcinoma-Secondary Type (Dedifferentiated), Peripheral",biolink:Disease,1,GARD:27501,false,true,GARD
-disease,GARD:27502,Clear Cell Odontogenic Carcinoma,biolink:Disease,1,GARD:27502,false,true,GARD
-disease,GARD:27503,Calcifying Cystic Odontogenic Tumor,biolink:Disease,1,GARD:27503,false,true,GARD
-disease,GARD:27504,Dentinogenic Ghost Cell Tumor,biolink:Disease,1,GARD:27504,false,true,GARD
-disease,GARD:27505,Stage II Childhood Hepatocellular Carcinoma AJCC v6 and v7,biolink:Disease,1,GARD:27505,false,true,GARD
-disease,GARD:27506,Stage I Childhood Hepatocellular Carcinoma AJCC v6 and v7,biolink:Disease,1,GARD:27506,false,true,GARD
-disease,GARD:27507,Benign Ameloblastoma,biolink:Disease,1,GARD:27507,false,true,GARD
-disease,GARD:27508,Squamous Odontogenic Tumor,biolink:Disease,1,GARD:27508,false,true,GARD
-disease,GARD:27509,Ameloblastic Carcinoma-Primary Type,biolink:Disease,1,GARD:27509,false,true,GARD
-disease,GARD:27510,"Primary Intraosseous Carcinoma, Not Otherwise Specified, Derived from Odontogenic Cyst",biolink:Disease,1,GARD:27510,false,true,GARD
-disease,GARD:27511,Odontogenic Myxoma,biolink:Disease,1,GARD:27511,false,true,GARD
-disease,GARD:27512,Fibroblastic Reticular Cell Sarcoma,biolink:Disease,1,GARD:27512,false,true,GARD
-disease,GARD:27513,Disseminated Juvenile Xanthogranuloma,biolink:Disease,1,GARD:27513,false,true,GARD
-disease,GARD:27514,Recurrent Childhood Hepatocellular Carcinoma,biolink:Disease,1,GARD:27514,false,true,GARD
-disease,GARD:28193,Childhood Nasal Cavity Carcinoma,biolink:Disease,1,GARD:28193,false,true,GARD
-disease,GARD:28194,Childhood Paranasal Sinus Carcinoma,biolink:Disease,1,GARD:28194,false,true,GARD
-disease,GARD:28195,Childhood Parathyroid Gland Carcinoma,biolink:Disease,1,GARD:28195,false,true,GARD
-disease,GARD:28196,Childhood Salivary Gland Carcinoma,biolink:Disease,1,GARD:28196,false,true,GARD
-disease,GARD:28197,Childhood Malignant Small Intestinal Neoplasm,biolink:Disease,1,GARD:28197,false,true,GARD
-disease,GARD:28198,"Denys-Drash Syndrome, Incomplete",biolink:Disease,1,GARD:28198,false,true,GARD
-disease,GARD:28199,"Malignant Mixed Tumor, Not Otherwise Specified",biolink:Disease,1,GARD:28199,false,true,GARD
-disease,GARD:28200,Childhood Langerhans Cell Histiocytosis without Risk Organ Involvement,biolink:Disease,1,GARD:28200,false,true,GARD
-disease,GARD:28201,Central Nervous System Langerhans Cell Histiocytosis,biolink:Disease,1,GARD:28201,false,true,GARD
-disease,GARD:28202,Central Nervous System Histiocytic Sarcoma,biolink:Disease,1,GARD:28202,false,true,GARD
-disease,GARD:28203,Central Nervous System Erdheim-Chester Disease,biolink:Disease,1,GARD:28203,false,true,GARD
-disease,GARD:28204,Refractory Histiocytic and Dendritic Cell Neoplasm,biolink:Disease,1,GARD:28204,false,true,GARD
-disease,GARD:28205,Recurrent Histiocytic and Dendritic Cell Neoplasm,biolink:Disease,1,GARD:28205,false,true,GARD
-disease,GARD:28206,Recurrent Langerhans Cell Histiocytosis,biolink:Disease,1,GARD:28206,false,true,GARD
+disease,GARD:28300,"Camurati-Engelmann disease, type 2",biolink:Disease,1,GARD:28300,false,true,GARD
+disease,GARD:28330,Ileal Atresia,biolink:Disease,1,GARD:28330,false,true,GARD
+disease,GARD:28364,Phocomelia of the Lower Limb,biolink:Disease,1,GARD:28364,false,true,GARD
+disease,GARD:28368,Chilblains,biolink:Disease,1,GARD:28368,false,true,GARD
+disease,GARD:28372,Myokymia,biolink:Disease,1,GARD:28372,false,true,GARD

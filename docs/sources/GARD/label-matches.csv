@@ -1,0 +1,266 @@
+gard_id,gard_label,target,target_label,clique_leader,clique_type,clique_members_joined
+GARD:28365,22q Telomere Deletion Syndrome,NCIT:C75478,22q Telomere Deletion Syndrome,UMLS:C2699200,biolink:Disease,2
+GARD:28366,5' 10' Methylenetetrahydrofolate Reductase Deficiency,NCIT:C84524,5' 10' Methylenetetrahydrofolate Reductase Deficiency,MONDO:0009353,biolink:Disease,13
+GARD:28334,Acampomelic Campomelic Dysplasia,NCIT:C120205,Acampomelic Campomelic Dysplasia,MONDO:0007251,biolink:Disease,15
+GARD:28278,Acanthomatous Ameloblastoma,NCIT:C39754,Acanthomatous Ameloblastoma,UMLS:C0457531,biolink:Disease,3
+GARD:28327,Acute transplant rejection,MONDO:1010187,acute transplant rejection,MONDO:1010187,biolink:Disease,1
+GARD:27467,Aggressive Systemic Mastocytosis with an Associated Germ Cell Tumor,NCIT:C186732,Aggressive Systemic Mastocytosis with an Associated Germ Cell Tumor,UMLS:C5670725,biolink:Disease,2
+GARD:28304,Akaba Hayasaka syndrome,MONDO:0021834,Akaba Hayasaka syndrome,MONDO:0021834,biolink:Disease,4
+GARD:28301,Alazami-Yuan syndrome,MONDO:0014931,Alazami-Yuan syndrome,MONDO:0014931,biolink:Disease,5
+GARD:28240,ALK-Positive Histiocytosis,NCIT:C200105,ALK-Positive Histiocytosis,UMLS:C5856100,biolink:Disease,2
+GARD:28284,Ameloblastic Carcinoma Derived From Odontogenic Cyst,NCIT:C7497,Ameloblastic Carcinoma Derived From Odontogenic Cyst,UMLS:C1332242,biolink:Disease,2
+GARD:27509,Ameloblastic Carcinoma-Primary Type,NCIT:C7493,Ameloblastic Carcinoma-Primary Type,UMLS:C1333260,biolink:Disease,3
+GARD:28283,Ameloblastic Carcinoma-Secondary Type (Dedifferentiated),NCIT:C7496,Ameloblastic Carcinoma-Secondary Type (Dedifferentiated),UMLS:C1332241,biolink:Disease,2
+GARD:27500,"Ameloblastic Carcinoma-Secondary Type (Dedifferentiated), Intraosseous",NCIT:C54298,"Ameloblastic Carcinoma-Secondary Type (Dedifferentiated), Intraosseous",UMLS:C1706789,biolink:Disease,2
+GARD:27501,"Ameloblastic Carcinoma-Secondary Type (Dedifferentiated), Peripheral",NCIT:C54299,"Ameloblastic Carcinoma-Secondary Type (Dedifferentiated), Peripheral",UMLS:C1706790,biolink:Disease,2
+GARD:28281,Ameloblastic Fibrodentinoma,NCIT:C66800,Ameloblastic Fibrodentinoma,UMLS:C0457520,biolink:Disease,3
+GARD:28230,Ameloblastic Fibrodentinosarcoma,NCIT:C173739,Ameloblastic Fibrodentinosarcoma,UMLS:C5401473,biolink:Disease,2
+GARD:27497,Ameloblastic Fibroma,NCIT:C4316,Ameloblastic Fibroma,UMLS:C0334572,biolink:Disease,4
+GARD:27489,Ameloblastic Fibro-Odontoma,NCIT:C3710,Ameloblastic Fibro-Odontoma,UMLS:C0205865,biolink:Disease,5
+GARD:27464,Ameloblastic Fibro-Odontosarcoma,NCIT:C173740,Ameloblastic Fibro-Odontosarcoma,UMLS:C0334564,biolink:Disease,3
+GARD:28322,Aplasia cutis-enamel dysplasia syndrome,MONDO:0968978,aplasia cutis-enamel dysplasia syndrome,MONDO:0968978,biolink:Disease,5
+GARD:28298,Arthrogryposis,MONDO:0008779,arthrogryposis,MONDO:0008779,biolink:Disease,9
+GARD:28287,Atelosteogenesis,MONDO:0000389,atelosteogenesis,MONDO:0000389,biolink:Disease,6
+GARD:17996,Autosomal recessive extra-oral halitosis,orphanet:562538,Autosomal recessive extra-oral halitosis,MONDO:0029144,biolink:Disease,6
+GARD:28279,Basal Cell Ameloblastoma,NCIT:C39757,Basal Cell Ameloblastoma,UMLS:C1511055,biolink:Disease,2
+GARD:27507,Benign Ameloblastoma,NCIT:C7111,Benign Ameloblastoma,UMLS:C1332470,biolink:Disease,2
+GARD:27492,Benign Odontogenic Neoplasm,NCIT:C4306,Benign Odontogenic Neoplasm,UMLS:C0334557,biolink:Disease,3
+GARD:28293,Bladder urachal carcinoma,MONDO:0003715,bladder urachal carcinoma,MONDO:0003715,biolink:Disease,7
+GARD:28292,Bladder urachal squamous cell carcinoma,MONDO:0003714,bladder urachal squamous cell carcinoma,MONDO:0003714,biolink:Disease,5
+GARD:27503,Calcifying Cystic Odontogenic Tumor,NCIT:C54319,Calcifying Cystic Odontogenic Tumor,UMLS:C0206740,biolink:Disease,5
+GARD:28307,Central auditory processing disorder,NCIT:C97170,Central Auditory Processing Disorder,MONDO:0024422,biolink:Disease,10
+GARD:28203,Central Nervous System Erdheim-Chester Disease,NCIT:C129808,Central Nervous System Erdheim-Chester Disease,UMLS:C4329631,biolink:Disease,2
+GARD:28285,Central Nervous System Histiocytic and Dendritic Cell Neoplasm,NCIT:C92944,Central Nervous System Histiocytic and Dendritic Cell Neoplasm,UMLS:C2985357,biolink:Disease,2
+GARD:28202,Central Nervous System Histiocytic Sarcoma,NCIT:C129807,Central Nervous System Histiocytic Sarcoma,UMLS:C2046300,biolink:Disease,2
+GARD:28201,Central Nervous System Langerhans Cell Histiocytosis,NCIT:C129806,Central Nervous System Langerhans Cell Histiocytosis,UMLS:C4329634,biolink:Disease,2
+GARD:27466,Central Nervous System Rosai-Dorfman-Destombes Disease,NCIT:C186663,Central Nervous System Rosai-Dorfman-Destombes Disease,UMLS:C5670693,biolink:Disease,2
+GARD:28244,Central Odontogenic Fibroma,NCIT:C202077,Central Odontogenic Fibroma,UMLS:C1260966,biolink:Disease,3
+GARD:28345,Cerebral Adrenoleukodystrophy,NCIT:C142852,Cerebral Adrenoleukodystrophy,UMLS:C4684865,biolink:Disease,2
+GARD:28235,Childhood Adamantinomatous Craniopharyngioma,NCIT:C188948,Childhood Adamantinomatous Craniopharyngioma,UMLS:C5708143,biolink:Disease,2
+GARD:28238,Childhood Adenomatoid Odontogenic Tumor,NCIT:C190156,Childhood Adenomatoid Odontogenic Tumor,UMLS:C5783529,biolink:Disease,2
+GARD:27474,Childhood Adrenal Cortical Carcinoma,NCIT:C190069,Childhood Adrenal Cortical Carcinoma,UMLS:C5783480,biolink:Disease,2
+GARD:27468,Childhood ALK-Rearranged Renal Cell Carcinoma,NCIT:C189250,Childhood ALK-Rearranged Renal Cell Carcinoma,UMLS:C5708332,biolink:Disease,2
+GARD:28237,Childhood Ameloblastic Fibroma,NCIT:C190155,Childhood Ameloblastic Fibroma,UMLS:C5783528,biolink:Disease,2
+GARD:27443,Childhood Breast Carcinoma,NCIT:C118809,Childhood Breast Carcinoma,UMLS:C3897071,biolink:Disease,2
+GARD:27479,Childhood Carcinoma,NCIT:C190275,Childhood Carcinoma,UMLS:C5783602,biolink:Disease,2
+GARD:27442,Childhood Colorectal Carcinoma,NCIT:C118808,Childhood Colorectal Carcinoma,UMLS:C3899669,biolink:Disease,2
+GARD:27483,Childhood Cutaneous Melanoma,NCIT:C190280,Childhood Cutaneous Melanoma,UMLS:C5783607,biolink:Disease,2
+GARD:27469,Childhood Eosinophilic Solid and Cystic Renal Cell Carcinoma,NCIT:C189255,Childhood Eosinophilic Solid and Cystic Renal Cell Carcinoma,UMLS:C5708335,biolink:Disease,2
+GARD:27445,Childhood Esophageal Carcinoma,NCIT:C118812,Childhood Esophageal Carcinoma,UMLS:C3899664,biolink:Disease,2
+GARD:27470,Childhood Fibrolamellar Carcinoma,NCIT:C189932,Childhood Fibrolamellar Carcinoma,UMLS:C5708841,biolink:Disease,2
+GARD:27482,Childhood Head and Neck NUT Carcinoma,NCIT:C190278,Childhood Head and Neck NUT Carcinoma,UMLS:C5783605,biolink:Disease,2
+GARD:27451,Childhood Langerhans Cell Histiocytosis with Risk Organ Involvement,NCIT:C123395,Childhood Langerhans Cell Histiocytosis with Risk Organ Involvement,UMLS:C4055246,biolink:Disease,2
+GARD:28200,Childhood Langerhans Cell Histiocytosis without Risk Organ Involvement,NCIT:C123396,Childhood Langerhans Cell Histiocytosis without Risk Organ Involvement,UMLS:C4055245,biolink:Disease,2
+GARD:27444,Childhood Laryngeal Carcinoma,NCIT:C118811,Childhood Laryngeal Carcinoma,UMLS:C3899654,biolink:Disease,2
+GARD:28256,Childhood Lung Carcinoma,NCIT:C209738,Childhood Lung Carcinoma,UMLS:C5962472,biolink:Disease,2
+GARD:27446,Childhood Lung Non-Small Cell Carcinoma,NCIT:C118814,Childhood Lung Non-Small Cell Carcinoma,UMLS:C3899650,biolink:Disease,2
+GARD:27447,Childhood Lung Small Cell Carcinoma,NCIT:C118815,Childhood Lung Small Cell Carcinoma,UMLS:C3899641,biolink:Disease,2
+GARD:27448,Childhood Malignant Penile Neoplasm,NCIT:C118821,Childhood Malignant Penile Neoplasm,UMLS:C3899653,biolink:Disease,2
+GARD:28197,Childhood Malignant Small Intestinal Neoplasm,NCIT:C118826,Childhood Malignant Small Intestinal Neoplasm,UMLS:C3897069,biolink:Disease,2
+GARD:27476,Childhood Mucoepidermoid Carcinoma,NCIT:C190272,Childhood Mucoepidermoid Carcinoma,UMLS:C5783599,biolink:Disease,2
+GARD:28193,Childhood Nasal Cavity Carcinoma,NCIT:C118817,Childhood Nasal Cavity Carcinoma,UMLS:C3899651,biolink:Disease,2
+GARD:27480,Childhood Nasopharyngeal Carcinoma,NCIT:C190276,Childhood Nasopharyngeal Carcinoma,UMLS:C5783603,biolink:Disease,2
+GARD:27481,Childhood NUT Carcinoma,NCIT:C190277,Childhood NUT Carcinoma,UMLS:C5783604,biolink:Disease,2
+GARD:28239,Childhood Odontogenic Myxoma,NCIT:C190157,Childhood Odontogenic Myxoma,UMLS:C5783530,biolink:Disease,2
+GARD:27475,Childhood Odontogenic Neoplasm,NCIT:C190152,Childhood Odontogenic Neoplasm,UMLS:C5783526,biolink:Disease,2
+GARD:28236,"Childhood Ovarian Small Cell Carcinoma, Hypercalcemic Type",NCIT:C189334,"Childhood Ovarian Small Cell Carcinoma, Hypercalcemic Type",UMLS:C5708381,biolink:Disease,2
+GARD:27471,Childhood Pancreatic Acinar Cell Carcinoma,NCIT:C190024,Childhood Pancreatic Acinar Cell Carcinoma,UMLS:C5783456,biolink:Disease,2
+GARD:27472,Childhood Pancreatic Acinar Cell Cystadenocarcinoma,NCIT:C190026,Childhood Pancreatic Acinar Cell Cystadenocarcinoma,UMLS:C5783457,biolink:Disease,2
+GARD:28194,Childhood Paranasal Sinus Carcinoma,NCIT:C118818,Childhood Paranasal Sinus Carcinoma,UMLS:C3899648,biolink:Disease,2
+GARD:28195,Childhood Parathyroid Gland Carcinoma,NCIT:C118819,Childhood Parathyroid Gland Carcinoma,UMLS:C3899647,biolink:Disease,2
+GARD:27449,Childhood Rectal Carcinoma,NCIT:C118823,Childhood Rectal Carcinoma,UMLS:C3899643,biolink:Disease,2
+GARD:27478,Childhood Salivary Gland Acinic Cell Carcinoma,NCIT:C190274,Childhood Salivary Gland Acinic Cell Carcinoma,UMLS:C5783601,biolink:Disease,2
+GARD:28196,Childhood Salivary Gland Carcinoma,NCIT:C118824,Childhood Salivary Gland Carcinoma,UMLS:C3899642,biolink:Disease,2
+GARD:27477,Childhood Salivary Gland Mucoepidermoid Carcinoma,NCIT:C190273,Childhood Salivary Gland Mucoepidermoid Carcinoma,UMLS:C5783600,biolink:Disease,2
+GARD:27455,Childhood Small Intestinal Leiomyosarcoma,NCIT:C123932,Childhood Small Intestinal Leiomyosarcoma,UMLS:C4086172,biolink:Disease,2
+GARD:27450,Childhood Thyroid Gland Carcinoma,NCIT:C118827,Childhood Thyroid Gland Carcinoma,UMLS:C3899640,biolink:Disease,2
+GARD:27453,Childhood Thyroid Gland Follicular Carcinoma,NCIT:C123904,Childhood Thyroid Gland Follicular Carcinoma,UMLS:C4086176,biolink:Disease,2
+GARD:27454,Childhood Thyroid Gland Medullary Carcinoma,NCIT:C123905,Childhood Thyroid Gland Medullary Carcinoma,UMLS:C4086177,biolink:Disease,2
+GARD:27452,Childhood Thyroid Gland Papillary Carcinoma,NCIT:C123903,Childhood Thyroid Gland Papillary Carcinoma,UMLS:C4086178,biolink:Disease,2
+GARD:27473,Childhood Thyroid Gland Spindle Epithelial Tumor with Thymus-Like Elements,NCIT:C190064,Childhood Thyroid Gland Spindle Epithelial Tumor with Thymus-Like Elements,UMLS:C5783476,biolink:Disease,2
+GARD:28328,Chronic transplant rejection,MONDO:1010188,chronic transplant rejection,MONDO:1010188,biolink:Disease,1
+GARD:28241,Clear Cell Calcifying Epithelial Odontogenic Tumor,NCIT:C202057,Clear Cell Calcifying Epithelial Odontogenic Tumor,UMLS:C5908315,biolink:Disease,2
+GARD:27502,Clear Cell Odontogenic Carcinoma,NCIT:C54300,Clear Cell Odontogenic Carcinoma,UMLS:C4316837,biolink:Disease,4
+GARD:22068,Cleft lip and palate-craniofacial dysmorphism-congenital heart defect-hearing loss syndrome,orphanet:508476,Cleft lip and palate-craniofacial dysmorphism-congenital heart defect-hearing loss syndrome,MONDO:0976127,biolink:Disease,5
+GARD:28320,Cleidocranial dysplasia 2,MONDO:0859307,cleidocranial dysplasia 2,MONDO:0859307,biolink:Disease,4
+GARD:28316,Congenital megaprepuce,MONDO:0700340,congenital megaprepuce,MONDO:0700340,biolink:Disease,5
+GARD:27490,Conventional Ameloblastoma,NCIT:C39755,Conventional Ameloblastoma,UMLS:C1513734,biolink:Disease,2
+GARD:28225,Conventional Follicular Dendritic Cell Sarcoma,NCIT:C172846,Conventional Follicular Dendritic Cell Sarcoma,UMLS:C5419895,biolink:Disease,2
+GARD:28348,Crystal-Storing Histiocytosis,NCIT:C158967,Crystal-Storing Histiocytosis,NCIT:C158967,biolink:Disease,1
+GARD:27487,Cutaneous ALK-Positive Histiocytosis,NCIT:C206209,Cutaneous ALK-Positive Histiocytosis,UMLS:C5959629,biolink:Disease,2
+GARD:28222,Cutaneous Erdheim-Chester Disease,NCIT:C168991,Cutaneous Erdheim-Chester Disease,UMLS:C5239291,biolink:Disease,2
+GARD:28220,Cutaneous Histiocytic and Dendritic Cell Neoplasm,NCIT:C168980,Cutaneous Histiocytic and Dendritic Cell Neoplasm,UMLS:C5239286,biolink:Disease,2
+GARD:27488,Cutaneous Histiocytic Sarcoma,NCIT:C206210,Cutaneous Histiocytic Sarcoma,UMLS:C5959630,biolink:Disease,2
+GARD:27458,Cutaneous Indeterminate Dendritic Cell Tumor,NCIT:C168984,Cutaneous Indeterminate Dendritic Cell Tumor,UMLS:C5239288,biolink:Disease,2
+GARD:28249,Cutaneous Juvenile Xanthogranuloma,NCIT:C202966,Cutaneous Juvenile Xanthogranuloma,UMLS:C5908876,biolink:Disease,2
+GARD:28221,Cutaneous Langerhans Cell Histiocytosis,NCIT:C168983,Cutaneous Langerhans Cell Histiocytosis,UMLS:C5208352,biolink:Disease,2
+GARD:27486,Cutaneous Plasmacytoid Dendritic Cell Neoplasm,NCIT:C206207,Cutaneous Plasmacytoid Dendritic Cell Neoplasm,UMLS:C5959627,biolink:Disease,2
+GARD:27459,Cutaneous Rosai-Dorfman-Destombes Disease,NCIT:C168986,Cutaneous Rosai-Dorfman-Destombes Disease,UMLS:C5239290,biolink:Disease,2
+GARD:28242,Cystic/Microcystic Calcifying Epithelial Odontogenic Tumor,NCIT:C202058,Cystic/Microcystic Calcifying Epithelial Odontogenic Tumor,UMLS:C5908316,biolink:Disease,2
+GARD:27504,Dentinogenic Ghost Cell Tumor,NCIT:C54323,Dentinogenic Ghost Cell Tumor,UMLS:C1704219,biolink:Disease,3
+GARD:28198,"Denys-Drash Syndrome, Incomplete",NCIT:C121209,"Denys-Drash Syndrome, Incomplete",UMLS:C4055156,biolink:Disease,2
+GARD:28331,Dextro-Transposition of the Great Vessels with Intact Ventricular Septum,NCIT:C101185,Dextro-Transposition of the Great Vessels with Intact Ventricular Septum,UMLS:C3640019,biolink:Disease,2
+GARD:28332,Dextro-Transposition of the Great Vessels with Ventricular Septal Defect,NCIT:C101186,Dextro-Transposition of the Great Vessels with Ventricular Septal Defect,UMLS:C3640020,biolink:Disease,2
+GARD:28274,Digestive System Histiocytic and Dendritic Cell Neoplasm,NCIT:C213905,Digestive System Histiocytic and Dendritic Cell Neoplasm,UMLS:C5985259,biolink:Disease,2
+GARD:28380,Discordant Ventriculoarterial Connection,NCIT:C98914,Discordant Ventriculoarterial Connection,MONDO:0000153,biolink:Disease,17
+GARD:27513,Disseminated Juvenile Xanthogranuloma,NCIT:C81772,Disseminated Juvenile Xanthogranuloma,UMLS:C2825742,biolink:Disease,2
+GARD:28226,EBV-Positive Inflammatory Follicular Dendritic Cell/Fibroblastic Reticular Cell Tumor,NCIT:C172847,EBV-Positive Inflammatory Follicular Dendritic Cell/Fibroblastic Reticular Cell Tumor,UMLS:C5419896,biolink:Disease,2
+GARD:28212,EBV-Positive Inflammatory Follicular Dendritic Cell/Fibroblastic Reticular Cell Tumor of the Digestive System,NCIT:C150704,EBV-Positive Inflammatory Follicular Dendritic Cell/Fibroblastic Reticular Cell Tumor of the Digestive System,UMLS:C5421272,biolink:Disease,2
+GARD:28344,Eiken Type Chondrodysplasia,NCIT:C131811,Eiken Type Chondrodysplasia,UMLS:C4329784,biolink:Disease,2
+GARD:28324,Encapsulating peritoneal sclerosis,MONDO:1010131,encapsulating peritoneal sclerosis,MONDO:1010131,biolink:Disease,6
+GARD:28303,Erythromelalgia,MONDO:0016028,erythromelalgia,MONDO:0016028,biolink:Disease,15
+GARD:28275,Extraosseous/Peripheral Ameloblastoma,NCIT:C27396,Extraosseous/Peripheral Ameloblastoma,UMLS:C1333513,biolink:Disease,2
+GARD:28379,Factor V Leiden,NCIT:C98573,Factor V Leiden,UMLS:C0584960,biolink:Disease,4
+GARD:28305,Fairbank disease,MONDO:0023106,Fairbank disease,MONDO:0023106,biolink:Disease,4
+GARD:28353,Familial Catecholamine-Induced QT Prolongation,NCIT:C185245,Familial Catecholamine-Induced QT Prolongation,UMLS:C5669784,biolink:Disease,2
+GARD:28333,FGFR3 Chondrodysplasia,NCIT:C118696,FGFR3 Chondrodysplasia,UMLS:C3899171,biolink:Disease,2
+GARD:27512,Fibroblastic Reticular Cell Sarcoma,NCIT:C81758,Fibroblastic Reticular Cell Sarcoma,UMLS:C2825739,biolink:Disease,4
+GARD:28276,Follicular Ameloblastoma,NCIT:C27397,Follicular Ameloblastoma,UMLS:C0457530,biolink:Disease,3
+GARD:28369,Genu Varum,MESH:D056305,Genu Varum,MESH:D056305,biolink:Disease,1
+GARD:27494,Ghost Cell Odontogenic Carcinoma,NCIT:C4311,Ghost Cell Odontogenic Carcinoma,UMLS:C0334566,biolink:Disease,4
+GARD:22369,GNAO1-related developmental delay-seizures-movement disorder spectrum,orphanet:592564,GNAO1-related developmental delay-seizures-movement disorder spectrum,MONDO:0060491,biolink:Disease,6
+GARD:28362,Granular Cell Ameloblastoma,NCIT:C27398,Granular Cell Ameloblastoma,UMLS:C0457532,biolink:Disease,3
+GARD:28252,Head and Neck Erdheim-Chester Disease,NCIT:C202972,Head and Neck Erdheim-Chester Disease,UMLS:C5908879,biolink:Disease,2
+GARD:28229,Head and Neck Follicular Dendritic Cell Sarcoma,NCIT:C173580,Head and Neck Follicular Dendritic Cell Sarcoma,UMLS:C5420276,biolink:Disease,2
+GARD:28227,Head and Neck Histiocytic and Dendritic Cell Neoplasm,NCIT:C173485,Head and Neck Histiocytic and Dendritic Cell Neoplasm,UMLS:C5420231,biolink:Disease,2
+GARD:28250,Head and Neck Juvenile Xanthogranuloma,NCIT:C202967,Head and Neck Juvenile Xanthogranuloma,UMLS:C5908877,biolink:Disease,2
+GARD:28228,Head and Neck Langerhans Cell Histiocytosis,NCIT:C173486,Head and Neck Langerhans Cell Histiocytosis,UMLS:C5420232,biolink:Disease,2
+GARD:28251,Head and Neck Rosai-Dorfman-Destombes Disease,NCIT:C202971,Head and Neck Rosai-Dorfman-Destombes Disease,UMLS:C5908878,biolink:Disease,2
+GARD:28317,Hengel-Maroofian-Schols syndrome,MONDO:0859208,Hengel-Maroofian-Schols syndrome,MONDO:0859208,biolink:Disease,6
+GARD:28370,Hereditary Angioedema Types I and II,MESH:D056829,Hereditary Angioedema Types I and II,UMLS:C2717905,biolink:Disease,3
+GARD:16958,Hereditary sensory and autonomic neuropathy type 1B,orphanet:139564,Hereditary sensory and autonomic neuropathy type 1B,MONDO:0044720,biolink:Disease,15
+GARD:28339,Holorachischisis,NCIT:C124543,Holorachischisis,UMLS:C0685866,biolink:Disease,3
+GARD:28363,Hyaline Membrane Syndrome,NCIT:C27562,Hyaline Membrane Syndrome,UMLS:C1334061,biolink:Disease,2
+GARD:28248,Hybrid Odontogenic Fibroma with Central Giant Cell Granuloma,NCIT:C202081,Hybrid Odontogenic Fibroma with Central Giant Cell Granuloma,UMLS:C5908326,biolink:Disease,2
+GARD:28326,Hyperacute transplant rejection,MONDO:1010186,hyperacute transplant rejection,MONDO:1010186,biolink:Disease,1
+GARD:28341,Hyperpipecolatemia,NCIT:C125593,Hyperpipecolatemia,MONDO:0019609,biolink:Disease,18
+GARD:28323,ICHAD syndrome,MONDO:0979234,ICHAD syndrome,MONDO:0979234,biolink:Disease,6
+GARD:28354,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 1,NCIT:C188936,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 1,UMLS:C5539144,biolink:Disease,2
+GARD:28355,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 2,NCIT:C188937,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 2,UMLS:C5539145,biolink:Disease,2
+GARD:28356,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 3,NCIT:C188939,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 3,UMLS:C5539321,biolink:Disease,2
+GARD:28357,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 4,NCIT:C188940,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 4,UMLS:C5539146,biolink:Disease,2
+GARD:28358,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 5,NCIT:C201844,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 5,UMLS:C5539147,biolink:Disease,2
+GARD:28321,Immunodeficiency 117,MONDO:0958011,immunodeficiency 117,MONDO:0958011,biolink:Disease,6
+GARD:28312,Immunodeficiency 62,MONDO:0032763,immunodeficiency 62,MONDO:0032763,biolink:Disease,7
+GARD:28315,Immunodeficiency 69,MONDO:0033541,immunodeficiency 69,MONDO:0033541,biolink:Disease,6
+GARD:28308,Immunodeficiency 82 with systemic inflammation,MONDO:0030308,immunodeficiency 82 with systemic inflammation,MONDO:0030308,biolink:Disease,6
+GARD:28309,Immunodeficiency 84,MONDO:0030333,immunodeficiency 84,MONDO:0030333,biolink:Disease,6
+GARD:28310,Immunodeficiency 92,MONDO:0030498,immunodeficiency 92,MONDO:0030498,biolink:Disease,6
+GARD:28311,Immunodeficiency 93 and hypertrophic cardiomyopathy,MONDO:0030528,immunodeficiency 93 and hypertrophic cardiomyopathy,MONDO:0030528,biolink:Disease,6
+GARD:28337,Imperforate Vagina,NCIT:C123639,Imperforate Vagina,UMLS:C0266414,biolink:Disease,2
+GARD:22313,Infantile-onset pulmonary alveolar proteinosis-hypogammaglobulinemia,orphanet:572428,Infantile-onset pulmonary alveolar proteinosis-hypogammaglobulinemia,MONDO:0020840,biolink:Disease,6
+GARD:28302,Intellectual developmental disorder with dysmorphic facies and ptosis,MONDO:0015022,intellectual developmental disorder with dysmorphic facies and ptosis,MONDO:0015022,biolink:Disease,5
+GARD:28314,"Intellectual developmental disorder with nasal speech, dysmorphic facies, and variable skeletal anomalies",MONDO:0032832,"intellectual developmental disorder with nasal speech, dysmorphic facies, and variable skeletal anomalies",MONDO:0032832,biolink:Disease,7
+GARD:28319,Intellectual developmental disorder with or without peripheral neuropathy,MONDO:0859240,intellectual developmental disorder with or without peripheral neuropathy,MONDO:0859240,biolink:Disease,5
+GARD:28289,Intestinal atresia,MONDO:0001045,intestinal atresia,MONDO:0001045,biolink:Disease,10
+GARD:28296,Kashin-Beck disease,MONDO:0005610,Kashin-Beck disease,MONDO:0005610,biolink:Disease,8
+GARD:28232,Lacrimal Gland Epithelial-Myoepithelial Carcinoma,NCIT:C175288,Lacrimal Gland Epithelial-Myoepithelial Carcinoma,UMLS:C5446408,biolink:Disease,2
+GARD:28231,Lacrimal Gland Myoepithelial Carcinoma,NCIT:C175274,Lacrimal Gland Myoepithelial Carcinoma,UMLS:C5448120,biolink:Disease,2
+GARD:27456,"Langerhans Cell Histiocytosis, Polyostotic",NCIT:C150702,"Langerhans Cell Histiocytosis, Polyostotic",UMLS:C4727834,biolink:Disease,3
+GARD:28329,Linkeropathy,MONDO:1040022,linkeropathy,MONDO:1040022,biolink:Disease,1
+GARD:28318,"Macrocephaly, neurodevelopmental delay, lymphoid hyperplasia, and persistent fetal hemoglobin",MONDO:0859231,"macrocephaly, neurodevelopmental delay, lymphoid hyperplasia, and persistent fetal hemoglobin",MONDO:0859231,biolink:Disease,5
+GARD:28371,Malformations of Cortical Development,MESH:D054220,Malformations of Cortical Development,MONDO:0017094,biolink:Disease,11
+GARD:28273,Malignant Digestive System Histiocytic and Dendritic Cell Neoplasm,NCIT:C213904,Malignant Digestive System Histiocytic and Dendritic Cell Neoplasm,UMLS:C5985258,biolink:Disease,2
+GARD:28272,Malignant Head and Neck Histiocytic and Dendritic Cell Neoplasm,NCIT:C213903,Malignant Head and Neck Histiocytic and Dendritic Cell Neoplasm,UMLS:C5985257,biolink:Disease,2
+GARD:28269,Malignant Histiocytic and Dendritic Cell Neoplasm,NCIT:C212210,Malignant Histiocytic and Dendritic Cell Neoplasm,UMLS:C5983925,biolink:Disease,2
+GARD:28199,"Malignant Mixed Tumor, Not Otherwise Specified",NCIT:C121787,"Malignant Mixed Tumor, Not Otherwise Specified",UMLS:C4054577,biolink:Disease,2
+GARD:27498,Malignant Odontogenic Neoplasm,NCIT:C4812,Malignant Odontogenic Neoplasm,UMLS:C0334558,biolink:Disease,7
+GARD:28234,Mast Cell Leukemia with an Associated Myeloid Neoplasm,NCIT:C188031,Mast Cell Leukemia with an Associated Myeloid Neoplasm,UMLS:C5854885,biolink:Disease,2
+GARD:27485,Mature Plasmacytoid Dendritic Cell Proliferation Associated with Myeloid Neoplasm,NCIT:C200513,Mature Plasmacytoid Dendritic Cell Proliferation Associated with Myeloid Neoplasm,UMLS:C5854287,biolink:Disease,2
+GARD:27465,Mediastinal Follicular Dendritic Cell Sarcoma,NCIT:C183374,Mediastinal Follicular Dendritic Cell Sarcoma,UMLS:C2211016,biolink:Disease,2
+GARD:28340,Meningohydroencephalocele,NCIT:C124558,Meningohydroencephalocele,UMLS:C4087051,biolink:Disease,2
+GARD:28306,Mesomelic dysplasia,MONDO:0023599,mesomelic dysplasia,MONDO:0023599,biolink:Disease,5
+GARD:27499,Metastasizing Ameloblastoma,NCIT:C54297,Metastasizing Ameloblastoma,UMLS:C0334567,biolink:Disease,3
+GARD:28258,Metastatic Childhood Colorectal Carcinoma,NCIT:C209752,Metastatic Childhood Colorectal Carcinoma,UMLS:C5962486,biolink:Disease,2
+GARD:28257,Metastatic Childhood Lung Carcinoma,NCIT:C209751,Metastatic Childhood Lung Carcinoma,UMLS:C5962485,biolink:Disease,2
+GARD:28288,Midface dysplasia,MONDO:0000446,midface dysplasia,MONDO:0000446,biolink:Disease,2
+GARD:28346,Mitochondrially Inherited Nonsyndromic Sensorineural Deafness,NCIT:C148321,Mitochondrially Inherited Nonsyndromic Sensorineural Deafness,UMLS:C4724974,biolink:Disease,2
+GARD:28259,Multiple Mastocytomas of the Skin,NCIT:C212107,Multiple Mastocytomas of the Skin,UMLS:C5983853,biolink:Disease,2
+GARD:28349,Muscular Dystrophy Secondary to Mitochondrial Disorder,NCIT:C168331,Muscular Dystrophy Secondary to Mitochondrial Disorder,UMLS:C5238795,biolink:Disease,2
+GARD:28350,Muscular Dystrophy Secondary to Oxidative Phosphorylation Disorder,NCIT:C168332,Muscular Dystrophy Secondary to Oxidative Phosphorylation Disorder,NCIT:C168332,biolink:Disease,1
+GARD:28291,Nephrocalcinosis,MONDO:0001567,nephrocalcinosis,MONDO:0001567,biolink:Disease,12
+GARD:28373,Neurocysticercosis,MESH:D020019,Neurocysticercosis,UMLS:C0338437,biolink:Disease,5
+GARD:28313,Neurodevelopmental disorder with microcephaly and structural brain anomalies,MONDO:0032779,neurodevelopmental disorder with microcephaly and structural brain anomalies,MONDO:0032779,biolink:Disease,5
+GARD:28243,Non-Calcifying/Langerhans Cell-Rich Calcifying Epithelial Odontogenic Tumor,NCIT:C202059,Non-Calcifying/Langerhans Cell-Rich Calcifying Epithelial Odontogenic Tumor,UMLS:C5908317,biolink:Disease,2
+GARD:28367,Non-Trisomic Autosomal Aneuploidy,NCIT:C84561,Non-Trisomic Autosomal Aneuploidy,UMLS:C2827493,biolink:Disease,2
+GARD:22416,NRXN1-related severe neurodevelopmental disorder-motor stereotypies-chronic constipation-sleep-wake cycle disturbance,orphanet:600663,NRXN1-related severe neurodevelopmental disorder-motor stereotypies-chronic constipation-sleep-wake cycle disturbance,MONDO:0013690,biolink:Disease,6
+GARD:27461,Odontogenic Carcinoma,NCIT:C173720,Odontogenic Carcinoma,UMLS:C5401355,biolink:Disease,2
+GARD:27495,Odontogenic Fibroma,NCIT:C4314,Odontogenic Fibroma,UMLS:C5887069,biolink:Disease,2
+GARD:28245,"Odontogenic Fibroma, Amyloid Subtype",NCIT:C202078,"Odontogenic Fibroma, Amyloid Subtype",UMLS:C5908323,biolink:Disease,2
+GARD:28246,"Odontogenic Fibroma, Granular Cell Subtype",NCIT:C202079,"Odontogenic Fibroma, Granular Cell Subtype",UMLS:C5908324,biolink:Disease,2
+GARD:28247,"Odontogenic Fibroma, Ossifying Subtype",NCIT:C202080,"Odontogenic Fibroma, Ossifying Subtype",UMLS:C5908325,biolink:Disease,2
+GARD:28282,Odontogenic Myxofibroma,NCIT:C7452,Odontogenic Myxofibroma,UMLS:C0334569,biolink:Disease,6
+GARD:27511,Odontogenic Myxoma,NCIT:C7501,Odontogenic Myxoma,UMLS:C0334569,biolink:Disease,6
+GARD:27463,Odontogenic Sarcoma,NCIT:C173738,Odontogenic Sarcoma,UMLS:C0334558,biolink:Disease,7
+GARD:27460,Oral Cavity Langerhans Cell Histiocytosis,NCIT:C173487,Oral Cavity Langerhans Cell Histiocytosis,UMLS:C5420233,biolink:Disease,2
+GARD:28360,Ossification of Anterior Longitudinal Ligament,NCIT:C202118,Ossification of Anterior Longitudinal Ligament,UMLS:C1142380,biolink:Disease,3
+GARD:28359,Ossification of the Ligamentum Flavum,NCIT:C202071,Ossification of the Ligamentum Flavum,UMLS:C5566262,biolink:Disease,4
+GARD:28295,Osteochondrodysplasia,MONDO:0005516,osteochondrodysplasia,MONDO:0005516,biolink:Disease,14
+GARD:28336,Paramyotonia Congenita without Cold Paralysis,NCIT:C122794,Paramyotonia Congenita without Cold Paralysis,MONDO:0008195,biolink:Disease,12
+GARD:28286,Penicilliosis,MONDO:0000304,penicilliosis,MONDO:0000304,biolink:Disease,8
+GARD:27496,Peripheral Odontogenic Fibroma,NCIT:C4315,Peripheral Odontogenic Fibroma,UMLS:C0334571,biolink:Disease,3
+GARD:28374,Peritoneal Panniculitis,NCIT:C85004,Peritoneal Panniculitis,UMLS:C0030330,biolink:Disease,3
+GARD:28297,Peritoneal well differentiated papillary mesothelioma,MONDO:0006364,peritoneal well differentiated papillary mesothelioma,MONDO:0006364,biolink:Disease,6
+GARD:28351,PIK3R1 Deficiency,NCIT:C176631,PIK3R1 Deficiency,UMLS:C5447337,biolink:Disease,2
+GARD:28342,Plasma Kallikrein Deficiency,NCIT:C131648,Plasma Kallikrein Deficiency,UMLS:C4331013,biolink:Disease,2
+GARD:28347,POLG-Related Spectrum Disorders,NCIT:C157267,POLG-Related Spectrum Disorders,UMLS:C4763519,biolink:Disease,2
+GARD:27510,"Primary Intraosseous Carcinoma, Not Otherwise Specified, Derived from Odontogenic Cyst",NCIT:C7500,"Primary Intraosseous Carcinoma, Not Otherwise Specified, Derived from Odontogenic Cyst",UMLS:C1335487,biolink:Disease,2
+GARD:28280,"Primary Intraosseous Carcinoma, Not Otherwise Specified, Derived from Odontogenic Keratocyst",NCIT:C54303,"Primary Intraosseous Carcinoma, Not Otherwise Specified, Derived from Odontogenic Keratocyst",UMLS:C1709664,biolink:Disease,2
+GARD:28290,Pulmonary alveolar proteinosis,MONDO:0001437,pulmonary alveolar proteinosis,MONDO:0001437,biolink:Disease,13
+GARD:28217,Recurrent Adamantinomatous Craniopharyngioma,NCIT:C162612,Recurrent Adamantinomatous Craniopharyngioma,UMLS:C5206691,biolink:Disease,2
+GARD:28253,Recurrent Childhood Fibrolamellar Carcinoma,NCIT:C208269,Recurrent Childhood Fibrolamellar Carcinoma,UMLS:C5961094,biolink:Disease,2
+GARD:27514,Recurrent Childhood Hepatocellular Carcinoma,NCIT:C9046,Recurrent Childhood Hepatocellular Carcinoma,UMLS:C1370832,biolink:Disease,2
+GARD:28210,Recurrent Craniopharyngioma,NCIT:C148077,Recurrent Craniopharyngioma,UMLS:C4688354,biolink:Disease,2
+GARD:28260,Recurrent Erdheim-Chester Disease,NCIT:C212187,Recurrent Erdheim-Chester Disease,UMLS:C5983907,biolink:Disease,2
+GARD:28265,Recurrent Fibroblastic Reticular Cell Sarcoma,NCIT:C212197,Recurrent Fibroblastic Reticular Cell Sarcoma,UMLS:C5983914,biolink:Disease,2
+GARD:28205,Recurrent Histiocytic and Dendritic Cell Neoplasm,NCIT:C134172,Recurrent Histiocytic and Dendritic Cell Neoplasm,UMLS:C4525076,biolink:Disease,2
+GARD:28261,Recurrent Histiocytic Sarcoma,NCIT:C212190,Recurrent Histiocytic Sarcoma,UMLS:C5983908,biolink:Disease,2
+GARD:28266,Recurrent Interdigitating Dendritic Cell Sarcoma,NCIT:C212198,Recurrent Interdigitating Dendritic Cell Sarcoma,UMLS:C5983915,biolink:Disease,2
+GARD:28206,Recurrent Langerhans Cell Histiocytosis,NCIT:C134175,Recurrent Langerhans Cell Histiocytosis,UMLS:C4525079,biolink:Disease,2
+GARD:28270,Recurrent Malignant Histiocytic and Dendritic Cell Neoplasm,NCIT:C212211,Recurrent Malignant Histiocytic and Dendritic Cell Neoplasm,UMLS:C5983926,biolink:Disease,2
+GARD:28224,Recurrent Malignant Mastocytosis,NCIT:C170817,Recurrent Malignant Mastocytosis,UMLS:C5418816,biolink:Disease,2
+GARD:28218,Recurrent Malignant Myoepithelioma,NCIT:C162732,Recurrent Malignant Myoepithelioma,UMLS:C5206780,biolink:Disease,2
+GARD:27484,Recurrent Mast Cell Leukemia,NCIT:C193426,Recurrent Mast Cell Leukemia,UMLS:C5785748,biolink:Disease,2
+GARD:28263,Recurrent Rosai-Dorfman-Destombes Disease,NCIT:C212192,Recurrent Rosai-Dorfman-Destombes Disease,UMLS:C5983910,biolink:Disease,2
+GARD:28213,Refractory Blastic Plasmacytoid Dendritic Cell Neoplasm,NCIT:C156104,Refractory Blastic Plasmacytoid Dendritic Cell Neoplasm,UMLS:C4744570,biolink:Disease,2
+GARD:28254,Refractory Childhood Fibrolamellar Carcinoma,NCIT:C208274,Refractory Childhood Fibrolamellar Carcinoma,UMLS:C5961099,biolink:Disease,2
+GARD:28255,Refractory Childhood Hepatocellular Carcinoma,NCIT:C208290,Refractory Childhood Hepatocellular Carcinoma,UMLS:C5961115,biolink:Disease,2
+GARD:28208,Refractory Erdheim-Chester Disease,NCIT:C136489,Refractory Erdheim-Chester Disease,UMLS:C4526729,biolink:Disease,2
+GARD:28267,Refractory Fibroblastic Reticular Cell Sarcoma,NCIT:C212199,Refractory Fibroblastic Reticular Cell Sarcoma,UMLS:C5983916,biolink:Disease,2
+GARD:28204,Refractory Histiocytic and Dendritic Cell Neoplasm,NCIT:C134168,Refractory Histiocytic and Dendritic Cell Neoplasm,UMLS:C4525072,biolink:Disease,2
+GARD:28262,Refractory Histiocytic Sarcoma,NCIT:C212191,Refractory Histiocytic Sarcoma,UMLS:C5983909,biolink:Disease,2
+GARD:28268,Refractory Interdigitating Dendritic Cell Sarcoma,NCIT:C212200,Refractory Interdigitating Dendritic Cell Sarcoma,UMLS:C5983917,biolink:Disease,2
+GARD:28207,Refractory Langerhans Cell Histiocytosis,NCIT:C134177,Refractory Langerhans Cell Histiocytosis,UMLS:C4525081,biolink:Disease,2
+GARD:28271,Refractory Malignant Histiocytic and Dendritic Cell Neoplasm,NCIT:C212212,Refractory Malignant Histiocytic and Dendritic Cell Neoplasm,UMLS:C5983927,biolink:Disease,2
+GARD:28223,Refractory Malignant Mastocytosis,NCIT:C170816,Refractory Malignant Mastocytosis,UMLS:C5418815,biolink:Disease,2
+GARD:28219,Refractory Malignant Myoepithelioma,NCIT:C162733,Refractory Malignant Myoepithelioma,UMLS:C5206781,biolink:Disease,2
+GARD:28264,Refractory Rosai-Dorfman-Destombes Disease,NCIT:C212193,Refractory Rosai-Dorfman-Destombes Disease,UMLS:C5983911,biolink:Disease,2
+GARD:28361,Refractory Secondary Hemophagocytic Lymphohistiocytosis,NCIT:C207802,Refractory Secondary Hemophagocytic Lymphohistiocytosis,UMLS:C5960711,biolink:Disease,2
+GARD:28335,Rhizomelic Dysplasia,NCIT:C121675,Rhizomelic Dysplasia,UMLS:C4053766,biolink:Disease,3
+GARD:28277,Salivary Gland Myoepithelial Carcinoma,NCIT:C35700,Salivary Gland Myoepithelial Carcinoma,UMLS:C1335904,biolink:Disease,3
+GARD:27462,Sclerosing Odontogenic Carcinoma,NCIT:C173733,Sclerosing Odontogenic Carcinoma,UMLS:C5401300,biolink:Disease,2
+GARD:28375,Selective Antibody Deficiency with Normal Immunoglobulins,NCIT:C85073,Selective Antibody Deficiency with Normal Immunoglobulins,UMLS:C2827583,biolink:Disease,2
+GARD:27508,Squamous Odontogenic Tumor,NCIT:C7112,Squamous Odontogenic Tumor,UMLS:C1458142,biolink:Disease,4
+GARD:27506,Stage I Childhood Hepatocellular Carcinoma AJCC v6 and v7,NCIT:C5710,Stage I Childhood Hepatocellular Carcinoma AJCC v6 and v7,UMLS:C4520726,biolink:Disease,2
+GARD:27505,Stage II Childhood Hepatocellular Carcinoma AJCC v6 and v7,NCIT:C5709,Stage II Childhood Hepatocellular Carcinoma AJCC v6 and v7,UMLS:C4520727,biolink:Disease,2
+GARD:28383,Surfactant Protein A Deficiency,NCIT:C99072,Surfactant Protein A Deficiency,UMLS:C3274522,biolink:Disease,2
+GARD:28381,Surfactant Protein C Deficiency,NCIT:C99069,Surfactant Protein C Deficiency,UMLS:C3274519,biolink:Disease,2
+GARD:28382,Surfactant Protein D Deficiency,NCIT:C99071,Surfactant Protein D Deficiency,UMLS:C3274521,biolink:Disease,2
+GARD:28338,Syringomyelia and Hydromyelia,NCIT:C123643,Syringomyelia and Hydromyelia,UMLS:C4053961,biolink:Disease,2
+GARD:28233,Systemic Mastocytosis with an Associated Germ Cell Tumor,NCIT:C186735,Systemic Mastocytosis with an Associated Germ Cell Tumor,UMLS:C5670726,biolink:Disease,2
+GARD:28376,Thyroid Dysgenesis,MESH:D050033,Thyroid Dysgenesis,MONDO:0024264,biolink:Disease,10
+GARD:28216,Thyroid Gland Follicular Dendritic Cell Sarcoma,NCIT:C156408,Thyroid Gland Follicular Dendritic Cell Sarcoma,UMLS:C2213266,biolink:Disease,2
+GARD:28214,Thyroid Gland Histiocytic and Dendritic Cell Neoplasm,NCIT:C156406,Thyroid Gland Histiocytic and Dendritic Cell Neoplasm,UMLS:C4744801,biolink:Disease,2
+GARD:28215,Thyroid Gland Langerhans Cell Histiocytosis,NCIT:C156407,Thyroid Gland Langerhans Cell Histiocytosis,UMLS:C4744802,biolink:Disease,2
+GARD:27457,Thyroid Gland Rosai-Dorfman-Destombes Disease,NCIT:C156409,Thyroid Gland Rosai-Dorfman-Destombes Disease,UMLS:C4744803,biolink:Disease,2
+GARD:28343,Tissue Kallikrein Deficiency,NCIT:C131651,Tissue Kallikrein Deficiency,UMLS:C4331419,biolink:Disease,2
+GARD:22370,TRAF7-associated heart defect-digital anomalies-facial dysmorphism-motor and speech delay syndrome,orphanet:592570,TRAF7-associated heart defect-digital anomalies-facial dysmorphism-motor and speech delay syndrome,MONDO:0032572,biolink:Disease,6
+GARD:28325,Transplant rejection,MONDO:1010185,transplant rejection,MONDO:1010185,biolink:Disease,3
+GARD:28377,Trigger Finger Disorder,MESH:D052582,Trigger Finger Disorder,MONDO:0008600,biolink:Disease,13
+GARD:28211,Tumors Derived from Langerhans Cells,NCIT:C150692,Tumors Derived from Langerhans Cells,UMLS:C4725926,biolink:Disease,2
+GARD:27491,Unicystic Ameloblastoma,NCIT:C39756,Unicystic Ameloblastoma,UMLS:C0457521,biolink:Disease,3
+GARD:28209,Unresectable Craniopharyngioma,NCIT:C148076,Unresectable Craniopharyngioma,UMLS:C4688353,biolink:Disease,2
+GARD:28299,Vacuolar Neuromyopathy,MONDO:0011155,vacuolar Neuromyopathy,MONDO:0011155,biolink:Disease,6
+GARD:28294,Wolffian adnexal tumor,MONDO:0004255,Wolffian adnexal tumor,MONDO:0004255,biolink:Disease,7
+GARD:28378,XXXY and XXXXY Syndrome,NCIT:C85236,XXXY and XXXXY Syndrome,UMLS:C2827598,biolink:Disease,2
+GARD:28352,YARSopathy,NCIT:C176704,YARSopathy,UMLS:C5447388,biolink:Disease,2

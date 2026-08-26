@@ -19,3 +19,36 @@ disease,xref,DOID,GARD,DOID,from_other_source,1902,DOID:0112151,corpus callosum 
 disease,xref,DOID,GARD,DOID,from_other_source,1902,DOID:1278,tolosa-hunt syndrome,GARD:7777,Tolosa-Hunt syndrome
 disease,xref,DOID,GARD,DOID,from_other_source,1902,DOID:2297,leptospirosis,GARD:7881,Leptospirosis
 disease,xref,DOID,GARD,DOID,from_other_source,1902,DOID:4927,Klatskin's tumor,GARD:10175,Klatskin tumor
+disease,xref,GARD,NCIT,GARD_LABEL,from_other_source,210,GARD:27442,Childhood Colorectal Carcinoma,NCIT:C118808,Childhood Colorectal Carcinoma
+disease,xref,GARD,NCIT,GARD_LABEL,from_other_source,210,GARD:27463,Odontogenic Sarcoma,NCIT:C173738,Odontogenic Sarcoma
+disease,xref,GARD,NCIT,GARD_LABEL,from_other_source,210,GARD:27484,Recurrent Mast Cell Leukemia,NCIT:C193426,Recurrent Mast Cell Leukemia
+disease,xref,GARD,NCIT,GARD_LABEL,from_other_source,210,GARD:27506,Stage I Childhood Hepatocellular Carcinoma AJCC v6 and v7,NCIT:C5710,Stage I Childhood Hepatocellular Carcinoma AJCC v6 and v7
+disease,xref,GARD,NCIT,GARD_LABEL,from_other_source,210,GARD:28205,Recurrent Histiocytic and Dendritic Cell Neoplasm,NCIT:C134172,Recurrent Histiocytic and Dendritic Cell Neoplasm
+disease,xref,GARD,NCIT,GARD_LABEL,from_other_source,210,GARD:28226,EBV-Positive Inflammatory Follicular Dendritic Cell/Fibroblastic Reticular Cell Tumor,NCIT:C172847,EBV-Positive Inflammatory Follicular Dendritic Cell/Fibroblastic Reticular Cell Tumor
+disease,xref,GARD,NCIT,GARD_LABEL,from_other_source,210,GARD:28247,"Odontogenic Fibroma, Ossifying Subtype",NCIT:C202080,"Odontogenic Fibroma, Ossifying Subtype"
+disease,xref,GARD,NCIT,GARD_LABEL,from_other_source,210,GARD:28268,Refractory Interdigitating Dendritic Cell Sarcoma,NCIT:C212200,Refractory Interdigitating Dendritic Cell Sarcoma
+disease,xref,GARD,NCIT,GARD_LABEL,from_other_source,210,GARD:28333,FGFR3 Chondrodysplasia,NCIT:C118696,FGFR3 Chondrodysplasia
+disease,xref,GARD,NCIT,GARD_LABEL,from_other_source,210,GARD:28354,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 1,NCIT:C188936,Immune Effector Cell Associated Neurotoxicity Syndrome Grade 1
+disease,xref,GARD,MONDO,GARD_LABEL,from_other_source,42,GARD:28286,Penicilliosis,MONDO:0000304,penicilliosis
+disease,xref,GARD,MONDO,GARD_LABEL,from_other_source,42,GARD:28290,Pulmonary alveolar proteinosis,MONDO:0001437,pulmonary alveolar proteinosis
+disease,xref,GARD,MONDO,GARD_LABEL,from_other_source,42,GARD:28294,Wolffian adnexal tumor,MONDO:0004255,Wolffian adnexal tumor
+disease,xref,GARD,MONDO,GARD_LABEL,from_other_source,42,GARD:28298,Arthrogryposis,MONDO:0008779,arthrogryposis
+disease,xref,GARD,MONDO,GARD_LABEL,from_other_source,42,GARD:28303,Erythromelalgia,MONDO:0016028,erythromelalgia
+disease,xref,GARD,MONDO,GARD_LABEL,from_other_source,42,GARD:28309,Immunodeficiency 84,MONDO:0030333,immunodeficiency 84
+disease,xref,GARD,MONDO,GARD_LABEL,from_other_source,42,GARD:28313,Neurodevelopmental disorder with microcephaly and structural brain anomalies,MONDO:0032779,neurodevelopmental disorder with microcephaly and structural brain anomalies
+disease,xref,GARD,MONDO,GARD_LABEL,from_other_source,42,GARD:28317,Hengel-Maroofian-Schols syndrome,MONDO:0859208,Hengel-Maroofian-Schols syndrome
+disease,xref,GARD,MONDO,GARD_LABEL,from_other_source,42,GARD:28321,Immunodeficiency 117,MONDO:0958011,immunodeficiency 117
+disease,xref,GARD,MONDO,GARD_LABEL,from_other_source,42,GARD:28325,Transplant rejection,MONDO:1010185,transplant rejection
+disease,xref,GARD,orphanet,GARD_LABEL,from_other_source,7,GARD:16958,Hereditary sensory and autonomic neuropathy type 1B,orphanet:139564,
+disease,xref,GARD,orphanet,GARD_LABEL,from_other_source,7,GARD:17996,Autosomal recessive extra-oral halitosis,orphanet:562538,
+disease,xref,GARD,orphanet,GARD_LABEL,from_other_source,7,GARD:22068,Cleft lip and palate-craniofacial dysmorphism-congenital heart defect-hearing loss syndrome,orphanet:508476,
+disease,xref,GARD,orphanet,GARD_LABEL,from_other_source,7,GARD:22313,Infantile-onset pulmonary alveolar proteinosis-hypogammaglobulinemia,orphanet:572428,
+disease,xref,GARD,orphanet,GARD_LABEL,from_other_source,7,GARD:22369,GNAO1-related developmental delay-seizures-movement disorder spectrum,orphanet:592564,
+disease,xref,GARD,orphanet,GARD_LABEL,from_other_source,7,GARD:22370,TRAF7-associated heart defect-digital anomalies-facial dysmorphism-motor and speech delay syndrome,orphanet:592570,
+disease,xref,GARD,orphanet,GARD_LABEL,from_other_source,7,GARD:22416,NRXN1-related severe neurodevelopmental disorder-motor stereotypies-chronic constipation-sleep-wake cycle disturbance,orphanet:600663,
+disease,xref,GARD,MESH,GARD_LABEL,from_other_source,6,GARD:28369,Genu Varum,MESH:D056305,Genu Varum
+disease,xref,GARD,MESH,GARD_LABEL,from_other_source,6,GARD:28370,Hereditary Angioedema Types I and II,MESH:D056829,Hereditary Angioedema Types I and II
+disease,xref,GARD,MESH,GARD_LABEL,from_other_source,6,GARD:28371,Malformations of Cortical Development,MESH:D054220,Malformations of Cortical Development
+disease,xref,GARD,MESH,GARD_LABEL,from_other_source,6,GARD:28373,Neurocysticercosis,MESH:D020019,Neurocysticercosis
+disease,xref,GARD,MESH,GARD_LABEL,from_other_source,6,GARD:28376,Thyroid Dysgenesis,MESH:D050033,Thyroid Dysgenesis
+disease,xref,GARD,MESH,GARD_LABEL,from_other_source,6,GARD:28377,Trigger Finger Disorder,MESH:D052582,Trigger Finger Disorder

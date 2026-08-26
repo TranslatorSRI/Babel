@@ -12,7 +12,13 @@ Artifacts in [`on-addition/`](./on-addition/): `clique-diff.summary.json`, and
 reduction worth reading. The full per-row CSV is 16,133 rows, almost all `kept`, and is not
 committed.
 
-## Headline: GARD joins existing cliques rather than forming its own
+Two diffs are recorded here, in the order the work happened. The first is the GARD **ingest**:
+`main` against this branch with its ids file, labels and the `MONDO_GARD` concord, and no
+`GARD_LABEL`. The second isolates `GARD_LABEL` on top of it.
+
+## Diff 1: adding the GARD ingest
+
+### Headline: GARD joins existing cliques rather than forming its own
 
 | compendium | before | after | diff |
 | --- | ---: | ---: | ---: |
@@ -32,7 +38,7 @@ xrefs — the same 16,214 identifiers produce **14,319** single-identifier cliqu
 `PhenotypicFeature.txt` is untouched, as expected: `disease_extra_prefixes` is a per-class allowlist
 applied to `biolink:Disease` only, so no GARD CURIE can survive in a phenotype clique.
 
-## Nothing is lost; 29 cliques are restructured
+### Nothing is lost; 29 cliques are restructured
 
 | destination_kind | rows | members | meaning |
 | --- | ---: | ---: | --- |
@@ -46,7 +52,7 @@ The 29 `regrouped` rows are in
 [`on-addition/clique-diff-regrouped.csv`](./on-addition/clique-diff-regrouped.csv) and fall into two
 shapes.
 
-### Shape 1 — a stranded MONDO term rejoins its disease (19 rows)
+#### Shape 1 — a stranded MONDO term rejoins its disease (19 rows)
 
 A DOID-led clique gains exactly two members: a MONDO identifier and a GARD one. These are cliques
 where MONDO and DOID describe the same disease but MONDO asserted no `skos:exactMatch` to it, so the
@@ -62,7 +68,7 @@ same GARD id, and the two cliques join. The labels agree on both sides:
 This is a **fix**: before this PR each of these diseases had two Babel cliques, and Node
 Normalization answered differently depending on which identifier you held.
 
-### Shape 2 — a pre-existing over-merge splits (10 rows)
+#### Shape 2 — a pre-existing over-merge splits (10 rows)
 
 A clique that had absorbed a second disease sheds it. `glom()` cannot hold two MONDO identifiers
 (`DISEASE_UNIQUE_PREFIXES`), so where the new GARD edges give a better-supported home to members
@@ -82,7 +88,7 @@ over-merges predate this PR and ship today**; GARD's mappings are what pull them
 strongest single argument for the `MONDO_GARD` concord, and the rows an SME should read first: the
 full 29 are in the CSV with before/after sizes and example members.
 
-### Two splits that were wrong, and the filter that undoes them
+#### Two splits that were wrong, and the filter that undoes them
 
 An earlier run of this diff had 31 rows. The two no longer present were splits in the *wrong*
 direction, caused by one GARD id being xrefed by two DOID terms: `GARD:625` "Autosomal recessive
@@ -105,7 +111,7 @@ from two terms. With no registry row and no MONDO mapping, nothing
 else carries them, so they are no longer emitted; they had no label and there was no way to tell
 which of their two DOID subjects they meant.
 
-## The mistyped DOID xref this also fixes
+### The mistyped DOID xref this also fixes
 
 [`DOID:0061030`](http://purl.obolibrary.org/obo/DOID_0061030) "hemophilia" writes its GARD xref as
 `GARD:0418`, a typo for [`GARD:10418`](https://rarediseases.info.nih.gov/?gard_id=10418)
@@ -136,6 +142,44 @@ against itself with the entry disabled does show it, as one `regrouped` row:
 What surfaced it was reading the two cliques out of the finished compendia directly, which is the
 rule [`AGENTS.md`](../../../AGENTS.md) states for clique-membership questions.
 
+## Diff 2: adding the GARD_LABEL concord
+
+The ingest above leaves 277 registry terms that neither MONDO nor DOID maps as single-identifier
+cliques. The `GARD_LABEL` concord links 265 of them to an identically labelled identifier already in
+the pipeline; [`label-matches.md`](label-matches.md) is the evidence for the match rule, and
+[`label-matches.csv`](label-matches.csv) is the per-row record, so only the summary is committed
+here: [`label-match/clique-diff.summary.json`](./label-match/clique-diff.summary.json).
+
+| compendium | before | after | diff |
+| --- | ---: | ---: | ---: |
+| `Disease.txt` | 365,345 | 365,080 | **−265** |
+| `PhenotypicFeature.txt` | 75,477 | 75,477 | 0 |
+
+| destination_kind | rows | meaning |
+| --- | ---: | --- |
+| `kept` | 263 | a clique gained a GARD member and kept its leader |
+| `regrouped` | 265 | a GARD single-identifier clique merged into an existing clique |
+| `leader_changed` | 0 | no clique's preferred identifier was reassigned |
+| `moved` | 0 | no member retyped into a different compendium file |
+| `dropped` | 0 | **no identifier disappeared from the compendia** |
+
+263 rather than 265 destinations because two cliques gain two GARD ids each, where the registry
+carries the same label twice. All 16,214 GARD identifiers still reach a compendium.
+
+### The dropped-members run that produced guard 3
+
+The first implementation of this concord reported **5 dropped members** on this diff, and that is
+how `build_gard_label_concord()`'s third guard came to exist. Five registry terms matched an
+identifier whose clique Babel types `biolink:PhenotypicFeature` — Cementoblastoma, Ileal Atresia,
+Phocomelia of the Lower Limb, Chilblains, Myokymia. `disease_extra_prefixes` is a per-class
+allowlist naming GARD for `biolink:Disease` only, so those GARD ids were not moved into
+`PhenotypicFeature.txt`; they were dropped from the build, trading a working single-identifier
+clique for a vanished identifier.
+
+Nothing else would have caught it. The impact report cannot see a dropped identifier at all — a
+CURIE absent from both sides is not a difference — and the concord looked correct on disk. Guard 3
+skips those five targets, and the diff above is the result.
+
 ## What was compared
 
 Both sides were built from the **same cached intermediates**
@@ -143,7 +187,8 @@ Both sides were built from the **same cached intermediates**
 
 | | before | after |
 | --- | --- | --- |
-| `on-addition/` | `main` at `a3ae3e4d` — no GARD ingest, no `MONDO_GARD` concord, DOID concord built without GARD unpadding | this branch |
+| `on-addition/` (diff 1) | `main` at `a3ae3e4d` — no GARD ingest, no `MONDO_GARD` concord, DOID concord built without GARD unpadding | this branch, before `GARD_LABEL` |
+| `label-match/` (diff 2) | this branch with `GARD_LABEL` removed from `disease_concords` | this branch |
 | the isolating diff (not committed) | this branch, with the `DOID:0061030 GARD:418` concord row kept | this branch, row dropped |
 
 Reproduce with:

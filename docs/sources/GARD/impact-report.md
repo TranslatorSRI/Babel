@@ -1,7 +1,7 @@
 # Source impact report: GARD
 
-- Generated: 2026-08-21 06:12:09 UTC
-- Babel commit: 9f2d4a462266bef8324fbb2457f7fc0893758d90
+- Generated: 2026-08-26 02:11:39 UTC
+- Babel commit: 80948dcc0896969c3a19da04fa5de29cf7629869
 - Source pipelines: disease
 - Source prefixes: GARD
 - Comparison mode: synthetic
@@ -56,6 +56,10 @@ another source's does — the latter may predate this addition. The prefix pair 
 |---|---|---|---|---|---|
 | disease | `xref` | GARD ↔ MONDO | `MONDO_GARD` | from_other_source | 15,936 |
 | disease | `xref` | DOID ↔ GARD | `DOID` | from_other_source | 1,902 |
+| disease | `xref` | GARD ↔ NCIT | `GARD_LABEL` | from_other_source | 210 |
+| disease | `xref` | GARD ↔ MONDO | `GARD_LABEL` | from_other_source | 42 |
+| disease | `xref` | GARD ↔ orphanet | `GARD_LABEL` | from_other_source | 7 |
+| disease | `xref` | GARD ↔ MESH | `GARD_LABEL` | from_other_source | 6 |
 
 ## 4. Clique impact
 
@@ -67,21 +71,22 @@ change the source could introduce before that filtering is applied.
 
 ### disease
 
-- 277 new cliques composed only of GARD identifiers (a 0.06% increase over the 440,647 pre-existing
+- 12 new cliques composed only of GARD identifiers (a 0.00% increase over the 440,647 pre-existing
   cliques)
-- 15,621 existing cliques contain GARD identifiers in the after state (3.55% of the 440,647
-  pre-existing cliques). Of these, 14,049 cliques gain at least one structurally new identifier from
-  GARD, and 1,572 already contained the GARD CURIE via an xref from another source — GARD's ids file
+- 15,872 existing cliques contain GARD identifiers in the after state (3.60% of the 440,647
+  pre-existing cliques). Of these, 14,304 cliques gain at least one structurally new identifier from
+  GARD, and 1,568 already contained the GARD CURIE via an xref from another source — GARD's ids file
   now also lists those existing CURIEs as first-class typed identifiers.
 - 22 existing cliques will be merged because of new GARD cross-references
-- 14,049 structurally-new GARD identifiers are added to existing cliques (14,049 via expansion, 0
-  via merges). This is distinct from the 14,071 existing cliques that change, since one clique can
+- 14,314 structurally-new GARD identifiers are added to existing cliques (14,314 via expansion, 0
+  via merges). This is distinct from the 14,326 existing cliques that change, since one clique can
   gain several identifiers.
-- Total cliques in this pipeline go from 440,647 to 440,905
+- Total cliques in this pipeline go from 440,647 to 440,640
 - Sample of new cliques (top 100, unsurvivable and largest first):
   [`impact-report/new-cliques-top-100.csv`](impact-report/new-cliques-top-100.csv)
 - Full list of modified cliques (one row per added/preexisting GARD identifier):
-  [`impact-report/modified-cliques.csv`](impact-report/modified-cliques.csv)
+  `impact-report/modified-cliques.csv` -- not committed (see `.gitignore`); regenerate it with
+  `uv run source-impact-report`
 - Cross-reference summary (join pathways with counts and example rows):
   [`impact-report/new-xrefs-summary.csv`](impact-report/new-xrefs-summary.csv)
 
@@ -102,7 +107,7 @@ change the source could introduce before that filtering is applied.
 
 #### Sample expanded cliques (up to 3)
 
-Of the 15,621 cliques that contain GARD identifiers in the after state, 0 would also see their
+Of the 15,872 cliques that contain GARD identifiers in the after state, 0 would also see their
 preferred identifier change as a result of adding GARD. The sample below leads with
 preferred-id-change cliques (if any), then structurally grown cliques, then cliques where GARD only
 adds CURIEs that were already present via xref. Within each clique, identifiers are listed in the
