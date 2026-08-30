@@ -3,10 +3,10 @@ revision = 3
 requires-python = ">=3.11, <3.14"
 resolution-markers = [
     "python_full_version >= '3.12' and sys_platform == 'win32'",
-    "python_full_version < '3.12' and sys_platform == 'win32'",
     "python_full_version >= '3.12' and sys_platform == 'emscripten'",
-    "python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform == 'win32'",
+    "python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 
@@ -2379,7 +2379,7 @@ wheels = [
 
 [[package]]
 name = "snakemake"
-version = "9.25.1"
+version = "9.26.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "conda-inject" },
@@ -2414,9 +2414,9 @@ dependencies = [
     { name = "wrapt" },
     { name = "yte" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/dc/c6/38cd19d10460d5a556f412b64c4e8975e7b56cc17240d044ce909e5c2d27/snakemake-9.25.1.tar.gz", hash = "sha256:5a0486d397370a19b636fd1f734765520fa744bc5071c309e3393b62f5d87aa5", size = 6805662, upload-time = "2026-08-04T21:38:37.304Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/64/a7/dcebe66ee0b427f2c6601693fe8275702114d52f373cbc377114d42d458b/snakemake-9.26.0.tar.gz", hash = "sha256:8e02617ef1a3022ab3ad707a314517f61bd781eefa58d73a8bd301abc5dfaa17", size = 6814463, upload-time = "2026-08-26T08:27:32.379Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f8/c6/77661486250c5b6765ad42e82457492b219003c165f57d26d4e22967ded3/snakemake-9.25.1-py3-none-any.whl", hash = "sha256:0683a5fbf0729c1e5c03f0ccf6f45164a6fa56df3b3e71cd95ee47a9943f5e78", size = 1163544, upload-time = "2026-08-04T21:38:34.694Z" },
+    { url = "https://files.pythonhosted.org/packages/63/6f/9371a4ede00fe350f76218dc0be4b214620149457eaa96078ddc5276192a/snakemake-9.26.0-py3-none-any.whl", hash = "sha256:e9f7aa08251aa9ca30192d48864fa86b883ee65a46c0c71e15786c829ac5f968", size = 1164568, upload-time = "2026-08-26T08:27:29.899Z" },
 ]
 
 [[package]]
