@@ -548,7 +548,10 @@ def build_conflation(
             f"Biolink model {config['biolink_version']} doesn't have a ChemicalEntity prefix order: {biolink_chemical_entity}"
         )
 
-    # Add RXCUI at the bottom.
+    # Remove RXCUI from the prefix order if it is present.
+    conflation_prefix_order.remove("RXCUI")
+
+    # ... and add it to the bottom.
     conflation_prefix_order.append("RXCUI")
 
     # Turn it into a sort order.
