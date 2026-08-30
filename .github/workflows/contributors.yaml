@@ -1,0 +1,30 @@
+name: Generate a contributors report
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    name: Generate a contributors report
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+      - name: Install dependencies
+        run: pip install requests
+      - name: Run issue listing script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: mkdir tmp && python .github/scripts/contributors.py
+      - name: Create issue
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Contributors report
+          token: ${{ secrets.GITHUB_TOKEN }}
+          content-filepath: ./tmp/contributors.tsv
