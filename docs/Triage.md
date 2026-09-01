@@ -78,36 +78,20 @@ Having text after the fenced code block (or multiple code blocks) is fine too.
 
 #### Available assertion types
 
-You can see an up-to-date list of supported assertions
-[in the Babel Validation repository](https://github.com/TranslatorSRI/babel-validation/blob/3eeeccfb0d15451e45ecade7603404e096b30fb0/src/babel_validation/assertions/README.md).
+The assertion types are defined in [babel-validation][assertion types], whose README is generated
+from the handler classes themselves. That page is canonical: it is always in sync with what the
+harness can actually run, so link to it rather than copying the list here. As of writing it covers
+`Resolves`, `DoesNotResolve`, `ResolvesWith`, `DoesNotResolveWith`, `HasLabel` and
+`ResolvesWithType` for NodeNorm, `SearchByName` for NameRes, and the `Needed` placeholder.
 
-<!-- TODO: replace with the actual URL once https://github.com/TranslatorSRI/babel-validation/pull/67 has been merged. -->
+Use `{{BabelTest|Needed}}` as a placeholder if you know a test is needed but do not yet know the
+exact expected values. It always fails, as a reminder.
 
-**NodeNorm assertions:**
-
-| Assertion            | What it tests                                                                 |
-|----------------------|-------------------------------------------------------------------------------|
-| `Resolves`           | Each CURIE returns a non-null result from NodeNorm.                           |
-| `DoesNotResolve`     | Each CURIE intentionally fails to normalize.                                  |
-| `ResolvesWith`       | Two or more CURIEs normalize to identical results.                            |
-| `DoesNotResolveWith` | Two or more CURIEs do NOT resolve to the same entity.                         |
-| `HasLabel`           | A CURIE's primary label exactly matches the expected string (case-sensitive). |
-| `ResolvesWithType`   | CURIEs resolve with a specified Biolink semantic type.                        |
-
-**NameRes assertions:**
-
-| Assertion      | What it tests                                                                       |
-|----------------|-------------------------------------------------------------------------------------|
-| `SearchByName` | A CURIE appears in the top N NameRes results for a given text string (default N=5). |
-
-**Special:**
-
-| Assertion | Meaning                                                                          |
-|-----------|----------------------------------------------------------------------------------|
-| `Needed`  | Placeholder marking that a test needs to be written. Always fails as a reminder. |
-
-When adding tests to an issue, use `{{BabelTest|Needed}}` as a placeholder if you know a test
-is needed but do not yet know the exact expected values.
+An assertion type that the harness does not recognise is a hard failure regardless of whether the
+issue is open or closed, so a typo or an invented name takes down the whole run rather than
+failing quietly. This document used to carry its own copy of the assertion table, and that copy
+drifted: the preferred-name issue template pre-filled a `HasPreferredName` assertion that has
+never existed. Check a name against the generated README rather than against prose.
 
 ### Sprint planning
 
@@ -141,3 +125,4 @@ Sprints are two weeks long. At the start of each sprint:
 [Babel issue tracker]: https://github.com/NCATSTranslator/Babel/issues/
 [Babel sprints GitHub project]: https://github.com/orgs/NCATSTranslator/projects/36
 [babel-validation]: https://github.com/TranslatorSRI/babel-validation
+[assertion types]: https://github.com/TranslatorSRI/babel-validation/blob/main/src/babel_validation/assertions/README.md

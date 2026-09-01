@@ -67,7 +67,7 @@ body:
       description: >
         If you have time, a BabelTest entry helps us write an automated test for this issue.
         You can add multiple entries, one per line.
-        See [available BabelTest formats](https://github.com/NCATSTranslator/Babel/blob/main/docs/Triage.md#adding-automated-tests-to-issues).
+        See the [assertion types](https://github.com/TranslatorSRI/babel-validation/blob/main/src/babel_validation/assertions/README.md) babel-validation can run, and [how we use them](https://github.com/NCATSTranslator/Babel/blob/main/docs/Triage.md#adding-automated-tests-to-issues).
       render: text
       value: "{{BabelTest|HasPreferredName|curie|correct}}"
     validations:
