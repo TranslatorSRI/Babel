@@ -69,7 +69,7 @@ body:
         You can add multiple entries, one per line.
         See [available BabelTest formats](https://github.com/NCATSTranslator/Babel/blob/main/docs/Triage.md#adding-automated-tests-to-issues).
       render: text
-      value: "{{BabelTest|HasPreferredName|curie|correct}}"
+      value: "{{BabelTest|HasLabel|curie|correct}}"
     validations:
       required: false
   - type: textarea
