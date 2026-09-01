@@ -78,36 +78,80 @@ Having text after the fenced code block (or multiple code blocks) is fine too.
 
 #### Available assertion types
 
-You can see an up-to-date list of supported assertions
-[in the Babel Validation repository](https://github.com/TranslatorSRI/babel-validation/blob/3eeeccfb0d15451e45ecade7603404e096b30fb0/src/babel_validation/assertions/README.md).
+The assertion types are defined in [babel-validation][assertion types], whose README is generated
+from the handler classes themselves. That page is canonical: it is always in sync with what the
+harness can actually run, so link to it rather than copying the list here. As of writing it covers
+`Resolves`, `DoesNotResolve`, `ResolvesWith`, `DoesNotResolveWith`, `HasLabel` and
+`ResolvesWithType` for NodeNorm, `SearchByName` for NameRes, and the `Needed` placeholder.
 
-<!-- TODO: replace with the actual URL once https://github.com/TranslatorSRI/babel-validation/pull/67 has been merged. -->
+Use `{{BabelTest|Needed}}` as a placeholder if you know a test is needed but do not yet know the
+exact expected values. It always fails, as a reminder.
 
-**NodeNorm assertions:**
+An assertion type that the harness does not recognise is a hard failure regardless of whether the
+issue is open or closed, so a typo or an invented name takes down the whole run rather than
+failing quietly. This document used to carry its own copy of the assertion table, and that copy
+drifted: the preferred-name issue template pre-filled a `HasPreferredName` assertion that has
+never existed. Check a name against the generated README rather than against prose.
 
-| Assertion            | What it tests                                                                 |
-|----------------------|-------------------------------------------------------------------------------|
-| `Resolves`           | Each CURIE returns a non-null result from NodeNorm.                           |
-| `DoesNotResolve`     | Each CURIE intentionally fails to normalize.                                  |
-| `ResolvesWith`       | Two or more CURIEs normalize to identical results.                            |
-| `DoesNotResolveWith` | Two or more CURIEs do NOT resolve to the same entity.                         |
-| `HasLabel`           | A CURIE's primary label exactly matches the expected string (case-sensitive). |
-| `ResolvesWithType`   | CURIEs resolve with a specified Biolink semantic type.                        |
+#### Checking an assertion you have written
 
-**NameRes assertions:**
+From a [babel-validation] checkout, one issue at a time:
 
-| Assertion      | What it tests                                                                       |
-|----------------|-------------------------------------------------------------------------------------|
-| `SearchByName` | A CURIE appears in the top N NameRes results for a given text string (default N=5). |
+```shell
+uv run pytest tests/github_issues/test_github_issues.py --target dev --issue 1038 -rsx
+```
 
-**Special:**
+`--issue` accepts `1038`, `Babel#1038` or `NCATSTranslator/Babel#1038`, and resolves only within
+the repositories listed under `Repositories` in `tests/targets.ini`. `--target` is one of `exp`,
+`dev`, `ci`, `ci-es`, `test` or `prod`. A single issue takes a few seconds; every assertion in
+every configured repository against one target takes well under a minute, so there is no reason
+to wait for the nightly run to find out whether an assertion works:
 
-| Assertion | Meaning                                                                          |
-|-----------|----------------------------------------------------------------------------------|
-| `Needed`  | Placeholder marking that a test needs to be written. Always fails as a reminder. |
+```shell
+uv run pytest tests/github_issues/test_github_issues.py --target dev -q -rf
+```
 
-When adding tests to an issue, use `{{BabelTest|Needed}}` as a placeholder if you know a test
-is needed but do not yet know the exact expected values.
+Setup is `uv sync` plus a `GITHUB_TOKEN`. The repositories are public, so a token with **no scopes
+at all** is enough — it is for the rate limit, not for access — and `GITHUB_TOKEN=$(gh auth token)`
+works. Without a token these tests **skip rather than fail**, which is a green run that tested
+nothing; check the summary says they ran.
+
+Two caveats when checking work that was just edited. GitHub's search index lags roughly a minute
+behind an edit, and the discovered issue list is cached, so delete
+`~/.cache/babel-validation/issues_cache.json` before a full run. `--issue` fetches directly and
+bypasses both.
+
+#### What a pass or a failure means
+
+The issue's own state decides the expected outcome, so the two are not read the same way:
+
+- **Open issue** — the bug is not fixed, so its assertions are *expected* to fail and are reported
+  as `xfail`. Writing an assertion for a bug that is still broken is the normal case, not a
+  mistake.
+- **Open issue whose assertions pass** — reported as a failure, because the `xfail` is strict.
+  This is the signal that the bug is fixed and the issue can be closed. It is the main reason to
+  add assertions to issues at all.
+- **Closed issue** — its assertions must pass. A failure here is a regression.
+- **`skipped`** — the harness found no assertion in the body at all, usually a malformed
+  `{{BabelTest|...}}` marker.
+
+Results for every configured repository, across all six environments, are published daily to the
+[babel-validation dashboard]; filter by the *GitHub issues* kind.
+
+#### Gotchas
+
+- **Writing about the syntax runs it.** A complete `{{BabelTest|...}}` marker is picked up wherever
+  it appears in an issue body — inside backticks and inside quoted blocks included. When quoting an
+  example in an issue, leave the closing braces off.
+- **Fill in the template default or delete it.** The issue forms pre-fill a placeholder such as
+  `{{BabelTest|ResolvesWith|curie1|curie2|curie3}}`. Left as-is it is a test asserting something
+  about identifiers named `curie1` and `curie2`.
+- **Quote strings in the YAML form.** YAML 1.1 turns an unquoted `no`, `on` or `1.5` into a boolean
+  or a float, which the harness rejects. This bites `HasLabel` labels and `SearchByName` queries.
+- **`HasLabel` is exact and case-sensitive.** `aspirin` does not match `Aspirin`.
+- **One issue's assertions are capped** at 100 assertions, 1,000 parameter lists, 1,000 parameters
+  and 1,000 characters per parameter. Going over fails the whole issue rather than running part of
+  it; split it across several issues.
 
 ### Sprint planning
 
@@ -141,3 +185,5 @@ Sprints are two weeks long. At the start of each sprint:
 [Babel issue tracker]: https://github.com/NCATSTranslator/Babel/issues/
 [Babel sprints GitHub project]: https://github.com/orgs/NCATSTranslator/projects/36
 [babel-validation]: https://github.com/TranslatorSRI/babel-validation
+[assertion types]: https://github.com/TranslatorSRI/babel-validation/blob/main/src/babel_validation/assertions/README.md
+[babel-validation dashboard]: https://translatorsri.github.io/babel-validation/
