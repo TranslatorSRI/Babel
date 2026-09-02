@@ -15,6 +15,11 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
 
 ## Sources documented so far
 
+- **PubMed** ([PubMed/README.md](./PubMed/README.md)) — the Publication compendium is built from
+  the [pubmed2db](https://github.com/TranslatorSRI/pubmed2db) NDJSON export pinned by
+  `config.yaml: pubmed2db_url`: the record contract Babel relies on (one record per PMID, deletions
+  applied), the validation-report count check, how a DOI shared by several PMIDs is resolved, and
+  the open `PMCID:` vs `PMC:` question (#1044).
 - **COMPLEXPORTAL** ([COMPLEXPORTAL/Ingestion.md](./COMPLEXPORTAL/Ingestion.md)) — the
   `MacromolecularComplex` source: which ComplexTAB columns Babel reads, downloading all species
   files, the manifest-as-download-sentinel pattern, and the per-output cross-species

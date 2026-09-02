@@ -10,87 +10,68 @@ localrules:
     publications,
 
 
-### PubMed
+### PubMed, via the pubmed2db NDJSON export pinned in config.yaml (see docs/sources/PubMed/README.md).
 
 
-# The baseline/ and updatefiles/ directories are deliberately NOT declared as directory() outputs:
-# Snakemake recursively deletes existing directory() outputs before running a job, which would wipe
-# any PubMed files preloaded from a previous run. Keeping them undeclared lets wget --timestamping
-# skip files we already have (see docs/RunningBabel.md, "Preloading PubMed downloads"). The done
-# marker is what the downstream rules depend on.
-rule download_pubmed:
+# PubMed2DB/ is deliberately NOT declared as a directory() output: Snakemake recursively deletes existing
+# directory() outputs before running a job, which would wipe shards preloaded from a previous run. Keeping it
+# undeclared lets wget --timestamping skip files we already have (see docs/RunningBabel.md, "Preloading PubMed
+# downloads"). The done marker is what the downstream rules depend on.
+rule download_pubmed2db:
     output:
-        done_file=config["download_directory"] + "/PubMed/downloaded",
+        done_file=config["download_directory"] + "/PubMed2DB/downloaded",
     benchmark:
-        config["output_directory"] + "/benchmarks/download_pubmed.tsv"
+        config["output_directory"] + "/benchmarks/download_pubmed2db.tsv"
+    retries: 3
     resources:
-        mem="8G",
+        mem="2G",
         cpus_per_task=1,
-        # Two hours got ~50% through ~1500 files; parallelizing baseline+updatefiles should halve
-        # that, so 6h is conservative. Tighten once benchmark TSVs give real-world data.
-        runtime="6h",
+        # ~17 GB over 16 files from stars.renci.org; 2h is generous for an in-datacenter copy.
+        runtime="2h",
+    params:
+        download_dir=config["download_directory"] + "/PubMed2DB",
     run:
-        publications.download_pubmed(output.done_file)
-
-
-rule verify_pubmed:
-    input:
-        config["download_directory"] + "/PubMed/downloaded",
-    output:
-        done_file=config["download_directory"] + "/PubMed/verified",
-    benchmark:
-        config["output_directory"] + "/benchmarks/verify_pubmed.tsv"
-    run:
-        publications.verify_pubmed_downloads(
-            [
-                config["download_directory"] + "/PubMed/baseline",
-                config["download_directory"] + "/PubMed/updatefiles",
-            ],
-            output.done_file,
-        )
+        publications.download_pubmed2db(config["pubmed2db_url"], params.download_dir, output.done_file)
 
 
 rule generate_pubmed_concords:
     input:
-        config["download_directory"] + "/PubMed/verified",
+        config["download_directory"] + "/PubMed2DB/downloaded",
     output:
-        titles_file=config["download_directory"] + "/PubMed/titles.tsv",
-        status_file=config["download_directory"] + "/PubMed/statuses.jsonl.gz",
+        titles_file=config["download_directory"] + "/PubMed2DB/titles.tsv",
         pmid_id_file=config["intermediate_directory"] + "/publications/ids/PMID",
         pmid_doi_concord_file=config["intermediate_directory"] + "/publications/concords/PMID_DOI",
+        shared_ids_file=config["intermediate_directory"] + "/publications/concords/shared_identifiers.tsv",
         metadata_yaml=config["intermediate_directory"] + "/publications/concords/metadata.yaml",
     benchmark:
         config["output_directory"] + "/benchmarks/generate_pubmed_concords.tsv"
+    threads: 16
     resources:
-        # Deliberately left at 24h even though 2026jul22 took 20.0h of it (83%), which
-        # `babel-slurm-resources` reports as at-risk: 24h is known to work, 4h of slack has been
-        # enough so far, and a rewrite that removes this rule's cost is in progress. Raise it only
-        # if a run actually times out, and prefer fixing the rule.
-        runtime="24h",
-        mem="128G",
+        # Measured on one of 16 shards (2.56M records): 29s and 2.6 GB with 2 workers. The parent holds
+        # a set of every DOI/PMCID (~46M strings, ~6 GB) plus up to `threads` parsed shards in flight
+        # (~1 GB each), so 32G has headroom. Replaced the 20h/32G single-threaded XML parse.
+        mem="32G",
+        runtime="1h",
     params:
-        # Not inputs: see the comment on download_pubmed for why these directories are untracked.
-        baseline_dir=config["download_directory"] + "/PubMed/baseline",
-        updatefiles_dir=config["download_directory"] + "/PubMed/updatefiles",
+        # Not an input: see the comment on download_pubmed2db for why this directory is untracked.
+        download_dir=config["download_directory"] + "/PubMed2DB",
     run:
-        publications.parse_pubmed_into_tsvs(
-            params.baseline_dir,
-            params.updatefiles_dir,
+        publications.parse_pubmed2db_into_tsvs(
+            params.download_dir,
             output.titles_file,
-            output.status_file,
             output.pmid_id_file,
             output.pmid_doi_concord_file,
+            output.shared_ids_file,
             output.metadata_yaml,
+            config["pubmed2db_url"],
+            threads,
         )
 
 
 rule generate_pubmed_compendia:
     input:
-        pmid_id_file=config["intermediate_directory"] + "/publications/ids/PMID",
-        pmid_doi_concord_file=config["intermediate_directory"] + "/publications/concords/PMID_DOI",
-        titles=[
-            config["download_directory"] + "/PubMed/titles.tsv",
-        ],
+        config["download_directory"] + "/PubMed2DB/downloaded",
+        shared_ids_file=config["intermediate_directory"] + "/publications/concords/shared_identifiers.tsv",
         metadata_yaml=config["intermediate_directory"] + "/publications/concords/metadata.yaml",
         icrdf_filename=config["download_directory"] + "/icRDF.tsv",
     output:
@@ -100,21 +81,23 @@ rule generate_pubmed_compendia:
         publication_metadata_yaml=config["output_directory"] + "/metadata/Publication.txt.yaml",
     benchmark:
         config["output_directory"] + "/benchmarks/generate_pubmed_compendia.tsv"
+    threads: 8
     resources:
-        # 2026jul22 peaked at 123.4 GiB = 132.5 GB against a 128G request -- at or past its own
-        # limit (summed process-tree RSS double-counts shared pages, which is likely why it was not
-        # killed) -- and ran 1.8h against the 2h cluster default. Tight on both axes, and Publication
-        # grows every release.
-        mem="192G",
-        runtime="4h",
+        # Measured on one of 16 shards: 108s at ~22k cliques/s and 5 GB peak with 2 workers, so ~30 min
+        # and well under 32G for the full corpus. Cliques stream straight from the shards (no glom, no
+        # global labels dict); the glom version peaked at 126 GiB and 1.8h.
+        mem="32G",
+        runtime="2h",
+    params:
+        download_dir=config["download_directory"] + "/PubMed2DB",
     run:
         publications.generate_compendium(
-            [input.pmid_doi_concord_file],
+            params.download_dir,
+            input.shared_ids_file,
             [input.metadata_yaml],
-            [input.pmid_id_file],
-            input.titles,
             output.publication_compendium,
             input.icrdf_filename,
+            threads,
         )
         # generate_compendium() will generate an (empty) Publication.txt file, but we need
         # to compress it.

@@ -116,8 +116,8 @@ These rules have hard-coded `resources:` overrides and should not be reduced wit
 | `generate_prefix_report` | `duckdb.snakefile` | 1500G | — | approx_count_distinct() over all edges, biolink_type read from the denormalized Edge column (no join); memory_limit 1000G, 1 thread. Replaced the former `generate_curie_report` + `generate_clique_leader_report`, scanning the Edge set once instead of twice |
 | `chembl_labels_and_smiles` | `datacollect.snakefile` | 128G | — | RDF parse |
 | `chemical_unichem_concordia` | `chemical.snakefile` | 192G | — | UniChem merge (119.8 GB peak, was 94% of 128G) |
-| `generate_pubmed_concords` | `publications.snakefile` | 128G | 24h | Full PubMed parse; 17.5h on babel-1.17, 20.0h on 2026jul22. Reported at-risk (83%) and left alone on purpose — see below |
-| `generate_pubmed_compendia` | `publications.snakefile` | 192G | 4h | PubMed compendium build; 132.5 GB peak was at or past its own 128G request, and 88% of the 2h default |
+| `generate_pubmed_concords` | `publications.snakefile` | 32G | 1h | Parallel parse of the pubmed2db NDJSON export (16 threads); 29s/2.6 GB per shard of 16 measured locally. Replaced the 20h/32G XML parse after 2026jul22; confirm from the first cluster benchmark |
+| `generate_pubmed_compendia` | `publications.snakefile` | 32G | 2h | PubMed compendium streamed from the shards without glom; 108s/5 GB per shard of 16 measured locally, so ~30 min. The glom version peaked at 132.5 GB; confirm from the first cluster benchmark |
 | `geneprotein_conflated_synonyms` | `geneprotein.snakefile` | 512G | 6h | Conflated synonym merge |
 | `drugchemical_conflation` | `drugchemical.snakefile` | 96G | — | Drug/chemical conflation (61.2 GB peak, was 96% of 64G) |
 | `geneprotein_conflation` | `geneprotein.snakefile` | 64G | — | Gene/protein conflation (~48G peak) |
@@ -154,11 +154,11 @@ review also reports runtime fit). Two cautions from it:
 - `get_ensembl` swung from 3 minutes (babel-1.17) to 1.9h (2026jul22). Network-bound rules vary
   by an order of magnitude between runs, so their runtimes are deliberately generous.
 
-After the 2026jul22 sizing pass one rule is still within 80% of its runtime limit, deliberately:
-`generate_pubmed_concords` sits at 83% of 24h. That limit is known to work, 4h of slack has been
-enough across two runs, and a rewrite that removes the rule's cost is in progress — so the fix is
-to make the rule cheaper, not to reserve a day and a half of wall time for it. Raise it only if a
-run actually times out.
+After the 2026jul22 sizing pass one rule was still within 80% of its runtime limit, deliberately:
+`generate_pubmed_concords` sat at 83% of 24h, and the fix chosen was to make the rule cheaper rather
+than reserve more wall time. It has since been rewritten to read the pubmed2db export
+(`docs/sources/PubMed/README.md`); its limits now come from a local single-shard measurement,
+pending a cluster benchmark.
 
 The slowest rule still on the *default* runtime is `untyped_chemical_compendia` at 58 minutes, so
 the 120-minute default has roughly 2x headroom and was left alone.

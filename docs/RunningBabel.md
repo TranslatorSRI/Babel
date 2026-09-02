@@ -87,38 +87,29 @@ target is much cheaper than `snakemake --cores N` with no target.
 
 ### Preloading PubMed downloads
 
-PubMed is the largest download in the pipeline (~1,500 gzipped XML files across `baseline/` and
-`updatefiles/`), and almost all of it is unchanged between runs. You can carry it forward into a
-new run's download directory:
+PubMed arrives as the pubmed2db NDJSON export pinned by `config.yaml: pubmed2db_url` (~17 GB of
+`pubmed_metadata_*.ndjson.gz` shards plus a `validation_report.json.gz`; see
+[`docs/sources/PubMed/README.md`](sources/PubMed/README.md)). If the URL has not changed since the
+previous run, the shards can be carried forward:
 
 ```shell
-mkdir -p <new-run>/babel_downloads/PubMed
-mv <old-run>/babel_downloads/PubMed/baseline    <new-run>/babel_downloads/PubMed/
-mv <old-run>/babel_downloads/PubMed/updatefiles <new-run>/babel_downloads/PubMed/
-rm -f <new-run>/babel_downloads/PubMed/baseline/*.md5 \
-      <new-run>/babel_downloads/PubMed/updatefiles/*.md5
+mkdir -p <new-run>/babel_downloads
+mv <old-run>/babel_downloads/PubMed2DB <new-run>/babel_downloads/
+rm -f <new-run>/babel_downloads/PubMed2DB/downloaded
 ```
 
 Two things make this work, and each is easy to break:
 
-* **Do not copy the `downloaded` or `verified` marker files.** Those are what Snakemake tracks; if
-  they are present it skips the download and verification rules entirely, and you never pick up the
-  new updatefiles.
+* **Do not keep the `downloaded` marker file.** It is what Snakemake tracks; if it is present the
+  download rule is skipped entirely, even when `pubmed2db_url` now points at a newer export.
 * **Preserve modification times.** `mv` (or `cp -p` / `rsync -a`) preserves them; a plain `cp` does
-  not. `download_pubmed` runs `wget --timestamping`, which re-downloads a file only when the
-  server's copy is newer than the local one or the sizes differ. With mtimes intact, a file PubMed
-  has since revised is correctly re-fetched.
+  not. `download_pubmed2db` runs `wget --timestamping`, which re-downloads a file only when the
+  server's copy is newer than the local one or the sizes differ.
 
-Deleting the `.md5` files, as above, isn't strictly necessary: PubMed republishes a file's `.md5`
-whenever it revises the `.gz`, so with mtimes intact `--timestamping` re-fetches the checksum along
-with the file, and a stale-but-self-consistent `.gz`/`.md5` pair can't survive the download. It is
-cheap insurance against a preload that lost its mtimes — the `.md5` files are a few kilobytes each —
-so drop them and let `verify_pubmed` check every carried-over `.gz` against a checksum fetched in
-*this* run.
-
-`verify_pubmed` then MD5s every `.gz` in both directories — the carried-over files included — and
-re-downloads any that fail, so a corrupt or truncated file from the previous run heals itself.
-Checksumming the full corpus takes a few minutes; it happens on every run regardless.
+If `pubmed2db_url` *has* moved to a new export, do not carry the old shards forward: a new export
+can have a different number of shards, and a stale `pubmed_metadata_00015.ndjson.gz` left beside a
+new 12-shard export would be parsed along with it. The record-count check against the validation
+report would catch that and fail the build, but it is cheaper to start from an empty `PubMed2DB/`.
 
 A recursive download is always timestamped and never resumed: `pull_via_wget()` raises if a caller
 asks for `--continue` alongside recursion, or for recursion without `--timestamping`. wget resumes
@@ -127,9 +118,9 @@ corrupts a file whose content changed upstream rather than merely being truncate
 disagrees with the server on size or mtime is therefore re-fetched in full, at the cost of
 restarting — rather than resuming — a large file whose download was interrupted.
 
-The `baseline/` and `updatefiles/` directories are deliberately *not* declared as `directory()`
-outputs of `download_pubmed`. Snakemake recursively deletes existing `directory()` outputs before
-running a job, which would delete anything preloaded into them.
+`PubMed2DB/` is deliberately *not* declared as a `directory()` output of `download_pubmed2db`.
+Snakemake recursively deletes existing `directory()` outputs before running a job, which would
+delete anything preloaded into it.
 
 ### Common build issues
 

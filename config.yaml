@@ -16,6 +16,11 @@ biolink_version: "4.4.3"
 umls_version: "2026AA"
 rxnorm_version: "07062026"
 drugbank_version: "5-1-13" # The latest is 5-1-21, but since downloads are currently not allowed, we need to reuse our most recent download.
+# The pubmed2db NDJSON export (https://github.com/TranslatorSRI/pubmed2db) this build reads PubMed from:
+# one record per PMID, latest version only, deletions applied. Every pubmed_metadata_*.ndjson.gz shard and
+# the validation_report.json.gz under this URL are downloaded; point it at the newest export before each
+# build (see docs/sources/PubMed/README.md).
+pubmed2db_url: "https://stars.renci.org/var/babel_outputs/pubmed2db/2026aug5/"
 
 # Release naming and the previous-release comparison (see docs/RunningBabel.md).
 # release_name is the date-style name for THIS build; it becomes the "name" in the generated
