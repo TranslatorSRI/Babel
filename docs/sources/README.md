@@ -61,6 +61,10 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
   how the two free-text synonym columns (`Synonyms`/`otheraliases`, `Other_designations`/
   `otherdesignations`) in `gene_info.gz` are quoted, prompted by issue #744's `''…''` fragments and
   the discovery that a trailing `''` is legitimate "double-prime" gene nomenclature.
+- **PubMed** ([PubMed/README.md](./PubMed/README.md)) — why `generate_pubmed_concords` is the most
+  expensive rule in the pipeline (20 h, 99.7% CPU-bound, ~24% of all rule wall time), the two
+  parser defects that accounted for most of it, and the benchmark script that measures a change to
+  the parser against a git revision while asserting the output stays byte-identical.
 
 ## Cross-cutting patterns
 
