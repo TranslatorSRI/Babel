@@ -350,3 +350,12 @@ rule disease:
     run:
         util.gzip_files(input.synonyms)
         util.write_done(output.x)
+
+
+_missing = util.find_missing_id_prefixes(
+    workflow, config["intermediate_directory"] + "/disease/ids", config["disease_ids"]
+)
+if _missing:
+    raise WorkflowError(
+        f"config.yaml disease_ids has no rule producing intermediate/disease/ids/{{prefix}}: {_missing}"
+    )

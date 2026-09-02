@@ -125,3 +125,8 @@ rule taxon:
     run:
         util.gzip_files(input.synonyms)
         util.write_done(output.x)
+
+
+_missing = util.find_missing_id_prefixes(workflow, config["intermediate_directory"] + "/taxon/ids", config["taxon_ids"])
+if _missing:
+    raise WorkflowError(f"config.yaml taxon_ids has no rule producing intermediate/taxon/ids/{{prefix}}: {_missing}")

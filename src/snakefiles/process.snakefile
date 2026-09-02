@@ -206,3 +206,12 @@ rule process:
     run:
         util.gzip_files(input.synonyms)
         util.write_done(output.x)
+
+
+_missing = util.find_missing_id_prefixes(
+    workflow, config["intermediate_directory"] + "/process/ids", config["process_ids"]
+)
+if _missing:
+    raise WorkflowError(
+        f"config.yaml process_ids has no rule producing intermediate/process/ids/{{prefix}}: {_missing}"
+    )

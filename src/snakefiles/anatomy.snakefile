@@ -224,3 +224,12 @@ rule anatomy:
     run:
         util.gzip_files(input.synonyms)
         util.write_done(output.x)
+
+
+_missing = util.find_missing_id_prefixes(
+    workflow, config["intermediate_directory"] + "/anatomy/ids", config["anatomy_ids"]
+)
+if _missing:
+    raise WorkflowError(
+        f"config.yaml anatomy_ids has no rule producing intermediate/anatomy/ids/{{prefix}}: {_missing}"
+    )

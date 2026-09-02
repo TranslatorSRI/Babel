@@ -219,3 +219,12 @@ rule protein:
 #        filtered=config['output_directory'] + '/compendia/Protein_filtered.txt'
 #    run:
 #        filter.filter_compendium(input.full,output.filtered)
+
+
+_missing = util.find_missing_id_prefixes(
+    workflow, config["intermediate_directory"] + "/protein/ids", config["protein_ids"]
+)
+if _missing:
+    raise WorkflowError(
+        f"config.yaml protein_ids has no rule producing intermediate/protein/ids/{{prefix}}: {_missing}"
+    )

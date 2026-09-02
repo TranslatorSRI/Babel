@@ -558,3 +558,12 @@ rule chemical:
     run:
         util.gzip_files(input.synonyms)
         util.write_done(output.x)
+
+
+_missing = util.find_missing_id_prefixes(
+    workflow, config["intermediate_directory"] + "/chemicals/ids", config["chemical_ids"]
+)
+if _missing:
+    raise WorkflowError(
+        f"config.yaml chemical_ids has no rule producing intermediate/chemicals/ids/{{prefix}}: {_missing}"
+    )

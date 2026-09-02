@@ -244,3 +244,8 @@ rule gene:
     run:
         util.gzip_files(input.synonyms)
         util.write_done(output.x)
+
+
+_missing = util.find_missing_id_prefixes(workflow, config["intermediate_directory"] + "/gene/ids", config["gene_ids"])
+if _missing:
+    raise WorkflowError(f"config.yaml gene_ids has no rule producing intermediate/gene/ids/{{prefix}}: {_missing}")
