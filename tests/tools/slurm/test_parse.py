@@ -250,6 +250,44 @@ def test_parse_job_events_tracks_retries_and_outcomes(tmp_path):
     assert {j.rule_name for j in jobs} == {"get_x"}
 
 
+def test_parse_job_events_against_a_real_control_log():
+    """Parse an excerpt of a real sbatch `.err`, kept verbatim at `tests/data/`.
+
+    Source: `logs/sbatch-1.18-run-1.err` from the 2026jul22 build, lines 709-716, 929-946 and
+    3234-3244, with the elided spans marked. A composed log cannot stand in for this one, because
+    the real file says everything **twice** -- once bare and once prefixed
+    `INFO/ERROR snakemake.logging [<ts>]:` -- and only the prefixed form carries the timestamp the
+    parser needs. It also holds the two shapes this test exists for: the same failure reported at
+    both the moment it happened and again in the end-of-run summary, and an error for a job whose
+    submission is outside the excerpt.
+    """
+    err = get_repo_root() / "tests" / "data" / "sbatch-2026jul22-run-1-excerpt.err"
+
+    jobs = parse.parse_job_events(err)
+
+    # One attempt per *prefixed* submission line, of which the excerpt has six: the bare duplicates
+    # must not double-count, and the `Error in rule export_synonyms_to_duckdb, jobid: 302` in the
+    # summary must not invent an attempt for a job this excerpt never saw submitted.
+    assert len(jobs) == 6
+    assert 302 not in {j.snakemake_jobid for j in jobs}
+
+    by_rule = {j.rule_name: j for j in jobs}
+    # process_ec_ids was submitted 04:56:58 and died 04:57:37 -- 39 seconds. The identical error
+    # line reappears at 04:21:18 the *next day* when the workflow gave up; taking that one reported
+    # this job as having failed after 23.4h, which is the length of the run.
+    failed = by_rule["process_ec_ids"]
+    assert failed.failed is True
+    assert (failed.finished_at - failed.submitted_at).total_seconds() == 39
+
+    # A job that finished is unaffected: `Finished jobid:` is logged once.
+    ok = by_rule["get_wikidata_cell_relationships"]
+    assert ok.failed is False
+    assert (ok.finished_at - ok.submitted_at).total_seconds() == 39
+
+    # The four jobs with neither a finish nor an error line in the excerpt are still open.
+    assert sum(1 for j in jobs if j.finished_at is None) == 4
+
+
 # --- parse.parse_failures ----------------------------------------------------
 
 
