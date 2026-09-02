@@ -145,7 +145,15 @@ canonical prefix-constant registry; its `id_prefixes` order in the Biolink Model
   `input_data/obsolete_synonyms.yaml` before it enters a compendium — see its docstring for the
   `action` field and the `should_suppress()` contract.
 - **Logging** — always use `get_logger(__name__)` from `src.util`, never `logging.getLogger`
-  directly (see its docstring for why and the deferred-import exception).
+  directly (see its docstring for why and the deferred-import exception). **`get_logger()` defaults
+  to `INFO`, so `logger.debug(...)` output is suppressed — but an f-string argument is still
+  evaluated in full before the call.** In a per-record loop that makes a suppressed debug line a
+  real cost, and `logger.debug(f"...{json.dumps(big_structure)}...")` is unbounded: it serialises
+  the whole structure and throws it away. `conflate_synonyms` was doing exactly that to the
+  accumulated structure behind its 98 GB peak, plus twice more per output record. Pass lazy `%s`
+  arguments (`logger.debug("dropped %s", curie)`), and for anything expensive to build, guard with
+  `logger.isEnabledFor(logging.DEBUG)` or delete it. Worth grepping for when a per-record loop is
+  slower than it looks.
 - **Leftover UMLS** — `src/createcompendia/leftover_umls.py` (rule `leftover_umls`) runs last and
   writes every unclaimed valid MRCONSO concept as a single-identifier clique into
   `compendia/umls.txt` so its label survives downstream. Manual Biolink-type override tables and
