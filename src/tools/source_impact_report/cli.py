@@ -2,6 +2,7 @@
 
 Invocation:
     uv run source-impact-report --source EMAPA
+    uv run source-impact-report --source GARD --concord GARD --concord GARD_label
 
 The CLI discovers where the source contributes (across one or more pipelines),
 runs a synthetic re-glom with and without the source for each registered pipeline,
@@ -418,6 +419,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Name of the source (matches the basename used in intermediate/<type>/{ids,concords}/<name>).",
     )
     parser.add_argument(
+        "--concord",
+        action="append",
+        dest="concords",
+        default=None,
+        metavar="NAME",
+        help="Basename of a concord file this source writes, repeatable. Default: the source name. "
+        "Pass it when a source's concord is named something else -- GARD's label-match concord is "
+        "GARD_label, so: --source GARD --concord GARD --concord GARD_label. Without it that concord "
+        "is treated as another source's data and the report says zero cross-references were added. "
+        "The names used are recorded in the report header.",
+    )
+    parser.add_argument(
         "--pipelines",
         default=None,
         help="Comma-separated list of pipelines to analyse. Default: auto-detect from filesystem.",
@@ -506,7 +519,7 @@ def main(argv: list[str] | None = None) -> int:
     intermediate_root = pathlib.Path(args.intermediate_root)
     compendia_root = pathlib.Path(args.compendia_root)
 
-    contribution = discover_source(args.source, intermediate_root)
+    contribution = discover_source(args.source, intermediate_root, concord_names=args.concords)
     if not contribution.by_pipeline:
         logger.error(
             "no intermediate files found for source %r under %s",
@@ -567,7 +580,7 @@ def main(argv: list[str] | None = None) -> int:
     xref_groups = [
         group
         for st in sorted(xref_rows_by_pipeline)
-        for group in summarize_xref_groups(xref_rows_by_pipeline[st], st, contribution.name)
+        for group in summarize_xref_groups(xref_rows_by_pipeline[st], st, contribution.concord_names)
     ]
 
     lookup = _build_lookup_context(

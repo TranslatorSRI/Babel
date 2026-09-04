@@ -16,6 +16,15 @@ biolink_version: "4.4.3"
 umls_version: "2026AA"
 rxnorm_version: "07062026"
 drugbank_version: "5-1-13" # The latest is 5-1-21, but since downloads are currently not allowed, we need to reuse our most recent download.
+# GARD has no version number to bump, only a link that goes stale: this is the "GARD Rare Disease
+# List <Mon><Year>.csv" link on https://rarediseases.info.nih.gov/about (under "Which rare diseases
+# are included in GARD?"); NCATS publishes no stable data URL. The Salesforce `ids=068...` value is
+# a ContentVersion id, i.e. ONE uploaded version of the file, so a new upload gets a new link and
+# this one may stop resolving. Re-check the About page before each release (the network test
+# tests/datahandlers/test_gard.py::test_gard_download_url_is_current does it for you) and repoint
+# it; get_gard fetches it via src.datahandlers.gard.pull_gard(), and an expired link fails the rule
+# rather than silently reusing the old file. Currently: "GARD Rare Disease List Jun2026.csv".
+gard_download_url: "https://ncats.file.force.com/sfc/dist/version/download/?oid=00Dt00000004XG2&ids=068SJ00001HZAaEYAX&d=%2Fa%2FSJ00000BC4Xl%2FUj7U9WuHII571Akz5AUBLe6WSCeelaMBynbjWybmhuA&asPdf=false"
 
 # Release naming and the previous-release comparison (see docs/RunningBabel.md).
 # release_name is the date-style name for THIS build; it becomes the "name" in the generated
@@ -156,26 +165,87 @@ protein_ids:      [ENSEMBL, MESH, UniProtKB, PR, UMLS]
 protein_concords: [UniProtKB, PR, NCIT_UniProtKB, NCIT_UMLS, UMLS, UMLS_UniProtKB]
 protein_outputs:  [Protein.txt]
 
-disease_labelsandsynonyms: [MONDO, DOID, Orphanet, HP, MP, MESH, NCIT, UMLS, SNOMEDCT, EFO]
-disease_ids:               [MONDO, DOID, Orphanet, HP, MP, MESH, NCIT, UMLS, OMIM, EFO]
-disease_concords:          [HP, MP, MONDO, UMLS, DOID, EFO, Manual]
+disease_labelsandsynonyms: [MONDO, DOID, Orphanet, GARD, HP, MP, MESH, NCIT, UMLS, SNOMEDCT, EFO]
+disease_ids:               [MONDO, DOID, Orphanet, GARD, HP, MP, MESH, NCIT, UMLS, OMIM, EFO]
+# MONDO_GARD is MONDO's GARD hasDbXrefs, the one hasDbXref exception in this pipeline: MONDO
+# asserts its ~15,930 GARD mappings only as hasDbXref, never as skos:exactMatch, so the MONDO
+# concord (exact matches only) sees none of them. Kept as its own file so the exception is visible
+# here and can be filtered without touching MONDO's exact matches -- docs/sources/MONDO/README.md.
+#
+# ORDER IS LOAD-BEARING: MONDO_GARD must precede DOID. 148 of DOID's 2,208 GARD xref rows put a
+# GARD id on a different MONDO clique than MONDO itself does (e.g. DOID:0050120 -> GARD:6589, which
+# MONDO maps to MONDO:0015541; docs/sources/GARD/scripts/count_doid_mondo_gard_disagreements.py). MONDO is a unique prefix, so glom() cannot merge the two cliques and the
+# id stays with whichever concord claimed it first; listing MONDO's own mapping first is what makes
+# MONDO, not DOID, the authority. A unit test pins the relative order.
+#
+# GARD_label must be LAST. It is the only concord in this pipeline derived from labels rather than
+# from an asserted mapping, so it should decide nothing another concord has an opinion about; and
+# its safety guard is "skip any GARD id another concord names", which is defined by the rest of
+# this list. A unit test pins its position.
+disease_concords:          [HP, MP, MONDO, MONDO_GARD, UMLS, DOID, EFO, Manual, GARD_label]
 disease_outputs:           [Disease.txt, PhenotypicFeature.txt]
 
-# Prefixes written into the disease compendia even though the Biolink Model does not register them
-# for biolink:Disease or biolink:PhenotypicFeature. write_compendium() otherwise drops an
-# unregistered prefix silently, *after* it has already merged cliques in glom() -- so the merge
-# effect ships and the identifier does not.
+# The vocabularies build_gard_label_concord() may match a GARD label against, in PRIORITY ORDER:
+# the first entry holding an identifier with the GARD term's label wins, and the term is skipped if
+# that vocabulary holds two. MONDO/DOID/Orphanet lead because a curated disease ontology is a better
+# thing to join than a Metathesaurus concept; UMLS is last of the large ones because it is the
+# noisiest. Each entry names both an ids file (intermediate/disease/ids/<entry>, the authoritative
+# identifier set for this pipeline) and a labels file (babel_downloads/<entry>/labels), so an entry
+# must appear in BOTH disease_ids and disease_labelsandsynonyms -- a unit test checks that.
 #
-# ICD10CM is MONDO's spelling of ICD-10 (DOID/EFO/HP write ICD10:), covering ~2,030 xref rows that
-# are near-perfectly 1:1. Emitting them is deliberately ahead of the Biolink Model: they will not
-# normalize until ICD10CM is registered or the spelling is unified onto ICD10, but having them in
-# the output beats discarding curated mappings we would then have to re-derive. Reconcile and
-# remove this entry when https://github.com/NCATSTranslator/Babel/issues/1033 is resolved.
+# HP and MP are deliberately absent. split_mutually_exclusive_cliques() keeps phenotype and disease
+# cliques disjoint on purpose and disease_gard_ids types every registry term biolink:Disease, so
+# matching a GARD term onto an HP or MP term asserts an identity this pipeline is built to refuse.
+# OMIM is absent for a duller reason: it has an ids file but no babel_downloads/OMIM/labels.
+# SNOMEDCT is absent because it has no disease ids file.
+disease_gard_label_match_prefixes: [MONDO, DOID, Orphanet, MESH, NCIT, UMLS, EFO]
+
+# Prefixes this pipeline ships even though the Biolink Model does not register them for the clique's
+# class. write_compendium() otherwise drops an unregistered prefix silently, *after* glom() has
+# already merged cliques on it -- so the merge effect ships and the identifier does not.
 #
-# ICD0 is deliberately NOT here: ICD-O codes are tumour *morphology* codes and may not be disease
-# equivalents at all, so emitting them would assert something we have not decided. See
-# https://github.com/NCATSTranslator/Babel/issues/1037.
-disease_extra_prefixes:    [ICD10CM]
+# KEYED BY BIOLINK CLASS, because extra_prefixes is a per-class allowlist and build_compendium
+# writes several classes from one call. A single flat list passed to every class grants each of
+# them an exemption that was argued for one of them; spelling the map out per class is what makes
+# that unspellable. Look up each class's registered prefixes with
+# get_biolink_model_toolkit(biolink_version).get_element(<class>).id_prefixes.
+#
+# EVERY ENTRY IS TEMPORARY AND EVERY ENTRY LINKS TO THE ISSUE THAT REMOVES IT. Once Biolink
+# registers a prefix, its entry becomes a no-op that still suppresses the CURIE from leading its
+# clique (extra prefixes are appended *after* the registered ones, so they can never win the
+# preferred-CURIE contest) -- a stale entry is worse than dead config. Adding a prefix here without
+# an issue link leaves nothing to close the loop. https://github.com/NCATSTranslator/Babel/issues/1061
+# tracks the test that will fail when an entry goes stale.
+#
+# ICD0 is deliberately NOT here under any class: ICD-O codes are tumour *morphology* codes and may
+# not be disease equivalents at all, so emitting them would assert something we have not decided.
+# See https://github.com/NCATSTranslator/Babel/issues/1037.
+disease_extra_prefixes_by_biolink_class:
+  biolink:Disease:
+    # MONDO's spelling of ICD-10 (DOID/EFO/HP write ICD10:), ~2,030 near-perfectly 1:1 xref rows.
+    # Biolink registers ICD10 for biolink:Disease but not ICD10CM, so the fix is to normalise onto
+    # the registered spelling rather than to ask for a second one; until then, shipping the rows
+    # beats discarding curated MONDO mappings we would have to re-derive.
+    # Retire with https://github.com/NCATSTranslator/Babel/issues/1060 (blocked on #1033).
+    - ICD10CM
+    # The NCATS rare-disease registry, unregistered for every Biolink class. Without this ~16k rare
+    # diseases vanish from Disease.txt. GARD asserts no cross-references of its own; its ids reach
+    # cliques through MONDO's hasDbXrefs (MONDO_GARD, ~15.9k), DOID's xrefs (~2.2k), and -- for the
+    # ~277 terms neither maps -- the label matches in GARD_label. Same situation as GTDB for
+    # biolink:OrganismTaxon (PR #978).
+    # Retire with https://github.com/NCATSTranslator/Babel/issues/1051.
+    - GARD
+  biolink:PhenotypicFeature:
+    # GARD again, and for the same reason: it is unregistered for *every* class, so this exemption
+    # is not one earned on disease grounds and lent to phenotypes. disease_gard_ids types every
+    # registry term biolink:Disease, but a handful name concepts HP also names, and the clique type
+    # vote (classify_disease_clique) rightly trusts HP -- five terms today, "Chilblains" among them.
+    # Without this entry those GARD ids are deleted rather than moved, so build_gard_label_concord()
+    # had to refuse to link them at all and shipped a duplicate single-identifier Disease clique
+    # beside the phenotype clique naming the same thing. One concept, one clique, wherever the
+    # clique lands.
+    # Retire with https://github.com/NCATSTranslator/Babel/issues/1051, the same issue as above.
+    - GARD
 
 # How each disease source spells *other* vocabularies' prefixes in its cross-references, and the
 # Babel prefix each one becomes. Applied by babel_utils.norm() while the source's concord is built,
@@ -210,6 +280,11 @@ disease_xref_prefixes:
     # DOID's spelling of Orphanet, 2,321 rows. MONDO and HP already write orphanet:, so before this
     # entry none of DOID's Orphanet mappings could join theirs.
     ORDO:        orphanet
+    # Not a prefix rename: the prefix stays GARD, but the local id loses the registry's zero
+    # padding (GARD:0006038 -> GARD:6038; 28 of DOID's GARD xrefs are padded, the rest are not).
+    # Resolved to gard.normalize_gard_curie via LOCAL_ID_DEPENDENT_RENAMES, like MIM above. Every
+    # source that emits GARD xrefs needs this entry or its ids split from the registry's.
+    GARD:        GARD
   HP:
     MSH:         MESH
     SNOMEDCT_US: SNOMEDCT
@@ -223,6 +298,9 @@ disease_xref_prefixes:
     ICD-O:       ICD0
   MONDO:
     ORPHANET:    orphanet
+    # MONDO writes every GARD id zero-padded; unpadded via LOCAL_ID_DEPENDENT_RENAMES (see DOID's
+    # GARD entry). Feeds the MONDO_GARD concord.
+    GARD:        GARD
 # Taxon assigned to each phenotype ontology's identifiers in the compendia. Every HP term we
 # ingest (the HP:0000118 "Phenotypic abnormality" subtree) describes a human (Homo sapiens)
 # phenotype; every MP term describes a mammalian (Mammalia) phenotype. These are written to

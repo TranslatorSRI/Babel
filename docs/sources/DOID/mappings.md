@@ -143,10 +143,10 @@ confirms it: ICD members go from 38 to 6,452 across the two disease compendia �
 `ICD9` 2,192, `ICD10CM` 2,012 and `icd11` 5 — with `ICD0` contributing nothing on either side.
 
 MONDO's `ICD10CM:` had the same defect and is worked around here, by listing the prefix in
-`config.yaml: disease_extra_prefixes` so `write_compendium()` keeps it (see "Open before release"
-below). `ICD0` is deliberately **not** given the same treatment: an ICD-O code is a tumour
-*morphology*, so emitting one asserts a disease equivalence nobody has decided. That question is
-[issue #1037](https://github.com/NCATSTranslator/Babel/issues/1037). Neither is a regression this
+`config.yaml: disease_extra_prefixes_by_biolink_class` so `write_compendium()` keeps it (see "Open
+before release" below). `ICD0` is deliberately **not** given the same treatment: an ICD-O code is a
+tumour *morphology*, so emitting one asserts a disease equivalence nobody has decided. That question
+is [issue #1037](https://github.com/NCATSTranslator/Babel/issues/1037). Neither is a regression this
 change introduces.
 
 ## Overuse in DOID's other namespaces is still open
@@ -189,9 +189,9 @@ DOID is in `OVERUSE_FILTERED_CONCORDS` **scoped to ICD**, so overuse outside ICD
   cliques together, which is what mappings that were previously joining nothing should do.
 
   The `ICD10CM:` members are emitted deliberately ahead of the Biolink Model, which registers no
-  such prefix for `biolink:Disease` — see `config.yaml: disease_extra_prefixes`. They ride along as
-  clique members and can never be the preferred CURIE (`write_compendium()` appends
-  `extra_prefixes` after the registered ones), so they will not normalize until
+  such prefix for `biolink:Disease` — see `config.yaml: disease_extra_prefixes_by_biolink_class`.
+  They ride along as clique members and can never be the preferred CURIE (`write_compendium()`
+  appends `extra_prefixes` after the registered ones), so they will not normalize until
   [issue #1033](https://github.com/NCATSTranslator/Babel/issues/1033) unifies the spelling. Keeping
   MONDO's ~2,030 curated ICD-10 mappings in the output beats discarding them and re-deriving them
   later.

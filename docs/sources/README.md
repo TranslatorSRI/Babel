@@ -41,6 +41,13 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
   downloaded via the BioMart API: per-dataset retry logic, permanently broken datasets and how to
   skip them, the attribute-batching workaround, and how partial progress is preserved across
   failed runs.
+- **GARD** ([GARD/README.md](./GARD/README.md)) — the NCATS Genetic and Rare Diseases registry as
+  a `biolink:Disease` source: a flat CSV of rare-disease terms (labels + pipe-separated synonyms,
+  no cross-references), typed Disease and kept via `extra_prefixes=[GARD]` because GARD is not yet
+  in the Biolink Model's `disease` `id_prefixes`. Its
+  [clique diff](./GARD/clique-diff.md) is the worked example of an ingest that *joins* existing
+  cliques instead of duplicating them — 16,214 identifiers for +258 cliques — and of a bug neither
+  the impact report nor a main-vs-branch diff can see.
 - **HP** ([HP/README.md](./HP/README.md)) — the Human Phenotype Ontology as a disease/phenotype
   source: extracting identifiers from the [`HP:0000118`](http://purl.obolibrary.org/obo/HP_0000118)
   "Phenotypic abnormality" subtree, and tagging every ingested term with the taxon
@@ -48,6 +55,11 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
 - **MESH** ([MESH/Ingestion.md](./MESH/Ingestion.md)) — how MeSH is partitioned across compendia
   by tree letter, how Supplementary Concept Records (SCRs) are typed and routed, the
   chemical/protein D-tree split, and which MeSH branches/SCR classes we deliberately skip.
+- **MONDO** ([MONDO/README.md](./MONDO/README.md)) — which of MONDO's mappings the disease pipeline
+  reads: `skos:exactMatch`/`closeMatch` only, plus the one deliberate `oboInOwl:hasDbXref`
+  exception (`MONDO_GARD`) and why it is scoped to a single prefix. Includes an evidence table of
+  all 39 `hasDbXref` namespaces MONDO carries, what each would cost to ingest, and which are worth
+  revisiting.
 - **MP** ([MP/README.md](./MP/README.md)) — the Mammalian Phenotype Ontology as a
   disease/phenotype source: extracting identifiers from UberGraph via a `subClassOf` walk from
   [`MP:0000001`](http://purl.obolibrary.org/obo/MP_0000001) "mammalian phenotype", typing every

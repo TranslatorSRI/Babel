@@ -12,6 +12,7 @@ import src.datahandlers.uniprotkb as uniprotkb
 import src.datahandlers.mods as mods
 import src.datahandlers.ncit as ncit
 import src.datahandlers.doid as doid
+import src.datahandlers.gard as gard
 import src.datahandlers.orphanet as orphanet
 import src.datahandlers.reactome as reactome
 import src.datahandlers.rhea as rhea
@@ -619,6 +620,42 @@ rule get_orphanet_labels_and_synonyms:
         config["output_directory"] + "/benchmarks/get_orphanet_labels_and_synonyms.tsv"
     run:
         orphanet.pull_orphanet_labels_and_synonyms(input.infile, output.labelfile, output.synonymfile)
+
+
+### GARD
+
+
+rule get_gard:
+    # NCATS Genetic and Rare Diseases registry term list. The distribution is a Salesforce
+    # ContentVersion download link (query string, no stable filename), fetched directly rather
+    # than via pull_via_urllib (whose url + in_file_name assembly does not fit a query string).
+    output:
+        outfile=config["download_directory"] + "/GARD/gard.csv",
+        # Provenance for the download: which upload, from where, when, and what Babel keeps of it.
+        # Written here because this rule is the only place that sees the HTTP response, and the
+        # response carries the two strings that stand in for GARD's missing version number.
+        metadata_yaml=config["download_directory"] + "/GARD/metadata.yaml",
+    benchmark:
+        config["output_directory"] + "/benchmarks/get_gard.tsv"
+    retries: 3  # Salesforce CDN occasionally fails transiently.
+    params:
+        # Declared as params (not read from config inside run:) so that repointing
+        # gard_download_url actually retriggers the download instead of reusing a stale CSV.
+        url=config["gard_download_url"],
+    run:
+        gard.pull_gard(params.url, output.outfile, output.metadata_yaml)
+
+
+rule get_gard_labels_and_synonyms:
+    input:
+        infile=config["download_directory"] + "/GARD/gard.csv",
+    output:
+        labelfile=config["download_directory"] + "/GARD/labels",
+        synonymfile=config["download_directory"] + "/GARD/synonyms",
+    benchmark:
+        config["output_directory"] + "/benchmarks/get_gard_labels_and_synonyms.tsv"
+    run:
+        gard.pull_gard_labels_and_synonyms(input.infile, output.labelfile, output.synonymfile)
 
 
 ### Reactome

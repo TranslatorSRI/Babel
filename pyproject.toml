@@ -89,6 +89,13 @@ ignore = [
 fixable = ["ALL"]
 unfixable = []
 
+[tool.ruff.format]
+# Ruff 0.16.0 began formatting Python code fences inside Markdown, which overlaps with the
+# dedicated rumdl Markdown check and broke CI when astral-sh/ruff-action@v3 floated to 0.16.0
+# (pyproject pins only a floor, >=0.14.14). Keep ruff's formatter scoped to Python source and
+# leave Markdown to rumdl so formatting CI stays deterministic across ruff releases.
+exclude = ["*.md"]
+
 [tool.snakefmt]
 line_length = 120
 include = '\.snakefile$|^Snakefile'

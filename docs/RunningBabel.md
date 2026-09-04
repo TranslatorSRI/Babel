@@ -8,7 +8,11 @@ space and memory requirements needed to run this pipeline.
 
 Before running, read through `config.yaml` and make sure that the settings look correct.
 You will need to update the version numbers of some databases that need to be downloaded,
-or change the download and output directories.
+or change the download and output directories. One download has no version number to bump but a
+link that goes stale instead: `gard_download_url` pins one uploaded version of the GARD list, so
+run `uv run pytest tests/datahandlers/test_gard.py::test_gard_download_url_is_current --network`,
+which fails if the link has gone from <https://rarediseases.info.nih.gov/about> and warns if a newer
+one is there (see [`sources/GARD/README.md`](sources/GARD/README.md), "Download").
 
 A UMLS API key is required in order to download UMLS and RxNorm databases. You will need
 to set the `UMLS_API_KEY` environmental variable to a UMLS API key, which you can obtain
@@ -158,6 +162,13 @@ running a job, which would delete anything preloaded into them.
   compendium must be parseable JSON. `write_compendium()` does not write atomically, which is
   what makes this possible; tracked in
   [#910](https://github.com/NCATSTranslator/Babel/issues/910).
+* **Put the target *before* `--forcerun`.** `--forcerun` takes a list of rule names, so a target
+  written after it is swallowed as another rule name and Snakemake falls back to building the
+  **default target** — the entire pipeline. The tell is a job list far larger than expected, then a
+  failure in a rule you were not building (an unrelated download, typically). `--rerun-incomplete`
+  makes it worse: it pulls every incomplete file from *any* previous run into that DAG.
+  `snakemake -c 4 babel_outputs/compendia/Disease.txt --forcerun get_disease_doid_relationships`
+  is right; the same words with the path last is not.
 * **UberGraph transient failures.** Rules that fetch from UberGraph (anatomy's UBERON, GO, CL,
   EMAPA rules; similar elsewhere) sometimes time out, 5xx, or return truncated JSON. They carry
   `retries: 3` and the underlying `TripleStore` adds bounded retry/backoff, so most transient

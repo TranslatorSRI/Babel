@@ -292,7 +292,7 @@ def _render_join_pathways(name: str, xref_groups: list[XrefGroup] | None) -> lis
         lines.extend(["- (no cross-reference rows touch a source identifier)", ""])
         return lines
     lines.append(
-        f"`status` is `added` when {name}'s own concord file asserts the pathway and "
+        f"`status` is `added` when one of {name}'s own concord files asserts the pathway and "
         "`from_other_source` when another source's does — the latter may predate this addition. "
         "The prefix pair is sorted, so `asserted_by` is what tells you which side declared it."
     )
@@ -306,11 +306,27 @@ def _render_join_pathways(name: str, xref_groups: list[XrefGroup] | None) -> lis
     return lines
 
 
+# The detail files the repository commits. Everything else the report writes beside them is
+# excluded by `.gitignore` (`docs/sources/*/impact-report/`) as megabytes nobody reads, so a
+# *link* to one of those resolves on the machine that generated the report and nowhere else --
+# which tests/test_docs_links.py fails on, correctly. Name those files instead of linking them.
+COMMITTED_DETAIL_FILES = frozenset({"new-cliques-top-100.csv", "new-xrefs-summary.csv"})
+
+
 def _detail_link(details_dirname: str | None, filename: str, text: str) -> str | None:
-    """Render a bullet linking to one of the full detail files, or None if not emitted."""
+    """Render a bullet for one of the detail files, or None if not emitted.
+
+    A committed file gets a relative link; an uncommitted one is named in a code span and says how
+    to produce it, because a link to a file no checkout has is worse than no link.
+    """
     if not details_dirname:
         return None
-    return f"- {text}: [`{details_dirname}/{filename}`]({details_dirname}/{filename})"
+    if filename in COMMITTED_DETAIL_FILES:
+        return f"- {text}: [`{details_dirname}/{filename}`]({details_dirname}/{filename})"
+    return (
+        f"- {text}: `{details_dirname}/{filename}` -- not committed (see `.gitignore`); "
+        f"regenerate it with `uv run source-impact-report`"
+    )
 
 
 def _reg_marker(curie: str, biolink_type: str | None, prefix_priority_by_type: dict[str, list[str]]) -> str:
@@ -575,6 +591,10 @@ def render_markdown(
     lines.append(f"- Babel commit: {babel_commit}")
     lines.append(f"- Source pipelines: {', '.join(sorted(contribution.pipelines)) or '(none discovered)'}")
     lines.append(f"- Source prefixes: {', '.join(sorted(contribution.prefixes)) or '(none discovered)'}")
+    # Which concord files were counted as this source's own. Recorded because it is a CLI choice
+    # (`--concord`), not something the report can derive: a regeneration that forgets the flag would
+    # otherwise silently report zero cross-references. See discover_source().
+    lines.append(f"- Source concords: {', '.join(sorted(contribution.concord_names)) or '(none discovered)'}")
     mode_label = mode if not remote_url else f"{mode} (vs {remote_url})"
     lines.append(f"- Comparison mode: {mode_label}")
     lines.append("")
@@ -653,7 +673,7 @@ def render_markdown(
     lines.append("## 3. Cross-references added")
     lines.append("")
     total_concords = contribution.total_concord_row_count
-    n_concord_files = sum(1 for stc in contribution.by_pipeline.values() if stc.concords_path is not None)
+    n_concord_files = sum(len(stc.concords_paths) for stc in contribution.by_pipeline.values())
     lines.append(f"Totals: {_fmt(total_concords)} cross-reference rows across {n_concord_files} concord file(s).")
     lines.append("")
     lines.append("### By pipeline")
@@ -715,7 +735,7 @@ def render_json(
     for st, stc in contribution.by_pipeline.items():
         by_pipeline[st] = {
             "ids_path": str(stc.ids_path) if stc.ids_path else None,
-            "concords_path": str(stc.concords_path) if stc.concords_path else None,
+            "concords_paths": [str(path) for path in stc.concords_paths],
             "curies_by_prefix": {p: len(cs) for p, cs in stc.curies_by_prefix.items()},
             "declared_type_counts": stc.declared_type_counts,
             "concord_row_count": len(stc.concord_pairs),

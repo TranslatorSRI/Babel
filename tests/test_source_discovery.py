@@ -336,3 +336,48 @@ def test_discover_skips_metadata_yaml_files(tmp_path):
     contrib = discover_source("EMAPA", tmp_path)
     assert contrib.pipelines == frozenset({"anatomy"})
     assert contrib.total_concord_row_count == 1
+
+
+@pytest.mark.unit
+def test_discover_source_counts_only_the_named_concords(tmp_path):
+    """``concord_names`` defaults to the source name, and a differently-named concord is invisible
+    until the caller names it.
+
+    That default is why `source-impact-report --source GARD` alone reported zero cross-references
+    once GARD grew a `GARD_label` concord. A naming rule cannot replace the flag: `GARD_label` is
+    GARD's own data while `MONDO_GARD` is MONDO's data *about* GARD, and both contain "GARD".
+    """
+    _make_source_tree(
+        tmp_path,
+        "GARD",
+        "disease",
+        ids_lines=["GARD:1\tbiolink:Disease"],
+        concord_lines=None,
+    )
+    concords_dir = tmp_path / "disease" / "concords"
+    (concords_dir / "GARD_label").write_text("GARD:1\txref\tNCIT:C1\n")
+    (concords_dir / "MONDO_GARD").write_text("MONDO:1\txref\tGARD:2\n")
+
+    default = discover_source("GARD", tmp_path)
+    assert default.concord_names == frozenset()
+    assert default.total_concord_row_count == 0
+
+    named = discover_source("GARD", tmp_path, concord_names=["GARD", "GARD_label"])
+    assert named.concord_names == frozenset({"GARD_label"}), "a named concord that does not exist is skipped"
+    assert named.total_concord_row_count == 1
+    assert named.by_pipeline["disease"].concord_partner_prefix_counts == {"NCIT": 1}
+    assert "MONDO_GARD" not in named.concord_names, "another source's concord about GARD is not GARD's"
+
+
+@pytest.mark.unit
+def test_discover_source_concatenates_several_concords(tmp_path):
+    """A source may write more than one concord; rows and partner counts come from all of them."""
+    _make_source_tree(tmp_path, "GARD", "disease", ids_lines=["GARD:1\tbiolink:Disease"], concord_lines=None)
+    concords_dir = tmp_path / "disease" / "concords"
+    (concords_dir / "GARD").write_text("GARD:1\txref\tNCIT:C1\n")
+    (concords_dir / "GARD_label").write_text("GARD:2\txref\tMESH:D1\n")
+
+    contrib = discover_source("GARD", tmp_path, concord_names=["GARD", "GARD_label"])
+
+    assert contrib.total_concord_row_count == 2
+    assert contrib.by_pipeline["disease"].concord_partner_prefix_counts == {"NCIT": 1, "MESH": 1}

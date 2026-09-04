@@ -114,6 +114,48 @@ In `src/createcompendia/<pipeline>.py`:
   ended up unrestricted — but UBERON and GO are still restricted, so the ordering guarantee is what
   makes any such tie-break reproducible.)
 
+#### Prefer joining an existing clique
+
+A new source's identifiers should end up **in the cliques that already describe those concepts**,
+not in new cliques beside them. Two cliques for one concept is worse than either alternative: Node
+Normalization returns two different answers depending on which identifier a caller happens to hold,
+and Name Resolver returns both for one query, so a user has to decide by hand which "zygomycosis"
+they meant. A source that lands as thousands of single-identifier cliques has usually not been
+integrated — it has been *deposited*.
+
+So when a source arrives with few or no cross-references, treat "does anything already map these
+identifiers?" as a question to answer before shipping, not after. It is often another vocabulary
+that carries the mapping, and it may carry it in a form the pipeline does not currently read. GARD
+is the worked example: as a registry it asserts no mappings at all, and DOID's xrefs cover only
+2,195 of its 16,214 terms — but MONDO maps 15,930 of them, purely as `oboInOwl:hasDbXref`, which the
+MONDO concord (exact matches only) does not read. Ingesting those as a separate `MONDO_GARD` concord
+took GARD from 14,319 stranded single-identifier cliques to 277, and the disease compendium grew by
+258 cliques instead of 14,319. See [`docs/sources/MONDO/README.md`](sources/MONDO/README.md).
+
+This does **not** license trusting every `hasDbXref` — most are not equivalences, and the reasons
+are in [`docs/sources/CLAUDE.md`](sources/CLAUDE.md). It means the question deserves asking per
+namespace rather than being settled once per source. Two signals worth weighing:
+
+- **A 1:1 mapping is strong evidence of curation.** When N terms on one side map to exactly N on the
+  other, with no target claimed twice, someone has already done the disambiguation — very likely a
+  domain expert, and very likely more carefully than a heuristic will. MONDO↔GARD is 1:1 in both
+  directions across 15,936 pairs. A many-to-one mapping is the opposite signal: it usually means one
+  side names families and the other names members, which is how DOID's ICD codes fused 61 mutually
+  exclusive subtypes into a single clique
+  ([#1031](https://github.com/NCATSTranslator/Babel/issues/1031)).
+- **Label agreement across the pair.** Cheap to check in bulk, and it distinguishes "these are the
+  same thing" from "these are related things".
+
+When the answer is yes for one namespace and no for the rest, scope the exception rather than
+widening the rule: a separate concord file with `allowed_prefixes` fixed at that one prefix keeps
+the exception visible in `config.yaml: <pipeline>_concords`, lets it be filtered or dropped on its
+own, and gives it a metadata block that records why it exists. Then make the build enforce the
+property you relied on rather than only testing it: here, an `OVERUSE_FILTERED_CONCORDS` entry
+scoped to GARD drops any id a future MONDO release maps twice, so the 1:1 assumption fails closed
+instead of silently awarding the id to whichever row sorts first. A `pipeline`-marked test on top
+(`tests/pipeline/test_mondo_gard.py`) tells you *when* the source loses the property, which the
+filter alone would hide.
+
 ### 4. Wire Snakemake rules
 
 In `src/snakefiles/<pipeline>.snakefile`:

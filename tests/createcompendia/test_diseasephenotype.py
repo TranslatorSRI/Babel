@@ -35,7 +35,7 @@ import pytest
 from src.babel_utils import glom, norm, remove_overused_xrefs
 from src.categories import DISEASE, PHENOTYPIC_FEATURE
 from src.createcompendia import diseasephenotype
-from src.prefixes import DOID, ICD10CM, MONDO
+from src.prefixes import DOID, GARD, ICD10CM, MONDO
 from src.ubergraph import build_sets
 from src.util import Text, get_config
 from tests.conftest import assert_taxa_file_valid, glom_dict_from_cliques
@@ -182,6 +182,29 @@ def test_excluding_mondo_skips_basename_discovered_mondo_close(tmp_path):
         identifiers=[ids],
         excluded_sources={"MONDO"},
         badxrefs={},
+    )
+    assert set(dicts.keys()) == {"HP:0000001"}
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("excluded", ["MONDO", "GARD"])
+def test_excluding_either_side_skips_mondo_gard(tmp_path, excluded):
+    """MONDO_GARD is MONDO's data about GARD, so excluding either source must skip it.
+
+    Otherwise a ``--source GARD`` impact-report "before" run already holds every GARD CURIE through
+    MONDO_GARD and reports that adding GARD merged nothing, and a ``--source MONDO`` run under-counts
+    MONDO by the ~15.9k joins that concord carries.
+    """
+    ids = _write_lines(tmp_path / "HP", [f"HP:0000001\t{PHENOTYPIC_FEATURE}"])
+    mondo_gard = _write_lines(tmp_path / f"{MONDO}_{GARD}", ["MONDO:0009846\txref\tGARD:418"])
+
+    dicts, _ = diseasephenotype.compute_cliques_for_impact_report(
+        concordances=[mondo_gard], identifiers=[ids], badxrefs={}
+    )
+    assert dicts["MONDO:0009846"] == {"MONDO:0009846", "GARD:418"}
+
+    dicts, _ = diseasephenotype.compute_cliques_for_impact_report(
+        concordances=[mondo_gard], identifiers=[ids], excluded_sources={excluded}, badxrefs={}
     )
     assert set(dicts.keys()) == {"HP:0000001"}
 
@@ -482,14 +505,19 @@ def test_doid_icd_xref_prefixes_are_the_icd_families():
 
 
 @pytest.mark.unit
-def test_doid_overuse_filter_is_scoped_to_icd():
-    """DOID must be overuse-filtered, but only over its ICD prefixes.
+def test_doid_overuse_filter_is_scoped_to_icd_and_gard():
+    """DOID must be overuse-filtered, but only over its ICD prefixes and GARD.
 
     Unscoped (None, as MONDO/HP/EFO/MP are) the filter would also discard correct mappings:
     MESH:D010195 "Pancreatitis" is claimed by both DOID:4989 "pancreatitis" and DOID:2913 "acute
     pancreatitis", and dropping the target loses the genuine equivalence along with the too-narrow
-    one. Scoped to ICD it drops only the family codes."""
-    assert diseasephenotype.OVERUSE_FILTERED_CONCORDS["DOID"] == diseasephenotype.DOID_ICD_XREF_PREFIXES
+    one. Scoped to ICD and GARD it drops only the family codes and the doubly-claimed registry ids.
+
+    MONDO_GARD is scoped to GARD for a different reason: MONDO is a unique prefix, so a GARD id
+    a future MONDO release maps twice would otherwise be silently awarded to whichever row sorts
+    first."""
+    assert diseasephenotype.OVERUSE_FILTERED_CONCORDS["DOID"] == diseasephenotype.DOID_ICD_XREF_PREFIXES + [GARD]
+    assert diseasephenotype.OVERUSE_FILTERED_CONCORDS[f"{MONDO}_{GARD}"] == [GARD]
     assert all(diseasephenotype.OVERUSE_FILTERED_CONCORDS[c] is None for c in ("MONDO", "HP", "EFO", "MP"))
 
 
@@ -593,6 +621,32 @@ def test_mp_badxrefs_is_wired_up_and_drops_the_bifid_scrotum_xref():
 
 
 @pytest.mark.unit
+def test_doid_overuse_filter_drops_gard_ids_claimed_twice():
+    """A GARD id cited by two DOID terms must be dropped from DOID's concord, like an ICD family code.
+
+    GARD:418 "Essential pentosuria" is the worked case: DOID:0111258 "pentosuria" xrefs it correctly
+    and DOID:0061030 "hemophilia" xrefs it by typo (``GARD:0418`` for GARD:10418; reported as
+    DiseaseOntology/HumanDiseaseOntology#1620). Both cliques hold a MONDO id, so glom() could not
+    merge them and would hand the contested id to whichever row it saw first. Scoping the overuse
+    filter to GARD as well as ICD removes both rows; MONDO_GARD, glommed earlier, already places
+    GARD:418 in the pentosuria clique, so nothing is lost. 12 of DOID's GARD targets are in this
+    position (GARD:625 Alport 3B/2, GARD:7674 childhood SMA, ...).
+    """
+    pairs = [
+        ("DOID:0111258", "GARD:418"),
+        ("DOID:0061030", "GARD:418"),
+        ("DOID:0050012", "GARD:6038"),
+        ("DOID:4989", "MESH:D010195"),
+        ("DOID:2913", "MESH:D010195"),
+    ]
+    kept = remove_overused_xrefs(pairs, target_prefixes=diseasephenotype.OVERUSE_FILTERED_CONCORDS["DOID"])
+
+    assert not [pair for pair in kept if pair[1] == "GARD:418"], "a GARD id claimed twice must go"
+    assert ("DOID:0050012", "GARD:6038") in kept, "a 1:1 GARD row must survive"
+    assert [pair for pair in kept if pair[1] == "MESH:D010195"] == pairs[3:], "MeSH stays out of scope"
+
+
+@pytest.mark.unit
 def test_badxrefs_key_matching_no_concord_raises(tmp_path):
     """A bad-xrefs key that matches no concord basename (a typo, or DEFAULT_BAD_XREFS and the
     snakefile dict drifting apart) must raise rather than silently never filtering -- the
@@ -625,6 +679,54 @@ def test_badxrefs_key_for_excluded_source_does_not_raise(tmp_path):
         badxrefs={"MONDO": badxrefs_file},
     )
     assert set(dicts.keys()) == {"HP:0000001"}
+
+
+# --- MONDO GARD xref exception ---
+
+
+@pytest.mark.unit
+def test_mondo_gard_concord_keeps_only_unpadded_gard_targets(tmp_path):
+    """build_disease_obo_relationships must write MONDO's GARD hasDbXrefs, and *only* those.
+
+    Exercises the real call site rather than re-specifying it, because both arguments it passes are
+    load-bearing and neither is visible anywhere else: `allowed_prefixes={GARD}` is what keeps
+    MONDO's other hasDbXref targets out (ICD9:759.89 alone is claimed by 167 MONDO terms), and
+    the `GARD: GARD` entry of config.yaml's disease_xref_prefixes[MONDO] (resolved to
+    normalize_gard_curie) is what strips the registry padding MONDO writes -- a padded GARD:0010418
+    here would join neither GARD's ids file nor DOID's unpadded xrefs, so the row would look present
+    and do nothing.
+
+    The same term is returned for both MONDO roots walked, and must be written once: the overuse
+    filter counts rows, so a doubled pair would read as a GARD id claimed by two MONDO terms.
+
+    The targets below are the shapes MONDO really emits; GARD:0010418 is its mapping for
+    MONDO:0018660 "hemophilia". See docs/sources/MONDO/README.md.
+    """
+    xrefs = {
+        "MONDO:0018660": {  # "hemophilia"
+            "GARD:0010418",  # the registry mapping, zero-padded -- kept, unpadded to GARD:10418
+            "ICD9:759.89",  # a family code claimed by 167 MONDO terms -- dropped
+            "MedDRA:10001843",  # not 1:1, and unreviewed -- dropped
+            "HP:0002754",  # crosses the disease/phenotype boundary -- dropped
+            "https://en.wikipedia.org/wiki/Haemophilia",  # a web page -- dropped
+        }
+    }
+    fake_uber = MagicMock()
+    fake_uber.get_subclasses_and_xrefs.return_value = xrefs
+    fake_uber.get_subclasses_and_exacts.return_value = {}
+    fake_uber.get_subclasses_and_close.return_value = {}
+
+    outdir = tmp_path / "concords"
+    outdir.mkdir()
+    metadata_yamls = {
+        name: str(tmp_path / f"metadata-{name}.yaml") for name in ("HP", "MONDO", "MONDO_close", "MONDO_GARD", "MP")
+    }
+
+    with patch("src.ubergraph.UberGraph", return_value=fake_uber):
+        diseasephenotype.build_disease_obo_relationships(str(outdir), metadata_yamls)
+
+    rows = (outdir / f"{MONDO}_{GARD}").read_text().splitlines()
+    assert rows == [f"{MONDO}:0018660\txref\t{GARD}:10418"]
 
 
 # --- MP xref allowlist ---
@@ -736,33 +838,55 @@ def test_doid_xref_prefix_map_covers_every_prefix_doid_emits():
 
     These are the spellings in the DOID release of 2026-08-18. `MIM`, `SNOMEDCT_US` and `ORDO`
     were the three that were missing -- 6,483, 5,358 and 2,321 rows respectively, every one of
-    them reaching glom() un-renamed, joining nothing and fusing its subjects anyway."""
+    them reaching glom() un-renamed, joining nothing and fusing its subjects anyway. GARD is a
+    local-id rename, not a prefix one: 28 of DOID's GARD xrefs carry the registry's zero padding."""
     mapping = diseasephenotype.get_xref_prefix_map(DOID)
-    assert set(mapping) == {"ICD10CM", "ICD9CM", "ICDO", "NCI", "SNOMEDCT_US", "UMLS_CUI", "KEGG", "MIM", "ORDO"}
+    assert set(mapping) == {
+        "ICD10CM",
+        "ICD9CM",
+        "ICDO",
+        "NCI",
+        "SNOMEDCT_US",
+        "UMLS_CUI",
+        "KEGG",
+        "MIM",
+        "ORDO",
+        "GARD",
+    }
     # The stem entry has to cover the dated spellings, which is norm()'s job, not the map's.
     assert norm("SNOMEDCT_US_2026_03_01:267692008", mapping) == "SNOMEDCT:267692008"
     assert norm("MIM:PS303350", mapping) == "OMIM.PS:303350"
     assert norm("MIM:115210", mapping) == "OMIM:115210"
     # Lower-case target: the rename must land on Babel's spelling, which MONDO and HP already use.
     assert norm("ORDO:2822", mapping) == "orphanet:2822"
+    # Local-id rename: the prefix stays, the padding goes (the 28 padded ones are all this shape).
+    assert norm("GARD:0018564", mapping) == "GARD:18564"
+    assert norm("GARD:6038", mapping) == "GARD:6038"
+    # MONDO pads every GARD id, and its map must unpad them too or MONDO_GARD joins nothing.
+    assert norm("GARD:0010418", diseasephenotype.get_xref_prefix_map(MONDO)) == "GARD:10418"
 
 
 @pytest.mark.unit
 def test_disease_extra_prefixes_are_registered_and_deliberate():
-    """config.yaml: disease_extra_prefixes overrides the Biolink Model, so it must stay short.
+    """config.yaml's extra-prefixes allowlist overrides the Biolink Model, so it must stay short.
 
-    Each entry ships a prefix Biolink does not register for biolink:Disease -- deliberately, since
+    Each entry ships a prefix Biolink does not register for that class -- deliberately, since
     write_compendium() would otherwise drop it silently *after* it had already merged cliques. The
-    entries must be real prefixes from src/prefixes.py, and ICD0 must stay out: an ICD-O code is a
-    tumour morphology, so emitting one asserts a disease equivalence nobody has decided (#1037).
-    Update this test alongside the config, not instead of it."""
-    from src.prefixes import ICD0, ICD10CM
+    entries must be real prefixes from src/prefixes.py, and ICD0 must stay out of every class: an
+    ICD-O code is a tumour morphology, so emitting one asserts a disease equivalence nobody has
+    decided (#1037). Update this test alongside the config, not instead of it."""
+    from src.prefixes import GARD, ICD0, ICD10CM
 
-    extra = get_config()["disease_extra_prefixes"]
+    allowlist = get_config()["disease_extra_prefixes_by_biolink_class"]
 
-    assert extra == [ICD10CM], "adding a prefix here overrides Biolink; say why in config.yaml first"
-    assert set(extra) <= set(Text.prefixmap.values()), "every entry must be a src/prefixes.py constant"
-    assert ICD0 not in extra
+    assert allowlist == {DISEASE: [ICD10CM, GARD], PHENOTYPIC_FEATURE: [GARD]}, (
+        "adding a prefix here overrides Biolink; say why in config.yaml first, with the issue that removes it"
+    )
+    for biolink_class, prefixes in allowlist.items():
+        assert set(prefixes) <= set(Text.prefixmap.values()), (
+            f"every entry under {biolink_class} must be a src/prefixes.py constant"
+        )
+        assert ICD0 not in prefixes
 
 
 @pytest.mark.unit
@@ -776,14 +900,14 @@ def test_icd10cm_override_expires_when_the_spelling_is_unified():
     ICD10, the override becomes dead weight that keeps a non-Biolink prefix alive for no reason.
 
     Nothing else would notice, so this fails the moment the two config entries disagree: if MONDO
-    renames ICD10CM away, ICD10CM must come out of disease_extra_prefixes in the same change."""
+    renames ICD10CM away, ICD10CM must come out of the allowlist in the same change."""
     mondo_renames = get_config()["disease_xref_prefixes"][MONDO]
-    extra = get_config()["disease_extra_prefixes"]
+    extra = get_config()["disease_extra_prefixes_by_biolink_class"][DISEASE]
 
     if "ICD10CM" in mondo_renames:
         assert ICD10CM not in extra, (
             "MONDO now renames ICD10CM, so nothing emits that prefix any more -- drop it from "
-            "config.yaml: disease_extra_prefixes (see issue #1033)."
+            "config.yaml: disease_extra_prefixes_by_biolink_class (see issues #1033 and #1060)."
         )
 
 
@@ -797,7 +921,37 @@ def test_build_compendium_passes_the_extra_prefixes_through():
     ):
         diseasephenotype.build_compendium([], {}, [], None, {}, "icRDF.tsv")
 
-    assert mock_write.call_args.kwargs["extra_prefixes"] == get_config()["disease_extra_prefixes"]
+    expected = get_config()["disease_extra_prefixes_by_biolink_class"][DISEASE]
+    assert mock_write.call_args.kwargs["extra_prefixes"] == expected
+
+
+@pytest.mark.unit
+def test_extra_prefixes_are_looked_up_per_biolink_class():
+    """Each class gets its own list, and never another class's.
+
+    extra_prefixes is a per-class allowlist and this loop writes two classes, so passing one list
+    to both grants each of them an exemption argued for the other -- which is what `main` does.
+    ICD10CM is argued on disease grounds (an ICD-10 code names a disease family, not a phenotype)
+    and must not reach PhenotypicFeature; GARD is argued on "unregistered for every class" grounds
+    and must reach both, or its identifiers are deleted from whichever compendium their clique
+    lands in."""
+    from src.prefixes import GARD, ICD10CM
+
+    typed = {DISEASE: [["MONDO:1"]], PHENOTYPIC_FEATURE: [["HP:1"]]}
+    with (
+        patch.object(diseasephenotype, "compute_cliques_for_impact_report", return_value=({}, {})),
+        patch.object(diseasephenotype, "create_typed_sets", return_value=typed),
+        patch.object(diseasephenotype, "write_compendium") as mock_write,
+    ):
+        diseasephenotype.build_compendium([], {}, [], None, {}, "icRDF.tsv")
+
+    by_type = {call.args[3]: call.kwargs["extra_prefixes"] for call in mock_write.call_args_list}
+    allowlist = get_config()["disease_extra_prefixes_by_biolink_class"]
+
+    assert by_type[DISEASE] == allowlist[DISEASE]
+    assert by_type[PHENOTYPIC_FEATURE] == allowlist[PHENOTYPIC_FEATURE]
+    assert ICD10CM in by_type[DISEASE] and ICD10CM not in by_type[PHENOTYPIC_FEATURE]
+    assert GARD in by_type[DISEASE] and GARD in by_type[PHENOTYPIC_FEATURE]
 
 
 @pytest.mark.unit
@@ -828,6 +982,56 @@ def test_disease_phenotype_boundary_badxrefs_are_shipped_and_parse():
 
 
 @pytest.mark.unit
+def test_hp_neurofibroma_badxrefs_are_all_three_present():
+    """All three HP:0001067 bad-xref pairs must stay, or the fix silently does nothing.
+
+    HP:0001067 "Neurofibroma" is the benign nerve-sheath tumour; its xref to NCIT:C3272 is right,
+    and its other three point into the *neurofibromatosis* UMLS concept (UMLS:C0162678 and two
+    SNOMED atoms of it). Together they fused MONDO:0016755 "neurofibroma" with every major
+    neurofibromatosis identifier while MONDO:0021061 "neurofibromatosis" led a separate clique --
+    the disease represented twice (#1065).
+
+    Because HP:0001067 has *three* crossing xrefs, removing any one leaves the other two and the
+    clique does not split at all. A partial list therefore looks exactly like a working fix and
+    costs nothing visible, which is why this asserts the set rather than trusting the file comment.
+    Drop all three together if HPO corrects them upstream.
+    """
+    hp_pairs = diseasephenotype.read_badxrefs("input_data/badHPx.txt")
+    required = {
+        ("HP:0001067", "UMLS:C0162678"),
+        ("HP:0001067", "SNOMEDCT:19133005"),
+        ("HP:0001067", "SNOMEDCT:81669005"),
+    }
+
+    assert required <= hp_pairs, (
+        f"missing HP:0001067 bad-xref pair(s) {sorted(required - hp_pairs)}; with any one absent, "
+        "neurofibroma and neurofibromatosis re-fuse into one clique"
+    )
+    # The correct xref must NOT be suppressed: HP:0001067 really is NCIT:C3272 "Neurofibroma".
+    assert ("HP:0001067", "NCIT:C3272") not in hp_pairs
+
+
+@pytest.mark.unit
+def test_mondo_gard_concord_is_registered_in_disease_concords():
+    """The MONDO_GARD concord must be listed in config.yaml: disease_concords.
+
+    build_disease_obo_relationships() writes the file either way, and the Snakemake rule declares it
+    as an output either way -- but build_compendia only reads the concords config lists. Omitted, the
+    file is built on every run, looks correct on disk, and contributes nothing: 15,930 GARD
+    identifiers silently revert to single-identifier cliques duplicating MONDO concepts. That is a
+    failure with no error message anywhere, which is what makes it worth pinning.
+
+    It must also come BEFORE DOID. 148 of DOID's GARD xref rows put a GARD id on a different MONDO
+    clique than MONDO does; MONDO is a unique prefix so the cliques cannot merge, and glom() leaves
+    the id with whichever concord claimed it first. An alphabetical tidy-up of the list would
+    silently re-home those ids -- see the comment on disease_concords in config.yaml.
+    """
+    concords = get_config()["disease_concords"]
+    assert f"{MONDO}_{GARD}" in concords
+    assert concords.index(f"{MONDO}_{GARD}") < concords.index(DOID), "MONDO_GARD must be glommed before DOID"
+
+
+@pytest.mark.unit
 def test_badxrefs_files_are_registered_for_the_concords_they_name():
     """Every DEFAULT_BAD_XREFS key must name a concord the disease build actually produces.
 
@@ -842,3 +1046,284 @@ def test_badxrefs_files_are_registered_for_the_concords_they_name():
     )
     for name, path in diseasephenotype.DEFAULT_BAD_XREFS.items():
         assert diseasephenotype.read_badxrefs(path) is not None, f"{name} bad-xrefs file failed to parse"
+
+
+# --- GARD_label concord (build_gard_label_concord) ---
+#
+# GARD publishes no cross-references, so the registry terms MONDO and DOID do not map can only reach
+# a clique through a label match. These pin the two guards that make that safe -- skip GARD ids
+# another concord places, and emit at most one row each -- plus the config wiring they depend on.
+# Numbers and provenance: docs/sources/GARD/label-matches/README.md.
+
+
+def _run_gard_label_concord(tmp_path, *, gard, vocabularies, other_concords=(), extra_ids=()):
+    """Run build_gard_label_concord() over tiny inputs, returning the concord rows it wrote.
+
+    :param gard: {gard_curie: label}, written as a GARD labels file.
+    :param vocabularies: ordered [(name, {curie: (label, biolink_type)})]; each becomes one ids file
+        and one labels file, in that priority order.
+    :param other_concords: iterable of iterables of (subject, predicate, object) rows.
+    :param extra_ids: extra (curie, biolink_type) pairs, written to an ids file the concord builder
+        does not read, for tests that go on to glom the result.
+    """
+    gard_labels = tmp_path / "gard_labels"
+    gard_labels.write_text("".join(f"{curie}\t{label}\n" for curie, label in gard.items()))
+
+    match_ids, match_labels = [], []
+    for name, members in vocabularies:
+        idsfile = tmp_path / f"ids_{name}"
+        labelsfile = tmp_path / f"labels_{name}"
+        idsfile.write_text("".join(f"{curie}\t{biotype}\n" for curie, (_, biotype) in members.items()))
+        labelsfile.write_text("".join(f"{curie}\t{label}\n" for curie, (label, _) in members.items()))
+        match_ids.append(str(idsfile))
+        match_labels.append(str(labelsfile))
+
+    # Not read by the concord builder; here for tests that glom its output afterwards.
+    gard_ids = tmp_path / "ids_GARD"
+    gard_ids.write_text("".join(f"{curie}\t{DISEASE}\n" for curie in gard))
+    other_ids = tmp_path / "ids_extra"
+    other_ids.write_text("".join(f"{curie}\t{biotype}\n" for curie, biotype in extra_ids))
+
+    concord_paths = []
+    for i, rows in enumerate(other_concords):
+        concord = tmp_path / f"concord_{i}"
+        concord.write_text("".join("\t".join(row) + "\n" for row in rows))
+        concord_paths.append(str(concord))
+
+    (tmp_path / "MONDO_close").write_text("")
+    outfile = tmp_path / "GARD_label"
+    diseasephenotype.build_gard_label_concord(
+        str(gard_labels),
+        match_ids,
+        match_labels,
+        concord_paths,
+        str(outfile),
+        str(tmp_path / "metadata.yaml"),
+    )
+    return [tuple(line.split("\t")) for line in outfile.read_text().splitlines()]
+
+
+@pytest.mark.unit
+def test_gard_label_concord_matches_case_insensitively(tmp_path):
+    """ "Genu Varum" and "Genu varum" name one disease. Case-sensitive matching is not merely
+    stricter, it is measurably *worse* (2.64% wrong against 0.21%): it walks past the right clique on
+    a capital letter and then matches some other clique that is capitalized the same way."""
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Odontogenic Carcinoma"},
+        vocabularies=[("NCIT", {"NCIT:C173720": ("odontogenic carcinoma", DISEASE)})],
+    )
+    assert rows == [("GARD:1", "xref", "NCIT:C173720")]
+
+
+@pytest.mark.unit
+def test_gard_label_concord_walks_the_pool_in_priority_order(tmp_path):
+    """The first vocabulary with a match wins, and matching stops there -- the priority order of
+    config.yaml: disease_gard_label_match_prefixes is the whole tie-break."""
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Nephroblastoma"},
+        vocabularies=[
+            ("MONDO", {"MONDO:0006058": ("Nephroblastoma", DISEASE)}),
+            ("NCIT", {"NCIT:C3267": ("nephroblastoma", DISEASE)}),
+        ],
+    )
+    assert rows == [("GARD:1", "xref", "MONDO:0006058")], "MONDO precedes NCIT, and only one row is written"
+
+
+@pytest.mark.unit
+def test_gard_label_concord_skips_a_label_two_identifiers_of_one_vocabulary_share(tmp_path):
+    """If the vocabulary itself does not say which of its two concepts the registry means, neither
+    can we -- and the term is skipped outright rather than falling through to the next vocabulary,
+    because an ambiguity in the most-trusted vocabulary is evidence about the label, not about
+    MONDO."""
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Erythropoietic protoporphyria"},
+        vocabularies=[
+            (
+                "MONDO",
+                {
+                    "MONDO:0001676": ("Erythropoietic protoporphyria", DISEASE),
+                    "MONDO:0008319": ("erythropoietic protoporphyria", DISEASE),
+                },
+            ),
+            ("NCIT", {"NCIT:C1": ("Erythropoietic protoporphyria", DISEASE)}),
+        ],
+    )
+    assert rows == []
+
+
+@pytest.mark.unit
+def test_gard_label_concord_leaves_gard_ids_another_concord_places(tmp_path):
+    """Guard 1. A GARD id another concord names already sits in a curated clique; re-deciding it by
+    label is what turns a 0.21% error rate into 33 attempted merges of curated MONDO cliques. The
+    check reads the concord files rather than a hardcoded (MONDO_GARD, DOID) pair, so a source that
+    starts emitting GARD xrefs is covered without touching this code."""
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Kartagener syndrome", "GARD:2": "Odontogenic Carcinoma"},
+        vocabularies=[
+            ("NCIT", {"NCIT:C1": ("Kartagener syndrome", DISEASE), "NCIT:C2": ("Odontogenic Carcinoma", DISEASE)})
+        ],
+        other_concords=[[("MONDO:0009484", "xref", "GARD:1")]],
+    )
+    assert rows == [("GARD:2", "xref", "NCIT:C2")], "GARD:1 is claimed by another concord and must be left alone"
+
+
+@pytest.mark.unit
+def test_gard_label_concord_cannot_merge_two_pre_existing_cliques(tmp_path):
+    """Guard 2, end to end and this is the invariant the whole design rests on.
+
+    Guard 1 leaves only GARD ids that appear in no other concord, so each is a single-identifier
+    clique; emitting at most one row each means a GARD_label pair can only union {GARD:x} into one
+    existing clique. Even when a GARD term's label is carried by identifiers in two different
+    cliques, the two must stay separate. Emitting every matching identifier instead would have put
+    475 existing clique pairs at risk of fusion, which is why this is enforced by construction
+    rather than detected by a warning downstream (AGENTS.md, "A log warning is not a control")."""
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Torticollis"},
+        vocabularies=[
+            ("MESH", {"MESH:D014103": ("Torticollis", DISEASE)}),
+            ("NCIT", {"NCIT:C1": ("torticollis", DISEASE)}),
+        ],
+        other_concords=[[("MESH:D014103", "xref", "UMLS:C1"), ("NCIT:C1", "xref", "UMLS:C2")]],
+        extra_ids=[("UMLS:C1", DISEASE), ("UMLS:C2", DISEASE)],
+    )
+    assert rows == [("GARD:1", "xref", "MESH:D014103")]
+
+    ids = {}
+    for name in ("ids_MESH", "ids_NCIT", "ids_GARD", "ids_extra"):
+        ids[name] = str(tmp_path / name)
+    dicts, _ = diseasephenotype.compute_cliques_for_impact_report(
+        [str(tmp_path / "concord_0"), str(tmp_path / "GARD_label")],
+        list(ids.values()),
+        mondoclose=str(tmp_path / "MONDO_close"),
+        badxrefs={},
+    )
+    assert dicts["MESH:D014103"] == {"MESH:D014103", "UMLS:C1", "GARD:1"}
+    assert dicts["NCIT:C1"] == {"NCIT:C1", "UMLS:C2"}, "the two cliques the shared label spans must not fuse"
+
+
+@pytest.mark.unit
+def test_gard_label_concord_links_a_target_whose_clique_is_a_phenotype(tmp_path):
+    """A GARD term whose clique the build types biolink:PhenotypicFeature is linked like any other,
+    and follows its clique into PhenotypicFeature.txt.
+
+    An earlier version of this concord refused those links. `disease_gard_ids` types every registry
+    term biolink:Disease, but a handful name concepts HP also names and the clique type vote rightly
+    follows HP; while the extra-prefixes allowlist named GARD for biolink:Disease only, joining such
+    a clique *deleted* the GARD identifier instead of moving it, so refusing was the lesser evil and
+    shipped a duplicate single-identifier Disease clique beside the phenotype clique naming the same
+    thing. The allowlist now names GARD for both classes
+    (test_extra_prefixes_allowlist_is_keyed_by_biolink_class), so the identifier survives either
+    way and there is nothing left to refuse. Five real terms are affected, "Chilblains" among them.
+    """
+    rows = _run_gard_label_concord(
+        tmp_path,
+        gard={"GARD:1": "Myokymia"},
+        vocabularies=[("MESH", {"MESH:D020385": ("Myokymia", DISEASE)})],
+        # MESH:D020385 reaches HP:0002411 through UMLS, exactly as the real Myokymia clique does.
+        other_concords=[[("MESH:D020385", "xref", "UMLS:C1"), ("UMLS:C1", "xref", "HP:0002411")]],
+        extra_ids=[("UMLS:C1", DISEASE), ("HP:0002411", PHENOTYPIC_FEATURE)],
+    )
+    assert rows == [("GARD:1", "xref", "MESH:D020385")]
+
+    ids = [str(tmp_path / name) for name in ("ids_MESH", "ids_GARD", "ids_extra")]
+    dicts, types = diseasephenotype.compute_cliques_for_impact_report(
+        [str(tmp_path / "concord_0"), str(tmp_path / "GARD_label")],
+        ids,
+        mondoclose=str(tmp_path / "MONDO_close"),
+        badxrefs={},
+    )
+    clique = dicts["GARD:1"]
+    assert clique == {"GARD:1", "MESH:D020385", "UMLS:C1", "HP:0002411"}
+    assert diseasephenotype.classify_disease_clique(clique, types) == PHENOTYPIC_FEATURE, (
+        "HP must still win the type vote; GARD's Disease vote does not retype an HP-led clique"
+    )
+
+
+@pytest.mark.unit
+def test_extra_prefixes_allowlist_is_keyed_by_biolink_class():
+    """config.yaml's extra-prefixes allowlist is a map from Biolink class to prefixes, and GARD is
+    on both classes this pipeline writes.
+
+    write_compendium()'s extra_prefixes is a **per-class** allowlist, and build_compendium writes
+    several classes from one call, so a flat list passed to every class grants each of them an
+    exemption argued for one -- which is what `main` does. Keying the config by class is what makes
+    that unspellable, so the shape is pinned here.
+
+    GARD must be on both: it is registered for no Biolink class at all, so a GARD identifier is
+    dropped from whichever compendium its clique lands in unless that class names it. Listing it
+    only under Disease is what made build_gard_label_concord() refuse five correct links.
+
+    Every entry is temporary; https://github.com/NCATSTranslator/Babel/issues/1061 tracks the test
+    that will fail once Biolink registers one, so the entry is deleted rather than left to rot.
+    """
+    allowlist = get_config()["disease_extra_prefixes_by_biolink_class"]
+
+    assert isinstance(allowlist, dict), f"expected a map keyed by biolink class, got {type(allowlist)}"
+    assert set(allowlist) == {DISEASE, PHENOTYPIC_FEATURE}, (
+        f"the disease pipeline writes {DISEASE} and {PHENOTYPIC_FEATURE}; allowlist keys are {sorted(allowlist)}"
+    )
+    for biolink_class, prefixes in allowlist.items():
+        assert GARD in prefixes, f"GARD must be allowed for {biolink_class} or its identifiers are dropped there"
+    assert "ICD10CM" not in allowlist[PHENOTYPIC_FEATURE], (
+        "ICD-10 codes name disease families, not phenotypes; that entry is argued on disease grounds only"
+    )
+
+
+@pytest.mark.unit
+def test_gard_label_concord_is_registered_last_in_disease_concords():
+    """GARD_label must be in config.yaml: disease_concords, and must be LAST.
+
+    It is the only concord in this pipeline derived from labels rather than an asserted mapping, so
+    it should decide nothing another concord has an opinion about. More concretely, guard 1 -- skip
+    any GARD id another concord names -- is *defined* by the rest of this list, and the Snakemake
+    rule builds that list by excluding GARD_label from it. Dropping the entry silently reverts 265
+    rare diseases to single-identifier cliques with no error anywhere, the same failure mode
+    test_mondo_gard_concord_is_registered_in_disease_concords guards."""
+    concords = get_config()["disease_concords"]
+    assert "GARD_label" in concords
+    assert concords[-1] == "GARD_label", f"GARD_label must be glommed last, but disease_concords is {concords}"
+
+
+@pytest.mark.unit
+def test_gard_label_match_prefixes_are_buildable_and_exclude_the_phenotype_ontologies():
+    """Every disease_gard_label_match_prefixes entry names both an ids file (disease_ids) and a
+    labels file (disease_labelsandsynonyms); the Snakemake rule expands the same list over both
+    directories, so an entry in only one of them fails the build with a missing-input error rather
+    than anything readable.
+
+    HP and MP must stay out. split_mutually_exclusive_cliques() keeps phenotype and disease cliques
+    disjoint on purpose and disease_gard_ids types every registry term biolink:Disease, so matching
+    a GARD term onto an HP or MP term asserts an identity this pipeline is built to refuse. (Guard 3
+    covers the indirect case, where the target reaches HP through some other clique member.)"""
+    config = get_config()
+    pool = config["disease_gard_label_match_prefixes"]
+
+    assert set(pool) <= set(config["disease_ids"]), (
+        f"no disease ids file for: {sorted(set(pool) - set(config['disease_ids']))}"
+    )
+    assert set(pool) <= set(config["disease_labelsandsynonyms"]), (
+        f"no labels file for: {sorted(set(pool) - set(config['disease_labelsandsynonyms']))}"
+    )
+    assert "HP" not in pool and "MP" not in pool, "the phenotype ontologies must not be label-match targets"
+    assert GARD not in pool, "GARD cannot match against itself"
+
+
+@pytest.mark.unit
+def test_gard_label_concord_rejects_mismatched_pool_lists(tmp_path):
+    """The ids and labels lists are positional and must stay in the same priority order; a length
+    mismatch means the Snakemake rule's two expand() calls have drifted, and zip() would silently
+    match NCIT ids against UMLS labels."""
+    with pytest.raises(ValueError, match="parallel lists"):
+        diseasephenotype.build_gard_label_concord(
+            str(tmp_path / "gard_labels"),
+            ["ids_a", "ids_b"],
+            ["labels_a"],
+            [],
+            str(tmp_path / "out"),
+            str(tmp_path / "metadata.yaml"),
+        )

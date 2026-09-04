@@ -1,0 +1,30 @@
+asserted_by,clique_leader,fuses,object,object_claimed_by,object_label,other_leader,shape,subject,subject_label
+DOID,MONDO:0016063,Cowden disease + PTEN hamartoma tumor syndrome,MESH:D006223,2,"Hamartoma Syndrome, Multiple",MONDO:0017623,overused target,DOID:0050657,Cowden syndrome 1
+DOID,MONDO:0016063,Cowden disease + PTEN hamartoma tumor syndrome,MESH:D016715,2,Proteus Syndrome,MONDO:0017623,overused target,DOID:13482,Proteus syndrome
+DOID,MONDO:0016063,Cowden disease + Proteus syndrome,MESH:D016715,2,Proteus Syndrome,MONDO:0008318,overused target,DOID:13482,Proteus syndrome
+DOID,MONDO:0018638,"pseudohypoaldosteronism + pseudohypoaldosteronism, type IB1, autosomal recessive",MESH:D011546,3,Pseudohypoaldosteronism,MONDO:0009917,overused target,DOID:0060854,autosomal recessive pseudohypoaldosteronism type 1
+DOID,MONDO:0010029,situs inversus + tuberous sclerosis,SNOMEDCT:157033002,2,,MONDO:0001734,overused target,DOID:758,visceral heterotaxy 5
+DOID,MONDO:0016063,Cowden disease + PTEN hamartoma tumor syndrome,GARD:5887,1,,MONDO:0017623,single cross-disease xref,DOID:0050657,Cowden syndrome 1
+DOID,MONDO:0016063,Cowden disease + PTEN hamartoma tumor syndrome,GARD:6901,1,,MONDO:0017623,single cross-disease xref,DOID:0050657,Cowden syndrome 1
+DOID,MONDO:0016063,Cowden disease + PTEN hamartoma tumor syndrome,ICD0:9493/0,1,,MONDO:0017623,single cross-disease xref,DOID:0050657,Cowden syndrome 1
+DOID,MONDO:0016063,Cowden disease + PTEN hamartoma tumor syndrome,NCIT:C85032,1,Proteus Syndrome,MONDO:0017623,single cross-disease xref,DOID:13482,Proteus syndrome
+DOID,MONDO:0016063,Cowden disease + PTEN hamartoma tumor syndrome,OMIM:176920,1,,MONDO:0017623,single cross-disease xref,DOID:13482,Proteus syndrome
+DOID,MONDO:0016063,Cowden disease + PTEN hamartoma tumor syndrome,UMLS:C0085261,1,Proteus Syndrome,MONDO:0017623,single cross-disease xref,DOID:13482,Proteus syndrome
+DOID,MONDO:0016063,Cowden disease + Proteus syndrome,NCIT:C85032,1,Proteus Syndrome,MONDO:0008318,single cross-disease xref,DOID:13482,Proteus syndrome
+DOID,MONDO:0016063,Cowden disease + Proteus syndrome,OMIM:176920,1,,MONDO:0008318,single cross-disease xref,DOID:13482,Proteus syndrome
+DOID,MONDO:0016063,Cowden disease + Proteus syndrome,UMLS:C0085261,1,Proteus Syndrome,MONDO:0008318,single cross-disease xref,DOID:13482,Proteus syndrome
+DOID,MONDO:0008145,Ollier disease + Maffucci syndrome,NCIT:C3213,1,Maffucci Syndrome,MONDO:0013808,single cross-disease xref,DOID:4624,Ollier disease
+DOID,MONDO:0008145,Ollier disease + Maffucci syndrome,SNOMEDCT:46041001,1,,MONDO:0013808,single cross-disease xref,DOID:4624,Ollier disease
+DOID,MONDO:0008145,Ollier disease + Maffucci syndrome,UMLS:C0024454,1,Maffucci Syndrome,MONDO:0013808,single cross-disease xref,DOID:4624,Ollier disease
+DOID,MONDO:0006365,Peutz-Jeghers polyp + Peutz-Jeghers syndrome,NCIT:C4733,1,Peutz-Jeghers Polyp,MONDO:0008280,single cross-disease xref,DOID:3852,Peutz-Jeghers syndrome
+DOID,MONDO:0006365,Peutz-Jeghers polyp + Peutz-Jeghers syndrome,SNOMEDCT:277161008,1,,MONDO:0008280,single cross-disease xref,DOID:3852,Peutz-Jeghers syndrome
+DOID,MONDO:0006365,Peutz-Jeghers polyp + Peutz-Jeghers syndrome,UMLS:C0456487,1,Peutz Jeghers polyp,MONDO:0008280,single cross-disease xref,DOID:3852,Peutz-Jeghers syndrome
+DOID,MONDO:0012830,chromosome 10q23 deletion syndrome + juvenile polyposis syndrome,MESH:C537702,1,Juvenile polyposis syndrome,MONDO:0017380,single cross-disease xref,DOID:0050787,juvenile polyposis syndrome
+DOID,MONDO:0012830,chromosome 10q23 deletion syndrome + juvenile polyposis syndrome,OMIM:174900,1,,MONDO:0017380,single cross-disease xref,DOID:0050787,juvenile polyposis syndrome
+DOID,MONDO:0005012,cutaneous melanoma + familial atypical multiple mole melanoma syndrome,MESH:D004416,1,Dysplastic Nevus Syndrome,MONDO:0018453,single cross-disease xref,DOID:10041,dysplastic nevus syndrome
+DOID,DOID:0050424,familial adenomatous polyposis + classic familial adenomatous polyposis,ICD0:8220/3,1,,MONDO:0021055,single cross-disease xref,DOID:0080409,familial adenomatous polyposis 1
+DOID,MONDO:0010497,"intellectual disability, X-linked 102 + X-linked intellectual disability-hypotonia-movement disorder syndrome",OMIM:300958,1,,MONDO:0018709,single cross-disease xref,DOID:0070777,"syndromic X-linked intellectual developmental disorder, Snijders Blok type"
+DOID,MONDO:0010497,"intellectual disability, X-linked 102 + X-linked intellectual disability-hypotonia-movement disorder syndrome",UMLS:C5393299,1,"INTELLECTUAL DEVELOPMENTAL DISORDER, X-LINKED, SYNDROMIC, SNIJDERS BLOK TYPE",MONDO:0018709,single cross-disease xref,DOID:0070777,"syndromic X-linked intellectual developmental disorder, Snijders Blok type"
+DOID,MONDO:0016755,neurofibroma + neurofibromatosis,MESH:D017253,1,Neurofibromatoses,MONDO:0021061,single cross-disease xref,DOID:8712,neurofibromatosis
+DOID,MONDO:0016755,neurofibroma + neurofibromatosis,NCIT:C6727,1,Neurofibromatosis,MONDO:0021061,single cross-disease xref,DOID:8712,neurofibromatosis
+DOID,MONDO:0016755,neurofibroma + neurofibromatosis,UMLS:C0162678,1,Neurofibromatoses,MONDO:0021061,single cross-disease xref,DOID:8712,neurofibromatosis
