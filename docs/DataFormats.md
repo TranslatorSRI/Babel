@@ -318,10 +318,10 @@ Derived from the conflation JSONL files (`GeneProtein.txt`, `DrugChemical.txt`).
 | curie              | STRING | A member CURIE of the conflation group               |
 | curie_prefix       | STRING | Prefix of the member CURIE                           |
 
-### Intermediate tables (`Concord.parquet`, `Identifier.parquet`, `Metadata.parquet`)
+### Intermediate tables (`Concord.parquet`, `Identifier.parquet`, `Metadata.parquet`, `Property.parquet`)
 
-Unlike the tables above, these three are not per-semantic-type; they sweep the whole
-`babel_outputs/intermediate/` tree into three flat Parquet files written directly under
+Unlike the tables above, these four are not per-semantic-type; they sweep the whole
+`babel_outputs/intermediate/` tree into four flat Parquet files written directly under
 `babel_outputs/duckdb/` (not under `parquet/filename={Type}/`). They are produced by
 `export_intermediates_to_parquet()` (rule `export_intermediate_files_to_duckdb`) and make the raw
 build inputs — the cross-reference concords and per-source identifier lists — queryable without
@@ -373,6 +373,34 @@ table exists to describe the concord and identifier files above:
 | subject_filename  | STRING | The file the metadata describes (the `<subject>` of a sidecar, or the metadata file's own name for a bare `metadata.yaml`) |
 | subject_file_path | STRING | Absolute path of the described file (or its directory, for a bare `metadata.yaml`) |
 | metadata_json     | STRING | The metadata YAML contents                                          |
+
+`Property.parquet` — one row per property, from every non-empty file in a `properties/` directory.
+Property files are gzipped JSONL of `src.properties.Property`, so unlike the concord and ids files
+their columns are fixed rather than sniffed:
+
+| Column    | Type   | Meaning                                                                    |
+|-----------|--------|----------------------------------------------------------------------------|
+| filename  | STRING | Absolute path of the property file this row came from                      |
+| curie     | STRING | The CURIE the property is about, e.g. `CHEBI:15365`                        |
+| predicate | STRING | The property URI, e.g. `https://w3id.org/chemrof/generalized_empirical_formula` |
+| value     | STRING | The property value, e.g. `C9H8O4`. Always a single string — a CURIE with several values for one predicate has several rows |
+| source    | STRING | Free text saying where the value came from                                 |
+
+Properties are annotations, not equivalences: nothing here took part in clique building, and most
+of it does not appear in the compendia at all. This table is how you ask a structure question of a
+build without one:
+
+```sql
+-- What structure does ChEBI record for aspirin?
+SELECT predicate, value FROM read_parquet('babel_outputs/duckdb/Property.parquet')
+WHERE curie = 'CHEBI:15365';
+
+-- Which cliques were split apart despite sharing an InChIKey skeleton? (issues #452, #230)
+SELECT split_part(value, '-', 1) AS skeleton, count(DISTINCT curie) AS chemicals
+FROM read_parquet('babel_outputs/duckdb/Property.parquet')
+WHERE predicate = 'https://w3id.org/chemrof/inchi_key_string'
+GROUP BY 1 HAVING count(DISTINCT curie) > 1;
+```
 
 Labels are intentionally not exported here: `ids/` files carry only `CURIE\tbiolink:Type`, and the
 label for any identifier that landed in a clique is already available in `Node.parquet` (join
