@@ -78,3 +78,29 @@ def test_get_sub_exact_no_exact(ubergraph):
     assert k in subs
     assert len(subs[k]) == 0
     print(subs)
+
+
+def test_get_roles_returns_chebi_role_assertions(ubergraph):
+    """get_roles() should return ChEBI's directly asserted RO:0000087 roles for a branch.
+
+    Asserted against CHEBI:35366 "fatty acid" rather than the whole chemical-entity root so the
+    query stays cheap. The specific check is that the *non-redundant* graph is used: aspirin has 13
+    directly asserted roles against 45 in the redundant graph, and storing the closure would
+    multiply the row count to say nothing new.
+    """
+    with _server_errors_are_xfail():
+        pairs = ubergraph.get_roles("CHEBI:35366")
+
+    assert pairs, "expected ChEBI to assert roles for descendants of CHEBI:35366"
+    # Every pair is (term CURIE, role CURIE), both ChEBI, and no term is its own role.
+    for term, role in pairs:
+        assert term.startswith("CHEBI:"), term
+        assert role.startswith("CHEBI:"), role
+        assert term != role
+
+    # A role's own ancestors must not be present: that is what the non-redundant graph buys.
+    # CHEBI:25212 "metabolite" is asserted on many fatty acids; its ancestor CHEBI:33232
+    # "application" is not asserted on any of them.
+    roles = {role for _, role in pairs}
+    assert "CHEBI:25212" in roles
+    assert "CHEBI:33232" not in roles
