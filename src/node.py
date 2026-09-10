@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 
 import curies
 
+from src.label_overrides import apply_label_override
 from src.LabeledID import LabeledID
 from src.predicates import HAS_EXACT_SYNONYM
 from src.prefixes import PUBCHEMCOMPOUND
@@ -78,10 +79,13 @@ class SynonymFactory:
                 for line in inf:
                     x = line.strip().split("\t", maxsplit=1)
                     if len(x) == 1:
-                        lbs[x[0]].add((HAS_EXACT_SYNONYM, ""))
+                        curie = x[0]
+                        lbs[curie].add((HAS_EXACT_SYNONYM, ""))
                     elif len(x) == 2:
-                        lbs[x[0]].add((HAS_EXACT_SYNONYM, x[1]))
-                        if x[1]:
+                        curie = x[0]
+                        label = apply_label_override(curie, x[1])
+                        lbs[curie].add((HAS_EXACT_SYNONYM, label))
+                        if label:
                             count_labels += 1
         synfname = os.path.join(self.synonym_dir, prefix, "synonyms")
         if os.path.exists(synfname):
@@ -546,10 +550,11 @@ class NodeFactory:
             with open(labelfname) as inf:
                 for line in inf:
                     x = line.strip().split("\t", maxsplit=1)
+                    curie = x[0]
                     if len(x) == 1:
-                        lbs[x[0]] = ""
+                        lbs[curie] = ""
                     else:
-                        lbs[x[0]] = x[1]
+                        lbs[curie] = apply_label_override(curie, x[1])
         self.extra_labels[prefix] = lbs
 
     def apply_labels(self, input_identifiers, labels, node_types=None):
@@ -568,12 +573,12 @@ class NodeFactory:
                     for line in labelf:
                         x = line.strip().split("\t")
                         curie = x[0]
-                        new_label = x[1]
+                        new_label = apply_label_override(curie, x[1])
                         if curie in self.common_labels:
                             # We have multiple labels! For simplicity's sake, let's choose the longest one.
                             if len(new_label) <= len(self.common_labels[curie]):
                                 continue
-                        self.common_labels[x[0]] = x[1]
+                        self.common_labels[curie] = new_label
                         count_common_file_labels += 1
                 logger.info(
                     f"Loaded {count_common_file_labels:,} common labels from {common_labels_path}: {get_memory_usage_summary()}"
@@ -589,7 +594,7 @@ class NodeFactory:
             if isinstance(iid, LabeledID):
                 raise ValueError(f"LabeledID don't belong here ({iid}), pass in labels separately.")
             if iid in labels:
-                label = labels[iid]
+                label = apply_label_override(iid, labels[iid])
                 if synonym_filter.should_suppress(label, source=f"explicit labels for {iid}", node_types=node_types):
                     label = ""
                 labeled_list.append(LabeledID(identifier=iid, label=label))
