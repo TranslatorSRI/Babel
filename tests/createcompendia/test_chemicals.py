@@ -9,6 +9,7 @@ reading of the ChEBI SDF, whose tags ChEBI renames between releases.
 import gzip
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -23,11 +24,14 @@ from src.categories import (
     POLYPEPTIDE,
     SMALL_MOLECULE,
 )
+from src.createcompendia import chemicals
 from src.createcompendia.chemicals import (
     CHEBI_DBX_SOURCE_NAMES,
+    CHEBI_ROLE_ROOT,
     CHEBI_SDF_SPARSE_STRUCTURE_KEYS,
     create_typed_sets,
     make_chebi_relations,
+    make_chebi_roles,
     read_chebi_lookup_ids,
     split_chebi_sdf_values,
     write_unichem_concords,
@@ -43,6 +47,7 @@ from src.predicates import (
     CHEMROF_MONOISOTOPIC_MASS,
     CHEMROF_SMILES,
     HAS_ALTERNATIVE_ID,
+    HAS_ROLE,
 )
 from src.prefixes import CHEBI, KEGGCOMPOUND, PUBCHEMCOMPOUND
 from src.util import get_config
@@ -714,3 +719,67 @@ def test_make_chebi_relations_does_not_guard_sparse_structure_tags(tmp_path):
     # Does not raise, and simply emits no charge rows.
     _, _, structure = _run_make_chebi_relations(tmp_path, sdf=emptied)
     assert [p for p in structure if p["predicate"] == CHEMROF_CHARGE] == []
+
+
+# CHEBI ROLES
+
+
+def _run_make_chebi_roles(tmp_path, role_pairs):
+    """Run make_chebi_roles() with UberGraph.get_roles() returning `role_pairs`."""
+    outfile = tmp_path / "chebi_roles.jsonl.gz"
+    with patch.object(chemicals, "UberGraph") as mock_uber:
+        mock_uber.return_value.get_roles.return_value = role_pairs
+        make_chebi_roles(str(outfile))
+        mock_uber.return_value.get_roles.assert_called_once_with(CHEBI_ROLE_ROOT)
+
+    with gzip.open(outfile, "rt") as inf:
+        return [json.loads(line) for line in inf]
+
+
+@pytest.mark.unit
+def test_make_chebi_roles_writes_one_property_per_assertion(tmp_path):
+    """Each (chemical, role) pair becomes a HAS_ROLE property whose value is the role CURIE."""
+    props = _run_make_chebi_roles(tmp_path, [("CHEBI:15365", "CHEBI:35475"), ("CHEBI:15365", "CHEBI:35493")])
+
+    assert {p["predicate"] for p in props} == {HAS_ROLE}
+    assert {(p["curie"], p["value"]) for p in props} == {
+        ("CHEBI:15365", "CHEBI:35475"),
+        ("CHEBI:15365", "CHEBI:35493"),
+    }
+    assert all(p["source"] for p in props), "every property should say where it came from"
+
+
+@pytest.mark.unit
+def test_make_chebi_roles_deduplicates_and_sorts(tmp_path):
+    """Output is sorted and duplicate-free so that re-runs diff cleanly.
+
+    UberGraph's result order is not guaranteed, and build_sets() has already been bitten by
+    nondeterministic UberGraph ordering (#902) -- a property file that reshuffles between runs makes
+    every build-to-build comparison noisy for no reason.
+    """
+    pairs = [
+        ("CHEBI:16236", "CHEBI:75771"),
+        ("CHEBI:15365", "CHEBI:35475"),
+        ("CHEBI:16236", "CHEBI:75771"),  # exact duplicate
+        ("CHEBI:15365", "CHEBI:25212"),
+    ]
+    props = _run_make_chebi_roles(tmp_path, pairs)
+
+    assert [(p["curie"], p["value"]) for p in props] == [
+        ("CHEBI:15365", "CHEBI:25212"),
+        ("CHEBI:15365", "CHEBI:35475"),
+        ("CHEBI:16236", "CHEBI:75771"),
+    ]
+
+
+@pytest.mark.unit
+def test_make_chebi_roles_raises_when_ubergraph_returns_nothing(tmp_path):
+    """An empty result must fail the build rather than write an empty file.
+
+    SPARQL has no unknown-predicate error: a renamed predicate returns an empty result set, which is
+    indistinguishable from "ChEBI curates no roles". That is exactly how the CHEBIP:smiles lookup in
+    get_subclasses_and_smiles() went quiet for ~194,000 terms (#1086), so this is the one check
+    available here.
+    """
+    with pytest.raises(ValueError, match="no .* assertions"):
+        _run_make_chebi_roles(tmp_path, [])

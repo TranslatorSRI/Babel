@@ -90,6 +90,41 @@ fact about the vocabularies and belongs where all of them can be seen at once. A
 depends on the local id (OMIM's `PS` phenotypic series) cannot be expressed in YAML; those are
 `LOCAL_ID_DEPENDENT_RENAMES` in `diseasephenotype.py`, and `norm()` takes the callable.
 
+### An UberGraph query that matches nothing looks exactly like a source with nothing to say
+
+SPARQL has no such thing as an unknown predicate. Ask for a property that has been renamed and you
+get an empty result set, not an error — so the ingest runs to completion, the build succeeds, and
+the field is simply absent for every term.
+
+This is the same failure as a renamed SDF tag (`docs/sources/CHEBI/sdf_tags/README.md`) and a
+reshaped TSV (`docs/sources/CHEBI/README.md`), on a third input. Both of those now raise; the
+SPARQL side did not, and `UberGraph.get_subclasses_and_smiles()` has been quietly returning SMILES
+for **zero** of ~194,000 ChEBI terms since ChEBI's structural annotations moved from
+`http://purl.obolibrary.org/obo/chebi/` to `https://w3id.org/chemrof/`
+([#1086](https://github.com/NCATSTranslator/Babel/issues/1086)). Nothing failed, and the loss was
+mostly masked downstream because another source happened to supply the same signal.
+
+So, for any query whose result feeds a build:
+
+- **Count what came back and raise on zero**, when the source cannot legitimately be empty.
+  `make_chebi_roles()` is the shape to copy. A count is the only check available here — there is no
+  "was this predicate recognized?" to ask.
+- **Probe the endpoint before trusting a predicate**, whether you are adding one or inheriting one.
+  One query settles it, and it is worth running against a predicate the repo has used for years:
+
+  ```sparql
+  select (count(*) as ?c) where { graph <http://reasoner.renci.org/ontology> { ?s <PREDICATE> ?o } }
+  ```
+
+- **Name a property after the vocabulary that publishes it**, so the name itself records where the
+  values came from and a later source switch changes nothing downstream — see the `CHEMROF_*`
+  constants in `src/predicates.py`.
+
+Note the masking, because it decides how much a passing build proves: a dead query costs nothing
+visible while some other source votes the same way, and surfaces only in the cliques where that
+source is absent. Agreement between sources is what hides this, so "the output still looks right"
+is not evidence the query works.
+
 ### Overuse filtering or a prefix exclusion?
 
 `remove_overused_xrefs` drops any target claimed by 2+ subjects. A prefix exclusion drops a
