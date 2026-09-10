@@ -187,7 +187,7 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
                 line = f"biolink:{biolink_type}||{curie}||{preferred_name}||{name_pair[0]}||{name_pair[1]}\n"
                 sapbertf.write(line)
                 count_training_rows += 1
-                
+
     logger.info(
         f"Converted {synonym_filename_gz} to SAPBERT training file {synonym_filename_gz}: "
         + f"read {count_entry} entries and wrote out {count_training_rows} training rows."
