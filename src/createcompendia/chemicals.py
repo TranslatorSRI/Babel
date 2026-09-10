@@ -29,6 +29,16 @@ from src.datahandlers.unichem import UNICHEM_REFERENCE_TSV_HEADER, UNICHEM_STRUC
 from src.datahandlers.unichem import data_sources as unichem_data_sources
 from src.datahandlers.unii import UNII_ORGANISM_COLUMNS, read_unii_records
 from src.metadata.provenance import write_combined_metadata, write_concord_metadata
+from src.predicates import (
+    CHEMROF_CHARGE,
+    CHEMROF_FORMULA,
+    CHEMROF_INCHI,
+    CHEMROF_INCHI_KEY,
+    CHEMROF_MASS,
+    CHEMROF_MONOISOTOPIC_MASS,
+    CHEMROF_SMILES,
+    HAS_ROLE,
+)
 from src.prefixes import (
     CHEBI,
     CHEMBLCOMPOUND,
@@ -71,22 +81,48 @@ CHEBI_SDF_KEY_SECONDARY_ID = "secondary_id"
 CHEBI_SDF_KEY_KEGG = "keggcompounddatabaselinks"
 CHEBI_SDF_KEY_PUBCHEM = "pubchemcompounddatabaselinks"
 
-# Only the three keys above are consumed by make_chebi_relations(). chebiid is what read_sdf() keys
-# its entries by, and chebiname/inchikey/smiles are carried purely as canaries: they cost nothing to
-# watch, and a rename that trips one of them says "ChEBI has reworked this file, re-audit all of it"
-# well before the rename lands on a tag we do consume. check_chebi_sdf_keys() fails the build on any
-# key in this set, canaries included -- that is deliberate. To stop watching one, delete it from here
-# rather than softening the check.
+# The SDF's structure and physical-property tags, mapped to the predicate each is written under.
+# These are emitted as Property rows into the structure property file; they take no part in concord
+# building or clique building.
+#
+# Named after ChemROF rather than ChEBI's own obo/chebi/ annotation properties because that is what
+# UberGraph now publishes these values under -- see src/predicates.py and issue #1086 -- so a
+# producer can later be switched from this SDF to UberGraph without changing the property file.
+CHEBI_SDF_STRUCTURE_PROPERTIES = {
+    "smiles": CHEMROF_SMILES,
+    "inchi": CHEMROF_INCHI,
+    "inchikey": CHEMROF_INCHI_KEY,
+    "formula": CHEMROF_FORMULA,
+    "mass": CHEMROF_MASS,
+    "monoisotopic_mass": CHEMROF_MONOISOTOPIC_MASS,
+    "charge": CHEMROF_CHARGE,
+}
+
+# Structure tags that are NOT covered by the per-key "produced no rows" guard below.
+#
+# That guard exists to catch a value-format change emptying an input silently, and it is only sound
+# for a tag ChEBI publishes for nearly every entry. The other six are on 94-100% of entries in the
+# 2026-06-29 SDF (181,048 to 192,445 of them), so zero rows really does mean something broke.
+# CHARGE is on 15,613 -- 8% -- because most ChEBI entries are uncharged and simply omit it. Guarding
+# it would be a check that can fire on legitimate data, so it is deliberately left out; a *rename*
+# of the CHARGE tag is still caught by check_chebi_sdf_keys(), which is the failure that actually
+# recurs here.
+CHEBI_SDF_SPARSE_STRUCTURE_KEYS = frozenset({"charge"})
+
+# chebiid is what read_sdf() keys its entries by, and chebiname is carried purely as a canary: it
+# costs nothing to watch, and a rename that trips it says "ChEBI has reworked this file, re-audit all
+# of it" well before the rename lands on a tag we do consume. check_chebi_sdf_keys() fails the build
+# on any key in this set, canaries included -- that is deliberate. To stop watching one, delete it
+# from here rather than softening the check.
 CHEBI_SDF_KEYS = frozenset(
     {
         "chebiid",
         "chebiname",
-        "inchikey",
-        "smiles",
         CHEBI_SDF_KEY_SECONDARY_ID,
         CHEBI_SDF_KEY_KEGG,
         CHEBI_SDF_KEY_PUBCHEM,
     }
+    | CHEBI_SDF_STRUCTURE_PROPERTIES.keys()
 )
 
 # How to read database_accession.tsv. `source_id` names the database ChEBI recorded a value from; for
@@ -858,10 +894,86 @@ def check_chebi_sdf_keys(chebi_sdf_dat, sdf):
         )
 
 
-def make_chebi_relations(sdf, dbx, dbx_source, dbx_status, outfile, propfile_gz, metadata_yaml):
+# The root whose descendants we collect ChEBI role assertions for. The same root write_chebi_ids()
+# walks, so the property file covers exactly the ChEBI terms the chemical pipeline knows about.
+#
+# Note that this deliberately does *not* cover the role terms themselves: CHEBI:50906 "role" is a
+# separate ChEBI root, not a descendant of CHEBI:24431, so roles are the values here and never the
+# subjects. Normalizing role terms as entities in their own right (biolink:ChemicalRole) is #101.
+CHEBI_ROLE_ROOT = f"{CHEBI}:24431"
+
+
+def make_chebi_roles(outfile_gz):
+    """
+    Write ChEBI's has_role (RO:0000087) assertions to a property file.
+
+    These are annotations on a chemical, not equivalence assertions, so they are written as
+    Property rows and take no part in concord or clique building. The values are role CURIEs that
+    Babel does not currently normalize as entities -- see issue #101.
+
+    No metadata YAML is written, matching the other property file this module produces.
+    write_concord_metadata() reads its subject as a three-column TSV to count prefix pairs, which a
+    gzipped JSONL property file is not; a property file's provenance is the `source` field carried
+    on every row.
+
+    :param outfile_gz: The gzipped JSONL property file to write.
+    :raise ValueError: If UberGraph returns no role assertions at all.
+    """
+    uber = UberGraph()
+    role_pairs = uber.get_roles(CHEBI_ROLE_ROOT)
+
+    # Guard the input, the way check_chebi_sdf_keys() and make_chebi_relations()'s per-input counts
+    # guard theirs. A SPARQL query against a predicate that has been renamed returns an empty result
+    # set rather than an error -- which is exactly how the CHEBIP:smiles lookup in
+    # get_subclasses_and_smiles() went quiet for every one of ~194,000 terms (issue #1086). An empty
+    # result here means the query is broken, not that ChEBI has stopped curating roles.
+    if not role_pairs:
+        raise ValueError(
+            f"UberGraph returned no {HAS_ROLE} assertions for descendants of {CHEBI_ROLE_ROOT}. "
+            f"ChEBI curates tens of thousands of these, so this is a broken query rather than an "
+            f"empty source -- check whether the predicate or the graph names have changed."
+        )
+
+    ensure_parent_dir(outfile_gz)
+    # Sorted so re-runs diff cleanly.
+    with gzip.open(outfile_gz, "wt") as outf:
+        for term, role in sorted(set(role_pairs)):
+            outf.write(
+                Property(
+                    curie=term,
+                    predicate=HAS_ROLE,
+                    value=role,
+                    source=f"Asserted as a ChEBI role ({HAS_ROLE}) of {term}, read from UberGraph",
+                ).to_json_line()
+            )
+
+    logger.info(f"make_chebi_roles() wrote {len(set(role_pairs))} role assertions to {outfile_gz}.")
+
+
+def make_chebi_relations(sdf, dbx, dbx_source, dbx_status, outfile, propfile_gz, structfile_gz, metadata_yaml):
     """CHEBI contains relations both about chemicals with and without inchikeys.  You might think that because
     everything is based on unichem, we could avoid the with structures part, but history has shown that we lose
-    links in that case, so we will use both the structured and unstructured chemical entries."""
+    links in that case, so we will use both the structured and unstructured chemical entries.
+
+    Writes three files: the xref concord, a property file of ChEBI secondary identifiers, and a
+    property file of the SDF's structure and physical-property values (SMILES, InChI, InChIKey,
+    formula, mass, monoisotopic mass, charge).
+
+    The structure properties go in their own file rather than into propfile_gz on purpose. That file
+    is an input to the chemical_compendia rule, which loads every property in it into an in-memory
+    PropertyList inside write_compendium(); nothing consumes structure properties yet, so folding
+    ~1.2M more of them into a rule already sized at 512G would buy nothing. When something does
+    consume them, adding this file to that rule's inputs is a one-line change.
+
+    :param sdf: ChEBI_complete.sdf.
+    :param dbx: database_accession.tsv.
+    :param dbx_source: source.tsv, for resolving dbx source_id to a database name.
+    :param dbx_status: status.tsv, for resolving dbx status_id to a curation state.
+    :param outfile: The xref concord to write.
+    :param propfile_gz: The gzipped JSONL property file for ChEBI secondary identifiers.
+    :param structfile_gz: The gzipped JSONL property file for the SDF's structure properties.
+    :param metadata_yaml: The concord metadata YAML to write.
+    """
     # THE SDF and XREF stuff are handled in the same function because knowing what we found in the SDF impacts
     # what we want to get out of the xrefs. But the function is quite unwieldy
     # READ SDF
@@ -883,6 +995,7 @@ def make_chebi_relations(sdf, dbx, dbx_source, dbx_status, outfile, propfile_gz,
 
     # What if we don't have a propfile directory?
     ensure_parent_dir(propfile_gz)
+    ensure_parent_dir(structfile_gz)
 
     # Output rows counted per source key rather than in aggregate. A total-count check does not
     # protect an individual input: the SDF's ~181,000 PubChem xrefs could vanish entirely and KEGG's
@@ -894,9 +1007,32 @@ def make_chebi_relations(sdf, dbx, dbx_source, dbx_status, outfile, propfile_gz,
     # the SDF's ~197,000 xrefs kept any whole-output guard quiet.
     dbx_key = "database_accession.tsv"
 
-    with open(outfile, "w") as outf, gzip.open(propfile_gz, "wt") as propf:
+    with open(outfile, "w") as outf, gzip.open(propfile_gz, "wt") as propf, gzip.open(structfile_gz, "wt") as structf:
         # Write SDF structured things
         for cid, props in chebi_sdf_dat.items():
+            for sdf_key, predicate in CHEBI_SDF_STRUCTURE_PROPERTIES.items():
+                if sdf_key not in props:
+                    continue
+                # Deliberately NOT split_chebi_sdf_values(). That splits on ";", which is a
+                # separator for a multi-valued *xref* tag but a legitimate character inside an
+                # InChI: a multi-component InChI uses it to separate per-component layers, as in
+                # `InChI=1S/2ClH.Ca/h2*1H;/q;;+2/p-2` for calcium chloride. Splitting here would
+                # shred 3,997 of the 181,048 InChI values in the 2026-06-29 SDF into fragments that
+                # are not InChIs at all. Every tag in this map is single-valued and, in that file,
+                # single-line; the lines are joined rather than indexed so a future wrapped value
+                # is concatenated instead of silently truncated to its first line.
+                value = "".join(line.strip() for line in props[sdf_key])
+                if not value:
+                    continue
+                structf.write(
+                    Property(
+                        curie=cid,
+                        predicate=predicate,
+                        value=value,
+                        source=f"Read from the {sdf_key} data item of the ChEBI SDF file ({sdf})",
+                    ).to_json_line()
+                )
+                counts[sdf_key] += 1
             if secondary_chebi_id in props:
                 # SECONDARY_ID holds already-prefixed CURIEs, semicolon-delimited on one line, e.g.
                 # CHEBI:421707 "abacavir" carries
@@ -950,9 +1086,11 @@ def make_chebi_relations(sdf, dbx, dbx_source, dbx_status, outfile, propfile_gz,
 
     # Backstop to check_chebi_sdf_keys(): that catches a renamed SDF tag, this catches the failures
     # a tag name cannot show -- a changed value format, a truncated download, a parse bug. ChEBI
-    # publishes all four of these in every release, so any one coming out empty means a silently
+    # publishes every one of these in every release, so any one coming out empty means a silently
     # broken build. Counted per input rather than in aggregate: both bugs this function has shipped
-    # were one input going quiet while the others kept a whole-output guard satisfied.
+    # were one input going quiet while the others kept a whole-output guard satisfied. The structure
+    # tags are checked on the same terms, except the sparse ones -- see
+    # CHEBI_SDF_SPARSE_STRUCTURE_KEYS for why CHARGE is exempt.
     #
     # The dbx count is of rows actually *written*, so it is zero either when that file is broken or,
     # in principle, when every one of its rows was skipped as already-structured. The second case is
@@ -962,13 +1100,21 @@ def make_chebi_relations(sdf, dbx, dbx_source, dbx_status, outfile, propfile_gz,
     # Both files have already been written and closed by this point, so the empty file exists on
     # disk when we raise; Snakemake deletes a failed job's outputs, but a direct call leaves it
     # behind. Hence "wrote an empty ..." rather than "refusing to write".
-    empty_keys = sorted(key for key in (secondary_chebi_id, kk, pk, dbx_key) if counts[key] == 0)
+    checked_keys = (
+        secondary_chebi_id,
+        kk,
+        pk,
+        dbx_key,
+        *(CHEBI_SDF_STRUCTURE_PROPERTIES.keys() - CHEBI_SDF_SPARSE_STRUCTURE_KEYS),
+    )
+    empty_keys = sorted(key for key in checked_keys if counts[key] == 0)
     if empty_keys:
         raise ValueError(
             f"ChEBI ingest from {sdf} and {dbx} produced no rows at all for: {empty_keys}. The SDF "
             f"tags themselves are present, so this is not a rename -- look for a changed value "
             f"format, a changed column layout, or a truncated download. Wrote empty output to "
-            f"{outfile} and {propfile_gz}; delete both and re-run once the cause is fixed."
+            f"{outfile}, {propfile_gz} and {structfile_gz}; delete them and re-run once the cause "
+            f"is fixed."
         )
     logger.info(f"make_chebi_relations() wrote {dict(counts)}.")
 

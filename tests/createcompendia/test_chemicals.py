@@ -25,6 +25,7 @@ from src.categories import (
 )
 from src.createcompendia.chemicals import (
     CHEBI_DBX_SOURCE_NAMES,
+    CHEBI_SDF_SPARSE_STRUCTURE_KEYS,
     create_typed_sets,
     make_chebi_relations,
     read_chebi_lookup_ids,
@@ -33,7 +34,16 @@ from src.createcompendia.chemicals import (
 )
 from src.datahandlers.unichem import UNICHEM_REFERENCE_TSV_HEADER, UNICHEM_STRUCT_TSV_HEADER
 from src.datahandlers.unichem import data_sources as unichem_data_sources
-from src.predicates import HAS_ALTERNATIVE_ID
+from src.predicates import (
+    CHEMROF_CHARGE,
+    CHEMROF_FORMULA,
+    CHEMROF_INCHI,
+    CHEMROF_INCHI_KEY,
+    CHEMROF_MASS,
+    CHEMROF_MONOISOTOPIC_MASS,
+    CHEMROF_SMILES,
+    HAS_ALTERNATIVE_ID,
+)
 from src.prefixes import CHEBI, KEGGCOMPOUND, PUBCHEMCOMPOUND
 from src.util import get_config
 
@@ -268,8 +278,23 @@ def test_create_typed_sets_leaves_a_clique_without_food_evidence_untouched():
 # babel_downloads/CHEBI/ChEBI_complete.sdf as downloaded for babel-1.18. It is the single record
 # that motivated this fix, and it happens to carry every tag make_chebi_relations() reads, so one
 # entry exercises all of CHEBI_SDF_KEYS. Re-derive it by extracting the chunk whose "> <ChEBI ID>"
-# tag holds CHEBI:421707.
+# tag holds CHEBI:421707. It carries every tag make_chebi_relations() reads except CHARGE, which
+# ChEBI omits for the 92% of entries that are uncharged -- see CHEBI_SDF_SPARSE_STRUCTURE_KEYS.
 ABACAVIR_SDF = Path(__file__).parent.parent / "data" / "chebi_abacavir.sdf"
+
+# tests/data/chebi_dioxouranium.sdf is the CHEBI:29124 "dioxouranium(1+)" entry, copied verbatim out
+# of the same file (2026-06-29 download). It is here for two things abacavir cannot show:
+#
+#   - it carries CHARGE, the one tag abacavir lacks, so the two together cover all of
+#     CHEBI_SDF_KEYS and check_chebi_sdf_keys() passes over the pair;
+#   - its InChI is "InChI=1S/2O.U/q;;+1". Those semicolons are part of the InChI -- a multi-component
+#     InChI uses ";" to separate per-component layers -- not the value separator they are in a
+#     multi-valued xref tag. 3,997 of the 181,048 InChIs in that SDF contain one, so a change that
+#     started routing structure values through split_chebi_sdf_values() would shred them all.
+#
+# It deliberately carries no KEGG COMPOUND, PubChem Compound or SECONDARY_ID tag, so adding it to
+# the default fixture leaves every concord and secondary-ID assertion below unchanged.
+DIOXOURANIUM_SDF = Path(__file__).parent.parent / "data" / "chebi_dioxouranium.sdf"
 
 # The header of database_accession.tsv, copied verbatim from
 # https://ftp.ebi.ac.uk/pub/databases/chebi/flat_files/database_accession.tsv.gz (fetched 2026-07-21).
@@ -307,14 +332,35 @@ STATUS_TSV = "id\tname\n1\tCHECKED\n3\tOK\n9\tSUBMITTED\n"
 DBX_SUBMITTED_KEGG_ROW = "1071122\t1690\tC05478\tMANUAL_X_REF\t9\t45\n"
 
 
+def _combined_sdf(tmp_path, *sdfs):
+    """Concatenate fixture SDFs into one file, the way real ChEBI entries sit in ChEBI_complete.sdf."""
+    combined = tmp_path / "combined.sdf"
+    combined.write_text(_default_sdf_text() if not sdfs else "".join(Path(s).read_text() for s in sdfs))
+    return combined
+
+
+def _default_sdf_text():
+    """The default fixture SDF's text: abacavir plus dioxouranium(1+).
+
+    Tests that mutate the SDF must start from both entries, not from abacavir alone -- otherwise
+    check_chebi_sdf_keys() fires on the missing CHARGE tag and masks whatever the test is asserting.
+    """
+    return ABACAVIR_SDF.read_text() + DIOXOURANIUM_SDF.read_text()
+
+
 def _run_make_chebi_relations(
     tmp_path,
-    sdf=ABACAVIR_SDF,
+    sdf=None,
     dbx_contents=DBX_HEADER + DBX_KEGG_ROW,
     source_contents=SOURCE_TSV,
     status_contents=STATUS_TSV,
 ):
-    """Run make_chebi_relations() over a fixture SDF, returning (concord lines, Property dicts)."""
+    """Run make_chebi_relations() over a fixture SDF.
+
+    Returns (concord lines, secondary-ID Property dicts, structure Property dicts).
+    """
+    if sdf is None:
+        sdf = _combined_sdf(tmp_path, ABACAVIR_SDF, DIOXOURANIUM_SDF)
     dbx = tmp_path / "database_accession.tsv"
     dbx.write_text(dbx_contents)
     dbx_source = tmp_path / "source.tsv"
@@ -323,6 +369,7 @@ def _run_make_chebi_relations(
     dbx_status.write_text(status_contents)
     concord = tmp_path / "CHEBI"
     propfile = tmp_path / "props.jsonl.gz"
+    structfile = tmp_path / "structure.jsonl.gz"
 
     make_chebi_relations(
         str(sdf),
@@ -331,12 +378,15 @@ def _run_make_chebi_relations(
         str(dbx_status),
         str(concord),
         propfile_gz=str(propfile),
+        structfile_gz=str(structfile),
         metadata_yaml=str(tmp_path / "metadata.yaml"),
     )
 
-    with gzip.open(propfile, "rt") as inf:
-        props = [json.loads(line) for line in inf]
-    return concord.read_text().splitlines(), props
+    def _read(path):
+        with gzip.open(path, "rt") as inf:
+            return [json.loads(line) for line in inf]
+
+    return concord.read_text().splitlines(), _read(propfile), _read(structfile)
 
 
 @pytest.mark.unit
@@ -347,7 +397,7 @@ def test_make_chebi_relations_emits_secondary_chebi_ids(tmp_path):
     value emits one nonsense CURIE instead of five real ones. CHEBI:520984 is the secondary ID that
     stopped normalizing in babel-1.18 when this ingest broke.
     """
-    _, props = _run_make_chebi_relations(tmp_path)
+    _, props, _ = _run_make_chebi_relations(tmp_path)
 
     secondary_ids = {p["value"] for p in props if p["predicate"] == HAS_ALTERNATIVE_ID}
     assert secondary_ids == {"CHEBI:193608", "CHEBI:441792", "CHEBI:2360", "CHEBI:525912", "CHEBI:520984"}
@@ -361,7 +411,7 @@ def test_make_chebi_relations_emits_kegg_and_pubchem_xrefs(tmp_path):
     PubChem is the regression-prone one: ChEBI split a single "PubChem Database Links" tag into
     separate Compound and Substance tags, and only the Compound side belongs in the concord.
     """
-    concord_lines, _ = _run_make_chebi_relations(tmp_path)
+    concord_lines, _, _ = _run_make_chebi_relations(tmp_path)
 
     assert f"CHEBI:421707\txref\t{KEGGCOMPOUND}:C07624" in concord_lines
     assert f"CHEBI:421707\txref\t{PUBCHEMCOMPOUND}:441300" in concord_lines
@@ -377,7 +427,7 @@ def test_make_chebi_relations_splits_multivalue_tags(tmp_path):
     Before the fix, a multi-value KEGG line produced "KEGG.COMPOUND:C00001;C00002", which matches
     nothing downstream and was invisible because it still looked like a populated concord.
     """
-    concord_lines, props = _run_make_chebi_relations(tmp_path)
+    concord_lines, props, _ = _run_make_chebi_relations(tmp_path)
 
     assert not any(";" in line for line in concord_lines)
     assert not any(";" in p["value"] for p in props)
@@ -407,7 +457,7 @@ def test_make_chebi_relations_raises_when_chebi_renames_a_tag(tmp_path, renamed_
     rename we tolerate is a rename nobody re-audits.
     """
     renamed = tmp_path / "renamed.sdf"
-    renamed.write_text(ABACAVIR_SDF.read_text().replace(renamed_tag, "> <Renamed By ChEBI>"))
+    renamed.write_text(_default_sdf_text().replace(renamed_tag, "> <Renamed By ChEBI>"))
 
     with pytest.raises(ValueError, match=expected_key):
         _run_make_chebi_relations(tmp_path, sdf=renamed)
@@ -436,7 +486,7 @@ def test_make_chebi_relations_raises_when_one_tag_yields_nothing(tmp_path, empti
     # Keep the tag line, blank the value, so check_chebi_sdf_keys() passes and this check is what
     # fires. The replaced text starts with the tag line for the two xref cases, so re-emit it.
     replacement = emptied_value.split("\n")[0] + "\n " if emptied_value.startswith("> <") else " "
-    emptied.write_text(ABACAVIR_SDF.read_text().replace(emptied_value, replacement))
+    emptied.write_text(_default_sdf_text().replace(emptied_value, replacement))
 
     with pytest.raises(ValueError, match=expected_key):
         _run_make_chebi_relations(tmp_path, sdf=emptied)
@@ -468,7 +518,7 @@ def test_make_chebi_relations_emits_database_accession_xrefs(tmp_path):
     column 3 against "KEGG COMPOUND accession", but that column is `type`, and it read the accession
     from `status_id`. It fired on 0 of 422,561 rows.
     """
-    concord_lines, _ = _run_make_chebi_relations(tmp_path, dbx_contents=DBX_HEADER + DBX_KEGG_ROW + DBX_PUBCHEM_ROW)
+    concord_lines, _, _ = _run_make_chebi_relations(tmp_path, dbx_contents=DBX_HEADER + DBX_KEGG_ROW + DBX_PUBCHEM_ROW)
 
     assert f"CHEBI:3\txref\t{KEGGCOMPOUND}:C06147" in concord_lines
     assert f"CHEBI:132338\txref\t{PUBCHEMCOMPOUND}:101936044" in concord_lines
@@ -484,7 +534,7 @@ def test_make_chebi_relations_ignores_non_accession_rows_of_a_wanted_source(tmp_
     source is the namespace. 10,476 rows in the real file are CAS numbers attributed to source_id 45,
     so reading source_id at face value would emit "KEGG.COMPOUND:498-15-7".
     """
-    concord_lines, _ = _run_make_chebi_relations(
+    concord_lines, _, _ = _run_make_chebi_relations(
         tmp_path, dbx_contents=DBX_HEADER + DBX_KEGG_ROW + DBX_CAS_ROW_UNDER_KEGG_SOURCE
     )
 
@@ -513,7 +563,7 @@ def test_make_chebi_relations_skips_dbx_rows_for_structured_chebis(tmp_path):
 
     # DBX_KEGG_ROW rides along so the dbx still contributes something; a dbx whose every row is
     # skipped trips the empty-input guard, which is the subject of the test below rather than this one.
-    concord_lines, _ = _run_make_chebi_relations(tmp_path, dbx_contents=DBX_HEADER + duplicate + DBX_KEGG_ROW)
+    concord_lines, _, _ = _run_make_chebi_relations(tmp_path, dbx_contents=DBX_HEADER + duplicate + DBX_KEGG_ROW)
 
     assert concord_lines.count(f"CHEBI:421707\txref\t{KEGGCOMPOUND}:C07624") == 1
 
@@ -527,7 +577,7 @@ def test_make_chebi_relations_ignores_submitted_dbx_rows(tmp_path):
     checked. 793 KEGG and 30 of the 55 PubChem rows are SUBMITTED, so excluding them costs little.
     Revisit if issue #957 establishes that SUBMITTED is verified some other way.
     """
-    concord_lines, _ = _run_make_chebi_relations(
+    concord_lines, _, _ = _run_make_chebi_relations(
         tmp_path, dbx_contents=DBX_HEADER + DBX_KEGG_ROW + DBX_SUBMITTED_KEGG_ROW
     )
 
@@ -574,3 +624,93 @@ def test_make_chebi_relations_raises_when_the_dbx_contributes_nothing(tmp_path):
     """
     with pytest.raises(ValueError, match="database_accession.tsv"):
         _run_make_chebi_relations(tmp_path, dbx_contents=DBX_HEADER)
+
+
+# CHEBI STRUCTURE PROPERTIES
+
+
+@pytest.mark.unit
+def test_make_chebi_relations_emits_structure_properties(tmp_path):
+    """Every structure tag in the SDF should reach the structure property file, under its ChemROF
+    predicate, keyed by the ChEBI the entry describes."""
+    _, _, structure = _run_make_chebi_relations(tmp_path)
+
+    abacavir = {p["predicate"]: p["value"] for p in structure if p["curie"] == "CHEBI:421707"}
+    assert abacavir == {
+        CHEMROF_SMILES: "Nc1nc(NC2CC2)c2ncn([C@H]3C=C[C@@H](CO)C3)c2n1",
+        CHEMROF_INCHI: "InChI=1S/C14H18N6O/c15-14-18-12(17-9-2-3-9)11-13(19-14)20(7-16-11)10-4-1-8(5-10)6-21/h1,4,7-10,21H,2-3,5-6H2,(H3,15,17,18,19)/t8-,10+/m1/s1",
+        CHEMROF_INCHI_KEY: "MCGSCOLBFJQGHM-SCZZXKLOSA-N",
+        CHEMROF_FORMULA: "C14H18N6O",
+        CHEMROF_MASS: "286.339",
+        CHEMROF_MONOISOTOPIC_MASS: "286.15421",
+    }
+
+
+@pytest.mark.unit
+def test_make_chebi_relations_does_not_split_inchis_on_semicolons(tmp_path):
+    """An InChI's semicolons are part of the value, not a value separator.
+
+    A multi-component InChI uses ";" to separate per-component layers, so routing structure values
+    through split_chebi_sdf_values() -- which is correct for a multi-valued xref tag -- would shred
+    3,997 of the 181,048 InChIs in the 2026-06-29 SDF into fragments that are not InChIs at all.
+    This is the same shape as the NCBIGene double-prime bug, where a plausible-looking cleanup
+    discarded ~4,000 real values.
+    """
+    _, _, structure = _run_make_chebi_relations(tmp_path)
+
+    inchis = [p["value"] for p in structure if p["curie"] == "CHEBI:29124" and p["predicate"] == CHEMROF_INCHI]
+    assert inchis == ["InChI=1S/2O.U/q;;+1"]
+
+
+@pytest.mark.unit
+def test_make_chebi_relations_emits_charge_only_where_present(tmp_path):
+    """CHARGE is on 8% of real entries, so it must be emitted where present and simply absent
+    elsewhere -- never defaulted to 0, which would assert a fact ChEBI did not state."""
+    _, _, structure = _run_make_chebi_relations(tmp_path)
+
+    charges = {p["curie"]: p["value"] for p in structure if p["predicate"] == CHEMROF_CHARGE}
+    assert charges == {"CHEBI:29124": "1"}
+
+
+@pytest.mark.unit
+def test_make_chebi_relations_keeps_structure_out_of_the_secondary_id_property_file(tmp_path):
+    """The two property files are separate on purpose: only the secondary-ID one is loaded into
+    write_compendium()'s in-memory PropertyList, so structure must not leak into it."""
+    _, props, structure = _run_make_chebi_relations(tmp_path)
+
+    assert {p["predicate"] for p in props} == {HAS_ALTERNATIVE_ID}
+    assert HAS_ALTERNATIVE_ID not in {p["predicate"] for p in structure}
+    assert structure, "expected the structure property file to be non-empty"
+
+
+@pytest.mark.unit
+def test_make_chebi_relations_raises_when_a_dense_structure_tag_yields_nothing(tmp_path):
+    """A structure tag that is present but yields no values should fail the build, naming the tag.
+
+    check_chebi_sdf_keys() cannot see this -- the tag is still there, only its values stopped
+    parsing. That is precisely how the CHEBIP:smiles lookup went quiet elsewhere (issue #1086).
+    """
+    emptied = tmp_path / "emptied.sdf"
+    emptied.write_text(
+        _default_sdf_text()
+        .replace("> <FORMULA>\nC14H18N6O", "> <FORMULA>\n ")
+        .replace("> <FORMULA>\nO2U", "> <FORMULA>\n ")
+    )
+
+    with pytest.raises(ValueError, match="formula"):
+        _run_make_chebi_relations(tmp_path, sdf=emptied)
+
+
+@pytest.mark.unit
+def test_make_chebi_relations_does_not_guard_sparse_structure_tags(tmp_path):
+    """CHARGE is absent from 92% of real entries, so an empty CHARGE must not fail the build --
+    a guard that can fire on legitimate data is worse than no guard. A CHARGE *rename* is still
+    caught by check_chebi_sdf_keys()."""
+    assert "charge" in CHEBI_SDF_SPARSE_STRUCTURE_KEYS
+
+    emptied = tmp_path / "emptied.sdf"
+    emptied.write_text(_default_sdf_text().replace("> <CHARGE>\n1", "> <CHARGE>\n "))
+
+    # Does not raise, and simply emits no charge rows.
+    _, _, structure = _run_make_chebi_relations(tmp_path, sdf=emptied)
+    assert [p for p in structure if p["predicate"] == CHEMROF_CHARGE] == []

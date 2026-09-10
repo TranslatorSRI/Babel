@@ -331,6 +331,7 @@ rule get_chebi_concord:
     output:
         outfile=config["intermediate_directory"] + "/chemicals/concords/CHEBI",
         propfile=config["intermediate_directory"] + "/chemicals/properties/get_chebi_concord.jsonl.gz",
+        structfile=config["intermediate_directory"] + "/chemicals/properties/chebi_structure.jsonl.gz",
         metadata_yaml=config["intermediate_directory"] + "/chemicals/concords/metadata-CHEBI.yaml",
     benchmark:
         config["output_directory"] + "/benchmarks/get_chebi_concord.tsv"
@@ -342,8 +343,21 @@ rule get_chebi_concord:
             input.dbx_status,
             output.outfile,
             propfile_gz=output.propfile,
+            structfile_gz=output.structfile,
             metadata_yaml=output.metadata_yaml,
         )
+
+
+# ChEBI role assertions. Deliberately not an input to chemical_compendia: these are annotations,
+# not equivalences, and nothing consumes them yet -- see make_chebi_roles()'s docstring.
+rule get_chebi_roles:
+    output:
+        outfile=config["intermediate_directory"] + "/chemicals/properties/chebi_roles.jsonl.gz",
+    benchmark:
+        config["output_directory"] + "/benchmarks/get_chebi_roles.tsv"
+    retries: 3
+    run:
+        chemicals.make_chebi_roles(output.outfile)
 
 
 rule chemical_unichem_concordia:
@@ -543,6 +557,13 @@ rule check_food:
 rule chemical:
     input:
         config["output_directory"] + "/reports/chemical_completeness.txt",
+        # Property files. Nothing downstream consumes these yet, so they are listed here rather than
+        # as an input to chemical_compendia -- that keeps them out of write_compendium()'s in-memory
+        # PropertyList while still making the build produce them.
+        properties=[
+            config["intermediate_directory"] + "/chemicals/properties/chebi_structure.jsonl.gz",
+            config["intermediate_directory"] + "/chemicals/properties/chebi_roles.jsonl.gz",
+        ],
         synonyms=expand("{od}/synonyms/{ap}", od=config["output_directory"], ap=config["chemical_outputs"]),
         reports=expand("{od}/reports/{ap}", od=config["output_directory"], ap=config["chemical_outputs"]),
         metadata=expand("{od}/metadata/{ap}.yaml", od=config["output_directory"], ap=config["chemical_outputs"]),
