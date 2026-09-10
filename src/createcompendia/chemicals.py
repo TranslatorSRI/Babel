@@ -1218,38 +1218,20 @@ def build_untyped_compendia(
     dicts = read_partial_unichem(unichem_partial)
     types = {}
     for ifile in identifiers:
-        print(ifile)
+        logger.info(f"Glomming identifiers from {ifile}")
         new_identifiers, new_types = read_identifier_file(ifile)
         glom(dicts, new_identifiers, unique_prefixes=[INCHIKEY])
         types.update(new_types)
     for infile in concordances:
-        print(infile)
-        print("loading", infile)
+        logger.info(f"Glomming concord {infile}")
         pairs = []
         with open(infile) as inf:
             for line in inf:
                 x = line.strip().split("\t")
                 pairs.append([x[0], x[2]])
-        p = False
-        if DRUGCENTRAL in [n.split(":")[0] for n in pairs[0]]:
-            p = True
-            i = "DrugCentral:4970"
-        if p:
-            print("before filtering:")
-            for pair in pairs:
-                if i in pair:
-                    print(pair)
         newpairs = remove_overused_xrefs(pairs)
         setpairs = [set(x) for x in newpairs]
-        if p:
-            print("after filtering:")
-            for pair in newpairs:
-                if i in pair:
-                    print(pair)
         glom(dicts, setpairs, unique_prefixes=[INCHIKEY])
-        if p:
-            print("after glomming:")
-            print(dicts[i])
     with open(type_file, "w") as outf:
         for x, y in types.items():
             outf.write(f"{x}\t{y}\n")
