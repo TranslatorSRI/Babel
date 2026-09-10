@@ -20,14 +20,6 @@ from src.util import LoggingUtil, ensure_parent_dir
 logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 
 # Configuration options
-# Should we generate a DrugChemicalSmaller.txt.gz file at all?
-# Note that the smaller file is filtered out of the rows written to the full file, so a pair first
-# seen on a long-labelled clique is deduplicated away before any short-labelled clique can
-# contribute it to the smaller file. Turning this back on means giving the smaller file its own
-# set of seen pairs (https://github.com/NCATSTranslator/Babel/issues/1057).
-GENERATE_DRUG_CHEMICAL_SMALLER_FILE = False
-# Limit DrugChemicalSmaller.txt.gz to terms that have a preferred name of 50 characters or more.
-DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH = 40
 # Include up to 50 synonym pairs for each synonym.
 MAX_SYNONYM_PAIRS = 50
 # When sampling those pairs out of a large clique (see sample_name_pairs()), how many random draws
@@ -38,6 +30,12 @@ MAX_SYNONYM_PAIRS = 50
 SYNONYM_PAIR_DRAWS_PER_PAIR = 8
 # Should we lowercase all the names?
 LOWERCASE_ALL_NAMES = True
+# There was once a GENERATE_DRUG_CHEMICAL_SMALLER_FILE option here, which wrote a second, smaller
+# DrugChemicalConflatedSmaller.txt alongside the full training file by keeping only the shortest
+# labels; it was disabled before it was ever used, because both files drew from the one seen_pairs
+# set (see convert_synonyms_to_sapbert()) and so the smaller file lost every pair the full file had
+# already claimed. Removed in https://github.com/NCATSTranslator/Babel/pull/1084 (issue #1057);
+# reviving it means giving each output file its own seen_pairs.
 
 
 def pair_key(biolink_type, name_pair):
@@ -123,28 +121,16 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
 
     logger.info(f"convert_synonyms_to_sapbert({synonym_filename_gz}, {sapbert_filename_gzipped})")
 
-    # For now, the simplest way to identify the DrugChemicalConflated file is by name.
-    # In this case we still generate DrugChemicalConflated.txt, but we also generate
-    # DrugChemicalConflatedSmaller.txt, which ignores cliques whose preferred label is
-    # longer than config['demote_labels_longer_than'].
-    generate_smaller_filename = None
-    if GENERATE_DRUG_CHEMICAL_SMALLER_FILE and synonym_filename_gz.endswith("/DrugChemicalConflated.txt.gz"):
-        generate_smaller_filename = sapbert_filename_gzipped.replace(".txt.gz", "Smaller.txt.gz")
-
     # Make the output directories if they don't exist.
     ensure_parent_dir(sapbert_filename_gzipped)
-
-    # Open SmallerFile for writing if needed.
-    generate_smaller_file = None
-    if generate_smaller_filename:
-        generate_smaller_file = gzip.open(generate_smaller_filename, "wt", encoding="utf-8")
 
     # Go through all the synonyms in the input file.
     count_entry = 0
     count_training_rows = 0
-    count_smaller_rows = 0
     # Digests (see pair_key()) of the synonym pairs already written out, so that we only write each
-    # (Biolink type, name, name) triple once across the entire file.
+    # (Biolink type, name, name) triple once across the entire file. Global to this one output file
+    # by design: sharing it with a second output starves that output (see the note on the removed
+    # GENERATE_DRUG_CHEMICAL_SMALLER_FILE option at the top of this file).
     seen_pairs = set()
     with (
         gzip.open(synonym_filename_gz, "rt", encoding="utf-8") as synonymf,
@@ -160,11 +146,6 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
             if not preferred_name:
                 logging.warning(f"Unable to convert synonym entry for curie {curie}, skipping: {entry}")
                 continue
-
-            # Is the preferred name small enough that we should ignore it from generate_smaller_file?
-            is_preferred_name_short = len(preferred_name) <= DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH
-            # if not is_preferred_name_short:
-            #    logging.warning(f"CURIE {curie} (preferred name: {preferred_name}) will be excluded from the Smaller training file.")
 
             # Collect and process the list of names.
             names = entry.get("names", [])
@@ -215,22 +196,7 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
                 sapbertf.write(line)
                 count_training_rows += 1
 
-                # As long as the preferred name is shorter than the right size, we should add this clique to the
-                # smaller file as well.
-                if generate_smaller_file and is_preferred_name_short:
-                    generate_smaller_file.write(line)
-                    count_smaller_rows += 1
-
     logger.info(
-        f"Converted {synonym_filename_gz} to SAPBERT training file {synonym_filename_gz}: "
+        f"Converted {synonym_filename_gz} to SAPBERT training file {sapbert_filename_gzipped}: "
         + f"read {count_entry} entries and wrote out {count_training_rows} training rows."
     )
-
-    # Close SmallerFile if needed.
-    if generate_smaller_file:
-        generate_smaller_file.close()
-        percentage = count_smaller_rows / float(count_training_rows) * 100 if count_training_rows else 0
-        logger.info(
-            f"Converted {synonym_filename_gz} to smaller SAPBERT training file {generate_smaller_filename}: "
-            + f"read {count_entry} entries and wrote out {count_smaller_rows} training rows ({percentage:.2f}%)."
-        )
