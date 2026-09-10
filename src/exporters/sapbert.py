@@ -30,6 +30,12 @@ MAX_SYNONYM_PAIRS = 50
 SYNONYM_PAIR_DRAWS_PER_PAIR = 8
 # Should we lowercase all the names?
 LOWERCASE_ALL_NAMES = True
+# There was once a GENERATE_DRUG_CHEMICAL_SMALLER_FILE option here, which wrote a second, smaller
+# DrugChemicalConflatedSmaller.txt alongside the full training file by keeping only the shortest
+# labels; it was disabled before it was ever used, because both files drew from the one seen_pairs
+# set (see convert_synonyms_to_sapbert()) and so the smaller file lost every pair the full file had
+# already claimed. Removed in https://github.com/NCATSTranslator/Babel/pull/1084 (issue #1057);
+# reviving it means giving each output file its own seen_pairs.
 
 
 def pair_key(biolink_type, name_pair):
@@ -122,7 +128,9 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
     count_entry = 0
     count_training_rows = 0
     # Digests (see pair_key()) of the synonym pairs already written out, so that we only write each
-    # (Biolink type, name, name) triple once across the entire file.
+    # (Biolink type, name, name) triple once across the entire file. Global to this one output file
+    # by design: sharing it with a second output starves that output (see the note on the removed
+    # GENERATE_DRUG_CHEMICAL_SMALLER_FILE option at the top of this file).
     seen_pairs = set()
     with (
         gzip.open(synonym_filename_gz, "rt", encoding="utf-8") as synonymf,
@@ -189,6 +197,6 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
                 count_training_rows += 1
 
     logger.info(
-        f"Converted {synonym_filename_gz} to SAPBERT training file {synonym_filename_gz}: "
+        f"Converted {synonym_filename_gz} to SAPBERT training file {sapbert_filename_gzipped}: "
         + f"read {count_entry} entries and wrote out {count_training_rows} training rows."
     )
