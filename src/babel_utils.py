@@ -703,7 +703,11 @@ def write_compendium(
         write_compendium() will throw a RuntimeError if it is not specified. This is to ensure that it has been
         properly specified as a prerequisite in a Snakemake file, so that write_compendium() is not run until after
         icRDF.tsv has been generated.
-    :param properties_files: (OPTIONAL) A list of SQLite3 files containing properties to be added to the output.
+    :param properties_jsonl_gz_files: (OPTIONAL) A list of gzipped JSONL files of src.properties.Property
+        rows. Every property in them is loaded into an in-memory PropertyList, so pass only files
+        something here actually consumes -- today that is HAS_ALTERNATIVE_ID, used to splice
+        alternative identifiers into a clique. Annotation-only property files (ChEBI structure and
+        roles) are deliberately kept out of this list; see make_chebi_relations()'s docstring.
     :return:
     """
     logger.info(

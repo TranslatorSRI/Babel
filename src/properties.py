@@ -13,7 +13,17 @@ import json
 from collections import defaultdict
 from dataclasses import dataclass
 
-from src.predicates import HAS_ALTERNATIVE_ID
+from src.predicates import (
+    CHEMROF_CHARGE,
+    CHEMROF_FORMULA,
+    CHEMROF_INCHI,
+    CHEMROF_INCHI_KEY,
+    CHEMROF_MASS,
+    CHEMROF_MONOISOTOPIC_MASS,
+    CHEMROF_SMILES,
+    HAS_ALTERNATIVE_ID,
+    HAS_ROLE,
+)
 
 #
 # SUPPORTED PROPERTIES
@@ -23,9 +33,24 @@ from src.predicates import HAS_ALTERNATIVE_ID
 # that should be included in the clique but NOT treated as a clique leader candidate.
 # Used for e.g. ChEBI secondary IDs or other deprecated identifiers.
 
+# HAS_ROLE: the role a chemical plays (ChEBI's RO:0000087 assertions). The value is a role CURIE,
+# and the roles themselves are not currently normalized as entities in their own right -- see #101.
+
+# CHEMROF_*: a chemical's structure and physical properties. One row per (CURIE, predicate, value),
+# because Property.value is a single str and Property is frozen so it can live in a set; a compound
+# with two values for a tag therefore produces two rows rather than one row holding a list.
+
 # Properties currently supported in the property store in one set for validation.
 supported_predicates = {
     HAS_ALTERNATIVE_ID,
+    HAS_ROLE,
+    CHEMROF_SMILES,
+    CHEMROF_INCHI,
+    CHEMROF_INCHI_KEY,
+    CHEMROF_FORMULA,
+    CHEMROF_MASS,
+    CHEMROF_MONOISOTOPIC_MASS,
+    CHEMROF_CHARGE,
 }
 
 #

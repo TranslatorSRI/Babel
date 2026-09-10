@@ -151,6 +151,15 @@ canonical prefix-constant registry; its `id_prefixes` order in the Biolink Model
   `compendia/umls.txt` so its label survives downstream. Manual Biolink-type override tables and
   their drift test: [`docs/sources/CLAUDE.md`](docs/sources/CLAUDE.md) and
   `docs/sources/UMLS/Leftover.md`.
+- **Properties** — `src/properties.py` holds node/clique annotations as `Property(curie, predicate,
+  value, source)`, written as gzipped JSONL under `intermediate/<pipeline>/properties/` and swept
+  into `Property.parquet` by the DuckDB export. `supported_predicates` is the only validation gate,
+  so a new property means adding its URI there and in `src/predicates.py`. Two rules: a property
+  file is only loaded into `write_compendium()`'s in-memory `PropertyList` if a rule passes it as
+  `properties_jsonl_gz_files`, so keep annotations nothing consumes yet in their *own* file (ChEBI
+  structure and roles do); and name a predicate after the vocabulary that publishes it rather than
+  minting a Babel URI. Properties are annotations, never equivalences — nothing here reaches
+  `glom()`. See `docs/sources/CHEBI/README.md` and `docs/sources/CHEBI/roles/README.md`.
 - **DuckDB export** — `src/snakefiles/duckdb.snakefile` builds a queryable DuckDB database
   (`Node`/`Clique`/`Edge`/`Conflation`) alongside the JSONL compendia (schema in
   `docs/DataFormats.md`); its `Edge` table answers "which clique contains CURIE X" in one query

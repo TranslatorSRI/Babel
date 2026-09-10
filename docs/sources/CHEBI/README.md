@@ -3,9 +3,10 @@
 ChEBI is ingested from two files pulled by `src/datahandlers/chebi.py`:
 
 - `ChEBI_complete.sdf` — the structure file, read by `make_chebi_relations()` for secondary
-  identifiers and KEGG COMPOUND / PubChem Compound cross-references. (Labels come from the OBO
-  ontology via UberGraph, not from here; the SDF's `ChEBI NAME` tag is read only as a canary — see
-  `CHEBI_SDF_KEYS`.)
+  identifiers, KEGG COMPOUND / PubChem Compound cross-references, and the structure and
+  physical-property values described under [Structure properties](#structure-properties) below.
+  (Labels come from the OBO ontology via UberGraph, not from here; the SDF's `ChEBI NAME` tag is
+  read only as a canary — see `CHEBI_SDF_KEYS`.)
 - `database_accession.tsv` — the flat cross-reference table, covering the ChEBI entries that have no
   structure and so never appear in the SDF.
 - `source.tsv` and `status.tsv` — the lookup tables that turn `database_accession.tsv`'s numeric
@@ -95,6 +96,56 @@ Neither `check_chebi_sdf_keys()` nor the `count_xrefs` guard could catch it, bec
 supplies ~197,000 xrefs on its own — a reminder that a whole-output emptiness check does not protect
 an individual input. `make_chebi_relations()` now counts this file's contribution separately from
 the SDF's and raises if it is zero, which is what would have caught this the release it appeared.
+
+## Structure properties
+
+`make_chebi_relations()` also writes the SDF's structure and physical-property values to
+`intermediate/chemicals/properties/chebi_structure.jsonl.gz`, one `Property` row per
+(ChEBI, predicate, value):
+
+| SDF tag | Predicate | Rows, 2026-06-29 |
+| --- | --- | ---: |
+| `SMILES` | `chemrof:smiles_string` | 192,445 |
+| `FORMULA` | `chemrof:generalized_empirical_formula` | 192,383 |
+| `MONOISOTOPIC_MASS` | `chemrof:monoisotopic_mass` | 192,256 |
+| `MASS` | `chemrof:mass` | 192,249 |
+| `INCHI` | `chemrof:inchi_string` | 181,048 |
+| `INCHIKEY` | `chemrof:inchi_key_string` | 181,048 |
+| `CHARGE` | `chemrof:charge` | 15,613 |
+
+These are annotations, not equivalences: they are written to their own file, are not an input to
+`chemical_compendia`, and take no part in concord or clique building. `make_chebi_relations()`'s
+docstring explains why they are kept out of `get_chebi_concord.jsonl.gz`, which *is* loaded into
+`write_compendium()`'s in-memory `PropertyList`.
+
+The predicates are ChemROF's rather than ChEBI's own `obo/chebi/` annotation properties, because
+that is the namespace UberGraph now publishes these values under — see
+[#1086](https://github.com/NCATSTranslator/Babel/issues/1086), where reading them under the old
+names is silently returning nothing.
+
+### Semicolons in an InChI are not separators
+
+Multi-valued SDF tags are semicolon-delimited, and `split_chebi_sdf_values()` exists to split them.
+**Structure values must not go through it.** A multi-component InChI uses `;` to separate
+per-component layers: [`CHEBI:29124`](http://purl.obolibrary.org/obo/CHEBI_29124)
+"dioxouranium(1+)" is `InChI=1S/2O.U/q;;+1`. 3,997 of the 181,048 InChIs in the 2026-06-29 SDF
+contain one, so splitting would shred all of them into fragments that are not InChIs — the same
+shape as the NCBIGene double-prime bug, where a plausible cleanup discarded ~4,000 real values.
+Every tag in `CHEBI_SDF_STRUCTURE_PROPERTIES` is single-valued, so the lines are joined and used
+as-is. `tests/data/chebi_dioxouranium.sdf` pins this.
+
+### CHARGE is exempt from the empty-input guard
+
+`make_chebi_relations()` raises if any input it reads produces no rows, which is what catches a
+value-format change that a tag-name check cannot see. `CHARGE` is deliberately excluded
+(`CHEBI_SDF_SPARSE_STRUCTURE_KEYS`): it is on 8% of entries because most ChEBI entries are
+uncharged and simply omit it, so guarding it would be a check that fires on legitimate data. A
+`CHARGE` *rename* is still caught by `check_chebi_sdf_keys()`.
+
+## Roles
+
+ChEBI's `RO:0000087` "has role" assertions are ingested separately, by `make_chebi_roles()` via
+UberGraph. See [`roles/README.md`](./roles/README.md).
 
 ## Deliberately ignored: PubChem substance xrefs
 

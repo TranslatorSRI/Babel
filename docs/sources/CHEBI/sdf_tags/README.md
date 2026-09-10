@@ -1,9 +1,15 @@
 # ChEBI SDF data-item tags
 
-`make_chebi_relations()` reads `ChEBI_complete.sdf` for four things: the ChEBI ID and name, the
-compound's secondary (obsoleted) identifiers, and its KEGG COMPOUND and PubChem Compound
-cross-references. It finds each of them by matching the SDF's data-item tags — `> <ChEBI ID>`,
-`> <SECONDARY_ID>` and so on — against a fixed list of expected names in `CHEBI_SDF_KEYS`.
+`make_chebi_relations()` reads `ChEBI_complete.sdf` for the ChEBI ID and name, the compound's
+secondary (obsoleted) identifiers, its KEGG COMPOUND and PubChem Compound cross-references, and its
+structure and physical-property values (`SMILES`, `INCHI`, `INCHIKEY`, `FORMULA`, `MASS`,
+`MONOISOTOPIC_MASS`, `CHARGE` — see [the structure properties
+section](../README.md#structure-properties)). It finds each of them by matching the SDF's data-item
+tags — `> <ChEBI ID>`, `> <SECONDARY_ID>` and so on — against a fixed list of expected names in
+`CHEBI_SDF_KEYS`.
+
+The tag audit below predates the structure properties, so its "Requested?" column marks only the
+seven keys that were consumed at the time; `inchikey` and `smiles` were then carried as canaries.
 
 ## Why this needs watching
 
