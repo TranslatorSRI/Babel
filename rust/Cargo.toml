@@ -5,14 +5,32 @@ name = "babel-pipeline"
 # crates.io. Kept at 0.0.0 so there is no second version number to remember to bump.
 version = "0.0.0"
 edition = "2021"
-# The floor pyo3 0.23 itself requires. Declared so a too-old cargo fails with a clear MSRV message
+# The highest MSRV among our dependencies (zlib-rs needs 1.75; serde_json 1.71; pyo3 0.23 alone
+# would allow 1.63). Declared so a too-old cargo fails with a clear MSRV message
 # rather than a syntax error from somewhere inside a dependency. Note this binds rustup-managed
 # toolchains only -- see README.md on why the Dockerfile installs rustup rather than apt cargo.
-rust-version = "1.63"
+# Re-derive after adding a dependency: `cargo metadata --format-version 1 | jq '.packages[].rust_version'`.
+rust-version = "1.75"
 
 [lib]
 name = "_accel"               # matches the #[pymodule] fn + module-name's last component
 crate-type = ["cdylib"]
 
+[features]
+# pyo3's extension-module feature tells the linker not to link libpython, which is right for the
+# .so maturin builds (pyproject.toml enables it there) and wrong for `cargo test`, whose test binary
+# then fails to link on Linux. So it is opt-in here rather than always on -- the pattern pyo3's
+# docs recommend.
+extension-module = ["pyo3/extension-module"]
+
 [dependencies]
-pyo3 = { version = "0.23", features = ["abi3-py311", "extension-module"] }
+pyo3 = { version = "0.23", features = ["abi3-py311"] }
+# gzip in and out, on the zlib-rs backend: the default miniz_oxide backend compresses noticeably
+# slower than C zlib, and ~60% of the SapBERT export is gzip. MultiGzDecoder is what makes
+# concatenated members (pigz, `cat a.gz b.gz`) read the way Python's gzip module reads them.
+flate2 = { version = "1", default-features = false, features = ["zlib-rs"] }
+# One JSONL record per line in, parsed into a struct of just the fields the export uses.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Reservoir sampling of synonym pairs, seeded per CURIE so a rerun is byte-identical.
+rand = "0.9"

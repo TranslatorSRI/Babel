@@ -67,6 +67,9 @@ build-backend = "maturin"
 module-name = "src._accel"
 # Rust source lives under rust/ so Cargo never collides with the Python `src/` dir.
 manifest-path = "rust/Cargo.toml"
+# Link the .so as a Python extension (no libpython). Enabled here, not in Cargo.toml, so that
+# `cargo test` can still link its test binary -- see [features] in rust/Cargo.toml.
+features = ["extension-module"]
 # maturin bundles the whole `src` tree, which otherwise ships the per-directory agent instruction
 # files to anyone who installs the wheel.
 exclude = ["**/CLAUDE.md"]

@@ -14,10 +14,12 @@
 //! slower while looking like an optimisation. Functions open their own files so there is no entry
 //! point that *could* accept a row.
 //!
-//! Real accelerators land once the Python `read_concord_file` they mirror is on main; this module
-//! currently exports only the ABI version that guards against a stale build.
+//! Accelerated so far: [`sapbert::convert_synonyms_to_sapbert`], the SapBERT training-data export
+//! (rule `generate_sapbert_training_data`). Each function lives in its own module.
 
 use pyo3::prelude::*;
+
+mod sapbert;
 
 /// Bumped by hand whenever a function's signature or semantics change, in the same commit.
 ///
@@ -33,5 +35,6 @@ const ABI_VERSION: u32 = 1;
 #[pymodule]
 fn _accel(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("ABI_VERSION", ABI_VERSION)?;
+    m.add_function(wrap_pyfunction!(sapbert::convert_synonyms_to_sapbert, m)?)?;
     Ok(())
 }

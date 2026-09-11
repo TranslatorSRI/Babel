@@ -38,7 +38,7 @@ jobs:
       - run: uv run --no-project --with snakefmt snakefmt --check --compact-diff .
 
   check-formatting-with-cargo:
-    name: Check Rust formatting and lints with cargo
+    name: Check Rust formatting, lints and unit tests with cargo
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -50,6 +50,7 @@ jobs:
           workspaces: rust
       - run: cargo fmt --manifest-path rust/Cargo.toml --check
       - run: cargo clippy --manifest-path rust/Cargo.toml --all-targets -- -D warnings
+      - run: cargo test --manifest-path rust/Cargo.toml
 
   check-formatting-with-rumdl:
     name: Check Markdown formatting with rumdl

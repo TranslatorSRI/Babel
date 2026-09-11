@@ -7,3 +7,11 @@ Import through src/accel.py rather than importing this module directly.
 
 # Bumped in lockstep with ABI_VERSION in rust/src/lib.rs; see src/accel.py.
 ABI_VERSION: int
+
+def convert_synonyms_to_sapbert(synonyms_gz_path: str, sapbert_gz_path: str) -> tuple[int, int, int]:
+    """Convert a gzipped synonyms JSONL file into a gzipped SapBERT training file.
+
+    Returns (entries_read, training_rows_written, entries_skipped_for_no_preferred_name). The
+    Python reference is src/exporters/sapbert.py; see rust/src/sapbert.rs for the two deliberate
+    differences (seeded pair sampling, gzip level).
+    """
