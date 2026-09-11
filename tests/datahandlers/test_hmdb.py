@@ -1,52 +1,70 @@
-"""Network tests for the HMDB download.
+"""Tests for the HMDB download.
 
-These verify that HMDB's download URL is reachable with the User-Agent Babel sends.
-Run with: uv run pytest --network tests/datahandlers/test_hmdb.py
+HMDB fronts its download URL with a Cloudflare bot challenge, so the unattended download cannot
+succeed and the operator has to place the zip by hand. These tests cover the two halves of that:
+that Babel still recognizes the live response as a challenge, and that a hand-placed zip is
+actually used on the next run.
+
+Run the network test with: uv run pytest --network tests/datahandlers/test_hmdb.py
 """
 
 import urllib.error
 import urllib.request
+import zipfile
+from unittest.mock import patch
 
 import pytest
 
-from src.babel_utils import get_user_agent
+from src.babel_utils import get_user_agent, raise_if_cloudflare_challenge
+from src.datahandlers.hmdb import HMDB_DOWNLOAD_URL, HMDB_ZIP_FILENAME, pull_hmdb
+from src.util import get_config
 
-pytestmark = [pytest.mark.network]
-
-HMDB_ZIP_URL = "https://hmdb.ca/system/downloads/current/hmdb_metabolites.zip"
+HMDB_ZIP_URL = HMDB_DOWNLOAD_URL + HMDB_ZIP_FILENAME
 
 
-def test_hmdb_url_accessible_with_user_agent():
-    """HMDB download URL should be reachable with our User-Agent (not 403)."""
+# LIVE HMDB DOWNLOAD
+
+
+@pytest.mark.network
+def test_hmdb_download_either_works_or_is_a_recognized_challenge():
+    """The live HMDB URL should either serve the file or be recognized as a Cloudflare challenge.
+
+    As of 2026-09-11 it is the latter (HTTP 403, `cf-mitigated: challenge`). This asserts the
+    disjunction rather than reachability because both outcomes are fine -- what is not fine is a
+    403 Babel fails to classify, which would send the rule into a retry loop with an unhelpful
+    error instead of telling the operator to fetch the zip by hand.
+    """
     req = urllib.request.Request(HMDB_ZIP_URL, headers={"User-Agent": get_user_agent()})
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
-            # Read just the first 1 KB to confirm the body streams without error.
-            chunk = resp.read(1024)
-        assert len(chunk) > 0, "HMDB returned an empty body"
-    except urllib.error.HTTPError as e:
-        pytest.fail(
-            f"HMDB download URL returned HTTP {e.code} with User-Agent '{get_user_agent()}'. "
-            "The server may be blocking non-browser clients or the HPC egress IP."
-        )
+            assert len(resp.read(1024)) > 0, "HMDB returned an empty body"
+    except urllib.error.URLError as e:
+        with pytest.raises(RuntimeError, match="Cloudflare bot challenge"):
+            raise_if_cloudflare_challenge(HMDB_ZIP_URL, "babel_downloads/HMDB/" + HMDB_ZIP_FILENAME, e)
 
 
-def test_hmdb_url_rejects_no_user_agent():
-    """HMDB returns 403 when no User-Agent is set (raw urllib default).
+# MANUALLY PLACED ZIP
 
-    This documents the known behaviour that motivates always setting our User-Agent.
-    If HMDB changes policy and starts accepting bare requests, this test will fail
-    and should be removed.
+
+@pytest.mark.unit
+def test_pull_hmdb_uses_a_manually_placed_zip(tmp_path):
+    """A zip already sitting in the download directory should be unpacked without re-downloading.
+
+    This is what makes the "place it here and re-run" instruction in the Cloudflare error true:
+    pull_via_urllib() deletes its target before each attempt, so a manual copy would otherwise be
+    wiped and the rule would fail the same way forever.
     """
-    # urllib's default User-Agent is "Python-urllib/<version>", which HMDB rejects.
-    req = urllib.request.Request(HMDB_ZIP_URL)
-    try:
-        with urllib.request.urlopen(req, timeout=30):
-            pass
-        # If we get here the server accepted the bare request — document the change.
-        pytest.xfail("HMDB no longer rejects bare Python-urllib requests; remove this test.")
-    except urllib.error.HTTPError as e:
-        if e.code == 403:
-            pass  # expected — server rejects bare requests
-        else:
-            pytest.fail(f"Unexpected HTTP {e.code} from HMDB (expected 403 for bare UA)")
+    hmdb_dir = tmp_path / "HMDB"
+    hmdb_dir.mkdir()
+    with zipfile.ZipFile(hmdb_dir / HMDB_ZIP_FILENAME, "w") as zipobj:
+        zipobj.writestr("hmdb_metabolites.xml", "<hmdb/>")
+
+    config = {**get_config(), "download_directory": str(tmp_path)}
+    with (
+        patch("src.datahandlers.hmdb.get_config", return_value=config),
+        patch("src.datahandlers.hmdb.pull_via_urllib") as pull,
+    ):
+        pull_hmdb()
+
+    pull.assert_not_called()
+    assert (hmdb_dir / "hmdb_metabolites.xml").read_text() == "<hmdb/>"

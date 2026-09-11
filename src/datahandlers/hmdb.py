@@ -5,12 +5,28 @@ import xmltodict
 
 from src.babel_utils import pull_via_urllib
 from src.prefixes import HMDB
+from src.util import get_config, get_logger
+
+logger = get_logger(__name__)
+
+HMDB_DOWNLOAD_URL = "https://hmdb.ca/system/downloads/current/"
+HMDB_ZIP_FILENAME = "hmdb_metabolites.zip"
 
 
 def pull_hmdb():
-    dname = pull_via_urllib(
-        "https://hmdb.ca/system/downloads/current/", "hmdb_metabolites.zip", decompress=False, subpath="HMDB"
-    )
+    """Download and unpack the HMDB metabolites dump.
+
+    HMDB sits behind a Cloudflare bot challenge that no unattended client can pass, so
+    raise_if_cloudflare_challenge() tells the operator to fetch the zip in a browser and drop it
+    in place. An already-present zip is therefore used as-is rather than re-downloaded --
+    pull_via_urllib() deletes its target before each attempt, so without this the manual copy
+    would be wiped and the rule would fail again the same way.
+    """
+    dname = path.join(get_config()["download_directory"], "HMDB", HMDB_ZIP_FILENAME)
+    if path.exists(dname):
+        logger.info("Using previously downloaded %s instead of downloading it again.", dname)
+    else:
+        dname = pull_via_urllib(HMDB_DOWNLOAD_URL, HMDB_ZIP_FILENAME, decompress=False, subpath="HMDB")
     ddir = path.dirname(dname)
     with ZipFile(dname, "r") as zipObj:
         zipObj.extractall(ddir)

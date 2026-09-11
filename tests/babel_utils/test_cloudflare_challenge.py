@@ -36,6 +36,24 @@ def _http_error(raw_headers: str) -> urllib.error.HTTPError:
 
 
 @pytest.mark.unit
+def test_challenge_detected_from_csp_when_cf_mitigated_is_absent():
+    """A challenge page should still be recognized from its Cloudflare-widget CSP alone.
+
+    `cf-mitigated` is a label Cloudflare chose and could rename; having to load the widget from
+    challenges.cloudflare.com is how the page works. Header copied verbatim from a live
+    https://hmdb.ca/system/downloads/current/hmdb_metabolites.zip 403 on 2026-09-11, trimmed to
+    the directives that name the widget.
+    """
+    csp = (
+        "content-security-policy: default-src 'none'; script-src 'nonce-sdE6vqamOBuKVQaBr2ZyGU' "
+        "'unsafe-eval' https://challenges.cloudflare.com; frame-src 'self' "
+        "https://challenges.cloudflare.com blob:"
+    )
+    with pytest.raises(RuntimeError, match="Cloudflare bot challenge"):
+        raise_if_cloudflare_challenge("https://example.com/file.zip", "/downloads/SOURCE/file.zip", _http_error(csp))
+
+
+@pytest.mark.unit
 @pytest.mark.parametrize("header_casing", ["cf-mitigated: challenge", "Cf-Mitigated: challenge"])
 def test_cloudflare_challenge_raises_actionable_error(header_casing):
     """A 403 with `cf-mitigated: challenge` (in any casing) should raise a RuntimeError naming the
