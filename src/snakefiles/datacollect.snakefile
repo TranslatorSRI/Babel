@@ -6,6 +6,7 @@ import src.datahandlers.umls as umls
 import src.datahandlers.ncbigene as ncbigene
 import src.datahandlers.efo as efo
 import src.datahandlers.ensembl as ensembl
+import src.datahandlers.ensembl_mygene as ensembl_mygene
 import src.datahandlers.hgnc as hgnc
 import src.datahandlers.omim as omim
 import src.datahandlers.uniprotkb as uniprotkb
@@ -431,7 +432,19 @@ rule get_ensembl:
         runtime="6h",
     run:
         ensembl_dir = config["download_directory"] + "/ENSEMBL"
-        ensembl.pull_ensembl(ensembl_dir, output.complete_file)
+        # ensembl_source selects the backend (see config.yaml). biomart harvests every species
+        # from BioMart; mygene pulls only ensembl_mygene_taxa from the MyGene.info BioThings API.
+        source = config.get("ensembl_source", "biomart")
+        if source == "mygene":
+            # taxa defaults to DEFAULT_MYGENE_TAXA in ensembl_mygene.py when the key is absent; an
+            # explicit (even empty) ensembl_mygene_taxa in config is respected as given.
+            ensembl_mygene.pull_ensembl_via_mygene(
+                ensembl_dir, output.complete_file, taxa=config.get("ensembl_mygene_taxa")
+            )
+        elif source == "biomart":
+            ensembl.pull_ensembl(ensembl_dir, output.complete_file)
+        else:
+            raise ValueError(f"config ensembl_source must be 'biomart' or 'mygene', got {source!r}")
 
 
 ### HGNC

@@ -1,0 +1,67 @@
+{
+  "_id": "1017",
+  "_version": 2,
+  "ensembl": {
+    "gene": "ENSG00000123374",
+    "protein": [
+      "ENSP00000243067",
+      "ENSP00000266970",
+      "ENSP00000393605",
+      "ENSP00000450983",
+      "ENSP00000452138",
+      "ENSP00000452514",
+      "ENSP00000803871"
+    ],
+    "transcript": [
+      "ENST00000266970",
+      "ENST00000354056",
+      "ENST00000440311",
+      "ENST00000553376",
+      "ENST00000554545",
+      "ENST00000554619",
+      "ENST00000555357",
+      "ENST00000555408",
+      "ENST00000556146",
+      "ENST00000556276",
+      "ENST00000556464",
+      "ENST00000556656",
+      "ENST00001135426"
+    ],
+    "translation": [
+      {
+        "protein": "ENSP00000450983",
+        "rna": "ENST00000555408"
+      },
+      {
+        "protein": "ENSP00000452514",
+        "rna": "ENST00000553376"
+      },
+      {
+        "protein": "ENSP00000393605",
+        "rna": "ENST00000440311"
+      },
+      {
+        "protein": "ENSP00000266970",
+        "rna": "ENST00000266970"
+      },
+      {
+        "protein": "ENSP00000452138",
+        "rna": "ENST00000555357"
+      },
+      {
+        "protein": "ENSP00000243067",
+        "rna": "ENST00000354056"
+      },
+      {
+        "protein": "ENSP00000803871",
+        "rna": "ENST00001135426"
+      }
+    ],
+    "type_of_gene": "protein_coding"
+  },
+  "entrezgene": "1017",
+  "name": "cyclin dependent kinase 2",
+  "symbol": "CDK2",
+  "taxid": 9606,
+  "type_of_gene": "protein-coding"
+}

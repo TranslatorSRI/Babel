@@ -1,0 +1,16 @@
+{
+  "WormBase": "WBGene00047797",
+  "_id": "13199400",
+  "_version": 1,
+  "ensembl": {
+    "gene": "WBGene00047797",
+    "transcript": "C47A4.37",
+    "translation": [],
+    "type_of_gene": "piRNA"
+  },
+  "entrezgene": "13199400",
+  "name": "ncRNA",
+  "symbol": "21ur-3172",
+  "taxid": 6239,
+  "type_of_gene": "ncRNA"
+}

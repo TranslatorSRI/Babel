@@ -1,0 +1,52 @@
+{
+  "ZFIN": "ZDB-GENE-040624-12",
+  "_id": "100000322",
+  "_version": 1,
+  "ensembl": [
+    {
+      "gene": "ENSDARG00000014496",
+      "protein": [
+        "ENSDARP00000105890",
+        "ENSDARP00000145071",
+        "ENSDARP00000153297"
+      ],
+      "transcript": [
+        "ENSDART00000127453",
+        "ENSDART00000182392",
+        "ENSDART00000184526"
+      ],
+      "translation": [
+        {
+          "protein": "ENSDARP00000105890",
+          "rna": "ENSDART00000127453"
+        },
+        {
+          "protein": "ENSDARP00000145071",
+          "rna": "ENSDART00000184526"
+        },
+        {
+          "protein": "ENSDARP00000153297",
+          "rna": "ENSDART00000182392"
+        }
+      ],
+      "type_of_gene": "protein_coding"
+    },
+    {
+      "gene": "ENSDARG00000110671",
+      "protein": "ENSDARP00000150490",
+      "transcript": "ENSDART00000180380",
+      "translation": [
+        {
+          "protein": "ENSDARP00000150490",
+          "rna": "ENSDART00000180380"
+        }
+      ],
+      "type_of_gene": "protein_coding"
+    }
+  ],
+  "entrezgene": "100000322",
+  "name": "transient receptor potential cation channel, subfamily V, member 6",
+  "symbol": "trpv6",
+  "taxid": 7955,
+  "type_of_gene": "protein-coding"
+}

@@ -465,6 +465,33 @@ drugchemical_outputs: [DrugChemical.txt]
 preferred_name_boost_prefixes:
   biolink:ChemicalEntity: [DRUGBANK, DrugCentral, CHEBI, MESH, GTOPDB]
 
+# Which backend the get_ensembl rule uses to pull Ensembl gene/protein identifiers and
+# cross-references (src/snakefiles/datacollect.snakefile, rule get_ensembl).
+#   biomart - the historical default: harvests EVERY Ensembl species dataset (200+) from the
+#             BioMart API via apybiomart. Comprehensive but slow, flaky, and impractical on a
+#             machine that cannot run a long network harvest. See docs/sources/ENSEMBL/Download.md.
+#   mygene  - pulls only the species in ensembl_mygene_taxa from the MyGene.info BioThings API
+#             (a registered Translator Knowledge Provider). Lightweight, resumable, and unit-testable
+#             offline, but covers fewer species (near-empty for yeast/dicty, which stay on biomart).
+# Kept at biomart for production: switching the default changes gene/protein clique membership and
+# must first be validated with a source-impact report and a clique diff on the cluster.
+ensembl_source: biomart
+
+# Species pulled when ensembl_source is mygene: NCBI taxid -> BioMart-style dataset directory name.
+# The directory names deliberately match BioMart's so the output layout (ENSEMBL/<dataset>/BioMart.tsv)
+# is drop-in compatible with the biomart backend and its downstream consumers. These are the species
+# MyGene.info covers well (verified against the live API, 2026-07). Yeast (4932) and dicty (44689) are
+# deliberately omitted - MyGene has ~2 yeast genes and 0 dicty genes carrying an ensembl.gene - so a
+# full build that needs those species must use biomart (or run mygene for these and biomart for the rest).
+ensembl_mygene_taxa:
+  9606: hsapiens_gene_ensembl        # human
+  10090: mmusculus_gene_ensembl      # mouse
+  10116: rnorvegicus_gene_ensembl    # rat
+  7955: drerio_gene_ensembl          # zebrafish
+  7227: dmelanogaster_gene_ensembl   # fruit fly
+  6239: celegans_gene_ensembl        # worm
+  8364: xtropicalis_gene_ensembl     # xenopus
+
 ensembl_datasets_to_skip:
 #  - elucius_gene_ensembl
 #  - hgfemale_gene_ensembl
