@@ -70,21 +70,6 @@ def _obo_id_roots(prefix):
     return [(source["root"], source["type"]), *sorted(source["subtype_roots"].items())]
 
 
-def remove_overused_xrefs_dict(kv):
-    """Given a dict of iri->list of xrefs, look through them for xrefs that are in more than one list.
-    Remove those anywhere they occur, as they will only lead to pain further on."""
-    used_xrefs = set()
-    overused_xrefs = set()
-    for k, v in kv.items():
-        for x in v:
-            if x in used_xrefs:
-                overused_xrefs.add(x)
-            used_xrefs.add(x)
-    print(f"There are {len(overused_xrefs)} overused xrefs")
-    for k, v in kv.items():
-        kv[k] = list(set(v).difference(overused_xrefs))
-
-
 def write_obo_ids(irisandtypes, outfile, exclude=[]):
     order = [CELLULAR_COMPONENT, CELL, GROSS_ANATOMICAL_STRUCTURE, ANATOMICAL_ENTITY]
     obo.write_obo_ids(irisandtypes, outfile, order, exclude=[])

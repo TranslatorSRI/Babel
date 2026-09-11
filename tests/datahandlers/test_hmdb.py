@@ -68,3 +68,23 @@ def test_pull_hmdb_uses_a_manually_placed_zip(tmp_path):
 
     pull.assert_not_called()
     assert (hmdb_dir / "hmdb_metabolites.xml").read_text() == "<hmdb/>"
+
+
+@pytest.mark.unit
+def test_pull_hmdb_downloads_when_no_zip_is_present(tmp_path):
+    """With nothing in place, the normal download should still be attempted.
+
+    The reuse branch above is only safe if its condition is the right way round; a test that
+    covered the pre-placed case alone would pass just as happily on an inverted `if`, which would
+    never download anything.
+    """
+    config = {**get_config(), "download_directory": str(tmp_path)}
+    with (
+        patch("src.datahandlers.hmdb.get_config", return_value=config),
+        patch("src.datahandlers.hmdb.pull_via_urllib") as pull,
+        patch("src.datahandlers.hmdb.ZipFile"),
+    ):
+        pull.return_value = str(tmp_path / "HMDB" / HMDB_ZIP_FILENAME)
+        pull_hmdb()
+
+    pull.assert_called_once_with(HMDB_DOWNLOAD_URL, HMDB_ZIP_FILENAME, decompress=False, subpath="HMDB")
