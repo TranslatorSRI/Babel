@@ -154,9 +154,10 @@ Snapshot below) — they are how you decide what the *next* veto root should be.
 - `chemicals.create_typed_sets` adds that type to the clique's type vote as an extra **candidate**
   (the entries carry no Babel type of their own, so a vote over their members alone would leave them
   as `ChemicalEntity`). The most preferred of the voted type and this evidence wins, ranked by
-  `config.yaml: chemical_type_order` — where `biolink:Food` sits below every structure-bearing type
-  and above `ChemicalMixture`/`ChemicalEntity`. So a clique that votes nothing but `ChemicalEntity`
-  becomes `Food`, and one that votes `SmallMolecule` stays a `SmallMolecule`.
+  `config.yaml: chemical_type_order` — where `biolink:Food` sits below every structure-bearing type,
+  the mixture types included, and above only the uninformative `ChemicalEntity` it exists to improve
+  on. So a clique that votes nothing but `ChemicalEntity` becomes `Food`, and one that votes
+  `SmallMolecule` stays a `SmallMolecule`.
 
   This started out as a clique-level *override* that skipped the vote entirely, on the assumption
   that a food clique never also contains a genuine chemical. That assumption was derived from the
@@ -248,6 +249,12 @@ specific stay `Food`, including the ones that *should*: inulin
 ([`CHEBI:15443`](http://purl.obolibrary.org/obo/CHEBI_15443) "inulin") is both a food and a GFR
 diagnostic.
 
+**A real build confirmed the replay exactly**: 8 cliques left `Food.txt`, holding 102 identifiers,
+into those same four types, with nothing dropped. See [clique-diff.md](./clique-diff.md) for the
+build-vs-build diff, which also covers the ~4,269 `biolink:Drug` cliques the reordered
+`chemical_type_order` demotes to `ChemicalEntity` — a much larger effect than the food change, and
+the one to look at when this ships in a release.
+
 Note which direction the ordering runs: `ChemicalMixture` outranks `Food`, so a clique that *voted*
 `ChemicalMixture` would keep it rather than become a food. None of the 293 does — the two
 `ChemicalMixture` members in the set sit in cliques whose majority vote is `ChemicalEntity`, which
@@ -256,7 +263,8 @@ Note which direction the ordering runs: `ChemicalMixture` outranks `Food`, so a 
 The script also reports the one pairing the ordering leaves exposed: `chemical_type_order` ranks
 `biolink:Drug` *last*, below `Food`, so a clique that votes `Drug` and carries food evidence is
 typed `Food`. That is mildly wrong — a drug formulation is not a food — but it is an **accepted
-tradeoff**, not an oversight. No clique does it today (none of the 674 typed members is a `Drug`),
+tradeoff**, not an oversight. No clique does it today (none of the 674 typed members is a `Drug`,
+and in the build-vs-build diff no clique anywhere moves *into* `Food.txt` — `Food` only loses),
 `Drug` is last for its own good reasons, and both a reorder and a special case would cost more than
 the error does. `test_food_evidence_beats_a_drug_vote` pins the behaviour so it cannot change
 silently; invert that assertion rather than deleting it if `Food` ever starts appearing where a drug

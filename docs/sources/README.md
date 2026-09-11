@@ -32,7 +32,9 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
 - **DRUGBANK** ([DRUGBANK/food-and-extracts/README.md](./DRUGBANK/food-and-extracts/README.md))
   — retyping DrugBank food-and-extract products (foods, pollens, danders) out of
   `biolink:ChemicalEntity`: foods become `biolink:Food` via their UNII's NCIt class, non-food
-  allergens become `biolink:ComplexMolecularMixture`.
+  allergens become `biolink:ComplexMolecularMixture`. The build-vs-build check that the retype
+  became a vote without dropping anything is
+  [DRUGBANK/food-and-extracts/clique-diff.md](./DRUGBANK/food-and-extracts/clique-diff.md).
 - **EMAPA** ([EMAPA/README.md](./EMAPA/README.md)) — the Mouse Developmental Anatomy Ontology as
   an anatomy source: extracting identifiers from UberGraph via a `part_of` traversal, exporting
   xref concords, and how its terms are typed and routed into the anatomy compendia. The worked

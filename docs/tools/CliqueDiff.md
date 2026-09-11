@@ -44,6 +44,38 @@ motivated it, under `docs/sources/<SOURCE>/<change>/` or `docs/pipelines/<pipeli
 always the small `clique-diff.summary.json`, plus the per-row `clique-diff.csv` when reasonably
 sized.
 
+## Resource cost
+
+The whole diff runs in RAM: `diff_builds()` loads every `--files` compendium from **both** builds
+before comparing anything, so peak memory scales with the total identifier count of the compared
+files — **not** with the number of changes. A diff reporting thirty thousand rows costs the same as
+one reporting zero.
+
+Measured on the eight `chemical_outputs` (~128 million identifiers per build, ~126 GB of JSONL per
+side), diffing 2026jul15 against 2026jul21:
+
+| Measure | Value |
+|---|---|
+| Peak RSS | 202.9 GiB (**217.9 GB** decimal) |
+| Wall time | 45m30s |
+| CPU | 96% of one core — single-threaded, pure Python |
+| Read from disk | 174 GB |
+
+So budget roughly **0.85 KB of RAM per identifier per build side** (~1.7 KB per identifier counting
+both) when sizing a diff you have not run yet. On SLURM, `--mem=256G` covers the chemical diff with
+~26% headroom; the run above reserved `--mem=1400G`, about seven times more than it needed. Some of
+that peak is avoidable — [#1028](https://github.com/NCATSTranslator/Babel/issues/1028) — so re-check
+this figure once that lands rather than treating it as the floor. Note
+that `/usr/bin/time -v` reports "Maximum resident set size" in **KiB**, so converting its number to
+the decimal GB this repo writes into `resources:` blocks needs ×1.073741824 — see the Units section
+of [`Resources.md`](Resources.md).
+
+**You cannot cut the peak by splitting `--files` across several runs.** A retype is only visible as
+`moved` when both the before- and after-type's compendium files are passed in the *same* run, and a
+CURIE that is absent from the passed set reads as `dropped` — so splitting a pipeline's outputs
+across runs turns real retypes into phantom drops. A whole-pipeline diff is all-or-nothing, which
+for chemicals means a whole-node job.
+
 ## What is (and isn't) diffed
 
 Per compendium line, the tool reads exactly two fields: the clique's **leader** (the

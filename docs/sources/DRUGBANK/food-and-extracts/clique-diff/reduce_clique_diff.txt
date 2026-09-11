@@ -1,0 +1,53 @@
+Read 31,567 change rows from /Users/gaurav/code/translator/babel/data/pr-948-diff/clique-diff.csv.
+
+Wrote:
+  drug-moves-top-100.csv: 100 of 4,269 rows
+  food-moves.csv: 8 of 8 rows
+  leader-churn-top-100.csv: 100 of 27,290 rows
+
+## Rows by compendium and kind
+
+  Drug.txt                     moved            4,269
+  Food.txt                     moved            8
+  MolecularMixture.txt         leader_changed   16,250
+  SmallMolecule.txt            leader_changed   11,040
+
+## Type transitions
+
+  Drug.txt                     biolink:Drug -> biolink:ChemicalEntity: 4,268
+  Drug.txt                     biolink:Drug -> biolink:ComplexMolecularMixture: 1
+  Food.txt                     biolink:Food -> biolink:ComplexMolecularMixture: 1
+  Food.txt                     biolink:Food -> biolink:MolecularMixture: 2
+  Food.txt                     biolink:Food -> biolink:SmallMolecule: 5
+  MolecularMixture.txt         biolink:MolecularMixture -> biolink:MolecularMixture: 16,250
+  SmallMolecule.txt            biolink:SmallMolecule -> biolink:SmallMolecule: 11,040
+
+## Leader prefix pairs
+
+  Drug.txt                     RXCUI -> MESH: 4
+  Drug.txt                     RXCUI -> UMLS: 4,242
+  Drug.txt                     UMLS -> MESH: 23
+  Food.txt                     CHEBI -> CHEBI: 7
+  Food.txt                     DRUGBANK -> DRUGBANK: 1
+  MolecularMixture.txt         PUBCHEM.COMPOUND -> PUBCHEM.COMPOUND: 16,250
+  SmallMolecule.txt            PUBCHEM.COMPOUND -> PUBCHEM.COMPOUND: 11,040
+
+## Clique sizes (before_size), by kind
+
+  leader_changed: 2=22, 3=23,399, 4=3,166, 5=591, 6=73, 7=24, 8=10, 9=2, 13=1, 23=1, 33=1
+  moved: 2=4,263, 3=6, 4=1, 7=2, 12=1, 14=2, 20=1, 24=1
+
+## Member prefixes seen in example_members (<=5 members shown per row)
+
+  Drug.txt                     largest clique=3: UMLS=4,269, RXCUI=4,246, MESH=27, CAS=2
+  Food.txt                     largest clique=24: CAS=16, CHEBI=7, DRUGBANK=5, CHEMBL.COMPOUND=3, INCHIKEY=2, MESH=2, PUBCHEM.COMPOUND=2, RXCUI=1, UMLS=1
+  MolecularMixture.txt         largest clique=33: (none listed)
+  SmallMolecule.txt            largest clique=8: (none listed)
+
+## Integrity checks
+
+  rows where before_size != after_size or != member_count: 0
+  rows with an empty before_leader_label: 4,246
+  rows with an empty destination_label:   1
+  distinct before_leader values: 31,567 of 31,567 rows
+  leader_changed rows whose label also changed: 65 of 27,290

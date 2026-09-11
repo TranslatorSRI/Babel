@@ -1,0 +1,131 @@
+{
+  "about": {
+    "after": "babel-2026jul21",
+    "before": "babel-2026jul15",
+    "files": [
+      "SmallMolecule.txt",
+      "MolecularMixture.txt",
+      "Polypeptide.txt",
+      "ComplexMolecularMixture.txt",
+      "ChemicalMixture.txt",
+      "ChemicalEntity.txt",
+      "Drug.txt",
+      "Food.txt"
+    ],
+    "note": "isolates PR #935: food evidence votes instead of forcing, + chemical_type_order"
+  },
+  "compendia": {
+    "ChemicalEntity.txt": {
+      "changed_before_cliques": 0,
+      "clique_count": {
+        "after": 362764,
+        "before": 358496,
+        "diff": 4268,
+        "diff_percent": 1.19
+      },
+      "cliques_with_dropped_members": 0,
+      "dropped_member_count": 0,
+      "leader_changed_count": 0,
+      "moved_member_count": 0,
+      "regrouped_member_count": 0
+    },
+    "ChemicalMixture.txt": {
+      "changed_before_cliques": 0,
+      "clique_count": {
+        "after": 490,
+        "before": 490,
+        "diff": 0,
+        "diff_percent": 0.0
+      },
+      "cliques_with_dropped_members": 0,
+      "dropped_member_count": 0,
+      "leader_changed_count": 0,
+      "moved_member_count": 0,
+      "regrouped_member_count": 0
+    },
+    "ComplexMolecularMixture.txt": {
+      "changed_before_cliques": 0,
+      "clique_count": {
+        "after": 573,
+        "before": 571,
+        "diff": 2,
+        "diff_percent": 0.35
+      },
+      "cliques_with_dropped_members": 0,
+      "dropped_member_count": 0,
+      "leader_changed_count": 0,
+      "moved_member_count": 0,
+      "regrouped_member_count": 0
+    },
+    "Drug.txt": {
+      "changed_before_cliques": 4269,
+      "clique_count": {
+        "after": 262329,
+        "before": 266598,
+        "diff": -4269,
+        "diff_percent": -1.6
+      },
+      "cliques_with_dropped_members": 0,
+      "dropped_member_count": 0,
+      "leader_changed_count": 0,
+      "moved_member_count": 8544,
+      "regrouped_member_count": 0
+    },
+    "Food.txt": {
+      "changed_before_cliques": 8,
+      "clique_count": {
+        "after": 285,
+        "before": 293,
+        "diff": -8,
+        "diff_percent": -2.73
+      },
+      "cliques_with_dropped_members": 0,
+      "dropped_member_count": 0,
+      "leader_changed_count": 0,
+      "moved_member_count": 102,
+      "regrouped_member_count": 0
+    },
+    "MolecularMixture.txt": {
+      "changed_before_cliques": 16250,
+      "clique_count": {
+        "after": 11625301,
+        "before": 11625299,
+        "diff": 2,
+        "diff_percent": 0.0
+      },
+      "cliques_with_dropped_members": 0,
+      "dropped_member_count": 0,
+      "leader_changed_count": 16250,
+      "moved_member_count": 0,
+      "regrouped_member_count": 0
+    },
+    "Polypeptide.txt": {
+      "changed_before_cliques": 0,
+      "clique_count": {
+        "after": 5,
+        "before": 5,
+        "diff": 0,
+        "diff_percent": 0.0
+      },
+      "cliques_with_dropped_members": 0,
+      "dropped_member_count": 0,
+      "leader_changed_count": 0,
+      "moved_member_count": 0,
+      "regrouped_member_count": 0
+    },
+    "SmallMolecule.txt": {
+      "changed_before_cliques": 11040,
+      "clique_count": {
+        "after": 112039197,
+        "before": 112039192,
+        "diff": 5,
+        "diff_percent": 0.0
+      },
+      "cliques_with_dropped_members": 0,
+      "dropped_member_count": 0,
+      "leader_changed_count": 11040,
+      "moved_member_count": 0,
+      "regrouped_member_count": 0
+    }
+  }
+}
