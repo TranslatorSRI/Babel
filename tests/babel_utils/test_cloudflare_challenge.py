@@ -36,6 +36,19 @@ def _http_error(raw_headers: str) -> urllib.error.HTTPError:
 
 
 @pytest.mark.unit
+def test_unrelated_csp_on_a_403_is_not_treated_as_a_challenge():
+    """A 403 whose CSP does not name the Cloudflare widget must keep the normal retry path.
+
+    The fallback matches a substring of one header, so it is the check most likely to fire on
+    something that is merely served through Cloudflare. A false positive is not harmless: it
+    converts a retryable failure into a hard stop telling the operator to fetch a file by hand.
+    """
+    csp = "content-security-policy: default-src 'self'; script-src 'self' https://cdn.example.org"
+
+    raise_if_cloudflare_challenge("https://example.com/file.zip", "/downloads/SOURCE/file.zip", _http_error(csp))
+
+
+@pytest.mark.unit
 def test_challenge_detected_from_csp_when_cf_mitigated_is_absent():
     """A challenge page should still be recognized from its Cloudflare-widget CSP alone.
 

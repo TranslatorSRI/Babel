@@ -40,6 +40,11 @@ considering), see [`docs/Testing.md`](../docs/Testing.md).
   [New pipeline tests](pipeline/README.md#new-pipeline-tests) in the pipeline README.
 - **Pipeline behavior specific to one vocabulary** → add `tests/pipeline/test_X_pipeline.py`
   marked `pipeline`.
+- **A compendium-building function (`src/createcompendia/X.py`)** →
+  `tests/createcompendia/test_X.py`. Check for existing coverage under the *source* name before
+  concluding there is none: anatomy's is split between `tests/createcompendia/test_anatomy.py`
+  and the older `tests/test_anatomy_emapa.py` (EMAPA typing, the bad-xrefs filter, the typing
+  precedence), with the EMAPA extraction in `tests/pipeline/test_emapa_pipeline.py`.
 - **A developer tool under `src/tools/`** → `unit` test in `tests/tools/<tool>/`, mirroring the
   tool's own package name (e.g. `tests/tools/slurm/test_parse.py`). Test only the CLI layer here:
   a tool's reusable logic lives in `src/` and is tested beside it (e.g. `src/model/glom_diff.py`
