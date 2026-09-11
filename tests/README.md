@@ -41,10 +41,10 @@ considering), see [`docs/Testing.md`](../docs/Testing.md).
 - **Pipeline behavior specific to one vocabulary** → add `tests/pipeline/test_X_pipeline.py`
   marked `pipeline`.
 - **A compendium-building function (`src/createcompendia/X.py`)** →
-  `tests/createcompendia/test_X.py`. Check for existing coverage under the *source* name before
-  concluding there is none: anatomy's is split between `tests/createcompendia/test_anatomy.py`
-  and the older `tests/test_anatomy_emapa.py` (EMAPA typing, the bad-xrefs filter, the typing
-  precedence), with the EMAPA extraction in `tests/pipeline/test_emapa_pipeline.py`.
+  `tests/createcompendia/test_X.py`, one file per pipeline. Live-data extraction for one
+  vocabulary belongs in `tests/pipeline/test_X_pipeline.py` instead — anatomy is split that way,
+  with everything offline plus the endpoint checks in `tests/createcompendia/test_anatomy.py`
+  and the UberGraph-backed EMAPA extraction in `tests/pipeline/test_emapa_pipeline.py`.
 - **A developer tool under `src/tools/`** → `unit` test in `tests/tools/<tool>/`, mirroring the
   tool's own package name (e.g. `tests/tools/slurm/test_parse.py`). Test only the CLI layer here:
   a tool's reusable logic lives in `src/` and is tested beside it (e.g. `src/model/glom_diff.py`
@@ -265,6 +265,39 @@ and how to add new checks or vocabularies.
   subclasses and cross-references via SPARQL. Covers direct and indirect subclass retrieval,
   filtering by cross-reference presence, and exact-match label queries. Tests may xfail at
   runtime if the UberGraph server is reachable but returns an HTTP error on the probe request.
+
+### createcompendia/
+
+One file per compendium-building pipeline in `src/createcompendia/`. These test the pipeline
+functions themselves — ids-file type maps, concord generation, clique typing, compendium
+assembly — as opposed to `tests/datahandlers/`, which tests the per-source download and parse
+step that feeds them.
+
+- **`createcompendia/test_anatomy.py`** (`unit`, some `network`) — The anatomy pipeline:
+  EMAPA's part_of walk and per-CURIE typing, the Wikidata cell concord and its one-to-one
+  filter, the MESH/UMLS/NCIT ids-file type maps, bad-xref filtering, the GO/CL/UBERON/EMAPA
+  typing precedence and the majority vote behind it, and an end-to-end `build_compendia()` run.
+  The `network` tests query the live FRINK and UberGraph endpoints and fetch the Biolink Model.
+
+- **`createcompendia/test_chemicals.py`** (`unit`) — `write_unichem_concords()`'s handling of
+  UniChem compound IDs that already embed their source prefix (which once produced
+  `CHEBI:CHEBI:12345`), and `make_chebi_relations()`'s reading of the ChEBI SDF, whose tags
+  ChEBI renames between releases.
+
+- **`createcompendia/test_diseasephenotype.py`** (`unit`) — The disease/phenotype pipeline: the
+  UMLS semantic-type tree map, MONDO close-match concord parsing, source exclusion for the
+  impact report, and the disease-vs-phenotype clique typing rules.
+
+- **`createcompendia/test_drugchemical.py`** (`unit`) — `_validate_and_apply_manual_concords()`,
+  which validates manual concord pairs against the chemical compendia and normalises their
+  CURIEs.
+
+- **`createcompendia/test_leftover_umls.py`** (`network`) — The manual UMLS semantic-type
+  overrides used when building the leftover UMLS compendium. Marked `network` because it builds
+  a Biolink Model Toolkit.
+
+- **`createcompendia/test_publications.py`** (`unit`) — `verify_pubmed_downloads()`, the backstop
+  that makes it safe to carry PubMed files forward from a previous run by MD5-checking each one.
 
 ### babel_utils/
 

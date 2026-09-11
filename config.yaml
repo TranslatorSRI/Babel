@@ -9,7 +9,7 @@ build:
   workarounds:
   - Continued with the downloads from 2026jul15 under babel-1.18, but redownloaded CHEBI given many parsing changes.
   - DrugBank downloads are currently disabled https://github.com/cthoyt/drugbank-downloader/issues/23 -- I used the previously downloaded 5-1-13.
-  - HMDB is now behind a Cloudflare bot challenge, so the pipeline can't download it (see docs/sources/DownloadPatterns.md). Unlike DrugBank, this is not a reused old download -- I downloaded it fresh in a browser on my laptop and copied it to the HPC.
+  - HMDB is now behind a Cloudflare bot challenge, so the pipeline can't download it (see docs/sources/DownloadPatterns.md). Unlike DrugBank, this is not a reused old download -- I downloaded it fresh in a browser on my laptop and copied it to the HPC. Place the zip at babel_downloads/HMDB/hmdb_metabolites.zip and re-run get_HMDB: pull_hmdb() unpacks an already-present zip instead of re-downloading it, so the copy survives the rule's retries.
 
 # Versions that need to be updated on every release.
 biolink_version: "4.4.3"
