@@ -119,3 +119,15 @@ def test_the_built_extension_matches_the_version_python_expects():
     """
     assert src.accel.accel is not None, "compiled extension not built -- run `uv sync`"
     assert src.accel.accel.ABI_VERSION == src.accel._REQUIRED_ABI_VERSION
+
+
+@pytest.mark.unit
+def test_the_built_extension_exports_every_accelerated_function():
+    """Each function src/_accel.pyi declares must actually be exported by the built extension.
+
+    This is the list to extend when a port lands; it is what turns a forgotten `add_function` in
+    rust/src/lib.rs into a test failure rather than a fallback to Python that nobody notices.
+    """
+    assert src.accel.accel is not None, "compiled extension not built -- run `uv sync`"
+    for name in ["convert_synonyms_to_sapbert"]:
+        assert callable(getattr(src.accel.accel, name, None)), f"src._accel does not export {name}"
