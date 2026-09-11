@@ -295,7 +295,7 @@ ingest is in `docs/Development.md` ("Enhancing a data source ingest"); datahandl
   a port is being proven out, A/B it against the existing Python with `BABEL_DISABLE_RUST=1`; once
   the Rust side is confirmed correct and faster, delete the Python implementation rather than
   keeping both indefinitely. Reach the extension through `src/accel.py` (never `src._accel`
-  directly) so a missing build falls back rather than breaking DAG parsing for all 245 rules.
+  directly) so a missing build falls back rather than breaking DAG parsing for every rule.
 
 ## Debugging
 

@@ -54,7 +54,7 @@ All Python and Snakemake source code lives under `src/`:
 | `src/node.py`          | Core factory classes: `NodeFactory`, `SynonymFactory`, `DescriptionFactory`, `TaxonFactory`, `InformationContentFactory`, `TSVSQLiteLoader`.                                      |
 | `src/babel_utils.py`   | Core pipeline utilities: download/FTP helpers, `glom()` (clique merging), `write_compendium()` (compendium builder), and state management helpers.                                |
 | `src/util.py`          | Logging setup, config loading, [Biolink Model Toolkit](https://github.com/biolink/biolink-model-toolkit) access.                                                                  |
-| `src/exporters/`       | Output format handlers for KGX, Apache Parquet, and JSONL.                                                                                                                        |
+| `src/exporters/`       | Output format handlers for KGX, SapBERT training data, Apache Parquet, and JSONL. The SapBERT export runs in Rust via `src/accel.py` (see `rust/README.md`).                      |
 | `src/reports/`         | Report generation code.                                                                                                                                                           |
 | `src/synonyms/`        | Synonym file generation.                                                                                                                                                          |
 | `src/metadata/`        | Provenance and metadata handling.                                                                                                                                                 |
