@@ -58,6 +58,7 @@ def get_all_compendia(config):
         + config["protein_outputs"]
         + config["taxon_outputs"]
         + config["cell_line_outputs"]
+        + config["chemical_role_outputs"]
         + config["umls_outputs"]
         + config["macromolecularcomplex_outputs"]
         + config["publication_outputs"]
@@ -81,6 +82,7 @@ def get_all_synonyms(config):
         + config["chemical_outputs"]
         + config["taxon_outputs"]
         + config["cell_line_outputs"]
+        + config["chemical_role_outputs"]
         + config["genefamily_outputs"]
         + config["drugchemicalconflated_synonym_outputs"]
         + config["geneproteinconflated_synonym_outputs"]
@@ -108,6 +110,7 @@ def get_all_synonyms_except_drugchemicalconflated(config):
         + config["chemical_outputs"]
         + config["taxon_outputs"]
         + config["cell_line_outputs"]
+        + config["chemical_role_outputs"]
         + config["genefamily_outputs"]
         +
         # config['drugchemicalconflated_synonym_outputs'] +
@@ -134,6 +137,7 @@ def get_all_synonyms_with_drugchemicalconflated(config):
         # config['chemical_outputs'] +
         config["taxon_outputs"]
         + config["cell_line_outputs"]
+        + config["chemical_role_outputs"]
         + config["genefamily_outputs"]
         + config["drugchemicalconflated_synonym_outputs"]
         + config["geneproteinconflated_synonym_outputs"]

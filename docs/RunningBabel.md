@@ -34,6 +34,7 @@ Currently, the following targets build compendia and synonym files:
 * anatomy
 * cell_line
 * chemical
+* chemical_role
 * disease
 * gene
 * genefamily
@@ -75,9 +76,9 @@ depend on, not because conflation itself is costly: `geneprotein` takes `Gene.tx
 `Protein.txt` as inputs, and `drugchemical` takes `Drug.txt` and the chemical outputs, so asking
 for either transitively builds the heavy targets underneath it.
 
-Every other target is small enough to build locally, and building one locally is the default way
-to work on it: `anatomy`, `disease`, `process`, `taxon`, `genefamily`, `publications`,
-`cell_line` and `macromolecular_complex`. (Note the Snakemake target is `disease`, while the
+Every other target is small enough to build locally, and building one locally is the default way to
+work on it: `anatomy`, `disease`, `process`, `taxon`, `genefamily`, `publications`, `cell_line`,
+`chemical_role` and `macromolecular_complex`. (Note the Snakemake target is `disease`, while the
 intermediate directory and Python module are `diseasephenotype`.)
 
 Concretely, `anatomy` builds end-to-end on a Mac in roughly 25 minutes wall time, with the UMLS

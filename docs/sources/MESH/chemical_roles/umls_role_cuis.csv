@@ -1,0 +1,999 @@
+cui,name,semantic_types,in_chemical_role
+C0000782,Abortifacient Agents,Pharmacologic Substance,True
+C0000783,"Abortifacient Agents, Nonsteroidal",Pharmacologic Substance,True
+C0000784,"Abortifacient Agents, Steroidal",Organic Chemical; Pharmacologic Substance,True
+C0001046,Acetylcholinesterase Inhibitors,Pharmacologic Substance,True
+C0001097,Acid Cysteine Proteinase Inhibitors,Biologically Active Substance; Pharmacologic Substance,True
+C0001516,Adhesives,Manufactured Object,False
+C0001551,Immunologic Adjuvants,Immunologic Factor; Pharmacologic Substance,True
+C0001637,Adrenergic Agents,Pharmacologic Substance,True
+C0001640,Adrenergic alpha-Agonists,Pharmacologic Substance,True
+C0001641,Adrenergic alpha-Antagonists,Pharmacologic Substance,True
+C0001644,Adrenergic beta-Agonists,Pharmacologic Substance,True
+C0001645,Adrenergic beta-Antagonists,Pharmacologic Substance,True
+C0001647,Adrenergic Neuron Agents,Pharmacologic Substance,True
+C0001648,Adrenergic Agonists,Pharmacologic Substance,True
+C0001730,Affinity Labels,"Indicator, Reagent, or Diagnostic Aid",True
+C0001804,Agglutinins,Immunologic Factor,True
+C0001869,Air Pollutants,Hazardous or Poisonous Substance,True
+C0001870,"Air Pollutants, Environmental",Hazardous or Poisonous Substance,True
+C0001871,"Air Pollutants, Occupational",Hazardous or Poisonous Substance,True
+C0001947,Alcohol Deterrents,Pharmacologic Substance,True
+C0002073,Alkylating Agents,Hazardous or Poisonous Substance; Pharmacologic Substance,True
+C0002258,alpha-Cysteine Protease Inhibitors,Biologically Active Substance; Pharmacologic Substance,True
+C0002307,Alpha-Neurotoxins,Hazardous or Poisonous Substance,True
+C0002444,Amebicides,Pharmacologic Substance,True
+C0002509,"Amines, Sympathomimetic",Pharmacologic Substance,True
+C0002671,Amphiphilic Agents,Biomedical or Dental Material,True
+C0002676,Ampholyte Mixtures,"Indicator, Reagent, or Diagnostic Aid",True
+C0002677,Ampholytes,"Biologically Active Substance; Indicator, Reagent, or Diagnostic Aid",True
+C0002763,Central Nervous System Stimulants,Pharmacologic Substance,True
+C0002771,Analgesics,Organic Chemical; Pharmacologic Substance,True
+C0002772,"Analgesics, Opioid",Organic Chemical; Pharmacologic Substance,True
+C0002773,"Analgesics, Anti-Inflammatory",Pharmacologic Substance,True
+C0002844,Androgens,Hormone; Pharmacologic Substance,True
+C0002904,"Adjuvants, Anesthesia",Pharmacologic Substance,True
+C0002932,Anesthetics,Pharmacologic Substance,True
+C0002933,"Anesthetics, Dissociative",Pharmacologic Substance,True
+C0002934,Local Anesthetics,Organic Chemical; Pharmacologic Substance,True
+C0002976,Angiogenesis Factor,Biologically Active Substance,True
+C0003015,Angiotensin-Converting Enzyme Inhibitors,Pharmacologic Substance,True
+C0003072,Anion Exchange Resins,Biomedical or Dental Material,True
+C0003138,Antacids,Pharmacologic Substance,True
+C0003158,Anthelmintics,Pharmacologic Substance,True
+C0003191,Antirheumatic Agents,Pharmacologic Substance,True
+C0003195,Anti-Arrhythmia Agents,Pharmacologic Substance,True
+C0003204,Anti-Infective Agents,Pharmacologic Substance,True
+C0003205,"Anti-Infective Agents, Local",Pharmacologic Substance,True
+C0003207,"Anti-Infective Agents, Urinary",Pharmacologic Substance,True
+C0003209,Anti-Inflammatory Agents,Pharmacologic Substance,True
+C0003211,"Anti-Inflammatory Agents, Non-Steroidal",Pharmacologic Substance,True
+C0003216,Anti-Ulcer Agent,Pharmacologic Substance,True
+C0003232,Antibiotics,Antibiotic,True
+C0003235,"Antibiotics, Antifungal",Antibiotic,True
+C0003236,"Antibiotics, Antineoplastic",Antibiotic,True
+C0003237,"Antibiotics, Antitubercular",Antibiotic,True
+C0003276,Anticestodal Agents,Pharmacologic Substance,True
+C0003277,Anticholesteremic Agents,Pharmacologic Substance,True
+C0003280,Anticoagulants,Pharmacologic Substance,True
+C0003286,Anticonvulsants,Pharmacologic Substance,True
+C0003289,Antidepressive Agents,Pharmacologic Substance,True
+C0003290,Tricyclic Antidepressive Agents,Pharmacologic Substance,True
+C0003292,Antidiarrheals,Pharmacologic Substance,True
+C0003295,Antidote,Pharmacologic Substance,True
+C0003297,Antiemetics,Pharmacologic Substance,True
+C0003299,Antiepileptic Agents,Pharmacologic Substance,True
+C0003302,Antifibrillatory Agents,Pharmacologic Substance,True
+C0003304,Antifibrinolytic Agents,Pharmacologic Substance,True
+C0003305,Antiflatulents,Pharmacologic Substance,True
+C0003306,Antifoaming Agents,Pharmacologic Substance,True
+C0003308,Antifungal Agents,Pharmacologic Substance,True
+C0003364,Antihypertensive Agents,Pharmacologic Substance,True
+C0003374,Antimalarials,Pharmacologic Substance,True
+C0003376,Antimetabolites,Pharmacologic Substance,True
+C0003377,"Antimetabolites, Antineoplastic",Pharmacologic Substance,True
+C0003379,Antimitotic Agents,Pharmacologic Substance,True
+C0003385,Muscarinic Antagonists,Pharmacologic Substance,True
+C0003391,Antinematodal Agents,Pharmacologic Substance,True
+C0003392,Antineoplastic Agents,Organic Chemical; Pharmacologic Substance,True
+C0003394,"Antineoplastic Agents, Phytogenic",Pharmacologic Substance,True
+C0003404,Antiparasitic Agents,Pharmacologic Substance,True
+C0003405,Antiparkinson Agents,Pharmacologic Substance,True
+C0003414,Antiplatyhelmintic Agents,Pharmacologic Substance,True
+C0003416,Antiprotozoal Agents,Pharmacologic Substance,True
+C0003417,Antipruritics,Pharmacologic Substance,True
+C0003419,Antipyretics,Pharmacologic Substance,True
+C0003426,"Antiseptics, Urinary",Pharmacologic Substance,True
+C0003429,Antisickling Agents,Pharmacologic Substance,True
+C0003433,Antispermatogenic Agents,Pharmacologic Substance,True
+C0003440,Antithrombins,"Amino Acid, Peptide, or Protein; Pharmacologic Substance",False
+C0003446,Antitreponemal Agents,Pharmacologic Substance,True
+C0003447,Antitrichomonal Agents,Pharmacologic Substance,True
+C0003448,Antitubercular Agents,Pharmacologic Substance,True
+C0003449,Antitussive Agents,Pharmacologic Substance,True
+C0003451,Antiviral Agents,Pharmacologic Substance,True
+C0003567,Aphrodisiacs,Chemical Viewed Functionally,True
+C0003620,Appetite Depressants,Pharmacologic Substance,True
+C0003920,Artificial Sweeteners,Food,True
+C0004110,Astringents,Pharmacologic Substance,True
+C0004382,Autonomic Agents,Pharmacologic Substance,True
+C0005525,Biological Response Modifiers,Immunologic Factor; Pharmacologic Substance,True
+C0005836,Blood Substitutes,Pharmacologic Substance,True
+C0006280,Bronchodilator Agents,Pharmacologic Substance,True
+C0006353,Buffers,"Indicator, Reagent, or Diagnostic Aid; Pharmacologic Substance",True
+C0006683,Calcium Channel Agonists,Pharmacologic Substance,True
+C0006684,Calcium Channel Blockers,Pharmacologic Substance,True
+C0007036,Carbonic Anhydrase Inhibitors,Pharmacologic Substance,True
+C0007090,Carcinogens,Hazardous or Poisonous Substance,True
+C0007091,"Carcinogens, Environmental",Hazardous or Poisonous Substance,True
+C0007209,Cardiotonic Agents,Pharmacologic Substance,True
+C0007220,Cardiovascular Agents,Pharmacologic Substance,True
+C0007422,Cathartics,Pharmacologic Substance,True
+C0007445,Cation Exchange Resins,Biomedical or Dental Material; Organic Chemical,True
+C0007468,Caustics,Hazardous or Poisonous Substance; Inorganic Chemical,True
+C0007680,Central Nervous System Agents,Pharmacologic Substance,True
+C0007681,Central Nervous System Depressants,Pharmacologic Substance,True
+C0007974,Chelating Agents,"Indicator, Reagent, or Diagnostic Aid; Pharmacologic Substance",True
+C0007991,Chemical Warfare Agents,Hazardous or Poisonous Substance,True
+C0008011,Chemosterilants,Hazardous or Poisonous Substance,True
+C0008303,Cholagogues,Pharmacologic Substance,True
+C0008304,Cholagogues and Choleretics,Pharmacologic Substance,True
+C0008362,Choleretics,Pharmacologic Substance,True
+C0008425,Cholinesterase Inhibitors,Organic Chemical; Pharmacologic Substance,True
+C0008426,"Cholinesterase Inhibitors, Irreversible",Pharmacologic Substance,True
+C0008427,"Cholinesterase Inhibitors, Reversible",Pharmacologic Substance,True
+C0008428,Cholinesterase Reactivators,Pharmacologic Substance,True
+C0008583,Chromogenic Compounds,"Indicator, Reagent, or Diagnostic Aid",True
+C0008584,Chromogenic Substrates,"Indicator, Reagent, or Diagnostic Aid",True
+C0008904,Clastogens,Hazardous or Poisonous Substance,True
+C0008920,Cleansing Agents,Pharmacologic Substance,True
+C0009117,Coagulants,Pharmacologic Substance,True
+C0009188,Coccidiostats,Pharmacologic Substance,True
+C0009871,Contraceptive Agents,Pharmacologic Substance,True
+C0009873,"Contraceptive Agents, Female",Pharmacologic Substance,True
+C0009881,"Contraceptive Agents, Male",Pharmacologic Substance,True
+C0009905,"Contraceptives, Oral",Pharmacologic Substance,True
+C0009907,"Contraceptives, Oral, Hormonal",Pharmacologic Substance,True
+C0009908,"Contraceptives, Oral, Sequential",Pharmacologic Substance,True
+C0009909,"Contraceptives, Oral, Synthetic",Pharmacologic Substance,True
+C0009910,"Contraceptives, Postcoital",Pharmacologic Substance,True
+C0009911,"Contraceptives, Postcoital, Hormonal",Pharmacologic Substance,True
+C0009912,"Contraceptives, Postcoital, Synthetic",Pharmacologic Substance,True
+C0009924,Contrast Media,"Indicator, Reagent, or Diagnostic Aid",True
+C0009950,Convulsants,Hazardous or Poisonous Substance,True
+C0010164,Cosmetics,Manufactured Object,False
+C0010215,Counterirritants,Pharmacologic Substance,True
+C0010360,Cross-Linking Reagents,"Indicator, Reagent, or Diagnostic Aid",True
+C0010406,Cryoprotective Agents,Pharmacologic Substance,True
+C0010454,Culture Media,"Indicator, Reagent, or Diagnostic Aid",True
+C0010464,Neuromuscular Nondepolarizing Agents,Pharmacologic Substance,True
+C0010586,Cycloplegics,Pharmacologic Substance,True
+C0010658,Cysteine Proteinase Inhibitors,Biologically Active Substance; Pharmacologic Substance,True
+C0010659,"Cysteine Proteinase Inhibitors, Endogenous",Biologically Active Substance; Pharmacologic Substance,True
+C0010660,"Cysteine Proteinase Inhibitors, Exogenous",Biologically Active Substance; Pharmacologic Substance,True
+C0010821,Cytolysins,Hazardous or Poisonous Substance,True
+C0010858,Cytostatic Agents,Pharmacologic Substance,True
+C0010861,"Antibiotics, Cytotoxic",Antibiotic,True
+C0010868,Cytotoxin,Biologically Active Substance; Hazardous or Poisonous Substance,True
+C0011160,Defoaming Agents,Chemical Viewed Functionally,True
+C0011161,"Defoliants, Chemical",Hazardous or Poisonous Substance,True
+C0011468,Deodorants,Biomedical or Dental Material,True
+C0011625,Dermatologic Agents,Pharmacologic Substance,True
+C0011651,Dermotoxins,Biologically Active Substance; Hazardous or Poisonous Substance,True
+C0011683,Desickling Agents,Pharmacologic Substance,True
+C0011740,Detergents,Chemical Viewed Functionally,True
+C0012237,Digestants,Pharmacologic Substance,True
+C0012682,Disinfectants,Substance,True
+C0012798,Diuretics,Pharmacologic Substance,True
+C0012800,"Diuretics, Osmotic",Pharmacologic Substance,True
+C0012802,Thiazide Diuretics,Pharmacologic Substance,True
+C0013036,Dopaminergic Agents,Pharmacologic Substance,True
+C0013343,Dyes,"Indicator, Reagent, or Diagnostic Aid",True
+C0013952,Fetotoxins,"Amino Acid, Peptide, or Protein; Hazardous or Poisonous Substance",False
+C0013973,Emetics,Pharmacologic Substance,True
+C0013983,Emollients,Biomedical or Dental Material,True
+C0014018,Emulsifying Agents,Substance,True
+C0014417,Environmental Pollutants,Hazardous or Poisonous Substance,True
+C0014418,"Environmental Pollutants, Noxae, and Pesticides",Hazardous or Poisonous Substance,True
+C0014432,Enzyme Inhibitors,Pharmacologic Substance,True
+C0014437,Enzyme Reactivators,Pharmacologic Substance,True
+C0014532,Epidermotoxins,"Amino Acid, Peptide, or Protein; Hazardous or Poisonous Substance",False
+C0014939,estrogens,Hormone; Organic Chemical; Pharmacologic Substance,True
+C0014940,"Estrogens, Non-Steroidal",Hormone; Organic Chemical; Pharmacologic Substance,True
+C0015288,Exogenous Calcium Channel Agonists,Pharmacologic Substance,True
+C0015291,Exohemagglutinins,Pharmacologic Substance,True
+C0015314,Expectorants,Pharmacologic Substance,True
+C0015896,Fertility Agents,Pharmacologic Substance,True
+C0015897,"Fertility Agents, Female",Pharmacologic Substance,True
+C0015898,"Fertility Agents, Female, Hormonal",Pharmacologic Substance,True
+C0015899,"Female Fertility Agents, Synthetic",Pharmacologic Substance,True
+C0015900,"Fertility Agents, Male",Pharmacologic Substance,True
+C0015901,"Fertility Agents, Male, Hormonal",Pharmacologic Substance,True
+C0015902,"Male Fertility Agents, Synthetic",Pharmacologic Substance,True
+C0015919,Fertilizers,Manufactured Object,False
+C0016018,Fibrinolytic Agents,Pharmacologic Substance,True
+C0016090,Filaricides,Pharmacologic Substance,True
+C0016140,Fireproofing Agents,Chemical Viewed Functionally,True
+C0016184,Fixatives,"Indicator, Reagent, or Diagnostic Aid",True
+C0016198,Flame Retardants,Chemical Viewed Functionally,True
+C0016320,Fluorescent Dyes,"Indicator, Reagent, or Diagnostic Aid",True
+C0016321,Fluorescent Probes,"Indicator, Reagent, or Diagnostic Aid",True
+C0016349,Fluorogenic Substrate,"Indicator, Reagent, or Diagnostic Aid",True
+C0016391,Foam Retardants,Chemical Viewed Functionally,True
+C0016411,Folic Acid Antagonists,Pharmacologic Substance,True
+C0016453,Food Additives,Food,True
+C0016461,Food Coloring Agents,Chemical Viewed Functionally,True
+C0016485,Food Preservatives,Chemical Viewed Functionally,True
+C0017078,Ganglionic Stimulants,Pharmacologic Substance,True
+C0017173,Gastrointestinal Agents,Pharmacologic Substance,True
+C0017302,General anesthetic drugs,Pharmacologic Substance,True
+C0017780,Glues,Substance,True
+C0018100,Gout Suppressants,Pharmacologic Substance,True
+C0018282,Growth Inhibitors,Biologically Active Substance; Pharmacologic Substance,True
+C0018501,Hair Dyes,Chemical Viewed Functionally,True
+C0018503,Hair Preparations,Manufactured Object,False
+C0018533,Hallucinogens,Hazardous or Poisonous Substance; Pharmacologic Substance,True
+C0018624,Hazardous Chemicals,Hazardous or Poisonous Substance,True
+C0018626,Hazardous Substances,Hazardous or Poisonous Substance,True
+C0018909,Hemagglutinin,"Amino Acid, Peptide, or Protein; Immunologic Factor",False
+C0018928,Hematinics,Organic Chemical; Pharmacologic Substance,True
+C0018938,Hematologic Agents,Pharmacologic Substance,True
+C0019120,Hemostatic Agents,Pharmacologic Substance,True
+C0019124,Hemotoxins,"Amino Acid, Peptide, or Protein; Hazardous or Poisonous Substance",False
+C0019135,Heparin Antagonists,Pharmacologic Substance,True
+C0019236,Herbicides,Hazardous or Poisonous Substance,True
+C0019590,Histamine Antagonists,Organic Chemical; Pharmacologic Substance,True
+C0019592,Histamine H1 Antagonists,Pharmacologic Substance,True
+C0019593,Histamine H2 Antagonists,Pharmacologic Substance,True
+C0020262,Hydrocholeretics,Pharmacologic Substance,True
+C0020591,Hypnotics,Pharmacologic Substance,True
+C0020592,Hypnotics and Sedatives,Pharmacologic Substance,True
+C0020602,Hypocholesteremic Agents,Pharmacologic Substance,True
+C0020616,Hypoglycemic Agents,Pharmacologic Substance,True
+C0021054,Immunologic Factors,Immunologic Factor,True
+C0021075,Immunosorbents,"Indicator, Reagent, or Diagnostic Aid",True
+C0021081,Immunosuppressive Agents,Immunologic Factor; Pharmacologic Substance,True
+C0021212,Indicators,"Indicator, Reagent, or Diagnostic Aid",True
+C0021213,Indicators and Reagents,"Indicator, Reagent, or Diagnostic Aid",True
+C0021572,Insect Repellents,Hazardous or Poisonous Substance,True
+C0021576,Insecticides,Hazardous or Poisonous Substance,True
+C0021581,Organophosphate Insecticide Antagonists,Pharmacologic Substance,True
+C0021583,"Insecticides, Organothiophosphate, Antagonists",Pharmacologic Substance,True
+C0021717,Intercalating Agents,"Indicator, Reagent, or Diagnostic Aid",True
+C0021742,Interferon Inducers,Immunologic Factor; Pharmacologic Substance,True
+C0022014,Ion Exchange Resins,Biomedical or Dental Material,True
+C0022022,Ionophores,Pharmacologic Substance,True
+C0022086,Iron Chelating Agents,"Indicator, Reagent, or Diagnostic Aid; Organic Chemical; Pharmacologic Substance",True
+C0022108,Irritants,Hazardous or Poisonous Substance,True
+C0022185,Isohemagglutinins,Immunologic Factor,True
+C0022585,Keratolytic Agents,Pharmacologic Substance,True
+C0023342,Leprostatic Agents,Pharmacologic Substance,True
+C0023688,Ligands,Chemical,True
+C0023785,Lipocaic,Biologically Active Substance,True
+C0023831,lipotropic agents,Biologically Active Substance; Pharmacologic Substance,True
+C0024165,Luteolytic Agents,Pharmacologic Substance,True
+C0025346,Menstruation-Inducing Agents,Pharmacologic Substance,True
+C0026160,Mineralocorticoids,Hormone; Organic Chemical; Pharmacologic Substance,True
+C0026207,Miotics,Pharmacologic Substance,True
+C0026213,Specialty Uses of Chemicals,Phenomenon or Process,False
+C0026249,Mitogens,Pharmacologic Substance,True
+C0026381,Molecular Probes,"Indicator, Reagent, or Diagnostic Aid",True
+C0026392,Molluscacides,Hazardous or Poisonous Substance,True
+C0026457,Monoamine Oxidase Inhibitors,Organic Chemical; Pharmacologic Substance,True
+C0026543,Morning After Pill,Pharmacologic Substance,True
+C0026698,mucolytic agents,Pharmacologic Substance,True
+C0026815,Muscarinic Agents,Pharmacologic Substance,True
+C0026833,"Muscle Relaxants, Central",Pharmacologic Substance,True
+C0026879,Mutagens,Hazardous or Poisonous Substance,True
+C0026964,Mydriatics,Pharmacologic Substance,True
+C0027048,Cardiac Depressants,Pharmacologic Substance,True
+C0027409,Narcotic Analgesics,Pharmacologic Substance,True
+C0027410,Narcotic Antagonists,Pharmacologic Substance,True
+C0027415,Narcotics,Hazardous or Poisonous Substance; Pharmacologic Substance,True
+C0027479,Natriuretic Hormones,Hormone; Organic Chemical,True
+C0027865,Neuromuscular Agents,Pharmacologic Substance,True
+C0027866,Neuromuscular Blocking Agents,Pharmacologic Substance,True
+C0027867,Neuromuscular Depolarizing Agents,Pharmacologic Substance,True
+C0027908,Neurotransmitters,Biologically Active Substance,True
+C0027934,Neurotoxins,Hazardous or Poisonous Substance,True
+C0028050,Nicotinic Agents,Pharmacologic Substance,True
+C0028470,Noxae,Hazardous or Poisonous Substance,True
+C0030009,"Oxidants, Photochemical",Hazardous or Poisonous Substance,True
+C0030094,Oxytocics,Pharmacologic Substance,True
+C0030511,Parasympatholytics,Pharmacologic Substance,True
+C0030512,Parasympathomimetic Agents,Pharmacologic Substance,True
+C0031000,Perfume,Manufactured Object,False
+C0031251,Pesticide Residues,Hazardous or Poisonous Substance,True
+C0031252,Pesticide Synergists,Hazardous or Poisonous Substance,True
+C0031253,Pesticides,Hazardous or Poisonous Substance,True
+C0031638,Phosphodiesterase Inhibitors,Pharmacologic Substance,True
+C0031861,Phytomitogens,"Amino Acid, Peptide, or Protein; Biologically Active Substance",False
+C0031879,Pickling Agents,"Indicator, Reagent, or Diagnostic Aid",True
+C0032082,Plant Growth Regulators,"Amino Acid, Peptide, or Protein; Hormone",False
+C0032121,Plasma Substitutes,Pharmacologic Substance,True
+C0032139,Plasmin Inhibitor,Pharmacologic Substance,True
+C0032166,Plasticizers,Biomedical or Dental Material,True
+C0032177,Platelet Aggregation Inhibitors,Pharmacologic Substance,True
+C0032178,Platelet Antagonists,Pharmacologic Substance,True
+C0032188,Platelet Inhibitors,Pharmacologic Substance,True
+C0032346,Poisons,Hazardous or Poisonous Substance,True
+C0033306,Progestins,Hormone; Pharmacologic Substance,True
+C0033607,Protease Inhibitors,Pharmacologic Substance,True
+C0033613,Protective Agents,Pharmacologic Substance,True
+C0033671,Protein Synthesis Inhibitors,Pharmacologic Substance,True
+C0033978,Psychotropic Drugs,Pharmacologic Substance,True
+C0034085,Pulmonary Surfactants,Biologically Active Substance; Organic Chemical; Pharmacologic Substance,True
+C0034163,Pustulants,Hazardous or Poisonous Substance,True
+C0034304,Pyrogens,Biologically Active Substance; Organic Chemical,True
+C0034540,Radiation-Protective Agents,Pharmacologic Substance,True
+C0034541,Radiation-Sensitizing Agents,Pharmacologic Substance,True
+C0034758,"Reagent Kits, Diagnostic","Indicator, Reagent, or Diagnostic Aid",True
+C0034759,Reagent Strips,"Indicator, Reagent, or Diagnostic Aid",True
+C0034760,Reagents,"Indicator, Reagent, or Diagnostic Aid",True
+C0035064,Renal Agents,Pharmacologic Substance,True
+C0035155,Reproductive Control Agents,Pharmacologic Substance,True
+C0035643,"Riot Control Agents, Chemical",Hazardous or Poisonous Substance,True
+C0035805,Rodenticides,Hazardous or Poisonous Substance,True
+C0035919,Rubefacients,Hazardous or Poisonous Substance; Pharmacologic Substance,True
+C0036336,Schistosomicides,Pharmacologic Substance,True
+C0036557,Sedatives,Pharmacologic Substance,True
+C0036728,"Serine Proteinase Inhibitors, Endogenous",Biologically Active Substance; Pharmacologic Substance,True
+C0036729,"Serine Proteinase Inhibitors, Exogenous",Biologically Active Substance; Pharmacologic Substance,True
+C0036733,Serine Proteinase Inhibitors,"Amino Acid, Peptide, or Protein; Biologically Active Substance; Pharmacologic Substance",False
+C0036753,Serotonin Antagonists,Pharmacologic Substance,True
+C0037250,skeletal muscle relaxants,Pharmacologic Substance,True
+C0037391,Soap Solution,Manufactured Object,False
+C0037392,Soap,Manufactured Object,False
+C0037594,Soil Pollutants,Hazardous or Poisonous Substance,True
+C0037638,Solvents,"Indicator, Reagent, or Diagnostic Aid",True
+C0037766,Antispasmodics,Pharmacologic Substance,True
+C0037845,Sperm Immobilizing Agents,Pharmacologic Substance,True
+C0037847,"Blocking Agents, Sperm Maturation",Pharmacologic Substance,True
+C0037862,Spermatocidal Agents,Pharmacologic Substance,True
+C0037865,Spermatogenesis-Blocking Agents,Pharmacologic Substance,True
+C0038128,Stains,"Indicator, Reagent, or Diagnostic Aid",True
+C0038738,Sulfhydryl Reagents,"Indicator, Reagent, or Diagnostic Aid; Pharmacologic Substance",True
+C0038818,Sunscreening Agents,Substance,True
+C0038888,Surface-Active Agents,Biomedical or Dental Material,True
+C0038891,Chemical Surfactants,Chemical Viewed Functionally,True
+C0038998,Sweetening Agents,Chemical Viewed Functionally,True
+C0039046,Sympathetic Transmitter Releasers,Pharmacologic Substance,True
+C0039051,Sympatholytics,Pharmacologic Substance,True
+C0039052,Sympathomimetics,Pharmacologic Substance,True
+C0039081,Synthetic Detergent,Pharmacologic Substance,True
+C0039536,Teratogens,Hazardous or Poisonous Substance,True
+C0040094,Thymoanaleptics,Pharmacologic Substance,True
+C0040098,Thymoleptics,Pharmacologic Substance,True
+C0040349,Tocolytic Agents,Pharmacologic Substance,True
+C0040464,Topical anesthetic,Pharmacologic Substance,True
+C0040538,"Toxic Substances, Environmental",Hazardous or Poisonous Substance,True
+C0040614,Tranquilizing Agents,Pharmacologic Substance,True
+C0040615,Antipsychotic Agents,Pharmacologic Substance,True
+C0040616,Anti-Anxiety Agents,Pharmacologic Substance,True
+C0040724,Neurotransmitter Uptake Inhibitors,Pharmacologic Substance,True
+C0041214,Trypanocidal Agents,Pharmacologic Substance,True
+C0041242,Trypsin Inhibitors,"Amino Acid, Peptide, or Protein; Biologically Active Substance; Pharmacologic Substance",False
+C0041359,Tumor Angiogenic Factor,Biologically Active Substance,True
+C0041363,Tumor Initiators,Hazardous or Poisonous Substance,True
+C0041370,Tumor Promoters,Hazardous or Poisonous Substance,True
+C0041658,Uncoupling Agents,Pharmacologic Substance,True
+C0041983,Uricosuric Agents,Pharmacologic Substance,True
+C0042394,Vasoactive Antagonists,Pharmacologic Substance,True
+C0042397,Vasoconstrictor Agents,Pharmacologic Substance,True
+C0042398,Nasal Decongestants,Pharmacologic Substance,True
+C0042402,Vasodilator Agents,Pharmacologic Substance,True
+C0042578,Vesicants,Hazardous or Poisonous Substance,True
+C0042849,vitamin B complex,Organic Chemical; Pharmacologic Substance; Vitamin,True
+C0042890,Vitamins,Organic Chemical; Pharmacologic Substance; Vitamin,True
+C0043053,Water Pollutants,Hazardous or Poisonous Substance,True
+C0043054,"Water Pollutants, Chemical",Hazardous or Poisonous Substance,True
+C0043133,Wetting Agents,Biomedical or Dental Material,True
+C0051843,Angiogenesis Factor Inhibitors,"Amino Acid, Peptide, or Protein; Biologically Active Substance",False
+C0056117,Collagenase Inhibitor,"Amino Acid, Peptide, or Protein; Biologically Active Substance; Pharmacologic Substance",False
+C0071011,Phytoestrogens,Hormone; Organic Chemical; Pharmacologic Substance,True
+C0074400,Servalyte,"Indicator, Reagent, or Diagnostic Aid; Inorganic Chemical",True
+C0076097,Tensides,Biomedical or Dental Material,True
+C0079021,Biohazardous Substance,Hazardous or Poisonous Substance,True
+C0079044,Bronchoconstrictor Agents,Pharmacologic Substance,True
+C0079381,Free Radical Scavengers,Chemical Viewed Functionally,True
+C0082550,Fat Substitutes,Organic Chemical,True
+C0085158,Agrochemicals,Chemical Viewed Functionally,True
+C0085168,Antimutagenic Agents,Chemical Viewed Functionally,True
+C0085169,Anticarcinogenic Agents,Pharmacologic Substance,True
+C0085385,Lipoxygenase Inhibitors,Pharmacologic Substance,True
+C0085387,Cyclooxygenase Inhibitors,Pharmacologic Substance,True
+C0085403,Oxidants,Chemical Viewed Functionally,True
+C0085414,"Culture Media, Serum-Free","Indicator, Reagent, or Diagnostic Aid",True
+C0085824,Antihemorrhagics,Pharmacologic Substance,True
+C0085826,Antiplatelet Agents,Pharmacologic Substance,True
+C0085847,Aspirin-Like Agents,Pharmacologic Substance,True
+C0085926,Broncholytic Agents,Pharmacologic Substance,True
+C0086440,Hypolipidemic Agents,Organic Chemical; Pharmacologic Substance,True
+C0086570,Low-Serum Media,"Indicator, Reagent, or Diagnostic Aid",True
+C0086736,"Oral Contraceptives, Low-Dose",Pharmacologic Substance,True
+C0086737,"Oral Contraceptives, Phasic",Pharmacologic Substance,True
+C0087056,Taeniacides,Pharmacologic Substance,True
+C0087145,Vaginal Spermicides,Pharmacologic Substance,True
+C0142281,Siderophores,Biologically Active Substance; Organic Chemical,True
+C0162518,"Culture Media, Conditioned","Indicator, Reagent, or Diagnostic Aid",True
+C0162713,Photosensitizing Agents,Pharmacologic Substance,True
+C0162714,HIV Protease Inhibitors,Pharmacologic Substance,True
+C0162754,Serotonin 5-HT1 Receptor Agonists,Pharmacologic Substance,True
+C0162755,Serotonin 5-HT2 Receptor Agonists,Pharmacologic Substance,True
+C0162756,Serotonin 5-HT3 Receptor Agonists,Pharmacologic Substance,True
+C0162757,Serotonin Agonists,Pharmacologic Substance,True
+C0162758,Serotonin Uptake Inhibitors,Pharmacologic Substance,True
+C0162813,Histamine H3 Agonists,Pharmacologic Substance,True
+C0162814,Histamine H1 Agonists,Pharmacologic Substance,True
+C0162815,Histamine H2 Agonists,Pharmacologic Substance,True
+C0162816,Histamine Agonists,Pharmacologic Substance,True
+C0178601,Dopamine Agonists,Pharmacologic Substance,True
+C0182638,Radiopharmaceuticals,"Indicator, Reagent, or Diagnostic Aid; Pharmacologic Substance",True
+C0205719,Anticoccidial Agents,Pharmacologic Substance,True
+C0205772,Antihyperuricemics,Pharmacologic Substance,True
+C0205774,"Mitogens, Endogenous","Amino Acid, Peptide, or Protein; Biologically Active Substance",False
+C0205946,Antischistosomal Agents,Pharmacologic Substance,True
+C0242175,Adrenergic Synthesis Inhibitors,Pharmacologic Substance,True
+C0242181,Analeptics,Pharmacologic Substance,True
+C0242402,Opioids,Hazardous or Poisonous Substance; Organic Chemical; Pharmacologic Substance,True
+C0242701,Serotonin Agents,Biologically Active Substance; Pharmacologic Substance,True
+C0242702,Dopamine Antagonists,Pharmacologic Substance,True
+C0242704,Histamine Agents,Pharmacologic Substance,True
+C0242708,"Antirheumatic Drugs, Disease-Modifying",Pharmacologic Substance,True
+C0242889,Adrenergic Antagonists,Pharmacologic Substance,True
+C0242892,Cholinomimetics,Pharmacologic Substance,True
+C0242893,Cholinergic Agents,Pharmacologic Substance,True
+C0242894,Cholinergic Agonists,Pharmacologic Substance,True
+C0242896,Anticholinergic Agents,Pharmacologic Substance,True
+C0242897,Cholinergic Antagonists,Pharmacologic Substance,True
+C0242898,GABA Agents,Pharmacologic Substance,True
+C0242899,Glutamate Agents,Pharmacologic Substance,True
+C0242900,Excitatory Amino Acid Agents,Pharmacologic Substance,True
+C0242901,Glycine Agents,Pharmacologic Substance,True
+C0242902,Anesthetic Gases,Biomedical or Dental Material,True
+C0242903,"Anesthetics, Inhalation",Pharmacologic Substance,True
+C0242904,"Anesthetics, Intravenous",Pharmacologic Substance,True
+C0242905,"Antidepressive Agents, Second-Generation",Pharmacologic Substance,True
+C0242908,Glutamate Agonists,Pharmacologic Substance,True
+C0242909,Excitatory Amino Acid Agonists,Pharmacologic Substance,True
+C0242910,Excitatory Amino Acid Antagonists,Pharmacologic Substance,True
+C0242911,Antimanic Agents,Pharmacologic Substance,True
+C0242912,Neuroprotective Agents,Pharmacologic Substance,True
+C0242913,Nootropic Agents,Pharmacologic Substance,True
+C0242937,"Analgesics, Non-Narcotic",Pharmacologic Substance,True
+C0242947,Muscarinic Agonists,Pharmacologic Substance,True
+C0242948,Nicotinic Agonists,Pharmacologic Substance,True
+C0242951,Anti-Dyskinesia Agents,Pharmacologic Substance,True
+C0242956,Nicotinic Antagonists,Pharmacologic Substance,True
+C0242974,GABA Agonists,Pharmacologic Substance,True
+C0242975,GABA Antagonists,Pharmacologic Substance,True
+C0242976,GABA Modulators,Pharmacologic Substance,True
+C0242977,"Stimulants, Historical",Pharmacologic Substance,True
+C0242978,Adrenergic uptake inhibitor,Pharmacologic Substance,True
+C0242980,Dopamine Uptake Inhibitors,Pharmacologic Substance,True
+C0243049,Peripheral Nervous System Agents,Pharmacologic Substance,True
+C0243051,Neurotransmitter Agents,Pharmacologic Substance,True
+C0243058,Sensory System Agents,Pharmacologic Substance,True
+C0279516,Anti-Bacterial Agents,Antibiotic,True
+C0282055,Antiperistaltic Agents,Pharmacologic Substance,True
+C0282059,Antisyphilitic Agents,Pharmacologic Substance,True
+C0282090,Laxatives,Pharmacologic Substance,True
+C0282098,Metal Antagonists,Pharmacologic Substance,True
+C0282157,Tissue Stains,"Indicator, Reagent, or Diagnostic Aid",True
+C0282187,Gastric Agents,Pharmacologic Substance,True
+C0282222,Lubricants,Substance,True
+C0282357,Sulfhydryl Compound Antagonists,"Indicator, Reagent, or Diagnostic Aid; Pharmacologic Substance",True
+C0282358,Sulfhydryl Compounds Inhibitors,"Indicator, Reagent, or Diagnostic Aid; Pharmacologic Substance",True
+C0282360,Sugar Substitutes,Chemical Viewed Functionally,True
+C0282374,Decongestants,Pharmacologic Substance,True
+C0282375,"Vasoconstrictor Agents, Nasal",Pharmacologic Substance,True
+C0282481,Adrenergic Neurohumor Depleters,Pharmacologic Substance,True
+C0282519,Reverse Transcriptase Inhibitors,Pharmacologic Substance,True
+C0282532,"Antineoplastic Agents, Alkylating",Pharmacologic Substance,True
+C0282555,Anti-Allergic Agents,Pharmacologic Substance,True
+C0282556,Anti-Asthmatic Agents,Pharmacologic Substance,True
+C0282559,"Antineoplastic Agents, Hormonal",Pharmacologic Substance,True
+C0282575,Micronutrients,Biologically Active Substance,True
+C0282685,Respiratory Stimulants,Pharmacologic Substance,True
+C0282686,Respiratory System Agents,Pharmacologic Substance,True
+C0301224,Nerve gas,Hazardous or Poisonous Substance; Organic Chemical,True
+C0302232,Demulcent,Pharmacologic Substance,True
+C0303927,Algicides,Hazardous or Poisonous Substance,True
+C0303928,Acaricides,Hazardous or Poisonous Substance; Organic Chemical,True
+C0304317,First Generation Cephalosporins,Antibiotic; Organic Chemical,True
+C0304319,Second Generation Cephalosporins,Antibiotic; Organic Chemical,True
+C0304320,Third Generation Cephalosporins,Antibiotic; Organic Chemical,True
+C0304490,Potassium Sparing Diuretics,Pharmacologic Substance,True
+C0304512,Adrenergic alpha-1 Receptor Antagonists,Pharmacologic Substance,True
+C0304513,Adrenergic alpha-2 Receptor Antagonists,Pharmacologic Substance,True
+C0304516,Adrenergic beta-1 Receptor Antagonists,Pharmacologic Substance,True
+C0354100,Loop Diuretics,Pharmacologic Substance,True
+C0358591,Proton Pump Inhibitors,Pharmacologic Substance,True
+C0360105,Selective Serotonin Reuptake Inhibitors,Pharmacologic Substance,True
+C0360390,Antimycobacterial agent,Pharmacologic Substance,True
+C0360589,Calcium-Regulating Hormones,Hormone; Pharmacologic Substance,True
+C0360714,Hydroxymethylglutaryl-CoA Reductase Inhibitors,Organic Chemical; Pharmacologic Substance,True
+C0376240,Adrenergic Release Inhibitors,Pharmacologic Substance,True
+C0376445,"Anesthetics, Combined",Pharmacologic Substance,True
+C0376446,Reducing Agents,"Indicator, Reagent, or Diagnostic Aid",True
+C0376447,Appetite Stimulants,Pharmacologic Substance,True
+C0376565,Anti-HIV Agents,Pharmacologic Substance,True
+C0376566,DNA Synthesis Inhibitors,Biologically Active Substance; Pharmacologic Substance,True
+C0376567,RNA Synthesis Inhibitors,Biologically Active Substance; Pharmacologic Substance,True
+C0376568,Nucleic Acid Synthesis Inhibitors,Biologically Active Substance; Pharmacologic Substance,True
+C0376600,HIV Integrase Inhibitors,Pharmacologic Substance,True
+C0376601,Integrase Inhibitors,Biologically Active Substance; Pharmacologic Substance,True
+C0376606,Weight-Loss Agents,Pharmacologic Substance,True
+C0376607,Anti-Obesity Agents,Pharmacologic Substance,True
+C0376697,Dental Disinfectants,Pharmacologic Substance,True
+C0392419,Industrial fungicide,Hazardous or Poisonous Substance,True
+C0444414,Biocides,Hazardous or Poisonous Substance,True
+C0444420,Calcium Ionophores,Organic Chemical,True
+C0520468,Lipotropic Drugs,Biologically Active Substance; Pharmacologic Substance,True
+C0520469,Lipotropic Factors,Biologically Active Substance; Organic Chemical; Pharmacologic Substance,True
+C0521941,Antiresorptive Agents,Pharmacologic Substance,True
+C0521942,Angiotensin II receptor antagonist,Pharmacologic Substance,True
+C0524500,Artificial Hemoglobin,Pharmacologic Substance,True
+C0524525,Corrosives,Hazardous or Poisonous Substance,True
+C0524867,Myeloablative Agonists,Pharmacologic Substance,True
+C0525025,Photoaffinity Labels,"Indicator, Reagent, or Diagnostic Aid",True
+C0525067,Laboratory Chemicals,Chemical Viewed Functionally,True
+C0549427,Muscarinic Effect,Finding,False
+C0549428,Nicotinic Effect,Finding,False
+C0577782,Potassium Ionophores,Pharmacologic Substance,True
+C0577783,Sodium Ionophores,Pharmacologic Substance,True
+C0593554,Depigmenting agent,Substance,True
+C0593802,Aromatase Inhibitors,Pharmacologic Substance,True
+C0594374,Topoisomerase I Inhibitors,Pharmacologic Substance,True
+C0595267,Catechol-O-methyltransferase inhibitor,Pharmacologic Substance,True
+C0596087,Angiogenesis Inhibitors,Biologically Active Substance; Pharmacologic Substance,True
+C0597049,Neurohormones,Hormone,True
+C0598139,Small Molecule Libraries,Intellectual Product,False
+C0598272,DOPA Decarboxylase Inhibitors,Organic Chemical; Pharmacologic Substance,True
+C0598317,Topoisomerase Inhibitors,Pharmacologic Substance,True
+C0599396,Sleeping Pills,Clinical Drug,False
+C0599685,Anti-Retroviral Agents,Pharmacologic Substance,True
+C0600434,Peroxisome Proliferators,Hazardous or Poisonous Substance,True
+C0600437,Nitric Oxide Donors,Pharmacologic Substance,True
+C0600505,Chemical Actions and Uses,Chemical Viewed Functionally,True
+C0600511,Pharmacologic Actions,Natural Phenomenon or Process,False
+C0600512,Chemical Actions,Natural Phenomenon or Process,False
+C0701858,Antiperspirants,Pharmacologic Substance,True
+C0718115,Viscoelastic Solutions,Clinical Drug,False
+C0729410,Lacrimogenic gas,Hazardous or Poisonous Substance,True
+C0751319,RIMA (Reversible Inhibitor of Monoamine Oxidase A),Organic Chemical; Pharmacologic Substance,True
+C0751320,Reversible Inhibitors of Monoamine Oxidase,Organic Chemical; Pharmacologic Substance,True
+C0751968,Enzyme Activators,Biologically Active Substance; Pharmacologic Substance,True
+C0751975,Small GTPase Activators,Biologically Active Substance,True
+C0751976,GTP Phosphohydrolase Activators,Biologically Active Substance; Pharmacologic Substance,True
+C0815017,Angiotensin Receptor Antagonists,Pharmacologic Substance,True
+C0815278,Neurosteroids,Biologically Active Substance; Organic Chemical,True
+C0815279,Neuroprotective Effect,Functional Concept,False
+C0872245,Potassium Channel Blockers,Pharmacologic Substance,True
+C0872271,Sodium Channel Blockers,Pharmacologic Substance,True
+C0877014,Sympathomimetic Effect,Finding,False
+C0877035,Estrogen Effect,Finding,False
+C0935929,Antidiabetics,Pharmacologic Substance,True
+C0935931,Excitotoxins,Hazardous or Poisonous Substance,True
+C0948429,Diuretic Effect,Finding,False
+C0949369,Neurohumors,Biologically Active Substance,True
+C0949370,Neuromodulators,Biologically Active Substance,True
+C0949371,Neuroregulators,Biologically Active Substance,True
+C0949573,HIV Fusion Inhibitors,Pharmacologic Substance,True
+C0949641,Aneugens,Chemical Viewed Functionally,True
+C0949642,Polyploidy-Inducing Agents,Chemical Viewed Functionally,True
+C1113670,Nerve Agents,Hazardous or Poisonous Substance; Organic Chemical,True
+C1134681,Endothelin receptor antagonist,Pharmacologic Substance,True
+C1136254,Microbicides,Pharmacologic Substance,True
+C1136255,"Microbicides, Topical",Pharmacologic Substance,True
+C1136312,"Histamine H1 Antagonists, Non-Sedating",Pharmacologic Substance,True
+C1256754,Toxic Actions,Hazardous or Poisonous Substance,True
+C1257849,Angiogenesis Modulating Agents,Pharmacologic Substance,True
+C1257850,Angiogenesis Inducing Agents,Pharmacologic Substance,True
+C1257954,Cyclooxygenase 2 Inhibitors,Organic Chemical; Pharmacologic Substance,True
+C1258001,Natriuretic Agents,Biologically Active Substance; Organic Chemical,True
+C1258027,Endothelium-Dependent Relaxing Factors,Biologically Active Substance,True
+C1258031,Neutrophil-Derived Relaxant Factor,Biologically Active Substance,True
+C1258056,Bacteriocidal Agents,Antibiotic,True
+C1258062,Molecular Mechanisms of Pharmacological Action,Molecular Function,False
+C1258063,Physiological Effects of Drugs,Physiologic Function,False
+C1258064,Therapeutic Uses,Biologic Function,False
+C1258800,Anabolic Agents,Pharmacologic Substance,True
+C1268853,Genitourinary Agents,Pharmacologic Substance,True
+C1268905,Mast cell stabilizer,Pharmacologic Substance,True
+C1289971,Arachidonate 5-Lipoxygenase Inhibitors,Pharmacologic Substance,True
+C1299007,alpha-Glucosidase Inhibitors,Pharmacologic Substance,True
+C1318700,Phosphodiesterase 5 inhibitor,Pharmacologic Substance,True
+C1330330,Hand Sanitizers,Pharmacologic Substance,True
+C1443643,Proteasome inhibitor,Pharmacologic Substance,True
+C1449680,Angiotensin II Type 1 Receptor Blockers,Pharmacologic Substance,True
+C1449702,Protein Kinase Inhibitors,"Amino Acid, Peptide, or Protein; Pharmacologic Substance",False
+C1449715,HIV Entry Inhibitors,Pharmacologic Substance,True
+C1450139,Luminescent Agents,"Indicator, Reagent, or Diagnostic Aid",True
+C1450140,Phosphorescent Agents,"Indicator, Reagent, or Diagnostic Aid",True
+C1512474,Histone deacetylase inhibitor,"Amino Acid, Peptide, or Protein; Enzyme; Pharmacologic Substance",False
+C1513016,Matrix Metalloproteinase Inhibitors,Pharmacologic Substance,True
+C1515995,Antiglaucoma Agents,Pharmacologic Substance,True
+C1516011,Antiemetic Effect,Physiologic Function,False
+C1516312,Caspase Inhibitors,Pharmacologic Substance,True
+C1516869,Endothelin A Receptor Antagonists,Pharmacologic Substance,True
+C1518618,Ornithine Decarboxylase Inhibitors,Pharmacologic Substance,True
+C1519554,Topoisomerase II Inhibitors,Pharmacologic Substance,True
+C1527144,Therapeutic Effect,Clinical Attribute,False
+C1527392,Immunomodulators,Immunologic Factor; Pharmacologic Substance,True
+C1562036,Calcineurin inhibitor,Pharmacologic Substance,True
+C1562104,Glucagon-Like Peptide-1 Receptor Agonists,Hormone; Pharmacologic Substance,True
+C1562292,Incretins,"Amino Acid, Peptide, or Protein; Hormone; Pharmacologic Substance",False
+C1563710,Membrane Transport Modulators,Pharmacologic Substance,True
+C1563711,Sodium Chloride Symporter Inhibitors,Pharmacologic Substance,True
+C1563712,Potassium Depleting Diuretics,Pharmacologic Substance,True
+C1563713,Sodium Potassium Chloride Symporter Inhibitors,Pharmacologic Substance,True
+C1563714,High Ceiling Diuretics,Pharmacologic Substance,True
+C1563717,Antidiuretic Agents,Pharmacologic Substance,True
+C1563726,Bone Density Conservation Agents,Pharmacologic Substance,True
+C1563745,Selective Angiotensin II Receptor Antagonists,Pharmacologic Substance,True
+C1563757,Tubulin Modulators,Pharmacologic Substance,True
+C1563758,Tubulin Inhibitors,"Amino Acid, Peptide, or Protein; Pharmacologic Substance",False
+C1563759,Tubulin Promoters,Pharmacologic Substance,True
+C1563760,Mitosis Modulators,Pharmacologic Substance,True
+C1563784,Fibrin Modulating Agents,Pharmacologic Substance,True
+C1564404,Complement Cytolysis Inhibiting Agents,"Amino Acid, Peptide, or Protein; Biologically Active Substance",False
+C1564892,Complement Inactivating Agents,"Amino Acid, Peptide, or Protein; Immunologic Factor",False
+C1566391,Coloring Agents,"Indicator, Reagent, or Diagnostic Aid",True
+C1566392,"Pigments, Inorganic","Indicator, Reagent, or Diagnostic Aid; Inorganic Chemical",True
+C1568245,Endocrine Disruptors,Hazardous or Poisonous Substance,True
+C1569488,Organic Pigments,"Indicator, Reagent, or Diagnostic Aid; Organic Chemical",True
+C1579361,Serotonin and Norepinephrine Reuptake Inhibitors (SNRIs),Pharmacologic Substance,True
+C1621327,Adenylyl Cyclase Inhibitors,Molecular Function,False
+C1704311,Antithrombotic Agents,Pharmacologic Substance,True
+C1704390,Antinociceptive Agents,Biologically Active Substance,True
+C1720748,Schizonticides,Pharmacologic Substance,True
+C1720756,Emergency Contraceptives,Hormone; Pharmacologic Substance,True
+C1720817,Landfill Leachate,Hazardous or Poisonous Substance,True
+C1720867,Ionic Liquids,Chemical,True
+C1721090,Explosive Agents,Chemical Viewed Functionally,True
+C1721100,Hemolytic Agents,Biologically Active Substance,True
+C1812630,Growth Substances,Biologically Active Substance; Pharmacologic Substance,True
+C1827106,Dipeptidyl-Peptidase IV Inhibitors,Pharmacologic Substance,True
+C1882413,Poly(ADP-ribose) Polymerase Inhibitors,Pharmacologic Substance,True
+C1955826,"Antihistamines, Classical",Organic Chemical; Pharmacologic Substance,True
+C1955900,Bulk Laxatives,Pharmacologic Substance,True
+C1956032,Cardiotoxins,Biologically Active Substance; Hazardous or Poisonous Substance,True
+C1956071,Histamine H3 Antagonists,Pharmacologic Substance,True
+C1956095,Fatty Acid Synthesis Inhibitors,Pharmacologic Substance,True
+C1956397,Third Generation H1 Antagonists,Organic Chemical; Pharmacologic Substance,True
+C1959590,Erythropoiesis Stimulating Agents,Pharmacologic Substance,True
+C1998062,Adenosine A2 Receptor Agonists,Pharmacologic Substance,True
+C2064919,Urological Agents,Pharmacologic Substance,True
+C2267032,Phosphodiesterase 3 Inhibitors,Organic Chemical; Pharmacologic Substance,True
+C2350337,Antistatic Agents,Chemical Viewed Functionally,True
+C2350338,Antistatic Materials,Manufactured Object,False
+C2350506,Viscosupplements,Pharmacologic Substance,True
+C2350510,Viscoelastic Substances,Chemical Viewed Functionally,True
+C2350511,Viscoelastic Foams,Chemical Viewed Functionally,True
+C2350699,"Tonics, Historical",Pharmacologic Substance,True
+C2362327,Performance-Enhancing Drugs,Pharmacologic Substance,True
+C2713471,In Vitro Diagnostic Devices,Medical Device,False
+C2717809,Neuronal Tract-Tracers,Chemical Viewed Functionally,True
+C2717873,Galactogogues,Pharmacologic Substance,True
+C2717993,Dentin Desensitizing Agents,Pharmacologic Substance,True
+C2746041,Adenosine Deaminase Inhibitors,Pharmacologic Substance,True
+C2746051,DNA Polymerase Inhibitors,Pharmacologic Substance,True
+C2746052,MTOR Inhibitors,Pharmacologic Substance,True
+C2746076,Adrenergic alpha-2 Receptor Agonists,Pharmacologic Substance,True
+C2911817,Dihydrofolate Reductase Inhibitors,Pharmacologic Substance,True
+C2917322,Purinergic P1 Receptor Agonists,Pharmacologic Substance,True
+C2927148,Cannabinoid Receptor Agonists,Pharmacologic Substance,True
+C2927149,Cannabinoid Receptor Antagonists,Pharmacologic Substance,True
+C2930616,Indirect Thrombin Inhibitors,Pharmacologic Substance,True
+C2930675,Artificial Erythrocytes,Pharmacologic Substance,True
+C2930715,Bowel Preparation Solutions,Pharmacologic Substance,True
+C2930749,Radiographic contrast media,"Indicator, Reagent, or Diagnostic Aid",True
+C2936235,Peptidomimetics,Pharmacologic Substance,True
+C2936244,Lipid Regulating Agents,Pharmacologic Substance,True
+C2936259,Bleaching Agents,Chemical Viewed Functionally,True
+C2936275,Angiotensin II Type 2 Receptor Blockers,Pharmacologic Substance,True
+C2936339,Cerumenolytic Agents,Pharmacologic Substance,True
+C2936347,Tooth Bleaching Agents,Substance,True
+C2936348,Hair Bleaching Agents,Substance,True
+C2936382,Hygroscopic Agents,"Indicator, Reagent, or Diagnostic Aid",True
+C2936383,Humectants,"Indicator, Reagent, or Diagnostic Aid",True
+C2936384,Desiccants,"Indicator, Reagent, or Diagnostic Aid",True
+C2936450,Performance-Enhancing Substances,Pharmacologic Substance,True
+C2936485,Adrenergic beta-3 Receptor Agonists,Pharmacologic Substance,True
+C2936487,Adrenergic beta-3 Receptor Antagonists,Pharmacologic Substance,True
+C2936508,GABA Uptake Inhibitors,Pharmacologic Substance,True
+C2936509,Serotonin 5-HT1B Receptor Agonists,Pharmacologic Substance,True
+C2936510,Serotonin 5-HT1D Receptor Agonists,Pharmacologic Substance,True
+C2936511,Serotonin 5-HT1A Receptor Agonists,Pharmacologic Substance,True
+C2936512,Serotonin 5-HT1B-D Agonists,Pharmacologic Substance,True
+C2936513,Serotonin 5-HT2B Receptor Agonists,Pharmacologic Substance,True
+C2936514,Serotonin 5-HT2C Receptor Agonists,Pharmacologic Substance,True
+C2936515,Serotonin 5-HT2A Receptor Agonists,Pharmacologic Substance,True
+C2936516,Serotonin 5-HT4 Receptor Agonists,Pharmacologic Substance,True
+C2936517,Serotonin 5-HT1 Receptor Antagonists,Pharmacologic Substance,True
+C2936518,Serotonin 5-HT1B Receptor Antagonists,Pharmacologic Substance,True
+C2936519,Serotonin 5-HT1D Receptor Antagonists,Pharmacologic Substance,True
+C2936520,Serotonin 5-HT1A Receptor Antagonists,Pharmacologic Substance,True
+C2936521,Serotonin 5-HT1B-D Antagonists,Pharmacologic Substance,True
+C2936522,Serotonin 5-HT2 Receptor Antagonists,Pharmacologic Substance,True
+C2936523,Serotonin 5-HT2C Receptor Antagonists,Pharmacologic Substance,True
+C2936524,Serotonin 5-HT2A Receptor Antagonists,Pharmacologic Substance,True
+C2936525,Serotonin 5-HT2B Receptor Antagonists,Pharmacologic Substance,True
+C2936526,Serotonin 5-HT3 Receptor Antagonists,Pharmacologic Substance,True
+C2936527,Serotonin 5-HT4 Receptor Antagonists,Pharmacologic Substance,True
+C2936534,Lipoprotein Lipase Activators,Pharmacologic Substance,True
+C2936549,Purinergic Agents,Pharmacologic Substance,True
+C2936550,Adenosine A1 Receptor Agonists,Pharmacologic Substance,True
+C2936551,Adenosine A2B Receptor Agonists,Pharmacologic Substance,True
+C2936552,Adenosine A2A Receptor Agonists,Pharmacologic Substance,True
+C2936553,Adenosine A3 Receptor Agonists,Pharmacologic Substance,True
+C2936554,Purinergic P2 Receptor Agonists,Pharmacologic Substance,True
+C2936555,Purinergic P2X Receptor Agonists,Pharmacologic Substance,True
+C2936556,Purinergic P2X2 Receptor Agonists,Pharmacologic Substance,True
+C2936557,Purinergic P2X7 Receptor Agonists,Pharmacologic Substance,True
+C2936558,Purinergic P2X4 Receptor Agonists,Pharmacologic Substance,True
+C2936559,Purinergic P2X5 Receptor Agonists,Pharmacologic Substance,True
+C2936560,Purinergic P2X6 Receptor Agonists,Pharmacologic Substance,True
+C2936561,Purinergic P2X1 Receptor Agonists,Pharmacologic Substance,True
+C2936562,Purinergic P2X3 Receptor Agonists,Pharmacologic Substance,True
+C2936563,Purinergic P2Y Receptor Agonists,Pharmacologic Substance,True
+C2936564,Purinergic P2Y12 Receptor Agonists,Pharmacologic Substance,True
+C2936565,Purinergic P2Y2 Receptor Agonists,Pharmacologic Substance,True
+C2936566,Purinergic P2Y1 Receptor Agonists,Pharmacologic Substance,True
+C2936567,Purinergic Agonists,Pharmacologic Substance,True
+C2936568,Purinergic Antagonists,Pharmacologic Substance,True
+C2936569,Adenosine A1 Receptor Antagonists,Pharmacologic Substance,True
+C2936570,Adenosine A2 Receptor Antagonists,Pharmacologic Substance,True
+C2936571,Adenosine A2B Receptor Antagonists,Pharmacologic Substance,True
+C2936572,Adenosine A2A Receptor Antagonists,Immunologic Factor; Pharmacologic Substance,True
+C2936573,Adenosine A3 Receptor Antagonists,Pharmacologic Substance,True
+C2936574,Purinergic P2 Receptor Antagonists,Pharmacologic Substance,True
+C2936575,Purinergic P2X Receptor Antagonists,Pharmacologic Substance,True
+C2936576,Purinergic P2X5 Receptor Antagonists,Pharmacologic Substance,True
+C2936577,Purinergic P2X6 Receptor Antagonists,Pharmacologic Substance,True
+C2936578,Purinergic P2X3 Receptor Antagonists,Pharmacologic Substance,True
+C2936579,Purinergic P2X1 Receptor Antagonists,Pharmacologic Substance,True
+C2936580,Purinergic P2X2 Receptor Antagonists,Pharmacologic Substance,True
+C2936581,Purinergic P2X4 Receptor Antagonists,Pharmacologic Substance,True
+C2936582,Purinergic P2X7 Receptor Antagonists,Pharmacologic Substance,True
+C2936583,Purinergic P2Y Receptor Antagonists,Pharmacologic Substance,True
+C2936584,Purinergic P2Y2 Receptor Antagonists,Pharmacologic Substance,True
+C2936585,Purinergic P2Y12 Receptor Antagonists,Pharmacologic Substance,True
+C2936586,Adenosine Diphosphate Receptor Antagonists,Pharmacologic Substance,True
+C2936587,Purinergic P2Y1 Receptor Antagonists,Pharmacologic Substance,True
+C2936593,5-Lipoxygenase-Activating Protein Inhibitors,Pharmacologic Substance,True
+C2936609,Phosphodiesterase 4 Inhibitors,Pharmacologic Substance,True
+C2936662,Arachidonate 12-Lipoxygenase Inhibitors,Pharmacologic Substance,True
+C2936663,Arachidonate 15-Lipoxygenase Inhibitors,Pharmacologic Substance,True
+C2936720,Hypoglycemic Effect,Physiologic Function,False
+C2936788,5-alpha Reductase Inhibitors,Pharmacologic Substance,True
+C2936789,Adrenergic beta-2 Receptor Agonists,Pharmacologic Substance,True
+C2936790,Adrenergic beta-2 Receptor Antagonists,Pharmacologic Substance,True
+C2936795,Adrenergic alpha-1 Receptor Agonists,Pharmacologic Substance,True
+C2936796,Adrenergic beta-1 Receptor Agonists,Pharmacologic Substance,True
+C2936799,GABA-A Receptor Agonists,Pharmacologic Substance,True
+C2936800,GABA-B Receptor Agonists,Pharmacologic Substance,True
+C2936801,GABA-A Receptor Antagonists,Pharmacologic Substance,True
+C2936802,GABA-B Receptor Antagonists,Pharmacologic Substance,True
+C2936803,14-alpha Demethylase Inhibitors,Pharmacologic Substance,True
+C2936829,Purinergic P1 Receptor Antagonists,Pharmacologic Substance,True
+C3163332,Sodium Channel Agonists,Pharmacologic Substance,True
+C3178735,Emetic Effect,Physiologic Function,False
+C3178738,Bronchoconstrictor Effect,Physiologic Function,False
+C3178743,Antimutagenic Effect,Physiologic Function,False
+C3178744,Anticarcinogenic Effect,Physiologic Function,False
+C3178747,Performance-Enhancing Effect,Physiologic Function,False
+C3178748,Antipyretic Effect,Physiologic Function,False
+C3178749,Purinergic Effect,Physiologic Function,False
+C3178752,Fertility Effect,Physiologic Function,False
+C3178868,"Analgesics, Short-Acting",Pharmacologic Substance,True
+C3179077,Proton Ionophores,Pharmacologic Substance,True
+C3179153,Photosensitizing Effect,Physiologic Function,False
+C3179158,Hypnotic Effect,Physiologic Function,False
+C3179159,Sedative Effect,Physiologic Function,False
+C3179160,Peripheral Nervous System Effect,Physiologic Function,False
+C3179161,Serotonin Effect,Physiologic Function,False
+C3179162,Histamine Effect,Physiologic Function,False
+C3179174,Adrenergic Effect,Physiologic Function,False
+C3179175,Cholinergic Effect,Physiologic Function,False
+C3179176,GABA Effect,Physiologic Function,False
+C3179177,Excitatory Amino Acid Effect,Physiologic Function,False
+C3179178,Glycine Effect,Physiologic Function,False
+C3179179,Antimanic Effect,Physiologic Function,False
+C3179185,Luteolytic Effect,Physiologic Function,False
+C3179191,Mineralocorticoid Effect,Physiologic Function,False
+C3179192,Miotic Effect,Physiologic Function,False
+C3179195,Mydriatic Effect,Physiologic Function,False
+C3179198,Narcotic Effect,Physiologic Function,False
+C3179228,Neuromuscular Effect,Physiologic Function,False
+C3179230,Anti-Angiogenesis Effect,Physiologic Function,False
+C3179240,Oxytocic Effect,Physiologic Function,False
+C3179241,Parasympatholytic Effect,Physiologic Function,False
+C3179242,Antispasmodic Effect,Physiologic Function,False
+C3179243,Parasympathomimetic Effect,Physiologic Function,False
+C3179264,Progestin Effect,Physiologic Function,False
+C3179279,Radiation-Protective Effect,Physiologic Function,False
+C3179280,Radiation-Sensitizing Effect,Physiologic Function,False
+C3179300,Androgen Effect,Physiologic Function,False
+C3179301,Anesthetic Effect,Physiologic Function,False
+C3179303,Antispermatogenic Effect,Physiologic Function,False
+C3179304,Aphrodisiac Effect,Physiologic Function,False
+C3179307,Angiogenesis Effect,Physiologic Function,False
+C3179308,Natriuretic Effect,Physiologic Function,False
+C3179309,Anabolic Effect,Physiologic Function,False
+C3179338,Abortifacient Effect,Physiologic Function,False
+C3179339,Astringent Effect,Physiologic Function,False
+C3179340,Autonomic Effect,Physiologic Function,False
+C3179345,Sperm-Immobilizing Effect,Physiologic Function,False
+C3179353,Antidiuretic Effect,Physiologic Function,False
+C3179384,Broncholytic Effect,Physiologic Function,False
+C3179385,Bronchodilator Effect,Physiologic Function,False
+C3179395,Sympatholytic Effect,Physiologic Function,False
+C3179402,Tranquilizing Effect,Physiologic Function,False
+C3179403,Antipsychotic Effect,Physiologic Function,False
+C3179404,Anti-Anxiety Effect,Physiologic Function,False
+C3179447,Contraceptive Effect,Physiologic Function,False
+C3179454,Endocrine Disruptor Effect,Physiologic Function,False
+C3179492,Convulsant Effect,Physiologic Function,False
+C3179493,Cryoprotective Effect,Physiologic Function,False
+C3179497,Tocolytic Effect,Physiologic Function,False
+C3179498,Dopamine Effect,Physiologic Function,False
+C3179504,Incretin Effect,Physiologic Function,False
+C3273807,Sodium-Glucose Transporter 2 Inhibitors,Organic Chemical; Pharmacologic Substance,True
+C3489663,"Mucilages, Adhesive",Manufactured Object,False
+C3494198,Voltage-Gated Sodium Channel Blockers,Pharmacologic Substance,True
+C3494199,Voltage-Gated Sodium Channel Agonists,Pharmacologic Substance,True
+C3494242,Caspase Activation Inhibitors,Pharmacologic Substance,True
+C3494243,Gelatinase Inhibitors,Pharmacologic Substance,True
+C3494244,Stromelysin Inhibitors,Pharmacologic Substance,True
+C3494348,Acid Sensing Ion Channel Blockers,Pharmacologic Substance,True
+C3494352,Epithelial Sodium Channel Blockers,Pharmacologic Substance,True
+C3494353,Renal Epithelial Sodium Channel Inhibitors,Pharmacologic Substance,True
+C3494362,Epithelial Sodium Channel Agonists,Pharmacologic Substance,True
+C3494475,Cannabinoid Receptor Modulators,Pharmacologic Substance,True
+C3536867,Ganglionic Blockers,Pharmacologic Substance,True
+C3537109,DNA Gyrase Inhibitors,Pharmacologic Substance,True
+C3537128,Vasopressin Antagonist,Pharmacologic Substance,True
+C3537192,Tumor Necrosis Factor Inhibitors,Pharmacologic Substance,True
+C3542957,"Monoclonal antibodies, antineoplastic","Amino Acid, Peptide, or Protein; Immunologic Factor; Pharmacologic Substance",False
+C3543440,Neurokinin-1 Receptor Antagonists,Pharmacologic Substance,True
+C3653320,Interleukin inhibitors,Immunologic Factor; Pharmacologic Substance,True
+C3653500,Direct Factor Xa Inhibitors,Organic Chemical; Pharmacologic Substance,True
+C3658209,Phospholipase A2 Inhibitors,Pharmacologic Substance,True
+C3658210,Prolyl-Hydroxylase Inhibitors,Pharmacologic Substance,True
+C3658225,Wakefulness-Promoting Agents,Pharmacologic Substance,True
+C3658237,Nutritive Sweeteners,Chemical Viewed Functionally,True
+C3658246,Non-Nutritive Sweeteners,Chemical Viewed Functionally,True
+C3658307,Sequestering Agents,Chemical Viewed Functionally,True
+C3658314,Diagnostic Uses of Chemicals,Functional Concept,False
+C3669283,Factor Xa inhibitors,Pharmacologic Substance,True
+C3714646,Neurobion,Organic Chemical; Pharmacologic Substance; Vitamin,True
+C3714647,Vitamin B Drug Class,Organic Chemical; Pharmacologic Substance; Vitamin,True
+C3810840,beta-Lactamase Inhibitors,Antibiotic; Organic Chemical,True
+C3810852,Chloride Channel Agonists,Pharmacologic Substance,True
+C3849987,"Calcium Antagonists, Exogenous",Pharmacologic Substance,True
+C3849989,Cytochrome P-450 CYP2E1 Inducers,Pharmacologic Substance,True
+C3850041,Cytochrome P-450 CYP3A4 Inducers,Pharmacologic Substance,True
+C3850042,Cytochrome P-450 CYP3A7 Inducers,Pharmacologic Substance,True
+C3850043,Cytochrome P-450 CYP3A5 Inducers,Pharmacologic Substance,True
+C3850044,Cytochrome P-450 CYP3A Inducers,Pharmacologic Substance,True
+C3850045,Cytochrome P-450 CYP2D6 Inducers,Pharmacologic Substance,True
+C3850046,Cytochrome P-450 CYP2C9 Inducers,Organic Chemical; Pharmacologic Substance,True
+C3850047,Cytochrome P-450 CYP2C19 Inducers,Pharmacologic Substance,True
+C3850048,Cytochrome P-450 CYP2C8 Inducers,Pharmacologic Substance,True
+C3850049,Cytochrome P-450 CYP2B6 Inducers,Pharmacologic Substance,True
+C3850050,Cytochrome P-450 CYP1A2 Inducers,Pharmacologic Substance,True
+C3850051,Cytochrome P-450 Monooxygenase Inducers,Pharmacologic Substance,True
+C3850052,Cytochrome P-450 Enzyme Inducers,Pharmacologic Substance,True
+C3850053,Cytochrome P-450 CYP3A4 Inhibitors,Pharmacologic Substance,True
+C3850054,Cytochrome P-450 CYP3A5 Inhibitors,Pharmacologic Substance,True
+C3850055,Cytochrome P-450 CYP3A7 Inhibitors,Pharmacologic Substance,True
+C3850056,Cytochrome P-450 CYP3A Inhibitors,Pharmacologic Substance,True
+C3850057,Cytochrome P-450 CYP2E1 Inhibitors,Pharmacologic Substance,True
+C3850058,Cytochrome P-450 CYP2D6 Inhibitors,Pharmacologic Substance,True
+C3850059,Cytochrome P-450 CYP2C19 Inhibitors,Pharmacologic Substance,True
+C3850060,Cytochrome P-450 CYP2C9 Inhibitors,Pharmacologic Substance,True
+C3850061,Cytochrome P-450 CYP2C8 Inhibitors,Pharmacologic Substance,True
+C3850062,Cytochrome P-450 CYP2B6 Inhibitors,Pharmacologic Substance,True
+C3850068,Cytochrome P-450 CYP1A2 Inhibitors,Pharmacologic Substance,True
+C3850069,Cytochrome P-450 Monooxygenase Inhibitors,Pharmacologic Substance,True
+C3850070,Cytochrome P-450 Enzyme Inhibitors,Pharmacologic Substance,True
+C3850093,Bradykinin B1 Receptor Antagonists,Pharmacologic Substance,True
+C3850094,Bradykinin Receptor Antagonists,Pharmacologic Substance,True
+C3850097,Endothelin B Receptor Antagonists,Pharmacologic Substance,True
+C3850099,Dopamine D2 Receptor Antagonists,Pharmacologic Substance,True
+C3850100,Aromatic Amino Acid Decarboxylase Inhibitors,Pharmacologic Substance,True
+C3850101,Cystine Disulfide Reducing Agents,Pharmacologic Substance,True
+C3850102,CCR5 Receptor Antagonists,Pharmacologic Substance,True
+C3850103,Carbamoyl Phosphate Synthetase I Activators,Pharmacologic Substance,True
+C3850104,Calcium Chelating Agents,"Indicator, Reagent, or Diagnostic Aid; Pharmacologic Substance",True
+C3850105,Bradykinin B2 Receptor Antagonists,Pharmacologic Substance,True
+C3850106,Amylin Receptor Agonists,Pharmacologic Substance,True
+C3850107,Pancreatic alpha-Amylase Inhibitors,Pharmacologic Substance,True
+C3850108,Steroid Synthesis Inhibitors,Pharmacologic Substance,True
+C3850109,Acetylcholine Release Inhibitors,Pharmacologic Substance,True
+C3850110,Acetaldehyde Dehydrogenase Inhibitors,Pharmacologic Substance,True
+C3850111,Antihyperkalemic Agents,Pharmacologic Substance,True
+C3850134,Full Opioid Agonists,Pharmacologic Substance,True
+C3850135,Partial Opioid Agonists,Organic Chemical; Pharmacologic Substance,True
+C3850169,Viral Fusion Protein Inhibitors,Pharmacologic Substance,True
+C3850172,Cystine Depleting Agents,Pharmacologic Substance,True
+C3850174,Glycoside Hydrolase Inhibitors,Pharmacologic Substance,True
+C3852983,Cytochrome P-450 Oxygenase Inducers,Pharmacologic Substance,True
+C3852989,Cytochrome P-450 Oxygenase Inhibitors,Pharmacologic Substance,True
+C3852999,Amylin Mimetics,Organic Chemical; Pharmacologic Substance,True
+C3853000,Intestinal alpha-Amylase Inhibitors,Pharmacologic Substance,True
+C3853001,Glucocorticoid Synthesis Inhibitors,Pharmacologic Substance,True
+C3853002,Androgen Synthesis Inhibitors,Pharmacologic Substance,True
+C3853003,Sex Hormone Synthesis Inhibitors,Pharmacologic Substance,True
+C3853004,Progestin Synthesis Inhibitors,Pharmacologic Substance,True
+C3853005,Mineralocorticoid Synthesis Inhibitors,Pharmacologic Substance,True
+C3853006,Adrenal Steroid Synthesis Inhibitors,Pharmacologic Substance,True
+C3853007,Estrogen Synthesis Inhibitors,Pharmacologic Substance,True
+C3853040,Competitive Opioid Antagonists,Pharmacologic Substance,True
+C3853046,Folic Acid Metabolism Inhibitors,Pharmacologic Substance,True
+C3853053,Metal Chelating Agents,Pharmacologic Substance,True
+C3853055,Opioid Mixed Agonist-Antagonists,Organic Chemical; Pharmacologic Substance,True
+C3854325,Janus kinase inhibitor,Pharmacologic Substance,True
+C4019081,Orexin Receptor Antagonists,Pharmacologic Substance,True
+C4020562,Opioid Reversal Agents,Pharmacologic Substance,True
+C4020563,Smoking Cessation Agents,Pharmacologic Substance,True
+C4031950,Antifibrotic Agents,Pharmacologic Substance,True
+C4041090,Substance with phosphoinositide 3 kinase inhibitor mechanism of action,Pharmacologic Substance,True
+C4042825,"Sleep Aids, Pharmaceutical",Pharmacologic Substance,True
+C4042850,Dermal Fillers,Biomedical or Dental Material,True
+C4046055,Dual Orexin Receptor Antagonists,Pharmacologic Substance,True
+C4049839,Hepatitis C virus NS3/4A protease inhibitor,"Amino Acid, Peptide, or Protein; Pharmacologic Substance",False
+C4086713,Substance with programmed cell death protein 1 inhibitor mechanism of action (substance),Immunologic Factor; Pharmacologic Substance,True
+C4277547,Provitamins,Organic Chemical; Pharmacologic Substance; Vitamin,True
+C4279919,Estrogen-Like Plant Extracts,Hormone; Organic Chemical; Pharmacologic Substance,True
+C4318642,Guanylyl Cyclase C Agonists,Pharmacologic Substance,True
+C4505220,"Antineoplastic Agents, Immunological",Immunologic Factor; Pharmacologic Substance,True
+C4505225,Food Ingredients,Food,True
+C4505313,Vasopeptidase Inhibitors,Pharmacologic Substance,True
+C4505471,"Anti-Rheumatic Agents, Non-Steroidal",Pharmacologic Substance,True
+C4521478,Protein-tyrosine kinase inhibitor (disposition),Qualitative Concept,False
+C4684977,Immune Checkpoint Inhibitors,Immunologic Factor; Pharmacologic Substance,True
+C4704728,Calcitonin Gene-Related Peptide Receptor Antagonists,Pharmacologic Substance,True
+C4704729,GEPANTS,Pharmacologic Substance,True
+C4704738,Calcium-Regulating Hormones and Agents,Hormone; Pharmacologic Substance,True
+C4704833,Secretagogues,Pharmacologic Substance,True
+C4704860,Scolicidal Agents,Pharmacologic Substance,True
+C4704878,Cardioactive Agents,Pharmacologic Substance,True
+C4760638,Sphingosine 1 Phosphate Receptor Modulators,Pharmacologic Substance,True
+C4763587,Immunomodulatory IMiD Drugs,Pharmacologic Substance,True
+C5197716,"Contraceptive Agents, Hormonal",Pharmacologic Substance,True
+C5197830,Detergent Pods,Manufactured Object,False
+C5197869,Topoisomerase III Inhibitors,Pharmacologic Substance,True
+C5200702,Tumor Necrosis Factor-a (TNF-a) Antagonists,Pharmacologic Substance,True
+C5200703,Tumor Necrosis Factor-a (TNF-a) Inhibitors,Pharmacologic Substance,True
+C5200704,Tumor Necrosis Factor-a (TNF-a) Blockers,Pharmacologic Substance,True
+C5200720,"Contraceptive Agents, Female Hormonal",Pharmacologic Substance,True
+C5200721,"Contraceptive Agents, Male Hormonal",Pharmacologic Substance,True
+C5200784,"Contraceptive Agents, Estrogen",Pharmacologic Substance,True
+C5392067,Immune Checkpoint Blockade,Cell Function,False
+C5392068,PD-L1 Inhibitors,Pharmacologic Substance,True
+C5392069,CTLA-4 Inhibitors,Pharmacologic Substance,True
+C5392101,Persistent Organic Pollutants,Hazardous or Poisonous Substance,True
+C5392122,Viral Protease Inhibitors,Pharmacologic Substance,True
+C5392251,Coronavirus Protease Inhibitors,Pharmacologic Substance,True
+C5392807,PD-1-PD-L1 Blockade,Pharmacologic Substance,True
+C5444557,Myotoxins,Hazardous or Poisonous Substance,True
+C5445109,PCSK9 Inhibitors,Pharmacologic Substance,True
+C5447609,Toll-Like Receptor Agonists,Immunologic Factor; Pharmacologic Substance,True
+C5544404,Senotherapeutics,Pharmacologic Substance,True
+C5544405,Senoptosis Inducers,Pharmacologic Substance,True
+C5544406,Senostatic Agents,Pharmacologic Substance,True
+C5544407,Senolytics,Pharmacologic Substance,True
+C5544408,Senomorphic Agents,Pharmacologic Substance,True
+C5544420,Anticoagulant Reversal Agents,Pharmacologic Substance,True
+C5544457,Gamma Secretase Inhibitors and Modulators,Pharmacologic Substance,True
+C5544458,Gamma Secretase Modulators,Pharmacologic Substance,True
+C5544459,Gamma Secretase Inhibitors,Pharmacologic Substance,True
+C5544467,"PCSK9 Inhibitors, Cardiovascular",Pharmacologic Substance,True
+C5544470,Immunomodulating Agents,Pharmacologic Substance,True
+C5544535,Deep Eutectic Solvents,Chemical Viewed Functionally,True
+C5545236,Impotence Agents,Pharmacologic Substance,True
+C5545238,Geroprotectors,Pharmacologic Substance,True
+C5545269,Rapalogs,Organic Chemical; Pharmacologic Substance,True
+C5545281,Natural Deep Eutectic Solvents,Chemical Viewed Functionally,True
+C5545282,Deep Eutectic Mixtures,Chemical Viewed Functionally,True
+C5545325,Ionic Solvents,Chemical Viewed Functionally,True
+C5574863,PPAR-gamma Agonists,Molecular Function,False
+C5575703,Renin Inhibitors,Pharmacologic Substance,True
+C5690720,Insulin Secretagogues,Organic Chemical; Pharmacologic Substance,True
+C5690764,Interleukin-6 Inhibitors,Organic Chemical; Pharmacologic Substance,True
+C5690777,Antiglycation Agents,Chemical Viewed Functionally,True
+C5690794,Proteolysis Targeting Chimera,"Indicator, Reagent, or Diagnostic Aid",True
+C5690795,Phospho-Dependent PROTACs,"Indicator, Reagent, or Diagnostic Aid; Organic Chemical",True
+C5690860,Pharmalytes,"Indicator, Reagent, or Diagnostic Aid",True
+C5691273,Meglitinide Analogues,Organic Chemical; Pharmacologic Substance,True
+C5691274,Hypoglycemic Sulfonylureas,Organic Chemical; Pharmacologic Substance,True
+C5691345,IAP-Based PROTACs,"Indicator, Reagent, or Diagnostic Aid; Organic Chemical",True
+C5691346,VHL-Based PROTACs,"Indicator, Reagent, or Diagnostic Aid; Organic Chemical",True
+C5691347,MDM2 Protein-Based PROTACs,"Indicator, Reagent, or Diagnostic Aid; Organic Chemical",True
+C5691348,Cereblon-Based Small-Molecule Compounds,"Indicator, Reagent, or Diagnostic Aid; Organic Chemical",True
+C5780938,Protease-Activated Receptor-1 Antagonists,Pharmacologic Substance,True
+C5781289,beta Lactam Antibiotics,Pharmacologic Substance,True
+C6016553,Neurotrophic Agents,Pharmacologic Substance,True

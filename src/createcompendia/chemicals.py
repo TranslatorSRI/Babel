@@ -133,7 +133,7 @@ def get_type_from_smiles(smiles):
         return SMALL_MOLECULE
 
 
-def write_umls_ids(mrsty, outfile):
+def write_umls_ids(mrsty, mrconso, outfile):
     groups = [
         "A1.4.1.1.1.1",  # antibiotic
         "A1.4.1.1.3.2",  # Hormone
@@ -155,7 +155,29 @@ def write_umls_ids(mrsty, outfile):
     }
     umlsmap = {a: CHEMICAL_ENTITY for a in groups}
     umlsmap["A1.3.3"] = DRUG
-    umls.write_umls_ids(mrsty, umlsmap, outfile, blocklist_umls_semantic_type_tree=exclude_umls_sty_trees)
+    # Semantic types don't separate chemicals from chemical roles: "Glucocorticoids" and "Fluorescent Dyes" are
+    # Hormone and Indicator CUIs. MeSH does, so a CUI whose MeSH atoms all sit on role descriptors (see
+    # get_mesh_role_descriptors) is left to the ChemicalRole compendium.
+    role_cuis = umls.get_cuis_mapped_only_to_mesh(mrconso, get_mesh_role_descriptors())
+    umls.write_umls_ids(
+        mrsty,
+        umlsmap,
+        outfile,
+        blocklist_umls_ids=role_cuis,
+        blocklist_umls_semantic_type_tree=exclude_umls_sty_trees,
+    )
+
+
+def get_mesh_role_descriptors():
+    """MeSH descriptors in D27 (Chemical Actions and Uses) and in none of mesh.MESH_ENTITY_TREES.
+
+    These are the descriptors chemical_role.write_mesh_ids() takes; none of them is in write_mesh_ids() here.
+    """
+    m = mesh.Mesh()
+    entity_descriptors = set()
+    for tree in mesh.MESH_ENTITY_TREES:
+        entity_descriptors.update(m.get_terms_in_tree(tree))
+    return set(m.get_terms_in_tree(mesh.MESH_CHEMICAL_ACTIONS_AND_USES_TREE)) - entity_descriptors
 
 
 def write_rxnorm_ids(infile, outfile):
@@ -288,7 +310,9 @@ def write_mesh_ids(outfile):
     #   D05.750  Polymers
     #   D05.937  Smart Materials
     #
-    # D27 (Chemical Actions and Uses) is implicitly excluded by the range D01–D26.
+    # D27 (Chemical Actions and Uses) is implicitly excluded by the range D01–D26. Descriptors only in D27 are
+    # chemical roles and belong to the ChemicalRole compendium. D27 must not be added to scr_exclude_trees: SCRs
+    # mapped to D27 descriptors are still substances (e.g. eglin c -> Serpins, which is in D12 and D27).
     #
     # TODO: The MeSH tree assignments for chemicals and proteins are currently defined
     # independently in chemicals.write_mesh_ids() and protein.write_mesh_ids(). These
@@ -296,7 +320,7 @@ def write_mesh_ids(outfile):
     # so both compendia are derived from the same source of truth. This would also make it
     # easier to handle edge cases like SCR_Chemical terms mapped to non-protein descriptors
     # that are nonetheless proteins (e.g. scorpion venom toxins under D23 Biological Factors).
-    meshmap = {f"D{str(i).zfill(2)}": CHEMICAL_ENTITY for i in range(1, 27)}
+    meshmap = {tree: CHEMICAL_ENTITY for tree in mesh.MESH_CHEMICAL_TREES}
     # D05 protein subtrees → excluded (protein compendium handles these)
     meshmap["D05.500"] = "EXCLUDE"
     meshmap["D05.875"] = "EXCLUDE"
@@ -1031,14 +1055,20 @@ def get_mesh_relationships(mesh_id_file, cas_out, unii_out, cas_metadata, unii_m
     )
 
 
-def get_wikipedia_relationships(outfile, config, metadata_yaml):
+def get_wikidata_mesh_chebi_pairs():
+    """Return (MESH CURIE, CHEBI CURIE) pairs for every Wikidata item carrying both a MeSH and a ChEBI ID."""
     url = "https://query.wikidata.org/sparql?format=json&query=SELECT ?chebi ?mesh WHERE { ?compound wdt:P683 ?chebi . ?compound wdt:P486 ?mesh. }"
-    results = requests.get(url, headers={"User-Agent": get_user_agent()}).json()
-    pairs = [
+    response = requests.get(url, headers={"User-Agent": get_user_agent()})
+    response.raise_for_status()
+    return [
         (f"{MESH}:{r['mesh']['value']}", f"{CHEBI}:{r['chebi']['value']}")
-        for r in results["results"]["bindings"]
+        for r in response.json()["results"]["bindings"]
         if not r["mesh"]["value"].startswith("M")
     ]
+
+
+def get_wikipedia_relationships(outfile, config, metadata_yaml):
+    pairs = get_wikidata_mesh_chebi_pairs()
     # Wikidata is great, except when it sucks.   One thing it likes to do is to
     # have multiple CHEBIs for a concept, say ignoring stereochemistry or
     # the like.  No good.   It's easy enough to filter these out, but then
@@ -1064,6 +1094,29 @@ def get_wikipedia_relationships(outfile, config, metadata_yaml):
     )
 
 
+# Concord partners with these prefixes must already be in the chemical id lists. Each of these vocabularies also
+# has chemical roles (ChEBI's role branch, MeSH descriptors only in D27, UMLS CUIs on those descriptors) that the id
+# lists leave out for the ChemicalRole compendium; without this check a cross-reference such as Wikidata's
+# MESH:D000928 (Antidepressive Agents) <-> CHEBI:35469 (antidepressant) would glom a role into a chemical clique.
+ID_LIST_ENFORCED_PREFIXES = frozenset({CHEBI, MESH, UMLS})
+
+
+def filter_pairs_to_known_ids(pairs, known_ids, enforced_prefixes):
+    """Drop pairs with a member whose prefix is in enforced_prefixes but which is not in known_ids.
+
+    :return: (kept pairs, Counter of dropped pairs by the prefix of the offending identifier)
+    """
+    kept = []
+    dropped = Counter()
+    for pair in pairs:
+        unknown = [i for i in pair if Text.get_prefix_or_none(i) in enforced_prefixes and i not in known_ids]
+        if unknown:
+            dropped[Text.get_prefix_or_none(unknown[0])] += 1
+        else:
+            kept.append(pair)
+    return kept, dropped
+
+
 def build_untyped_compendia(
     concordances, identifiers, unichem_partial, untyped_concord, type_file, metadata_yaml, input_metadata_yamls
 ):
@@ -1071,11 +1124,13 @@ def build_untyped_compendia(
     :identifiers: a list of files from which to read identifiers and optional categories"""
     dicts = read_partial_unichem(unichem_partial)
     types = {}
+    known_ids = set()
     for ifile in identifiers:
         print(ifile)
         new_identifiers, new_types = read_identifier_file(ifile)
         glom(dicts, new_identifiers, unique_prefixes=[INCHIKEY])
         types.update(new_types)
+        known_ids.update(i for (i,) in new_identifiers if Text.get_prefix_or_none(i) in ID_LIST_ENFORCED_PREFIXES)
     for infile in concordances:
         print(infile)
         print("loading", infile)
@@ -1084,6 +1139,13 @@ def build_untyped_compendia(
             for line in inf:
                 x = line.strip().split("\t")
                 pairs.append([x[0], x[2]])
+        pairs, dropped = filter_pairs_to_known_ids(pairs, known_ids, ID_LIST_ENFORCED_PREFIXES)
+        if dropped:
+            logger.info(
+                f"Dropped {dropped.total()} pairs from {infile} with identifiers outside the id lists: {dict(dropped)}"
+            )
+        if not pairs:
+            raise RuntimeError(f"Concord {infile} has no pairs left to glom (dropped: {dict(dropped)})")
         p = False
         if DRUGCENTRAL in [n.split(":")[0] for n in pairs[0]]:
             p = True

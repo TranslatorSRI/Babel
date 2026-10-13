@@ -11,6 +11,16 @@ ChEBI is ingested from two files pulled by `src/datahandlers/chebi.py`:
 - `source.tsv` and `status.tsv` — the lookup tables that turn `database_accession.tsv`'s numeric
   `source_id` and `status_id` into a database name and a curation state.
 
+## Chemical entities and roles
+
+ChEBI has two disjoint branches that Babel uses: `CHEBI:24431` (chemical entity), which seeds the
+chemicals compendium (`chemicals.write_chebi_ids()`), and `CHEBI:50906` (role), which seeds the
+ChemicalRole compendium (`chemical_role.write_chebi_ids()`). Both are read from UberGraph. The
+chemicals build only accepts CHEBI identifiers from its id lists into its cliques
+(`chemicals.ID_LIST_ENFORCED_PREFIXES`), so a cross-reference to a role, such as Wikidata's
+"Antidepressive Agents" ↔ `CHEBI:35469` (antidepressant), cannot bring a role into a chemical
+clique.
+
 ## Reading `database_accession.tsv`
 
 The file has six columns:

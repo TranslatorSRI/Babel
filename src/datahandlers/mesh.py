@@ -9,6 +9,20 @@ from src.prefixes import MESH
 
 MESH_IRI_PREFIX = "http://id.nlm.nih.gov/mesh/"
 
+# The D tree splits into chemicals classified by what they are (D01–D26) and by what they do (D27, Chemical
+# Actions and Uses). A D27 descriptor is a chemical role, e.g. "Antidepressive Agents", unless it is also in a tree
+# another compendium takes (MESH_ENTITY_TREES): MeSH files specific substances under D27 beside their action class
+# (Cefiderocol, High Fructose Corn Syrup), and a few D27 descriptors are also diseases ("Metabolic Side Effects of
+# Drugs and Substances", C25). Querying a tree number MeSH doesn't use returns nothing, so the ranges are generous.
+MESH_CHEMICAL_TREES = [f"D{i:02}" for i in range(1, 27)]
+MESH_CHEMICAL_ACTIONS_AND_USES_TREE = "D27"
+MESH_ENTITY_TREES = (
+    [f"A{i:02}" for i in range(1, 22)]  # anatomy
+    + [f"B{i:02}" for i in range(1, 6)]  # organisms
+    + [f"C{i:02}" for i in range(1, 27)]  # diseases
+    + MESH_CHEMICAL_TREES  # chemicals and proteins
+)
+
 
 def get_mesh_id_from_iri(iri) -> str:
     """Extract a MeSH ID from a pyoxigraph IRI (e.g. <http://id.nlm.nih.gov/mesh/D009243>).

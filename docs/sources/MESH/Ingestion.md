@@ -46,6 +46,9 @@ prefix to all descriptors under it. The current routing:
   overrides); protein subtrees (`D05.500`, `D05.875`, `D08.244`, `D08.622`, `D08.811`, `D12.776`)
   are split off to protein (`PROTEIN`). See `chemicals.write_mesh_ids()` and
   `protein.write_mesh_ids()`.
+- **D27 Chemical Actions and Uses**, only for descriptors in none of the trees above (A, B, C,
+  D01–D26) → chemical role (`CHEMICAL_ROLE`). See `chemical_role.write_mesh_ids()` and "Chemical
+  roles: D27" below.
 
 When the same descriptor appears in multiple trees with conflicting types, `mesh.write_ids()`
 resolves the conflict using the `order` argument (an explicit type priority list) and an
@@ -58,6 +61,35 @@ subtrees (chemicals marks the protein subtrees `EXCLUDE`; protein claims them as
 two lists are maintained separately (there is a `TODO` in `chemicals.write_mesh_ids()` about
 unifying them). When changing a D-tree assignment in one, check the other so an identifier does
 not end up in both compendia or in neither.
+
+### Chemical roles: D27
+
+D27 classifies chemicals by what they do ("Antidepressive Agents", "Herbicides", "Excipients")
+rather than what they are. Biolink calls that a `biolink:ChemicalRole`, so these descriptors go to
+the ChemicalRole compendium, not chemicals. The rule is **D27 and none of the trees another
+compendium takes** (`mesh.MESH_ENTITY_TREES`: A, B, C, D01–D26), not "any D27 tree number". MeSH
+also files specific substances under D27 beside their action class (Cefiderocol is in D02/D03 and
+under anti-bacterial agents in D27; High Fructose Corn Syrup is in D09 and D27), and a few D27
+descriptors are diseases too ("Metabolic Side Effects of Drugs and Substances", C25). Descriptors
+in both stay with the other compendium, including a few headings that read like roles ("Hormones",
+"Glucocorticoids", "Antioxidants"). A curated list would be the way to move those if we want them
+as roles. Trees no compendium takes from MeSH (E, G, J, N) don't block a role: "Food Additives"
+(G07/J02) and "Detergents" (J01) are roles.
+
+The same line is applied to UMLS, using MeSH as the arbiter. A CUI whose MeSH atoms all point at
+role descriptors (`umls.get_cuis_mapped_only_to_mesh()`) is left out of
+`chemicals.write_umls_ids()`. `chemical_role.write_umls_ids()` takes those CUIs only when UMLS
+types them as a substance (semantic type tree A1.4) and not as a protein. The rest are effects
+filed as entry terms under the agent class ("Serotonin Effect" under "Serotonin Agents", a
+Physiologic Function), findings, devices or protein classes, and process, protein or leftover UMLS
+keeps them.
+
+D27 is deliberately **not** in chemicals' `scr_exclude_trees`. That would drop every SCR mapped to
+a D27 descriptor, and those are substances filed under their class (eglin c → Serpins, which is
+in D12 and D27). No SCR in the 2026 dump maps only to role descriptors.
+
+`chemical_roles/scripts/analyze_d27.py` regenerates the counts and samples behind these choices
+into `chemical_roles/README-generated.md`, using the production predicates.
 
 ## Supplementary Concept Records (SCRs)
 
@@ -101,9 +133,9 @@ The approximate record counts and current handling:
 ## Coverage audit
 
 Babel does not ingest every MeSH branch. Whole top-level categories (E procedures/equipment, F
-psychiatry/psychology except disease-like F03, G phenomena/processes, H–N, V, Z) and the D27
-Chemical Actions and Uses tree are currently out of scope, along with the four unconsumed SCR
-classes above. The standing audit of what we do and don't incorporate — with a per-branch
+psychiatry/psychology except disease-like F03, G phenomena/processes, H–N, V, Z) are currently out
+of scope (D27 Chemical Actions and Uses now goes to ChemicalRole), along with the four unconsumed
+SCR classes above. The standing audit of what we do and don't incorporate — with a per-branch
 keep/skip recommendation — is tracked in
 [issue #807](https://github.com/NCATSTranslator/Babel/issues/807). Consult it before adding or
 removing a MeSH branch.

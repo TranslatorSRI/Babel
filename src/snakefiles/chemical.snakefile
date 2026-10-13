@@ -8,12 +8,14 @@ import src.snakefiles.util as util
 rule chemical_umls_ids:
     input:
         mrsty=config["download_directory"] + "/UMLS/MRSTY.RRF",
+        mrconso=config["download_directory"] + "/UMLS/MRCONSO.RRF",
+        mesh=config["download_directory"] + "/MESH/mesh.nt",
     output:
         outfile=config["intermediate_directory"] + "/chemicals/ids/UMLS",
     benchmark:
         config["output_directory"] + "/benchmarks/chemical_umls_ids.tsv"
     run:
-        chemicals.write_umls_ids(input.mrsty, output.outfile)
+        chemicals.write_umls_ids(input.mrsty, input.mrconso, output.outfile)
 
 
 rule chemical_rxnorm_ids:
