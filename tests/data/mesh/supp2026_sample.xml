@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<!DOCTYPE SupplementalRecordSet SYSTEM "https://www.nlm.nih.gov/databases/dtd/nlmsupplementalrecordset_20260101.dtd">
+<SupplementalRecordSet LanguageCode = "eng">
+<SupplementalRecord SCRClass = "1">
+  <SupplementalRecordUI>C000730045</SupplementalRecordUI>
+  <SupplementalRecordName>
+   <String>foliglurax</String>
+  </SupplementalRecordName>
+  <LastUpdated>
+   <Year>2024</Year>
+   <Month>01</Month>
+   <Day>23</Day>
+  </LastUpdated>
+  <DateIntroduced>
+   <Year>2024</Year>
+   <Month>01</Month>
+   <Day>23</Day>
+  </DateIntroduced>
+  <HeadingMappedToList>
+   <HeadingMappedTo>
+    <DescriptorReferredTo>
+     <DescriptorUI>*D002839</DescriptorUI>
+     <DescriptorName>
+      <String>Chromans</String>
+     </DescriptorName>
+    </DescriptorReferredTo>
+   </HeadingMappedTo>
+   <HeadingMappedTo>
+    <DescriptorReferredTo>
+     <DescriptorUI>*D009025</DescriptorUI>
+     <DescriptorName>
+      <String>Morpholines</String>
+     </DescriptorName>
+    </DescriptorReferredTo>
+   </HeadingMappedTo>
+  </HeadingMappedToList>
+  <ConceptList>
+   <Concept PreferredConceptYN="Y">
+    <ConceptUI>M000767166</ConceptUI>
+    <ConceptName>
+     <String>foliglurax</String>
+    </ConceptName>
+    <RegistryNumberList>
+    <RegistryNumber>0</RegistryNumber>
+    </RegistryNumberList>
+    <TermList>
+     <Term  ConceptPreferredTermYN="Y"  IsPermutedTermYN="N"  LexicalTag="NON"  RecordPreferredTermYN="Y">
+      <TermUI>T001142131</TermUI>
+      <String>foliglurax</String>
+      <DateCreated>
+       <Year>2024</Year>
+       <Month>01</Month>
+       <Day>23</Day>
+      </DateCreated>
+      <ThesaurusIDlist>
+       <ThesaurusID>NLM (2024)</ThesaurusID>
+      </ThesaurusIDlist>
+     </Term>
+     <Term  ConceptPreferredTermYN="N"  IsPermutedTermYN="N"  LexicalTag="NON"  RecordPreferredTermYN="N">
+      <TermUI>T001142133</TermUI>
+      <String>(NE)-N-(6-(3-morpholin-4-ylpropyl)-2-thieno(3,2-c)pyridin-6-ylchromen-4-ylidene)hydroxylamine</String>
+      <DateCreated>
+       <Year>2024</Year>
+       <Month>01</Month>
+       <Day>23</Day>
+      </DateCreated>
+      <ThesaurusIDlist>
+       <ThesaurusID>NLM (2024)</ThesaurusID>
+      </ThesaurusIDlist>
+     </Term>
+    </TermList>
+   </Concept>
+  </ConceptList>
+ </SupplementalRecord>
+<SupplementalRecord SCRClass = "4">
+  <SupplementalRecordUI>C000612320</SupplementalRecordUI>
+  <SupplementalRecordName>
+   <String>UR2 sarcoma virus</String>
+  </SupplementalRecordName>
+  <LastUpdated>
+   <Year>2020</Year>
+   <Month>09</Month>
+   <Day>30</Day>
+  </LastUpdated>
+  <DateIntroduced>
+   <Year>2018</Year>
+   <Month>01</Month>
+   <Day>01</Day>
+  </DateIntroduced>
+  <Frequency>0</Frequency>
+  <HeadingMappedToList>
+   <HeadingMappedTo>
+    <DescriptorReferredTo>
+     <DescriptorUI>*D001355</DescriptorUI>
+     <DescriptorName>
+      <String>Alpharetrovirus</String>
+     </DescriptorName>
+    </DescriptorReferredTo>
+   </HeadingMappedTo>
+  </HeadingMappedToList>
+  <IndexingInformationList>
+   <IndexingInformation>
+     <DescriptorReferredTo>
+    <DescriptorUI>D001353</DescriptorUI>
+     <DescriptorName>
+      <String>Avian Leukosis</String>
+      </DescriptorName>
+     </DescriptorReferredTo>
+   </IndexingInformation>
+   <IndexingInformation>
+     <DescriptorReferredTo>
+    <DescriptorUI>D001357</DescriptorUI>
+     <DescriptorName>
+      <String>Sarcoma, Avian</String>
+      </DescriptorName>
+     </DescriptorReferredTo>
+   </IndexingInformation>
+   <IndexingInformation>
+     <DescriptorReferredTo>
+    <DescriptorUI>D012192</DescriptorUI>
+     <DescriptorName>
+      <String>Retroviridae Infections</String>
+      </DescriptorName>
+     </DescriptorReferredTo>
+   </IndexingInformation>
+   <IndexingInformation>
+     <DescriptorReferredTo>
+    <DescriptorUI>D014412</DescriptorUI>
+     <DescriptorName>
+      <String>Tumor Virus Infections</String>
+      </DescriptorName>
+     </DescriptorReferredTo>
+   </IndexingInformation>
+  </IndexingInformationList>
+  <ConceptList>
+   <Concept PreferredConceptYN="Y">
+    <ConceptUI>M000623900</ConceptUI>
+    <ConceptName>
+     <String>UR2 sarcoma virus</String>
+    </ConceptName>
+    <RegistryNumberList>
+    <RegistryNumber>txid354090</RegistryNumber>
+    </RegistryNumberList>
+    <TermList>
+     <Term  ConceptPreferredTermYN="Y"  IsPermutedTermYN="N"  LexicalTag="NON"  RecordPreferredTermYN="Y">
+      <TermUI>T000912026</TermUI>
+      <String>UR2 sarcoma virus</String>
+      <DateCreated>
+       <Year>2016</Year>
+       <Month>11</Month>
+       <Day>22</Day>
+      </DateCreated>
+      <ThesaurusIDlist>
+       <ThesaurusID>NLM (2017)</ThesaurusID>
+      </ThesaurusIDlist>
+     </Term>
+    </TermList>
+   </Concept>
+  </ConceptList>
+ </SupplementalRecord>
+</SupplementalRecordSet>

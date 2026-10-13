@@ -1,0 +1,47 @@
+<http://id.nlm.nih.gov/mesh/2026/C000730045> <http://id.nlm.nih.gov/mesh/vocab#dateIntroduced> "2024-01-23"^^<http://www.w3.org/2001/XMLSchema#date> .
+<http://id.nlm.nih.gov/mesh/2026/C000730045> <http://id.nlm.nih.gov/mesh/vocab#identifier> "C000730045" .
+<http://id.nlm.nih.gov/mesh/2026/C000730045> <http://id.nlm.nih.gov/mesh/vocab#lastUpdated> "2024-01-23"^^<http://www.w3.org/2001/XMLSchema#date> .
+<http://id.nlm.nih.gov/mesh/2026/C000730045> <http://id.nlm.nih.gov/mesh/vocab#preferredConcept> <http://id.nlm.nih.gov/mesh/2026/M000767166> .
+<http://id.nlm.nih.gov/mesh/2026/C000730045> <http://id.nlm.nih.gov/mesh/vocab#preferredMappedTo> <http://id.nlm.nih.gov/mesh/2026/D002839> .
+<http://id.nlm.nih.gov/mesh/2026/C000730045> <http://id.nlm.nih.gov/mesh/vocab#preferredMappedTo> <http://id.nlm.nih.gov/mesh/2026/D009025> .
+<http://id.nlm.nih.gov/mesh/2026/C000730045> <http://id.nlm.nih.gov/mesh/vocab#preferredTerm> <http://id.nlm.nih.gov/mesh/2026/T001142131> .
+<http://id.nlm.nih.gov/mesh/2026/C000730045> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://id.nlm.nih.gov/mesh/vocab#SCR_Chemical> .
+<http://id.nlm.nih.gov/mesh/2026/C000730045> <http://www.w3.org/2000/01/rdf-schema#label> "foliglurax"@en .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000008> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000009> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000032> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000037> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000097> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000134> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000138> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000145> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000191> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000266> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000276> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000302> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000378> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000493> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000494> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000506> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000528> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000592> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000600> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000627> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000633> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000652> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000737> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#allowableQualifier> <http://id.nlm.nih.gov/mesh/2026/Q000819> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#annotation> "do not confuse with CHROMONES"@en .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#broaderDescriptor> <http://id.nlm.nih.gov/mesh/2026/D001578> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#dateIntroduced> "1991-01-01"^^<http://www.w3.org/2001/XMLSchema#date> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#historyNote> "91(75); was see under BENZOPYRANS 1975-90"@en .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#identifier> "D002839" .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#lastUpdated> "2016-05-28"^^<http://www.w3.org/2001/XMLSchema#date> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#preferredConcept> <http://id.nlm.nih.gov/mesh/2026/M0004366> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#preferredTerm> <http://id.nlm.nih.gov/mesh/2026/T008262> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#previousIndexing> "Benzopyrans (1968-1974)"@en .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#publicMeSHNote> "91; was see under BENZOPYRANS 1975-90"@en .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#treeNumber> <http://id.nlm.nih.gov/mesh/2026/D03.383.663.283.240> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://id.nlm.nih.gov/mesh/vocab#treeNumber> <http://id.nlm.nih.gov/mesh/2026/D03.633.100.150.240> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://id.nlm.nih.gov/mesh/vocab#TopicalDescriptor> .
+<http://id.nlm.nih.gov/mesh/2026/D002839> <http://www.w3.org/2000/01/rdf-schema#label> "Chromans"@en .

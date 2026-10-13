@@ -52,7 +52,8 @@ rule get_taxon_umls_relationships:
 
 rule get_taxon_relationships:
     input:
-        meshfile=config["download_directory"] + "/MESH/mesh.nt",
+        mesh_desc_xml=config["download_directory"] + "/MESH/desc.xml.gz",
+        mesh_supp_xml=config["download_directory"] + "/MESH/supp.xml.gz",
         meshids=config["intermediate_directory"] + "/taxon/ids/MESH",
     output:
         outfile=config["intermediate_directory"] + "/taxon/concords/NCBI_MESH",

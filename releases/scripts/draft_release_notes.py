@@ -56,6 +56,7 @@ VERSION_KEYS = {
     "biolink_version": "the Biolink Model",
     "umls_version": "UMLS",
     "rxnorm_version": "RxNorm",
+    "mesh_year": "MeSH",
     "drugbank_version": "DrugBank",
 }
 

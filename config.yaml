@@ -14,6 +14,10 @@ build:
 # Versions that need to be updated on every release.
 biolink_version: "4.4.3"
 umls_version: "2026AA"
+# MeSH release year, downloaded from ftp://ftp.nlm.nih.gov/online/mesh/rdf/{mesh_year}/mesh{mesh_year}.nt.gz.
+# Keep this in step with umls_version: UMLS 20XXAA carries MeSH 20XX codes, and a MeSH dump older than UMLS
+# leaves UMLS MSH codes (especially new SCRs) with no MeSH record. reports/umls_mesh_skew.json measures this.
+mesh_year: "2026"
 rxnorm_version: "07062026"
 drugbank_version: "5-1-13" # The latest is 5-1-21, but since downloads are currently not allowed, we need to reuse our most recent download.
 # GARD has no version number to bump, only a link that goes stale: this is the "GARD Rare Disease

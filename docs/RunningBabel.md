@@ -6,13 +6,16 @@ The [`../kubernetes`](../kubernetes) directory contains Kubernetes manifest file
 that can be used to set up a Pod to run Babel in. They'll give you an idea of the disk
 space and memory requirements needed to run this pipeline.
 
-Before running, read through `config.yaml` and make sure that the settings look correct.
-You will need to update the version numbers of some databases that need to be downloaded,
-or change the download and output directories. One download has no version number to bump but a
-link that goes stale instead: `gard_download_url` pins one uploaded version of the GARD list, so
-run `uv run pytest tests/datahandlers/test_gard.py::test_gard_download_url_is_current --network`,
-which fails if the link has gone from <https://rarediseases.info.nih.gov/about> and warns if a newer
-one is there (see [`sources/GARD/README.md`](sources/GARD/README.md), "Download").
+Before running, read through `config.yaml` and make sure that the settings look correct. You will
+need to update the version numbers of some databases that need to be downloaded, or change the
+download and output directories. Keep `mesh_year` in step with `umls_version` (UMLS 2026AA goes with
+MeSH 2026); `babel_outputs/reports/umls_mesh_skew.json` shows how far apart they are (see
+[`sources/MESH/Ingestion.md`](sources/MESH/Ingestion.md), "Source data"). One download has no
+version number to bump but a link that goes stale instead: `gard_download_url` pins one uploaded
+version of the GARD list, so run
+`uv run pytest tests/datahandlers/test_gard.py::test_gard_download_url_is_current --network`, which
+fails if the link has gone from <https://rarediseases.info.nih.gov/about> and warns if a newer one
+is there (see [`sources/GARD/README.md`](sources/GARD/README.md), "Download").
 
 A UMLS API key is required in order to download UMLS and RxNorm databases. You will need
 to set the `UMLS_API_KEY` environmental variable to a UMLS API key, which you can obtain

@@ -4,15 +4,31 @@ Tests cover:
   - write_ids() parameter validation
   - write_ids() SCR filtering logic (mock-based)
   - Mesh.get_scr_terms_mapped_to_trees() (inline pyoxigraph store)
+  - normalize_mesh_nt() on per-year MeSH RDF (fixture copied from mesh2026.nt)
+  - read_mesh_xml_registry() on MeSH XML (fixtures copied from desc2026.gz / supp2026.gz)
+  - that the configured mesh_year is published on the NLM FTP site (network)
 """
 
+import ftplib
+import gzip
+import shutil
 from unittest.mock import MagicMock, patch
 
 import pyoxigraph
 import pytest
 
 from src.categories import CHEMICAL_ENTITY, PROTEIN
-from src.datahandlers.mesh import Mesh, write_ids
+from src.datahandlers.mesh import (
+    MESH_FTP_SITE,
+    MESH_XML_FILES,
+    Mesh,
+    mesh_rdf_location,
+    mesh_xml_dir,
+    normalize_mesh_nt,
+    read_mesh_xml_registry,
+    write_ids,
+)
+from src.util import get_config, get_repo_root
 from tests.datahandlers.conftest import make_graph_from_store, nn, quad
 
 _MESH_NS = "http://id.nlm.nih.gov/mesh/"
@@ -253,3 +269,108 @@ def test_get_scr_terms_mapped_to_trees_multiple_top_treenums(mesh_with_test_stor
 @pytest.mark.unit
 def test_get_scr_terms_mapped_to_trees_no_match(mesh_with_test_store):
     assert mesh_with_test_store.get_scr_terms_mapped_to_trees(["D01"]) == set()
+
+
+# ---------------------------------------------------------------------------
+# Group 4: normalize_mesh_nt() on a per-year RDF dump
+# ---------------------------------------------------------------------------
+
+MESH_TEST_DATA = get_repo_root() / "tests" / "data" / "mesh"
+
+
+def _gzip_fixture(src, tmp_path):
+    """Gzip a fixture file into tmp_path, the way NLM ships it."""
+    gz_path = tmp_path / (src.name + ".gz")
+    with open(src, "rb") as inf, gzip.open(gz_path, "wb") as outf:
+        shutil.copyfileobj(inf, outf)
+    return gz_path
+
+
+@pytest.fixture
+def normalized_mesh2026(tmp_path):
+    """mesh2026_sample.nt (every triple for C000730045 foliglurax and D002839 Chromans, copied from
+    mesh2026.nt) gzipped and run through normalize_mesh_nt()."""
+    out = tmp_path / "mesh.nt"
+    normalize_mesh_nt(_gzip_fixture(MESH_TEST_DATA / "mesh2026_sample.nt", tmp_path), out, "2026")
+    return out
+
+
+@pytest.mark.unit
+def test_normalize_mesh_nt_strips_year_from_record_iris(normalized_mesh2026):
+    """Record IRIs like <http://id.nlm.nih.gov/mesh/2026/D002839> should become <http://id.nlm.nih.gov/mesh/D002839>,
+    leaving no year-versioned IRIs behind and the vocab# namespace untouched."""
+    text = normalized_mesh2026.read_text()
+    assert "/mesh/2026/" not in text
+    assert (
+        "<http://id.nlm.nih.gov/mesh/D002839> <http://id.nlm.nih.gov/mesh/vocab#treeNumber> <http://id.nlm.nih.gov/mesh/D03.383.663.283.240> ."
+        in text
+    )
+    assert len(text.splitlines()) == len((MESH_TEST_DATA / "mesh2026_sample.nt").read_text().splitlines())
+
+
+@pytest.mark.unit
+def test_normalized_mesh_nt_works_with_mesh_queries(normalized_mesh2026):
+    """The Mesh SPARQL helpers should find records in a normalized per-year dump (they would find nothing
+    in the raw one, whose IRIs carry the year)."""
+    store = pyoxigraph.Store()
+    with open(normalized_mesh2026, "rb") as inf:
+        store.bulk_load(input=inf, format=pyoxigraph.RdfFormat.N_TRIPLES)
+    m = make_graph_from_store(Mesh, store)
+    assert m.get_terms_with_type("SCR_Chemical") == ["MESH:C000730045"]
+    assert m.get_tree_numbers("MESH:D002839") == ["D03.383.663.283.240", "D03.633.100.150.240"]
+
+
+@pytest.mark.unit
+def test_normalize_mesh_nt_rejects_wrong_year(tmp_path):
+    """A 2026 dump normalized as if it were 2025 should raise rather than produce a file the queries can't use."""
+    with pytest.raises(ValueError, match="mesh/2025/"):
+        normalize_mesh_nt(_gzip_fixture(MESH_TEST_DATA / "mesh2026_sample.nt", tmp_path), tmp_path / "mesh.nt", "2025")
+
+
+# ---------------------------------------------------------------------------
+# Group 5: read_mesh_xml_registry() on MeSH XML
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_read_mesh_xml_registry_descriptor_uses_preferred_concept_only(tmp_path):
+    """D000068877 (Imatinib Mesylate, copied from desc2026.gz) should yield only its preferred concept's
+    RegistryNumber: not the RelatedRegistryNumbers, not the non-preferred concept's BKJ8M8G5HI, not the
+    "0" placeholders, and not the DescriptorUIs nested in its pharmacological actions."""
+    gz_path = _gzip_fixture(MESH_TEST_DATA / "desc2026_sample.xml", tmp_path)
+    assert list(read_mesh_xml_registry(gz_path, "DescriptorRecord", "DescriptorUI")) == [
+        ("MESH:D000068877", "8A1O1M485B")
+    ]
+
+
+@pytest.mark.unit
+def test_read_mesh_xml_registry_scrs(tmp_path):
+    """From supp2026.gz: C000730045 (foliglurax) has only the "0" placeholder and should be skipped;
+    C000612320 should yield its NCBI Taxon registry number."""
+    gz_path = _gzip_fixture(MESH_TEST_DATA / "supp2026_sample.xml", tmp_path)
+    assert list(read_mesh_xml_registry(gz_path, "SupplementalRecord", "SupplementalRecordUI")) == [
+        ("MESH:C000612320", "txid354090")
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Group 6: the configured mesh_year is published
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.network
+def test_configured_mesh_year_is_published():
+    """config.yaml's mesh_year should name a year with both an RDF dump and XML files on the NLM FTP site,
+    so get_mesh and get_mesh_xml will not fail partway through a build."""
+    mesh_year = get_config()["mesh_year"]
+    rdf_dir, rdf_file = mesh_rdf_location(mesh_year)
+    xml_dir = mesh_xml_dir(mesh_year)
+    ftp = ftplib.FTP(MESH_FTP_SITE)
+    ftp.login()
+    ftp.voidcmd("TYPE I")  # NLM refuses SIZE in ASCII mode.
+    try:
+        assert ftp.size(f"{rdf_dir}/{rdf_file}") > 0
+        for prefix, _, _ in MESH_XML_FILES:
+            assert ftp.size(f"{xml_dir}/{prefix}{mesh_year}.gz") > 0
+    finally:
+        ftp.quit()
