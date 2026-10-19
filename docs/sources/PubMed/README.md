@@ -103,12 +103,13 @@ Each line of a shard is a flat JSON record; Babel reads three of its fields:
 
 - `id` — the PMID CURIE.
 - `identifiers` — the PMID first, then its DOI and PubMed Central CURIEs, sorted and de-duplicated.
-  DOIs are `doi:`; PubMed Central ids are `PMC:PMC123` in exports up to 2026aug5 and `PMCID:PMC123`
-  in later ones (see below). Only those two `ArticleId` types are promoted to CURIEs; the rest stay
-  in pubmed2db. A record whose list is empty or doesn't start with its own PMID fails the build.
-  PubMed publishes DOIs as supplied, so a few are malformed (`doi:10.1126/science. 1134405`, ~140 in
-  shard 0 of 2026sep26); `write_compendium()` fails the build on any CURIE with whitespace, `|` or a
-  control character, so `_read_shard()` skips those and the concord metadata counts them as
+  DOIs are `doi:`. PubMed Central ids are `PMC:PMC123` in 2026aug5 (2026jun30 has no `identifiers`
+  field at all) and `PMCID:PMC123` from 2026aug21 on, which Babel respells `PMC:` (see below). Only
+  those two `ArticleId` types are promoted to CURIEs; the rest stay in pubmed2db. A record whose
+  list is empty or doesn't start with its own PMID fails the build. PubMed publishes DOIs as
+  supplied, so a few are malformed (`doi:10.1126/science. 1134405`, ~140 in shard 0 of 2026sep26);
+  `write_compendium()` fails the build on any CURIE with whitespace, `|` or a control character, so
+  `_read_shard()` skips those and the concord metadata counts them as
   `skipped_malformed_article_ids`. Repairing them instead is
   [Babel#1112](https://github.com/NCATSTranslator/Babel/issues/1112).
 - `article_title` — becomes the PMID's label (see "Titles"). Absent values are `""`, never null.
@@ -135,7 +136,7 @@ What pubmed2db guarantees, and Babel therefore does not re-check record by recor
    writes its shard's rows to part files and holds one record at a time; the parts are then
    concatenated in shard order into `intermediate/publications/ids/PMID`
    (`PMID:x\tbiolink:JournalArticle`), `intermediate/publications/concords/PMID_DOI`
-   (`PMID:x\teq\t<doi: or PMCID:>`) and `babel_downloads/PubMed2DB/titles.tsv` (see "Titles"). The
+   (`PMID:x\teq\t<doi: or PMC:>`) and `babel_downloads/PubMed2DB/titles.tsv` (see "Titles"). The
    metadata YAML records the export URL as the source. The parent's memory is dominated by the set
    of every DOI and PMCID, built while looking for shared identifiers (below).
 2. `generate_pubmed_compendia` streams the shards straight into `write_compendium()`, one record at
@@ -200,20 +201,29 @@ every row has exactly two fields and the original can be recovered. The XML pars
 newlines, so the one visible difference from an older `titles.tsv` is that backslashes are now
 doubled. `tests/pipeline/test_publications.py` asserts the two-field shape over a whole export.
 
-## `PMCID:` versus `PMC:`
+## `PMC:` versus `PMCID:`
 
-Babel historically wrote PubMed Central identifiers as `PMC:PMC1234567`, as does the 2026aug5
-export; pubmed2db exports made after it, including 2026sep26, spell them `PMCID:PMC1234567`. Which
-one Translator should use is [Babel#1044](https://github.com/NCATSTranslator/Babel/issues/1044),
-and until it is settled Babel passes the export's spelling through unchanged, so the first build on
-2026sep26 renames every PMC CURIE. Two things to know:
+Every Babel release so far has written PubMed Central identifiers as `PMC:PMC1234567`. pubmed2db's
+2026aug5 export spells them that way too, but its exports from 2026aug21 on, including the pinned
+2026sep26, spell them `PMCID:PMC1234567`. Babel keeps `PMC:`. `_read_shard()` respells the export's
+`PMCID:` according to `PUBMED2DB_PREFIX_RENAMES` in `src/createcompendia/publications.py`, so the
+concords, `shared_identifiers.tsv` and the compendium all say `PMC:`, whichever spelling the export
+used. The reasons:
 
-- Biolink 4.4.3 registers `PMC` on `biolink:Publication` but `PMCID` only on
-  `biolink:JournalArticle`, so `generate_compendium()` passes `extra_prefixes=["PMCID"]` — without
-  it `create_node()` would silently drop every PMCID. That is the only place Babel spells the
-  prefix out; settling on `PMC` would be a re-export from pubmed2db and nothing in Babel.
-- `extra_prefixes` identifiers can never become a clique's preferred CURIE. PMID always wins for
-  publications anyway, so this has no visible effect.
+- **Consistency while the question is open.** Which prefix Translator should use is
+  [Babel#1044](https://github.com/NCATSTranslator/Babel/issues/1044), and
+  [pubmed2db#33](https://github.com/TranslatorSRI/pubmed2db/issues/33) for the export. Consumers of
+  Babel's output already hold `PMC:` CURIEs, and Node Normalization resolves `PMC:PMC1234567` but
+  returned `null` for `PMCID:PMC1234567` on 2026-10-19. Following the export would rename ~12M
+  CURIEs before that is decided, and rename them back if the answer is `PMC:`.
+- **Biolink registers `PMC` on the type Babel uses.** Biolink 4.4.3 and 4.4.5 register `PMC` on
+  `biolink:Publication`, the type of every clique here, and `PMCID` only on
+  `biolink:JournalArticle`. `PMC:` therefore needs no `extra_prefixes`, which a `PMCID:` would need
+  to avoid being silently dropped by `create_node()`.
+
+Neither spelling expands to a working URL with Biolink's prefix map (#1044 shows both), so that
+doesn't decide it either way. Switching to `PMCID:` later is the change described in the
+`PUBMED2DB_PREFIX_RENAMES` comment: delete the mapping and pass `extra_prefixes=["PMCID"]`.
 
 ## What was dropped
 

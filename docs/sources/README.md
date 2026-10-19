@@ -19,8 +19,8 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
   the [pubmed2db](https://github.com/TranslatorSRI/pubmed2db) NDJSON export pinned by
   `config.yaml: pubmed2db_version` (check for a newer export whenever you touch the PubMed code):
   the export layout and record contract Babel relies on, the per-shard record-count check, how
-  titles become labels, how a DOI shared by several PMIDs is resolved, and the open `PMCID:` vs
-  `PMC:` question (#1044).
+  titles become labels, how a DOI shared by several PMIDs is resolved, and why Babel keeps writing
+  `PMC:` while the `PMC:` vs `PMCID:` question (#1044) is open.
 - **COMPLEXPORTAL** ([COMPLEXPORTAL/Ingestion.md](./COMPLEXPORTAL/Ingestion.md)) — the
   `MacromolecularComplex` source: which ComplexTAB columns Babel reads, downloading all species
   files, the manifest-as-download-sentinel pattern, and the per-output cross-species
