@@ -134,12 +134,16 @@ that clique only. The file doubles as a data-quality report of ambiguous identif
 ## Titles
 
 Each PMID's label in the Publication compendium — and so its `preferred_name` — is its
-`article_title` exactly as exported; an empty title gives no label. This is a deliberate change
-from the XML era, when labels were read back from `titles.tsv`: a newline used to arrive as the two
+`article_title` exactly as exported; an empty title gives no label. This is a deliberate change from
+the XML era, when labels were read back from `titles.tsv`: a newline used to arrive as the two
 characters `\n` and trailing whitespace was stripped by the loader, while now the label has a real
 newline and keeps its whitespace. The new label is the exported text rather than an artifact of an
-intermediate file. Publication's synonyms file is empty (names come from per-prefix synonym files,
-and PMID has none), so titles do not reach Name Resolution either way.
+intermediate file. The XML parser also kept only the text before a title's first inline element
+(ElementTree's `.text`): the released build that Node Normalization served on 2026-10-19 labels
+[`PMID:35249155`](https://pubmed.ncbi.nlm.nih.gov/35249155/) "A comparison of water-gas shift
+reaction on ZnO", where pubmed2db exports the whole title. Publication's synonyms file is empty
+(names come from per-prefix synonym files, and PMID has none), so titles do not reach Name
+Resolution either way.
 
 What titles contain, from [`titles/characterize_titles.py`](titles/characterize_titles.py) over
 shard 0 of 2026sep26 (5,252,405 records; examples in [`titles/counts.json`](titles/counts.json)):
