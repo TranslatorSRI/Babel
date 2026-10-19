@@ -112,8 +112,10 @@ them.
 export's files never change: a shard left half-downloaded by an interrupted run is a true prefix of
 the server's copy, so appending the rest is correct. (`pull_via_wget()` refuses `--continue` for a
 *recursive* download, where a preloaded file can have changed upstream; see its comments.) A
-truncated shard that slips through anyway fails the build, because `generate_pubmed_concords`
-checks every shard against the record count in the export's validation report.
+truncated shard that slips through anyway fails the build, because each shard is a single gzip
+stream and a cut-off one fails decompression. `generate_pubmed_concords` also checks every shard
+against the record count in the export's validation report, which catches an intact shard from a
+different export.
 
 `PubMed2DB/<version>/` is deliberately *not* declared as a `directory()` output of
 `download_pubmed2db`. Snakemake recursively deletes existing `directory()` outputs before running a

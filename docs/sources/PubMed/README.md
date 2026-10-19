@@ -29,6 +29,26 @@ re-runs all three rules, and nothing from an older export can be reused by mista
 can be carried forward between runs — see "Preloading PubMed downloads" in
 [`RunningBabel.md`](../../RunningBabel.md).
 
+### pubmed2db's data model version
+
+pubmed2db [versions its outputs][p2db-versioning] with a semantic "data model" version, separate
+from its code version. Data model 1.0.0 is still in development
+([pubmed2db#63](https://github.com/TranslatorSRI/pubmed2db/pull/63)), so 2026sep26 and every earlier
+export carry no version. For the NDJSON, 1.0 changes no field (see its [changelog][p2db-changelog]),
+but two things change when you pin the first export made with it:
+
+- **Exports are named for their corpus cutoff**, the UTC date NCBI posted the last file pubmed2db
+  loaded (`metadata.json`'s `corpus.build_name`), rather than the day the export finished. Existing
+  directories keep their names. The latest-dated directory, which is what
+  `test_pinned_export_is_the_newest` looks for, therefore holds the newest corpus.
+- **Each export says which data model it follows**, as `data_model_version` in `metadata.json` and
+  in the validation report. Only a major bump can rename, remove or change the meaning of a field,
+  and pubmed2db's changelog entry for each one says what an NDJSON consumer has to do, so read it
+  before moving `pubmed2db_version` across one. Babel does not check the version yet.
+
+[p2db-versioning]: https://github.com/TranslatorSRI/pubmed2db/blob/68eceab/docs/data-model.md#versioning-and-stability
+[p2db-changelog]: https://github.com/TranslatorSRI/pubmed2db/blob/68eceab/docs/data-model.md#changelog
+
 ## The export contract Babel relies on
 
 ### Layout
@@ -46,6 +66,13 @@ The layout is not stable between exports. 2026aug5 had 16 shards named `pubmed_m
 `00015` and a gzipped `validation_report.json.gz` at the top level, whose `records_by_shard` keys
 lacked the `.gz`. Check a new export's layout against this section before pinning it.
 
+Exports made with data model 1.0 also hold `metadata.json` (the data model version, the record
+count, the corpus cutoff, and each file's size and SHA-256) and `SHA256SUMS` (the same hashes, for
+`sha256sum -c`) beside the shards. 2026sep26 and earlier have neither. pubmed2db's
+[recipe for checking a download][p2db-checking] is the one to follow once Babel reads them.
+
+[p2db-checking]: https://github.com/TranslatorSRI/pubmed2db/blob/68eceab/docs/data-model.md#getting-a-build-and-checking-it
+
 ### The validation report
 
 Babel reads three things from the report, and nothing from its human-readable
@@ -60,8 +87,10 @@ Babel reads three things from the report, and nothing from its human-readable
   care."`).
 - `checks.structure.records_by_shard` — `{shard filename: record count}`. This is the list of
   shards to download and parse, and `generate_pubmed_concords` raises if any shard parses to a
-  different count, naming the shard. No checksums are published, so this is the only way to tell
-  a truncated download from a complete one.
+  different count, naming the shard. A truncated or corrupted shard doesn't need the count: each
+  shard is a single gzip stream, so damage already fails decompression in `_read_shard()`. What the
+  count catches is an intact shard from a different export. From data model 1.0, `SHA256SUMS`
+  catches that too, even when the substitute has the same count, but Babel doesn't check it yet.
 - `checks.structure.records_total` — must equal the sum of `records_by_shard`.
 
 ### Records
@@ -83,6 +112,9 @@ Each line of a shard is a flat JSON record; Babel reads three of its fields:
   `skipped_malformed_article_ids`. Repairing them instead is
   [Babel#1112](https://github.com/NCATSTranslator/Babel/issues/1112).
 - `article_title` — becomes the PMID's label (see "Titles"). Absent values are `""`, never null.
+
+pubmed2db puts every NDJSON field in its "stable" tier: from data model 1.0, none of these three
+changes except with a major version (see "pubmed2db's data model version" above).
 
 What pubmed2db guarantees, and Babel therefore does not re-check record by record:
 

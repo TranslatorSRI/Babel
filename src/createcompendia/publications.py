@@ -91,8 +91,10 @@ def expected_shard_counts(download_dir):
     saw in each, in a fixed (sorted) order.
 
     The validation report is pubmed2db's statement of what the export contains: it is our manifest of which
-    shards to download and read, and the per-shard counts are the only way to tell a truncated shard from a
-    complete one, since no checksums are published. Reads ``checks.structure.records_by_shard`` and
+    shards to download and read, and the per-shard counts catch an intact shard from a different export (a
+    truncated or corrupted one already fails decompression in ``_read_shard()``). Exports from pubmed2db data
+    model 1.0 on also publish ``SHA256SUMS``, which would catch that too; the pinned export predates them, so
+    Babel doesn't read them yet (docs/sources/PubMed/README.md). Reads ``checks.structure.records_by_shard`` and
     ``records_total`` rather than the human-readable ``checks_run[].observed`` strings. Raises if the report's
     overall status is ``fail`` or those fields are missing or inconsistent.
     """
@@ -141,10 +143,11 @@ def _read_shard(shard_path):
     (``doi:10.1126/science. 1134405``, PMID:17124311; ~140 in shard 0 of 2026sep26). Repairing them instead
     is https://github.com/NCATSTranslator/Babel/issues/1112.
 
-    A damaged shard raises a RuntimeError naming it. pubmed2db publishes no checksums, but a shard doesn't need
-    one to be checked: gzip verifies its CRC32 at the end of the file, so a corrupted download fails on that if
-    it hasn't already produced unparseable JSON, and a truncated one fails on the record count in the
-    validation report (see ``parse_pubmed2db_into_tsvs()``) if it ends on a line boundary.
+    A damaged shard raises a RuntimeError naming it, with no checksum needed. pubmed2db writes each shard as a
+    single gzip stream, which ends with a CRC32 and the length: a corrupted download fails the CRC if it hasn't
+    already produced unparseable JSON, and a truncated one raises EOFError, even when it is cut off only in
+    that trailer. The record counts in the validation report (see ``parse_pubmed2db_into_tsvs()``) are for an
+    intact shard from a different export.
     """
     count_records = 0
     try:
@@ -263,7 +266,8 @@ def parse_pubmed2db_into_tsvs(
         ]
         if mismatches:
             raise RuntimeError(
-                f"Shards in {download_dir} disagree with their validation report, so they are probably truncated: "
+                f"Shards in {download_dir} disagree with their validation report, so they probably come from a "
+                f"different export: "
                 f"{'; '.join(mismatches)}. Delete those shards and re-run download_pubmed2db."
             )
 
