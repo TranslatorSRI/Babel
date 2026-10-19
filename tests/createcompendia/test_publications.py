@@ -5,7 +5,8 @@ download leaves one (shards plus ``validation_report.json``). Every record in sh
 verbatim from ``pubmed_metadata_0.ndjson.gz`` of the 2026sep26 export
 (https://stars.renci.org/var/babel_outputs/pubmed2db/2026sep26/):
 
-- ``PMID:5202740`` — the first record of the export; a PubMed Central id, spelled ``PMCID:``.
+- ``PMID:5202740`` — the first record of the export; a PubMed Central id, spelled ``PMCID:``, which
+  Babel respells ``PMC:``.
 - ``PMID:30803192`` — a DOI and a PMCID; a title containing a newline.
 - ``PMID:17072568`` — a DOI and an empty ``article_title``.
 - ``PMID:7754983`` (shard 0) and ``PMID:7754980`` (shard 1) — share ``doi:10.1093/ajcn/61.6.1324S``; the
@@ -108,7 +109,8 @@ def test_ids_titles_and_concords(parsed):
 
     concords = assert_concordance_file_valid(parsed["concord_file"])
     assert {relation for _, relation, _ in concords} == {"eq"}
-    assert ["PMID:5202740", "eq", "PMCID:PMC1712714"] in concords
+    # Both spellings of a PubMed Central id come out as PMC: (PUBMED2DB_PREFIX_RENAMES).
+    assert ["PMID:5202740", "eq", "PMC:PMC1712714"] in concords
     assert ["PMID:30803192", "eq", "doi:10.31557/APJCP.2019.20.2.345"] in concords
     assert ["PMID:999999113", "eq", "PMC:PMC1666769"] in concords
     assert not any(pmid == "PMID:5202677" for pmid, _, _ in concords)
@@ -408,7 +410,7 @@ def test_compendium_streams_one_clique_per_record(parsed, babel_config, tmp_path
         # write_compendium() writes an unlabeled identifier with an empty "l" (pre-existing behaviour).
         return by_pmid[pmid]["identifiers"][0].get("l", "")
 
-    assert curies("PMID:5202740") == ["PMID:5202740", "PMCID:PMC1712714"]
+    assert curies("PMID:5202740") == ["PMID:5202740", "PMC:PMC1712714"]
     assert label("PMID:5202740") == "Renal tubular acidosis: an immunopathological study on four patients."
     assert curies("PMID:5202677") == ["PMID:5202677"]
     # The malformed DOI is skipped here too, or write_compendium() would fail the build on it.
@@ -423,9 +425,8 @@ def test_compendium_streams_one_clique_per_record(parsed, babel_config, tmp_path
     assert label("PMID:9245294") == "Identity as adaptation to social, cultural, and historical context "
     assert label("PMID:25303692") == "New challenges\x85."
 
-    # PMC: is registered on biolink:Publication; PMCID: survives only via extra_prefixes (see #1044), which
-    # create_node() places after every registered prefix.
-    assert curies("PMID:30803192") == ["PMID:30803192", "doi:10.31557/APJCP.2019.20.2.345", "PMCID:PMC6897020"]
+    # The export's PMCID: is respelled PMC:, which biolink:Publication registers ahead of doi (see #1044).
+    assert curies("PMID:30803192") == ["PMID:30803192", "PMC:PMC6897020", "doi:10.31557/APJCP.2019.20.2.345"]
     assert curies("PMID:999999113") == ["PMID:999999113", "PMC:PMC1666769"]
 
     # The shared DOI lands on the lowest PMID only, so no identifier appears in two cliques.

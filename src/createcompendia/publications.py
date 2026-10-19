@@ -31,13 +31,24 @@ from pathlib import Path
 from src.babel_utils import TypedClique, pull_via_wget, write_compendium
 from src.categories import JOURNAL_ARTICLE, PUBLICATION
 from src.metadata.provenance import write_concord_metadata
-from src.util import curie_format_problem, ensure_parent_dir, get_logger
+from src.prefixes import PMC
+from src.util import Text, curie_format_problem, ensure_parent_dir, get_logger
 
 logger = get_logger(__name__)
 
 # The local name of the export's validation report, wherever the export keeps it (config.yaml:
 # pubmed2db_validation_report) and whether or not it is gzipped there.
 VALIDATION_REPORT = "validation_report.json"
+
+# pubmed2db's spelling of a prefix (upper-cased, as Text.get_prefix_or_none() returns it) -> Babel's.
+# pubmed2db exports from 2026aug21 on spell PubMed Central ids PMCID:PMC123 (2026aug5 used PMC:PMC123).
+# Babel keeps PMC:PMC123, the spelling every Babel release so far has shipped and the one Biolink registers
+# on biolink:Publication (PMCID only on biolink:JournalArticle), so a release doesn't rename ~12M CURIEs
+# while the right prefix is still undecided: https://github.com/NCATSTranslator/Babel/issues/1044 and
+# https://github.com/TranslatorSRI/pubmed2db/issues/33. If that settles on PMCID, delete this mapping and
+# pass extra_prefixes=["PMCID"] to write_compendium() in generate_compendium(), or create_node() will drop
+# every one of them as unregistered for biolink:Publication.
+PUBMED2DB_PREFIX_RENAMES = {"PMCID": PMC}
 
 
 def download_pubmed2db(export_url, report_path, download_dir, done_file):
@@ -135,7 +146,8 @@ def _read_shard(shard_path):
 
     This is the only place that knows the export's record format. ``identifiers`` always starts with the
     record's own PMID, so ``identifiers[1:]`` is its DOI and PMCID CURIEs (sorted and de-duplicated by
-    pubmed2db). ``title`` is ``article_title`` exactly as exported, and is ``""`` when the record has none.
+    pubmed2db). They are respelled per ``PUBMED2DB_PREFIX_RENAMES`` here, so every later step sees ``PMC:``
+    whichever spelling the export used. ``title`` is ``article_title`` exactly as exported, and is ``""`` when the record has none.
 
     Any of those CURIEs that ``curie_format_problem()`` rejects -- which ``write_compendium()`` would fail the
     build on -- go in ``malformed_identifiers`` instead of ``other_identifiers``, so both passes skip the same
@@ -164,6 +176,11 @@ def _read_shard(shard_path):
                 others = []
                 malformed = []
                 for other in identifiers[1:]:
+                    babel_prefix = PUBMED2DB_PREFIX_RENAMES.get(Text.get_prefix_or_none(other))
+                    if babel_prefix:
+                        other = Text.recurie(other, babel_prefix)
+                    if other in others or other in malformed:
+                        continue
                     (malformed if curie_format_problem(other) else others).append(other)
                 count_records += 1
                 yield pmid, title, others, malformed
@@ -227,7 +244,7 @@ def parse_pubmed2db_into_tsvs(
     - ``titles_file``: ``PMID:x\\t<title>``, escaped with ``escape_tsv_field()``; empty titles skipped. Nothing
       in the build reads it -- the compendium takes titles from the shards -- but it is the easiest place to
       diff titles between builds.
-    - ``concord_file``: ``PMID:x\\teq\\t<doi: or PMCID: CURIE>``
+    - ``concord_file``: ``PMID:x\\teq\\t<doi: or PMC: CURIE>``
 
     Shards are parsed in parallel, each worker writing its own part files, so no worker or the parent ever
     holds more than one record of a shard; the parts are then concatenated in shard order.
@@ -383,11 +400,7 @@ def generate_compendium(download_dir, shared_ids_file, metadata_yamls, publicati
         _PublicationCliques(download_dir, winners),
         os.path.basename(publication_compendium),
         None,
-        # The export spells PubMed Central ids PMC:PMC123 up to 2026aug5 and PMCID:PMC123 afterwards, and
-        # Babel passes whichever it gets straight through. Biolink registers PMC on biolink:Publication
-        # but PMCID only on biolink:JournalArticle, so without this create_node() would silently drop
-        # every PMCID. Which prefix Translator should use is
-        # https://github.com/NCATSTranslator/Babel/issues/1044 -- nothing else in Babel spells it out.
-        extra_prefixes=["PMCID"],
+        # No extra_prefixes: _read_shard() has already turned the export's PMCID: into PMC:, which Biolink
+        # registers on biolink:Publication (see PUBMED2DB_PREFIX_RENAMES).
         icrdf_filename=icrdf_filename,
     )
