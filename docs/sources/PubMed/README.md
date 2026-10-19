@@ -157,12 +157,53 @@ clique, which would have been ~80 GB here. The rule sizes in `publications.snake
 ### Identifiers shared by more than one PMID
 
 PubMed publishes DOIs and PMCIDs as supplied, so the same DOI occasionally appears on several
-PMIDs. Two cliques must never share an identifier, and the old `glom(unique_prefixes=[PMID])`
-handled this by silently *ignoring* a concord that would have joined two PMIDs — the first PMID
-seen kept the identifier. The new code makes the same choice order-independent: pass 1 writes
+PMIDs. Two cliques must never share an identifier, so pass 1 writes
 `intermediate/publications/concords/shared_identifiers.tsv` (`identifier\twinner_pmid\tn_records`),
 naming the **lowest PMID** that carries each shared identifier, and pass 2 keeps the identifier in
-that clique only. The file doubles as a data-quality report of ambiguous identifiers.
+that clique only, in that PMID's own spelling. The file doubles as a data-quality report of
+ambiguous identifiers.
+
+**What counts as the same identifier.** Two records share an identifier when their
+`shared_identifier_key()`s match, across the whole export. That compares a DOI case-insensitively,
+since DOIs are case-insensitive and PubMed passes on whatever case the publisher supplied
+(`doi:10.1039/C4BM00222A` on PMID:26146547, `doi:10.1039/c4bm00222a` on PMID:26214188). Compared
+exactly, both PMIDs would keep their spelling, and Node Normalization, which looks CURIEs up
+case-insensitively, would resolve both spellings to only one of the two cliques. A PubMed Central
+id is compared as-is, after `PMCID:` is respelled `PMC:`. The key is also what
+`shared_identifiers.tsv` lists, so its DOIs are lower-cased.
+
+**Why the lowest PMID.** The PMIDs sharing a DOI are separate citations, not versions of one record:
+pubmed2db already keeps only the latest version of each PMID. So "most recent" is not "most
+correct".
+[`shared_identifiers/characterize_shared_identifiers.py`](shared_identifiers/characterize_shared_identifiers.py)
+classifies every shared identifier by the records carrying it. Over shard 0 of 2026sep26 (5,252,405
+records; [`summary.json`](shared_identifiers/summary.json) has examples, and
+[`shared_identifiers.csv`](shared_identifiers/shared_identifiers.csv) every row):
+
+| Kind | Shared DOIs | Lowest PMID earliest published | Highest PMID is the author's reply |
+| --- | ---: | ---: | ---: |
+| correspondence: every record a `Letter` or `Comment` | 407 | 407 | 141 |
+| same title: one article indexed twice, a reissued review | 112 | 110 | 0 |
+| other: one DOI for a symposium or proceedings, or a mistake | 239 | 238 | 0 |
+| **all** | **758** | **755** | **141** |
+
+- **Correspondence** is the commonest case: a journal publishes several letters on one article, and
+  the author's reply, under one DOI, and PubMed indexes each as its own PMID
+  (`doi:10.1056/NEJMc1907009` is on PMIDs 31483975–31483978). No PMID owns the DOI. Taking the
+  highest would give it to the reply in 141 of the 407.
+- **Every record shares a title** in 112, mostly one article indexed twice, where either choice
+  works. Ten are Cochrane reviews whose unversioned DOI sits on each PMID the review was published
+  under (`doi:10.1002/14651858.cd000036` is on a 2000 and a 2001 version). These are the one case
+  where the highest PMID is the newer version. Babel does not special-case them.
+- **The rest** mix several articles published under one DOI, such as the papers of a symposium,
+  with unrelated articles given the same DOI by mistake. The PMID can't say which article the DOI
+  belongs to. The first published is the likeliest owner.
+
+The lowest PMID was published first in 755 of 758 cases (ties counted). Lowest is also what the old
+`glom(unique_prefixes=[PMID])` did in effect: it silently *ignored* a concord that would have joined
+two PMIDs, so the first PMID seen kept the identifier, and the XML was read in roughly PMID order.
+The new code makes that choice independent of shard order. Shard 0 shows only identifiers shared
+*within* one shard; re-run the script over a whole export for the cross-shard ones.
 
 ## Titles
 
