@@ -17,6 +17,8 @@ verbatim from ``pubmed_metadata_0.ndjson.gz`` of the 2026sep26 export
   ellipsis, mis-decoded).
 - ``PMID:5202677`` — no DOI or PMCID.
 - ``PMID:17124311`` — a malformed DOI, ``doi:10.1126/science. 1134405``, which write_compendium() would reject.
+- ``PMID:26214188`` (shard 0) and ``PMID:26146547`` (shard 1) — the same DOI in different cases,
+  ``doi:10.1039/c4bm00222a`` and ``doi:10.1039/C4BM00222A``; again the higher PMID is in the shard parsed first.
 
 Shard 2 holds one **synthetic** record, ``PMID:999999113``: ``PMID:113`` copied verbatim from
 ``pubmed_metadata_00000.ndjson.gz`` of the 2026aug5 export, which spelled its PubMed Central id
@@ -43,7 +45,8 @@ pytestmark = pytest.mark.unit
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "pubmed2db")
 EXPORT_URL = "https://stars.renci.org/var/babel_outputs/pubmed2db/2026sep26/"
 SHARED_DOI = "doi:10.1093/ajcn/61.6.1324S"
-RECORD_COUNT = 11
+SHARED_CASE_DOI = "doi:10.1039/C4BM00222A"  # PMID:26146547's spelling; PMID:26214188 has it lower-cased.
+RECORD_COUNT = 13
 
 
 def copy_fixture(tmp_path):
@@ -147,9 +150,23 @@ def test_escape_tsv_field(title, escaped):
 
 def test_shared_identifier_is_assigned_to_the_lowest_pmid(parsed):
     """A DOI carried by two PMIDs should be listed once in shared_identifiers.tsv with the lowest PMID as
-    its winner, even though the higher PMID's shard was parsed first."""
+    its winner, even though the higher PMID's shard was parsed first -- including a DOI the two records spell
+    in different cases. Every DOI is listed lower-cased, as its shared_identifier_key()."""
     with open(parsed["shared_ids_file"]) as f:
-        assert f.read() == f"{SHARED_DOI}\tPMID:7754980\t2\n"
+        assert f.read() == (f"{SHARED_CASE_DOI.lower()}\tPMID:26146547\t2\n{SHARED_DOI.lower()}\tPMID:7754980\t2\n")
+
+
+@pytest.mark.parametrize(
+    ("curie", "key"),
+    [
+        ("doi:10.1039/C4BM00222A", "doi:10.1039/c4bm00222a"),
+        ("doi:10.1039/c4bm00222a", "doi:10.1039/c4bm00222a"),
+        ("PMC:PMC1712714", "PMC:PMC1712714"),
+    ],
+)
+def test_shared_identifier_key_ignores_case_only_for_dois(curie, key):
+    """shared_identifier_key() should lower-case a DOI, which is case-insensitive, and leave a PMC id alone."""
+    assert publications.shared_identifier_key(curie) == key
 
 
 def test_metadata_records_the_export_url_and_counts(parsed):
@@ -161,7 +178,7 @@ def test_metadata_records_the_export_url_and_counts(parsed):
     assert metadata["sources"][0]["url"] == EXPORT_URL
     assert metadata["counts"]["pmid_count"] == RECORD_COUNT
     assert metadata["counts"]["shard_count"] == 3
-    assert metadata["counts"]["shared_identifier_count"] == 1
+    assert metadata["counts"]["shared_identifier_count"] == 2
     assert metadata["counts"]["skipped_malformed_article_ids"] == 1
 
 
@@ -432,5 +449,8 @@ def test_compendium_streams_one_clique_per_record(parsed, babel_config, tmp_path
     # The shared DOI lands on the lowest PMID only, so no identifier appears in two cliques.
     assert curies("PMID:7754980") == ["PMID:7754980", SHARED_DOI]
     assert curies("PMID:7754983") == ["PMID:7754983"]
+    # The same for a DOI the two records spell in different cases; the winner keeps its own spelling.
+    assert curies("PMID:26146547") == ["PMID:26146547", "PMC:PMC4486365", SHARED_CASE_DOI]
+    assert curies("PMID:26214188") == ["PMID:26214188"]
     all_curies = [identifier["i"] for clique in cliques for identifier in clique["identifiers"]]
     assert len(all_curies) == len(set(all_curies))

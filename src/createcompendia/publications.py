@@ -31,7 +31,7 @@ from pathlib import Path
 from src.babel_utils import TypedClique, pull_via_wget, write_compendium
 from src.categories import JOURNAL_ARTICLE, PUBLICATION
 from src.metadata.provenance import write_concord_metadata
-from src.prefixes import PMC
+from src.prefixes import DOI, PMC
 from src.util import Text, curie_format_problem, ensure_parent_dir, get_logger
 
 logger = get_logger(__name__)
@@ -52,6 +52,21 @@ VALIDATION_REPORT = "validation_report.json"
 # to match Babel, so once config.yaml's pubmed2db_version names a 1.0 build this mapping renames nothing.
 # Check pubmed2db#33 then: delete the mapping if it still says PMC, or make the PMCID change above if not.
 PUBMED2DB_PREFIX_RENAMES = {"PMCID": PMC}
+
+
+def shared_identifier_key(curie):
+    """
+    The form in which two records' DOIs and PMCIDs are compared to decide whether they are the same identifier.
+
+    DOIs are case-insensitive, and PubMed publishes them as supplied, so the same DOI can arrive in different
+    cases on different PMIDs (``doi:10.1039/C4BM00222A`` on PMID:26146547, ``doi:10.1039/c4bm00222a`` on
+    PMID:26214188 in 2026sep26). Compared exactly, both would be kept, in two cliques -- and Node
+    Normalization, which looks CURIEs up case-insensitively, would resolve both spellings to only one of them.
+    So a DOI is compared lower-cased. A PubMed Central id is ``PMC`` plus digits and is compared as-is.
+    """
+    if Text.get_prefix_or_none(curie) == DOI.upper():
+        return curie.lower()
+    return curie
 
 
 def download_pubmed2db(export_url, report_path, download_dir, done_file):
@@ -178,12 +193,16 @@ def _read_shard(shard_path):
                     )
                 others = []
                 malformed = []
+                keys = set()
                 for other in identifiers[1:]:
                     babel_prefix = PUBMED2DB_PREFIX_RENAMES.get(Text.get_prefix_or_none(other))
                     if babel_prefix:
                         other = Text.recurie(other, babel_prefix)
-                    if other in others or other in malformed:
+                    # Respelling, or a DOI in two cases, can make two identifiers one; keep the first.
+                    key = shared_identifier_key(other)
+                    if key in keys:
                         continue
+                    keys.add(key)
                     (malformed if curie_format_problem(other) else others).append(other)
                 count_records += 1
                 yield pmid, title, others, malformed
@@ -253,11 +272,16 @@ def parse_pubmed2db_into_tsvs(
     holds more than one record of a shard; the parts are then concatenated in shard order.
 
     A DOI or PMCID can appear in more than one record (PubMed publishes them as-is). Two cliques must never
-    share an identifier, so ``shared_ids_file`` records each such identifier with the *lowest* PMID that
-    carries it, and ``generate_compendium()`` keeps it only there. The old ``glom(unique_prefixes=[PMID])``
-    silently ignored a concord that would have joined two PMIDs, so the first-seen PMID kept the identifier;
-    lowest-PMID is the same policy made independent of shard order. The file doubles as a data-quality report
-    of ambiguous identifiers.
+    share an identifier, so ``shared_ids_file`` records each such identifier -- as its
+    ``shared_identifier_key()``, so a DOI is lower-cased -- with the *lowest* PMID that carries it, and
+    ``generate_compendium()`` keeps it only there, in that PMID's own spelling. Lowest rather than highest:
+    the PMIDs sharing a DOI are separate citations, not versions of one (pubmed2db already keeps only each
+    PMID's latest version), and the lowest is almost always the first published, while the highest is often
+    the author's reply in a block of letters published under one DOI -- see "Identifiers shared by more than
+    one PMID" in docs/sources/PubMed/README.md for the measurements. It also matches what the old
+    ``glom(unique_prefixes=[PMID])`` did (the first-seen PMID kept the identifier, and the XML was read in
+    roughly PMID order), made independent of shard order. The file doubles as a data-quality report of
+    ambiguous identifiers.
 
     DOIs and PMCIDs that ``write_compendium()`` would reject are skipped (see ``_read_shard()``) and counted
     in the metadata YAML as ``skipped_malformed_article_ids``.
@@ -302,16 +326,16 @@ def parse_pubmed2db_into_tsvs(
     skipped = [curie for _, _, shard_skipped in results for curie in shard_skipped]
     logger.info(f"Skipped {len(skipped):,} malformed DOIs/PMCIDs, e.g. {skipped[:10]}")
 
-    # Find the identifiers carried by more than one record...
+    # Find the identifiers carried by more than one record, compared by shared_identifier_key()...
     seen = set()
     duplicated = set()
     with open(concord_file) as concordf:
         for line in concordf:
-            other = line.rstrip("\n").split("\t")[2]
-            if other in seen:
-                duplicated.add(other)
+            key = shared_identifier_key(line.rstrip("\n").split("\t")[2])
+            if key in seen:
+                duplicated.add(key)
             else:
-                seen.add(other)
+                seen.add(key)
     del seen
 
     # ...and resolve each to its lowest PMID with a second pass, rather than holding a PMID for all ~46M
@@ -321,9 +345,10 @@ def parse_pubmed2db_into_tsvs(
         with open(concord_file) as concordf:
             for line in concordf:
                 pmid, _, other = line.rstrip("\n").split("\t")
-                if other in duplicated:
-                    winner, n = shared.get(other, (None, 0))
-                    shared[other] = (_lower_pmid(winner, pmid), n + 1)
+                key = shared_identifier_key(other)
+                if key in duplicated:
+                    winner, n = shared.get(key, (None, 0))
+                    shared[key] = (_lower_pmid(winner, pmid), n + 1)
 
     with open(shared_ids_file, "w") as sharedf:
         for other in sorted(shared):
@@ -377,7 +402,7 @@ class _PublicationCliques:
     def __iter__(self):
         for shard in self.shard_counts:
             for pmid, title, others, _ in _read_shard(os.path.join(self.download_dir, shard)):
-                identifiers = [pmid] + [o for o in others if self.winners.get(o, pmid) == pmid]
+                identifiers = [pmid] + [o for o in others if self.winners.get(shared_identifier_key(o), pmid) == pmid]
                 yield TypedClique(PUBLICATION, identifiers, {pmid: title} if title else None)
 
 
