@@ -160,12 +160,25 @@ def expected_shard_counts(download_dir):
 
 def _read_shard(shard_path):
     """
-    Yield ``(pmid, title, other_identifiers, malformed_identifiers)`` for every record in one shard.
+    Yield ``(pmid, title, other_identifiers, malformed_identifiers)`` for every record in one shard; see
+    ``_read_shard_records()``, which also yields the raw record.
+    """
+    for _, pmid, title, others, malformed in _read_shard_records(shard_path):
+        yield pmid, title, others, malformed
 
-    This is the only place that knows the export's record format. ``identifiers`` always starts with the
-    record's own PMID, so ``identifiers[1:]`` is its DOI and PMCID CURIEs (sorted and de-duplicated by
+
+def _read_shard_records(shard_path):
+    """
+    Yield ``(record, pmid, title, other_identifiers, malformed_identifiers)`` for every record in one shard.
+
+    ``record`` is the parsed JSON line, for analysis scripts that read fields the build doesn't
+    (docs/sources/PubMed/shared_identifiers/); the build itself uses ``_read_shard()``.
+
+    This is the only place in the build that knows the export's record format. ``identifiers`` always starts
+    with the record's own PMID, so ``identifiers[1:]`` is its DOI and PMCID CURIEs (sorted and de-duplicated by
     pubmed2db). They are respelled per ``PUBMED2DB_PREFIX_RENAMES`` here, so every later step sees ``PMC:``
-    whichever spelling the export used. ``title`` is ``article_title`` exactly as exported, and is ``""`` when the record has none.
+    whichever spelling the export used, and de-duplicated again by ``shared_identifier_key()``. ``title`` is
+    ``article_title`` exactly as exported, and is ``""`` when the record has none.
 
     Any of those CURIEs that ``curie_format_problem()`` rejects -- which ``write_compendium()`` would fail the
     build on -- go in ``malformed_identifiers`` instead of ``other_identifiers``, so both passes skip the same
@@ -205,7 +218,7 @@ def _read_shard(shard_path):
                     keys.add(key)
                     (malformed if curie_format_problem(other) else others).append(other)
                 count_records += 1
-                yield pmid, title, others, malformed
+                yield record, pmid, title, others, malformed
     # OSError covers gzip.BadGzipFile (a failed CRC), EOFError a truncated gzip stream, and the rest a record
     # mangled into something that still decompresses.
     except (OSError, EOFError, zlib.error, UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError) as e:
