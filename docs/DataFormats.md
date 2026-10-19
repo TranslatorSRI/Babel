@@ -252,17 +252,17 @@ durable output.
 
 ### Querying a published build without downloading it
 
-A cluster run's exports are served from `https://stars.renci.org/var/babel_outputs/<build>/duckdb/`,
-and DuckDB's `httpfs` extension reads them in place with HTTP range requests. It fetches only the
-columns and row groups a query needs:
+A published build's exports are served from `https://stars.renci.org/var/babel/<build>/duckdb/`,
+with `latest/` holding the most recent build, and DuckDB's `httpfs` extension reads them in place
+with HTTP range requests. It fetches only the columns and row groups a query needs:
 
 ```sql
 INSTALL httpfs; LOAD httpfs;
 SELECT filename, subj, obj
-FROM 'https://stars.renci.org/var/babel_outputs/2026jul22/duckdb/Concord.parquet'
+FROM 'https://stars.renci.org/var/babel/latest/duckdb/Concord.parquet'
 WHERE obj LIKE 'UniProtKB:%|%';
 -- A per-compendium DuckDB can be attached read-only, too:
-ATTACH 'https://stars.renci.org/var/babel_outputs/2026jul22/duckdb/duckdbs/filename=Protein/compendium.duckdb'
+ATTACH 'https://stars.renci.org/var/babel/latest/duckdb/duckdbs/filename=Protein/compendium.duckdb'
   AS p (READ_ONLY);
 ```
 
