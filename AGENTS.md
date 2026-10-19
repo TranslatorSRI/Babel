@@ -183,6 +183,9 @@ canonical prefix-constant registry; its `id_prefixes` order in the Biolink Model
   for chemical compendium types; adding a subtype needs an entry there *and* a matching hardcoded
   `check_*` report rule in `chemical.snakefile` or `rule chemical`'s DAG breaks. Full note in
   [`docs/Architecture.md`](docs/Architecture.md#chemical-compendium-output-types).
+- **`threads:` alone gets one CPU on SLURM** — `slurm/config.yaml` defaults `cpus_per_task` to 1,
+  and the SLURM executor allocates `cpus_per_task` over `threads`, so a multi-process rule must set
+  both, equal (see `generate_pubmed_concords`). A local run never shows the difference.
 - **Snakemake `resources.mem` in a `run:` block** — read `resources.mem_mb`, never `resources.mem`.
   Snakemake normalizes every sized resource to `mem_mb` internally and re-exposes `mem` as a
   *humanfriendly string*, so a rule's `mem="512G"` reaches Python as `"512 GB"` — and `mem_mb` is

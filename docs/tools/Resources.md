@@ -254,7 +254,7 @@ it, and those two can describe different worlds.
   (`git worktree add ../babel-2026jul22 2026jul22`) whenever the declarations have moved since,
   which is exactly the case when comparing two sizing passes. A path holding no `*.snakefile` is a
   hard error rather than an empty result: silently reading nothing would make every rule inherit the
-  cluster default, so `generate_pubmed_concords` (`runtime="24h"`) would read as a 1000% overrun and
+  cluster default, so a rule with a 24h `runtime` would read as a 1000% overrun and
   every genuinely trimmable rule would vanish from the report.
 - **A `mem=lambda wildcards: ...` rule is summarised by its largest branch.** The report is per
   rule (see "One row per rule" above), and a rule whose request *varies* per wildcard has no single
@@ -282,8 +282,9 @@ it, and those two can describe different worlds.
    second run's benchmarks first — see the two traps above.
 5. Re-run the analyzer to confirm the override list is empty (modulo rules that already carry a
    block) and that every rule left `at-risk` on either axis is one you *decided* to leave. A
-   deliberate exception is fine — `generate_pubmed_concords` sits at 83% of its 24h limit because
-   that limit is known to work and the real fix is to make the rule cheaper — but it belongs in
+   deliberate exception is fine — `generate_pubmed_concords` sat at 83% of its 24h limit in
+   2026jul22 because that limit was known to work and the real fix was to make the rule cheaper —
+   but it belongs in
    [`slurm/README.md`](../../slurm/README.md) with the reasoning, or the next sizing pass will
    "fix" it by reserving wall time nobody needed.
 6. On later runs, re-check the *existing* override rules against the "req mem" vs "actual RSS"

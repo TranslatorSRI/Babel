@@ -8,7 +8,7 @@ import tempfile
 import time
 import traceback
 import urllib
-from collections import Counter, defaultdict
+from collections import ChainMap, Counter, defaultdict
 from datetime import datetime, timedelta
 from enum import Enum
 from ftplib import FTP
@@ -60,10 +60,14 @@ class TypedClique(NamedTuple):
         (e.g. ``"biolink:Disease"``).  Use the named constants in ``src/categories.py``
         rather than raw strings.
     :param identifiers: The list of CURIEs that belong to this clique.
+    :param labels: Optional ``{curie: label}`` for this clique only, consulted before the ``labels``
+        mapping passed to :func:`write_compendium`. Lets a caller stream tens of millions of cliques
+        (Publication: one title per PMID) without first building one global labels dict.
     """
 
     node_type: str
     identifiers: list[str]
+    labels: dict[str, str] | None = None
 
 
 def parse_rdf_literal(literal: str) -> str:
@@ -807,9 +811,13 @@ def write_compendium(
         total_slist = len(synonym_list)
 
         for slist in synonym_list:
+            clique_labels = labels
             if isinstance(slist, TypedClique):
                 current_node_type = slist.node_type
                 input_identifiers = slist.identifiers
+                if slist.labels:
+                    # A view, not a merged copy: copying `labels` would cost O(len(labels)) per clique.
+                    clique_labels = ChainMap(slist.labels, labels)
             else:
                 if node_type is None:
                     raise RuntimeError("write_compendium() requires node_type unless every clique is a TypedClique.")
@@ -840,7 +848,7 @@ def write_compendium(
             node = node_factory.create_node(
                 input_identifiers=input_identifiers,
                 node_type=current_node_type,
-                labels=labels,
+                labels=clique_labels,
                 extra_prefixes=extra_prefixes,
             )
             if node is None:
@@ -899,7 +907,7 @@ def write_compendium(
                         # ac_labelled will be a list that consists of either LabeledID (if the CURIE could be labeled)
                         # or str objects (consisting of an unlabeled CURIE).
                         ac_labelled = node_factory.apply_labels(
-                            input_identifiers=additional_curies, labels=labels, node_types=types
+                            input_identifiers=additional_curies, labels=clique_labels, node_types=types
                         )
 
                         for prop, label in zip(props, ac_labelled):
