@@ -11,11 +11,10 @@ from collections import defaultdict
 import pytest
 
 from src.node import DescriptionFactory, SynonymFactory
-from src.properties import HAS_ALTERNATIVE_ID, Property, PropertyList
+from src.predicates import HAS_ALTERNATIVE_ID, HAS_EXACT_SYNONYM
+from src.properties import Property, PropertyList
 
 pytestmark = pytest.mark.unit
-
-HAS_EXACT_SYNONYM = "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym"
 
 
 def test_synonym_lookup_miss_stores_nothing():
