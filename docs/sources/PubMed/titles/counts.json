@@ -1,0 +1,158 @@
+{
+  "shards": [
+    "pubmed_metadata_0.ndjson.gz"
+  ],
+  "records": 5252405,
+  "shapes": {
+    "backslash": {
+      "count": 37,
+      "examples": [
+        {
+          "pmid": "PMID:26201521",
+          "title": "Naturally occurring core immune-escape and carboxy-terminal mutations\\truncations in patients with e antigen negative chronic hepatitis B."
+        },
+        {
+          "pmid": "PMID:26225670",
+          "title": "Do Leukocyte and Platelet Counts Have Benefit for \\Preoperative Evaluation of Endometrial Cancer?"
+        },
+        {
+          "pmid": "PMID:35244956",
+          "title": "Near-infrared spectroscopy-derived muscle V̇O2${\\dot{V}_{{{\\rm{O}}_{\\rm{2}}}}}$ kinetics after moderate running exercise in healthy males: reliability and associations with parameters of aerobic fitness."
+        },
+        {
+          "pmid": "PMID:40936246",
+          "title": "Left ventricular morphological and functional predictors of   V ̇ O 2 peak  ${\\dot V_{{{\\mathrm{O}}_2}{\\mathrm{peak}}}}$  : A 3-year observational study."
+        },
+        {
+          "pmid": "PMID:41170843",
+          "title": "Peak   V ̇ O 2 Q  ${\\dot V_{{{\\mathrm{O}}_2}{\\mathrm{Q}}}}$  : A new approach for the interpretation of cardiorespiratory fitness estimates."
+        }
+      ]
+    },
+    "empty": {
+      "count": 4169,
+      "examples": [
+        {
+          "pmid": "PMID:17072568",
+          "title": ""
+        },
+        {
+          "pmid": "PMID:26203517",
+          "title": ""
+        },
+        {
+          "pmid": "PMID:26203514",
+          "title": ""
+        },
+        {
+          "pmid": "PMID:26203524",
+          "title": ""
+        },
+        {
+          "pmid": "PMID:26203530",
+          "title": ""
+        }
+      ]
+    },
+    "leading_whitespace": {
+      "count": 81,
+      "examples": [
+        {
+          "pmid": "PMID:35287634",
+          "title": " Misdiagnosis of brown tumour caused by primary hyperparathyroidism: a case report with literature review."
+        },
+        {
+          "pmid": "PMID:31478256",
+          "title": " ."
+        },
+        {
+          "pmid": "PMID:31478567",
+          "title": " ."
+        },
+        {
+          "pmid": "PMID:35798386",
+          "title": "\n          \n            Influence of CYP2B6 Pharmacogenetics on Stereoselective Inhibition and Induction of Bupropion Metabolism by Efavirenz in Healthy Volunteers.\n          \n        "
+        },
+        {
+          "pmid": "PMID:35799314",
+          "title": " Corrigendum."
+        }
+      ]
+    },
+    "newline": {
+      "count": 110,
+      "examples": [
+        {
+          "pmid": "PMID:35249155",
+          "title": "A comparison of water-gas shift reaction on ZnO \n  \n    (\n    10\n    \n      1\n      ¯\n    \n    0\n    )\n  \n surface and 6Cu cluster deposited over ZnO \n  \n    (\n    10\n    \n      1\n      ¯\n    \n    0\n    )\n  \n surface using density functional theory studies."
+        },
+        {
+          "pmid": "PMID:35277825",
+          "title": "As and \n  \n    \n      \n        F\n      \n    \n    \n      −\n    \n  \n cooccurrence in drinking water: critical review of the international scenario, physicochemical behavior, removal technologies, health effects, and future trends."
+        },
+        {
+          "pmid": "PMID:35322871",
+          "title": "Partial radial distribution functions for a two-component glassy solid, GeSe\n  \n    \n    \n      3\n    \n  \n, from scattering experimental data using an artificial intelligence framework."
+        },
+        {
+          "pmid": "PMID:30803191",
+          "title": "A Critical Review of Instruments Measuring the Quality of Life of Cancer Patients in Iranian Studies and Their Psychometrics\nProperties"
+        },
+        {
+          "pmid": "PMID:30803192",
+          "title": "Alteration of the Risk of Oral Pre-Cancer and Cancer in North India Population by CYP1A1 Polymorphism Genotypes and\nHaplotype"
+        }
+      ]
+    },
+    "other_control": {
+      "count": 18,
+      "examples": [
+        {
+          "pmid": "PMID:25303692",
+          "title": "New challenges."
+        },
+        {
+          "pmid": "PMID:22847172",
+          "title": "\"Surface map\" of the appendix: a novel tool for the preoperative demonstration of appendicular location with reference to McBurneys point using a multidetector CT."
+        },
+        {
+          "pmid": "PMID:22846302",
+          "title": "Learning effect of standing on foam during posturographic testing  preliminary findings."
+        },
+        {
+          "pmid": "PMID:22846309",
+          "title": "Mapping and navigational control for a smart wheelchair."
+        },
+        {
+          "pmid": "PMID:22846312",
+          "title": "Development of an alternative to mechanical shaft encoders for a smart wheelchair."
+        }
+      ]
+    },
+    "trailing_whitespace": {
+      "count": 728,
+      "examples": [
+        {
+          "pmid": "PMID:9245294",
+          "title": "Identity as adaptation to social, cultural, and historical context "
+        },
+        {
+          "pmid": "PMID:35798386",
+          "title": "\n          \n            Influence of CYP2B6 Pharmacogenetics on Stereoselective Inhibition and Induction of Bupropion Metabolism by Efavirenz in Healthy Volunteers.\n          \n        "
+        },
+        {
+          "pmid": "PMID:33517642",
+          "title": "\n                    ERADICATION OF\n                    BRUCELLA MELITENSIS\n                    FROM TWO CAPTIVE GAZELLE POPULATIONS IN SAUDI ARABIA.\n                "
+        },
+        {
+          "pmid": "PMID:35988089",
+          "title": "From Budapest to London: Eva Maria Kohner (1929-2021) "
+        },
+        {
+          "pmid": "PMID:36085931",
+          "title": "Tracking Cognitive Workload in Gaming with In-Ear \n  \n    SpO\n    \n      2\n    \n  \n"
+        }
+      ]
+    }
+  }
+}

@@ -9,19 +9,64 @@ de-duplicated revised articles nor honoured `DeleteCitation`.
 
 ## Pinning an export
 
-`config.yaml: pubmed2db_url` names the export directory a build reads, e.g.
-`https://stars.renci.org/var/babel_outputs/pubmed2db/2026aug5/`. It sits with the other
-per-release versions at the top of `config.yaml` and should be moved to the newest export before
-every build. `rule download_pubmed2db` fetches everything under that URL into
-`babel_downloads/PubMed2DB/`; `generate_pubmed_concords` and `generate_pubmed_compendia` then read
-the shards from there. The directory can be carried forward between runs — see "Preloading PubMed
-downloads" in [`RunningBabel.md`](../../RunningBabel.md).
+**Whenever you touch the PubMed code, and before every release, check
+<https://stars.renci.org/var/babel_outputs/pubmed2db/> for a newer export.** The network test
+`tests/createcompendia/test_publications_export.py::test_pinned_export_is_the_newest` fails when
+there is one.
+
+Three settings at the top of `config.yaml` pin the export a build reads:
+
+- `pubmed2db_base_url` — where pubmed2db publishes its exports.
+- `pubmed2db_version` — the export directory under it, e.g. `2026sep26`.
+- `pubmed2db_validation_report` — the export's validation report, relative to that directory. It
+  can't be derived from the version and has moved before, so look it up each time you move
+  `pubmed2db_version`.
+
+`rule download_pubmed2db` downloads the report, then exactly the shards it lists, into
+`babel_downloads/PubMed2DB/<version>/`; `generate_pubmed_concords` and `generate_pubmed_compendia`
+read the shards from there. Because every path includes the version, moving `pubmed2db_version`
+re-runs all three rules, and nothing from an older export can be reused by mistake. The directory
+can be carried forward between runs — see "Preloading PubMed downloads" in
+[`RunningBabel.md`](../../RunningBabel.md).
 
 ## The export contract Babel relies on
 
-An export directory contains `pubmed_metadata_*.ndjson.gz` shards (16 × ~1.1 GB, ~41M records in
-2026aug5) and a `validation_report.json.gz`. Each line is a flat JSON record; Babel reads three of
-its fields:
+### Layout
+
+As of 2026sep26, an export directory holds:
+
+- `pubmed_metadata_0.ndjson.gz` … `pubmed_metadata_7.ndjson.gz` — 8 shards of ~2.1 GB, 41,153,516
+  records in all.
+- `manifests/validation_report-20260926.json` — pubmed2db's validation report.
+- `manifests/pmids-20260926.txt.gz` and `pubmed.duckdb` (~76 GB) — pubmed2db's own PMID manifest
+  and database. Babel ignores both, which is why it downloads from the report's shard list rather
+  than crawling the directory.
+
+The layout is not stable between exports. 2026aug5 had 16 shards named `pubmed_metadata_00000` …
+`00015` and a gzipped `validation_report.json.gz` at the top level, whose `records_by_shard` keys
+lacked the `.gz`. Check a new export's layout against this section before pinning it.
+
+### The validation report
+
+Babel reads three things from the report, and nothing from its human-readable
+`checks_run[].observed` strings:
+
+- `status` — an export whose validator reported `fail` is refused outright. `warn` is accepted.
+  It is worth reading a new export's warnings anyway: of 2026sep26's, `invalid_months` concerns a
+  field Babel doesn't read, but `identifier_mismatches` found one of 240 sampled records (PMID
+  6491726) exported without the DOI Entrez gives it, and `field_mismatches` includes titles whose
+  punctuation and whitespace differ from Entrez's (PMID 10205128 is exported as
+  `"Rationing-talk and action in health care "`, Entrez has `"Rationing-talk and action in health
+  care."`).
+- `checks.structure.records_by_shard` — `{shard filename: record count}`. This is the list of
+  shards to download and parse, and `generate_pubmed_concords` raises if any shard parses to a
+  different count, naming the shard. No checksums are published, so this is the only way to tell
+  a truncated download from a complete one.
+- `checks.structure.records_total` — must equal the sum of `records_by_shard`.
+
+### Records
+
+Each line of a shard is a flat JSON record; Babel reads three of its fields:
 
 ```json
 {"id": "PMID:33", "identifiers": ["PMID:33", "doi:10.1111/j.1365-2141.1975.tb01817.x"], "article_title": "Effect of human erythrocyte stromata on complement activation.", "...": "..."}
@@ -31,8 +76,8 @@ its fields:
 - `identifiers` — the PMID first, then its DOI and PubMed Central CURIEs, sorted and de-duplicated.
   DOIs are `doi:`; PubMed Central ids are `PMC:PMC123` in exports up to 2026aug5 and `PMCID:PMC123`
   in later ones (see below). Only those two `ArticleId` types are promoted to CURIEs; the rest stay
-  in pubmed2db.
-- `article_title` — becomes the PMID's label. Absent values are `""`, never null.
+  in pubmed2db. A record whose list is empty or doesn't start with its own PMID fails the build.
+- `article_title` — becomes the PMID's label (see "Titles"). Absent values are `""`, never null.
 
 What pubmed2db guarantees, and Babel therefore does not re-check record by record:
 
@@ -41,25 +86,35 @@ What pubmed2db guarantees, and Babel therefore does not re-check record by recor
   across all shards.
 - **Deleted PMIDs are absent.** `DeleteCitation` entries are applied, so a retracted-and-removed
   citation never reaches Babel.
-- **Record order and shard membership are arbitrary.** Nothing in Babel depends on either.
-
-Babel does check the export as a whole: `parse_pubmed2db_into_tsvs()` refuses an export whose
-validation report has `status: fail`, and raises if the number of records it parsed differs from the
-report's `records-present` count — the only way to notice a truncated shard, since no per-shard
-checksum is published.
+- **Record order and shard membership are arbitrary.** 2026sep26 is not sorted by PMID. Babel's
+  output follows shard order and record order within a shard, so it is deterministic for a given
+  export; nothing depends on the order otherwise.
 
 ## How the compendium is built
 
-`src/createcompendia/publications.py` makes two passes over the shards, each parsed in parallel
-(`threads` shards at a time):
+`src/createcompendia/publications.py` makes two passes over the shards:
 
-1. `generate_pubmed_concords` writes the same three TSVs the XML parser did, so build-vs-build
-   diffs still line up: `intermediate/publications/ids/PMID` (`PMID:x\tbiolink:JournalArticle`),
-   `babel_downloads/PubMed2DB/titles.tsv`, and `intermediate/publications/concords/PMID_DOI`
-   (`PMID:x\teq\t<doi: or PMCID:>`). The metadata YAML records `pubmed2db_url` as the source.
-2. `generate_pubmed_compendia` streams the shards straight into `write_compendium()`: a record
-   *is* a clique, so there is no `glom()` and no global labels dictionary (the old rule peaked at
-   126 GiB holding both).
+1. `generate_pubmed_concords` parses the shards in parallel, one worker per shard. Each worker
+   writes its shard's rows to part files and holds one record at a time; the parts are then
+   concatenated in shard order into `intermediate/publications/ids/PMID`
+   (`PMID:x\tbiolink:JournalArticle`), `intermediate/publications/concords/PMID_DOI`
+   (`PMID:x\teq\t<doi: or PMCID:>`) and `babel_downloads/PubMed2DB/titles.tsv` (see "Titles"). The
+   metadata YAML records the export URL as the source. The parent's memory is dominated by the set
+   of every DOI and PMCID, built while looking for shared identifiers (below).
+2. `generate_pubmed_compendia` streams the shards straight into `write_compendium()`, one record at
+   a time in a single process: a record *is* a clique, so there is no `glom()` and no global labels
+   dictionary (the old rule peaked at 126 GiB holding both). `write_compendium()` is the bottleneck
+   here, so parsing ahead in worker processes would save little time and cost a parsed shard's worth
+   of memory per worker.
+
+Measured locally on shard 0 of 2026sep26 (5,252,405 records, about an eighth of the export), pass
+1 took 31 s and peaked at 1.27 GB, nearly all of it the set of 5.7M DOIs and PMCIDs (~210 bytes
+each), so ~10 GB for the whole export. Pass 2 took 102 s (~51k cliques/s) at 0.10 GB, which does not
+grow with the corpus, plus the ~3 GB every compendium rule spends loading the common UberGraph
+files. Pass 2 only stays flat because the synonym, description and property lookups don't store
+misses (`tests/node/test_lookups_do_not_grow.py`); before that was fixed it grew by ~2 KB per
+clique, which would have been ~80 GB here. The rule sizes in `publications.snakefile` and
+`slurm/README.md` come from these numbers; replace them with the first cluster benchmark.
 
 ### Identifiers shared by more than one PMID
 
@@ -71,13 +126,46 @@ seen kept the identifier. The new code makes the same choice order-independent: 
 naming the **lowest PMID** that carries each shared identifier, and pass 2 keeps the identifier in
 that clique only. The file doubles as a data-quality report of ambiguous identifiers.
 
-### `PMCID:` versus `PMC:`
+## Titles
+
+Each PMID's label in the Publication compendium — and so its `preferred_name` — is its
+`article_title` exactly as exported; an empty title gives no label. This is a deliberate change
+from the XML era, when labels were read back from `titles.tsv`: a newline used to arrive as the two
+characters `\n` and trailing whitespace was stripped by the loader, while now the label has a real
+newline and keeps its whitespace. The new label is the exported text rather than an artifact of an
+intermediate file. Publication's synonyms file is empty (names come from per-prefix synonym files,
+and PMID has none), so titles do not reach Name Resolution either way.
+
+What titles contain, from [`titles/characterize_titles.py`](titles/characterize_titles.py) over
+shard 0 of 2026sep26 (5,252,405 records; examples in [`titles/counts.json`](titles/counts.json)):
+
+| Shape | Titles | Notes |
+| --- | ---: | --- |
+| empty | 4,169 | No label. |
+| trailing whitespace | 728 | Mostly a single space (`PMID:9245294`). |
+| leading whitespace | 81 | Includes non-breaking and thin spaces, and whole titles wrapped in indentation. |
+| newline | 110 | Line-wrapped titles (`PMID:30803192`) and flattened MathML (`PMID:35249155`). |
+| backslash | 37 | Mostly LaTeX math. |
+| other control | 18 | C1 characters from mis-decoded cp1252, e.g. `\x93smart\x94`. |
+| tab, carriage return, whitespace-only | 0 | |
+
+Some of these are formatting artifacts rather than content — MathML flattened into runs of
+newlines and spaces, indentation around a whole title. Babel does not normalise them; collapsing
+whitespace in labels would be a separate decision.
+
+`titles.tsv` itself is not read by the build: it exists to diff titles between builds. Titles are
+written through `escape_tsv_field()`, which escapes backslash, tab, newline and carriage return, so
+every row has exactly two fields and the original can be recovered. The XML parser escaped only
+newlines, so the one visible difference from an older `titles.tsv` is that backslashes are now
+doubled. `tests/pipeline/test_publications.py` asserts the two-field shape over a whole export.
+
+## `PMCID:` versus `PMC:`
 
 Babel historically wrote PubMed Central identifiers as `PMC:PMC1234567`, as does the 2026aug5
-export; pubmed2db exports made after it spell them `PMCID:PMC1234567`. Which one Translator should
-use is [Babel#1044](https://github.com/NCATSTranslator/Babel/issues/1044), and until it is settled
-Babel passes the export's spelling through unchanged, so the first build on a newer export will
-rename every PMC CURIE. Two things to know:
+export; pubmed2db exports made after it, including 2026sep26, spell them `PMCID:PMC1234567`. Which
+one Translator should use is [Babel#1044](https://github.com/NCATSTranslator/Babel/issues/1044),
+and until it is settled Babel passes the export's spelling through unchanged, so the first build on
+2026sep26 renames every PMC CURIE. Two things to know:
 
 - Biolink 4.4.3 registers `PMC` on `biolink:Publication` but `PMCID` only on
   `biolink:JournalArticle`, so `generate_compendium()` passes `extra_prefixes=["PMCID"]` — without
