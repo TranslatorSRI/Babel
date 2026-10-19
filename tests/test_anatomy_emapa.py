@@ -204,15 +204,16 @@ def test_read_badxrefs_tolerates_repeated_spaces(tmp_path):
 
 @pytest.mark.unit
 def test_shipped_anatomy_badxrefs_file_parses_and_lists_the_known_pairs():
-    """The committed bad-xrefs file should parse and contain the two conflations it documents.
+    """The committed bad-xrefs file should parse and contain the conflations it documents.
 
-    Both entries exist to stop a gross anatomical structure being merged with a cell or cellular
+    Each entry exists to stop a gross anatomical structure being merged with a cell or cellular
     component; if either silently disappeared, the merge would come back.
     """
     pairs = {frozenset(pair) for pair in read_badxrefs(anatomy.ANATOMY_BAD_XREFS)}
 
     assert frozenset(("UBERON:0001236", "MESH:D019439")) in pairs
     assert frozenset(("UMLS:C0008503", "GO:0042600")) in pairs
+    assert frozenset(("UBERON:0000125", "NCIT:C13197")) in pairs
 
 
 # --- Clique typing ---

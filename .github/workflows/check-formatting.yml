@@ -46,5 +46,5 @@ jobs:
           # list-continuation lines, failing a PR that `uv run rumdl check .` passed on 0.2.45.
           # (Same failure mode the ruff job's version-file pin above exists to prevent; this
           # action has no version-file input, so the version is repeated here.)
-          version: 0.2.50
+          version: 0.2.77
           report-type: annotations

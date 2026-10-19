@@ -26,3 +26,10 @@ UBERON:0001236 MESH:D019439
 # mammalian extraembryonic membrane. This merged UBERON:0003124 "chorion membrane" into a
 # biolink:CellularComponent clique.
 UMLS:C0008503 GO:0042600
+
+# UBERON:0000125 "neural nucleus" (a cluster of neuron cell bodies in the CNS) hasDbXref
+# NCIT:C13197, which is the cell nucleus (NCIT synonym "Cell Nucleus", UMLS CUI C0007610). The
+# UMLS concord then correctly ties NCIT:C13197 to UMLS:C0007610, MESH:D002467 "Cell Nucleus" and
+# FMA:63840, so this one xref merged the neural nucleus with the whole cell-nucleus clique (and,
+# once UMLS-GO mappings are used for anatomy, with GO:0005634 "nucleus").
+UBERON:0000125 NCIT:C13197
