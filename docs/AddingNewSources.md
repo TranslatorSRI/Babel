@@ -322,7 +322,7 @@ on a laptop is to assemble the inputs from a published build:
 
    ```bash
    BASE="https://stars.renci.org/var/babel/<recent-build>/intermediate/anatomy"
-   ROOT="/tmp/impact/intermediate/anatomy"
+   ROOT="data/impact/intermediate/anatomy"
    mkdir -p "$ROOT/ids" "$ROOT/concords"
    for f in UBERON GO CL MESH NCIT UMLS; do
        curl -sf "$BASE/ids/$f" -o "$ROOT/ids/$f"
@@ -339,7 +339,7 @@ on a laptop is to assemble the inputs from a published build:
 
    ```bash
    uv run source-impact-report --source <SOURCE> --mode synthetic \
-       --intermediate-root /tmp/impact/intermediate \
+       --intermediate-root data/impact/intermediate \
        --output docs/sources/<SOURCE>/impact-report.md
    ```
 
