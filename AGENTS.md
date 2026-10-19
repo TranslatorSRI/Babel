@@ -159,6 +159,11 @@ canonical prefix-constant registry; its `id_prefixes` order in the Biolink Model
   `build_sets()` sorts its output so this is reproducible; never reintroduce unordered iteration
   there. Before restricting a prefix, count what it makes compete — see step 3 of
   `docs/AddingNewSources.md`.
+- **Malformed CURIEs fail the build** — `write_compendium()` collects every CURIE it writes that
+  `curie_format_problem()` (`src/util.py`) rejects (whitespace, `|`, control characters, missing
+  prefix or local ID), then raises once, listing them all. Fix the source that produced them; never
+  catch the error. The check runs on the output because a concord alone can put a CURIE into a
+  compendium (#1109).
 - **`SynonymFilter`** (`src/synonyms/filter.py`) checks every label/synonym against
   `input_data/obsolete_synonyms.yaml` before it enters a compendium — see its docstring for the
   `action` field and the `should_suppress()` contract.

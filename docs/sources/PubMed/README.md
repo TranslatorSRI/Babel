@@ -77,6 +77,11 @@ Each line of a shard is a flat JSON record; Babel reads three of its fields:
   DOIs are `doi:`; PubMed Central ids are `PMC:PMC123` in exports up to 2026aug5 and `PMCID:PMC123`
   in later ones (see below). Only those two `ArticleId` types are promoted to CURIEs; the rest stay
   in pubmed2db. A record whose list is empty or doesn't start with its own PMID fails the build.
+  PubMed publishes DOIs as supplied, so a few are malformed (`doi:10.1126/science. 1134405`, ~140 in
+  shard 0 of 2026sep26); `write_compendium()` fails the build on any CURIE with whitespace, `|` or a
+  control character, so `_read_shard()` skips those and the concord metadata counts them as
+  `skipped_malformed_article_ids`. Repairing them instead is
+  [Babel#1112](https://github.com/NCATSTranslator/Babel/issues/1112).
 - `article_title` — becomes the PMID's label (see "Titles"). Absent values are `""`, never null.
 
 What pubmed2db guarantees, and Babel therefore does not re-check record by record:

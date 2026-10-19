@@ -61,7 +61,7 @@ def characterize_shard(shard_path):
     records = 0
     counts = Counter()
     examples = {}
-    for pmid, title, _ in _read_shard(shard_path):
+    for pmid, title, _, _ in _read_shard(shard_path):
         records += 1
         for shape in title_shapes(title):
             counts[shape] += 1

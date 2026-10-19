@@ -3,10 +3,10 @@
  "errors": [],
  "checks": {
   "structure": {
-   "records_total": 10,
+   "records_total": 11,
    "records_by_shard": {
     "pubmed_metadata_0.ndjson.gz": 6,
-    "pubmed_metadata_1.ndjson.gz": 3,
+    "pubmed_metadata_1.ndjson.gz": 4,
     "pubmed_metadata_2.ndjson.gz": 1
    }
   }

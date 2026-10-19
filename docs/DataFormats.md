@@ -250,6 +250,29 @@ transient DuckDB database (`.duckdb`) is written alongside each set of Parquet f
 export and can be used directly for interactive querying, but the Parquet files are the
 durable output.
 
+### Querying a published build without downloading it
+
+A cluster run's exports are served from `https://stars.renci.org/var/babel_outputs/<build>/duckdb/`,
+and DuckDB's `httpfs` extension reads them in place with HTTP range requests. It fetches only the
+columns and row groups a query needs:
+
+```sql
+INSTALL httpfs; LOAD httpfs;
+SELECT filename, subj, obj
+FROM 'https://stars.renci.org/var/babel_outputs/2026jul22/duckdb/Concord.parquet'
+WHERE obj LIKE 'UniProtKB:%|%';
+-- A per-compendium DuckDB can be attached read-only, too:
+ATTACH 'https://stars.renci.org/var/babel_outputs/2026jul22/duckdb/duckdbs/filename=Protein/compendium.duckdb'
+  AS p (READ_ONLY);
+```
+
+HTTP has no directory globbing, so list the files you want before passing them to
+`read_parquet([...])`: fetch the directory index with `curl`, and skip the conflation directories
+(`DrugChemical`, `GeneProtein`), which have no `Edge.parquet`. Timings on 2026jul22: a filtered scan
+of `Concord.parquet` or `Identifier.parquet` takes 10–30 seconds. A scan of every compendium's
+`Edge.parquet` takes about 4 minutes, as does a join against the attached 20 GB Protein
+`compendium.duckdb`. This is how the #1109 malformed-CURIE survey was measured.
+
 ### Compendium tables (`filename={Type}/Node.parquet`, `Clique.parquet`, `Edge.parquet`)
 
 These three tables are derived from the compendia JSONL for each semantic type.

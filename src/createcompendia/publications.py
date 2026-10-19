@@ -31,7 +31,7 @@ from pathlib import Path
 from src.babel_utils import TypedClique, pull_via_wget, write_compendium
 from src.categories import JOURNAL_ARTICLE, PUBLICATION
 from src.metadata.provenance import write_concord_metadata
-from src.util import ensure_parent_dir, get_logger
+from src.util import curie_format_problem, ensure_parent_dir, get_logger
 
 logger = get_logger(__name__)
 
@@ -129,11 +129,17 @@ def expected_shard_counts(download_dir):
 
 def _read_shard(shard_path):
     """
-    Yield ``(pmid, title, other_identifiers)`` for every record in one shard.
+    Yield ``(pmid, title, other_identifiers, malformed_identifiers)`` for every record in one shard.
 
     This is the only place that knows the export's record format. ``identifiers`` always starts with the
     record's own PMID, so ``identifiers[1:]`` is its DOI and PMCID CURIEs (sorted and de-duplicated by
     pubmed2db). ``title`` is ``article_title`` exactly as exported, and is ``""`` when the record has none.
+
+    Any of those CURIEs that ``curie_format_problem()`` rejects -- which ``write_compendium()`` would fail the
+    build on -- go in ``malformed_identifiers`` instead of ``other_identifiers``, so both passes skip the same
+    ones. PubMed publishes DOIs as supplied, including some with embedded spaces or appended text
+    (``doi:10.1126/science. 1134405``, PMID:17124311; ~140 in shard 0 of 2026sep26). Repairing them instead
+    is https://github.com/NCATSTranslator/Babel/issues/1112.
 
     A damaged shard raises a RuntimeError naming it. pubmed2db publishes no checksums, but a shard doesn't need
     one to be checked: gzip verifies its CRC32 at the end of the file, so a corrupted download fails on that if
@@ -152,8 +158,12 @@ def _read_shard(shard_path):
                     raise ValueError(
                         f"{shard_path}: record {pmid} has identifiers {identifiers} not starting with its PMID."
                     )
+                others = []
+                malformed = []
+                for other in identifiers[1:]:
+                    (malformed if curie_format_problem(other) else others).append(other)
                 count_records += 1
-                yield pmid, title, identifiers[1:]
+                yield pmid, title, others, malformed
     # OSError covers gzip.BadGzipFile (a failed CRC), EOFError a truncated gzip stream, and the rest a record
     # mangled into something that still decompresses.
     except (OSError, EOFError, zlib.error, UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError) as e:
@@ -176,27 +186,32 @@ def _write_shard_tsvs(shard_path, part_prefix):
     """
     Write one shard's ids, titles and concords rows to ``<part_prefix>.{ids,titles,concords}``.
 
-    Run in a worker process, so it returns only counts -- ``(records, concords)`` -- and holds one record at
-    a time; ``parse_pubmed2db_into_tsvs()`` concatenates the parts in shard order. Module-level so
-    ProcessPoolExecutor can pickle it.
+    Run in a worker process, so it returns only ``(records, concords, malformed identifiers skipped)`` -- the
+    last a short list -- and holds one record at a time; ``parse_pubmed2db_into_tsvs()`` concatenates the parts
+    in shard order. Module-level so ProcessPoolExecutor can pickle it.
     """
     count_records = 0
     count_concords = 0
+    skipped = []
     with (
         open(part_prefix + ".ids", "w") as pmidf,
         open(part_prefix + ".titles", "w") as titlesf,
         open(part_prefix + ".concords", "w") as concordf,
     ):
-        for pmid, title, others in _read_shard(shard_path):
+        for pmid, title, others, malformed in _read_shard(shard_path):
             count_records += 1
+            skipped.extend(malformed)
             pmidf.write(f"{pmid}\t{JOURNAL_ARTICLE}\n")
             if title:
                 titlesf.write(f"{pmid}\t{escape_tsv_field(title)}\n")
             for other in others:
                 count_concords += 1
                 concordf.write(f"{pmid}\teq\t{other}\n")
-    logger.info(f"Parsed {count_records:,} records and {count_concords:,} concords from {shard_path}.")
-    return count_records, count_concords
+    logger.info(
+        f"Parsed {count_records:,} records and {count_concords:,} concords from {shard_path}, skipping "
+        f"{len(skipped):,} malformed DOIs/PMCIDs."
+    )
+    return count_records, count_concords, skipped
 
 
 def parse_pubmed2db_into_tsvs(
@@ -221,6 +236,9 @@ def parse_pubmed2db_into_tsvs(
     lowest-PMID is the same policy made independent of shard order. The file doubles as a data-quality report
     of ambiguous identifiers.
 
+    DOIs and PMCIDs that ``write_compendium()`` would reject are skipped (see ``_read_shard()``) and counted
+    in the metadata YAML as ``skipped_malformed_article_ids``.
+
     Raises if any shard holds a different number of records than pubmed2db's validation report says.
 
     :param url: The export URL, recorded in the metadata YAML as the source of this build's PubMed data.
@@ -240,7 +258,7 @@ def parse_pubmed2db_into_tsvs(
 
         mismatches = [
             f"{shard}: parsed {records:,}, report says {shard_counts[shard]:,}"
-            for shard, (records, _) in zip(shards, results)
+            for shard, (records, _, _) in zip(shards, results)
             if records != shard_counts[shard]
         ]
         if mismatches:
@@ -255,8 +273,10 @@ def parse_pubmed2db_into_tsvs(
                     with open(part_prefix + suffix, "rb") as inf:
                         shutil.copyfileobj(inf, outf)
 
-    count_records = sum(records for records, _ in results)
-    count_concords = sum(concords for _, concords in results)
+    count_records = sum(records for records, _, _ in results)
+    count_concords = sum(concords for _, concords, _ in results)
+    skipped = [curie for _, _, shard_skipped in results for curie in shard_skipped]
+    logger.info(f"Skipped {len(skipped):,} malformed DOIs/PMCIDs, e.g. {skipped[:10]}")
 
     # Find the identifiers carried by more than one record...
     seen = set()
@@ -300,6 +320,7 @@ def parse_pubmed2db_into_tsvs(
             "pmid_count": count_records,
             "shard_count": len(shards),
             "shared_identifier_count": len(shared),
+            "skipped_malformed_article_ids": len(skipped),
         },
         concord_filename=concord_file,
     )
@@ -331,7 +352,7 @@ class _PublicationCliques:
 
     def __iter__(self):
         for shard in self.shard_counts:
-            for pmid, title, others in _read_shard(os.path.join(self.download_dir, shard)):
+            for pmid, title, others, _ in _read_shard(os.path.join(self.download_dir, shard)):
                 identifiers = [pmid] + [o for o in others if self.winners.get(o, pmid) == pmid]
                 yield TypedClique(PUBLICATION, identifiers, {pmid: title} if title else None)
 

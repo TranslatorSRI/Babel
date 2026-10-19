@@ -15,6 +15,7 @@ verbatim from ``pubmed_metadata_0.ndjson.gz`` of the 2026sep26 export
 - ``PMID:25303692`` — no DOI or PMCID; a title containing ``\x85``, a C1 control character (cp1252's
   ellipsis, mis-decoded).
 - ``PMID:5202677`` — no DOI or PMCID.
+- ``PMID:17124311`` — a malformed DOI, ``doi:10.1126/science. 1134405``, which write_compendium() would reject.
 
 Shard 2 holds one **synthetic** record, ``PMID:999999113``: ``PMID:113`` copied verbatim from
 ``pubmed_metadata_00000.ndjson.gz`` of the 2026aug5 export, which spelled its PubMed Central id
@@ -41,7 +42,7 @@ pytestmark = pytest.mark.unit
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "pubmed2db")
 EXPORT_URL = "https://stars.renci.org/var/babel_outputs/pubmed2db/2026sep26/"
 SHARED_DOI = "doi:10.1093/ajcn/61.6.1324S"
-RECORD_COUNT = 10
+RECORD_COUNT = 11
 
 
 def copy_fixture(tmp_path):
@@ -159,6 +160,17 @@ def test_metadata_records_the_export_url_and_counts(parsed):
     assert metadata["counts"]["pmid_count"] == RECORD_COUNT
     assert metadata["counts"]["shard_count"] == 3
     assert metadata["counts"]["shared_identifier_count"] == 1
+    assert metadata["counts"]["skipped_malformed_article_ids"] == 1
+
+
+def test_malformed_doi_is_skipped_but_its_pmid_kept(parsed):
+    """A DOI that write_compendium() would reject (here, with an embedded space) should be left out of the
+    concords, while its record still gets an id row and a title (#1112 tracks repairing such DOIs)."""
+    concords = assert_concordance_file_valid(parsed["concord_file"])
+    assert not any(" " in other for _, _, other in concords)
+    assert not any(pmid == "PMID:17124311" for pmid, _, _ in concords)
+    assert "PMID:17124311" in [row[0] for row in assert_ids_file_valid(parsed["pmid_id_file"])]
+    assert read_titles(parsed["titles_file"])["PMID:17124311"] == "Neuroscience. The brain's dark energy."
 
 
 def test_record_without_identifiers_raises_naming_the_shard(tmp_path):
@@ -399,6 +411,8 @@ def test_compendium_streams_one_clique_per_record(parsed, babel_config, tmp_path
     assert curies("PMID:5202740") == ["PMID:5202740", "PMCID:PMC1712714"]
     assert label("PMID:5202740") == "Renal tubular acidosis: an immunopathological study on four patients."
     assert curies("PMID:5202677") == ["PMID:5202677"]
+    # The malformed DOI is skipped here too, or write_compendium() would fail the build on it.
+    assert curies("PMID:17124311") == ["PMID:17124311"]
     assert curies("PMID:17072568") == ["PMID:17072568", "doi:10.1007/s00115-006-2195-7"]
     assert label("PMID:17072568") == ""
 
