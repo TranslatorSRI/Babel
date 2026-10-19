@@ -188,20 +188,41 @@ def build_protein_uniprotkb_ensemble_relationships(infile, outfile, metadata_yam
     )
 
 
+# UniProt's documented accession format (https://www.uniprot.org/help/accession_numbers). Used to
+# reject NCIt-SwissProt mapping values that aren't a single UniProt accession: see
+# build_ncit_uniprot_relationships().
+UNIPROT_ACCESSION_RE = re.compile(r"[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}")
+
+
 def build_ncit_uniprot_relationships(infile, outfile, metadata_yaml):
+    """Write an NCIT-to-UniProtKB concord from NCIt's NCIt-SwissProt_Mapping.txt.
+
+    The file is tab-separated (NCIt code, SwissProt ID, NCIt preferred name) with a header row and
+    DOS line endings. A row is skipped, not mapped, unless its SwissProt column is exactly one UniProt
+    accession. That rejects two shapes found in the file:
+
+    - Several accessions joined by "|", e.g. C16375 "Calmodulin" -> P0DP24|P0DP23|P0DP25. The NCIt
+      concept is broader than any one of those proteins, so equating it with one would merge a
+      generic concept into a specific protein's clique. Splitting on whitespace used to turn the
+      whole field into a single bogus CURIE (`UniProtKB:P0DP24|P0DP23|P0DP25`) that led its own
+      clique in babel-1.18 (#1109).
+    - GenBank nucleotide accessions, e.g. C71447 -> U65002.
+    """
+    skipped = []
     with open(infile) as inf, open(outfile, "w") as outf:
+        header = inf.readline()
+        if not header.startswith("NCIt Code\tSwissProt ID"):
+            raise ValueError(f"Unexpected header in {infile}: {header!r}")
         for line in inf:
-            # These lines are sometimes empty (I think because the
-            # input file can have DOS line endings). If so, we can
-            # skip those.
-            stripped_line = line.strip()
-            if stripped_line == "":
-                logger.info(f"Skipping empty line in {infile}")
+            row = line.rstrip("\r\n")
+            if not row:
                 continue
-            x = stripped_line.split()
-            ncit_id = f"{NCIT}:{x[0]}"
-            uniprot_id = f"{UNIPROTKB}:{x[1]}"
-            outf.write(f"{ncit_id}\teq\t{uniprot_id}\n")
+            ncit_code, accession, _name = row.split("\t")
+            if not UNIPROT_ACCESSION_RE.fullmatch(accession):
+                skipped.append(row)
+                continue
+            outf.write(f"{NCIT}:{ncit_code}\teq\t{UNIPROTKB}:{accession}\n")
+    logger.info(f"Skipped {len(skipped)} rows of {infile} without a single UniProt accession: {skipped}")
 
     write_concord_metadata(
         metadata_yaml,
