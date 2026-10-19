@@ -31,7 +31,7 @@ uv run snakemake --profile slurm chemical
 | `executor` | `slurm` | Uses Snakemake's built-in SLURM executor |
 | `jobs` | 50 | Max parallel SLURM jobs |
 | `default-resources.mem` | 16G | Per-job default RAM (90% of rules peak below 8G) |
-| `default-resources.cpus_per_task` | 1 | Per-job default CPUs (only DuckDB rules use more) |
+| `default-resources.cpus_per_task` | 1 | Per-job default CPUs (the DuckDB exports, `protein` and `generate_pubmed_concords` set more) |
 | `default-resources.runtime` | 120 min | Per-job default wall time |
 | `python.executable` | `/usr/bin/time -v python` | Captures memory/time to job stderr |
 | `slurm-efficiency-report` | True | Writes per-job efficiency CSV |
@@ -39,6 +39,11 @@ uv run snakemake --profile slurm chemical
 Download-only rules (e.g. `get_EFO`, `get_mesh`, `get_rhea`, `get_pubchem`, `download_umls`)
 override the defaults with `mem="8G", cpus_per_task=1` since they are I/O-bound. Large downloads
 (UniProtKB idmapping/trembl, UMLS) also set `runtime="6h"`.
+
+A rule that runs more than one process or thread must set `cpus_per_task` as well as `threads:`.
+The SLURM executor allocates `cpus_per_task` when it is set, and the default above always sets it,
+so `threads: 8` alone gets a one-CPU job whose eight workers share a single core. Keep the two
+equal (`generate_pubmed_concords` is an example).
 
 ## Benchmark Data
 
@@ -116,8 +121,8 @@ These rules have hard-coded `resources:` overrides and should not be reduced wit
 | `generate_prefix_report` | `duckdb.snakefile` | 1500G | — | approx_count_distinct() over all edges, biolink_type read from the denormalized Edge column (no join); memory_limit 1000G, 1 thread. Replaced the former `generate_curie_report` + `generate_clique_leader_report`, scanning the Edge set once instead of twice |
 | `chembl_labels_and_smiles` | `datacollect.snakefile` | 128G | — | RDF parse |
 | `chemical_unichem_concordia` | `chemical.snakefile` | 192G | — | UniChem merge (119.8 GB peak, was 94% of 128G) |
-| `generate_pubmed_concords` | `publications.snakefile` | 32G | 1h | Parallel parse of the pubmed2db NDJSON export (16 threads); 29s/2.6 GB per shard of 16 measured locally. Replaced the 20h/32G XML parse after 2026jul22; confirm from the first cluster benchmark |
-| `generate_pubmed_compendia` | `publications.snakefile` | 32G | 2h | PubMed compendium streamed from the shards without glom; 108s/5 GB per shard of 16 measured locally, so ~30 min. The glom version peaked at 132.5 GB; confirm from the first cluster benchmark |
+| `generate_pubmed_concords` | `publications.snakefile` | 16G | 1h | Parallel parse of the pubmed2db NDJSON export (8 threads, `cpus_per_task=8`); ~10 GB and minutes, extrapolated from shard 0 of 2026sep26 measured locally (31s, 1.27 GB). Replaced the 128G/24h XML parse (20.0h, 32 GB peak on 2026jul22); confirm from the first cluster benchmark |
+| `generate_pubmed_compendia` | `publications.snakefile` | 8G | 1h | PubMed compendium streamed from the shards without glom, single-threaded; ~3 GB and ~15 min, extrapolated from shard 0 of 2026sep26 measured locally (102s, 0.10 GB without the common UberGraph files). The glom version peaked at 132.5 GB; confirm from the first cluster benchmark |
 | `geneprotein_conflated_synonyms` | `geneprotein.snakefile` | 512G | 6h | Conflated synonym merge |
 | `drugchemical_conflation` | `drugchemical.snakefile` | 96G | — | Drug/chemical conflation (61.2 GB peak, was 96% of 64G) |
 | `geneprotein_conflation` | `geneprotein.snakefile` | 64G | — | Gene/protein conflation (~48G peak) |
