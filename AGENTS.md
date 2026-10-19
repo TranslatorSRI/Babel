@@ -214,13 +214,19 @@ rule's resource requirements to decide.
 
 A killed run can leave `LockException: Directory cannot be locked` on the next invocation; clear it
 with `uv run snakemake --unlock`.
-Before running Snakemake by hand, read "Common build issues" in `docs/RunningBabel.md`. Above all,
-put the target *before* `--forcerun`: after it, the target is read as a rule name and Snakemake
-builds the whole pipeline.
 
 Most semantic-type targets are much cheaper than the full pipeline (anatomy builds end-to-end on a
 laptop in ~25 minutes; the README's 500 GB figure is for the heaviest targets only). See
-`docs/RunningBabel.md` for a per-target sizing breakdown and common build issues.
+`docs/RunningBabel.md` for a per-target sizing breakdown, and read its "Common build issues" before
+running Snakemake by hand. Two of them catch agents out most:
+
+- **Put targets before `--forcerun`** or any other list-valued option (`--until`, `--omit-from`).
+  After one, a target path is taken as another value of that option, which leaves no target, so
+  Snakemake builds the whole pipeline. `--forcerun=rule` or a `--` before the targets is safe in
+  any order.
+- **On Apple Silicon without Rosetta, add `--scheduler greedy`** (or see the durable fixes in
+  `docs/RunningBabel.md`). Otherwise every run that schedules jobs fails at once with
+  `OSError: [Errno 86] Bad CPU type in executable` from `pulp`'s bundled x86-64 `cbc`.
 
 ## Releasing a build
 
