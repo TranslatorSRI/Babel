@@ -413,5 +413,7 @@ uv run babel-clique-diff --before <before-dir> --after <after-dir> \
     --out-csv clique-diff.csv --out-json clique-diff.summary.json
 ```
 
-Put the target *before* `--forcerun`: `--forcerun` takes a list, so a target written after it is
-swallowed as another rule name and Snakemake falls back to building the entire pipeline.
+Put the target *before* `--forcerun`: `--forcerun` takes a list of rules *or files*, so a target
+written after it is taken as another file to force rerun, which leaves no target, and Snakemake
+falls back to building the entire pipeline. See "Common build issues" in
+[`docs/RunningBabel.md`](../../RunningBabel.md) for the order-proof forms.
