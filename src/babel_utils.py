@@ -8,7 +8,7 @@ import tempfile
 import time
 import traceback
 import urllib
-from collections import defaultdict
+from collections import ChainMap, defaultdict
 from datetime import datetime, timedelta
 from enum import Enum
 from ftplib import FTP
@@ -791,7 +791,8 @@ def write_compendium(
                 current_node_type = slist.node_type
                 input_identifiers = slist.identifiers
                 if slist.labels:
-                    clique_labels = {**labels, **slist.labels}
+                    # A view, not a merged copy: copying `labels` would cost O(len(labels)) per clique.
+                    clique_labels = ChainMap(slist.labels, labels)
             else:
                 if node_type is None:
                     raise RuntimeError("write_compendium() requires node_type unless every clique is a TypedClique.")
