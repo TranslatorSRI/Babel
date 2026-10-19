@@ -48,6 +48,9 @@ VALIDATION_REPORT = "validation_report.json"
 # https://github.com/TranslatorSRI/pubmed2db/issues/33. If that settles on PMCID, delete this mapping and
 # pass extra_prefixes=["PMCID"] to write_compendium() in generate_compendium(), or create_node() will drop
 # every one of them as unregistered for biolink:Publication.
+# pubmed2db's data model 1.0 (https://github.com/TranslatorSRI/pubmed2db/pull/63) switches back to PMC:PMC123
+# to match Babel, so once config.yaml's pubmed2db_version names a 1.0 build this mapping renames nothing.
+# Check pubmed2db#33 then: delete the mapping if it still says PMC, or make the PMCID change above if not.
 PUBMED2DB_PREFIX_RENAMES = {"PMCID": PMC}
 
 

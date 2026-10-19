@@ -225,6 +225,11 @@ Neither spelling expands to a working URL with Biolink's prefix map (#1044 shows
 doesn't decide it either way. Switching to `PMCID:` later is the change described in the
 `PUBMED2DB_PREFIX_RENAMES` comment: delete the mapping and pass `extra_prefixes=["PMCID"]`.
 
+pubmed2db's data model 1.0 ([pubmed2db#63](https://github.com/TranslatorSRI/pubmed2db/pull/63)) goes
+back to `PMC:` to match Babel, as an interim choice tracked in pubmed2db#33. Once `pubmed2db_version`
+names a 1.0 build, the respelling renames nothing; check pubmed2db#33 then, and either delete the
+mapping or make the `PMCID:` change above.
+
 ## What was dropped
 
 The XML parser also wrote `babel_downloads/PubMed/statuses.jsonl.gz`, every `PubStatus` a PMID had
