@@ -87,40 +87,33 @@ target is much cheaper than `snakemake --cores N` with no target.
 
 ### Preloading PubMed downloads
 
-PubMed arrives as the pubmed2db NDJSON export pinned by `config.yaml: pubmed2db_url` (~17 GB of
-`pubmed_metadata_*.ndjson.gz` shards plus a `validation_report.json.gz`; see
-[`docs/sources/PubMed/README.md`](sources/PubMed/README.md)). If the URL has not changed since the
-previous run, the shards can be carried forward:
+PubMed arrives as the pubmed2db NDJSON export pinned by `config.yaml: pubmed2db_version` (~17 GB of
+`pubmed_metadata_*.ndjson.gz` shards; see
+[`docs/sources/PubMed/README.md`](sources/PubMed/README.md)), downloaded into
+`babel_downloads/PubMed2DB/<version>/`. A published export never changes, so the whole directory can
+be carried forward into a new run:
 
 ```shell
 mkdir -p <new-run>/babel_downloads
 mv <old-run>/babel_downloads/PubMed2DB <new-run>/babel_downloads/
-rm -f <new-run>/babel_downloads/PubMed2DB/downloaded
 ```
 
-Two things make this work, and each is easy to break:
+The `downloaded` marker can come along too. Each export has its own directory, so if
+`pubmed2db_version` still names the same export the marker is right and the download is skipped; if
+it names a newer one, every path changes, Snakemake sees the new marker missing, and the new export
+is downloaded beside the old. Delete old `PubMed2DB/<version>/` directories once you no longer need
+them.
 
-* **Do not keep the `downloaded` marker file.** It is what Snakemake tracks; if it is present the
-  download rule is skipped entirely, even when `pubmed2db_url` now points at a newer export.
-* **Preserve modification times.** `mv` (or `cp -p` / `rsync -a`) preserves them; a plain `cp` does
-  not. `download_pubmed2db` runs `wget --timestamping`, which re-downloads a file only when the
-  server's copy is newer than the local one or the sizes differ.
+`download_pubmed2db` fetches each shard with `wget --continue`. That is safe only because an
+export's files never change: a shard left half-downloaded by an interrupted run is a true prefix of
+the server's copy, so appending the rest is correct. (`pull_via_wget()` refuses `--continue` for a
+*recursive* download, where a preloaded file can have changed upstream; see its comments.) A
+truncated shard that slips through anyway fails the build, because `generate_pubmed_concords`
+checks every shard against the record count in the export's validation report.
 
-If `pubmed2db_url` *has* moved to a new export, do not carry the old shards forward: a new export
-can have a different number of shards, and a stale `pubmed_metadata_00015.ndjson.gz` left beside a
-new 12-shard export would be parsed along with it. The record-count check against the validation
-report would catch that and fail the build, but it is cheaper to start from an empty `PubMed2DB/`.
-
-A recursive download is always timestamped and never resumed: `pull_via_wget()` raises if a caller
-asks for `--continue` alongside recursion, or for recursion without `--timestamping`. wget resumes
-by *appending* the bytes it thinks are missing to whatever local file it finds, which silently
-corrupts a file whose content changed upstream rather than merely being truncated. Any file that
-disagrees with the server on size or mtime is therefore re-fetched in full, at the cost of
-restarting — rather than resuming — a large file whose download was interrupted.
-
-`PubMed2DB/` is deliberately *not* declared as a `directory()` output of `download_pubmed2db`.
-Snakemake recursively deletes existing `directory()` outputs before running a job, which would
-delete anything preloaded into it.
+`PubMed2DB/<version>/` is deliberately *not* declared as a `directory()` output of
+`download_pubmed2db`. Snakemake recursively deletes existing `directory()` outputs before running a
+job, which would delete anything preloaded into it.
 
 ### Common build issues
 
