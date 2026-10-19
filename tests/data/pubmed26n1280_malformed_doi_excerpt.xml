@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE PubmedArticleSet SYSTEM "http://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_250101.dtd">
+<PubmedArticleSet>
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE" IndexingMethod="Automated" Owner="NLM">
+      <PMID Version="1">39970118</PMID>
+      <DateCompleted>
+        <Year>2025</Year>
+        <Month>05</Month>
+        <Day>08</Day>
+      </DateCompleted>
+      <DateRevised>
+        <Year>2025</Year>
+        <Month>05</Month>
+        <Day>08</Day>
+      </DateRevised>
+      <Article PubModel="Print">
+        <Journal>
+          <ISSN IssnType="Print">0026-8984</ISSN>
+          <JournalIssue CitedMedium="Print">
+            <Volume>58</Volume>
+            <Issue>5</Issue>
+            <PubDate>
+              <MedlineDate>2024 Sep-Oct</MedlineDate>
+            </PubDate>
+          </JournalIssue>
+          <Title>Molekuliarnaia biologiia</Title>
+          <ISOAbbreviation>Mol Biol (Mosk)</ISOAbbreviation>
+        </Journal>
+        <ArticleTitle>[GRIP1 is Involved in the Interaction of Vimentin Filaments with Focal Adhesions in Endothelial Cells].</ArticleTitle>
+        <Pagination>
+          <MedlinePgn>772-783</MedlinePgn>
+        </Pagination>
+        <ELocationID EIdType="doi" ValidYN="Y">10.31857/S0026898424050076, EDN: HUNTKB</ELocationID>
+        <Abstract>
+          <AbstractText>Vimentin intermediate filaments are dynamic structures that are able to move in cytoplasm owing to activity of the motor proteins, kinesin-1 and cytoplasmic dynein. How exactly motors interact with vimentin filaments remains unclear. In this work, I show that GRIP1 (Glutamate Receptor Interacting Protein 1), known as adapter for kinesin-1 on many cargoes in neurons, might also mediate kinesin-1 interaction with vimentin filaments. GRIP1 associates with vimentin filaments in various cells and co-immunoprecipitates with vimentin from cell lysates. Human endothelial cells knockout by GRIP1 gene lose focal adhesions and change their adhesive properties. Hypothetically, kinesin-1 engages GRIP1 to deliver vimentin filaments to the cell periphery so that they make contact with focal adhesions and stabilize them.</AbstractText>
+        </Abstract>
+        <AuthorList CompleteYN="Y">
+          <Author ValidYN="Y">
+            <LastName>Gyoeva</LastName>
+            <ForeName>F K</ForeName>
+            <Initials>FK</Initials>
+            <AffiliationInfo>
+              <Affiliation>Institute of Protein Research, Russian Academy of Sciences, Pushchino, Moscow oblast, 142290 Russia.</Affiliation>
+            </AffiliationInfo>
+            <AffiliationInfo>
+              <Affiliation>fgyoeva@gmail.com.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+        </AuthorList>
+        <Language>rus</Language>
+        <PublicationTypeList>
+          <PublicationType UI="D004740">English Abstract</PublicationType>
+          <PublicationType UI="D016428">Journal Article</PublicationType>
+        </PublicationTypeList>
+      </Article>
+      <MedlineJournalInfo>
+        <Country>Russia (Federation)</Country>
+        <MedlineTA>Mol Biol (Mosk)</MedlineTA>
+        <NlmUniqueID>0105454</NlmUniqueID>
+        <ISSNLinking>0026-8984</ISSNLinking>
+      </MedlineJournalInfo>
+      <ChemicalList>
+        <Chemical>
+          <RegistryNumber>0</RegistryNumber>
+          <NameOfSubstance UI="D014746">Vimentin</NameOfSubstance>
+        </Chemical>
+        <Chemical>
+          <RegistryNumber>EC 3.6.4.4</RegistryNumber>
+          <NameOfSubstance UI="D016547">Kinesins</NameOfSubstance>
+        </Chemical>
+        <Chemical>
+          <RegistryNumber>0</RegistryNumber>
+          <NameOfSubstance UI="D009419">Nerve Tissue Proteins</NameOfSubstance>
+        </Chemical>
+        <Chemical>
+          <RegistryNumber>0</RegistryNumber>
+          <NameOfSubstance UI="D048868">Adaptor Proteins, Signal Transducing</NameOfSubstance>
+        </Chemical>
+        <Chemical>
+          <RegistryNumber>0</RegistryNumber>
+          <NameOfSubstance UI="C000629650">VIM protein, human</NameOfSubstance>
+        </Chemical>
+        <Chemical>
+          <RegistryNumber>0</RegistryNumber>
+          <NameOfSubstance UI="D002352">Carrier Proteins</NameOfSubstance>
+        </Chemical>
+      </ChemicalList>
+      <CitationSubset>IM</CitationSubset>
+      <MeshHeadingList>
+        <MeshHeading>
+          <DescriptorName UI="D006801" MajorTopicYN="N">Humans</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D014746" MajorTopicYN="Y">Vimentin</DescriptorName>
+          <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+          <QualifierName UI="Q000235" MajorTopicYN="N">genetics</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D022001" MajorTopicYN="Y">Focal Adhesions</DescriptorName>
+          <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+          <QualifierName UI="Q000235" MajorTopicYN="N">genetics</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D042783" MajorTopicYN="Y">Endothelial Cells</DescriptorName>
+          <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D016547" MajorTopicYN="Y">Kinesins</DescriptorName>
+          <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+          <QualifierName UI="Q000235" MajorTopicYN="N">genetics</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D009419" MajorTopicYN="Y">Nerve Tissue Proteins</DescriptorName>
+          <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+          <QualifierName UI="Q000235" MajorTopicYN="N">genetics</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D048868" MajorTopicYN="Y">Adaptor Proteins, Signal Transducing</DescriptorName>
+          <QualifierName UI="Q000235" MajorTopicYN="N">genetics</QualifierName>
+          <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D007382" MajorTopicYN="Y">Intermediate Filaments</DescriptorName>
+          <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+          <QualifierName UI="Q000235" MajorTopicYN="N">genetics</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D002352" MajorTopicYN="Y">Carrier Proteins</DescriptorName>
+          <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+          <QualifierName UI="Q000235" MajorTopicYN="N">genetics</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D061307" MajorTopicYN="N">Human Umbilical Vein Endothelial Cells</DescriptorName>
+          <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+        </MeshHeading>
+      </MeshHeadingList>
+      <KeywordList Owner="NOTNLM">
+        <Keyword MajorTopicYN="N">Glutamate Receptor Interacting Protein 1 (GRIP1)</Keyword>
+        <Keyword MajorTopicYN="N">focal adhesions</Keyword>
+        <Keyword MajorTopicYN="N">kinesin-1</Keyword>
+        <Keyword MajorTopicYN="N">vimentin intermediate filaments</Keyword>
+      </KeywordList>
+    </MedlineCitation>
+    <PubmedData>
+      <History>
+        <PubMedPubDate PubStatus="received">
+          <Year>2023</Year>
+          <Month>10</Month>
+          <Day>07</Day>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="accepted">
+          <Year>2024</Year>
+          <Month>03</Month>
+          <Day>12</Day>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="medline">
+          <Year>2025</Year>
+          <Month>2</Month>
+          <Day>19</Day>
+          <Hour>18</Hour>
+          <Minute>21</Minute>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="pubmed">
+          <Year>2025</Year>
+          <Month>2</Month>
+          <Day>19</Day>
+          <Hour>18</Hour>
+          <Minute>20</Minute>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="entrez">
+          <Year>2025</Year>
+          <Month>2</Month>
+          <Day>19</Day>
+          <Hour>13</Hour>
+          <Minute>13</Minute>
+        </PubMedPubDate>
+      </History>
+      <PublicationStatus>ppublish</PublicationStatus>
+      <ArticleIdList>
+        <ArticleId IdType="pubmed">39970118</ArticleId>
+        <ArticleId IdType="doi">10.31857/S0026898424050076, EDN: HUNTKB</ArticleId>
+      </ArticleIdList>
+    </PubmedData>
+  </PubmedArticle>
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE" IndexingMethod="Automated" Owner="NLM">
+      <PMID Version="1">39970131</PMID>
+      <DateCompleted>
+        <Year>2025</Year>
+        <Month>05</Month>
+        <Day>09</Day>
+      </DateCompleted>
+      <DateRevised>
+        <Year>2025</Year>
+        <Month>05</Month>
+        <Day>09</Day>
+      </DateRevised>
+      <Article PubModel="Electronic-eCollection">
+        <Journal>
+          <ISSN IssnType="Electronic">1932-6203</ISSN>
+          <JournalIssue CitedMedium="Internet">
+            <Volume>20</Volume>
+            <Issue>2</Issue>
+            <PubDate>
+              <Year>2025</Year>
+            </PubDate>
+          </JournalIssue>
+          <Title>PloS one</Title>
+          <ISOAbbreviation>PLoS One</ISOAbbreviation>
+        </Journal>
+        <ArticleTitle>A study on the relationship between personality and motivation in leisure participants.</ArticleTitle>
+        <Pagination>
+          <MedlinePgn>e0318168</MedlinePgn>
+        </Pagination>
+        <ELocationID EIdType="doi" ValidYN="Y">10.1371/journal.pone.0318168</ELocationID>
+        <Abstract>
+          <AbstractText>Motivation and personality, which are among the most important effects of human behavior, are important in terms of leisure activities. Therefore, this study aimed to examine the relationship between motivation and personality of individuals who participate in physical activity in their leisure time. In the study, the correlational screening model was used, and 370 (m:28.76±10.37) participants who regularly practiced physical activity participated. The relationship between the data obtained in the research was tested with canonical correlation analysis, and the first two canonical correlation functions between the two variable data sets were interpreted. Self-control and extraversion sub-dimensions in the personality data set and internal regulation and external regulation sub-dimensions in the motivation data set were found to make the highest contribution. It was determined that for the first set of canonical functions, the relationship between self-control and internal regulation had a unidirectional correlation, whereas, for the second set of canonical functions, the relationship between extraversion and external regulation had an inverse correlation. Studies show how valuable intrinsic motivation sources are for individuals, and personality traits such as self-control and extraversion support this situation. It is considered that the personality traits of leisure time participants may be a clue to the types of motivation of the participants.</AbstractText>
+          <CopyrightInformation>Copyright: © 2025 Yağar et al. This is an open access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.</CopyrightInformation>
+        </Abstract>
+        <AuthorList CompleteYN="Y">
+          <Author ValidYN="Y">
+            <LastName>Yağar</LastName>
+            <ForeName>Gül</ForeName>
+            <Initials>G</Initials>
+            <AffiliationInfo>
+              <Affiliation>Faculty of Sports Sciences, Hitit University, Corum, Türkiye.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Deryahanoğlu</LastName>
+            <ForeName>Gamze</ForeName>
+            <Initials>G</Initials>
+            <Identifier Source="ORCID">https://orcid.org/0000-0001-5186-3453</Identifier>
+            <AffiliationInfo>
+              <Affiliation>Faculty of Sports Sciences, Hitit University, Corum, Türkiye.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Bal</LastName>
+            <ForeName>Emine</ForeName>
+            <Initials>E</Initials>
+            <AffiliationInfo>
+              <Affiliation>Faculty of Sports Sciences, Tokat Gaziosmanpaşa University, Tokat, Türkiye.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+        </AuthorList>
+        <Language>eng</Language>
+        <PublicationTypeList>
+          <PublicationType UI="D016428">Journal Article</PublicationType>
+        </PublicationTypeList>
+        <ArticleDate DateType="Electronic">
+          <Year>2025</Year>
+          <Month>02</Month>
+          <Day>19</Day>
+        </ArticleDate>
+      </Article>
+      <MedlineJournalInfo>
+        <Country>United States</Country>
+        <MedlineTA>PLoS One</MedlineTA>
+        <NlmUniqueID>101285081</NlmUniqueID>
+        <ISSNLinking>1932-6203</ISSNLinking>
+      </MedlineJournalInfo>
+      <CitationSubset>IM</CitationSubset>
+      <MeshHeadingList>
+        <MeshHeading>
+          <DescriptorName UI="D006801" MajorTopicYN="N">Humans</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D009042" MajorTopicYN="Y">Motivation</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D010551" MajorTopicYN="Y">Personality</DescriptorName>
+          <QualifierName UI="Q000502" MajorTopicYN="N">physiology</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D008297" MajorTopicYN="N">Male</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D005260" MajorTopicYN="N">Female</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D007899" MajorTopicYN="Y">Leisure Activities</DescriptorName>
+          <QualifierName UI="Q000523" MajorTopicYN="N">psychology</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D000328" MajorTopicYN="N">Adult</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D055815" MajorTopicYN="N">Young Adult</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D005120" MajorTopicYN="N">Extraversion, Psychological</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D000068356" MajorTopicYN="N">Self-Control</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D015444" MajorTopicYN="N">Exercise</DescriptorName>
+          <QualifierName UI="Q000523" MajorTopicYN="N">psychology</QualifierName>
+        </MeshHeading>
+      </MeshHeadingList>
+      <CoiStatement>The authors have declared that no competing interests exist.</CoiStatement>
+    </MedlineCitation>
+    <PubmedData>
+      <History>
+        <PubMedPubDate PubStatus="received">
+          <Year>2024</Year>
+          <Month>10</Month>
+          <Day>05</Day>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="accepted">
+          <Year>2025</Year>
+          <Month>01</Month>
+          <Day>10</Day>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="medline">
+          <Year>2025</Year>
+          <Month>2</Month>
+          <Day>19</Day>
+          <Hour>18</Hour>
+          <Minute>22</Minute>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="pubmed">
+          <Year>2025</Year>
+          <Month>2</Month>
+          <Day>19</Day>
+          <Hour>18</Hour>
+          <Minute>21</Minute>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="entrez">
+          <Year>2025</Year>
+          <Month>2</Month>
+          <Day>19</Day>
+          <Hour>13</Hour>
+          <Minute>23</Minute>
+        </PubMedPubDate>
+      </History>
+      <PublicationStatus>epublish</PublicationStatus>
+      <ArticleIdList>
+        <ArticleId IdType="pubmed">39970131</ArticleId>
+        <ArticleId IdType="doi">10.1371/journal.pone.0318168</ArticleId>
+        <ArticleId IdType="pii">PONE-D-24-40386</ArticleId>
+        <ArticleId IdType="pmc">PMC11838910</ArticleId>
+      </ArticleIdList>
+      <ReferenceList>
+        <Reference>
+          <Citation>Front Psychol. 2021 Oct 22;12:719572</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">34744882</ArticleId>
+          </ArticleIdList>
+        </Reference>
+        <Reference>
+          <Citation>Psychol Rev. 1998 Apr;105(2):230-50</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">9577238</ArticleId>
+          </ArticleIdList>
+        </Reference>
+        <Reference>
+          <Citation>Pers Individ Dif. 2023 Feb;202:</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">36776733</ArticleId>
+          </ArticleIdList>
+        </Reference>
+        <Reference>
+          <Citation>Annu Rev Psychol. 2022 Jan 4;73:489-516</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">34516758</ArticleId>
+          </ArticleIdList>
+        </Reference>
+        <Reference>
+          <Citation>PLoS One. 2013;8(1):e54746</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">23372763</ArticleId>
+          </ArticleIdList>
+        </Reference>
+        <Reference>
+          <Citation>J Pers Assess. 2005 Feb;84(1):37-48</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">15639766</ArticleId>
+          </ArticleIdList>
+        </Reference>
+        <Reference>
+          <Citation>Behav Sci (Basel). 2024 Jul 24;14(8):</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">39199027</ArticleId>
+          </ArticleIdList>
+        </Reference>
+        <Reference>
+          <Citation>Iran J Nurs Midwifery Res. 2019 Sep-Oct;24(5):315-322</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">31516515</ArticleId>
+          </ArticleIdList>
+        </Reference>
+        <Reference>
+          <Citation>Front Public Health. 2024 Oct 08;12:1442632</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">39440180</ArticleId>
+          </ArticleIdList>
+        </Reference>
+        <Reference>
+          <Citation>Psychol Bull. 2022 Jul-Aug;148(7-8):588-619</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">35834197</ArticleId>
+          </ArticleIdList>
+        </Reference>
+        <Reference>
+          <Citation>Front Psychol. 2023 Feb 22;14:1120238</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">36910769</ArticleId>
+          </ArticleIdList>
+        </Reference>
+        <Reference>
+          <Citation>Front Psychol. 2024 Sep 11;15:1428107</Citation>
+          <ArticleIdList>
+            <ArticleId IdType="pubmed">39323578</ArticleId>
+          </ArticleIdList>
+        </Reference>
+      </ReferenceList>
+    </PubmedData>
+  </PubmedArticle>
+</PubmedArticleSet>

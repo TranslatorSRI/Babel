@@ -13,7 +13,7 @@ from src.babel_utils import WgetRecursionOptions, glom, pull_via_wget, read_iden
 from src.categories import JOURNAL_ARTICLE, PUBLICATION
 from src.metadata.provenance import write_concord_metadata
 from src.prefixes import DOI, PMC, PMID
-from src.util import ensure_parent_dir, get_logger
+from src.util import curie_format_problem, ensure_parent_dir, get_logger
 
 logger = get_logger(__name__)
 
@@ -192,6 +192,9 @@ def parse_pubmed_into_tsvs(
         # we write this out in JSON to the status_file.
         pmid_status = defaultdict(set)
 
+        # DOIs and PMCIDs that curie_format_problem() rejects, which we skip rather than write.
+        skipped_article_ids = []
+
         # Read every file in the baseline and updatefiles directories (they have the same format).
         baseline_filenames = list(map(lambda fn: os.path.join(baseline_dir, fn), sorted(os.listdir(baseline_dir))))
         updatefiles_filenames = list(
@@ -258,15 +261,18 @@ def parse_pubmed_into_tsvs(
 
                                     titlesf.write(f"{PMID}:{pmid.text}\t{title_text}\n")
 
-                                # Write out the DOIs to the concords file.
-                                for doi in dois:
-                                    count_dois += 1
-                                    concordf.write(f"{PMID}:{pmid.text}\teq\t{DOI}:{doi.text}\n")
-
-                                # Write out the PMCIDs to the concords file.
-                                for pmc in pmcs:
-                                    count_pmcs += 1
-                                    concordf.write(f"{PMID}:{pmid.text}\teq\t{PMC}:{pmc.text}\n")
+                                # Write out the DOIs and PMCIDs to the concords file, skipping any that
+                                # write_compendium() would reject: PubMed has DOIs with embedded spaces or
+                                # appended text, e.g. "10.31857/S0026898424050076, EDN: HUNTKB" (PMID:39970118).
+                                # Repairing them instead is #1112.
+                                count_dois += len(dois)
+                                count_pmcs += len(pmcs)
+                                article_ids = [f"{DOI}:{d.text}" for d in dois] + [f"{PMC}:{p.text}" for p in pmcs]
+                                for curie in article_ids:
+                                    if curie_format_problem(curie):
+                                        skipped_article_ids.append(curie)
+                                    else:
+                                        concordf.write(f"{PMID}:{pmid.text}\teq\t{curie}\n")
 
                 time_taken_in_seconds = float(time.time_ns() - start_time) / 1_000_000_000
                 logger.info(
@@ -275,6 +281,8 @@ def parse_pubmed_into_tsvs(
                     + f"{count_pmcs} PMCs, "
                     + f"{count_titles} titles with the following PubStatuses: {sorted(file_pubstatuses)}."
                 )
+
+    logger.info(f"Skipped {len(skipped_article_ids):,} malformed DOIs/PMCIDs, e.g. {skipped_article_ids[:10]}")
 
     # Write the statuses into a gzipped JSONL file.
     with gzip.open(status_file, "wt") as statusf:
@@ -292,6 +300,7 @@ def parse_pubmed_into_tsvs(
         ],
         counts={
             "pmid_count": len(pmid_status.keys()),
+            "skipped_malformed_article_ids": len(skipped_article_ids),
         },
         concord_filename=pmid_doi_concord_file,
     )

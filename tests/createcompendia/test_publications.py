@@ -1,13 +1,16 @@
-"""Unit tests for the PubMed download verification in src/createcompendia/publications.py.
+"""Unit tests for src/createcompendia/publications.py: PubMed download verification and parsing.
 
 verify_pubmed_downloads() is the backstop that makes it safe to carry PubMed files forward from a
 previous run (see docs/RunningBabel.md, "Preloading PubMed downloads"): it MD5s every downloaded
 `.gz` against the `.md5` file PubMed publishes alongside it, and re-downloads the ones that fail.
 """
 
+import gzip
 import hashlib
+from pathlib import Path
 
 import pytest
+import yaml
 
 import src.createcompendia.publications as publications
 
@@ -146,3 +149,40 @@ def test_verifying_a_corrupt_download_redownloads_it_and_its_md5(baseline_dir, t
     # The file that was fine was never touched.
     assert good.read_bytes() == b"pubmed article data"
     assert done_file.exists()
+
+
+# PARSING PUBMED INTO CONCORDS
+
+# Two PubmedArticle records copied verbatim from the 2026 baseline file pubmed26n1280.xml.gz:
+# PMID:39970118, whose DOI has a second identifier appended ("10.31857/S0026898424050076, EDN: HUNTKB"),
+# and PMID:39970131, with a clean DOI and a PMCID.
+PUBMED_EXCERPT = Path(__file__).parent.parent / "data" / "pubmed26n1280_malformed_doi_excerpt.xml"
+
+
+@pytest.mark.unit
+def test_parse_pubmed_skips_malformed_dois(tmp_path):
+    """Should keep well-formed DOIs and PMCIDs, skip the malformed DOI that write_compendium() would
+    reject (#1112), and count the skip in the concord metadata."""
+    baseline = tmp_path / "baseline"
+    updatefiles = tmp_path / "updatefiles"
+    baseline.mkdir()
+    updatefiles.mkdir()
+    with gzip.open(baseline / "pubmed26n1280.xml.gz", "wb") as f:
+        f.write(PUBMED_EXCERPT.read_bytes())
+    concord = tmp_path / "PMID_DOI"
+    metadata = tmp_path / "metadata.yaml"
+    publications.parse_pubmed_into_tsvs(
+        baseline,
+        updatefiles,
+        tmp_path / "titles",
+        tmp_path / "statuses.jsonl.gz",
+        tmp_path / "pmid_ids",
+        concord,
+        metadata,
+    )
+    assert concord.read_text().splitlines() == [
+        "PMID:39970131\teq\tdoi:10.1371/journal.pone.0318168",
+        "PMID:39970131\teq\tPMC:PMC11838910",
+    ]
+    assert "PMID:39970118" in (tmp_path / "pmid_ids").read_text()
+    assert yaml.safe_load(metadata.read_text())["counts"]["skipped_malformed_article_ids"] == 1

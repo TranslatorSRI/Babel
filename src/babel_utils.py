@@ -8,7 +8,7 @@ import tempfile
 import time
 import traceback
 import urllib
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from enum import Enum
 from ftplib import FTP
@@ -25,7 +25,7 @@ from src.metadata.provenance import write_combined_metadata
 from src.node import DescriptionFactory, InformationContentFactory, NodeFactory, SynonymFactory, TaxonFactory
 from src.properties import HAS_ALTERNATIVE_ID, PropertyList
 from src.synonyms.filter import get_synonym_filter
-from src.util import Text, ensure_parent_dir, get_config, get_logger, get_memory_usage_summary
+from src.util import Text, curie_format_problem, ensure_parent_dir, get_config, get_logger, get_memory_usage_summary
 
 # Configuration items
 WRITE_COMPENDIUM_LOG_EVERY_X_CLIQUES = 1_000_000
@@ -722,14 +722,13 @@ def write_compendium(
     :param properties_files: (OPTIONAL) A list of SQLite3 files containing properties to be added to the output.
     :return:
     """
-    logger.info(
-        f"Starting write_compendium({metadata_yamls}, {len(synonym_list)} slists, {ofname}, {node_type}, {len(labels)} labels, {extra_prefixes}, {icrdf_filename}, {properties_jsonl_gz_files}): {get_memory_usage_summary()}"
-    )
-
     if extra_prefixes is None:
         extra_prefixes = []
     if labels is None:
         labels = {}
+    logger.info(
+        f"Starting write_compendium({metadata_yamls}, {len(synonym_list)} slists, {ofname}, {node_type}, {len(labels)} labels, {extra_prefixes}, {icrdf_filename}, {properties_jsonl_gz_files}): {get_memory_usage_summary()}"
+    )
     config = get_config()
     cdir = config["output_directory"]
     biolink_version = config["biolink_version"]
@@ -793,6 +792,9 @@ def write_compendium(
     count_cliques = 0
     count_eq_ids = 0
     count_synonyms = 0
+
+    # (curie, problem, clique leader) for every malformed CURIE; see raise_on_malformed_curies().
+    malformed_curies = []
 
     # Write compendium and synonym files.
     with (
@@ -882,6 +884,8 @@ def write_compendium(
 
                     identifier_list.append(iid)
                     current_curies.add(iid)
+                    if problem := curie_format_problem(iid):
+                        malformed_curies.append((iid, problem, node["identifiers"][0]["identifier"]))
 
                     if "label" in nid:
                         curie_labels[iid] = nid["label"]
@@ -900,13 +904,13 @@ def write_compendium(
 
                         for prop, label in zip(props, ac_labelled):
                             additional_curie = Text.get_curie(label)
-                            if ":" not in additional_curie:
-                                raise ValueError(
-                                    f"Additional ID '{additional_curie}' for '{iid}' is not a valid CURIE: {prop}, {label} (from {ac_labelled})"
-                                )
                             if additional_curie not in current_curies:
                                 identifier_list.append(additional_curie)
                                 current_curies.add(additional_curie)
+                                if problem := curie_format_problem(additional_curie):
+                                    malformed_curies.append(
+                                        (additional_curie, f"{problem}, additional ID of {iid}", iid)
+                                    )
 
                                 # Track the property sources we used.
                                 property_source_count[prop.source] += 1
@@ -1026,6 +1030,8 @@ def write_compendium(
                     traceback.print_exc()
                     raise ex
 
+    raise_on_malformed_curies(malformed_curies, ofname)
+
     # Log a per-compendium summary of any obsolete labels that were filtered.
     filtered_this_run = synonym_filter.filtered_count - filter_count_snapshot
     if filtered_this_run > 0:
@@ -1049,6 +1055,26 @@ def write_compendium(
 
     # Close all the factories.
     taxon_factory.close()
+
+
+def raise_on_malformed_curies(malformed_curies, ofname):
+    """Raise if write_compendium() wrote any malformed CURIE (see curie_format_problem()) into ``ofname``.
+
+    ``malformed_curies`` is a list of (curie, problem, clique leader) tuples. write_compendium()
+    collects every one before calling this, so a single failed run lists them all. A CURIE can
+    reach a compendium through a concord alone, without ever appearing in an ids file (#1109), so
+    this is checked on what is written rather than on the inputs. Fix the source that produced the
+    CURIE; don't catch this error.
+    """
+    if not malformed_curies:
+        return
+    for curie, problem, leader in malformed_curies:
+        logger.error(f"Malformed CURIE in {ofname}: {curie!r} ({problem}) in clique {leader}")
+    by_prefix = Counter(curie.partition(":")[0] for curie, _, _ in malformed_curies)
+    examples = ", ".join(repr(curie) for curie, _, _ in malformed_curies[:10])
+    raise ValueError(
+        f"{len(malformed_curies):,} malformed CURIE(s) in {ofname} (by prefix: {dict(by_prefix)}), e.g. {examples}"
+    )
 
 
 def glom(conc_set, newgroups, unique_prefixes=["INCHIKEY"], pref="HP", close={}):
