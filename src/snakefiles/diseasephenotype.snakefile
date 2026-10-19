@@ -44,6 +44,20 @@ rule disease_orphanet_ids:
         "awk '{{print $1\"\tbiolink:Disease\"}}' {input.infile} > {output.outfile}"
 
 
+rule disease_gard_ids:
+    # Every GARD term is a rare disease; the ids file is a simple transform of the labels file,
+    # mirroring the DOID/Orphanet ids rules.
+    input:
+        infile=config["download_directory"] + "/GARD/labels",
+    output:
+        outfile=config["intermediate_directory"] + "/disease/ids/GARD",
+    benchmark:
+        config["output_directory"] + "/benchmarks/disease_gard_ids.tsv"
+    shell:
+        #This one is a simple enough transform to do with awk
+        "awk '{{print $1\"\tbiolink:Disease\"}}' {input.infile} > {output.outfile}"
+
+
 rule disease_efo_ids:
     input:
         efo_owl_file_path=config["download_directory"] + "/EFO/efo.owl",
@@ -151,10 +165,12 @@ rule get_disease_obo_relationships:
     output:
         config["intermediate_directory"] + "/disease/concords/MONDO",
         config["intermediate_directory"] + "/disease/concords/MONDO_close",
+        config["intermediate_directory"] + "/disease/concords/MONDO_GARD",
         config["intermediate_directory"] + "/disease/concords/HP",
         config["intermediate_directory"] + "/disease/concords/MP",
         mondo_metadata_yaml=config["intermediate_directory"] + "/disease/concords/metadata-MONDO.yaml",
         mondo_close_metadata_yaml=config["intermediate_directory"] + "/disease/concords/metadata-MONDO_close.yaml",
+        mondo_gard_metadata_yaml=config["intermediate_directory"] + "/disease/concords/metadata-MONDO_GARD.yaml",
         hp_metadata_yaml=config["intermediate_directory"] + "/disease/concords/metadata-HP.yaml",
         mp_metadata_yaml=config["intermediate_directory"] + "/disease/concords/metadata-MP.yaml",
     benchmark:
@@ -166,6 +182,7 @@ rule get_disease_obo_relationships:
             {
                 "MONDO": output.mondo_metadata_yaml,
                 "MONDO_close": output.mondo_close_metadata_yaml,
+                "MONDO_GARD": output.mondo_gard_metadata_yaml,
                 "HP": output.hp_metadata_yaml,
                 "MP": output.mp_metadata_yaml,
             },
@@ -252,6 +269,47 @@ rule disease_manual_concord:
             ],
             url="https://github.com/NCATSTranslator/Babel/blob/main/input_data/manual_concords/disease.txt",
             concord_filename=output.outfile,
+        )
+
+
+rule disease_gard_label_concord:
+    # GARD publishes no cross-references, so the ~277 registry terms MONDO and DOID do not map
+    # would otherwise ship as single-identifier cliques duplicating concepts Babel already names.
+    # This links each of them to an identically labelled identifier -- see
+    # docs/sources/GARD/label-matches/README.md and build_gard_label_concord()'s docstring.
+    input:
+        gard_labels=config["download_directory"] + "/GARD/labels",
+        match_ids=expand(
+            "{dd}/disease/ids/{ap}",
+            dd=config["intermediate_directory"],
+            ap=config["disease_gard_label_match_prefixes"],
+        ),
+        match_labels=expand(
+            "{dd}/{ap}/labels",
+            dd=config["download_directory"],
+            ap=config["disease_gard_label_match_prefixes"],
+        ),
+        # Every OTHER disease concord: a GARD id any of them names is left alone. Derived from the
+        # config list rather than naming MONDO_GARD and DOID, so a source that starts emitting GARD
+        # xrefs is covered without editing this rule.
+        other_concords=expand(
+            "{dd}/disease/concords/{ap}",
+            dd=config["intermediate_directory"],
+            ap=[concord for concord in config["disease_concords"] if concord != "GARD_label"],
+        ),
+    output:
+        outfile=config["intermediate_directory"] + "/disease/concords/GARD_label",
+        metadata_yaml=config["intermediate_directory"] + "/disease/concords/metadata-GARD_label.yaml",
+    benchmark:
+        config["output_directory"] + "/benchmarks/disease_gard_label_concord.tsv"
+    run:
+        diseasephenotype.build_gard_label_concord(
+            input.gard_labels,
+            input.match_ids,
+            input.match_labels,
+            input.other_concords,
+            output.outfile,
+            output.metadata_yaml,
         )
 
 

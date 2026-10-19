@@ -32,9 +32,27 @@ Resolver services.
 
 ## Scratch space: use `data/`
 
-`data/` is a gitignored scratch directory — put ad hoc files there (downloads, build comparisons,
-extracted intermediates), and prefer it over `/tmp` for anything worth keeping across a session.
-Never write scratch files into the repository root, `input_data/`, or `docs/`.
+`data/` is a gitignored scratch directory — put ad hoc files there (one-off downloads, build
+comparisons, extracted intermediates, reports). Prefer it over `/tmp`: it survives across sessions,
+so a later investigation can reuse an earlier one's outputs. Never write scratch files into the
+repository root, `input_data/`, or `docs/`.
+
+- **Work in a descriptively named subdirectory** (`data/clique-diff/`, `data/branch-mp/`), not
+  loose files at the top level — the name is often the only record of what's inside.
+- **When outputs are worth keeping**, put a short untracked `README.md` *inside that
+  subdirectory*: what produced them, from which build or inputs, and what they're good for. Nothing
+  else needs cataloguing. Don't add a top-level `data/README.md`; the only tracked file is the
+  force-added `data/.gitkeep`, which keeps the directory in every checkout.
+- **Everything here is disposable.** Delete a subdirectory once it's clearly no longer needed, and
+  expect the maintainer to clear `data/` whenever disk runs low. Anything that must last — an
+  analysis a parsing decision rests on, a report — belongs in a committed script or doc (see
+  Debugging), not only in `data/`.
+
+`babel_downloads/` and `babel_outputs/` (also gitignored) are cleared less often and are the place
+for pipeline downloads and partial builds. Local runs reuse existing downloads so testing a change
+doesn't re-fetch every source; full runs on the HPC start from scratch to pick up the latest
+upstream files. So don't copy pipeline downloads into `data/` — use `babel_downloads/` — and don't
+assume a local download is current.
 
 ## Key Commands
 
@@ -222,7 +240,14 @@ A release is also the natural cadence for re-checking SLURM sizing against the r
 
 ## Adding a new data source
 
-`docs/AddingNewSources.md` is the full guide: how to wire a source (prefix, data handler, compendium
+**Read [`docs/AddingNewSources.md`](docs/AddingNewSources.md) end to end before writing any code.**
+It is a checklist, not background reading, and the steps that get skipped are the ones that decide
+whether the addition is any good: whether the source's identifiers *join* existing cliques or pile
+up beside them ("Prefer joining an existing clique"), which prefix restrictions the new source makes
+compete (step 3), and what the source-impact report and clique diff have to show before it ships.
+Every one of those is cheaper to get right first than to discover from a finished build.
+
+The guide covers: how to wire a source (prefix, data handler, compendium
 hook, Snakemake rules, `config.yaml`, docs, tests), then generate and read its source-impact report
 — including assembling the intermediate inputs from a `stars.renci.org` snapshot when a full local
 build (~500 GB RAM) is impractical. Two things the report exists to catch: an ids file missing its
@@ -396,3 +421,18 @@ never only in the description. Commit messages are effectively invisible after m
 compress a rationale into "see commit abc1234": if the reasoning matters, and especially if it
 records an alternative that was considered and rejected, put it in a comment or docstring beside the
 code that would have to change to undo it, and let the description point there.
+
+**Add or update BabelTests whenever you file or edit a Babel issue about output data** — a CURIE's
+clique, type, label, or whether it normalizes at all. The
+[babel-validation](https://github.com/TranslatorSRI/babel-validation) harness scans this repo's
+issues for `babel_tests:` YAML blocks (or one-line `BabelTest` markers) and runs them against live
+NodeNorm and NameRes; its README documents the assertion types. Assert the state the fix should
+produce (`DoesNotResolve`, `ResolvesWith`, `HasLabel`, …), plus `Resolves` guards for what the fix
+must not break. An open issue is one strict expected failure, so pytest reports it as FAILED
+`[XPASS(strict)]` once *every* assertion passes. That red result means the issue can be closed, not
+that the block is broken, so don't weaken its assertions to make it go away. A closed issue's
+assertions become regression tests. Check a new block with
+`uv run pytest tests/github_issues --target dev --issue 'NCATSTranslator/Babel#N'` from
+babel-validation, which needs `GITHUB_TOKEN` (`gh auth token` works). Never put a complete marker
+in prose that only explains the syntax: the harness runs it wherever it appears. #1109 and #1111
+are worked examples.

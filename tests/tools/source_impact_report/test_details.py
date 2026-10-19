@@ -175,3 +175,55 @@ def test_no_detail_files_flag_skips_subdirectory(synthetic_intermediate, tmp_pat
     assert _run(synthetic_intermediate, output, extra=("--no-detail-files",)) == 0
     assert output.exists()
     assert not (tmp_path / "impact-report").exists()
+
+
+# --- which detail files the report links -----------------------------------------
+#
+# The report writes six detail files and .gitignore commits only two of them, so a *link* to one of
+# the other four resolves on the machine that generated the report and nowhere else.
+
+
+@pytest.mark.unit
+def test_report_links_only_the_detail_files_the_repo_commits():
+    """A link is emitted for a committed detail file and withheld for a gitignored one.
+
+    tests/test_docs_links.py catches the symptom -- a committed report linking a file no checkout
+    has -- but only once such a report is committed, and only on a machine that has not just
+    generated it locally. This pins the renderer itself, and pins COMMITTED_DETAIL_FILES against
+    .gitignore so the two cannot drift apart silently.
+    """
+    from src.reports.source_impact import COMMITTED_DETAIL_FILES, _detail_link
+    from src.reports.source_impact_details import (
+        MODIFIED_CLIQUES_CSV,
+        NEW_CLIQUES_CSV,
+        NEW_CLIQUES_FULL_CSV,
+        NEW_XREFS_FULL_CSV,
+        NEW_XREFS_SUMMARY_CSV,
+    )
+    from src.util import get_repo_root
+
+    committed = _detail_link("impact-report", NEW_CLIQUES_CSV, "Sample of new cliques")
+    assert f"[`impact-report/{NEW_CLIQUES_CSV}`](impact-report/{NEW_CLIQUES_CSV})" in committed
+
+    for filename in (MODIFIED_CLIQUES_CSV, NEW_CLIQUES_FULL_CSV, NEW_XREFS_FULL_CSV):
+        line = _detail_link("impact-report", filename, "Full list")
+        assert f"`impact-report/{filename}`" in line, f"{filename} should still be named"
+        assert f"]({filename})" not in line and f"](impact-report/{filename})" not in line, (
+            f"{filename} is gitignored; naming it is fine but linking it resolves nowhere"
+        )
+        assert "not committed" in line and "source-impact-report" in line, (
+            "an uncommitted file's bullet must say so and how to regenerate it"
+        )
+
+    assert _detail_link(None, NEW_CLIQUES_CSV, "Sample") is None, "no bullet when no details dir"
+
+    # The set the renderer links must be exactly the set .gitignore does not exclude.
+    gitignored = {
+        line.strip().rsplit("/", 1)[-1]
+        for line in (get_repo_root() / ".gitignore").read_text().splitlines()
+        if line.strip().startswith("docs/sources/*/impact-report/")
+    }
+    assert COMMITTED_DETAIL_FILES == {NEW_CLIQUES_CSV, NEW_XREFS_SUMMARY_CSV}
+    assert not (COMMITTED_DETAIL_FILES & gitignored), (
+        f"COMMITTED_DETAIL_FILES names a file .gitignore excludes: {sorted(COMMITTED_DETAIL_FILES & gitignored)}"
+    )

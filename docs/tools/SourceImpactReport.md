@@ -8,6 +8,30 @@ diffing the two clique states.
 uv run source-impact-report --source EMAPA
 ```
 
+## Naming a source's concords
+
+The tool finds a source's contributions at `intermediate/<pipeline>/ids/<source>` and
+`intermediate/<pipeline>/concords/<source>`. A source whose concord is named after it needs nothing
+more; one that writes a concord under another name has to say so, repeatably:
+
+```bash
+uv run source-impact-report --source GARD --concord GARD --concord GARD_label
+```
+
+Without it, `GARD_label`'s rows are counted as another source's data: section 3 reports **zero**
+cross-references added and the join-pathway table marks the rows `from_other_source`. Naming them
+is deliberately a CLI choice rather than a naming rule, because no rule separates the two cases —
+`GARD_label` is GARD's own label-match concord, while `MONDO_GARD` is MONDO's data *about* GARD and
+belongs to MONDO, and both contain "GARD". The report header records the concords it counted
+(`- Source concords: GARD_label`), so a regeneration that forgets the flag is visible in the diff
+rather than silent.
+
+The *before* state does not need the flag: `compute_cliques_for_impact_report()` excludes a concord
+when any `_`-separated part of its basename names an excluded source, so `GARD_label` and
+`MONDO_GARD` are both correctly held out of the baseline for `--source GARD`.
+
+## Output files
+
 Writes `docs/sources/<SOURCE>/impact-report.md` plus an `impact-report/` subdirectory holding six
 detail files: two reductions that are **committed**, and the four full tables they reduce, which are
 gitignored. The unqualified filename is always the full table; the qualified one is the reduction.

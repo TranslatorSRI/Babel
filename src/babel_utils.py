@@ -281,17 +281,33 @@ def raise_if_cloudflare_challenge(download_url: str, local_file_name: str, error
     Retrying or changing the User-Agent won't help: this is served identically to a real
     browser. Raise immediately with instructions for a human to download the file manually.
 
+    A challenge page also has to load Cloudflare's widget, so it carries a Content-Security-Policy
+    naming `challenges.cloudflare.com`. That is checked as a fallback: it is a property of how the
+    page works rather than a label Cloudflare chose, so it still identifies a challenge if
+    `cf-mitigated` is ever renamed. A plain 403 (a wrong URL, an IP block) carries neither signal
+    and keeps the caller's normal retry.
+
     Only an HTTPError carries response headers; a plain URLError (DNS failure, connection
     refused) has no `.headers` at all, so we getattr() rather than narrowing the caller's
     except clause to HTTPError and duplicating its retry body.
     """
     headers = getattr(error, "headers", None)
-    if headers is not None and headers.get("cf-mitigated") == "challenge":
-        raise RuntimeError(
-            f"{download_url} is behind a Cloudflare bot challenge (cf-mitigated: challenge) and cannot be "
-            "downloaded automatically. Please download the file manually in a browser and place it at "
-            f"{local_file_name}, then re-run this rule."
-        )
+    if headers is None:
+        return
+
+    if headers.get("cf-mitigated") == "challenge":
+        signal = "cf-mitigated: challenge"
+    elif "challenges.cloudflare.com" in (headers.get("content-security-policy") or ""):
+        signal = "a content-security-policy allowing challenges.cloudflare.com"
+    else:
+        return
+
+    raise RuntimeError(
+        f"{download_url} is behind a Cloudflare bot challenge ({signal}) and cannot be downloaded "
+        "automatically: the challenge is served to real browsers too, so neither retrying nor changing "
+        "the User-Agent will get past it. Please download the file manually in a browser and place it at "
+        f"{local_file_name}, then re-run this rule -- an already-present file is used as-is."
+    )
 
 
 def pull_via_urllib(url: str, in_file_name: str, decompress=True, subpath=None, verify_gzip=False):
@@ -695,7 +711,13 @@ def write_compendium(
         never win the preferred-CURIE contest -- which also means such an identifier will not
         normalize on its own, and is visible only in the clique's equivalent identifiers. That is the
         intended shape for shipping a prefix ahead of the Biolink Model (see
-        `config.yaml: disease_extra_prefixes`), and the reason it is safe to do so.
+        `config.yaml: disease_extra_prefixes_by_biolink_class`), and the reason it is safe to do so.
+
+        It is a **per-class** allowlist. A caller that loops over several node types must scope the
+        list to the class it was reasoned about, or an exemption earned on one class's grounds is
+        silently granted to all of them -- e.g. passing a disease-derived list unscoped also lets
+        those prefixes into `PhenotypicFeature.txt`. See `diseasephenotype.build_compendium`, which
+        applies its list to `DISEASE` only.
     :param icrdf_filename: (REQUIRED) The file to read the information content from (icRDF.tsv). Although this is a
         named parameter to make it easier to specify this when calling write_compendium(), it is REQUIRED, and
         write_compendium() will throw a RuntimeError if it is not specified. This is to ensure that it has been

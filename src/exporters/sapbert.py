@@ -20,14 +20,93 @@ from src.util import LoggingUtil, ensure_parent_dir
 logger = LoggingUtil.init_logging(__name__, level=logging.INFO)
 
 # Configuration options
-# Should we generate a DrugChemicalSmaller.txt.gz file at all?
-GENERATE_DRUG_CHEMICAL_SMALLER_FILE = False
-# Limit DrugChemicalSmaller.txt.gz to terms that have a preferred name of 50 characters or more.
-DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH = 40
 # Include up to 50 synonym pairs for each synonym.
 MAX_SYNONYM_PAIRS = 50
+# When sampling those pairs out of a large clique (see sample_name_pairs()), how many random draws
+# are we willing to make per pair we want? Draws that repeat an earlier draw or land on a pair
+# already written out don't count towards MAX_SYNONYM_PAIRS, so without a budget a clique whose
+# pairs have nearly all been written out already would keep drawing to no purpose. Eight is enough
+# that reaching the budget means the clique has very few usable pairs left, not that we were unlucky.
+SYNONYM_PAIR_DRAWS_PER_PAIR = 8
 # Should we lowercase all the names?
 LOWERCASE_ALL_NAMES = True
+# There was once a GENERATE_DRUG_CHEMICAL_SMALLER_FILE option here, which wrote a second, smaller
+# DrugChemicalConflatedSmaller.txt alongside the full training file by keeping only the shortest
+# labels; it was disabled before it was ever used, because both files drew from the one seen_pairs
+# set (see convert_synonyms_to_sapbert()) and so the smaller file lost every pair the full file had
+# already claimed. Removed in https://github.com/NCATSTranslator/Babel/pull/1084 (issue #1057);
+# reviving it means giving each output file its own seen_pairs.
+
+
+def pair_key(biolink_type, name_pair):
+    """
+    Return a 64-bit digest identifying a (Biolink type, name, name) triple, independent of the
+    order of the two names.
+
+    We remember digests rather than the names themselves because the set of pairs already written
+    grows with the size of the output: GeneProteinConflated has hundreds of millions of cliques, so
+    holding on to the name strings would need hundreds of gigabytes, while the digests need roughly
+    a fifth of that. At 64 bits, the chance of even a single collision across a billion pairs is
+    around 3%, and a collision costs us one correct training row.
+
+    :param biolink_type: The Biolink type the pair was generated for (without the `biolink:` prefix).
+    :param name_pair: The two names making up this synonym pair.
+    :return: A hash of the type and the two names, in a canonical order.
+    """
+    return hash((biolink_type, *sorted(name_pair)))
+
+
+def sample_name_pairs(names, max_pairs, biolink_type, seen_pairs):
+    """
+    Return up to max_pairs distinct pairs of names that have not already been written out, without
+    building the full list of pairs unless it is small.
+
+    A clique with n names has n*(n-1)/2 pairs, of which we keep at most max_pairs, so enumerating
+    them all is wasted work that grows quadratically with the size of the clique: today's largest
+    disease clique has 179 names, but nothing stops a conflated gene/protein clique from having
+    thousands. Above a few times max_pairs we therefore draw random pairs directly and reject
+    repeats, which needs a number of draws proportional to max_pairs rather than to n.
+
+    Since a drawn pair may turn out to have been written out already, drawing continues past the
+    rejected pairs until max_pairs of them survive or we run out of the draw budget (see
+    SYNONYM_PAIR_DRAWS_PER_PAIR) -- otherwise a clique overlapping heavily with an earlier one would
+    contribute fewer rows than a clique of the same size that happened to come first.
+
+    :param names: The distinct names to pair up, in a stable order.
+    :param max_pairs: The largest number of pairs to return.
+    :param biolink_type: The Biolink type this clique is being written out as.
+    :param seen_pairs: Digests (see pair_key()) of the pairs already written out, which are skipped.
+    :return: A list of up to max_pairs (name, name) tuples, each pair appearing at most once.
+    """
+    count_names = len(names)
+    total_pairs = count_names * (count_names - 1) // 2
+
+    # Rejection sampling only pays off when repeat draws are rare, and it slows to a crawl as the
+    # number of pairs we want approaches the number that exist. Below that point, enumerate them
+    # instead: the list is at most a few times max_pairs long, so it is cheap either way.
+    if total_pairs <= 4 * max_pairs:
+        name_pairs = [
+            name_pair
+            for name_pair in itertools.combinations(names, 2)
+            if pair_key(biolink_type, name_pair) not in seen_pairs
+        ]
+        if len(name_pairs) > max_pairs:
+            name_pairs = random.sample(name_pairs, max_pairs)
+        return name_pairs
+
+    drawn_indices = set()
+    name_pairs = []
+    for _ in range(SYNONYM_PAIR_DRAWS_PER_PAIR * max_pairs):
+        if len(name_pairs) >= max_pairs:
+            break
+        index_pair = tuple(sorted(random.sample(range(count_names), 2)))
+        if index_pair in drawn_indices:
+            continue
+        drawn_indices.add(index_pair)
+        name_pair = (names[index_pair[0]], names[index_pair[1]])
+        if pair_key(biolink_type, name_pair) not in seen_pairs:
+            name_pairs.append(name_pair)
+    return name_pairs
 
 
 def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
@@ -42,26 +121,17 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
 
     logger.info(f"convert_synonyms_to_sapbert({synonym_filename_gz}, {sapbert_filename_gzipped})")
 
-    # For now, the simplest way to identify the DrugChemicalConflated file is by name.
-    # In this case we still generate DrugChemicalConflated.txt, but we also generate
-    # DrugChemicalConflatedSmaller.txt, which ignores cliques whose preferred label is
-    # longer than config['demote_labels_longer_than'].
-    generate_smaller_filename = None
-    if GENERATE_DRUG_CHEMICAL_SMALLER_FILE and synonym_filename_gz.endswith("/DrugChemicalConflated.txt.gz"):
-        generate_smaller_filename = sapbert_filename_gzipped.replace(".txt.gz", "Smaller.txt.gz")
-
     # Make the output directories if they don't exist.
     ensure_parent_dir(sapbert_filename_gzipped)
-
-    # Open SmallerFile for writing if needed.
-    generate_smaller_file = None
-    if generate_smaller_filename:
-        generate_smaller_file = gzip.open(generate_smaller_filename, "wt", encoding="utf-8")
 
     # Go through all the synonyms in the input file.
     count_entry = 0
     count_training_rows = 0
-    count_smaller_rows = 0
+    # Digests (see pair_key()) of the synonym pairs already written out, so that we only write each
+    # (Biolink type, name, name) triple once across the entire file. Global to this one output file
+    # by design: sharing it with a second output starves that output (see the note on the removed
+    # GENERATE_DRUG_CHEMICAL_SMALLER_FILE option at the top of this file).
+    seen_pairs = set()
     with (
         gzip.open(synonym_filename_gz, "rt", encoding="utf-8") as synonymf,
         gzip.open(sapbert_filename_gzipped, "wt", encoding="utf-8") as sapbertf,
@@ -77,13 +147,11 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
                 logging.warning(f"Unable to convert synonym entry for curie {curie}, skipping: {entry}")
                 continue
 
-            # Is the preferred name small enough that we should ignore it from generate_smaller_file?
-            is_preferred_name_short = len(preferred_name) <= DRUG_CHEMICAL_SMALLER_MAX_LABEL_LENGTH
-            # if not is_preferred_name_short:
-            #    logging.warning(f"CURIE {curie} (preferred name: {preferred_name}) will be excluded from the Smaller training file.")
-
             # Collect and process the list of names.
-            names = entry["names"]
+            names = entry.get("names", [])
+            # Strip whitespace and drop empty strings if any
+            names = [name.strip() for name in names if name.strip()]
+
             if LOWERCASE_ALL_NAMES:
                 names = [name.lower() for name in names]
 
@@ -91,6 +159,10 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
             # should be changed to a single pipe character in the SAPBERT output, so we don't
             # confuse it up with our delimiter.
             names = [re.sub(r"\|\|+", "|", name) for name in names]
+
+            # The preferred name is written out as its own column, so it needs the same pipe cleanup
+            # as the names, or a label containing '||' would split into extra columns.
+            preferred_name = re.sub(r"\|\|+", "|", preferred_name)
 
             # Figure out the Biolink type to report.
             types = entry["types"]
@@ -101,49 +173,30 @@ def convert_synonyms_to_sapbert(synonym_filename_gz, sapbert_filename_gzipped):
 
             # How many names do we have?
             if len(names) == 0:
-                # This shouldn't happen, but let's anticipate this anyway.
-                line = f"biolink:{biolink_type}||{curie}||{preferred_name}||{preferred_name.lower()}||{preferred_name.lower()}\n"
-                sapbertf.write(line)
-                count_training_rows += 1
-                if generate_smaller_file and is_preferred_name_short:
-                    generate_smaller_file.write(line)
-                    count_smaller_rows += 1
+                # Not useful for training, so let's skip it.
+                continue
             elif len(names) == 1:
                 # If we have less than two names, we don't have anything to randomize.
-                line = f"biolink:{biolink_type}||{curie}||{preferred_name}||{preferred_name.lower()}||{names[0]}\n"
+                # Normalize the preferred name the same way the names were normalized above, so the
+                # identity check compares like with like whatever LOWERCASE_ALL_NAMES is set to.
+                preferred_name_normalized = preferred_name.lower() if LOWERCASE_ALL_NAMES else preferred_name
+                if preferred_name_normalized == names[0]:
+                    # no need to write the synonym pair if they are identical
+                    continue
+                name_pair = (preferred_name_normalized, names[0])
+                # Skip the pair if we have already written it out for this Biolink type.
+                name_pairs = [] if pair_key(biolink_type, name_pair) in seen_pairs else [name_pair]
+            else:
+                # sample_name_pairs() applies the same already-written check as it draws.
+                name_pairs = sample_name_pairs(sorted(set(names)), MAX_SYNONYM_PAIRS, biolink_type, seen_pairs)
+
+            for name_pair in name_pairs:
+                seen_pairs.add(pair_key(biolink_type, name_pair))
+                line = f"biolink:{biolink_type}||{curie}||{preferred_name}||{name_pair[0]}||{name_pair[1]}\n"
                 sapbertf.write(line)
                 count_training_rows += 1
-                if generate_smaller_file and is_preferred_name_short:
-                    generate_smaller_file.write(line)
-                    count_smaller_rows += 1
-            else:
-                name_pairs = list(itertools.combinations(set(names), 2))
-
-                if len(name_pairs) > MAX_SYNONYM_PAIRS:
-                    # Randomly select 50 pairs.
-                    name_pairs = random.sample(name_pairs, MAX_SYNONYM_PAIRS)
-
-                for name_pair in name_pairs:
-                    line = f"biolink:{biolink_type}||{curie}||{preferred_name}||{name_pair[0]}||{name_pair[1]}\n"
-                    sapbertf.write(line)
-                    count_training_rows += 1
-
-                    # As long as the preferred name is shorter than the right size, we should add this clique to the
-                    # smaller file as well.
-                    if generate_smaller_file and is_preferred_name_short:
-                        generate_smaller_file.write(line)
-                        count_smaller_rows += 1
 
     logger.info(
-        f"Converted {synonym_filename_gz} to SAPBERT training file {synonym_filename_gz}: "
+        f"Converted {synonym_filename_gz} to SAPBERT training file {sapbert_filename_gzipped}: "
         + f"read {count_entry} entries and wrote out {count_training_rows} training rows."
     )
-
-    # Close SmallerFile if needed.
-    if generate_smaller_file:
-        generate_smaller_file.close()
-        percentage = count_smaller_rows / float(count_training_rows) * 100
-        logger.info(
-            f"Converted {synonym_filename_gz} to smaller SAPBERT training file {generate_smaller_filename}: "
-            + f"read {count_entry} entries and wrote out {count_smaller_rows} training rows ({percentage:.2f}%)."
-        )

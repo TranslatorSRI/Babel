@@ -1,0 +1,8 @@
+pipeline,preferred_id,preferred_label,biolink_type,member_count,equivalent_ids,preferred_id_would_survive,needs_biolink_registration,unsupported_prefixes
+disease,GARD:15005,Pacak-Zhung syndrome,biolink:Disease,1,GARD:15005,false,true,GARD
+disease,GARD:15006,STAT5 Haploinsufficiency,biolink:Disease,1,GARD:15006,false,true,GARD
+disease,GARD:15009,"Monocytosis/myelocytosis, Autoimmunity, Gain of function, Immunodeficiency, Short stature",biolink:Disease,1,GARD:15009,false,true,GARD
+disease,GARD:15863,Usher syndrome type 1J,biolink:Disease,1,GARD:15863,false,true,GARD
+disease,GARD:24658,"Heart, malformation of",biolink:Disease,1,GARD:24658,false,true,GARD
+disease,GARD:27070,TUBB2A-related tubulinopathy,biolink:Disease,1,GARD:27070,false,true,GARD
+disease,GARD:28300,"Camurati-Engelmann disease, type 2",biolink:Disease,1,GARD:28300,false,true,GARD

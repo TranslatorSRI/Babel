@@ -307,7 +307,7 @@ def build_wikidata_cell_relationships(outdir, metadata_yaml):
           ?wd wdtn:P7963 ?cl .
           ?wd wdt:P2892 ?umls .
         }"""
-    frink_wikidata_url = "https://frink.apps.renci.org/federation/sparql"
+    frink_wikidata_url = "https://apps.okn.us/federation/sparql"
     response = requests.post(frink_wikidata_url, data={"query": sparql})
     if not response.ok:
         raise RuntimeError(f"Could not query {frink_wikidata_url}: {response.status_code} {response.reason}")

@@ -9,7 +9,12 @@ from src.util import ensure_parent_dir
 
 
 def write_download_metadata(filename, *, name, url="", description="", sources=None, counts=None):
-    write_metadata(filename, "download", name, url=url, description=description, sources=sources, counts=None)
+    """Record where a download came from, when, and what arrived.
+
+    ``counts`` used to be accepted and then hardcoded to None on the way through, so a caller that
+    passed counts got them silently dropped. It is forwarded now.
+    """
+    write_metadata(filename, "download", name, url=url, description=description, sources=sources, counts=counts)
 
 
 def write_concord_metadata(filename, *, name, concord_filename, url="", description="", sources=None, counts=None):

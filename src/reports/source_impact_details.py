@@ -36,7 +36,7 @@ from __future__ import annotations
 import csv
 import json
 import pathlib
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable
 from dataclasses import dataclass
 
 from src.model.glom_diff import SourceImpactDiff
@@ -350,7 +350,7 @@ def write_modified_cliques_json(
 def write_new_xrefs_csv(
     path: pathlib.Path,
     xref_rows_by_pipeline: dict[str, list[tuple[str, str, str, str]]],
-    source_name: str,
+    own_concords: Collection[str],
     lookup: LookupContext,
 ) -> int:
     """Write one row per concord row touching a source CURIE, across all concord files.
@@ -362,7 +362,8 @@ def write_new_xrefs_csv(
 
     ``status`` reflects *which* concord file asserts the row, not before/after novelty
     (this writer does not diff the pre-source glom state, so it cannot tell whether the
-    row newly becomes a clique edge): ``added`` means the new source's own concord file
+    row newly becomes a clique edge): ``added`` means one of *own_concords* -- the files
+    ``discover_source`` was told belong to this source --
     asserts it (a brand-new bridge), and ``from_other_source`` means another source's
     concord file asserts a row that happens to touch a source CURIE — such a row may have
     already existed before this source was added. Returns the number of rows written.
@@ -380,7 +381,7 @@ def write_new_xrefs_csv(
     rows: list[list] = []
     for st in sorted(xref_rows_by_pipeline):
         for subject, predicate, obj, asserted_by in xref_rows_by_pipeline[st]:
-            status = "added" if asserted_by == source_name else "from_other_source"
+            status = "added" if asserted_by in own_concords else "from_other_source"
             rows.append(
                 [
                     st,
@@ -473,6 +474,6 @@ def write_detail_files(
         MODIFIED_CLIQUES_JSON: write_modified_cliques_json(details_dir / MODIFIED_CLIQUES_JSON, diffs, lookup),
         NEW_XREFS_SUMMARY_CSV: write_new_xrefs_summary_csv(details_dir / NEW_XREFS_SUMMARY_CSV, xref_groups, lookup),
         NEW_XREFS_FULL_CSV: write_new_xrefs_csv(
-            details_dir / NEW_XREFS_FULL_CSV, xref_rows_by_pipeline, contribution.name, lookup
+            details_dir / NEW_XREFS_FULL_CSV, xref_rows_by_pipeline, contribution.concord_names, lookup
         ),
     }

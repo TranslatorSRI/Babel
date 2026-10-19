@@ -27,6 +27,15 @@ see [`README.md`](README.md) — this file only covers how to write one once you
   real row is too long to paste, that is a reason to add a `pipeline` test over the real file, not
   a reason to invent a shorter one.
 
+- **Collecting a repeated literal into a constant can make an assertion tautological** — and the
+  test still passes, so nothing tells you. `test_gard.py` had a distribution URL and the
+  ContentVersion id inside it written out separately in two places; extracting both and building the
+  URL from the id turned `content_version_id(_DISTRIBUTION_URL) == _CONTENT_VERSION_ID` into a
+  statement true for any string. The duplication had been carrying a realism check nobody had named.
+  After any such extraction, **break each new constant in turn and confirm a test fails**; if none
+  does, the constant needs tying to something independent (there, a fixture copied verbatim from the
+  live page). The probe is three lines of shell and takes seconds.
+
 - **Pin known-imperfect behavior, don't leave it unasserted** — when shipping a partial fix, assert
   the wrong-but-harmless behavior that remains, with a comment saying it pins current behavior, a
   link to the tracking issue, and an instruction to **invert** the assertion when the fix lands

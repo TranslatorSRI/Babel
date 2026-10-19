@@ -87,7 +87,8 @@ change the source could introduce before that filtering is applied.
 - Sample of new cliques (top 100, unsurvivable and largest first):
   [`impact-report/new-cliques-top-100.csv`](impact-report/new-cliques-top-100.csv)
 - Full list of modified cliques (one row per added/preexisting MP identifier):
-  [`impact-report/modified-cliques.csv`](impact-report/modified-cliques.csv)
+  `impact-report/modified-cliques.csv` -- not committed (see `.gitignore`); regenerate it with
+  `uv run source-impact-report`
 - Cross-reference summary (join pathways with counts and example rows):
   [`impact-report/new-xrefs-summary.csv`](impact-report/new-xrefs-summary.csv)
 

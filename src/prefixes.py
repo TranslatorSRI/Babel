@@ -39,6 +39,7 @@ MONDO = "MONDO"
 DOID = "DOID"
 OIO = "OIO"
 ORPHANET = "orphanet"
+GARD = "GARD"  # NCATS Genetic and Rare Diseases rare-disease registry from https://rarediseases.info.nih.gov/
 HP = "HP"
 EMAPA = "EMAPA"
 MP = "MP"

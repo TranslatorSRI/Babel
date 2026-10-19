@@ -1,0 +1,72 @@
+{
+  "graphs": [
+    {
+      "nodes": [
+        {
+          "id": "http://purl.obolibrary.org/obo/DOID_0050012",
+          "lbl": "chikungunya",
+          "type": "CLASS",
+          "meta": {
+            "definition": {
+              "val": "A viral infectious disease that results_in infection located_in joint, has_material_basis_in Chikungunya virus (Alphavirus chikungunya), which is transmitted_by Aedes mosquito bite. The infection has_symptom fever, has_symptom arthralgia, and has_symptom maculopapular rash.",
+              "xrefs": [
+                "url:http://en.wikipedia.org/wiki/Chikungunya_virus",
+                "url:https://www.cdc.gov/chikungunya/about/"
+              ]
+            },
+            "subsets": [
+              "http://purl.obolibrary.org/obo/doid#DO_infectious_disease_slim",
+              "http://purl.obolibrary.org/obo/doid#DO_rare_slim",
+              "http://purl.obolibrary.org/obo/doid#zoonotic_infectious_disease"
+            ],
+            "synonyms": [
+              {
+                "pred": "hasExactSynonym",
+                "val": "Chikungunya fever"
+              }
+            ],
+            "xrefs": [
+              {
+                "val": "GARD:6038"
+              }
+            ],
+            "basicPropertyValues": [
+              {
+                "pred": "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace",
+                "val": "disease_ontology"
+              }
+            ]
+          }
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/DOID_0080774",
+          "lbl": "thalassemia minor",
+          "type": "CLASS",
+          "meta": {
+            "definition": {
+              "val": "A beta thalassemia that has_material_basis_in one HBB gene mutation without typical thalassemia symptoms, but may have some symptoms of anemia.",
+              "xrefs": [
+                "url:https://ghr.nlm.nih.gov/condition/beta-thalassemia#inheritance"
+              ]
+            },
+            "xrefs": [
+              {
+                "val": "GARD:0025885"
+              }
+            ],
+            "basicPropertyValues": [
+              {
+                "pred": "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace",
+                "val": "disease_ontology"
+              },
+              {
+                "pred": "http://www.w3.org/2004/02/skos/core#exactMatch",
+                "val": "GARD:0025885"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

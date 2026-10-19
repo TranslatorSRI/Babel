@@ -96,6 +96,11 @@ depends on the local id (OMIM's `PS` phenotypic series) cannot be expressed in Y
 namespace outright. They are not interchangeable, and picking by "which shrinks the cliques more"
 gets it wrong:
 
+(It counts **rows**, not distinct subjects. A concord written by walking two roots -- both MONDO
+concords -- repeats every pair under both, and an overuse filter would read the repeat as a second
+claimant. Deduplicate on write, as `MONDO_GARD` does, before putting such a file in
+`OVERUSE_FILTERED_CONCORDS`.)
+
 - Overuse is a **statistical proxy** — right when a namespace is usually fine but occasionally
   promiscuous. Its blast radius shifts with every upstream release, and it discards a correct
   mapping whenever a too-narrow sibling shares the target.
