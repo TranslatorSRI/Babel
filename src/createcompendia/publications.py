@@ -215,58 +215,69 @@ def parse_pubmed_into_tsvs(
                 file_pubstatuses = set()
 
                 # Read every XML entry from every PubMed file.
-                parser = ET.XMLPullParser(["end"])
-                for line in pubmedf:
-                    parser.feed(line)
-                    for event, elem in parser.read_events():
-                        if event == "end" and elem.tag == "PubmedArticle":
-                            count_articles += 1
+                #
+                # iterparse pulls the stream in blocks itself. The previous version fed an
+                # XMLPullParser one line at a time, which cost a parser call per line of a
+                # ~30 MB file, and never released a parsed article -- every PubmedArticle
+                # stayed reachable from the root for the whole file. The `start` event exists
+                # only to capture that root so the loop can drop articles as it finishes them.
+                context = ET.iterparse(pubmedf, events=("start", "end"))
+                _, root = next(context)
+                for event, elem in context:
+                    if event == "end" and elem.tag == "PubmedArticle":
+                        count_articles += 1
 
-                            # Look for the pieces of information we want.
-                            pmids = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pubmed']")
-                            dois = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='doi']")
-                            pmcs = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pmc']")
-                            titles = elem.findall(".//ArticleTitle")
+                        # Look for the pieces of information we want.
+                        pmids = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pubmed']")
+                        dois = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='doi']")
+                        pmcs = elem.findall("./PubmedData/ArticleIdList/ArticleId[@IdType='pmc']")
+                        titles = elem.findall(".//ArticleTitle")
 
-                            # Retrieve the PubDates containing PubStatuses.
-                            pubdates_with_pubstatus = elem.findall("./PubmedData/History/PubMedPubDate[@PubStatus]")
-                            pubstatuses = set()
-                            for pubdate in pubdates_with_pubstatus:
-                                # We ignore the dates, and instead record all the PubStatuses that a PMID has ever had.
-                                if pubdate.get("PubStatus"):
-                                    pubstatuses.add(pubdate.get("PubStatus"))
+                        # Retrieve the PubDates containing PubStatuses.
+                        pubdates_with_pubstatus = elem.findall("./PubmedData/History/PubMedPubDate[@PubStatus]")
+                        pubstatuses = set()
+                        for pubdate in pubdates_with_pubstatus:
+                            # We ignore the dates, and instead record all the PubStatuses that a PMID has ever had.
+                            if pubdate.get("PubStatus"):
+                                pubstatuses.add(pubdate.get("PubStatus"))
 
-                            # Write information for each PMID.
-                            for pmid in pmids:
-                                count_pmids += 1
+                        # Write information for each PMID.
+                        for pmid in pmids:
+                            count_pmids += 1
 
-                                # Write out PMID type.
-                                pmidf.write(f"{PMID}:{pmid.text}\t{JOURNAL_ARTICLE}\n")
+                            # Write out PMID type.
+                            pmidf.write(f"{PMID}:{pmid.text}\t{JOURNAL_ARTICLE}\n")
 
-                                # Update PMID status.
-                                pmid_status[f"{PMID}:" + pmid.text].update(pubstatuses)
-                                file_pubstatuses.update(pubstatuses)
+                            # Update PMID status.
+                            pmid_status[f"{PMID}:" + pmid.text].update(pubstatuses)
+                            file_pubstatuses.update(pubstatuses)
 
-                                # Write out the titles.
-                                for title in titles:
-                                    count_titles += 1
-                                    # Convert newlines into '\n'.
-                                    title_text = title.text
-                                    if not title_text:
-                                        continue
-                                    title_text = title_text.replace("\n", "\\n")
+                            # Write out the titles.
+                            for title in titles:
+                                count_titles += 1
+                                # Convert newlines into '\n'.
+                                title_text = title.text
+                                if not title_text:
+                                    continue
+                                title_text = title_text.replace("\n", "\\n")
 
-                                    titlesf.write(f"{PMID}:{pmid.text}\t{title_text}\n")
+                                titlesf.write(f"{PMID}:{pmid.text}\t{title_text}\n")
 
-                                # Write out the DOIs to the concords file.
-                                for doi in dois:
-                                    count_dois += 1
-                                    concordf.write(f"{PMID}:{pmid.text}\teq\t{DOI}:{doi.text}\n")
+                            # Write out the DOIs to the concords file.
+                            for doi in dois:
+                                count_dois += 1
+                                concordf.write(f"{PMID}:{pmid.text}\teq\t{DOI}:{doi.text}\n")
 
-                                # Write out the PMCIDs to the concords file.
-                                for pmc in pmcs:
-                                    count_pmcs += 1
-                                    concordf.write(f"{PMID}:{pmid.text}\teq\t{PMC}:{pmc.text}\n")
+                            # Write out the PMCIDs to the concords file.
+                            for pmc in pmcs:
+                                count_pmcs += 1
+                                concordf.write(f"{PMID}:{pmid.text}\teq\t{PMC}:{pmc.text}\n")
+
+                        # Done with this article: drop it from the root so the parsed tree
+                        # does not grow to hold the whole file. PubmedArticle is a direct
+                        # child of PubmedArticleSet, so clearing the root releases every
+                        # article finished so far.
+                        root.clear()
 
                 time_taken_in_seconds = float(time.time_ns() - start_time) / 1_000_000_000
                 logger.info(
