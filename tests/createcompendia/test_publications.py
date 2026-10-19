@@ -175,6 +175,44 @@ def test_record_without_identifiers_raises_naming_the_shard(tmp_path):
         parse_into(tmp_path, export)
 
 
+def _flip_crc(path):
+    """Corrupt the CRC32 in a gzip file's trailer, as a damaged download would fail it."""
+    data = bytearray(path.read_bytes())
+    data[-8] ^= 0xFF
+    path.write_bytes(bytes(data))
+
+
+def _truncate(path):
+    """Cut the end off a gzip file, as an interrupted download would."""
+    path.write_bytes(path.read_bytes()[:-20])
+
+
+def _write_lines(lines):
+    def write(path):
+        with gzip.open(path, "wt") as f:
+            f.writelines(line + "\n" for line in lines)
+
+    return write
+
+
+@pytest.mark.parametrize(
+    "damage",
+    [
+        pytest.param(_flip_crc, id="crc-mismatch"),
+        pytest.param(_truncate, id="truncated-gzip"),
+        pytest.param(_write_lines(["not json"]), id="unparseable-line"),
+        pytest.param(_write_lines(['{"id": "PMID:1", "identifiers": ["PMID:1"]}']), id="missing-field"),
+    ],
+)
+def test_damaged_shard_raises_naming_the_shard(tmp_path, damage):
+    """A shard that fails its gzip CRC, is cut short, or holds a record that won't parse should raise a
+    RuntimeError naming the shard and saying to re-download it, rather than a bare low-level error."""
+    export = copy_fixture(tmp_path)
+    damage(export / "pubmed_metadata_0.ndjson.gz")
+    with pytest.raises(RuntimeError, match=r"pubmed_metadata_0\.ndjson\.gz is corrupt or truncated.*re-run download"):
+        parse_into(tmp_path, export)
+
+
 # VALIDATION REPORT
 
 

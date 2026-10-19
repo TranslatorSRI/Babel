@@ -24,6 +24,7 @@ import json
 import os
 import shutil
 import tempfile
+import zlib
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
@@ -133,17 +134,33 @@ def _read_shard(shard_path):
     This is the only place that knows the export's record format. ``identifiers`` always starts with the
     record's own PMID, so ``identifiers[1:]`` is its DOI and PMCID CURIEs (sorted and de-duplicated by
     pubmed2db). ``title`` is ``article_title`` exactly as exported, and is ``""`` when the record has none.
+
+    A damaged shard raises a RuntimeError naming it. pubmed2db publishes no checksums, but a shard doesn't need
+    one to be checked: gzip verifies its CRC32 at the end of the file, so a corrupted download fails on that if
+    it hasn't already produced unparseable JSON, and a truncated one fails on the record count in the
+    validation report (see ``parse_pubmed2db_into_tsvs()``) if it ends on a line boundary.
     """
-    with gzip.open(shard_path, "rt") as f:
-        for line in f:
-            record = json.loads(line)
-            pmid = record["id"]
-            identifiers = record["identifiers"]
-            if not identifiers or identifiers[0] != pmid:
-                raise ValueError(
-                    f"{shard_path}: record {pmid} has identifiers {identifiers} not starting with its PMID."
-                )
-            yield pmid, record["article_title"], identifiers[1:]
+    count_records = 0
+    try:
+        with gzip.open(shard_path, "rt") as f:
+            for line in f:
+                record = json.loads(line)
+                pmid = record["id"]
+                identifiers = record["identifiers"]
+                title = record["article_title"]
+                if not identifiers or identifiers[0] != pmid:
+                    raise ValueError(
+                        f"{shard_path}: record {pmid} has identifiers {identifiers} not starting with its PMID."
+                    )
+                count_records += 1
+                yield pmid, title, identifiers[1:]
+    # OSError covers gzip.BadGzipFile (a failed CRC), EOFError a truncated gzip stream, and the rest a record
+    # mangled into something that still decompresses.
+    except (OSError, EOFError, zlib.error, UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError) as e:
+        raise RuntimeError(
+            f"{shard_path} is corrupt or truncated: reading it failed after {count_records:,} records "
+            f"({type(e).__name__}: {e}). Delete it and re-run download_pubmed2db."
+        ) from e
 
 
 def escape_tsv_field(value):
