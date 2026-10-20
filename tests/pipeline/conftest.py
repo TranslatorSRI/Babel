@@ -186,6 +186,19 @@ def regenerate(request):
     return request.config.getoption("--regenerate")
 
 
+@pytest.fixture(scope="session")
+def build_dir(request):
+    """The finished build directory a test should read: ``--build-dir``, else config.yaml's ``output_directory``.
+
+    For tests over a build's *outputs* (its reports, compendia), as opposed to the processing
+    fixtures above, which produce intermediate files. Lets the same test run against a local
+    ``babel_outputs/`` or against a build's files copied from stars.renci.org into ``data/``.
+    """
+    from src.util import get_config  # deferred: same rationale as _snakemake_dir
+
+    return request.config.getoption("--build-dir") or get_config()["output_directory"]
+
+
 # ---------------------------------------------------------------------------
 # Snakemake-backed pipeline output fixture
 # ---------------------------------------------------------------------------

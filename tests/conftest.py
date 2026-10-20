@@ -233,6 +233,15 @@ def pytest_addoption(parser):
             "write_X_ids() even when their output files already exist."
         ),
     )
+    parser.addoption(
+        "--build-dir",
+        default=None,
+        help=(
+            "A finished build directory (compendia/, reports/, ...) for pipeline tests that read a "
+            "build's outputs rather than produce them. Defaults to config.yaml's output_directory; "
+            "pass e.g. data/2026jul22 to test the reports copied from a published build."
+        ),
+    )
 
 
 def pytest_configure(config):

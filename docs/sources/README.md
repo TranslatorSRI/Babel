@@ -74,7 +74,12 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
   concords, and routing them into the disease compendia.
 - **UMLS** ([UMLS/Leftover.md](./UMLS/Leftover.md)) — the "leftover UMLS" compendium: how
   unclaimed UMLS concepts are swept up and typed, the manual STY→Biolink override tables and the
-  drift test that keeps them honest, and the coverage report under `reports/umls/`.
+  drift test that keeps them honest, and the coverage report under `reports/umls/`. Also
+  ([UMLS/ProteinChemicalDuplicates.md](./UMLS/ProteinChemicalDuplicates.md)) why UMLS CUIs typed
+  T116 and ~15.6k of their MeSH descriptors sit in both Protein and a chemical compendium in
+  2026jul22 (#308, #513): the ids files are disjoint since #444, but DrugCentral's `UMLSCUI` xrefs
+  and #495's protein UMLS concord re-join them. Includes the tracer that regenerates the numbers
+  from a published build's Parquet exports without a local build.
 - **NCBIGene** ([NCBIGene/quoting/README.md](./NCBIGene/quoting/README.md)) — an investigation into
   how the two free-text synonym columns (`Synonyms`/`otheraliases`, `Other_designations`/
   `otherdesignations`) in `gene_info.gz` are quoted, prompted by issue #744's `''…''` fragments and

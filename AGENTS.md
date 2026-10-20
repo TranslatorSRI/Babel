@@ -384,7 +384,9 @@ the build: `DRUGBANK:DB09341` "Dextrose, unspecified form" reaches the D-glucose
 `RXCUI`/`UMLS`, and the retype shipped glucose, tocopherol and five others as `biolink:Food`
 (#935/#948). Answer clique-membership questions from a finished build —
 `partials/untyped_compendium` and the compendia themselves, the DuckDB `Edge` table, or Node
-Normalization — never from the concords that fed it.
+Normalization — never from the concords that fed it. Without a local build, query a published
+build's Parquet exports in place over HTTPS (seconds per lookup; see "Querying a published build in
+place" in `docs/DataFormats.md`).
 
 To measure a change to a compendium-building function, replaying it over a finished build's
 `intermediate/` is seconds where a rebuild is hours — see `docs/sources/CLAUDE.md` ("Replaying a

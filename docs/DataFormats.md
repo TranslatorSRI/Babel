@@ -384,6 +384,28 @@ by a conflation filter — look up the reason in the paired per-run exclusion re
 | curie        | STRING | The identifier CURIE                                               |
 | biolink_type | STRING | The Biolink type from the ids file's second column, or NULL if the file has only a CURIE column |
 
+#### Querying a published build in place
+
+The exports of a deployed build are published under
+`https://stars.renci.org/var/babel_outputs/<build>/duckdb/`, and DuckDB's `httpfs` extension reads
+Parquet over HTTPS with range requests, so a lookup by CURIE needs no download at all — useful on a
+machine with no local build, and the way to answer "which ids file claimed this CURIE, and which
+concord edges touch it" for a build whose `intermediate/` tree was not published (2026jul22's was
+not). Against the 2026jul22 exports a lookup of a few thousand CURIEs takes about 6 s in
+`Identifier.parquet` (2.3 GB) and about 100 s in `Concord.parquet` (4.6 GB); the big per-type
+`Edge.parquet` files (3–5 GB) answer clique membership the same way.
+
+```sql
+INSTALL httpfs; LOAD httpfs;
+SELECT filename, curie, biolink_type
+FROM read_parquet('https://stars.renci.org/var/babel_outputs/2026jul22/duckdb/Identifier.parquet')
+WHERE curie IN ('UMLS:C0000578', 'MESH:D006916');
+```
+
+`src/reports/duplicate_curie_routes.py` is a worked example: it joins a build's duplicate-CURIE
+reports to these two files to say how each duplicated identifier reached each compendium
+([`docs/sources/UMLS/ProteinChemicalDuplicates.md`](sources/UMLS/ProteinChemicalDuplicates.md)).
+
 `Metadata.parquet` — one row per metadata YAML _inside a `concords/` or `ids/` directory_
 (`metadata-<subject>.yaml` sidecars describing a sibling file, and bare `metadata.yaml` files
 describing their directory). Metadata YAMLs elsewhere in the intermediate tree — e.g.

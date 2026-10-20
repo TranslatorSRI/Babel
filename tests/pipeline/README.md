@@ -72,6 +72,15 @@ exists it is reused — `write_umls_ids()` is not called again. This means:
   test also asserts the two exact fragment strings from the issue's example row are absent. Marked
   `slow` because it downloads the full `gene_info.gz` (>1 GB compressed) and processes every row.
 
+- **`test_compendia_duplicates.py`** (`pipeline`) — Reads a *finished* build's duplicate reports
+  (`reports/umls/duplicate-curies.csv`, `reports/duckdb/duplicate_curies.tsv`) and counts the UMLS
+  CUIs and MeSH descriptors shared between Protein and a chemical compendium — the overlap the
+  ids-file tests above cannot see, because cross-references re-join what the ids files kept apart
+  ([issue #308](https://github.com/NCATSTranslator/Babel/issues/308),
+  `docs/sources/UMLS/ProteinChemicalDuplicates.md`). Xfails while the overlap exists and fails if
+  it grows past the 2026jul22 baseline. Takes `--build-dir` (default `babel_outputs/`), so it runs
+  against a build's reports copied from stars.renci.org.
+
 - **`checks/`** (`pipeline`) — Per-compendium regression assertions tied to specific GitHub
   issues, designed for test-driven development. See [Pipeline Checks](#pipeline-checks) below.
 
