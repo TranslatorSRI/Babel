@@ -285,14 +285,20 @@ rule get_umls_labels_and_synonyms:
     input:
         mrconso=config["download_directory"] + "/UMLS/MRCONSO.RRF",
     output:
-        config["download_directory"] + "/UMLS/labels",
-        config["download_directory"] + "/UMLS/synonyms",
-        config["download_directory"] + "/SNOMEDCT/labels",
-        config["download_directory"] + "/SNOMEDCT/synonyms",
+        umls_labels=config["download_directory"] + "/UMLS/labels",
+        umls_synonyms=config["download_directory"] + "/UMLS/synonyms",
+        snomed_labels=config["download_directory"] + "/SNOMEDCT/labels",
+        snomed_synonyms=config["download_directory"] + "/SNOMEDCT/synonyms",
     benchmark:
         config["output_directory"] + "/benchmarks/get_umls_labels_and_synonyms.tsv"
     run:
-        umls.pull_umls(input.mrconso)
+        umls.pull_umls(
+            input.mrconso,
+            output.umls_labels,
+            output.umls_synonyms,
+            output.snomed_labels,
+            output.snomed_synonyms,
+        )
 
 
 ### OBO Ontologies

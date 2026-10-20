@@ -1,0 +1,52 @@
+{
+  "CUIs with GO atoms": 59071,
+  "all: process UMLS-GO concord pairs": 53274,
+  "all: CUIs with GO atoms that end up in a clique with GO": 26407,
+  "preferred: process UMLS-GO concord pairs": 34987,
+  "preferred: CUIs with GO atoms that end up in a clique with GO": 35846,
+  "fallback: process UMLS-GO concord pairs": 35159,
+  "fallback: CUIs with GO atoms that end up in a clique with GO": 35902,
+  "fallback: pairs added to preferred": 172,
+  "fallback: added pairs whose CUI ends up in a clique with GO": 65,
+  "fallback: examples of added joins": [
+    "UMLS:C0031845 GO:0008150 SY 'physiological process'",
+    "UMLS:C1151872 GO:0120123 ET 'E1 ubiquitin-activating enzyme'",
+    "UMLS:C1656954 GO:0051661 ET 'maintenance of centrosome localization'",
+    "UMLS:C1816460 GO:0051906 ET 'maintenance of pigment granule localization'",
+    "UMLS:C2244305 GO:0022003 ET 'fgf receptor signaling involved in inhibition of anterior neural cell fate of the neural plate'",
+    "UMLS:C2611850 GO:0009649 ET 'regulation of circadian rhythm phase'",
+    "UMLS:C2752679 GO:0060265 ET 'positive regulation of respiratory burst involved in acute inflammatory response'",
+    "UMLS:C3272179 GO:0051964 ET 'inhibition of synapse assembly'",
+    "UMLS:C4329046 GO:0090680 ET 'disruption by virus of host outer membrane'",
+    "UMLS:C5450373 GO:0002377 ET 'immunoglobulin secretion'"
+  ],
+  "synonyms, drop every GO atom": {
+    "dropped from CUIs in a GO clique, a name of a different GO term": 197,
+    "dropped from CUIs in a GO clique, already a name of that GO term": 102957,
+    "dropped from CUIs in a GO clique, not a current GO name": 2554,
+    "dropped from CUIs not in a GO clique (names lost)": 40399
+  },
+  "synonyms, drop GO atoms of other GO terms": {
+    "dropped from CUIs in a GO clique, a name of a different GO term": 163,
+    "dropped from CUIs in a GO clique, already a name of that GO term": 4,
+    "dropped from CUIs in a GO clique, not a current GO name": 1,
+    "dropped from CUIs not in a GO clique (names lost)": 18
+  },
+  "synonyms, drop GO atoms of other GO terms: kept on CUIs in a GO clique, a name of a different GO term": {
+    "on CUIs with several GO preferred terms": 21,
+    "on CUIs with one GO preferred term (GO has since moved the name)": 13
+  },
+  "synonyms, examples of those kept strings": [
+    "UMLS:C0021721 (in a clique with GO:0030054): 'cell-cell junction'",
+    "UMLS:C0242358 (in a clique with GO:0070160): 'bicellular tight junction'",
+    "UMLS:C0887869 (in a clique with GO:0030055): 'cell-matrix adhesion'",
+    "UMLS:C0887883 (in a clique with GO:0005769): 'endocytotic vesicle'",
+    "UMLS:C1151365 (in a clique with GO:0004128): 'NADH 5alpha-reductase activity'",
+    "UMLS:C1151365 (in a clique with GO:0004128): 'NADH-ferricytochrome b5 oxidoreductase activity'",
+    "UMLS:C1151365 (in a clique with GO:0004128): 'reduced nicotinamide adeninedinucleotide-cytochrome b5 reductase activity'",
+    "UMLS:C1156885 (in a clique with GO:0006041): 'glucosamines metabolism'",
+    "UMLS:C1324140 (in a clique with GO:0047995): 'hydroxyphenylpyruvate reductase activity'",
+    "UMLS:C1324882 (in a clique with GO:0035251): 'UDP-glucose:phenol beta-D-glucosyltransferase activity'"
+  ],
+  "labels: CUIs whose UMLS label comes from a GO atom the shipped rule skips": 0
+}

@@ -75,6 +75,9 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
 - **UMLS** ([UMLS/Leftover.md](./UMLS/Leftover.md)) — the "leftover UMLS" compendium: how
   unclaimed UMLS concepts are swept up and typed, the manual STY→Biolink override tables and the
   drift test that keeps them honest, and the coverage report under `reports/umls/`.
+- **UMLS / GO** ([UMLS/GO.md](./UMLS/GO.md)) — which of UMLS's GO atoms map a CUI to a GO term
+  and which become UMLS synonyms, with the rejected alternatives and a replay script that measures
+  each against a finished build.
 - **NCBIGene** ([NCBIGene/quoting/README.md](./NCBIGene/quoting/README.md)) — an investigation into
   how the two free-text synonym columns (`Synonyms`/`otheraliases`, `Other_designations`/
   `otherdesignations`) in `gene_info.gz` are quoted, prompted by issue #744's `''…''` fragments and
