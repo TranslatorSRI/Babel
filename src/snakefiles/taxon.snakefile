@@ -74,6 +74,7 @@ rule taxon_compendia:
         ),
         idlists=expand("{dd}/taxon/ids/{ap}", dd=config["intermediate_directory"], ap=config["taxon_ids"]),
         icrdf_filename=config["download_directory"] + "/icRDF.tsv",
+        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         expand("{od}/compendia/{ap}", od=config["output_directory"], ap=config["taxon_outputs"]),
         temp(expand("{od}/synonyms/{ap}", od=config["output_directory"], ap=config["taxon_outputs"])),
@@ -86,7 +87,13 @@ rule taxon_compendia:
         # default, so it gets a block.
         mem="24G",
     run:
-        taxon.build_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
+        taxon.build_compendia(
+            input.concords,
+            input.metadata_yamls,
+            input.idlists,
+            input.icrdf_filename,
+            mesh_ownership=input.mesh_ownership,
+        )
 
 
 rule check_taxon_completeness:

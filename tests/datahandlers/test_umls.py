@@ -397,3 +397,43 @@ def test_process_cui_is_not_given_to_the_descriptors_owner(tmp_path):
 
     claims = {"disease": [("MESH:D001329", "biolink:PhenotypicFeature")]}
     assert umls.read_mesh_ownership(ownership(tmp_path, claims, non_mesh_cuis=["UMLS:C0004372"])) == {}
+
+
+# CONCORDS THAT NAME A CUI ANOTHER PIPELINE OWNS
+
+
+@pytest.mark.unit
+def test_read_cuis_owned_elsewhere(tmp_path):
+    """Only CUIs owned by a pipeline other than the one asking should be returned, and no file means none."""
+    (tmp_path / "own").write_text(
+        f"UMLS:C1\tanatomy\tMESH:D1\t{ANATOMICAL_ENTITY}\nUMLS:C2\tchemicals\tMESH:D2\t{CHEMICAL_ENTITY}\n"
+    )
+    assert umls.read_cuis_owned_elsewhere(str(tmp_path / "own"), "anatomy") == {"UMLS:C2"}
+    assert umls.read_cuis_owned_elsewhere(None, "anatomy") == frozenset()
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "pipeline,compute",
+    [
+        ("anatomy", lambda c, i, own: anatomy.compute_cliques_for_impact_report(c, i, badxrefs="", mesh_ownership=own)),
+        (
+            "disease",
+            lambda c, i, own: diseasephenotype.compute_cliques_for_impact_report(c, i, badxrefs={}, mesh_ownership=own),
+        ),
+    ],
+)
+def test_clique_build_skips_concord_pairs_naming_a_cui_owned_elsewhere(tmp_path, pipeline, compute):
+    """A MONDO-style xref concord naming a CUI that chemicals owns would put the CUI into this pipeline's
+    compendium as well as chemicals'. The clique build should skip that pair, and keep it without an ownership
+    file."""
+    (tmp_path / "ids").write_text("")
+    (tmp_path / "MONDO").write_text("MONDO:0000001\teq\tUMLS:C0000608\nMONDO:0000001\teq\tUMLS:C0242726\n")
+    (tmp_path / "own").write_text(f"UMLS:C0000608\tchemicals\tMESH:D015119\t{CHEMICAL_ENTITY}\n")
+    concords, ids = [str(tmp_path / "MONDO")], [str(tmp_path / "ids")]
+
+    dicts, _ = compute(concords, ids, str(tmp_path / "own"))
+    assert "UMLS:C0000608" not in dicts
+    assert dicts["MONDO:0000001"] == {"MONDO:0000001", "UMLS:C0242726"}
+    dicts, _ = compute(concords, ids, None)
+    assert "UMLS:C0000608" in dicts["MONDO:0000001"]

@@ -116,9 +116,12 @@ def build_relationships(outfile, mesh_ids, metadata_yaml):
     )
 
 
-def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
+def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename, mesh_ownership=None):
     """:concordances: a list of files from which to read relationships
-    :identifiers: a list of files from which to read identifiers and optional categories"""
+    :identifiers: a list of files from which to read identifiers and optional categories
+    :mesh_ownership: the umls_mesh_ownership rule's file; concord pairs naming a CUI another pipeline owns are
+        skipped (umls.read_cuis_owned_elsewhere). None skips nothing."""
+    owned_elsewhere = umls.read_cuis_owned_elsewhere(mesh_ownership, "taxon")
     dicts = {}
     types = {}
     uniques = [NCBITAXON, MESH, UMLS]
@@ -134,6 +137,8 @@ def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
         with open(infile) as inf:
             for line in inf:
                 x = line.strip().split("\t")
+                if x[0] in owned_elsewhere or x[2] in owned_elsewhere:
+                    continue
                 pairs.append(set([x[0], x[2]]))
         glom(dicts, pairs, unique_prefixes=uniques)
     gene_sets = set([frozenset(x) for x in dicts.values()])

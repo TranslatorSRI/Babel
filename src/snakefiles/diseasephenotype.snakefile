@@ -338,6 +338,7 @@ rule disease_compendia:
         # identifier's `t` field); declared here so they exist before the compendium is built.
         taxa=expand("{dd}/{ap}/taxa", dd=config["download_directory"], ap=config["disease_phenotype_taxa"]),
         icrdf_filename=config["download_directory"] + "/icRDF.tsv",
+        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         expand("{od}/compendia/{ap}", od=config["output_directory"], ap=config["disease_outputs"]),
         temp(expand("{od}/synonyms/{ap}", od=config["output_directory"], ap=config["disease_outputs"])),
@@ -360,6 +361,7 @@ rule disease_compendia:
                 "UMLS": input.bad_umls_xrefs,
             },
             input.icrdf_filename,
+            mesh_ownership=input.mesh_ownership,
         )
 
 

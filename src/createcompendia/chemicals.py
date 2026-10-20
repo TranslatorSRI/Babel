@@ -1080,10 +1080,21 @@ def get_wikipedia_relationships(outfile, config, metadata_yaml):
 
 
 def build_untyped_compendia(
-    concordances, identifiers, unichem_partial, untyped_concord, type_file, metadata_yaml, input_metadata_yamls
+    concordances,
+    identifiers,
+    unichem_partial,
+    untyped_concord,
+    type_file,
+    metadata_yaml,
+    input_metadata_yamls,
+    mesh_ownership=None,
 ):
     """:concordances: a list of files from which to read relationships
-    :identifiers: a list of files from which to read identifiers and optional categories"""
+    :identifiers: a list of files from which to read identifiers and optional categories
+    :mesh_ownership: the umls_mesh_ownership rule's file; concord pairs naming a CUI another pipeline owns are
+        skipped (umls.read_cuis_owned_elsewhere). None skips nothing.
+        The UniChem partial carries no UMLS CUIs, so it needs no such filter."""
+    owned_elsewhere = umls.read_cuis_owned_elsewhere(mesh_ownership, "chemicals")
     dicts = read_partial_unichem(unichem_partial)
     types = {}
     for ifile in identifiers:
@@ -1098,6 +1109,8 @@ def build_untyped_compendia(
         with open(infile) as inf:
             for line in inf:
                 x = line.strip().split("\t")
+                if x[0] in owned_elsewhere or x[2] in owned_elsewhere:
+                    continue
                 pairs.append([x[0], x[2]])
         p = False
         if DRUGCENTRAL in [n.split(":")[0] for n in pairs[0]]:
