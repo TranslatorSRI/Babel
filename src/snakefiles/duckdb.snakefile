@@ -269,8 +269,10 @@ rule check_for_duplicate_curies:
 
 rule check_for_duplicate_clique_leaders:
     input:
-        # Only the compendia's Clique.parquet files are read, so this runs as soon as they are exported
-        # rather than after every Edge export -- the assertion below fails the build, and sooner is better.
+        # Only the compendia's Clique.parquet files are read, but waiting for duckdb/done keeps this 400G DuckDB
+        # aggregation from overlapping the Edge/synonym/conflation exports on a run where mem is not enforced per
+        # job (a local run). Starting it at compendia_done would fail the build a few hours sooner, no more.
+        config["output_directory"] + "/duckdb/done",
         config["output_directory"] + "/duckdb/compendia_done",
     output:
         duckdb_filename=temp(config["output_directory"] + "/duckdb/duckdbs/duplicate_clique_leaders.duckdb"),
