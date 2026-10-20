@@ -54,3 +54,26 @@ full in-memory load of roughly **120–150 GiB**. This confirms the
 `chembl_labels_and_smiles` rule's `mem="128G"` is appropriate, and that the
 `min_memory_gb(128)` guard on the `test_chembl` pipeline tests is right — a
 60 GiB host would not be enough.
+
+## Sizing a rule from a sample of its input
+
+When a full input is too big to run locally, a rule is often sized by running it on a sample (one
+shard, the first N records) and scaling up. Two things make that go wrong:
+
+- **Measure at two sample sizes, not one.** A single measurement can't distinguish a rule whose
+  memory is flat (it streams) from one that grows with every record, and multiplying either by
+  the corpus/sample ratio gives a plausible number. The Publication compendium was sized at 32G
+  from "5 GB on one shard of 16"; running 300k and 900k records showed 0.48 and 1.65 GB, i.e.
+  ~2 KB per clique, which would have been ~80 GB on the full export. The cause was shared code
+  (`SynonymFactory`, `DescriptionFactory` and `PropertyList` storing an empty `defaultdict` entry
+  for every miss; see `tests/node/test_lookups_do_not_grow.py`). Run the sample twice at
+  different sizes and check that what you expect to be flat stays flat.
+- **Count worker processes.** SLURM limits the job's whole process tree, so sum the RSS of the
+  parent and every child (`psutil.Process().children(recursive=True)`), not just the parent.
+  Python's `ProcessPoolExecutor.map` also submits every task at once and keeps each finished
+  result in the parent until the loop consumes it, so results waiting on a slow consumer pile up
+  in memory.
+
+Remember to add whatever a sample leaves out. A rule that calls `write_compendium()` also loads the
+common UberGraph files, which add ~3 GB however small its own input is (`genefamily_compendia`
+peaks at 2.9 GB).

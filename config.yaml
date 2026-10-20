@@ -16,6 +16,16 @@ biolink_version: "4.4.3"
 umls_version: "2026AA"
 rxnorm_version: "07062026"
 drugbank_version: "5-1-13" # The latest is 5-1-21, but since downloads are currently not allowed, we need to reuse our most recent download.
+# The pubmed2db NDJSON export (https://github.com/TranslatorSRI/pubmed2db) this build reads PubMed from:
+# one record per PMID, latest version only, deletions applied. Before every release, and whenever you touch
+# the PubMed code, check https://stars.renci.org/var/babel_outputs/pubmed2db/ for a newer export and move
+# pubmed2db_version to it. The export lives at <pubmed2db_base_url><pubmed2db_version>/, and Babel downloads
+# its validation report (pubmed2db_validation_report, relative to that directory) and then every shard the
+# report lists. The report's path is not derivable from the version and has moved before (2026aug5 kept a
+# gzipped one at the top level), so check it too. See docs/sources/PubMed/README.md.
+pubmed2db_base_url: "https://stars.renci.org/var/babel_outputs/pubmed2db/"
+pubmed2db_version: "2026sep26" # Checked 2026-10-19: newest of 2026jun30, 2026aug5, 2026aug21, 2026sep26.
+pubmed2db_validation_report: "manifests/validation_report-20260926.json"
 # GARD has no version number to bump, only a link that goes stale: this is the "GARD Rare Disease
 # List <Mon><Year>.csv" link on https://rarediseases.info.nih.gov/about (under "Which rare diseases
 # are included in GARD?"); NCATS publishes no stable data URL. The Salesforce `ids=068...` value is

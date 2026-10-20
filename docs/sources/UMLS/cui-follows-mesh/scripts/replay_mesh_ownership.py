@@ -8,13 +8,16 @@ build's duplicate clique leaders the rule resolves: a MESH leader is resolved wh
 ``<pipeline>/concords/UMLS`` concord links to it is still claimed by a pipeline other than the descriptor's
 owner. glom() is transitive, so this is a prediction; confirm it with babel-clique-diff after a build.
 
-Inputs: the build's ids files (``<ids-dir>/<pipeline>/{MESH,UMLS}``, e.g. exported from the build's
-Identifier.parquet), its ``duplicate_clique_leaders.tsv`` and ``duplicate_curies.tsv``, its Concord.parquet
-(path or https URL) and a local UMLS download. Example (about a minute, mostly the two MRCONSO passes):
+Inputs: the build's ids files (``<ids-dir>/<pipeline>/{MESH,UMLS}``) and its ``duplicate_clique_leaders.tsv``
+and ``duplicate_curies.tsv``, all of which ``fetch_build_inputs.py`` (beside this script) exports from a
+published build; its Concord.parquet (path or https URL); and a local UMLS download. Example (about a minute,
+mostly the two MRCONSO passes; ``<build-url>`` is the published build's root, e.g. ``.../var/babel/<build>``):
 
+    uv run python docs/sources/UMLS/cui-follows-mesh/scripts/fetch_build_inputs.py \\
+        --build-url <build-url> --output-dir data/duplicate-curies
     uv run python docs/sources/UMLS/cui-follows-mesh/scripts/replay_mesh_ownership.py \\
         --ids-dir data/duplicate-curies/ids --reports-dir data/duplicate-curies \\
-        --concord-parquet https://stars.renci.org/var/babel_outputs/2026jul22/duckdb/Concord.parquet \\
+        --concord-parquet <build-url>/duckdb/Concord.parquet \\
         --output docs/sources/UMLS/cui-follows-mesh/2026jul22.md
 """
 

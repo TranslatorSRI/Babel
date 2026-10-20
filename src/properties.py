@@ -150,7 +150,9 @@ class PropertyList:
         :param predicate: If specified, only return properties with this predicate.
         :return: The set of properties for this CURIE.
         """
-        props = self._properties_by_curie[curie]
+        # .get(), not [curie]: indexing the defaultdict would store an empty set for every CURIE looked up, and
+        # write_compendium() looks up every identifier it writes.
+        props = self._properties_by_curie.get(curie, set())
 
         if predicate is None:
             return props
