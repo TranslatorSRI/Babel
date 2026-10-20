@@ -1,6 +1,8 @@
 # Which pipeline owns a MeSH record that two pipelines claim
 
-**Status: proposal, awaiting a ruling.** Nothing here is implemented yet.
+**Status: proposal, awaiting a ruling.** Nothing here is implemented yet. The work is tracked in
+[#1151], stacked on [#1124]; "Picking this up" at the end says how to re-run everything from a fresh
+checkout, record a ruling, and what the implementation has to touch.
 
 MeSH files some descriptors in two trees, and each pipeline's `write_mesh_ids()` claims whole trees,
 so such a descriptor lands in two pipelines' `ids/MESH` and then in two compendia. Against the
@@ -42,11 +44,15 @@ by a person rather than shipped. The alternative, a default order with per-recor
 need a long override list for every pair but anatomy and taxon, and would decide new
 cross-listings silently.
 
-**To check before writing code:** a record leaving the losing pipeline's `ids/MESH` may still reach
-that pipeline's cliques as a *member* through an ontology xref, e.g. `UBERON:0003705` →
-`MESH:D008467` in anatomy's concords. That is the member-level duplicate shape of [#1126]. Replaying
-`anatomy.compute_cliques_for_impact_report()` over 2026jul22's `intermediate/anatomy/` with the
-record removed would show whether the anatomy pipeline keeps it.
+**Member-level residue.** glom() merges a concord pair whether or not an ids file lists both CURIEs,
+so a record removed from the losing pipeline's `ids/MESH` stays in that pipeline's cliques as a
+member if one of its concords still names it (the shape of [#1126]). The concord-edges column of
+[`2026jul22.md`](2026jul22.md) lists every edge that reaches each record. Each record has one UMLS
+edge, which follows the record's owner under "a CUI follows its MeSH descriptor". The non-UMLS edges
+all sit on the proposed owner's side (MONDO and DOID mappings in disease, UBERON xrefs in anatomy)
+except one: anatomy's `UBERON:0003705` "Meckel's diverticulum" xref to `MESH:D008467`. If that
+record goes to disease, the pair also needs dropping from anatomy's concords
+(`input_data/anatomy_badxrefs.txt`), or the record stays an anatomy member.
 
 ## Proposed owners
 
@@ -66,11 +72,11 @@ the issue that would give that class a source.
 | [`MESH:D000072662`](https://meshb.nlm.nih.gov/record/ui?ui=D000072662) "Margins of Excision" | anatomy | anatomy partners NCIT, UMLS; disease alone |
 | [`MESH:D000072717`](https://meshb.nlm.nih.gov/record/ui?ui=D000072717) "Tertiary Lymphoid Structures" | anatomy | anatomy partners NCIT, UMLS; disease alone |
 | [`MESH:D000153`](https://meshb.nlm.nih.gov/record/ui?ui=D000153) "Acne Keloid" | disease | `MONDO:0043468` with MedDRA, NCIT, SNOMED; anatomy alone |
-| [`MESH:D002921`](https://meshb.nlm.nih.gov/record/ui?ui=D002921) "Cicatrix" | disease, **ask** | `HP:0100699` "Scarring", `NCIT:C34483` "Scar"; anatomy alone. The clique is led by `MONDO:0005594` "severe cutaneous adverse reaction" (SCAR), a bad merge to fix separately |
+| [`MESH:D002921`](https://meshb.nlm.nih.gov/record/ui?ui=D002921) "Cicatrix" | disease, **ask** | `HP:0100699` "Scarring", `NCIT:C34483` "Scar"; anatomy alone. The clique is led by `MONDO:0005594` "severe cutaneous adverse reaction" (SCAR), a bad MONDO mapping ([#1152]); judge it on the scar partners alone |
 | [`MESH:D003750`](https://meshb.nlm.nih.gov/record/ui?ui=D003750) "Dental Fissures" | disease | disease partner UMLS; anatomy alone |
 | [`MESH:D003809`](https://meshb.nlm.nih.gov/record/ui?ui=D003809) "Dentin, Secondary" | disease, **ask** | `MONDO:0020818`; but secondary dentin also forms normally, so anatomy is defensible |
 | [`MESH:D007627`](https://meshb.nlm.nih.gov/record/ui?ui=D007627) "Keloid" | disease | `MONDO:0005348` with HP, EFO; anatomy alone |
-| [`MESH:D008467`](https://meshb.nlm.nih.gov/record/ui?ui=D008467) "Meckel Diverticulum" | disease, **ask** | both sides: `UBERON:0003705` in anatomy, `MONDO:0007955` with DOID, OMIM, ICD in disease |
+| [`MESH:D008467`](https://meshb.nlm.nih.gov/record/ui?ui=D008467) "Meckel Diverticulum" | disease, **ask** | both sides: `UBERON:0003705` in anatomy, `MONDO:0007955` with DOID, OMIM, ICD in disease; going to disease also needs an anatomy bad-xref (see "Member-level residue") |
 | [`MESH:D008551`](https://meshb.nlm.nih.gov/record/ui?ui=D008551) "Melena" | disease | alone on both sides; a sign (C23), filed under A12 "Feces" |
 | [`MESH:D009360`](https://meshb.nlm.nih.gov/record/ui?ui=D009360) "Neoplastic Cells, Circulating" | anatomy (Cell) | Cell partners NCIT, UMLS; disease alone |
 | [`MESH:D010677`](https://meshb.nlm.nih.gov/record/ui?ui=D010677) "Philadelphia Chromosome" | disease | disease partner UMLS; anatomy alone |
@@ -138,6 +144,50 @@ the taxon pipeline would decide 25 more records that nobody has looked at. That 
 | [`MESH:D000091083`](https://meshb.nlm.nih.gov/record/ui?ui=D000091083) "Decellularized Extracellular Matrix" | chemicals, **ask** | alone on both sides; a manufactured biomaterial (D25, J01), the type mismatch of [#392] |
 | [`MESH:D014688`](https://meshb.nlm.nih.gov/record/ui?ui=D014688) "Venoms" | anatomy | `UBERON:0007113` "venom" in anatomy; chemicals alone |
 
+## Picking this up
+
+### Re-running the evidence on a fresh checkout
+
+Everything here regenerates from a published build plus a local `mesh.nt`; nothing depends on a
+local build or on this machine's `data/`. From the repository root, after `uv sync`:
+
+1. `uv run snakemake --cores 1 get_mesh` downloads `babel_downloads/MESH/mesh.nt` (about 2 GB).
+2. `docs/sources/UMLS/cui-follows-mesh/scripts/fetch_build_inputs.py --build-url <build-url>
+   --output-dir data/duplicate-curies` exports the build's `ids/MESH` and `ids/UMLS` files and
+   downloads its duplicate reports, in under a minute. `<build-url>` is the build's root on
+   stars.renci.org; 2026jul22 is not yet the public `var/babel/latest/` (read its `VERSION.txt`).
+3. `scripts/list_cross_listed_descriptors.py` (its docstring has the full command) regenerates
+   [`2026jul22.md`](2026jul22.md) and [`2026jul22.csv`](2026jul22.csv) in about five minutes, most
+   of it reading the build's Edge tables and `Concord.parquet` over https.
+
+Against the same build the output should not change; against a newer build or MeSH release, compare
+the record list with the tables below before ruling.
+
+### Recording a ruling
+
+Edit the "proposed owner" cell of the record (drop "**ask**" once decided) and tick the matching
+box in [#1151]'s description. A ruling that sends a record away from where its partners are should
+say why in the evidence cell, because that cell becomes the `reason` column of the owners table.
+
+### What the implementation touches
+
+- `input_data/mesh_cross_listed_owners.tsv`, new: one row per record above (`curie`, `owner`,
+  `issue`, `reason`), owner being a directory name from `config.yaml: umls_mesh_owning_pipelines`.
+- `mesh.write_ids()` (`src/datahandlers/mesh.py`) and the five pipelines' `write_mesh_ids()`: drop a
+  record the table gives to another pipeline.
+- `umls.write_mesh_ownership()` (rule `umls_mesh_ownership`) already reads all five `ids/MESH`
+  files, so it is the cheap place for the control: raise if a MeSH record is in two of them.
+- Remove the 20 MeSH rows from `input_data/known_duplicate_clique_leaders.tsv` and the 46 MeSH
+  entries from `KNOWN_DUPLICATES` in `tests/pipeline/test_vocabulary_partitioning.py`.
+- Update `docs/sources/MESH/Ingestion.md`, and rule 3 in
+  [`CuiFollowsMesh.md`](../../UMLS/CuiFollowsMesh.md), which names these descriptors as the case
+  it leaves alone.
+- Confirm on a cluster build: `duplicate_clique_leaders.tsv` should have no MeSH rows, and
+  `babel-clique-diff` should show each record leaving the losing compendium.
+
+[#1124]: https://github.com/NCATSTranslator/Babel/pull/1124
+[#1151]: https://github.com/NCATSTranslator/Babel/pull/1151
+[#1152]: https://github.com/NCATSTranslator/Babel/issues/1152
 [#392]: https://github.com/NCATSTranslator/Babel/issues/392
 [#456]: https://github.com/NCATSTranslator/Babel/issues/456
 [#730]: https://github.com/NCATSTranslator/Babel/issues/730
