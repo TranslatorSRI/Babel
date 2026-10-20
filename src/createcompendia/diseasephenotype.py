@@ -313,28 +313,13 @@ def write_mesh_ids(outfile):
     mesh.write_ids(meshmap, outfile, order=[DISEASE, PHENOTYPIC_FEATURE])
 
 
-def read_badumls(badumlsfile):
-    """Read input_data/badumls -- the CUIs the disease pipeline must never claim -- into a set of bare CUIs.
-
-    The umls_mesh_ownership rule reads it too, so that MeSH ownership never hands disease a CUI it refuses.
-    """
-    badumls = set()
-    with open(badumlsfile) as inf:
-        for line in inf:
-            if line.startswith("#"):
-                continue
-            umlscui = line.split()[0]
-            badumls.add(umlscui)
-    return badumls
-
-
 def write_umls_ids(mrsty, outfile, badumlsfile, *, mesh_ownership=None):
     """Select the UMLS CUIs the disease/phenotype pipeline claims by semantic type, minus ``badumls``.
 
     ``mesh_ownership`` (the umls_mesh_ownership rule's output) makes a CUI follow its MeSH descriptor
     (umls.apply_mesh_ownership): a CUI another pipeline owns is dropped here and a CUI this pipeline owns is added.
     """
-    badumls = read_badumls(badumlsfile)
+    badumls = umls.read_cui_blocklist(badumlsfile)
     # Disease
     # B2.2.1.2.1 Disease or Syndrome
     # A1.2.2.1 Congenital Abnormality

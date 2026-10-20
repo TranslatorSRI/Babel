@@ -46,6 +46,11 @@ def test_cui_follows_its_mesh_descriptor(umls_pipeline_outputs):
     - UMLS:C0242726 "Plant Roots" is T002 Plant, but MESH:D018517 is anatomy's (A18), so anatomy, not taxon.
     - UMLS:C0000608 "Aminocaproic Acid" is T116, but MESH:D015119 is a chemical D-tree descriptor, so
       chemicals, not protein.
+
+    and a CUI the gene pipeline selects stays there, because gene never concords UMLS to MeSH:
+
+    - UMLS:C1413234 "CD68 gene" is T028, and protein alone claims its MESH:D000097382 "CD68 Molecule", so
+      gene, not protein.
     """
     anatomy_ids = get_curies_from_ids_file(umls_pipeline_outputs["anatomy"])
     taxon_ids = get_curies_from_ids_file(umls_pipeline_outputs["taxon"])
@@ -53,3 +58,5 @@ def test_cui_follows_its_mesh_descriptor(umls_pipeline_outputs):
     prot_ids = get_curies_from_ids_file(umls_pipeline_outputs["protein"])
     assert "UMLS:C0242726" in anatomy_ids and "UMLS:C0242726" not in taxon_ids
     assert "UMLS:C0000608" in chem_ids and "UMLS:C0000608" not in prot_ids
+    gene_ids = get_curies_from_ids_file(umls_pipeline_outputs["gene"])
+    assert "UMLS:C1413234" in gene_ids and "UMLS:C1413234" not in prot_ids
