@@ -182,8 +182,11 @@ per-compendium content reports, the leftover-UMLS diagnostics. A report nobody r
 control (see the "A log warning is not a control" rule in `AGENTS.md`), so the conditions that make
 a build unusable downstream fail it instead:
 
-- **Duplicate clique leaders.** A CURIE that leads a clique in two compendia breaks NodeNorm-ES,
-  which keys documents by leader ([#276](https://github.com/NCATSTranslator/Babel/issues/276)).
+- **Duplicate clique leaders.** A CURIE that leads a clique in two compendia gives NodeNorm two
+  answers for one CURIE ([#276](https://github.com/NCATSTranslator/Babel/issues/276)): Redis
+  NodeNorm serves whichever compendium loaded last, and NodeNorm-ES, which keys documents by leader,
+  merged them until it was changed to handle that in October 2026
+  ([biothings/NodeNormalizationAPI#41](https://github.com/biothings/NodeNormalizationAPI/issues/41)).
   `rule assert_no_unexpected_duplicate_clique_leaders` (`src/snakefiles/duckdb.snakefile`) reads
   `reports/duckdb/duplicate_clique_leaders.tsv` after it is written and raises for any row not in
   `input_data/known_duplicate_clique_leaders.tsv`, which names the issue accepting each remaining

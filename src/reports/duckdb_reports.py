@@ -187,9 +187,10 @@ def read_known_duplicate_clique_leaders(allowlist_tsv):
 def assert_no_unexpected_duplicate_clique_leaders(duplicate_clique_leaders_tsv, allowlist_tsv, checked_file):
     """Fail the build when a CURIE leads a clique in two compendia and is not on the committed allowlist.
 
-    A clique leader shared by two compendia is the one duplicate NodeNorm cannot tolerate: NodeNorm-ES keys its
-    documents by leader and merges the two cliques into one document whose type is a list of two Biolink
-    classes (biothings/NodeNormalizationAPI#41); Redis NodeNorm serves whichever compendium loaded last.
+    A clique leader shared by two compendia gives NodeNorm two answers for one CURIE: Redis NodeNorm serves
+    whichever compendium loaded last, and NodeNorm-ES, which keys its documents by leader, merged the two cliques
+    into one document typed with two Biolink classes until it was changed to handle that in October 2026
+    (biothings/NodeNormalizationAPI#41). That fix is downstream; the build still assigns the CURIE two types.
     check_for_duplicate_clique_leaders() has reported these since 2025 without anything reading the report,
     and 7,571 of them shipped in babel-1.18 (https://github.com/NCATSTranslator/Babel/issues/276). This
     check reads that report *after* it is written -- so the TSV is there to inspect when the build goes red --
