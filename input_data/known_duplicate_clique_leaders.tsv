@@ -1,8 +1,8 @@
 # Clique leaders that may lead a clique in two compendia, each accepted for now by the issue named.
 # Read by src.reports.duckdb_reports.assert_no_unexpected_duplicate_clique_leaders(): any row of the build's
-# reports/duckdb/duplicate_clique_leaders.tsv whose (clique_leader, filenames) is not listed here fails the
-# build. filenames is the comma-separated compendia (order does not matter). Remove a row once its issue is
-# fixed; the check logs rows that no longer duplicate.
+# reports/duckdb/duplicate_clique_leaders.tsv fails the build unless a row here names its clique_leader and
+# all of its filenames (the comma-separated compendia; order does not matter). A duplicate in fewer compendia
+# than its row lists passes. Remove or narrow a row once its issue is fixed; the check logs both cases.
 clique_leader	filenames	issue	note
 # MeSH descriptors listed in two pipelines' ids/MESH because MeSH cross-lists them in two trees (e.g.
 # D013171 "Spores, Bacterial" in B05 and A11). Seeded from the 2026jul22 replay in

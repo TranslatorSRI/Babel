@@ -195,8 +195,10 @@ def assert_no_unexpected_duplicate_clique_leaders(duplicate_clique_leaders_tsv, 
     and 7,571 of them shipped in babel-1.18 (https://github.com/NCATSTranslator/Babel/issues/276). This
     check reads that report *after* it is written -- so the TSV is there to inspect when the build goes red --
     and compares each (leader, compendia) pair against `input_data/known_duplicate_clique_leaders.tsv`, which
-    lists the duplicates a named issue accepts for now. Every other duplicate leader raises, which stops
-    `reports/duckdb/done` and therefore `rule all`, while every other build output completes.
+    lists the duplicates a named issue accepts for now. A duplicate is accepted when an allowlist row for its
+    leader names all of its compendia: one that has shrunk to fewer compendia (say a source fix took one of
+    three away) is still accepted, and logged so the row can be narrowed. Every other duplicate leader raises,
+    which stops `reports/duckdb/done` and therefore `rule all`, while every other build output completes.
 
     Member-level duplicates (duplicate_curies.tsv) stay report-only: NodeNorm handles them as two well-formed
     cliques, and the residue after the source fixes needs per-source work rather than a gate.
@@ -207,17 +209,33 @@ def assert_no_unexpected_duplicate_clique_leaders(duplicate_clique_leaders_tsv, 
     :raises RuntimeError: listing the unexpected duplicate leaders by compendia pair.
     """
     allowed = read_known_duplicate_clique_leaders(allowlist_tsv)
+    allowed_by_leader = defaultdict(list)
+    for leader, filenames in allowed:
+        allowed_by_leader[leader].append(set(filenames))
     found = {}
     with open(duplicate_clique_leaders_tsv) as inf:
         for row in csv.DictReader(inf, delimiter="\t"):
             found[(row["clique_leader"], _parse_filenames(row["filenames"]))] = row
-    unexpected = {key: row for key, row in found.items() if key not in allowed}
-    stale = sorted(key for key in allowed if key not in found)
+    unexpected = {
+        (leader, filenames): row
+        for (leader, filenames), row in found.items()
+        if not any(set(filenames) <= listed for listed in allowed_by_leader[leader])
+    }
+    narrowed = sorted(key for key in found if key not in unexpected and key not in allowed)
+    stale = sorted(
+        (leader, filenames)
+        for leader, filenames in allowed
+        if not any(found_leader == leader and set(found_files) <= set(filenames) for found_leader, found_files in found)
+    )
+
+    def _list(keys):
+        return ", ".join(f"{leader} [{', '.join(filenames)}]" for leader, filenames in keys[:20])
+
     summary = [
         f"{len(found)} duplicate clique leaders in {duplicate_clique_leaders_tsv}; "
         f"{len(found) - len(unexpected)} allowlisted in {allowlist_tsv}, {len(unexpected)} unexpected, "
-        f"{len(stale)} allowlist entries no longer duplicated (prune them): "
-        + ", ".join(f"{leader} [{', '.join(filenames)}]" for leader, filenames in stale[:20])
+        f"{len(stale)} allowlist entries no longer duplicated (prune them): {_list(stale)}; "
+        f"{len(narrowed)} now in fewer compendia than their allowlist entry (narrow them): {_list(narrowed)}"
     ]
     if unexpected:
         by_pair = Counter(filenames for _, filenames in unexpected)
