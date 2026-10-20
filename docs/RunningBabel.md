@@ -148,13 +148,34 @@ job, which would delete anything preloaded into it.
   compendium must be parseable JSON. `write_compendium()` does not write atomically, which is
   what makes this possible; tracked in
   [#910](https://github.com/NCATSTranslator/Babel/issues/910).
-* **Put the target *before* `--forcerun`.** `--forcerun` takes a list of rule names, so a target
-  written after it is swallowed as another rule name and Snakemake falls back to building the
-  **default target** — the entire pipeline. The tell is a job list far larger than expected, then a
-  failure in a rule you were not building (an unrelated download, typically). `--rerun-incomplete`
-  makes it worse: it pulls every incomplete file from *any* previous run into that DAG.
+* **Put targets *before* any option that takes a list.** `--forcerun` (`-R`) is the one that bites
+  most, but `--until`, `--omit-from`, `--allowed-rules` and Snakemake's other list-valued options
+  behave the same way: each consumes every following word up to the next option. `--forcerun`,
+  `--until` and `--omit-from` accept files as well as rules, so a target path written after one of
+  them is silently taken as another value of that option — with `--forcerun`, as a file to force
+  rerun. That leaves no target, and Snakemake falls back to building the **default target**, the
+  entire pipeline. The tell is a job list far larger than expected, then a failure in a rule you
+  were not building (an unrelated download, typically). `--rerun-incomplete` makes it worse: it
+  pulls every incomplete file from *any* previous run into that DAG.
   `snakemake -c 4 babel_outputs/compendia/Disease.txt --forcerun get_disease_doid_relationships`
-  is right; the same words with the path last is not.
+  is right; the same words with the path last is not. Two forms are right whatever the order,
+  because they end the list explicitly: `--forcerun=get_disease_doid_relationships` (one value per
+  `=`), or `--` before the targets. A dry run only shows the trap if `-n` is the first or last
+  word. In the middle, `--forcerun rule -n path` ends the rule list at `-n`, so the dry run shows
+  the one job you meant, and then the real run, without `-n`, builds everything.
+* **`OSError: [Errno 86] Bad CPU type in executable: .../pulp/.../cbc`** on Apple Silicon.
+  Snakemake's default ILP scheduler runs the `cbc` solver bundled with `pulp`, which is an x86-64
+  binary. Without Rosetta, any run that schedules jobs (not `-n`) fails with this error before
+  doing anything; it is an `OSError`, not a solver error, so Snakemake does not fall back to its
+  greedy scheduler on its own. Fixes, most durable first:
+  * Install Rosetta once (`softwareupdate --install-rosetta`) and the bundled binary runs as is.
+  * Use a native solver: `brew install cbc`, then pass `--scheduler-ilp-solver COIN_CMD`, which
+    finds `cbc` on `PATH`. `--scheduler-ilp-solver-path` alone does not help, because `pulp`'s
+    default `PULP_CBC_CMD` always runs its bundled binary.
+  * Add `--scheduler greedy` to the command. The greedy scheduler gives up the ILP scheduler's
+    temp-file and resource optimisation, which matters little for a local run. To avoid retyping
+    it, put `scheduler: greedy` in a personal profile (`~/.config/snakemake/<name>/config.yaml`)
+    and `export SNAKEMAKE_PROFILE=<name>`.
 * **UberGraph transient failures.** Rules that fetch from UberGraph (anatomy's UBERON, GO, CL,
   EMAPA rules; similar elsewhere) sometimes time out, 5xx, or return truncated JSON. They carry
   `retries: 3` and the underlying `TripleStore` adds bounded retry/backoff, so most transient
