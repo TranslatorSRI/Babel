@@ -89,7 +89,8 @@ def build_process_rhea_relationships(outfile, metadata_yaml):
 # Concord pairs that cause problems and are dropped before glom.
 # GO:0034227/EC:2.8.1.4 is because that go term is a biological process, but EC is not a valid prefix for that,
 #  leading to a loss of the EC term (and a unified RHEA) on output.
-BAD_CONCORDS = set(frozenset(["GO:0034227", "EC:2.8.1.4"]))
+# A set *of* frozensets: set(frozenset([...])) would be a set of the two CURIE strings, which no pair matches.
+BAD_CONCORDS = {frozenset(["GO:0034227", "EC:2.8.1.4"])}
 
 
 def _process_concord_pair_filter(parts, infile, dicts):
