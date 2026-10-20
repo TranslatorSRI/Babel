@@ -157,8 +157,9 @@ def write_ensembl_protein_ids(ensembl_dir, outfile):
                             wrote.add(pid)
                             outf.write(f"{pid}\n")
                         if skipped_gene_ids:
-                            # Only S. cerevisiae is expected here; a new species in this line means the
-                            # same convention has appeared elsewhere.
+                            # A count, not an alarm: only S. cerevisiae does this today, but the skip is
+                            # right for any species that reuses its gene IDs, since the gene pipeline
+                            # writes every BioMart gene stable ID.
                             logger.info(
                                 f"{infname}: skipped {skipped_gene_ids} protein stable IDs identical to their "
                                 f"gene stable ID (wrote {len(wrote)} protein IDs)"
