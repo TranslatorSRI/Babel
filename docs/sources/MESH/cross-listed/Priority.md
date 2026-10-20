@@ -47,11 +47,11 @@ cross-listings silently.
 **Member-level residue.** glom() merges a concord pair whether or not an ids file lists both CURIEs,
 so a record removed from the losing pipeline's `ids/MESH` stays in that pipeline's cliques as a
 member if one of its concords still names it (the shape of [#1126]). The concord-edges column of
-[`2026jul22.md`](2026jul22.md) lists every edge that reaches each record. Each record has one UMLS
-edge, which follows the record's owner under "a CUI follows its MeSH descriptor". The non-UMLS edges
-all sit on the proposed owner's side (MONDO and DOID mappings in disease, UBERON xrefs in anatomy)
-except one: anatomy's `UBERON:0003705` "Meckel's diverticulum" xref to `MESH:D008467`. If that
-record goes to disease, the pair also needs dropping from anatomy's concords
+[`2026jul22.md`](2026jul22.md) lists every edge that reaches each record. Each record has at most
+one UMLS edge, which follows the record's owner under "a CUI follows its MeSH descriptor". The
+non-UMLS edges all sit on the proposed owner's side (MONDO and DOID mappings in disease, UBERON
+xrefs in anatomy) except one: anatomy's `UBERON:0003705` "Meckel's diverticulum" xref to
+`MESH:D008467`. If that record goes to disease, the pair also needs dropping from anatomy's concords
 (`input_data/anatomy_badxrefs.txt`), or the record stays an anatomy member.
 
 ## Proposed owners
