@@ -107,10 +107,12 @@ rows of `input_data/known_duplicate_clique_leaders.tsv`, awaiting a stated prior
 pipelines ([#730], [#1123]). glom() is transitive, so the prediction is confirmed with
 `babel-clique-diff` after the first build.
 
-The replay needs the build's `ids/MESH` and `ids/UMLS` files (exported from its
-`Identifier.parquet`, see "Querying a published build in place" in
-[`docs/DataFormats.md`](../../DataFormats.md)), its `duplicate_clique_leaders.tsv`, its
-`Concord.parquet` and a local UMLS download; it takes about a minute.
+The replay needs the build's `ids/MESH` and `ids/UMLS` files and its duplicate reports, which
+`scripts/fetch_build_inputs.py` exports from a published build's `Identifier.parquet` and
+`reports/duckdb/` in under a minute; its `Concord.parquet`, read over https (see "Querying a
+published build without downloading it" in [`docs/DataFormats.md`](../../DataFormats.md)); and a
+local UMLS download. The replay itself takes about a minute. Read `VERSION.txt` before assuming
+`var/babel/latest/` is the build you want.
 
 ## What it does not fix
 
