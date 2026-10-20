@@ -23,12 +23,11 @@ def write_mesh_ids(outfile):
     mesh.write_ids(meshmap, outfile, order=[ORGANISM_TAXON], extra_vocab={"SCR_Organism": ORGANISM_TAXON})
 
 
-def write_umls_ids(mrsty, outfile, *, mrconso=None, own_mesh_ids_files=None, foreign_mesh_ids_files=None):
+def write_umls_ids(mrsty, outfile, *, mesh_ownership=None):
     """Select the UMLS CUIs the taxon pipeline claims by semantic type.
 
-    The three keyword arguments enable "a CUI follows its MeSH descriptor" (umls.apply_mesh_ownership): given
-    MRCONSO plus this pipeline's and every other MeSH-owning pipeline's ``ids/MESH`` files, a CUI whose
-    descriptor another pipeline claims is dropped here and a CUI whose descriptor this pipeline claims is added.
+    ``mesh_ownership`` (the umls_mesh_ownership rule's output) makes a CUI follow its MeSH descriptor
+    (umls.apply_mesh_ownership): a CUI another pipeline owns is dropped here and a CUI this pipeline owns is added.
     A plant or virus CUI whose descriptor is an anatomy A-tree or SCR_Chemical record leaves taxon this way
     (https://github.com/NCATSTranslator/Babel/issues/1123).
     """
@@ -75,9 +74,8 @@ def write_umls_ids(mrsty, outfile, *, mrconso=None, own_mesh_ids_files=None, for
         mrsty,
         umlsmap,
         outfile,
-        mrconso=mrconso,
-        own_mesh_ids_files=own_mesh_ids_files,
-        foreign_mesh_ids_files=foreign_mesh_ids_files,
+        mesh_ownership=mesh_ownership,
+        pipeline="taxon",
     )
 
 

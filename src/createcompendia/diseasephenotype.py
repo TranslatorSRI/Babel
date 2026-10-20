@@ -313,12 +313,10 @@ def write_mesh_ids(outfile):
     mesh.write_ids(meshmap, outfile, order=[DISEASE, PHENOTYPIC_FEATURE])
 
 
-def write_umls_ids(mrsty, outfile, badumlsfile, *, mrconso=None, own_mesh_ids_files=None, foreign_mesh_ids_files=None):
-    """Select the UMLS CUIs the disease/phenotype pipeline claims by semantic type, minus ``badumls``.
+def read_badumls(badumlsfile):
+    """Read input_data/badumls -- the CUIs the disease pipeline must never claim -- into a set of bare CUIs.
 
-    The three keyword arguments enable "a CUI follows its MeSH descriptor" (umls.apply_mesh_ownership): given
-    MRCONSO plus this pipeline's and every other MeSH-owning pipeline's ``ids/MESH`` files, a CUI whose
-    descriptor another pipeline claims is dropped here and a CUI whose descriptor this pipeline claims is added.
+    The umls_mesh_ownership rule reads it too, so that MeSH ownership never hands disease a CUI it refuses.
     """
     badumls = set()
     with open(badumlsfile) as inf:
@@ -327,6 +325,16 @@ def write_umls_ids(mrsty, outfile, badumlsfile, *, mrconso=None, own_mesh_ids_fi
                 continue
             umlscui = line.split()[0]
             badumls.add(umlscui)
+    return badumls
+
+
+def write_umls_ids(mrsty, outfile, badumlsfile, *, mesh_ownership=None):
+    """Select the UMLS CUIs the disease/phenotype pipeline claims by semantic type, minus ``badumls``.
+
+    ``mesh_ownership`` (the umls_mesh_ownership rule's output) makes a CUI follow its MeSH descriptor
+    (umls.apply_mesh_ownership): a CUI another pipeline owns is dropped here and a CUI this pipeline owns is added.
+    """
+    badumls = read_badumls(badumlsfile)
     # Disease
     # B2.2.1.2.1 Disease or Syndrome
     # A1.2.2.1 Congenital Abnormality
@@ -370,9 +378,8 @@ def write_umls_ids(mrsty, outfile, badumlsfile, *, mrconso=None, own_mesh_ids_fi
         umlsmap,
         outfile,
         blocklist_umls_ids=badumls,
-        mrconso=mrconso,
-        own_mesh_ids_files=own_mesh_ids_files,
-        foreign_mesh_ids_files=foreign_mesh_ids_files,
+        mesh_ownership=mesh_ownership,
+        pipeline="disease",
     )
 
 

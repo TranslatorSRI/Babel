@@ -28,36 +28,51 @@ cliques into one document whose `type` listed both Biolink classes
 
 ## The rule
 
-MeSH placement is the tie-breaker. `umls.apply_mesh_ownership()` runs inside `write_umls_ids()`
-after the semantic-type blocklist, for every pipeline in `config.yaml`'s
-`umls_mesh_owning_pipelines` (anatomy, chemicals, disease, protein, taxon):
+MeSH placement is the tie-breaker. `rule umls_mesh_ownership` (`src/snakefiles/umls.snakefile`)
+reads the `ids/MESH` of every pipeline in `config.yaml`'s `umls_mesh_owning_pipelines` (anatomy,
+chemicals, disease, protein, taxon) and writes `intermediate/umls/mesh_ownership.tsv`: each CUI
+that has an *owner*, with the owner and the descriptor that decided it
+(`umls.compute_mesh_owners()`). Every `*_umls_ids` rule reads that one file, and
+`umls.apply_mesh_ownership()` runs inside `write_umls_ids()` after the semantic-type blocklist:
 
-1. A CUI whose descriptors are all claimed by *other* pipelines' `ids/MESH` and none by this one is
-   **dropped** here.
-2. A CUI whose descriptor this pipeline's `ids/MESH` claims, and no other pipeline's does, is
-   **added** here, typed as that descriptor (the first own-claimed descriptor in sorted order),
-   whether its semantic types put it elsewhere or nowhere.
-3. A CUI whose descriptors both this and another pipeline claim (a descriptor MeSH cross-lists in
-   two trees, such as [`MESH:D013171`](https://meshb.nlm.nih.gov/record/ui?ui=D013171)
-   "Spores, Bacterial" in B05 and A11, or a CUI with one descriptor on each side), or that no
-   pipeline claims, is left as its semantic types decided. Rule 2 must not fire here: the first
-   draft added such a CUI to every pipeline that claimed the descriptor, which put 47 CUIs into two
-   pipelines' `ids/UMLS` and failed `test_no_id_in_multiple_compendia`.
+1. A CUI is **owned** by a pipeline when that pipeline's `ids/MESH` is the only one that claims any
+   of the CUI's descriptors, and the pipeline does not refuse the CUI (disease's `badumls`, passed
+   to the rule as `never_add`).
+2. The owner **adds** the CUI, typed as its first claimed descriptor in sorted order, whether its
+   semantic types put it elsewhere or nowhere. Every other pipeline **drops** it.
+3. A CUI with no owner is left as its semantic types decided: its descriptors are claimed by no
+   pipeline, by two or more (a descriptor MeSH cross-lists in two trees, such as
+   [`MESH:D013171`](https://meshb.nlm.nih.gov/record/ui?ui=D013171) "Spores, Bacterial" in B05 and
+   A11, or a CUI with descriptors on two sides), or only by a pipeline that refuses it.
+
+Two earlier drafts failed in ways worth not repeating:
+
+- The first added a CUI to every pipeline that claimed its descriptor, which put 47 CUIs into two
+  pipelines' `ids/UMLS` and failed `test_no_id_in_multiple_compendia`. Rule 3 is why that cannot
+  happen now.
+- The second let each pipeline decide alone, from its own `ids/MESH` and the union of the others'.
+  A pipeline dropped a CUI whenever another pipeline claimed its descriptor, but only a *sole*
+  claimant added it. So a CUI whose descriptors two other pipelines claimed, or whose only claimant
+  refused it, was dropped and added nowhere, and it fell to the leftover compendium as a lone
+  clique. Against 2026jul22 that lost one chemical and one protein CUI. Deciding ownership once,
+  in one rule, makes "drop" safe: a pipeline only drops a CUI that the file gives to an owner, and
+  the owner always adds it. `apply_mesh_ownership()` raises if the file gives a pipeline a CUI on
+  that pipeline's own blocklist.
 
 "Descriptor" means the MeSH atoms `build_sets()` concords: English, unsuppressed `SAB=MSH` atoms
 whose term type is in `umls.MESH_CONCORD_TTYS` (`MH`, `NM`, `HT`, `QAB`). Both functions read that
 constant, so a CUI moves exactly when its descriptor would be dragged; a CUI with only entry-term
 atoms (`C0000005` → `D012711` via `PEP`/`ET`) is neither concorded nor moved.
 
-Each `*_umls_ids` Snakemake rule therefore takes `MRCONSO.RRF`, its own `ids/MESH` and the other
-four pipelines' `ids/MESH` as inputs (`util.mesh_ids_inputs()`). The MeSH ids rules depend only on
-`mesh.nt`, so nothing waits on another pipeline's compendium.
+`rule umls_mesh_ownership` parses `MRCONSO.RRF` once for every pipeline. It depends on all five
+`ids/MESH` files, which depend only on `mesh.nt`, so nothing waits on another pipeline's
+compendium. But a single-target run (`snakemake anatomy`) now builds every pipeline's `ids/MESH`
+(see "Per-target sizing" in [`docs/RunningBabel.md`](../../RunningBabel.md)).
 
-Gene and process write an `ids/UMLS` but no `ids/MESH`, so they are not on the list, but they take
-all five `ids/MESH` files as "foreign" and drop a CUI whose descriptor one of the five claims (30
+Gene and process write an `ids/UMLS` but no `ids/MESH`, so they own nothing and only drop (30
 CUIs against UMLS 2026AA, e.g. `UMLS:C1413234` "CD68 gene", which UMLS also gives the protein
-descriptor `MESH:D000097382` "CD68 Molecule"). Without that, rule 2 would add the CUI to the
-descriptor's pipeline while gene or process still claimed it by semantic type.
+descriptor `MESH:D000097382` "CD68 Molecule"). Without that, the owner would add the CUI while gene
+or process still claimed it by semantic type.
 
 Rule 2 is deliberately unconditional. A CUI that no pipeline's semantic types selected but whose
 descriptor a pipeline owns used to fall to the leftover compendium (`umls.txt`) as a lone clique,
@@ -79,9 +94,9 @@ In short:
 | pipeline  | dropped | added  | net     |
 |-----------|--------:|-------:|--------:|
 | anatomy   |      25 |    142 |    +117 |
-| chemicals |     964 | 20,686 | +19,722 |
+| chemicals |     963 | 20,686 | +19,723 |
 | disease   |      14 |    191 |    +177 |
-| protein   |  15,749 |  1,107 | -14,642 |
+| protein   |  15,748 |  1,107 | -14,641 |
 | taxon     |      53 |     15 |     -38 |
 | gene      |      12 |      0 |     -12 |
 | process   |      18 |      0 |     -18 |
@@ -95,7 +110,7 @@ pipelines ([#730], [#1123]). glom() is transitive, so the prediction is confirme
 The replay needs the build's `ids/MESH` and `ids/UMLS` files (exported from its
 `Identifier.parquet`, see "Querying a published build in place" in
 [`docs/DataFormats.md`](../../DataFormats.md)), its `duplicate_clique_leaders.tsv`, its
-`Concord.parquet` and a local UMLS download; it takes about five minutes.
+`Concord.parquet` and a local UMLS download; it takes about a minute.
 
 ## What it does not fix
 

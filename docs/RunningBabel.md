@@ -81,9 +81,14 @@ to work on it: `anatomy`, `disease`, `process`, `taxon`, `genefamily`, `publicat
 intermediate directory and Python module are `diseasephenotype`.)
 
 Concretely, `anatomy` builds end-to-end on a Mac in roughly 25 minutes wall time, with the UMLS
-download dominating the runtime; peak memory is in the low GBs. The other local targets are in
-the same range. A first build is usually dominated by downloads rather than computation, so a
-warm `babel_downloads/` makes a rebuild dramatically faster.
+download dominating the runtime; peak memory is in the low GBs. The other local targets are in the
+same range. Every target that writes an `ids/UMLS` (`anatomy`, `chemical`, `disease`, `gene`,
+`process`, `protein`, `taxon`) also builds all five MeSH-owning pipelines' `ids/MESH`, because
+`rule umls_mesh_ownership` needs them to decide which pipeline a CUI belongs to
+([`sources/UMLS/CuiFollowsMesh.md`](sources/UMLS/CuiFollowsMesh.md)). That adds the `mesh.nt`
+download and about two minutes and 6 GB per `*_mesh_ids` rule (the 2026jul22 benchmarks), so roughly
+eight more minutes on one core. A first build is usually dominated by downloads rather than
+computation, so a warm `babel_downloads/` makes a rebuild dramatically faster.
 
 If you only need the intermediates for a single semantic type (for example, to generate a
 source-impact report — see [AddingNewSources.md](./AddingNewSources.md)), building just that

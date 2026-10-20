@@ -1,15 +1,16 @@
-"""Replay "a CUI follows its MeSH descriptor" (umls.apply_mesh_ownership) over a published build's ids files.
+"""Replay "a CUI follows its MeSH descriptor" (umls.compute_mesh_owners) over a published build's ids files.
 
-For each MeSH-owning pipeline (config.yaml: umls_mesh_owning_pipelines) this runs the production
-``write_umls_ids`` twice -- by semantic type alone, and with MeSH ownership -- against a local UMLS download
-and the build's ``ids/MESH`` files, and reports what the rule drops and adds. It then predicts which of the
+It writes the umls_mesh_ownership rule's file from the build's ``ids/MESH`` files and a local UMLS download,
+then runs every pipeline's production ``write_umls_ids`` twice -- by semantic type alone, and with MeSH
+ownership -- and reports what the rule drops and adds, and that every dropped CUI lands in exactly one other
+pipeline. It then predicts which of the
 build's duplicate clique leaders the rule resolves: a MESH leader is resolved when no CUI that a
 ``<pipeline>/concords/UMLS`` concord links to it is still claimed by a pipeline other than the descriptor's
 owner. glom() is transitive, so this is a prediction; confirm it with babel-clique-diff after a build.
 
 Inputs: the build's ids files (``<ids-dir>/<pipeline>/{MESH,UMLS}``, e.g. exported from the build's
 Identifier.parquet), its ``duplicate_clique_leaders.tsv`` and ``duplicate_curies.tsv``, its Concord.parquet
-(path or https URL) and a local UMLS download. Example (about ten minutes, mostly MRCONSO passes):
+(path or https URL) and a local UMLS download. Example (about a minute, mostly the two MRCONSO passes):
 
     uv run python docs/sources/UMLS/cui-follows-mesh/scripts/replay_mesh_ownership.py \\
         --ids-dir data/duplicate-curies/ids --reports-dir data/duplicate-curies \\
@@ -18,7 +19,6 @@ Identifier.parquet), its ``duplicate_clique_leaders.tsv`` and ``duplicate_curies
 """
 
 import argparse
-import ast
 import csv
 import os
 import sys
@@ -37,6 +37,8 @@ from src.createcompendia import (  # noqa: E402
     protein,
     taxon,
 )
+from src.datahandlers import umls  # noqa: E402
+from src.reports.duckdb_reports import _parse_filenames  # noqa: E402
 from src.util import get_config  # noqa: E402
 
 WRITERS = {
@@ -66,32 +68,18 @@ def read_stn(mrsty):
     return stn
 
 
-def run_writer(pipeline, umls_dir, ids_dir, owners, tmpdir, with_mesh):
-    """Run one pipeline's write_umls_ids into tmpdir and return its output as a dict."""
-    out = os.path.join(tmpdir, f"{pipeline}_{'mesh' if with_mesh else 'sty'}")
+def run_writer(pipeline, umls_dir, tmpdir, mesh_ownership):
+    """Run one pipeline's write_umls_ids into tmpdir (with MeSH ownership if mesh_ownership is given) and return
+    its output as a dict."""
+    out = os.path.join(tmpdir, f"{pipeline}_{'mesh' if mesh_ownership else 'sty'}")
     mrconso = os.path.join(umls_dir, "MRCONSO.RRF")
-    kwargs = {}
-    if with_mesh:
-        kwargs["foreign_mesh_ids_files"] = [os.path.join(ids_dir, o, "MESH") for o in owners if o != pipeline]
-        if pipeline in owners:
-            kwargs["own_mesh_ids_files"] = [os.path.join(ids_dir, pipeline, "MESH")]
-        if pipeline != "gene":
-            kwargs["mrconso"] = mrconso
     args = [os.path.join(umls_dir, "MRSTY.RRF"), out]
     if pipeline == "disease":
         args.append(os.path.join(get_config()["input_directory"], "badumls"))
     if pipeline == "gene":
         args.insert(0, mrconso)
-    WRITERS[pipeline](*args, **kwargs)
+    WRITERS[pipeline](*args, mesh_ownership=mesh_ownership)
     return read_ids(out)
-
-
-def parse_list(text):
-    """DuckDB writes list columns as e.g. "[Gene, Protein]" or "['a', 'b']"."""
-    try:
-        return [str(x) for x in ast.literal_eval(text)]
-    except (ValueError, SyntaxError):
-        return [x.strip() for x in text.strip("[]").split(",") if x.strip()]
 
 
 def load_concord_edges(concord_parquet, targets):
@@ -145,17 +133,31 @@ def main():
     dropped_all = {}
     added_all = {}
     with tempfile.TemporaryDirectory() as tmpdir:
+        # The same call rule umls_mesh_ownership makes.
+        ownership = os.path.join(tmpdir, "mesh_ownership.tsv")
+        badumls = diseasephenotype.read_badumls(os.path.join(get_config()["input_directory"], "badumls"))
+        umls.write_mesh_ownership(
+            os.path.join(args.umls_dir, "MRCONSO.RRF"),
+            {p: os.path.join(args.ids_dir, p, "MESH") for p in owners},
+            ownership,
+            never_add={"disease": {f"UMLS:{cui}" for cui in badumls}},
+        )
         for p in pipelines:
             build_ids = read_ids(os.path.join(args.ids_dir, p, "UMLS"))
-            sty = run_writer(p, args.umls_dir, args.ids_dir, owners, tmpdir, with_mesh=False)
-            mesh = run_writer(p, args.umls_dir, args.ids_dir, owners, tmpdir, with_mesh=True)
+            sty = run_writer(p, args.umls_dir, tmpdir, None)
+            mesh = run_writer(p, args.umls_dir, tmpdir, ownership)
             after[p] = mesh
             dropped_all[p] = {c: sty[c] for c in sty if c not in mesh}
             added_all[p] = {c: mesh[c] for c in mesh if c not in sty}
             lines.append(
                 f"| {p} | {len(build_ids):,} | {len(sty):,} | {len(dropped_all[p]):,} | {len(added_all[p]):,} | {len(mesh):,} |"
             )
-    lines += ["", "Dropped CUIs go to the pipeline that owns their descriptor; the table below says which.", ""]
+    lines += [
+        "",
+        "Dropped CUIs go to the pipeline that owns their descriptor; the table below says which. A dropped CUI "
+        "that no pipeline claims afterwards would be listed as going to (nobody); there should be none.",
+        "",
+    ]
     lines.append("| from | to (descriptor owner) | CUIs | most common semantic types |")
     lines.append("|---|---|---:|---|")
     # A CUI dropped from P is claimed by the pipeline(s) whose ids/UMLS list it after the rule.
@@ -196,7 +198,7 @@ def main():
     cross_listed = defaultdict(list)
     for row in leaders:
         leader = row["clique_leader"]
-        pair = ", ".join(parse_list(row["filenames"]))
+        pair = ", ".join(_parse_filenames(row["filenames"]))
         owners_of_leader = mesh_owner.get(leader, set())
         # A dragging edge is one whose CUI a pipeline other than the descriptor's owner still claims.
         dragging = sorted(
@@ -220,8 +222,8 @@ def main():
         "| cross-listed in two ids/MESH | residual |",
         "|---|---:|---:|---:|---:|",
     ]
-    for pair in sorted({", ".join(parse_list(r["filenames"])) for r in leaders}):
-        total = sum(1 for r in leaders if ", ".join(parse_list(r["filenames"])) == pair)
+    for pair in sorted({", ".join(_parse_filenames(r["filenames"])) for r in leaders}):
+        total = sum(1 for r in leaders if ", ".join(_parse_filenames(r["filenames"])) == pair)
         lines.append(
             f"| {pair} | {total:,} | {resolved[pair]:,} | {len(cross_listed[pair]):,} | {len(residual[pair]):,} |"
         )

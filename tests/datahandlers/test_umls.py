@@ -6,9 +6,10 @@ The MRSTY and MRCONSO rows are copied verbatim from UMLS 2026AA; each block name
 
 import pytest
 
-from src.categories import ANATOMICAL_ENTITY, CHEMICAL_ENTITY, ORGANISM_TAXON, PROTEIN
-from src.createcompendia import gene, processactivitypathway
+from src.categories import ANATOMICAL_ENTITY, CELL, CHEMICAL_ENTITY, ORGANISM_TAXON, PROTEIN
+from src.createcompendia import anatomy, chemicals, diseasephenotype, gene, processactivitypathway, protein, taxon
 from src.datahandlers import umls
+from src.util import get_config
 
 # C0242726 "Plant Roots": T002 Plant (taxon), descriptor D018517 in anatomy's A18 tree (#1123).
 # C0000608 "Aminocaproic Acid": T116 (protein) + T121, descriptor D015119 in a chemical D-tree (#308).
@@ -64,16 +65,18 @@ def read_ids(path):
     return dict(line.rstrip("\n").split("\t") for line in open(path) if line.strip())
 
 
-def run(rrf, category_map, own, foreign, **kwargs):
+def ownership(rrf, mesh_ids_by_pipeline, never_add=None):
+    """Write the umls_mesh_ownership file for these pipelines' MeSH claims and return its path."""
+    path = rrf / "mesh_ownership.tsv"
+    files = {pipeline: mesh_ids(rrf, pipeline, rows) for pipeline, rows in mesh_ids_by_pipeline.items()}
+    umls.write_mesh_ownership(str(rrf / "MRCONSO.RRF"), files, str(path), never_add=never_add)
+    return str(path)
+
+
+def run(rrf, category_map, mesh_ownership, pipeline, **kwargs):
     out = rrf / "UMLS"
     umls.write_umls_ids(
-        str(rrf / "MRSTY.RRF"),
-        category_map,
-        str(out),
-        mrconso=str(rrf / "MRCONSO.RRF"),
-        own_mesh_ids_files=own,
-        foreign_mesh_ids_files=foreign,
-        **kwargs,
+        str(rrf / "MRSTY.RRF"), category_map, str(out), mesh_ownership=mesh_ownership, pipeline=pipeline, **kwargs
     )
     return read_ids(out)
 
@@ -99,95 +102,221 @@ def test_read_cui_to_mesh_descriptors_skips_suppressed_atoms(tmp_path):
     assert umls.read_cui_to_mesh_descriptors(str(tmp_path / "MRCONSO.RRF")) == {}
 
 
-@pytest.mark.unit
-def test_build_sets_shares_the_concord_term_types():
-    """build_sets() and read_cui_to_mesh_descriptors() must agree on which MeSH atoms count, or a CUI could be
-    re-homed for a descriptor it is never concorded to (or vice versa)."""
-    assert umls.MESH_CONCORD_TTYS == frozenset({"MH", "NM", "HT", "QAB"})
-
-
-# MESH OWNERSHIP
-
-
-@pytest.mark.unit
-def test_cui_dropped_when_only_another_pipeline_claims_its_descriptor(rrf, tmp_path):
-    """Taxon selects C0242726 by T002, but D018517 is only in anatomy's MeSH ids, so taxon should not claim it."""
-    own = [mesh_ids(tmp_path, "taxon", [])]
-    foreign = [mesh_ids(tmp_path, "anatomy", [("MESH:D018517", ANATOMICAL_ENTITY)])]
-    assert run(rrf, TAXON_MAP, own, foreign) == {}
+# One atom of each of the other three concorded term types, copied verbatim from UMLS 2026AA: C0000268
+# "2-bromolysergic acid diethylamide" (NM, a supplementary record), C0002784 (HT, a MeSH category heading) and
+# C0000769 (QAB, a qualifier abbreviation).
+OTHER_CONCORD_TTY_ROWS = (
+    "C0000268|ENG|P|L0000268|PF|S0349869|N|A0383097||M0224845|C084642|MSH|NM|C084642|2-bromolysergic acid diethylamide|0|N||\n"
+    "C0002784|ENG|P|L0002784|PF|S0101154|Y|A0135345|||U000001|MSH|HT|U000001|Analytical, Diagnostic and Therapeutic Techniques and Equipment (MeSH Category)|0|N||\n"
+    "C0000769|ENG|S|L0655322|PF|S0787633|Y|A12081474||M0030203|Q000002|MSH|QAB|Q000002|AB|0|Y||\n"
+)
 
 
 @pytest.mark.unit
-def test_cui_added_to_the_pipeline_that_claims_its_descriptor(rrf, tmp_path):
-    """Anatomy's semantic types never select a T002 CUI, but it claims D018517, so it should claim C0242726
-    typed as that descriptor."""
-    own = [mesh_ids(tmp_path, "anatomy", [("MESH:D018517", ANATOMICAL_ENTITY)])]
-    foreign = [mesh_ids(tmp_path, "taxon", [])]
-    assert run(rrf, ANATOMY_MAP, own, foreign) == {"UMLS:C0242726": ANATOMICAL_ENTITY}
+def test_build_sets_concords_exactly_the_descriptors_ownership_reads(tmp_path):
+    """build_sets() should concord each CUI to exactly the descriptors read_cui_to_mesh_descriptors() returns for
+    it, over atoms of every MeSH term type (MH, NM, HT, QAB, and the PM/ET/PEP/Czech atoms neither may use).
+    Otherwise MeSH ownership would move a CUI for a descriptor it is never concorded to, or leave one behind
+    that its concord still drags."""
+    mrconso = tmp_path / "MRCONSO.RRF"
+    mrconso.write_text(MRCONSO + OTHER_CONCORD_TTY_ROWS)
+    cuis = ["C0242726", "C0000608", "C0000005", "C0000268", "C0002784", "C0000769"]
+    (tmp_path / "ids").write_text("".join(f"UMLS:{cui}\n" for cui in cuis))
+    umls.build_sets(str(mrconso), str(tmp_path / "ids"), str(tmp_path / "concord"), {"MSH": "MESH"})
+
+    concorded = {tuple(line.rstrip("\n").split("\teq\t")) for line in open(tmp_path / "concord")}
+    read = {
+        (cui, d) for cui, descriptors in umls.read_cui_to_mesh_descriptors(str(mrconso)).items() for d in descriptors
+    }
+    assert concorded == read
+    assert len(read) == 5, "every concorded term type should be represented, and C0000005's PEP/ET atoms not"
+
+
+# DECIDING OWNERSHIP
 
 
 @pytest.mark.unit
-def test_cui_kept_when_both_pipelines_claim_its_descriptor(rrf, tmp_path):
-    """A descriptor cross-listed in both pipelines' MeSH ids decides nothing: the semantic types stand, so
-    taxon keeps C0242726 and anatomy does not add it (that would recreate the duplicate)."""
-    taxon_mesh = mesh_ids(tmp_path, "taxon", [("MESH:D018517", ORGANISM_TAXON)])
-    anatomy_mesh = mesh_ids(tmp_path, "anatomy", [("MESH:D018517", ANATOMICAL_ENTITY)])
-    assert run(rrf, TAXON_MAP, [taxon_mesh], [anatomy_mesh]) == {"UMLS:C0242726": ORGANISM_TAXON}
-    assert run(rrf, ANATOMY_MAP, [anatomy_mesh], [taxon_mesh]) == {}
-
-
-@pytest.mark.unit
-def test_cui_kept_when_nobody_claims_its_descriptor(rrf, tmp_path):
-    """A descriptor in a tree no pipeline ingests leaves the CUI where its semantic types put it."""
-    assert run(rrf, TAXON_MAP, [mesh_ids(tmp_path, "taxon", [])], [mesh_ids(tmp_path, "anatomy", [])]) == {
-        "UMLS:C0242726": ORGANISM_TAXON
+def test_owner_is_the_only_pipeline_claiming_a_descriptor():
+    """A CUI whose descriptors only one pipeline claims should be owned by it, typed as its first descriptor in
+    sorted order; unclaimed descriptors do not count against it."""
+    cui_to_mesh = {"UMLS:C1": {"MESH:D2", "MESH:D1", "MESH:D9"}}
+    mesh_types = {"chemicals": {"MESH:D2": CHEMICAL_ENTITY, "MESH:D1": "biolink:Polypeptide"}, "anatomy": {}}
+    assert umls.compute_mesh_owners(cui_to_mesh, mesh_types) == {
+        "UMLS:C1": ("chemicals", "MESH:D1", "biolink:Polypeptide")
     }
 
 
 @pytest.mark.unit
-def test_t116_cui_with_chemical_descriptor_moves_from_protein_to_chemicals(rrf, tmp_path):
-    """C0000608 is T116 so protein selects it and chemicals' blocklist removes it; because D015119 is a chemical
-    descriptor, protein should drop it and chemicals should re-admit it typed ChemicalEntity (#308)."""
-    protein_mesh = mesh_ids(tmp_path, "protein", [])
-    chemicals_mesh = mesh_ids(tmp_path, "chemicals", [("MESH:D015119", CHEMICAL_ENTITY)])
-    assert run(rrf, PROTEIN_MAP, [protein_mesh], [chemicals_mesh]) == {"UMLS:C0000005": PROTEIN}
-    assert run(
-        rrf, CHEMICAL_MAP, [chemicals_mesh], [protein_mesh], blocklist_umls_semantic_type_tree=PROTEIN_STY_TREES
-    ) == {"UMLS:C0000608": CHEMICAL_ENTITY}
+def test_cui_has_no_owner_when_two_pipelines_claim_its_descriptors():
+    """A descriptor cross-listed in two pipelines' ids/MESH, or two descriptors claimed by different pipelines,
+    should leave the CUI without an owner, so that no pipeline drops it and none adds it."""
+    cui_to_mesh = {"UMLS:C1": {"MESH:D1"}, "UMLS:C2": {"MESH:D2", "MESH:D3"}}
+    mesh_types = {
+        "anatomy": {"MESH:D1": ANATOMICAL_ENTITY, "MESH:D2": ANATOMICAL_ENTITY},
+        "protein": {"MESH:D1": PROTEIN, "MESH:D3": PROTEIN},
+    }
+    assert umls.compute_mesh_owners(cui_to_mesh, mesh_types) == {}
 
 
 @pytest.mark.unit
-def test_cui_with_entry_term_atoms_only_is_untouched(rrf, tmp_path):
+def test_cui_has_no_owner_when_its_only_claimant_refuses_it():
+    """A CUI on its only claimant's never_add list (disease's badumls) should have no owner, so that the pipeline
+    whose semantic types selected it keeps it."""
+    mesh_types = {"disease": {"MESH:D1": "biolink:Disease"}}
+    assert umls.compute_mesh_owners({"UMLS:C1": {"MESH:D1"}}, mesh_types, {"disease": {"UMLS:C1"}}) == {}
+
+
+@pytest.mark.unit
+def test_mesh_ownership_file_round_trips(rrf):
+    """write_mesh_ownership() should write one row per owned CUI that read_mesh_ownership() reads back."""
+    path = ownership(
+        rrf, {"anatomy": [("MESH:D018517", ANATOMICAL_ENTITY)], "chemicals": [("MESH:D015119", CHEMICAL_ENTITY)]}
+    )
+    assert umls.read_mesh_ownership(path) == {
+        "UMLS:C0242726": ("anatomy", "MESH:D018517", ANATOMICAL_ENTITY),
+        "UMLS:C0000608": ("chemicals", "MESH:D015119", CHEMICAL_ENTITY),
+    }
+
+
+# APPLYING OWNERSHIP
+
+
+@pytest.mark.unit
+def test_cui_dropped_when_another_pipeline_owns_it(rrf):
+    """Taxon selects C0242726 by T002, but anatomy alone claims D018517, so taxon should not claim it."""
+    path = ownership(rrf, {"anatomy": [("MESH:D018517", ANATOMICAL_ENTITY)], "taxon": []})
+    assert run(rrf, TAXON_MAP, path, "taxon") == {}
+
+
+@pytest.mark.unit
+def test_cui_added_to_the_pipeline_that_owns_it(rrf):
+    """Anatomy's semantic types never select a T002 CUI, but it alone claims D018517, so it should claim C0242726
+    typed as that descriptor."""
+    path = ownership(rrf, {"anatomy": [("MESH:D018517", ANATOMICAL_ENTITY)], "taxon": []})
+    assert run(rrf, ANATOMY_MAP, path, "anatomy") == {"UMLS:C0242726": ANATOMICAL_ENTITY}
+
+
+@pytest.mark.unit
+def test_cui_kept_when_both_pipelines_claim_its_descriptor(rrf):
+    """A descriptor cross-listed in both pipelines' MeSH ids decides nothing: the semantic types stand, so
+    taxon keeps C0242726 and anatomy does not add it (that would recreate the duplicate)."""
+    path = ownership(
+        rrf, {"anatomy": [("MESH:D018517", ANATOMICAL_ENTITY)], "taxon": [("MESH:D018517", ORGANISM_TAXON)]}
+    )
+    assert run(rrf, TAXON_MAP, path, "taxon") == {"UMLS:C0242726": ORGANISM_TAXON}
+    assert run(rrf, ANATOMY_MAP, path, "anatomy") == {}
+
+
+@pytest.mark.unit
+def test_cui_kept_when_two_other_pipelines_claim_its_descriptor(rrf):
+    """Taxon selects C0242726; if anatomy *and* chemicals both claim D018517, neither will add it, so taxon must
+    keep it rather than drop it into the leftover compendium."""
+    path = ownership(
+        rrf,
+        {
+            "anatomy": [("MESH:D018517", ANATOMICAL_ENTITY)],
+            "chemicals": [("MESH:D018517", CHEMICAL_ENTITY)],
+            "taxon": [],
+        },
+    )
+    assert run(rrf, TAXON_MAP, path, "taxon") == {"UMLS:C0242726": ORGANISM_TAXON}
+    assert run(rrf, ANATOMY_MAP, path, "anatomy") == {}
+
+
+@pytest.mark.unit
+def test_cui_kept_when_nobody_claims_its_descriptor(rrf):
+    """A descriptor in a tree no pipeline ingests leaves the CUI where its semantic types put it."""
+    path = ownership(rrf, {"anatomy": [], "taxon": []})
+    assert run(rrf, TAXON_MAP, path, "taxon") == {"UMLS:C0242726": ORGANISM_TAXON}
+
+
+@pytest.mark.unit
+def test_t116_cui_with_chemical_descriptor_moves_from_protein_to_chemicals(rrf):
+    """C0000608 is T116 so protein selects it and chemicals' blocklist removes it; because D015119 is a chemical
+    descriptor, protein should drop it and chemicals should re-admit it typed ChemicalEntity (#308)."""
+    path = ownership(rrf, {"protein": [], "chemicals": [("MESH:D015119", CHEMICAL_ENTITY)]})
+    assert run(rrf, PROTEIN_MAP, path, "protein") == {"UMLS:C0000005": PROTEIN}
+    assert run(rrf, CHEMICAL_MAP, path, "chemicals", blocklist_umls_semantic_type_tree=PROTEIN_STY_TREES) == {
+        "UMLS:C0000608": CHEMICAL_ENTITY
+    }
+
+
+@pytest.mark.unit
+def test_cui_with_entry_term_atoms_only_is_untouched(rrf):
     """C0000005 maps to D012711 only through PEP/ET atoms, which build_sets() ignores, so even a chemical claim on
     D012711 should neither drop it from protein nor add it to chemicals."""
-    protein_mesh = mesh_ids(tmp_path, "protein", [])
-    chemicals_mesh = mesh_ids(tmp_path, "chemicals", [("MESH:D012711", CHEMICAL_ENTITY)])
-    assert "UMLS:C0000005" in run(rrf, PROTEIN_MAP, [protein_mesh], [chemicals_mesh])
+    path = ownership(rrf, {"protein": [], "chemicals": [("MESH:D012711", CHEMICAL_ENTITY)]})
+    assert "UMLS:C0000005" in run(rrf, PROTEIN_MAP, path, "protein")
     assert "UMLS:C0000005" not in run(
-        rrf, CHEMICAL_MAP, [chemicals_mesh], [protein_mesh], blocklist_umls_semantic_type_tree=PROTEIN_STY_TREES
+        rrf, CHEMICAL_MAP, path, "chemicals", blocklist_umls_semantic_type_tree=PROTEIN_STY_TREES
     )
 
 
 @pytest.mark.unit
-def test_blocklisted_cui_is_never_added(rrf, tmp_path):
-    """A CUI on the pipeline's explicit blocklist (disease's badumls) should stay out even if its descriptor is owned."""
-    own = [mesh_ids(tmp_path, "anatomy", [("MESH:D018517", ANATOMICAL_ENTITY)])]
-    assert run(rrf, ANATOMY_MAP, own, [], blocklist_umls_ids={"C0242726"}) == {}
+def test_cui_the_owner_refuses_stays_where_its_semantic_types_put_it(rrf):
+    """If the only claimant of D018517 blocks C0242726 (as disease's badumls does), taxon should keep it and the
+    claimant should not get it -- not drop it from taxon and leave it nowhere."""
+    path = ownership(
+        rrf, {"disease": [("MESH:D018517", "biolink:Disease")], "taxon": []}, {"disease": {"UMLS:C0242726"}}
+    )
+    assert run(rrf, TAXON_MAP, path, "taxon") == {"UMLS:C0242726": ORGANISM_TAXON}
+    assert run(rrf, ANATOMY_MAP, path, "disease", blocklist_umls_ids={"C0242726"}) == {}
 
 
 @pytest.mark.unit
-def test_mesh_ownership_arguments_are_all_or_none(rrf):
-    """Passing only some of mrconso/own/foreign should raise rather than silently skip the rule."""
+def test_ownership_computed_without_the_blocklist_raises(rrf):
+    """An ownership file that gives a pipeline a CUI on its own blocklist was built from a different blocklist;
+    write_umls_ids() should raise rather than add a CUI the pipeline refuses."""
+    path = ownership(rrf, {"disease": [("MESH:D018517", "biolink:Disease")]})
+    with pytest.raises(ValueError, match="blocks"):
+        run(rrf, ANATOMY_MAP, path, "disease", blocklist_umls_ids={"C0242726"})
+
+
+@pytest.mark.unit
+def test_mesh_ownership_needs_the_pipeline(rrf):
+    """Passing an ownership file without naming the pipeline it applies to should raise rather than guess."""
     with pytest.raises(ValueError):
-        umls.write_umls_ids(str(rrf / "MRSTY.RRF"), TAXON_MAP, str(rrf / "UMLS"), mrconso=str(rrf / "MRCONSO.RRF"))
+        umls.write_umls_ids(str(rrf / "MRSTY.RRF"), TAXON_MAP, str(rrf / "UMLS"), mesh_ownership=str(rrf / "x"))
 
 
 @pytest.mark.unit
-def test_without_mesh_arguments_semantic_types_alone_decide(rrf):
+def test_without_mesh_ownership_semantic_types_alone_decide(rrf):
     """The rule is optional: the classic call writes exactly what the category map selects."""
     out = rrf / "UMLS"
     umls.write_umls_ids(str(rrf / "MRSTY.RRF"), PROTEIN_MAP, str(out))
     assert read_ids(out) == {"UMLS:C0000608": PROTEIN, "UMLS:C0000005": PROTEIN}
+
+
+# PIPELINE WRAPPERS
+
+# C0000722 "Abbreviated Injury Scale": T170 Intellectual Product, which no pipeline selects by semantic type.
+UNSELECTED_MRSTY = "C0000722|T170|A2.4|Intellectual Product|AT17737160||\n"
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "pipeline,write",
+    [
+        ("anatomy", lambda mrsty, out, own, badumls: anatomy.write_umls_ids(mrsty, out, mesh_ownership=own)),
+        ("chemicals", lambda mrsty, out, own, badumls: chemicals.write_umls_ids(mrsty, out, mesh_ownership=own)),
+        (
+            "disease",
+            lambda mrsty, out, own, badumls: diseasephenotype.write_umls_ids(mrsty, out, badumls, mesh_ownership=own),
+        ),
+        ("protein", lambda mrsty, out, own, badumls: protein.write_umls_ids(mrsty, out, mesh_ownership=own)),
+        ("taxon", lambda mrsty, out, own, badumls: taxon.write_umls_ids(mrsty, out, mesh_ownership=own)),
+    ],
+)
+def test_each_mesh_owning_wrapper_applies_ownership_under_its_config_name(tmp_path, pipeline, write):
+    """Each MeSH-owning pipeline's write_umls_ids() should add a CUI the ownership file gives to its
+    ``umls_mesh_owning_pipelines`` name. A wrapper passing a different name would silently treat its own CUIs
+    as another pipeline's and drop them."""
+    assert pipeline in get_config()["umls_mesh_owning_pipelines"]
+    (tmp_path / "MRSTY.RRF").write_text(UNSELECTED_MRSTY)
+    (tmp_path / "badumls").write_text("#nothing blocked\n")
+    (tmp_path / "own").write_text(f"UMLS:C0000722\t{pipeline}\tMESH:D015998\tbiolink:Thing\n")
+    write(str(tmp_path / "MRSTY.RRF"), str(tmp_path / "UMLS"), str(tmp_path / "own"), str(tmp_path / "badumls"))
+    assert read_ids(tmp_path / "UMLS") == {"UMLS:C0000722": "biolink:Thing"}
 
 
 # DROP-ONLY PIPELINES (no ids/MESH of their own)
@@ -207,35 +336,46 @@ GENE_MRCONSO = (
 
 
 @pytest.mark.unit
-def test_process_drops_cui_whose_descriptor_a_mesh_owning_pipeline_claims(tmp_path):
+def test_process_drops_cui_another_pipeline_owns(tmp_path):
     """The process pipeline writes no ids/MESH, so it can only drop: C0004372 should leave process when disease
-    claims D001329, and stay when nobody does or when the rule is off."""
+    alone claims D001329, and stay when nobody does, when two pipelines do, or when the rule is off."""
     (tmp_path / "MRSTY.RRF").write_text(PROCESS_MRSTY)
     (tmp_path / "MRCONSO.RRF").write_text(PROCESS_MRCONSO)
     out = tmp_path / "UMLS"
-    mrsty, mrconso = str(tmp_path / "MRSTY.RRF"), str(tmp_path / "MRCONSO.RRF")
-    claimed = mesh_ids(tmp_path, "disease", [("MESH:D001329", "biolink:PhenotypicFeature")])
-    unclaimed = mesh_ids(tmp_path, "anatomy", [])
+    mrsty = str(tmp_path / "MRSTY.RRF")
+    kept = {"UMLS:C0004372": "biolink:BiologicalProcess"}
 
-    processactivitypathway.write_umls_ids(mrsty, str(out), mrconso=mrconso, foreign_mesh_ids_files=[claimed])
+    processactivitypathway.write_umls_ids(
+        mrsty,
+        str(out),
+        mesh_ownership=ownership(tmp_path, {"disease": [("MESH:D001329", "biolink:PhenotypicFeature")]}),
+    )
     assert read_ids(out) == {}
-    processactivitypathway.write_umls_ids(mrsty, str(out), mrconso=mrconso, foreign_mesh_ids_files=[unclaimed])
-    assert read_ids(out) == {"UMLS:C0004372": "biolink:BiologicalProcess"}
+    processactivitypathway.write_umls_ids(mrsty, str(out), mesh_ownership=ownership(tmp_path, {"anatomy": []}))
+    assert read_ids(out) == kept
+    two_claimants = {"disease": [("MESH:D001329", "biolink:PhenotypicFeature")], "anatomy": [("MESH:D001329", CELL)]}
+    processactivitypathway.write_umls_ids(mrsty, str(out), mesh_ownership=ownership(tmp_path, two_claimants))
+    assert read_ids(out) == kept
     processactivitypathway.write_umls_ids(mrsty, str(out))
-    assert read_ids(out) == {"UMLS:C0004372": "biolink:BiologicalProcess"}
+    assert read_ids(out) == kept
 
 
 @pytest.mark.unit
-def test_gene_drops_cui_whose_descriptor_a_mesh_owning_pipeline_claims(tmp_path):
-    """The gene pipeline has its own writer and no ids/MESH: C1413234 should leave gene when protein claims
-    D000097382, and stay when the rule is off."""
+def test_gene_drops_cui_another_pipeline_owns(tmp_path):
+    """The gene pipeline has its own writer and no ids/MESH: C1413234 should leave gene when protein alone claims
+    D000097382, and stay when two pipelines claim it or when the rule is off."""
     (tmp_path / "MRSTY.RRF").write_text(GENE_MRSTY)
     (tmp_path / "MRCONSO.RRF").write_text(GENE_MRCONSO)
     out = tmp_path / "UMLS"
     mrsty, mrconso = str(tmp_path / "MRSTY.RRF"), str(tmp_path / "MRCONSO.RRF")
-    claimed = mesh_ids(tmp_path, "protein", [("MESH:D000097382", PROTEIN)])
+    kept = {"UMLS:C1413234": "biolink:Gene"}
 
-    gene.write_umls_ids(mrconso, mrsty, str(out), foreign_mesh_ids_files=[claimed])
+    gene.write_umls_ids(
+        mrconso, mrsty, str(out), mesh_ownership=ownership(tmp_path, {"protein": [("MESH:D000097382", PROTEIN)]})
+    )
     assert read_ids(out) == {}
+    two_claimants = {"protein": [("MESH:D000097382", PROTEIN)], "chemicals": [("MESH:D000097382", CHEMICAL_ENTITY)]}
+    gene.write_umls_ids(mrconso, mrsty, str(out), mesh_ownership=ownership(tmp_path, two_claimants))
+    assert read_ids(out) == kept
     gene.write_umls_ids(mrconso, mrsty, str(out))
-    assert read_ids(out) == {"UMLS:C1413234": "biolink:Gene"}
+    assert read_ids(out) == kept

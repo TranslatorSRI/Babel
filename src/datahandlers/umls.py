@@ -94,46 +94,128 @@ def read_mesh_ids_types(mesh_ids_files):
     return types
 
 
-def apply_mesh_ownership(output_lines, cui_to_mesh, own_mesh_types, foreign_mesh_ids, never_add=frozenset()):
-    """Make a pipeline's UMLS ids follow the MeSH descriptors the pipelines own -- "a CUI follows its MeSH".
+def compute_mesh_owners(cui_to_mesh, mesh_types_by_pipeline, never_add=None):
+    """Decide, once for every pipeline, which pipeline owns each CUI -- "a CUI follows its MeSH descriptor".
 
     Each pipeline types CUIs by UMLS semantic type (``write_umls_ids``'s category_map) and MeSH descriptors by
     tree number (``mesh.write_ids``), independently. When the two disagree about a CUI -- say a CUI typed T116
     "Amino Acid, Peptide, or Protein" whose descriptor sits in a chemical D-tree -- the pipeline that claims the
     CUI would concord it to the descriptor (``build_sets``) and drag the other pipeline's descriptor and its
     DrugBank partners into its own clique, so the same identifiers ended up in two compendia
-    (https://github.com/NCATSTranslator/Babel/issues/276, #308, #1123). MeSH placement is the tie-breaker:
+    (https://github.com/NCATSTranslator/Babel/issues/276, #308, #1123). MeSH placement is the tie-breaker: a
+    CUI is *owned* by a pipeline when that pipeline is the only one whose ``ids/MESH`` claims any of the CUI's
+    descriptors, and that pipeline does not refuse the CUI (``never_add``). apply_mesh_ownership() then adds an
+    owned CUI to its owner and drops it from every other pipeline.
 
-    1. every descriptor of a CUI is claimed by *another* pipeline and none by this one -> **drop** the CUI here
-       (it is claimed where its descriptor lives, by rule 2 in that pipeline);
-    2. this pipeline, and no other, claims a descriptor of a CUI that its semantic types did not select ->
-       **add** the CUI, typed as that descriptor (the first own-claimed descriptor in sorted order), so the CUI,
-       its descriptor and its DrugBank partners stay together;
-    3. a CUI whose descriptors are claimed by both this pipeline and another (a descriptor cross-listed in two
-       trees, e.g. ``MESH:D013171`` "Spores, Bacterial" in B05 and A11, or a CUI with one descriptor on each
-       side), or by nobody, is left as the semantic types decided. Adding it here as well would create the
-       very duplicate this rule removes.
+    A CUI with no owner -- its descriptors claimed by nobody, or by two or more pipelines (a descriptor
+    cross-listed in two trees, e.g. ``MESH:D013171`` "Spores, Bacterial" in B05 and A11, or one descriptor on
+    each side), or by a single pipeline that refuses it -- is left wherever its semantic types put it. Deciding
+    ownership here, in one place, is what makes "drop" safe: a pipeline only drops a CUI that this map hands to
+    an owner that will add it. An earlier version let each pipeline decide from its own ``ids/MESH`` and the
+    union of the others', so a CUI whose descriptors two *other* pipelines claimed was dropped by the pipeline
+    that selected it and added by neither, and a CUI the owner refused (disease's badumls) was dropped and
+    never added; both fell to the leftover compendium, cut off from their descriptor's clique.
 
-    :param output_lines: The dict of CURIE -> [types] that write_umls_ids() is about to write; mutated in place.
     :param cui_to_mesh: The output of read_cui_to_mesh_descriptors().
-    :param own_mesh_types: MeSH CURIE -> Biolink type for the descriptors this pipeline's ids/MESH claims.
-    :param foreign_mesh_ids: The set of MeSH CURIEs every other pipeline's ids/MESH claims.
-    :param never_add: CUIs that must not be added by rule 2 (the pipeline's explicit CUI blocklist).
-    :return: ``(dropped, added)``: dropped maps each removed CUI to its foreign-claimed descriptors; added maps
-        each new CUI to ``(descriptor, type)``.
+    :param mesh_types_by_pipeline: pipeline -> {MeSH CURIE -> Biolink type}, one entry per pipeline in
+        config.yaml's ``umls_mesh_owning_pipelines`` (each the output of read_mesh_ids_types()).
+    :param never_add: pipeline -> set of CUIs (``UMLS:C...``) that pipeline must not be given, because its
+        ``write_umls_ids`` blocks them (disease's badumls). A CUI whose only claimant refuses it has no owner.
+    :return: A dict of CUI -> ``(pipeline, descriptor, biolink_type)``: the owner, and the owner's first claimed
+        descriptor in sorted order, whose type the CUI takes when it is added.
     """
+    never_add = never_add or {}
+    owners = {}
+    for cui, descriptors in cui_to_mesh.items():
+        claims = {}
+        for pipeline, mesh_types in mesh_types_by_pipeline.items():
+            claimed = sorted(d for d in descriptors if d in mesh_types)
+            if claimed:
+                claims[pipeline] = claimed
+        if len(claims) != 1:
+            continue
+        ((pipeline, claimed),) = claims.items()
+        if cui in never_add.get(pipeline, ()):
+            continue
+        owners[cui] = (pipeline, claimed[0], mesh_types_by_pipeline[pipeline][claimed[0]])
+    return owners
+
+
+def write_mesh_ownership(mrconso, mesh_ids_files_by_pipeline, outfile, never_add=None):
+    """Write the CUI -> owning pipeline map (compute_mesh_owners) that every ``*_umls_ids`` rule reads.
+
+    MRCONSO is parsed once here rather than once per pipeline, and every pipeline reads the same decision, so
+    no CUI can be dropped by one pipeline and not added by another.
+
+    :param mrconso: The file path of MRCONSO.RRF.
+    :param mesh_ids_files_by_pipeline: pipeline -> that pipeline's ``ids/MESH`` file, for every pipeline in
+        config.yaml's ``umls_mesh_owning_pipelines``.
+    :param outfile: The TSV to write: ``CUI<tab>pipeline<tab>descriptor<tab>biolink_type``, sorted by CUI.
+    :param never_add: See compute_mesh_owners().
+    """
+    owners = compute_mesh_owners(
+        read_cui_to_mesh_descriptors(mrconso),
+        {pipeline: read_mesh_ids_types([path]) for pipeline, path in mesh_ids_files_by_pipeline.items()},
+        never_add,
+    )
+    with open(outfile, "w") as outf:
+        for cui in sorted(owners):
+            outf.write("\t".join((cui,) + owners[cui]) + "\n")
+    counts = defaultdict(int)
+    for pipeline, _, _ in owners.values():
+        counts[pipeline] += 1
+    logger.info(f"MeSH ownership: {len(owners)} CUIs have an owning pipeline ({dict(sorted(counts.items()))}).")
+
+
+def read_mesh_ownership(path):
+    """Read a write_mesh_ownership() file back into compute_mesh_owners()'s dict."""
+    owners = {}
+    with open(path) as inf:
+        for line in inf:
+            cui, pipeline, descriptor, biolink_type = line.rstrip("\n").split("\t")
+            owners[cui] = (pipeline, descriptor, biolink_type)
+    return owners
+
+
+def apply_mesh_ownership(output_lines, mesh_owners, pipeline, blocklist=frozenset()):
+    """Make one pipeline's UMLS ids follow the owners compute_mesh_owners() chose.
+
+    Every CUI this pipeline owns is **added** (typed as its owned descriptor) if the semantic types did not
+    already select it, whether they put it elsewhere or nowhere, so the CUI, its descriptor and its DrugBank
+    partners stay together. Every CUI another pipeline owns is **dropped** here. A CUI with no owner is left
+    as the semantic types decided.
+
+    :param output_lines: The dict of CURIE -> [types] about to be written; mutated in place.
+    :param mesh_owners: The output of compute_mesh_owners() or read_mesh_ownership().
+    :param pipeline: This pipeline's directory name (an entry of ``umls_mesh_owning_pipelines``, or ``gene`` or
+        ``process``, which own no MeSH and so only ever drop).
+    :param blocklist: CUIs this pipeline must never claim. The ownership map was computed with them in
+        ``never_add``, so being handed one means it was built from a different blocklist: raise rather than
+        quietly add a CUI the pipeline refuses.
+    :return: ``(dropped, added)``: dropped maps each removed CUI to ``(owner, descriptor)``; added maps each new
+        CUI to ``(descriptor, type)``.
+    """
+    refused = sorted(cui for cui in blocklist if mesh_owners.get(cui, (None,))[0] == pipeline)
+    if refused:
+        raise ValueError(
+            f"The MeSH ownership map gives {pipeline} {len(refused)} CUIs it blocks (e.g. {refused[:5]}); it was "
+            f"computed without {pipeline}'s blocklist in never_add."
+        )
     dropped = {}
     added = {}
-    for cui, descriptors in cui_to_mesh.items():
-        own = sorted(d for d in descriptors if d in own_mesh_types)
-        foreign = sorted(d for d in descriptors if d in foreign_mesh_ids)
-        if own and not foreign:
-            if cui not in output_lines and cui not in never_add:
-                output_lines[cui] = [own_mesh_types[own[0]]]
-                added[cui] = (own[0], own_mesh_types[own[0]])
-        elif foreign and not own and cui in output_lines:
-            dropped[cui] = foreign
+    for cui, (owner, descriptor, biolink_type) in mesh_owners.items():
+        if owner == pipeline:
+            if cui not in output_lines:
+                output_lines[cui] = [biolink_type]
+                added[cui] = (descriptor, biolink_type)
+        elif cui in output_lines:
+            dropped[cui] = (owner, descriptor)
             del output_lines[cui]
+    logger.info(
+        f"MeSH ownership for {pipeline}: dropped {len(dropped)} CUIs another pipeline owns "
+        f"(e.g. {dict(list(dropped.items())[:5])}) and added {len(added)} CUIs this pipeline owns "
+        f"(e.g. {dict(list(added.items())[:5])})."
+    )
     return dropped, added
 
 
@@ -145,9 +227,8 @@ def write_umls_ids(
     blocklist_umls_ids=None,
     blocklist_umls_semantic_type_tree=None,
     *,
-    mrconso=None,
-    own_mesh_ids_files=None,
-    foreign_mesh_ids_files=None,
+    mesh_ownership=None,
+    pipeline=None,
 ):
     """
     Write out UMLS IDs and categories (as per a category map) to a file.
@@ -161,12 +242,11 @@ def write_umls_ids(
         Note that we strictly filter out the semantic type trees listed here: if e.g. A1.2.3 is on the blocklist,
         UMLS IDs with a semantic type tree of A1.2.3.4 will be allowed -- only UMLS IDs with a type of A1.2.3 will
         be blocked.
-    :param mrconso: The file path of MRCONSO.RRF. Given together with the two MeSH ids arguments, the selected
-        CUIs are adjusted by apply_mesh_ownership() -- "a CUI follows its MeSH descriptor" -- after the semantic
+    :param mesh_ownership: The write_mesh_ownership() file. Given (with ``pipeline``), the selected CUIs
+        are adjusted by apply_mesh_ownership() -- "a CUI follows its MeSH descriptor" -- after the semantic
         type blocklist, so a CUI the blocklist removed can re-enter through a descriptor this pipeline owns.
-        The three must be given together (or none of them); see ``umls_mesh_owning_pipelines`` in config.yaml.
-    :param own_mesh_ids_files: This pipeline's ``ids/MESH`` file(s).
-    :param foreign_mesh_ids_files: Every other MeSH-owning pipeline's ``ids/MESH`` file(s).
+        See ``umls_mesh_owning_pipelines`` in config.yaml.
+    :param pipeline: This pipeline's directory name under intermediate_directory, as the ownership file names it.
     :return: None.
     """
 
@@ -174,9 +254,8 @@ def write_umls_ids(
         blocklist_umls_ids = set()
     if blocklist_umls_semantic_type_tree is None:
         blocklist_umls_semantic_type_tree = set()
-    mesh_ownership_args = (mrconso, own_mesh_ids_files, foreign_mesh_ids_files)
-    if any(arg is None for arg in mesh_ownership_args) and any(arg is not None for arg in mesh_ownership_args):
-        raise ValueError("mrconso, own_mesh_ids_files and foreign_mesh_ids_files must be given together or not at all")
+    if mesh_ownership is not None and pipeline is None:
+        raise ValueError("mesh_ownership needs the pipeline it is being applied to")
 
     # Fun fact: MRSTY has duplicate records for entities that have multiple types, e.g.
     #   CUI | TUI | STN | STY | ATUI | CVF
@@ -236,20 +315,12 @@ def write_umls_ids(
                     # Delete this CURIE from the output.
                     del output_lines[curie]
 
-        if mrconso is not None:
-            own_mesh_types = read_mesh_ids_types(own_mesh_ids_files)
-            foreign_mesh_ids = set(read_mesh_ids_types(foreign_mesh_ids_files).keys())
-            dropped, added = apply_mesh_ownership(
+        if mesh_ownership is not None:
+            apply_mesh_ownership(
                 output_lines,
-                read_cui_to_mesh_descriptors(mrconso, prefix=prefix),
-                own_mesh_types,
-                foreign_mesh_ids,
-                never_add={f"{prefix}:{cui}" for cui in blocklist_umls_ids},
-            )
-            logger.info(
-                f"MeSH ownership for {umls_output}: dropped {len(dropped)} CUIs whose MeSH descriptor another "
-                f"pipeline claims (e.g. {dict(list(dropped.items())[:5])}) and added {len(added)} CUIs whose "
-                f"descriptor this pipeline claims (e.g. {dict(list(added.items())[:5])})."
+                read_mesh_ownership(mesh_ownership),
+                pipeline,
+                blocklist={f"{prefix}:{cui}" for cui in blocklist_umls_ids},
             )
 
         for curie in output_lines:

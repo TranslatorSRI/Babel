@@ -162,12 +162,13 @@ canonical prefix-constant registry; its `id_prefixes` order in the Biolink Model
 - **`SynonymFilter`** (`src/synonyms/filter.py`) checks every label/synonym against
   `input_data/obsolete_synonyms.yaml` before it enters a compendium — see its docstring for the
   `action` field and the `should_suppress()` contract.
-- **A UMLS CUI follows its MeSH descriptor** — the five pipelines that write both `ids/MESH` and
-  `ids/UMLS` (`config.yaml: umls_mesh_owning_pipelines`) pass every pipeline's `ids/MESH` into
-  `umls.write_umls_ids()`, which drops a CUI whose descriptor another pipeline claims and adds a CUI
-  whose descriptor this pipeline claims (`umls.apply_mesh_ownership()`); gene and process own no
-  MeSH and only drop. Changing a MeSH tree assignment therefore moves CUIs too.
-  `docs/sources/UMLS/CuiFollowsMesh.md`; measure a change with
+- **A UMLS CUI follows its MeSH descriptor** — `rule umls_mesh_ownership` reads the `ids/MESH` of
+  the five pipelines that write both `ids/MESH` and `ids/UMLS`
+  (`config.yaml: umls_mesh_owning_pipelines`) and gives each CUI whose descriptors exactly one of
+  them claims to that pipeline (`umls.compute_mesh_owners()`); every `*_umls_ids` rule then adds the
+  CUIs it owns and drops the ones another pipeline owns. Decide ownership in that one place: a
+  pipeline deciding for itself drops CUIs no other pipeline adds. Changing a MeSH tree assignment
+  therefore moves CUIs. `docs/sources/UMLS/CuiFollowsMesh.md`; measure a change with
   `docs/sources/UMLS/cui-follows-mesh/scripts/replay_mesh_ownership.py` before a build.
 - **Duplicate clique leaders fail the build** — `rule assert_no_unexpected_duplicate_clique_leaders`
   raises for any row of `reports/duckdb/duplicate_clique_leaders.tsv` not in

@@ -116,7 +116,7 @@ def write_omim_ids(infile, outfile):
                 outf.write(f"{OMIM}:{chunks[0]}\n")
 
 
-def write_umls_ids(mrconso, mrsty, outfile, *, foreign_mesh_ids_files=None):
+def write_umls_ids(mrconso, mrsty, outfile, *, mesh_ownership=None):
     """Find the UMLS entities that are genes.  This is complicated by the fact that UMLS  semantic type doesn't
     have a corresponding GENE class.  It has something (A1.2.3.5) which includes genes, but also includes genomes and
     variants and gene properties and gene families.  We can do some filtering by looking around in the MRCONSO as well
@@ -125,9 +125,9 @@ def write_umls_ids(mrconso, mrsty, outfile, *, foreign_mesh_ids_files=None):
     Also, remove anything that in the label identifies itself as an Allele or Mutation
     It's possible in the future that we'd like to try to assign better classes to some of these things.
 
-    ``foreign_mesh_ids_files`` enables "a CUI follows its MeSH descriptor" (umls.apply_mesh_ownership): the gene
-    pipeline writes no ids/MESH of its own, so it only ever *drops* a CUI, when a MeSH-owning pipeline claims
-    the CUI's descriptor and therefore the CUI itself."""
+    ``mesh_ownership`` (the umls_mesh_ownership rule's output) makes a CUI follow its MeSH descriptor
+    (umls.apply_mesh_ownership): the gene pipeline writes no ids/MESH of its own, so it only ever *drops* a
+    CUI, one that a MeSH-owning pipeline owns and therefore adds."""
 
     # Do I want this?  There are a bunch of things under here that we probably don't want.
     blacklist = set(
@@ -168,16 +168,8 @@ def write_umls_ids(mrconso, mrsty, outfile, *, foreign_mesh_ids_files=None):
             if "Allele" in x[14] or "Mutation" in x[14]:
                 umls_keepers.remove(x[0])
     output_lines = {f"{UMLS}:{cui}": [GENE] for cui in umls_keepers}
-    if foreign_mesh_ids_files is not None:
-        dropped, _ = umls.apply_mesh_ownership(
-            output_lines,
-            umls.read_cui_to_mesh_descriptors(mrconso),
-            {},
-            set(umls.read_mesh_ids_types(foreign_mesh_ids_files).keys()),
-        )
-        logger.info(
-            f"MeSH ownership for {outfile}: dropped {len(dropped)} CUIs whose MeSH descriptor a pipeline claims."
-        )
+    if mesh_ownership is not None:
+        umls.apply_mesh_ownership(output_lines, umls.read_mesh_ownership(mesh_ownership), "gene")
     with open(outfile, "w") as outf:
         for curie, types in output_lines.items():
             outf.write(f"{curie}\t{types[0]}\n")

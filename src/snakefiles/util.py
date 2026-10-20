@@ -25,21 +25,6 @@ def duckdb_memory_limit_mb(mem_mb, fraction=0.75):
     return int(int(mem_mb) * fraction)
 
 
-def mesh_ids_inputs(config, pipeline):
-    """The ids/MESH inputs a pipeline's *_umls_ids rule needs for MeSH ownership (config: umls_mesh_owning_pipelines).
-
-    :param config: The Snakemake config.
-    :param pipeline: This pipeline's directory name under intermediate_directory (e.g. "protein").
-    :return: ``(own_mesh_ids, foreign_mesh_ids)``: this pipeline's ids/MESH paths (a one-element list, or
-        empty for a pipeline such as gene or process that writes no ids/MESH and so can only drop CUIs) and
-        the list of every other MeSH-owning pipeline's ids/MESH path.
-    """
-    owners = config["umls_mesh_owning_pipelines"]
-    path = config["intermediate_directory"] + "/{}/ids/MESH"
-    own = [path.format(pipeline)] if pipeline in owners else []
-    return own, [path.format(other) for other in owners if other != pipeline]
-
-
 def write_done(filename):
     """Write a file to indicate that we are done."""
     with open(filename, "w") as f:

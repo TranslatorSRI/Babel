@@ -65,13 +65,13 @@ rule gene_umls_ids:
     input:
         mrconso=config["download_directory"] + "/UMLS/MRCONSO.RRF",
         mrsty=config["download_directory"] + "/UMLS/MRSTY.RRF",
-        foreign_mesh_ids=util.mesh_ids_inputs(config, "gene")[1],
+        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         outfile=config["intermediate_directory"] + "/gene/ids/UMLS",
     benchmark:
         config["output_directory"] + "/benchmarks/gene_umls_ids.tsv"
     run:
-        gene.write_umls_ids(input.mrconso, input.mrsty, output.outfile, foreign_mesh_ids_files=input.foreign_mesh_ids)
+        gene.write_umls_ids(input.mrconso, input.mrsty, output.outfile, mesh_ownership=input.mesh_ownership)
 
 
 rule get_gene_ncbigene_ensembl_relationships:

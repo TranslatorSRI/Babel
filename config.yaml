@@ -109,13 +109,12 @@ umls:
 # CUI's MeSH descriptor. When the two disagree -- a CUI typed T116 "Amino Acid, Peptide, or Protein" whose
 # descriptor sits in a chemical D-tree, or a T002 "Plant" CUI whose descriptor is anatomy's "Plant Roots" --
 # the concord dragged the other pipeline's descriptor and DrugBank partners into this pipeline's clique, so
-# the same identifiers ended up in two compendia and led cliques in both (#276, #308, #1123). So each
-# pipeline's *_umls_ids rule receives its own ids/MESH and the others' as inputs, and umls.write_umls_ids()
-# drops a CUI whose descriptor only another pipeline claims and adds a CUI whose descriptor this pipeline
-# claims (umls.apply_mesh_ownership() has the rules). Gene and process write an ids/UMLS but no ids/MESH, so
-# they are not listed: their *_umls_ids rules take all five ids/MESH files as "foreign" and only ever drop a
-# CUI (one whose descriptor a listed pipeline claims), or the CUI would be in two pipelines' ids/UMLS.
-# Names are the pipelines' directories under intermediate_directory.
+# the same identifiers ended up in two compendia and led cliques in both (#276, #308, #1123). So rule
+# umls_mesh_ownership reads these pipelines' ids/MESH and gives each CUI whose descriptors exactly one of them
+# claims to that pipeline (umls.compute_mesh_owners() has the rules), and every *_umls_ids rule adds the CUIs
+# it owns and drops the ones another pipeline owns. Gene and process write an ids/UMLS but no ids/MESH, so they
+# are not listed and only ever drop. Names are the pipelines' directories under intermediate_directory, and
+# each pipeline's write_umls_ids() passes its own name (tests/datahandlers/test_umls.py checks they match).
 umls_mesh_owning_pipelines: [anatomy, chemicals, disease, protein, taxon]
 
 #
