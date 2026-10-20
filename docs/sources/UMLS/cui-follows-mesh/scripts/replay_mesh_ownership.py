@@ -128,8 +128,11 @@ def load_concords_naming_owned_cuis(concord_parquet, owners):
                    regexp_extract(filename, 'intermediate/([^/]+)/concords/(.+)$', 2) AS concord, subj, obj
             FROM read_parquet('{concord_parquet}')
         )
-        SELECT DISTINCT c.pipeline, c.concord, o.owner, o.curie
-        FROM c JOIN owned o ON o.curie = c.subj OR o.curie = c.obj
+        -- Two equi-joins rather than one ON ... OR ..., which DuckDB can only run as a nested loop.
+        SELECT DISTINCT c.pipeline, c.concord, o.owner, o.curie FROM c JOIN owned o ON o.curie = c.subj
+        WHERE c.pipeline <> o.owner
+        UNION
+        SELECT DISTINCT c.pipeline, c.concord, o.owner, o.curie FROM c JOIN owned o ON o.curie = c.obj
         WHERE c.pipeline <> o.owner
         """
     ).fetchall()
