@@ -10,87 +10,83 @@ localrules:
     publications,
 
 
-### PubMed
+### PubMed, via the pubmed2db NDJSON export pinned in config.yaml (see docs/sources/PubMed/README.md).
+
+# Each export version downloads into its own directory, so moving config.yaml: pubmed2db_version to a newer
+# export changes every path below and Snakemake re-runs all three rules; nothing from the old export can be
+# reused by mistake. The URL is also a param, so editing pubmed2db_base_url re-runs them too.
+PUBMED2DB_URL = config["pubmed2db_base_url"] + config["pubmed2db_version"] + "/"
+PUBMED2DB_DIR = config["download_directory"] + "/PubMed2DB/" + config["pubmed2db_version"]
 
 
-# The baseline/ and updatefiles/ directories are deliberately NOT declared as directory() outputs:
-# Snakemake recursively deletes existing directory() outputs before running a job, which would wipe
-# any PubMed files preloaded from a previous run. Keeping them undeclared lets wget --timestamping
-# skip files we already have (see docs/RunningBabel.md, "Preloading PubMed downloads"). The done
-# marker is what the downstream rules depend on.
-rule download_pubmed:
+# PubMed2DB/<version>/ is deliberately NOT declared as a directory() output: Snakemake recursively deletes
+# existing directory() outputs before running a job, which would wipe shards preloaded from a previous run (see
+# docs/RunningBabel.md, "Preloading PubMed downloads"). The done marker is what the downstream rules depend on.
+rule download_pubmed2db:
     output:
-        done_file=config["download_directory"] + "/PubMed/downloaded",
+        done_file=PUBMED2DB_DIR + "/downloaded",
     benchmark:
-        config["output_directory"] + "/benchmarks/download_pubmed.tsv"
+        config["output_directory"] + "/benchmarks/download_pubmed2db.tsv"
+    retries: 3
     resources:
-        mem="8G",
+        mem="2G",
         cpus_per_task=1,
-        # Two hours got ~50% through ~1500 files; parallelizing baseline+updatefiles should halve
-        # that, so 6h is conservative. Tighten once benchmark TSVs give real-world data.
-        runtime="6h",
+        # ~17 GB over 8 files from stars.renci.org; 2h is generous for an in-datacenter copy.
+        runtime="2h",
+    params:
+        url=PUBMED2DB_URL,
+        report_path=config["pubmed2db_validation_report"],
+        download_dir=PUBMED2DB_DIR,
     run:
-        publications.download_pubmed(output.done_file)
-
-
-rule verify_pubmed:
-    input:
-        config["download_directory"] + "/PubMed/downloaded",
-    output:
-        done_file=config["download_directory"] + "/PubMed/verified",
-    benchmark:
-        config["output_directory"] + "/benchmarks/verify_pubmed.tsv"
-    run:
-        publications.verify_pubmed_downloads(
-            [
-                config["download_directory"] + "/PubMed/baseline",
-                config["download_directory"] + "/PubMed/updatefiles",
-            ],
-            output.done_file,
-        )
+        publications.download_pubmed2db(params.url, params.report_path, params.download_dir, output.done_file)
 
 
 rule generate_pubmed_concords:
     input:
-        config["download_directory"] + "/PubMed/verified",
+        PUBMED2DB_DIR + "/downloaded",
     output:
-        titles_file=config["download_directory"] + "/PubMed/titles.tsv",
-        status_file=config["download_directory"] + "/PubMed/statuses.jsonl.gz",
+        titles_file=config["download_directory"] + "/PubMed2DB/titles.tsv",
         pmid_id_file=config["intermediate_directory"] + "/publications/ids/PMID",
         pmid_doi_concord_file=config["intermediate_directory"] + "/publications/concords/PMID_DOI",
+        shared_ids_file=config["intermediate_directory"] + "/publications/concords/shared_identifiers.tsv",
         metadata_yaml=config["intermediate_directory"] + "/publications/concords/metadata.yaml",
     benchmark:
         config["output_directory"] + "/benchmarks/generate_pubmed_concords.tsv"
+    # One worker per shard; 2026sep26 has 8. More threads than shards buy nothing.
+    threads: 8
     resources:
-        # Deliberately left at 24h even though 2026jul22 took 20.0h of it (83%), which
-        # `babel-slurm-resources` reports as at-risk: 24h is known to work, 4h of slack has been
-        # enough so far, and a rewrite that removes this rule's cost is in progress. Raise it only
-        # if a run actually times out, and prefer fixing the rule.
-        runtime="24h",
-        mem="128G",
+        # The SLURM executor allocates cpus_per_task, not threads, and slurm/config.yaml defaults it to 1:
+        # without this, all 8 workers would share one core. Keep it equal to threads.
+        cpus_per_task=8,
+        # Workers write their shard's rows straight to part files, so each holds one record at a time;
+        # the parent's peak is the set of every DOI/PMCID built while scanning the concords for shared
+        # identifiers. Measured locally on shard 0 of 2026sep26 (5.25M records, 5.7M identifiers): 31s and
+        # 1.27 GB, ~210 bytes per identifier, so ~10 GB and a few minutes for all 8 shards. Replaced the
+        # single-threaded XML parse (128G/24h requested; 32 GB peak and 20h on 2026jul22). Confirm against
+        # the first cluster benchmark.
+        mem="16G",
+        runtime="1h",
     params:
-        # Not inputs: see the comment on download_pubmed for why these directories are untracked.
-        baseline_dir=config["download_directory"] + "/PubMed/baseline",
-        updatefiles_dir=config["download_directory"] + "/PubMed/updatefiles",
+        url=PUBMED2DB_URL,
+        # Not an input: see the comment on download_pubmed2db for why this directory is untracked.
+        download_dir=PUBMED2DB_DIR,
     run:
-        publications.parse_pubmed_into_tsvs(
-            params.baseline_dir,
-            params.updatefiles_dir,
+        publications.parse_pubmed2db_into_tsvs(
+            params.download_dir,
             output.titles_file,
-            output.status_file,
             output.pmid_id_file,
             output.pmid_doi_concord_file,
+            output.shared_ids_file,
             output.metadata_yaml,
+            params.url,
+            threads,
         )
 
 
 rule generate_pubmed_compendia:
     input:
-        pmid_id_file=config["intermediate_directory"] + "/publications/ids/PMID",
-        pmid_doi_concord_file=config["intermediate_directory"] + "/publications/concords/PMID_DOI",
-        titles=[
-            config["download_directory"] + "/PubMed/titles.tsv",
-        ],
+        PUBMED2DB_DIR + "/downloaded",
+        shared_ids_file=config["intermediate_directory"] + "/publications/concords/shared_identifiers.tsv",
         metadata_yaml=config["intermediate_directory"] + "/publications/concords/metadata.yaml",
         icrdf_filename=config["download_directory"] + "/icRDF.tsv",
     output:
@@ -101,18 +97,20 @@ rule generate_pubmed_compendia:
     benchmark:
         config["output_directory"] + "/benchmarks/generate_pubmed_compendia.tsv"
     resources:
-        # 2026jul22 peaked at 123.4 GiB = 132.5 GB against a 128G request -- at or past its own
-        # limit (summed process-tree RSS double-counts shared pages, which is likely why it was not
-        # killed) -- and ran 1.8h against the 2h cluster default. Tight on both axes, and Publication
-        # grows every release.
-        mem="192G",
-        runtime="4h",
+        # Single-threaded: cliques stream from the shards one record at a time (no glom, no global labels
+        # dict), so memory doesn't grow with the corpus. Measured locally on shard 0 of 2026sep26: 102s at
+        # ~51k cliques/s and 0.10 GB without the common UberGraph files, which other small compendium rules
+        # show add ~3 GB (genefamily_compendia: 2.9 GB on 2026jul22). So ~3 GB and ~15 min for the full
+        # export. The glom version peaked at 126 GiB and 1.8h. Confirm against the first cluster benchmark.
+        mem="8G",
+        runtime="1h",
+    params:
+        download_dir=PUBMED2DB_DIR,
     run:
         publications.generate_compendium(
-            [input.pmid_doi_concord_file],
+            params.download_dir,
+            input.shared_ids_file,
             [input.metadata_yaml],
-            [input.pmid_id_file],
-            input.titles,
             output.publication_compendium,
             input.icrdf_filename,
         )

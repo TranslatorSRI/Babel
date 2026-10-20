@@ -1,8 +1,9 @@
 """Unit tests for pull_via_wget()'s recursive, timestamping download.
 
-This is the mechanism that makes preloading PubMed downloads from a previous run work (see
-docs/RunningBabel.md, "Preloading PubMed downloads"): a recursive `wget --timestamping` fetch
-must leave already-present files alone and download only the ones we don't have yet.
+This is the mechanism that lets a recursive download reuse files preloaded from a previous run: a
+recursive `wget --timestamping` fetch must leave already-present files alone and download only the
+ones we don't have yet. (The PubMed XML download that motivated it has been replaced by the pubmed2db
+export, which is fetched file by file; see docs/RunningBabel.md, "Preloading PubMed downloads".)
 
 The tests run against a throwaway HTTP server on localhost, so they need no external network —
 but they do need the `wget` binary, and are skipped if it isn't installed.
@@ -71,7 +72,7 @@ def test_recursive_wget_downloads_every_file_into_an_empty_directory(http_server
 def test_recursive_wget_keeps_preloaded_files_and_downloads_only_the_new_ones(http_server, tmp_path):
     """A file we already have (same size, not older than the server's copy) should be left
     untouched, while a file we don't have yet should be downloaded. This is what lets a new
-    Babel run reuse the PubMed files carried over from a previous run."""
+    Babel run reuse files carried over from a previous run."""
     base_url, remote_dir = http_server
     (remote_dir / "files" / "preloaded.txt").write_text("REMOTE content")
     (remote_dir / "files" / "new.txt").write_text("brand new")

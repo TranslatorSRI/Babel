@@ -303,6 +303,27 @@ class Text:
         return f"{p[0].upper()}:{p[1]}"
 
 
+# Characters no identifier scheme in Babel allows: whitespace, "|" (a list separator -- NCIt's
+# multi-accession SwissProt mappings became UniProtKB:P0DP24|P0DP23|P0DP25, #1109) and control
+# characters. Measured on babel-1.18, nothing else in a shipped compendium contains one.
+MALFORMED_CURIE_CHARS_RE = re.compile(r"[\s|\x00-\x1f\x7f]")
+
+
+def curie_format_problem(curie):
+    """Return why ``curie`` is not a well-formed CURIE, or None if it is.
+
+    This is deliberately universal: it checks for a prefix, a local ID and characters that no
+    prefix allows, not whether the local ID fits its prefix's ID pattern. write_compendium() fails
+    the build on any CURIE this rejects.
+    """
+    prefix, sep, local_id = curie.partition(":")
+    if not sep or not prefix or not local_id:
+        return "missing prefix or local ID"
+    if m := MALFORMED_CURIE_CHARS_RE.search(curie):
+        return f"contains {m.group()!r}"
+    return None
+
+
 class Resource:
     @staticmethod
     def get_resource_path(resource_name):

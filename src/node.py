@@ -104,7 +104,9 @@ class SynonymFactory:
             pref = Text.get_prefix(thisid)
             if pref not in self.synonyms:
                 self.load_synonyms(pref)
-            for predicate, synonym in self.synonyms[pref][thisid]:
+            # .get(), not [thisid]: self.synonyms[pref] is a defaultdict, and indexing it would store an empty
+            # entry for every CURIE without synonyms -- ~1 GB per 10M identifiers in a streamed compendium.
+            for predicate, synonym in self.synonyms[pref].get(thisid, ()):
                 if synonym_filter.should_suppress(
                     synonym, source=f"{pref} synonyms/labels file", node_types=node_types
                 ):
@@ -165,7 +167,8 @@ class DescriptionFactory:
             pref = Text.get_prefix(thisid)
             if pref not in self.descriptions:
                 self.load_descriptions(pref)
-            node_descriptions[thisid].update(self.descriptions[pref][thisid])
+            # .get(), not [thisid]: indexing the defaultdict would store an empty set for every CURIE without one.
+            node_descriptions[thisid].update(self.descriptions[pref].get(thisid, ()))
             node_descriptions[thisid].update(self.common_descriptions.get(thisid, {}))
         return node_descriptions
 

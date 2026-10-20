@@ -96,49 +96,35 @@ target is much cheaper than `snakemake --cores N` with no target.
 
 ### Preloading PubMed downloads
 
-PubMed is the largest download in the pipeline (~1,500 gzipped XML files across `baseline/` and
-`updatefiles/`), and almost all of it is unchanged between runs. You can carry it forward into a
-new run's download directory:
+PubMed arrives as the pubmed2db NDJSON export pinned by `config.yaml: pubmed2db_version` (~17 GB of
+`pubmed_metadata_*.ndjson.gz` shards; see
+[`docs/sources/PubMed/README.md`](sources/PubMed/README.md)), downloaded into
+`babel_downloads/PubMed2DB/<version>/`. A published export never changes, so the whole directory can
+be carried forward into a new run:
 
 ```shell
-mkdir -p <new-run>/babel_downloads/PubMed
-mv <old-run>/babel_downloads/PubMed/baseline    <new-run>/babel_downloads/PubMed/
-mv <old-run>/babel_downloads/PubMed/updatefiles <new-run>/babel_downloads/PubMed/
-rm -f <new-run>/babel_downloads/PubMed/baseline/*.md5 \
-      <new-run>/babel_downloads/PubMed/updatefiles/*.md5
+mkdir -p <new-run>/babel_downloads
+mv <old-run>/babel_downloads/PubMed2DB <new-run>/babel_downloads/
 ```
 
-Two things make this work, and each is easy to break:
+The `downloaded` marker can come along too. Each export has its own directory, so if
+`pubmed2db_version` still names the same export the marker is right and the download is skipped; if
+it names a newer one, every path changes, Snakemake sees the new marker missing, and the new export
+is downloaded beside the old. Delete old `PubMed2DB/<version>/` directories once you no longer need
+them.
 
-* **Do not copy the `downloaded` or `verified` marker files.** Those are what Snakemake tracks; if
-  they are present it skips the download and verification rules entirely, and you never pick up the
-  new updatefiles.
-* **Preserve modification times.** `mv` (or `cp -p` / `rsync -a`) preserves them; a plain `cp` does
-  not. `download_pubmed` runs `wget --timestamping`, which re-downloads a file only when the
-  server's copy is newer than the local one or the sizes differ. With mtimes intact, a file PubMed
-  has since revised is correctly re-fetched.
+`download_pubmed2db` fetches each shard with `wget --continue`. That is safe only because an
+export's files never change: a shard left half-downloaded by an interrupted run is a true prefix of
+the server's copy, so appending the rest is correct. (`pull_via_wget()` refuses `--continue` for a
+*recursive* download, where a preloaded file can have changed upstream; see its comments.) A
+truncated shard that slips through anyway fails the build, because each shard is a single gzip
+stream and a cut-off one fails decompression. `generate_pubmed_concords` also checks every shard
+against the record count in the export's validation report, which catches an intact shard from a
+different export.
 
-Deleting the `.md5` files, as above, isn't strictly necessary: PubMed republishes a file's `.md5`
-whenever it revises the `.gz`, so with mtimes intact `--timestamping` re-fetches the checksum along
-with the file, and a stale-but-self-consistent `.gz`/`.md5` pair can't survive the download. It is
-cheap insurance against a preload that lost its mtimes — the `.md5` files are a few kilobytes each —
-so drop them and let `verify_pubmed` check every carried-over `.gz` against a checksum fetched in
-*this* run.
-
-`verify_pubmed` then MD5s every `.gz` in both directories — the carried-over files included — and
-re-downloads any that fail, so a corrupt or truncated file from the previous run heals itself.
-Checksumming the full corpus takes a few minutes; it happens on every run regardless.
-
-A recursive download is always timestamped and never resumed: `pull_via_wget()` raises if a caller
-asks for `--continue` alongside recursion, or for recursion without `--timestamping`. wget resumes
-by *appending* the bytes it thinks are missing to whatever local file it finds, which silently
-corrupts a file whose content changed upstream rather than merely being truncated. Any file that
-disagrees with the server on size or mtime is therefore re-fetched in full, at the cost of
-restarting — rather than resuming — a large file whose download was interrupted.
-
-The `baseline/` and `updatefiles/` directories are deliberately *not* declared as `directory()`
-outputs of `download_pubmed`. Snakemake recursively deletes existing `directory()` outputs before
-running a job, which would delete anything preloaded into them.
+`PubMed2DB/<version>/` is deliberately *not* declared as a `directory()` output of
+`download_pubmed2db`. Snakemake recursively deletes existing `directory()` outputs before running a
+job, which would delete anything preloaded into it.
 
 ### Common build issues
 
@@ -174,13 +160,34 @@ running a job, which would delete anything preloaded into them.
   compendium must be parseable JSON. `write_compendium()` does not write atomically, which is
   what makes this possible; tracked in
   [#910](https://github.com/NCATSTranslator/Babel/issues/910).
-* **Put the target *before* `--forcerun`.** `--forcerun` takes a list of rule names, so a target
-  written after it is swallowed as another rule name and Snakemake falls back to building the
-  **default target** — the entire pipeline. The tell is a job list far larger than expected, then a
-  failure in a rule you were not building (an unrelated download, typically). `--rerun-incomplete`
-  makes it worse: it pulls every incomplete file from *any* previous run into that DAG.
+* **Put targets *before* any option that takes a list.** `--forcerun` (`-R`) is the one that bites
+  most, but `--until`, `--omit-from`, `--allowed-rules` and Snakemake's other list-valued options
+  behave the same way: each consumes every following word up to the next option. `--forcerun`,
+  `--until` and `--omit-from` accept files as well as rules, so a target path written after one of
+  them is silently taken as another value of that option — with `--forcerun`, as a file to force
+  rerun. That leaves no target, and Snakemake falls back to building the **default target**, the
+  entire pipeline. The tell is a job list far larger than expected, then a failure in a rule you
+  were not building (an unrelated download, typically). `--rerun-incomplete` makes it worse: it
+  pulls every incomplete file from *any* previous run into that DAG.
   `snakemake -c 4 babel_outputs/compendia/Disease.txt --forcerun get_disease_doid_relationships`
-  is right; the same words with the path last is not.
+  is right; the same words with the path last is not. Two forms are right whatever the order,
+  because they end the list explicitly: `--forcerun=get_disease_doid_relationships` (one value per
+  `=`), or `--` before the targets. A dry run only shows the trap if `-n` is the first or last
+  word. In the middle, `--forcerun rule -n path` ends the rule list at `-n`, so the dry run shows
+  the one job you meant, and then the real run, without `-n`, builds everything.
+* **`OSError: [Errno 86] Bad CPU type in executable: .../pulp/.../cbc`** on Apple Silicon.
+  Snakemake's default ILP scheduler runs the `cbc` solver bundled with `pulp`, which is an x86-64
+  binary. Without Rosetta, any run that schedules jobs (not `-n`) fails with this error before
+  doing anything; it is an `OSError`, not a solver error, so Snakemake does not fall back to its
+  greedy scheduler on its own. Fixes, most durable first:
+  * Install Rosetta once (`softwareupdate --install-rosetta`) and the bundled binary runs as is.
+  * Use a native solver: `brew install cbc`, then pass `--scheduler-ilp-solver COIN_CMD`, which
+    finds `cbc` on `PATH`. `--scheduler-ilp-solver-path` alone does not help, because `pulp`'s
+    default `PULP_CBC_CMD` always runs its bundled binary.
+  * Add `--scheduler greedy` to the command. The greedy scheduler gives up the ILP scheduler's
+    temp-file and resource optimisation, which matters little for a local run. To avoid retyping
+    it, put `scheduler: greedy` in a personal profile (`~/.config/snakemake/<name>/config.yaml`)
+    and `export SNAKEMAKE_PROFILE=<name>`.
 * **UberGraph transient failures.** Rules that fetch from UberGraph (anatomy's UBERON, GO, CL,
   EMAPA rules; similar elsewhere) sometimes time out, 5xx, or return truncated JSON. They carry
   `retries: 3` and the underlying `TripleStore` adds bounded retry/backoff, so most transient
