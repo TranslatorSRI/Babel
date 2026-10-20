@@ -164,6 +164,24 @@ demote a defined molecule. That second rule is a bug fix — see
 [the food-and-extracts README](sources/DRUGBANK/food-and-extracts/README.md) for what happened when
 the evidence was an override instead (issue #935).
 
+### Chemical roles are a separate compendium
+
+`ChemicalRole.txt` holds what a chemical does rather than what it is: ChEBI's role branch
+(`CHEBI:50906`), MeSH descriptors in D27 (Chemical Actions and Uses) and no other compendium's
+trees, and the substance-typed UMLS CUIs whose MeSH atoms all point at those descriptors. Each
+compendium draws the line from the vocabularies' own structure, so neither reads the other's
+outputs. The chemicals side keeps roles out in two ways:
+
+- Its id lists leave roles out: `write_chebi_ids()` takes only the chemical entity branch,
+  `write_mesh_ids()` only D01–D26, and `write_umls_ids()` blocklists the MeSH-role CUIs.
+- `build_untyped_compendia()` drops any concord pair whose CHEBI, MESH or UMLS member is not in
+  those id lists (`ID_LIST_ENFORCED_PREFIXES`), logging the count per concord. This is what stops a
+  cross-reference from bringing a role back in.
+
+Biolink lists only `CHEBI` as an id prefix for `biolink:ChemicalRole`, so MESH and UMLS are extra
+prefixes there: a clique with a ChEBI role is headed by it, and MeSH/UMLS-only role cliques are
+kept. See [`docs/sources/MESH/Ingestion.md`](sources/MESH/Ingestion.md) for the D27 rule.
+
 ### `Polypeptide.txt` is a residue, not a compendium
 
 `compendia/Polypeptide.txt` is tiny (166 cliques in 2025sep1, 5 in 2026jul22) and its size swings

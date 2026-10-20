@@ -26,6 +26,7 @@ from src.categories import (
 from src.createcompendia.chemicals import (
     CHEBI_DBX_SOURCE_NAMES,
     create_typed_sets,
+    filter_pairs_to_known_ids,
     make_chebi_relations,
     read_chebi_lookup_ids,
     split_chebi_sdf_values,
@@ -574,3 +575,21 @@ def test_make_chebi_relations_raises_when_the_dbx_contributes_nothing(tmp_path):
     """
     with pytest.raises(ValueError, match="database_accession.tsv"):
         _run_make_chebi_relations(tmp_path, dbx_contents=DBX_HEADER)
+
+
+# CONCORD PAIRS OUTSIDE THE ID LISTS
+
+
+@pytest.mark.unit
+def test_filter_pairs_to_known_ids():
+    """Pairs whose CHEBI/MESH/UMLS member is not in the id lists should be dropped and counted by that prefix."""
+    pairs = [
+        ["MESH:D000928", "CHEBI:35469"],  # Antidepressive Agents <-> antidepressant: both roles, neither listed
+        ["MESH:D014867", "CHEBI:15377"],  # water: both listed
+        ["PUBCHEM.COMPOUND:962", "MESH:D014867"],  # PUBCHEM is not an enforced prefix
+        ["UMLS:C0003289", "MESH:D014867"],  # UMLS side not listed
+    ]
+    known = {"MESH:D014867", "CHEBI:15377"}
+    kept, dropped = filter_pairs_to_known_ids(pairs, known, {"CHEBI", "MESH", "UMLS"})
+    assert kept == [["MESH:D014867", "CHEBI:15377"], ["PUBCHEM.COMPOUND:962", "MESH:D014867"]]
+    assert dropped == {"MESH": 1, "UMLS": 1}

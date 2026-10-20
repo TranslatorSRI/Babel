@@ -425,6 +425,11 @@ taxon_outputs:  [OrganismTaxon.txt]
 
 cell_line_outputs: [CellLine.txt]
 
+chemical_role_ids:      [CHEBI, MESH, UMLS]
+chemical_role_concords: [wikidata_mesh_chebi, UMLS]
+chemical_role_labels:   [CHEBI, MESH, UMLS]
+chemical_role_outputs:  [ChemicalRole.txt]
+
 genefamily_labels:  [PANTHER.FAMILY, HGNC.FAMILY]
 genefamily_ids:     [PANTHER.FAMILY, HGNC.FAMILY]
 genefamily_outputs: [GeneFamily.txt]

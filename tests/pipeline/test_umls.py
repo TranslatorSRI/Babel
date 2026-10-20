@@ -1,7 +1,7 @@
 """UMLS-specific pipeline tests (issue #675 extension).
 
-The generic non-empty and mutual-exclusivity tests for all seven UMLS compendia
-(chemicals, protein, anatomy, disease/phenotype, process/activity, taxon, gene)
+The generic non-empty and mutual-exclusivity tests for all eight UMLS compendia
+(chemicals, chemical role, protein, anatomy, disease/phenotype, process/activity, taxon, gene)
 are in test_vocabulary_partitioning.py.  This file contains only the
 UMLS-specific targeted test that has no generic equivalent.
 

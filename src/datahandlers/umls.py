@@ -11,7 +11,7 @@ from src.babel_utils import make_local_name
 from src.categories import CHEMICAL_ENTITY, DRUG, MOLECULAR_MIXTURE
 from src.metadata.provenance import write_concord_metadata, write_download_metadata
 from src.predicates import HAS_EXACT_SYNONYM
-from src.prefixes import RXCUI, UMLS
+from src.prefixes import MESH, RXCUI, UMLS
 from src.util import get_logger
 
 logger = get_logger(__name__)
@@ -47,6 +47,28 @@ def check_mrconso_line(line):
         return False
 
     return True
+
+
+def get_cuis_mapped_only_to_mesh(mrconso, mesh_curies):
+    """Return the CUIs whose MeSH atoms all point at identifiers in ``mesh_curies``.
+
+    This is how MeSH arbitrates UMLS membership: a CUI with at least one MSH atom, every one of which
+    is in ``mesh_curies``, belongs wherever MeSH puts those identifiers. A CUI with no MSH atoms is
+    never returned, so callers can only use this to move CUIs MeSH has an opinion about.
+
+    :param mrconso: Path to MRCONSO.RRF.
+    :param mesh_curies: A set of MeSH CURIEs (e.g. ``{"MESH:D000928"}``).
+    :return: A set of bare CUIs (e.g. ``{"C0003289"}``).
+    """
+    cui_to_mesh = defaultdict(set)
+    with open(mrconso) as inf:
+        for line in inf:
+            if not check_mrconso_line(line):
+                continue
+            x = line.split("|")
+            if x[11] == "MSH":
+                cui_to_mesh[x[0]].add(f"{MESH}:{x[13]}")
+    return {cui for cui, mesh_ids in cui_to_mesh.items() if mesh_ids <= mesh_curies}
 
 
 def write_umls_ids(

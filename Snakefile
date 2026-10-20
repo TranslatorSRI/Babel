@@ -4,6 +4,7 @@ configfile: "config.yaml"
 include: "src/snakefiles/datacollect.snakefile"
 include: "src/snakefiles/anatomy.snakefile"
 include: "src/snakefiles/cell_line.snakefile"
+include: "src/snakefiles/chemical_role.snakefile"
 include: "src/snakefiles/gene.snakefile"
 include: "src/snakefiles/protein.snakefile"
 include: "src/snakefiles/geneprotein.snakefile"
@@ -75,6 +76,7 @@ rule all_outputs:
         config["output_directory"] + "/reports/protein_done",
         config["output_directory"] + "/reports/taxon_done",
         config["output_directory"] + "/reports/cell_line_done",
+        config["output_directory"] + "/reports/chemical_role_done",
         config["output_directory"] + "/reports/umls_done",
         config["output_directory"] + "/reports/macromolecular_complex_done",
         config["output_directory"] + "/reports/drugchemical_done",

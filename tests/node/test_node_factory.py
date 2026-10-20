@@ -313,3 +313,23 @@ def test_load_extra_labels_tab_in_label(tmp_path):
     fac.common_labels = {}
     fac.load_extra_labels("CHEMBL.COMPOUND")
     assert fac.extra_labels["CHEMBL.COMPOUND"]["CHEMBL.COMPOUND:CHEMBL3"] == "Water\tbottle"
+
+
+@pytest.mark.network
+def test_chemical_role_prefers_chebi_over_extra_prefixes(node_factory):
+    """A ChemicalRole clique should be headed by its ChEBI role, with MeSH and UMLS extra prefixes after it."""
+    node = node_factory.create_node(
+        ["MESH:D000928", "UMLS:C0003289", "CHEBI:35469"],
+        categories.CHEMICAL_ROLE,
+        extra_prefixes=[pref.MESH, pref.UMLS],
+    )
+    assert [x["identifier"] for x in node["identifiers"]] == ["CHEBI:35469", "MESH:D000928", "UMLS:C0003289"]
+
+
+@pytest.mark.network
+def test_chemical_role_without_chebi_keeps_mesh(node_factory):
+    """A MeSH/UMLS ChemicalRole clique with no ChEBI role should still be written, headed by MeSH."""
+    node = node_factory.create_node(
+        ["UMLS:C0020616", "MESH:D007004"], categories.CHEMICAL_ROLE, extra_prefixes=[pref.MESH, pref.UMLS]
+    )
+    assert node["id"]["identifier"] == "MESH:D007004"

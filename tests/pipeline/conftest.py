@@ -32,7 +32,7 @@ import subprocess
 import pytest
 
 from src.babel_utils import make_local_name
-from src.createcompendia import anatomy, chemicals, diseasephenotype, protein, taxon
+from src.createcompendia import anatomy, chemical_role, chemicals, diseasephenotype, protein, taxon
 from src.datahandlers.mesh import Mesh, pull_mesh
 from src.prefixes import EMAPA, MP
 from src.ubergraph import build_sets
@@ -274,7 +274,7 @@ def mesh_nt():
 
 @pytest.fixture(scope="session")
 def mesh_pipeline_outputs(mesh_nt, regenerate):
-    """Run write_mesh_ids for all five compendia; skip if mesh_nt unavailable.
+    """Run write_mesh_ids for all six compendia; skip if mesh_nt unavailable.
 
     Output files are written to babel_outputs/intermediate/{type}/ids/MESH and
     reused on subsequent runs unless --regenerate is passed.
@@ -288,9 +288,11 @@ def mesh_pipeline_outputs(mesh_nt, regenerate):
     _maybe_run(p("anatomy"), lambda: anatomy.write_mesh_ids(p("anatomy")), regenerate)
     _maybe_run(p("diseasephenotype"), lambda: diseasephenotype.write_mesh_ids(p("diseasephenotype")), regenerate)
     _maybe_run(p("taxon"), lambda: taxon.write_mesh_ids(p("taxon")), regenerate)
+    _maybe_run(p("chemical_role"), lambda: chemical_role.write_mesh_ids(p("chemical_role")), regenerate)
 
     return {
         "chemicals": p("chemicals"),
+        "chemical_role": p("chemical_role"),
         "protein": p("protein"),
         "anatomy": p("anatomy"),
         "diseasephenotype": p("diseasephenotype"),
@@ -350,8 +352,8 @@ def umls_rrf_files():
 
 
 @pytest.fixture(scope="session")
-def umls_pipeline_outputs(umls_rrf_files, regenerate):
-    """Run write_umls_ids for all seven compendia; returns dict of output paths.
+def umls_pipeline_outputs(umls_rrf_files, mesh_pipeline_outputs, regenerate):
+    """Run write_umls_ids for all eight compendia; returns dict of output paths.
 
     Output files are written to babel_outputs/intermediate/{type}/ids/UMLS and
     reused on subsequent runs unless --regenerate is passed.
@@ -370,7 +372,7 @@ def umls_pipeline_outputs(umls_rrf_files, regenerate):
     def p(compendium):
         return _intermediate_id_path(compendium, "UMLS")
 
-    _maybe_run(p("chemicals"), lambda: chemicals.write_umls_ids(mrsty, p("chemicals")), regenerate)
+    _maybe_run(p("chemicals"), lambda: chemicals.write_umls_ids(mrsty, mrconso, p("chemicals")), regenerate)
     _maybe_run(p("protein"), lambda: protein.write_umls_ids(mrsty, p("protein")), regenerate)
     _maybe_run(p("anatomy"), lambda: anatomy.write_umls_ids(mrsty, p("anatomy")), regenerate)
     _maybe_run(
@@ -385,10 +387,26 @@ def umls_pipeline_outputs(umls_rrf_files, regenerate):
     )
     _maybe_run(p("taxon"), lambda: taxon.write_umls_ids(mrsty, p("taxon")), regenerate)
     _maybe_run(p("gene"), lambda: gene.write_umls_ids(mrconso, mrsty, p("gene")), regenerate)
+    _maybe_run(
+        p("chemical_role"),
+        lambda: chemical_role.write_umls_ids(
+            mrconso, mrsty, mesh_pipeline_outputs["chemical_role"], p("chemical_role")
+        ),
+        regenerate,
+    )
 
     return {
         name: p(name)
-        for name in ["chemicals", "protein", "anatomy", "diseasephenotype", "processactivitypathway", "taxon", "gene"]
+        for name in [
+            "chemicals",
+            "chemical_role",
+            "protein",
+            "anatomy",
+            "diseasephenotype",
+            "processactivitypathway",
+            "taxon",
+            "gene",
+        ]
     }
 
 
