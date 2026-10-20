@@ -1,0 +1,32 @@
+{
+  "RGD": "708518",
+  "_id": "63880",
+  "_version": 1,
+  "ensembl": {
+    "gene": "ENSRNOG00000010352",
+    "protein": [
+      "ENSRNOP00000014182",
+      "ENSRNOP00000104756"
+    ],
+    "transcript": [
+      "ENSRNOT00000014182",
+      "ENSRNOT00000107166"
+    ],
+    "translation": [
+      {
+        "protein": "ENSRNOP00000014182",
+        "rna": "ENSRNOT00000014182"
+      },
+      {
+        "protein": "ENSRNOP00000104756",
+        "rna": "ENSRNOT00000107166"
+      }
+    ],
+    "type_of_gene": "protein_coding"
+  },
+  "entrezgene": "63880",
+  "name": "DnaJ heat shock protein family (Hsp40) member C3",
+  "symbol": "Dnajc3",
+  "taxid": 10116,
+  "type_of_gene": "protein-coding"
+}

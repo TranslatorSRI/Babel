@@ -1,0 +1,16 @@
+{
+  "FLYBASE": "FBgn0031778",
+  "_id": "12798573",
+  "_version": 1,
+  "ensembl": {
+    "gene": "FBgn0031778",
+    "transcript": "FBtr0308942",
+    "translation": [],
+    "type_of_gene": "ncRNA"
+  },
+  "entrezgene": "12798573",
+  "name": "long non-coding RNA:CR9162",
+  "symbol": "lncRNA:CR9162",
+  "taxid": 7227,
+  "type_of_gene": "ncRNA"
+}

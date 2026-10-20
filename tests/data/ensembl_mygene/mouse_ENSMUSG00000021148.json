@@ -1,0 +1,32 @@
+{
+  "MGI": "MGI:3704398",
+  "_id": "100039655",
+  "_version": 1,
+  "ensembl": {
+    "gene": "ENSMUSG00000021148",
+    "protein": [
+      "ENSMUSP00000021573",
+      "ENSMUSP00000139705"
+    ],
+    "transcript": [
+      "ENSMUST00000021573",
+      "ENSMUST00000187196"
+    ],
+    "translation": [
+      {
+        "protein": "ENSMUSP00000139705",
+        "rna": "ENSMUST00000187196"
+      },
+      {
+        "protein": "ENSMUSP00000021573",
+        "rna": "ENSMUST00000021573"
+      }
+    ],
+    "type_of_gene": "protein_coding"
+  },
+  "entrezgene": "100039655",
+  "name": "isopentenyl-diphosphate delta isomerase 2 like",
+  "symbol": "Idi2l",
+  "taxid": 10090,
+  "type_of_gene": "pseudo"
+}
