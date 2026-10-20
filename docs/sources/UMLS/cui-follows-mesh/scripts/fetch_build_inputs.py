@@ -12,7 +12,7 @@ pipelines' MESH and UMLS ids files from it (one filtered read over https, under 
 
 The replays also need UMLS and MeSH downloaded locally (``babel_downloads/UMLS/MRCONSO.RRF`` and ``MRSTY.RRF``,
 ``babel_downloads/MESH/mesh.nt``): ``uv run snakemake --cores 1 download_umls`` (needs ``UMLS_API_KEY``) and
-``uv run snakemake --cores 1 <download_directory>/MESH/mesh.nt``. Example:
+``uv run snakemake --cores 1 get_mesh``. Example:
 
     uv run python docs/sources/UMLS/cui-follows-mesh/scripts/fetch_build_inputs.py \\
         --build-url https://stars.renci.org/var/babel/<build> --output-dir data/duplicate-curies
