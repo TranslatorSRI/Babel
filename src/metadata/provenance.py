@@ -18,6 +18,13 @@ def write_download_metadata(filename, *, name, url="", description="", sources=N
 
 
 def write_concord_metadata(filename, *, name, concord_filename, url="", description="", sources=None, counts=None):
+    """Write metadata for a concord file, including counts computed by reading every row of it.
+
+    Raises ValueError on a row that isn't exactly three tab-separated columns. This runs in the rule
+    that wrote the concord, minutes into a build, whereas a bad row used to be skipped here with a
+    warning and then either skipped again or crash the compendium build hours later (the protein
+    loader indexes ``x[2]`` unguarded).
+    """
     # Concord files should all be in the format:
     #   <curie>\t<predicate>\t<curie>
     # From this, we extract three counts:
@@ -30,14 +37,12 @@ def write_concord_metadata(filename, *, name, concord_filename, url="", descript
     predicate_counts = defaultdict(int)
     curie_prefix_counts = defaultdict(int)
     with open(concord_filename) as concordf:
-        for line in concordf:
+        for line_number, line in enumerate(concordf, start=1):
             row = line.strip().split("\t")
             if len(row) != 3:
-                logging.warning(
-                    f"Concord file {concord_filename} has a line with {len(row)} columns, not 3 -- skipping: '{line}'"
+                raise ValueError(
+                    f"{concord_filename}:{line_number} has {len(row)} tab-separated columns, not 3: {line!r}"
                 )
-                # raise ValueError(f"Concord file {concord_filename} has a line with {len(row)} columns, not 3: {line}")
-                continue
             curie1 = row[0]
             predicate = row[1]
             curie2 = row[2]
