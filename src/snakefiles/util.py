@@ -1,6 +1,7 @@
 # Shared code used by Snakemake files
 import gzip
 import shutil
+from pathlib import Path
 
 import src.util
 
@@ -150,3 +151,20 @@ def get_all_gzipped(file_list):
     :return: List of filenames with '.gz' appended.
     """
     return list(map(lambda x: x + ".gz", file_list))
+
+
+def find_missing_id_prefixes(workflow, ids_dir, config_list):
+    """Return sorted list of prefixes in config_list with no rule producing ids_dir/{prefix}.
+
+    Call at module level in a snakefile to catch config/rule drift at DAG-construction time.
+    Raise WorkflowError in the caller if the returned list is non-empty.
+    """
+    if not ids_dir.endswith("/"):
+        ids_dir += "/"
+    covered = {
+        Path(str(out)).name
+        for rule in workflow.rules
+        for out in rule.output
+        if str(out).startswith(ids_dir) and "/" not in str(out)[len(ids_dir):]
+    }
+    return sorted(set(config_list) - covered)
