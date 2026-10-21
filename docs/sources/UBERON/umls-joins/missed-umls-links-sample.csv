@@ -1,0 +1,97 @@
+uberon_id,uberon_label,umls_id,umls_string,bridge,joined_after
+UBERON:0000408,vertebral ganglion,UMLS:C1186187,Ganglia intermedia,FMA,False
+UBERON:0001095,caudal vertebra,UMLS:C5441553,Caudal Vertebra,FMA,False
+UBERON:0001484,articular capsule,UMLS:C0820353,Fibrous capsule of joint,FMA,False
+UBERON:0001691,external ear,UMLS:C0230009,Auricular region,FMA,False
+UBERON:0002869,diffuse reticular nucleus,UMLS:C2330547,Nucleus subparabrachialis,FMA,False
+UBERON:0002891,cortical amygdaloid nucleus,UMLS:C3496488,"Cortical Nucleus, Posterior",FMA,False
+UBERON:0003691,epidural space,UMLS:C0228133,Cranial epidural space,FMA,False
+UBERON:0004321,middle phalanx of manual digit 3,UMLS:C0223830,Middle phalanx middle finger,FMA,False
+UBERON:0004390,epiphysis of metacarpal bone,UMLS:C0730413,Epiphysis of metacarpal,FMA,False
+UBERON:0004770,articular system,UMLS:C0392905,Articular system,FMA,False
+UBERON:0005048,mucosa of fallopian tube,UMLS:C0736937,Mucosa of fallopian tube,FMA,False
+UBERON:0006607,medial umbilical ligament,UMLS:C0227706,Ligamentum umbilicale mediale,FMA,False
+UBERON:0010293,suprachoroid lamina,UMLS:C0229111,Lamina fusca of sclera,FMA,False
+UBERON:0013691,buttock,UMLS:C0282082,Gluteal Region,FMA,False
+UBERON:0022364,occipital fusiform gyrus,UMLS:C2952119,O4 gyrus,FMA,False
+UBERON:0034703,inflow tract of right ventricle,UMLS:C0225891,Inflow part of right ventricle,FMA,False
+UBERON:0001168,wall of small intestine,UMLS:C0734000,Small intestinal wall,FMA,True
+UBERON:0002490,frontal suture,UMLS:C0224540,Fetal frontal suture,FMA,True
+UBERON:0003652,metatarsal bone of digit 3,UMLS:C0459703,MT3 - Third metatarsal,FMA,True
+UBERON:0005396,carotid artery segment,UMLS:C0934098,Common carotid arterial segment,FMA,True
+UBERON:0005407,sublingual ganglion,UMLS:C1186191,Ganglion sublinguale,FMA,True
+UBERON:0005607,hyaloid vascular plexus,UMLS:C4242100,Hyaloid vascular plexus,FMA,True
+UBERON:0007417,peduncle of neuraxis,UMLS:C2332863,Neuraxis peduncle,FMA,True
+UBERON:0008464,abductor hallucis muscle,UMLS:C0224490,Abductor Hallucis Muscle,FMA,True
+UBERON:0008592,levator labii superioris alaeque nasi,UMLS:C0224118,Lev labii super alaequae nasi,FMA,True
+UBERON:0008605,tragicus muscle,UMLS:C0229332,Musculus tragicus,FMA,True
+UBERON:0013133,superior phrenic artery,UMLS:C0226295,Arteria phrenicea superioris,FMA,True
+UBERON:0013737,paranigral nucleus,UMLS:C2330526,Nucleus paranigralis,FMA,True
+UBERON:0035677,primary yolk sac cavity,UMLS:C4254450,Cavity of primary yolk sac,FMA,True
+UBERON:0035836,apical region of right ventricle,UMLS:C2324033,Apical zone of right ventricle,FMA,True
+UBERON:0035883,lacrimomaxillary suture,UMLS:C0224559,Lacrimomaxillary suture,FMA,True
+UBERON:0039849,posterior external vertebral venous plexus,UMLS:C0506726,Plexus venosus vertebralis externus posterior,FMA,True
+UBERON:0001466,pedal digit,UMLS:C1268268,Hind digit,SCTID,False
+UBERON:0002378,muscle of abdomen,UMLS:C1283897,Abdominal wall muscle,SCTID,False
+UBERON:0003684,abdominal cavity,UMLS:C1283841,Abdominal cavity,SCTID,False
+UBERON:0003686,tooth socket,UMLS:C5703356,Entire alveolus dentalis,SCTID,False
+UBERON:0003827,thoracic segment bone,UMLS:C1959751,Entire bone organ of thorax,SCTID,False
+UBERON:0004610,rib 11,UMLS:C1280240,Eleventh rib,SCTID,False
+UBERON:0004612,mammalian cervical vertebra 3,UMLS:C0223116,C3 vertebra,SCTID,False
+UBERON:0004619,lumbar vertebra 3,UMLS:C1305243,Entire L3 vertebra,SCTID,False
+UBERON:0004630,thoracic vertebra 5,UMLS:C0223266,Entire T5 vertebra,SCTID,False
+UBERON:0005056,external female genitalia,UMLS:C1284501,Entire female external genitalia,SCTID,False
+UBERON:0007801,pygostyle,UMLS:C1562239,Plowshare bone,SCTID,False
+UBERON:0009098,gravid uterus,UMLS:C1305327,Entire gravid uterus,SCTID,False
+UBERON:0011281,nail of pedal digit 4,UMLS:C1279033,Entire nail of fourth toe,SCTID,False
+UBERON:0012356,pedal acropodium region,UMLS:C0230507,All toes,SCTID,False
+UBERON:0014509,distal sesamoid impar ligament,UMLS:C1299763,Impar ligament of distal equine limb,SCTID,False
+UBERON:1000003,dewlap,UMLS:C0222016,Dewlap,SCTID,False
+UBERON:0001064,ventral pancreatic duct,UMLS:C1305309,Entire duct of Wirsung,SCTID,True
+UBERON:0001232,collecting duct of renal tubule,UMLS:C0222607,Collecting duct,SCTID,True
+UBERON:0001517,skin of elbow,UMLS:C1279014,Entire skin of elbow,SCTID,True
+UBERON:0001853,utricle of membranous labyrinth,UMLS:C1281160,Entire utricle,SCTID,True
+UBERON:0002281,vestibular membrane of cochlear duct,UMLS:C1284811,Entire vestibular membrane,SCTID,True
+UBERON:0002942,ventral posterolateral nucleus,UMLS:C1289598,Entire ventral posterolateral nucleus of thalamus,SCTID,True
+UBERON:0004002,posterior lobe of cerebellum,UMLS:C1305725,Entire posterior cerebellar lobe,SCTID,True
+UBERON:0004582,venous system,UMLS:C1284345,Entire venous system,SCTID,True
+UBERON:0006682,hypoglossal canal,UMLS:C1277593,Entire hypoglossal canal,SCTID,True
+UBERON:0008436,thoracic vertebral arch,UMLS:C0730113,Dorsal arch of thoracic vertebra,SCTID,True
+UBERON:0008598,risorius muscle,UMLS:C1304942,Entire risorius,SCTID,True
+UBERON:0011971,calcaneofibular ligament,UMLS:C1280226,Calcaneofibular ligament,SCTID,True
+UBERON:0013122,distal epiphysis of phalanx of pes,UMLS:C1279953,Entire head of phalanx of foot,SCTID,True
+UBERON:0013140,systemic vein,UMLS:C1280179,Entire systemic vein,SCTID,True
+UBERON:0013172,cricotracheal ligament,UMLS:C1281108,Cricotracheal ligament,SCTID,True
+UBERON:0015872,mandibular lymph node,UMLS:C1268018,Entire mandibular lymph node,SCTID,True
+UBERON:0001238,lamina propria of small intestine,UMLS:C0227264,Lamina propria mucosae of small intestine,SCTID+FMA,True
+UBERON:0002477,medial globus pallidus,UMLS:C1744544,Entopeduncular nucleus (Monakow),SCTID+FMA,True
+UBERON:0003336,serosa of duodenum,UMLS:C0227292,Doudenal serosa,SCTID+FMA,True
+UBERON:0003989,medulla oblongata anterior median fissure,UMLS:C1744547,Anterior median fissure,SCTID+FMA,True
+UBERON:0004410,distal epiphysis of fibula,UMLS:C1267084,Distal end of fibula,SCTID+FMA,True
+UBERON:0004433,proximal epiphysis of distal phalanx of manual digit 3,UMLS:C0448097,Base of distal phalanx of middle finger,SCTID+FMA,True
+UBERON:0004436,proximal epiphysis of middle phalanx of manual digit 2,UMLS:C0448091,Basal epiphysis of middle phalanx of index finger,SCTID+FMA,True
+UBERON:0004443,proximal epiphysis of proximal phalanx of manual digit 5,UMLS:C0448089,Basal epiphysis of proximal phalanx of little finger,SCTID+FMA,True
+UBERON:0005432,aortic sac,UMLS:C1284057,Aortic sac,SCTID+FMA,True
+UBERON:0005434,cervical region,UMLS:C0920882,Cervical area,SCTID+FMA,True
+UBERON:0007167,right dome of diaphragm,UMLS:C0448368,Right cupola of diaphragm,SCTID+FMA,True
+UBERON:0007241,tunica adventitia of vein,UMLS:C0226512,Structure of tunica adventitia of vein,SCTID+FMA,True
+UBERON:0007651,anatomical junction,UMLS:C0501400,Anatomical junction,SCTID+FMA,True
+UBERON:0009907,sensory root of trigeminal nerve,UMLS:C0228706,Nervus trigeminus radix sensibilis,SCTID+FMA,True
+UBERON:0010746,iliac blade,UMLS:C0448173,Ala of ilium,SCTID+FMA,True
+UBERON:0016934,marginal ridge of tooth,UMLS:C0227003,Crista marginalis (Dentis),SCTID+FMA,True
+UBERON:0001449,phalanx of pes,UMLS:C1959681,Structure of phalanx of toe,none,False
+UBERON:0001987,placenta,UMLS:C4266528,Pelvis>Placenta,none,False
+UBERON:0002292,costovertebral joint,UMLS:C1283777,Articulatio capitis costae,none,False
+UBERON:0002818,posterolateral fissure of cerebellum,UMLS:C5234871,Posterolateral fissure of cerebellum,none,False
+UBERON:0003840,hindlimb joint,UMLS:C0584731,157-158 JOINTS OF LOWER EXTREMITIES,none,False
+UBERON:0005413,spinocerebellar tract,UMLS:C5880794,Structure spinocerebellar tract,none,False
+UBERON:0006675,venous valve,UMLS:C1282819,Entire valve of vein,none,False
+UBERON:0007120,premolar tooth,UMLS:C0447266,24 - Perm uppr lt 1st premolar,none,False
+UBERON:0011273,nail of manual digit 1,UMLS:C4749557,Entire nail plate of thumb,none,False
+UBERON:0013541,Brodmann (1909) area 10,UMLS:C3496407,lateral orbital area,none,False
+UBERON:0016918,upper vermilion,UMLS:C0226935,Cupid bow,none,False
+UBERON:0018407,infra-orbital foramen of maxilla,UMLS:C4517054,Entire infraorbital foramen,none,False
+UBERON:0026725,angular sulcus,UMLS:C3498949,Sulcus angularis,none,False
+UBERON:0034988,tendon of obturator internus,UMLS:C4513414,Entire tendon of obturator internus,none,False
+UBERON:0035639,ocular adnexa,UMLS:C1284113,Entire adnexa oculi,none,False
+UBERON:3010463,animal cap,UMLS:C1510894,Animal Cap,none,False

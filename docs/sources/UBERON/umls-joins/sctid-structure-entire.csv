@@ -1,0 +1,691 @@
+uberon_id,uberon_label,structure_sctid,structure_fsn,entire_sctid,entire_fsn,status
+UBERON:0000009,submucosa,68439008,Structure of tunica submucosa (body structure),727181003,Entire tunica submucosa (body structure),replace
+UBERON:0000014,zone of skin,20795001,Structure of skin region (body structure),244066003,Entire skin region (body structure),replace
+UBERON:0000030,lamina propria,298225002,Structure of lamina propria mucosae (body structure),729607008,Entire lamina propria mucosae (body structure),replace
+UBERON:0000064,organ part,113343008,Body organ structure (body structure),272625005,Entire body organ (body structure),review: entire code already xrefd by UBERON:0000062
+UBERON:0000073,regional part of nervous system,25087005,Structure of nervous system (body structure),278196006,Entire nervous system (body structure),review: entire code already xrefd by UBERON:0001016
+UBERON:0000084,ureteric bud,361528000,Structure of ureteric bud (body structure),730486005,Entire ureteric bud (body structure),replace
+UBERON:0000085,morula,361474003,Structure of morula (body structure),731028006,Entire Morula (body structure),replace
+UBERON:0000087,inner cell mass,361456007,Structure of inner cell mass (body structure),730425006,Entire inner cell mass (body structure),replace
+UBERON:0000090,blastocele,361455006,Structure of blastocyst cavity (body structure),730424005,Entire blastocyst cavity (body structure),replace
+UBERON:0000118,lung bud,361427007,Structure of lung bud (body structure),730398001,Entire lung bud (body structure),replace
+UBERON:0000123,endoneurium,15931004,Structure of endoneurium (body structure),726875001,Entire endoneurium (body structure),replace
+UBERON:0000124,epineurium,64482002,Structure of epineurium (body structure),727158000,Entire epineurium (body structure),replace
+UBERON:0000127,facial nucleus,280166009,Structure of facial nucleus (body structure),729257007,Entire facial nucleus (body structure),replace
+UBERON:0000130,transverse foramen,280735005,Structure of foramen transversarium (body structure),729498002,Entire foramen transversarium (body structure),replace
+UBERON:0000161,orifice,91837002,Structure of anatomical orifice (body structure),727328000,Entire anatomical orifice (body structure),replace
+UBERON:0000164,primitive urogenital sinus,50961009,Structure of urogenital sinus (body structure),727073001,Entire urogenital sinus (body structure),replace
+UBERON:0000200,gyrus,279165009,Structure of cerebral gyrus (body structure),731130006,Entire cerebral gyrus (body structure),replace
+UBERON:0000219,vertebral foramen of atlas,281228008,Structure of vertebral foramen of atlas (body structure),729554004,Entire vertebral foramen of atlas (body structure),replace
+UBERON:0000331,ileal mucosa,85458007,Ileal mucous membrane structure (body structure),362152002,Entire ileal mucous membrane (body structure),replace
+UBERON:0000332,yellow bone marrow,5023006,Structure of yellow bone marrow (body structure),328639002,All yellow bone marrow (body structure),remove: term already xrefs the entire code
+UBERON:0000361,red bone marrow,75330005,Structure of red bone marrow (body structure),328538003,All red bone marrow (body structure),remove: term already xrefs the entire code
+UBERON:0000362,renal medulla,30737000,Structure of medulla of kidney (body structure),362212006,Entire medulla of kidney (body structure),replace
+UBERON:0000365,urothelium,30117005,Structure of transitional epithelium (body structure),726947002,Entire transitional epithelium (body structure),replace
+UBERON:0000365,urothelium,57789003,Structure of urothelium (body structure),727116003,Entire urothelium (body structure),replace
+UBERON:0000379,tracheal mucosa,660006,Structure of tracheal mucous membrane (body structure),726085001,Entire tracheal mucous membrane (body structure),replace
+UBERON:0000397,colonic epithelium,42978003,Structure of colonic epithelium (body structure),727024005,Entire colonic epithelium (body structure),replace
+UBERON:0000400,jejunal epithelium,57300004,Structure of jejunal epithelium (body structure),727111008,Entire jejunal epithelium (body structure),replace
+UBERON:0000410,bronchial mucosa,30802009,Structure of mucous membrane of bronchus (body structure),726955009,Entire mucous membrane of bronchus (body structure),replace
+UBERON:0000444,lymphoid follicle,64626006,Structure of lymphoid nodule (body structure),727160003,Entire lymphoid nodule (body structure),replace
+UBERON:0000459,uterine wall,245485002,Structure of uterine wall (body structure),731119008,Entire uterine wall (body structure),replace
+UBERON:0000478,extraembryonic structure,314908006,Extra-embryonic structure (body structure),732106006,Entire extra-embryonic structure (body structure),replace
+UBERON:0000483,epithelium,31610004,Structure of epithelium (body structure),726961007,Entire epithelium (body structure),replace
+UBERON:0000485,simple columnar epithelium,32210007,Structure of columnar epithelium (body structure),726962000,Entire columnar epithelium (body structure),replace
+UBERON:0000486,multilaminar epithelium,309044005,Structure of multilaminar epithelium (body structure),729903009,Entire multilaminar epithelium (body structure),replace
+UBERON:0000490,unilaminar epithelium,309043004,Structure of unilaminar epithelium (body structure),731023002,Entire unilaminar epithelium (body structure),replace
+UBERON:0000929,pharyngeal branch of vagus nerve,280298006,Structure of pharyngeal branch of vagus (body structure),729322007,Entire pharyngeal branch of vagus (body structure),replace
+UBERON:0000935,anterior commissure,279313001,Structure of anterior cerebral commissure (body structure),728929004,Entire anterior cerebral commissure (body structure),replace
+UBERON:0000959,optic chiasma,244453006,Structure of optic chiasma (body structure),727986007,Entire optic chiasma (body structure),replace
+UBERON:0000980,trochanter,182047004,Structure of trochanter of femur (body structure),727713002,Entire trochanter of femur (body structure),replace
+UBERON:0001013,adipose tissue,55603005,Structure of adipose tissue (body structure),727103003,Entire adipose tissue (body structure),replace
+UBERON:0001033,gustatory system,423940004,Structure of gustatory system (body structure),731379009,Entire gustatory system (body structure),replace
+UBERON:0001063,flocculus,279368002,Structure of cerebellar flocculus (body structure),728942004,Entire cerebellar flocculus (body structure),replace
+UBERON:0001073,ileocecal junction,264021000,Structure of ileocecal junction (body structure),728632003,Entire ileocecal junction (body structure),replace
+UBERON:0001113,lobe of liver,245378000,Structure of lobe of liver (body structure),728286003,Entire lobe of liver (body structure),replace
+UBERON:0001131,vertebral foramen,280734009,Structure of vertebral foramen (body structure),729497007,Entire vertebral foramen (body structure),replace
+UBERON:0001134,skeletal muscle tissue,426215008,Structure of skeletal muscle tissue (body structure),730700001,Entire skeletal muscle tissue (body structure),replace
+UBERON:0001140,renal vein,116358006,Structure of venous drainage from and/or within kidney (body structure),727415008,Entire vein of kidney (body structure),replace
+UBERON:0001193,hepatic artery,76015000,Structure of hepatic artery (body structure),727223007,Entire hepatic artery (body structure),replace
+UBERON:0001200,submucosa of stomach,52459002,Structure of gastric submucosa (body structure),727082007,Entire gastric submucosa (body structure),replace
+UBERON:0001201,serosa of stomach,1353004,Structure of gastric serosa (body structure),726090003,Entire gastric serosa (body structure),replace
+UBERON:0001203,muscularis mucosae of stomach,64551004,Structure of lamina muscularis of gastric mucosa (body structure),727159008,Entire lamina muscularis of gastric mucosa (body structure),replace
+UBERON:0001205,submucosa of small intestine,691000,Structure of small intestine submucosa (body structure),726094007,Entire small intestine submucosa (body structure),replace
+UBERON:0001206,serosa of small intestine,8266009,Structure of small intestine serosa (body structure),726025004,Entire small intestine serosa (body structure),replace
+UBERON:0001210,muscularis mucosae of small intestine,36401004,Structure of lamina muscularis of small intestine mucous membrane (body structure),726987007,Entire lamina muscularis of small intestine mucous membrane (body structure),replace
+UBERON:0001213,intestinal villus,23230007,Structure of intestinal villus (body structure),726908004,Entire intestinal villus (body structure),replace
+UBERON:0001232,collecting duct of renal tubule,28202009,Structure of collecting duct of nipple (body structure),726936009,Entire collecting duct (body structure),replace
+UBERON:0001238,lamina propria of small intestine,63588008,Structure of small intestine lamina propria (body structure),727154003,Entire small intestine lamina propria (body structure),replace
+UBERON:0001241,crypt of Lieberkuhn of small intestine,52688008,Structure of small intestinal crypt of Lieberkühn (body structure),727084008,Entire small intestinal crypt of Lieberkühn (body structure),replace
+UBERON:0001246,interlobular bile duct,83488001,Structure of interlobular bile duct (body structure),731093007,Entire interlobular bile duct (body structure),replace
+UBERON:0001249,spleen lymphoid follicle,35845000,Structure of lymphatic follicle of spleen (body structure),726983006,Entire lymphatic follicle of spleen (body structure),replace
+UBERON:0001250,red pulp of spleen,27579002,Structure of splenic red pulp (body structure),726929008,Entire splenic red pulp (body structure),replace
+UBERON:0001252,adventitia of ureter,47879001,Structure of adventitia of ureter (body structure),392273001,Entire adventitia of ureter (body structure),remove: term already xrefs the entire code
+UBERON:0001253,lamina propria of ureter,2771005,Structure of lamina propria of ureter (body structure),726095008,Entire lamina propria of ureter (body structure),replace
+UBERON:0001260,serosa of urinary bladder,5868002,Structure of serosa of urinary bladder (body structure),726034009,Entire serosa of urinary bladder (body structure),replace
+UBERON:0001265,trabecula of spleen,61987002,Structure of trabecula of spleen (body structure),727142003,Entire trabecula of spleen (body structure),replace
+UBERON:0001276,epithelium of stomach,64977002,Structure of gastric epithelium (body structure),727163001,Entire gastric epithelium (body structure),replace
+UBERON:0001282,intralobular bile duct,227002,Structure of Canal of Hering (body structure),730807009,Entire canal of Hering (body structure),replace
+UBERON:0001331,skin of penis,35900000,Skin structure of penis (body structure),361709005,Entire skin of penis (body structure),replace
+UBERON:0001348,brown adipose tissue,15965003,Structure of brown fat (body structure),726876000,Entire brown fat (body structure),replace
+UBERON:0001362,perineal vein,312507009,Structure of perineal vein (body structure),729937001,Entire perineal vein (body structure),replace
+UBERON:0001384,primary motor cortex,11931008,Structure of motor cortex (body structure),726849000,Entire motor cortex (body structure),replace
+UBERON:0001435,carpal bone,83936004,Bone structure of carpus (body structure),1148428005,Entire bone of carpus (body structure),replace
+UBERON:0001471,skin of prepuce of penis,39059001,Skin structure of foreskin (body structure),727000002,Entire skin of foreskin (body structure),replace
+UBERON:0001498,muscle of pes,67240005,Muscle structure of foot (body structure),265807005,Entire skeletal muscle of foot (body structure),replace
+UBERON:0001500,muscle of manus,110540008,Muscle structure of hand (body structure),367633004,Entire skeletal muscle of hand (body structure),replace
+UBERON:0001590,pericardiacophrenic vein,361626007,Structure of pericardiacophrenic vein (body structure),730529002,Entire pericardiacophrenic vein (body structure),replace
+UBERON:0001606,muscle of iris,280888007,Structure of muscle of iris (body structure),729514001,Entire muscle of iris (body structure),replace
+UBERON:0001630,muscle organ,71616004,Skeletal and/or smooth muscle structure (body structure),731986005,Entire skeletal and smooth muscle (body structure),replace
+UBERON:0001672,anterior cerebral vein,55155007,Structure of anterior cerebral vein (body structure),731074005,Entire anterior cerebral vein (body structure),replace
+UBERON:0001701,glossopharyngeal ganglion,244451008,Structure of glossopharyngeal ganglion (body structure),727984005,Entire glossopharyngeal ganglion (body structure),replace
+UBERON:0001721,inferior vestibular nucleus,280175006,Structure of inferior vestibular nucleus (body structure),729260000,Entire inferior vestibular nucleus (body structure),replace
+UBERON:0001725,cranial synchondrosis,314228003,Structure of cranial synchondrosis (body structure),730039003,Entire cranial synchondrosis (body structure),replace
+UBERON:0001730,extrinsic ligament of larynx,279550004,Structure of extrinsic laryngeal ligament (body structure),729031002,Entire extrinsic laryngeal ligament (body structure),replace
+UBERON:0001743,ligament of larynx,279508004,Structure of laryngeal ligament (body structure),729008002,Entire laryngeal ligament (body structure),replace
+UBERON:0001744,lymphoid tissue,181768009,Structure of lymphoid tissue (body structure),727659009,Entire lymphoid tissue (body structure),replace
+UBERON:0001747,parenchyma of thyroid gland,371402001,Structure of parenchyma of thyroid (body structure),731258007,Entire parenchyma of thyroid (body structure),replace
+UBERON:0001781,layer of retina,280657006,Structure of layer of retina (body structure),729479004,Entire layer of retina (body structure),replace
+UBERON:0001794,inner limiting layer of retina,280677004,Structure of internal limiting membrane of retina (body structure),729485006,Entire internal limiting membrane of retina (body structure),replace
+UBERON:0001810,nerve plexus,122455009,Structure of nerve plexus (body structure),609394009,Entire nerve plexus (body structure),replace
+UBERON:0001850,lacrimal drainage system,280426002,Lacrimal drainage structure (body structure),419221005,Entire lacrimal drainage structure (body structure),replace
+UBERON:0001882,nucleus accumbens,427667007,Structure of nucleus accumbens (body structure),1186704001,Entire nucleus accumbens (body structure),replace
+UBERON:0001887,internal capsule of telencephalon,85637007,Internal capsule structure of brain (body structure),279217003,Entire internal capsule of brain (body structure),replace
+UBERON:0001902,epithelium of small intestine,45480009,Structure of small intestine epithelium (body structure),727033007,Entire small intestine epithelium (body structure),replace
+UBERON:0001925,ventral lateral nucleus of thalamus,279146001,Structure of nucleus ventralis intermedius (body structure),728904005,Entire nucleus ventralis intermedius (body structure),replace
+UBERON:0001941,lateral habenular nucleus,361538005,Structure of lateral habenular nucleus (body structure),1186707008,Entire lateral habenular nucleus (body structure),replace
+UBERON:0001944,pretectal region,416333003,Structure of pretectal area (body structure),730659000,Entire pretectal area (body structure),replace
+UBERON:0001957,submucosa of bronchus,85546005,Structure of bronchial submucosa (body structure),727271007,Entire bronchial submucosa (body structure),replace
+UBERON:0001978,parenchyma of pancreas,371401008,Structure of parenchyma of pancreas (body structure),731257002,Entire parenchyma of pancreas (body structure),replace
+UBERON:0001983,crypt of Lieberkuhn,118652008,Structure of crypt of Lieberkühn (body structure),727433002,Entire crypt of Lieberkühn (body structure),replace
+UBERON:0001986,endothelium,27168002,Structure of endothelium tissue (body structure),726924003,Entire endothelium (body structure),replace
+UBERON:0001991,cervical ganglion,181100007,Structure of cervical sympathetic ganglion (body structure),727594009,Entire cervical sympathetic ganglion (body structure),replace
+UBERON:0001994,hyaline cartilage tissue,39298000,Structure of hyaline cartilage (body structure),727004006,Entire hyaline cartilage (body structure),replace
+UBERON:0001995,fibrocartilage,91685003,Structure of fibrocartilage (body structure),727319001,Entire fibrocartilage (body structure),replace
+UBERON:0001997,olfactory epithelium,37623003,Structure of olfactory sensory epithelium (body structure),726994005,Entire olfactory sensory epithelium (body structure),replace
+UBERON:0002008,cardiac nerve plexus,280511002,Structure of cardiac plexus (body structure),729406005,Entire cardiac plexus (body structure),replace
+UBERON:0002009,pulmonary nerve plexus,280512009,Structure of pulmonary plexus (body structure),729407001,Entire pulmonary plexus (body structure),replace
+UBERON:0002028,hindbrain,303456008,Hindbrain structure (body structure),732052001,Entire hindbrain (body structure),replace
+UBERON:0002050,embryonic structure,667009,Embryonic structure (body structure),57991002,Entire embryo (body structure),review: entire code already xrefd by UBERON:0000922
+UBERON:0002053,zona glomerulosa of adrenal gland,21476003,Structure of zona glomerulosa of adrenal gland (body structure),726897004,Entire zona glomerulosa of adrenal gland (body structure),replace
+UBERON:0002054,zona fasciculata of adrenal gland,56069004,Structure of zona fasciculata of adrenal gland (body structure),727104009,Entire zona fasciculata of adrenal gland (body structure),replace
+UBERON:0002055,zona reticularis of adrenal gland,47325000,Structure of zona reticularis of adrenal gland (body structure),727048001,Entire zona reticularis of adrenal gland (body structure),replace
+UBERON:0002066,umbilical vein,367567000,Structure of umbilical vein (body structure),731247003,Entire umbilical vein (body structure),replace
+UBERON:0002132,dentate nucleus,279221005,Structure of nucleus dentatus (body structure),728909000,Entire nucleus dentatus (body structure),replace
+UBERON:0002133,atrioventricular valve,11124005,Structure of atrioventricular valve (body structure),725604006,Entire atrioventricular valve (body structure),replace
+UBERON:0002141,parvocellular oculomotor nucleus,62088007,Structure of oculomotor nerve accessory autonomic nucleus (body structure),730831004,Entire oculomotor nerve accessory autonomic nucleus (body structure),replace
+UBERON:0002144,peripeduncular nucleus,25949000,Structure of peripeduncular nucleus (body structure),726922004,Entire peripeduncular nucleus (body structure),replace
+UBERON:0002153,fastigial nucleus,279224002,Structure of nucleus fastigii (body structure),728910005,Entire nucleus fastigii (body structure),replace
+UBERON:0002202,submucosa of trachea,4419000,Structure of tracheal submucosa (body structure),726071006,Entire tracheal submucosa (body structure),replace
+UBERON:0002203,vasculature of eye,123846009,Structure of ocular blood vessel (body structure),731110007,Entire ocular blood vessel (body structure),replace
+UBERON:0002222,perichondrium,11881003,Structure of perichondrium (body structure),726848008,Entire perichondrium (body structure),replace
+UBERON:0002342,neural crest,361462002,Structure of neural crest (body structure),730427003,Entire neural crest (body structure),replace
+UBERON:0002371,bone marrow,421320006,Structure of bone marrow of bone organ (body structure),731308002,All bone marrow of bone organ (body structure),replace
+UBERON:0002385,muscle tissue,91727004,Structure of muscle tissue (body structure),727320007,Entire muscle tissue (body structure),replace
+UBERON:0002418,cartilage tissue,309312004,Structure of cartilage tissue (body structure),729906001,Entire cartilage tissue (body structure),replace
+UBERON:0002421,hippocampal formation,422867004,Structure of hippocampal formation (body structure),731340003,Entire hippocampal formation (body structure),replace
+UBERON:0002447,palatine gland,13604002,Structure of palatine gland (body structure),726861008,Entire palatine gland (body structure),replace
+UBERON:0002457,intersomitic artery,360401001,Intersegmental arterial structure (body structure),732113006,Entire intersegmental artery (body structure),replace
+UBERON:0002458,spinal artery,244228006,Structure of spinal artery (body structure),727913005,Entire spinal artery (body structure),replace
+UBERON:0002459,inferior palpebral vein,422559003,Structure of inferior palpebral vein (body structure),731323007,Entire inferior palpebral vein (body structure),replace
+UBERON:0002464,nerve trunk,281248001,Structure of nervous system of trunk (body structure),731743003,Entire nervous system of trunk (body structure),replace
+UBERON:0002511,trabecula carnea,118755002,Structure of trabeculae carneae cordis (body structure),727434008,Entire trabeculae carneae cordis (body structure),replace
+UBERON:0002515,periosteum,33840008,Structure of periosteum (body structure),726973007,Entire periosteum (body structure),replace
+UBERON:0002521,elastic tissue,27197004,Structure of elastic tissue (body structure),726925002,Entire elastic tissue (body structure),replace
+UBERON:0002522,tunica media,61695000,Structure of tunica media vasorum (body structure),727140006,Entire tunica media vasorum (body structure),replace
+UBERON:0002523,tunica intima,87483006,Structure of tunica intima of blood vessel (body structure),727284003,Entire tunica intima of vessel (body structure),replace
+UBERON:0002564,lateral orbital gyrus,279195001,Structure of lateral orbital gyrus (body structure),1359915006,Entire lateral orbital gyrus (body structure),replace
+UBERON:0002569,transverse temporal sulcus,42387003,Structure of transverse temporal sulci (body structure),727021002,Entire transverse temporal sulci (body structure),replace
+UBERON:0002570,medial orbital gyrus,279194002,Structure of medial orbital gyrus (body structure),1359914005,Entire medial orbital gyrus (body structure),replace
+UBERON:0002575,posterior orbital gyrus,279197009,Structure of posterior orbital gyrus (body structure),1359917003,Entire posterior orbital gyrus (body structure),replace
+UBERON:0002586,calcarine sulcus,279355005,Structure of calcarine sulcus (body structure),730953001,Entire calcarine sulcus (body structure),replace
+UBERON:0002592,juxtarestiform body,110687007,Structure of juxtarestiform body (body structure),730845005,Entire juxtarestiform body (body structure),replace
+UBERON:0002600,limbic lobe,279215006,Structure of limbic lobe (body structure),728907003,Entire limbic lobe (body structure),replace
+UBERON:0002606,neuropil,67146008,Structure of neuropil (body structure),730833001,Entire neuropil (body structure),replace
+UBERON:0002616,regional part of brain,384763002,Structure of brain region (body structure),730597007,Entire brain region (body structure),replace
+UBERON:0002633,motor nucleus of trigeminal nerve,38390003,Structure of trigeminal nerve motor nucleus (body structure),726998008,Entire trigeminal nerve motor nucleus (body structure),replace
+UBERON:0002656,periamygdaloid area,279214005,Structure of gyrus semilunaris (body structure),728906007,Entire gyrus semilunaris (body structure),replace
+UBERON:0002658,medial lemniscus of midbrain,361568001,Structure of medial lemniscus in midbrain (body structure),730501000,Entire medial lemniscus in midbrain (body structure),replace
+UBERON:0002735,transverse pontine fibers,79836003,Structure of superficial transverse fiber of pons (body structure),727246009,Entire superficial transverse fiber of pons (body structure),replace
+UBERON:0002742,lamina of septum pellucidum,12164006,Structure of lamina septum pellucidum (body structure),726850000,Entire lamina septum pellucidum (body structure),replace
+UBERON:0002761,inferior frontal sulcus,279343004,Structure of inferior frontal sulcus (body structure),728937007,Entire inferior frontal sulcus (body structure),replace
+UBERON:0002779,lateral superior olivary nucleus,360477003,Structure of accessory olivary nucleus (body structure),730188000,Entire accessory olivary nucleus (body structure),replace
+UBERON:0002815,horizontal fissure of cerebellum,314173004,Structure of horizontal cerebellar fissure (body structure),730029009,Entire horizontal cerebellar fissure (body structure),replace
+UBERON:0002817,secondary fissure of cerebellum,314169002,Structure of secondary cerebellar fissure (body structure),730026002,Entire secondary cerebellar fissure (body structure),replace
+UBERON:0002818,posterolateral fissure of cerebellum,314172009,Structure of posterolateral cerebellar fissure (body structure),730028001,Entire posterolateral cerebellar fissure (body structure),replace
+UBERON:0002819,apex of cochlea,279776002,Structure of cupula of cochlear canal (body structure),730955008,Entire cupula of cochlear canal (body structure),replace
+UBERON:0002819,apex of cochlea,279777006,Structure of apex of cochlear canal (body structure),729123009,Entire apex of the cochlear canal (body structure),replace
+UBERON:0002834,cervical dorsal root ganglion,278325008,Structure of cervical spinal ganglion (body structure),1286980004,Entire cervical spinal ganglion (body structure),replace
+UBERON:0002835,thoracic dorsal root ganglion,278326009,Structure of thoracic spinal ganglion (body structure),1287004002,Entire thoracic spinal ganglion (body structure),replace
+UBERON:0002836,lumbar dorsal root ganglion,278327000,Structure of lumbar spinal ganglion (body structure),1286989003,Entire lumbar spinal ganglion (body structure),replace
+UBERON:0002837,sacral dorsal root ganglion,278328005,Structure of sacral spinal ganglion (body structure),1286998000,Entire sacral spinal ganglion (body structure),replace
+UBERON:0002870,dorsal motor nucleus of vagus nerve,52884007,Structure of dorsal motor nucleus of vagus nerve (body structure),727085009,Entire dorsal motor nucleus of vagus nerve (body structure),replace
+UBERON:0002871,hypoglossal nucleus,47361005,Structure of hypoglossal nerve nucleus (body structure),727049009,Entire hypoglossal nerve nucleus (body structure),replace
+UBERON:0002912,marginal sulcus,279351001,Structure of marginal sulcus (body structure),728940007,Entire marginal sulcus (body structure),replace
+UBERON:0002920,callosal sulcus,279349000,Structure of callosal sulcus (body structure),728939005,Entire callosal sulcus (body structure),replace
+UBERON:0002925,trigeminal nucleus,280164007,Structure of trigeminal nucleus (body structure),729256003,Entire trigeminal nucleus (body structure),replace
+UBERON:0002930,tectopontine tract,3301002,Structure of tectopontine fiber (body structure),730810002,Entire tectopontine fiber (body structure),replace
+UBERON:0002944,spinothalamic tract of medulla,360570003,Structure of spinothalamic tract of medulla (body structure),730217007,Entire spinothalamic tract of medulla (body structure),replace
+UBERON:0002961,archicortex,423918008,Structure of archicortex (body structure),731377006,Entire archicortex (body structure),replace
+UBERON:0003060,pronephric duct,361406002,Structure of pronephric duct (body structure),730379003,Entire pronephric duct (body structure),replace
+UBERON:0003062,primitive knot,361464001,Structure of primitive node (body structure),730429000,Entire primitive node (body structure),replace
+UBERON:0003064,intermediate mesoderm,361476001,Structure of intermediate mesoderm (body structure),730439006,Entire intermediate mesoderm (body structure),replace
+UBERON:0003077,paraxial mesoderm,361475002,Structure of paraxial mesoderm (body structure),730438003,Entire paraxial mesoderm (body structure),replace
+UBERON:0003081,lateral plate mesoderm,361477005,Structure of lateral plate mesoderm (body structure),730440008,Entire lateral plate mesoderm (body structure),replace
+UBERON:0003220,metanephric mesenchyme,361529008,Structure of metanephric blastema (body structure),730487001,Entire metanephric blastema (body structure),replace
+UBERON:0003329,submucosa of anal canal,7892006,Structure of submucosa of anal canal (body structure),731044002,Entire submucosa of anal canal (body structure),replace
+UBERON:0003330,submucosa of rectum,71683001,Structure of rectal submucosa (body structure),727202001,Entire rectal submucosa (body structure),replace
+UBERON:0003331,submucosa of colon,61647009,Structure of submucosa of colon (body structure),727137006,Entire colonic submucosa (body structure),replace
+UBERON:0003332,submucosa of duodenum,76519004,Structure of duodenal submucosa (body structure),727226004,Entire duodenal submucosa (body structure),replace
+UBERON:0003333,submucosa of jejunum,70192009,Structure of jejunal submucosa (body structure),727192002,Entire jejunal submucosa (body structure),replace
+UBERON:0003335,serosa of colon,90132000,Structure of colonic serosa (body structure),727306000,Entire colonic serosa (body structure),replace
+UBERON:0003336,serosa of duodenum,1236009,Structure of duodenal serosa (body structure),726089007,Entire duodenal serosa (body structure),replace
+UBERON:0003396,mesentery of colon,245457004,Structure of large intestine mesentery (body structure),728297003,Entire large intestine mesentery (body structure),replace
+UBERON:0003435,pedal digit nerve,300056004,Structure of digital nerve of foot (body structure),729613004,Entire digital nerve of foot (body structure),replace
+UBERON:0003447,digit nerve of manus,181015006,Structure of digital nerve of hand (body structure),727553001,Entire digital nerve of hand (body structure),replace
+UBERON:0003468,ureteric segment of renal artery,65376008,Structure of ureteric branch of renal artery (body structure),727167000,Entire ureteric branch of renal artery (body structure),replace
+UBERON:0003477,vein of upper lip,422755007,Structure of superior labial vein (body structure),731334005,Entire superior labial vein (body structure),replace
+UBERON:0003478,vein of lower lip,422955002,Structure of inferior labial vein (body structure),731346009,Entire inferior labial vein (body structure),replace
+UBERON:0003480,vein of clitoris,360819004,Structure of vein of clitoris (body structure),731198001,Entire vein of clitoris (body structure),replace
+UBERON:0003535,vagus X nerve trunk,280308004,Structure of trunk of vagus nerve (body structure),729325009,Entire trunk of vagus nerve (body structure),replace
+UBERON:0003618,aorta tunica media,48467007,Structure of aortic tunica media (body structure),727057007,Entire aortic tunica media (body structure),replace
+UBERON:0003657,limb joint,312683002,Joint structure of limb (body structure),731829004,Entire joint of limb (body structure),replace
+UBERON:0003672,dentition,245543004,Structure of dentition (body structure),728315009,Entire dentition (body structure),replace
+UBERON:0003714,neural tissue,91728009,Structure of nervous tissue (body structure),110657001,All nervous tissue (body structure),replace
+UBERON:0003715,splanchnic nerve,264198001,Structure of splanchnic nerve (body structure),728669000,Entire splanchnic nerve (body structure),replace
+UBERON:0003716,recurrent laryngeal nerve,24227007,Structure of recurrent laryngeal nerve (body structure),731050007,Entire recurrent laryngeal nerve (body structure),replace
+UBERON:0003718,muscle spindle,12945004,Structure of muscle spindle (body structure),726856006,Entire muscle spindle (body structure),replace
+UBERON:0003719,Pacinian corpuscle,37419002,Structure of Golgi-Mazzoni corpuscle (body structure),730827005,Entire Golgi-Mazzoni corpuscle (body structure),replace
+UBERON:0003832,esophagus muscle,360961009,Structure of esophageal muscle (body structure),726810003,Entire esophageal muscle (body structure),replace
+UBERON:0003848,gonadal vein,278192008,Structure of gonadal vein (body structure),728815004,Entire gonadal vein (body structure),replace
+UBERON:0003864,middle phalanx of manus,113223004,Structure of middle phalanx of middle finger (body structure),263408007,Entire middle phalanx of middle finger (body structure),review: entire code already xrefd by UBERON:0004321
+UBERON:0003910,splenic sinusoid,9081000,Structure of splenic sinusoid (body structure),726028002,Entire splenic sinusoid (body structure),replace
+UBERON:0003922,pancreatic epithelial bud,360398004,Structure of pancreatic bud (body structure),730163008,Entire pancreatic bud (body structure),replace
+UBERON:0003923,dorsal pancreatic bud,361435005,Structure of dorsal pancreatic bud (body structure),730406008,Entire dorsal pancreatic bud (body structure),replace
+UBERON:0003924,ventral pancreatic bud,361437002,Structure of ventral pancreatic bud (body structure),730408009,Entire ventral pancreatic bud (body structure),replace
+UBERON:0003976,saccule duct,279829002,Structure of saccular opening of utriculosaccular duct (body structure),730959002,Entire Saccular opening of the utriculosaccular duct (body structure),replace
+UBERON:0003977,utricle duct,279819009,Structure of utricular opening of utriculosaccular duct (body structure),730957000,Entire Utricular opening of the utriculosaccular duct (body structure),replace
+UBERON:0003987,Hassall's corpuscle,34223001,Structure of Hassall corpuscle (body structure),730826001,Entire Hassall corpuscle (body structure),replace
+UBERON:0003991,fourth ventricle median aperture,279449001,Structure of foramen of Magendie (body structure),728972005,Entire foramen of Magendie (body structure),replace
+UBERON:0003992,fourth ventricle lateral aperture,63426007,Structure of lateral aperture of fourth ventricle (body structure),727152004,Entire lateral aperture of fourth ventricle (body structure),replace
+UBERON:0004043,semicircular canal ampulla,279759001,Structure of ampulla of semicircular canal (body structure),729115007,Entire ampulla of semicircular canal (body structure),replace
+UBERON:0004066,frontonasal prominence,361486000,Structure of frontonasal process (body structure),730449009,Entire frontonasal process (body structure),replace
+UBERON:0004074,cerebellum vermis lobule I,279380005,Structure of lingula of vermis (body structure),728944003,Entire lingula of vermis (body structure),replace
+UBERON:0004074,cerebellum vermis lobule I,77232000,Structure of lingula of cerebellum (body structure),727233004,Entire lingula of cerebellum (body structure),replace
+UBERON:0004100,renal collecting system,279371005,Renal collecting system structure (body structure),732008009,Entire renal collecting system (body structure),replace
+UBERON:0004130,cerebellar layer,360478008,Structure of layer of cerebellum (body structure),730189008,Entire layer of cerebellum (body structure),replace
+UBERON:0004132,trigeminal sensory nucleus,280170001,Structure of sensory trigeminal nucleus (body structure),729258002,Entire sensory trigeminal nucleus (body structure),replace
+UBERON:0004153,ventricular septum intermedium,361468003,Structure of septum intermedium (body structure),730433007,Entire septum intermedium (body structure),replace
+UBERON:0004170,spinal cord ventral commissure,424149007,Structure of ventral white commissure of spinal cord (body structure),731383009,Entire ventral white commissure of spinal cord (body structure),replace
+UBERON:0004319,distal phalanx of pedal digit 5,10770001,Structure of distal phalanx of little toe (body structure),731046000,Entire distal phalanx of little toe (body structure),replace
+UBERON:0004341,primitive streak,361438007,Structure of primitive streak (body structure),730409001,Entire primitive streak (body structure),replace
+UBERON:0004382,epiphysis of humerus,313054009,Structure of epiphysis of humerus (body structure),730007005,Entire epiphysis of humerus (body structure),replace
+UBERON:0004383,epiphysis of tibia,314626006,Structure of tibial epiphysis (body structure),730115005,Entire tibial epiphysis (body structure),replace
+UBERON:0004384,epiphysis of femur,314625005,Structure of femoral epiphysis (body structure),730114009,Entire femoral epiphysis (body structure),replace
+UBERON:0004385,epiphysis of radius,313055005,Structure of epiphysis of radius (body structure),730008000,Entire epiphysis of radius (body structure),replace
+UBERON:0004386,epiphysis of ulna,313056006,Structure of epiphysis of ulna (body structure),730009008,Entire epiphysis of ulna (body structure),replace
+UBERON:0004387,epiphysis of phalanx of manus,314620000,Structure of epiphysis of phalanx of finger (body structure),730112008,Entire epiphysis of phalanx of finger (body structure),replace
+UBERON:0004389,epiphysis of metatarsal bone,313057002,Structure of epiphysis of metacarpal (body structure),730010003,Entire epiphysis of metacarpal (body structure),replace
+UBERON:0004390,epiphysis of metacarpal bone,314907001,Structure of epiphysis of metatarsal (body structure),730154006,Entire epiphysis of metatarsal (body structure),replace
+UBERON:0004409,distal epiphysis of phalanx of manus,272707006,Structure of head of phalanx of finger (body structure),728741000,Entire head of phalanx of finger (body structure),replace
+UBERON:0004410,distal epiphysis of fibula,129111008,Structure of distal fibular epiphysis (body structure),280018004,Entire distal fibular epiphysis (body structure),remove: term already xrefs the entire code
+UBERON:0004411,proximal epiphysis of humerus,280028008,Structure of proximal humeral epiphysis (body structure),729211005,Entire proximal humeral epiphysis (body structure),replace
+UBERON:0004414,proximal epiphysis of phalanx of manus,272704004,Structure of base of phalanx of finger (body structure),728738009,Entire base of phalanx of finger (body structure),replace
+UBERON:0004415,proximal epiphysis of metatarsal bone,119545008,Structure of base of metatarsal bone (body structure),272719003,Entire base of metatarsal (body structure),replace
+UBERON:0004419,proximal epiphysis of phalanx of manual digit 3,181997000,Structure of base of middle phalanx of finger (body structure),727700008,Entire base of middle phalanx of finger (body structure),replace
+UBERON:0004432,proximal epiphysis of distal phalanx of manual digit 2,263445001,Structure of base of distal phalanx of index finger (body structure),728592005,Entire base of distal phalanx of index finger (body structure),replace
+UBERON:0004433,proximal epiphysis of distal phalanx of manual digit 3,263446000,Structure of base of distal phalanx of middle finger (body structure),728593000,Entire base of distal phalanx of middle finger (body structure),replace
+UBERON:0004434,proximal epiphysis of distal phalanx of manual digit 4,263447009,Structure of base of distal phalanx of ring finger (body structure),728594006,Entire base of distal phalanx of ring finger (body structure),replace
+UBERON:0004435,proximal epiphysis of distal phalanx of manual digit 5,263448004,Structure of base of distal phalanx of little finger (body structure),728595007,Entire base of distal phalanx of little finger (body structure),replace
+UBERON:0004436,proximal epiphysis of middle phalanx of manual digit 2,263428006,Structure of base of middle phalanx of index finger (body structure),728576000,Entire base of middle phalanx of index finger (body structure),replace
+UBERON:0004437,proximal epiphysis of middle phalanx of manual digit 3,263429003,Structure of base of middle phalanx of middle finger (body structure),728577009,Entire base of middle phalanx of middle finger (body structure),replace
+UBERON:0004438,proximal epiphysis of middle phalanx of manual digit 4,263430008,Structure of base of middle phalanx of ring finger (body structure),728578004,Entire base of middle phalanx of ring finger (body structure),replace
+UBERON:0004439,proximal epiphysis of middle phalanx of manual digit 5,263431007,Structure of base of middle phalanx of little finger (body structure),728579007,Entire base of middle phalanx of little finger (body structure),replace
+UBERON:0004440,proximal epiphysis of proximal phalanx of manual digit 2,263412001,Structure of base of proximal phalanx of index finger (body structure),728560009,Entire base of proximal phalanx of index finger (body structure),replace
+UBERON:0004441,proximal epiphysis of proximal phalanx of manual digit 3,263413006,Structure of base of proximal phalanx of middle finger (body structure),728561008,Entire base of proximal phalanx of middle finger (body structure),replace
+UBERON:0004442,proximal epiphysis of proximal phalanx of manual digit 4,263414000,Structure of base of proximal phalanx of ring finger (body structure),728562001,Entire base of proximal phalanx of ring finger (body structure),replace
+UBERON:0004443,proximal epiphysis of proximal phalanx of manual digit 5,263415004,Structure of base of proximal phalanx of little finger (body structure),728563006,Entire base of proximal phalanx of little finger (body structure),replace
+UBERON:0004444,proximal epiphysis of distal phalanx of manual digit 1,182008001,Structure of base of distal phalanx of thumb (body structure),727708001,Entire base of distal phalanx of thumb (body structure),replace
+UBERON:0004445,proximal epiphysis of proximal phalanx of manual digit 1,181993001,Structure of base of proximal phalanx of thumb (body structure),727696000,Entire base of proximal phalanx of thumb (body structure),replace
+UBERON:0004446,epiphysis of phalanx,280033007,Structure of epiphysis of phalanx (body structure),729213008,Entire epiphysis of phalanx (body structure),replace
+UBERON:0004448,distal epiphysis of phalanx,110520001,Structure of head of phalanx (body structure),727351000,Entire head of phalanx (body structure),replace
+UBERON:0004545,external capsule of telencephalon,279300007,Structure of external capsule (body structure),728926006,Entire external capsule (body structure),replace
+UBERON:0004637,otic capsule,361515007,Structure of periotic capsule (body structure),730475008,Entire periotic capsule (body structure),replace
+UBERON:0004645,urinary bladder urothelium,25631003,Structure of urinary bladder transitional epithelium (body structure),726919001,Entire urinary bladder transitional epithelium (body structure),replace
+UBERON:0004648,esophagus muscularis mucosa,47720007,Structure of lamina muscularis of esophageal mucous membrane (body structure),726780004,Entire lamina muscularis of esophageal mucous membrane (body structure),replace
+UBERON:0004654,temporal process of zygomatic bone,122772003,Structure of temporal process of zygomatic bone (body structure),727446007,Entire temporal process of zygomatic bone (body structure),replace
+UBERON:0004658,mandible head,51354009,Structure of head of mandible (body structure),727075008,Entire head of mandible (body structure),replace
+UBERON:0004664,aorta tunica adventitia,24996002,Structure of aortic tunica adventitia (body structure),726918009,Entire aortic tunica adventitia (body structure),replace
+UBERON:0004670,ependyma,12766003,Structure of ependyma (body structure),726854009,Entire ependyma (body structure),replace
+UBERON:0004673,trigeminal nerve root,280185007,Structure of root of trigeminal nerve (body structure),729263003,Entire root of trigeminal nerve (body structure),replace
+UBERON:0004674,facial nerve root,280186008,Structure of root of facial nerve (body structure),729264009,Entire root of facial nerve (body structure),replace
+UBERON:0004681,vestibular system,361533001,Structure of vestibular system (body structure),731242009,Entire vestibular system (body structure),replace
+UBERON:0004706,bulbus cordis,361525002,Structure of bulbus cordis (body structure),731030008,Entire bulbus cordis (body structure),replace
+UBERON:0004722,deep cervical lymph node,279145002,Structure of deep cervical lymph node (body structure),728903004,Entire deep cervical lymph node (body structure),replace
+UBERON:0004755,skeletal tissue,309311006,Structure of skeletal tissue (body structure),729905002,Entire skeletal tissue (body structure),replace
+UBERON:0004786,gastrointestinal system mucosa,410433007,Structure of digestive system mucous membrane (body structure),731280005,Entire digestive system mucous membrane (body structure),replace
+UBERON:0004858,cellular cartilage,81997001,Structure of cellular cartilage (body structure),727252005,Entire cellular cartilage (body structure),replace
+UBERON:0004867,orbital cavity,280541000,Structure of orbital cavity (body structure),729423001,Entire orbital cavity (body structure),replace
+UBERON:0004870,superficial cervical lymph node,279144003,Structure of superficial cervical lymph node (body structure),728902009,Entire superficial cervical lymph node (body structure),replace
+UBERON:0004875,nephrogenic cord,361405003,Structure of nephrogenic cord (body structure),730378006,Entire nephrogenic cord (body structure),replace
+UBERON:0004917,urethral sphincter,277855007,Structure of urethral sphincter (body structure),728784004,Entire urethral sphincter (body structure),replace
+UBERON:0004918,internal urethral sphincter,277856008,Structure of internal urethral sphincter (body structure),728785003,Entire internal urethral sphincter (body structure),replace
+UBERON:0004924,submucosa of pharynx,19594009,Structure of pharyngeal submucosa (body structure),726891003,Entire pharyngeal submucosa (body structure),replace
+UBERON:0004925,submucosa of laryngopharynx,47496006,Structure of submucosa of hypopharynx (body structure),727051008,Entire submucosa of hypopharynx (body structure),replace
+UBERON:0004928,submucosa of appendix,86833001,Structure of appendiceal submucosa (body structure),727279009,Entire appendiceal submucosa (body structure),replace
+UBERON:0004943,submucosa of urinary bladder,88384001,Structure of submucosa of urinary bladder (body structure),727288000,Entire submucosa of urinary bladder (body structure),replace
+UBERON:0004946,submucosa of ileum,65374006,Structure of ileal submucosa (body structure),727166009,Entire ileal submucosa (body structure),replace
+UBERON:0004980,mucosa of ureter,40476001,Structure of mucous membrane of ureter (body structure),727013008,Entire mucous membrane of ureter (body structure),replace
+UBERON:0005024,mucosa of soft palate,245842003,Structure of mucosa of soft palate (body structure),728456008,Entire mucosa of soft palate (body structure),replace
+UBERON:0005039,mucosa of bronchiole,10887006,Structure of mucous membrane of bronchiole (body structure),725605007,Entire mucous membrane of bronchiole (body structure),replace
+UBERON:0005042,inner epithelial layer of tympanic membrane,36411006,Structure of inner epithelial layer of tympanic membrane (body structure),726988002,Entire inner epithelial layer of tympanic membrane (body structure),replace
+UBERON:0005046,mucosa of hard palate,245841005,Structure of mucosa of hard palate (body structure),728455007,Entire mucosa of hard palate (body structure),replace
+UBERON:0005061,neural groove,361463007,Structure of neural groove (body structure),730428008,Entire neural groove (body structure),replace
+UBERON:0005062,neural fold,361461009,Structure of neural fold (body structure),730426007,Entire neural fold (body structure),replace
+UBERON:0005070,anterior neuropore,361478000,Structure of cephalic neuropore (body structure),730441007,Entire cephalic neuropore (body structure),replace
+UBERON:0005071,posterior neuropore,361479008,Structure of caudal neuropore (body structure),730442000,Entire caudal neuropore (body structure),replace
+UBERON:0005077,neuropore,360408007,Structure of neuropore (body structure),730165001,Entire neuropore (body structure),replace
+UBERON:0005159,pyramid of medulla oblongata,9535007,Structure of pyramid of medulla oblongata (body structure),726839003,Entire pyramid of medulla oblongata (body structure),replace
+UBERON:0005167,papillary duct,110623009,Structure of papillary duct of kidney (body structure),727390001,Entire papillary duct of kidney (body structure),replace
+UBERON:0005169,interstitial tissue,85293002,Structure of interstitial tissue (body structure),727269007,Entire interstitial tissue (body structure),replace
+UBERON:0005278,nail bed of finger,244199003,Structure of nail bed of finger (body structure),727906005,Entire nail bed of finger (body structure),replace
+UBERON:0005279,nail bed of toe,244200000,Structure of nail bed of toe (body structure),727907001,Entire nail bed of toe (body structure),replace
+UBERON:0005303,hypogastric nerve,181061006,Structure of hypogastric plexus (body structure),727579005,Entire hypogastric plexus (body structure),replace
+UBERON:0005331,mesonephric renal vesicle,361407006,Structure of mesonephric vesicle (body structure),730380000,Entire mesonephric vesicle (body structure),replace
+UBERON:0005351,paraflocculus,51969002,Structure of paraflocculus (body structure),727080004,Entire paraflocculus (body structure),replace
+UBERON:0005360,inferior glossopharyngeal IX ganglion,66031007,Structure of glossopharyngeal nerve inferior ganglion (body structure),727170001,Entire glossopharyngeal nerve inferior ganglion (body structure),replace
+UBERON:0005361,superior glossopharyngeal IX ganglion,280362000,Structure of intracranial ganglion (body structure),729364007,Entire intracranial ganglion (body structure),replace
+UBERON:0005362,vagus X ganglion,244452001,Structure of vagus nerve ganglion (body structure),727985006,Entire vagus nerve ganglion (body structure),replace
+UBERON:0005363,inferior vagus X ganglion,14420006,Structure of vagus nerve nodose ganglion (body structure),726866003,Entire vagus nerve nodose ganglion (body structure),replace
+UBERON:0005364,superior vagus X ganglion,280197008,Structure of superior vagus ganglion (body structure),729269004,Entire superior vagus ganglion (body structure),replace
+UBERON:0005396,carotid artery segment,69105007,Carotid artery structure (body structure),362040006,Entire carotid artery (body structure),remove: term already xrefs the entire code
+UBERON:0005412,optic fissure,361508004,Structure of choroidal fissure (body structure),730468007,Entire choroidal fissure (body structure),replace
+UBERON:0005426,lens vesicle,361510002,Structure of lens vesicle (body structure),730470003,Entire lens vesicle (body structure),replace
+UBERON:0005432,aortic sac,361527005,Structure of aortic sac (body structure),730485009,Entire aortic sac (body structure),replace
+UBERON:0005455,interventricular groove,277708006,Structure of interventricular groove (body structure),728774000,Entire interventricular groove (body structure),replace
+UBERON:0005460,left vitelline vein,361446008,Structure of left vitelline vein (body structure),730417009,Entire left vitelline vein (body structure),replace
+UBERON:0005472,right vitelline vein,361445007,Structure of right vitelline vein (body structure),730416000,Entire right vitelline vein (body structure),replace
+UBERON:0005479,superior mesenteric ganglion,279276003,Structure of superior mesenteric ganglion (body structure),728921001,Entire superior mesenteric ganglion (body structure),replace
+UBERON:0005486,venous dural sinus,54944003,Structure of dural sinus (body structure),727098000,Entire dural sinus (body structure),replace
+UBERON:0005600,crus commune,279758009,Structure of crus commune (body structure),729114006,Entire crus commune (body structure),replace
+UBERON:0005601,dorsal mesocardium,361454005,Structure of dorsal mesocardium (body structure),730423004,Entire dorsal mesocardium (body structure),replace
+UBERON:0005612,intercostal artery,281134007,Structure of intercostal artery (body structure),729546001,Entire intercostal artery (body structure),replace
+UBERON:0005620,primary palate,359541001,Structure of primary palate (body structure),730156008,Entire primary palate (body structure),replace
+UBERON:0005621,rhomboid,277441005,Rhomboid muscle structure (body structure),728758005,Entire rhomboid muscle (body structure),replace
+UBERON:0005669,peritoneal cavity mesothelium,34073007,Structure of peritoneal mesothelium (body structure),262511001,Entire peritoneal mesothelium (body structure),replace
+UBERON:0005685,midgut dorsal mesentery,361434009,Structure of dorsal midgut mesentery (body structure),730405007,Entire dorsal midgut mesentery (body structure),replace
+UBERON:0005734,tunica adventitia of blood vessel,61066005,Structure of tunica adventitia of vessel (body structure),727133005,Entire tunica adventitia of vessel (body structure),replace
+UBERON:0005740,tunica intima of artery,40022005,Structure of tunica intima of artery (body structure),727010006,Entire tunica intima of artery (body structure),replace
+UBERON:0005742,adventitia,30180000,Structure of tunica adventitia (body structure),726948007,Entire tunica adventitia (body structure),replace
+UBERON:0005769,basement membrane of epithelium,68989006,Structure of basement membrane (body structure),727186008,Entire basement membrane (body structure),replace
+UBERON:0005808,bone tissue of long bone,425475006,Bone tissue structure of long bone (body structure),730673009,Entire bone tissue of long bone (body structure),replace
+UBERON:0005810,cervical vertebra 1 anterior tubercle,281224005,Structure of anterior tubercle of atlas (body structure),729551007,Entire anterior tubercle of atlas (body structure),replace
+UBERON:0005814,arch of atlas,272708001,Structure of arch of atlas (body structure),728742007,Entire arch of atlas (body structure),replace
+UBERON:0005870,olfactory pit,361485001,Structure of olfactory pit (body structure),730448001,Entire olfactory pit (body structure),replace
+UBERON:0005980,pectinate muscle,277718001,Structure of musculi pectinati (body structure),728778002,Entire musculi pectinati (body structure),replace
+UBERON:0006134,nerve fiber,88545005,Structure of nerve fiber (body structure),726785009,Entire nerve fiber (body structure),replace
+UBERON:0006136,unmyelinated nerve fiber,46920005,Structure of non myelinated nerve fiber (body structure),726779002,Entire non myelinated nerve fiber (body structure),replace
+UBERON:0006211,buccopharyngeal membrane,361412007,Structure of buccopharyngeal membrane (body structure),730383003,Entire buccopharyngeal membrane (body structure),replace
+UBERON:0006257,laryngotracheal groove,361426003,Structure of laryngotracheal groove (body structure),730397006,Entire laryngotracheal groove (body structure),replace
+UBERON:0006271,orbital fissure,280546005,Structure of orbital fissure (body structure),729426009,Entire orbital fissure (body structure),replace
+UBERON:0006275,pericardio-peritoneal canal,361428002,Structure of pericardioperitoneal canal (body structure),730399009,Entire pericardioperitoneal canal (body structure),replace
+UBERON:0006279,pleuroperitoneal canal,361413002,Structure of pleuroperitoneal canal (body structure),730384009,Entire pleuroperitoneal canal (body structure),replace
+UBERON:0006283,future cardiac ventricle,361524003,Structure of primitive ventricle (body structure),730483002,Entire primitive ventricle (body structure),replace
+UBERON:0006284,early prosencephalic vesicle,361480006,Structure of forebrain vesicle (body structure),730443005,Entire forebrain vesicle (body structure),replace
+UBERON:0006307,urogenital membrane,172994001,Structure of urogenital membrane (body structure),727514005,Entire urogenital membrane (body structure),replace
+UBERON:0006311,chamber of eyeball,280540004,Structure of chamber of eye (body structure),729422006,Entire chamber of eye (body structure),replace
+UBERON:0006325,laryngeal intrinsic ligament,279557001,Structure of intrinsic laryngeal ligament (body structure),729034005,Entire intrinsic laryngeal ligament (body structure),replace
+UBERON:0006345,stapedial artery,361518009,Structure of stapedial artery (body structure),730478005,Entire stapedial artery (body structure),replace
+UBERON:0006349,epigastric artery,261400009,Structure of epigastric artery (body structure),728516009,Entire epigastric artery (body structure),replace
+UBERON:0006438,principal artery to hindlimb,361443000,Structure of lateral branch of fifth lumbar intersegmental artery (body structure),730414002,Entire lateral branch of fifth lumbar intersegmental artery (body structure),replace
+UBERON:0006442,subhepatic recess,36051002,Structure of subhepatic recess (body structure),726986003,Entire subhepatic recess (body structure),replace
+UBERON:0006447,L5 segment of lumbar spinal cord,278775008,Structure of fifth lumbar spinal cord segment (body structure),728841005,Entire fifth lumbar spinal cord segment (body structure),replace
+UBERON:0006448,L1 segment of lumbar spinal cord,278776009,Structure of first lumbar spinal cord segment (body structure),728842003,Entire first lumbar spinal cord segment (body structure),replace
+UBERON:0006449,L3 segment of lumbar spinal cord,278778005,Structure of third lumbar spinal cord segment (body structure),728844002,Entire third lumbar spinal cord segment (body structure),replace
+UBERON:0006450,L2 segment of lumbar spinal cord,278777000,Structure of second lumbar spinal cord segment (body structure),728843008,Entire second lumbar spinal cord segment (body structure),replace
+UBERON:0006451,L4 segment of lumbar spinal cord,278779002,Structure of fourth lumbar spinal cord segment (body structure),728845001,Entire fourth lumbar spinal cord segment (body structure),replace
+UBERON:0006452,T4 segment of thoracic spinal cord,278766006,Structure of fourth thoracic spinal cord segment (body structure),728832000,Entire fourth thoracic spinal cord segment (body structure),replace
+UBERON:0006453,T5 segment of thoracic spinal cord,278767002,Structure of fifth thoracic spinal cord segment (body structure),728833005,Entire fifth thoracic spinal cord segment (body structure),replace
+UBERON:0006454,T6 segment of thoracic spinal cord,278768007,Structure of sixth thoracic spinal cord segment (body structure),728834004,Entire sixth thoracic spinal cord segment (body structure),replace
+UBERON:0006455,T7 segment of thoracic spinal cord,278769004,Structure of seventh thoracic spinal cord segment (body structure),728835003,Entire seventh thoracic spinal cord segment (body structure),replace
+UBERON:0006456,T8 segment of thoracic spinal cord,278770003,Structure of eighth thoracic spinal cord segment (body structure),728836002,Entire eighth thoracic spinal cord segment (body structure),replace
+UBERON:0006457,T1 segment of thoracic spinal cord,278762008,Structure of first thoracic spinal cord segment (body structure),728829003,Entire first thoracic spinal cord segment (body structure),replace
+UBERON:0006458,T2 segment of thoracic spinal cord,278763003,Structure of second thoracic spinal cord segment (body structure),728830008,Entire second thoracic spinal cord segment (body structure),replace
+UBERON:0006459,T3 segment of thoracic spinal cord,278764009,Structure of third thoracic spinal cord segment (body structure),728831007,Entire third thoracic spinal cord segment (body structure),replace
+UBERON:0006460,S1 segment of sacral spinal cord,278780004,Structure of first sacral spinal cord segment (body structure),728846000,Entire first sacral spinal cord segment (body structure),replace
+UBERON:0006461,S2 segment of sacral spinal cord,278781000,Structure of second sacral spinal cord segment (body structure),728847009,Entire second sacral spinal cord segment (body structure),replace
+UBERON:0006462,S3 segment of sacral spinal cord,278782007,Structure of third sacral spinal cord segment (body structure),728848004,Entire third sacral spinal cord segment (body structure),replace
+UBERON:0006463,S4 segment of sacral spinal cord,278783002,Structure of fourth sacral spinal cord segment (body structure),728849007,Entire fourth sacral spinal cord segment (body structure),replace
+UBERON:0006464,S5 segment of sacral spinal cord,278784008,Structure of fifth sacral spinal cord segment (body structure),728850007,Entire fifth sacral spinal cord segment (body structure),replace
+UBERON:0006465,T9 segment of thoracic spinal cord,278771004,Structure of ninth thoracic spinal cord segment (body structure),728837006,Entire ninth thoracic spinal cord segment (body structure),replace
+UBERON:0006466,T10 segment of thoracic spinal cord,278772006,Structure of tenth thoracic spinal cord segment (body structure),728838001,Entire tenth thoracic spinal cord segment (body structure),replace
+UBERON:0006467,T11 segment of thoracic spinal cord,278773001,Structure of eleventh thoracic spinal cord segment (body structure),728839009,Entire eleventh thoracic spinal cord segment (body structure),replace
+UBERON:0006468,T12 segment of thoracic spinal cord,278774007,Structure of twelfth thoracic spinal cord segment (body structure),728840006,Entire twelfth thoracic spinal cord segment (body structure),replace
+UBERON:0006469,C1 segment of cervical spinal cord,278754000,Structure of first cervical spinal cord segment (body structure),728821000,Entire first cervical spinal cord segment (body structure),replace
+UBERON:0006470,C8 segment of cervical spinal cord,278761001,Structure of eighth cervical spinal cord segment (body structure),728828006,Entire eighth cervical spinal cord segment (body structure),replace
+UBERON:0006488,C3 segment of cervical spinal cord,278756003,Structure of third cervical spinal cord segment (body structure),728823002,Entire third cervical spinal cord segment (body structure),replace
+UBERON:0006489,C2 segment of cervical spinal cord,278755004,Structure of second cervical spinal cord segment (body structure),728822007,Entire second cervical spinal cord segment (body structure),replace
+UBERON:0006490,C4 segment of cervical spinal cord,278757007,Structure of fourth cervical spinal cord segment (body structure),728824008,Entire fourth cervical spinal cord segment (body structure),replace
+UBERON:0006491,C5 segment of cervical spinal cord,278758002,Structure of fifth cervical spinal cord segment (body structure),728825009,Entire fifth cervical spinal cord segment (body structure),replace
+UBERON:0006492,C6 segment of cervical spinal cord,278759005,Structure of sixth cervical spinal cord segment (body structure),728826005,Entire sixth cervical spinal cord segment (body structure),replace
+UBERON:0006493,C7 segment of cervical spinal cord,278760000,Structure of seventh cervical spinal cord segment (body structure),728827001,Entire seventh cervical spinal cord segment (body structure),replace
+UBERON:0006565,female urethral meatus,279479008,Structure of female external urethral orifice (body structure),728995001,Entire female external urethral orifice (body structure),replace
+UBERON:0006568,hypothalamic nucleus,279304003,Structure of hypothalamic nucleus (body structure),728927002,Entire hypothalamic nucleus (body structure),replace
+UBERON:0006574,pectinate line,245445008,Structure of pectinate line of anal canal (body structure),1336212006,Entire pectinate line of anal canal (body structure),replace
+UBERON:0006608,corpus cavernosum clitoridis,16657007,Structure of corpus cavernosum of clitoris (body structure),726880005,Entire corpus cavernosum of clitoris (body structure),replace
+UBERON:0006638,remnant of urachus,89583000,Structure of middle umbilical ligament (body structure),727299003,Entire middle umbilical ligament (body structure),replace
+UBERON:0006651,appendix testis,279601003,Structure of appendix of testis (body structure),729051003,Entire appendix of testis (body structure),replace
+UBERON:0006660,muscular coat,86915006,Structure of muscularis propria (body structure),727280007,Entire muscularis propria (body structure),replace
+UBERON:0006664,greater palatine artery,312163002,Structure of greater palatine artery (body structure),729927006,Entire greater palatine artery (body structure),replace
+UBERON:0006671,orbital fat pad,363656009,Orbital fat structure (body structure),732138001,Entire orbital fat (body structure),replace
+UBERON:0006676,muscularis mucosa,370140002,Structure of muscularis mucosa (body structure),730572008,Entire muscularis mucosa (body structure),replace
+UBERON:0006686,spinal vein,181376008,Structure of spinal vein (body structure),727612002,Entire spinal vein (body structure),replace
+UBERON:0006688,sublingual caruncle,85139009,Structure of sublingual caruncle (body structure),727265001,Entire sublingual caruncle (body structure),replace
+UBERON:0006729,liver perisinusoidal space,17779003,Structure of space of Disse (body structure),726886004,Entire space of Disse (body structure),replace
+UBERON:0006749,superior parathyroid gland,245540001,Structure of superior parathyroid gland (body structure),728313002,Entire superior parathyroid gland (body structure),replace
+UBERON:0006755,inferior parathyroid gland,245542009,Structure of inferior parathyroid gland (body structure),728314008,Entire inferior parathyroid gland (body structure),replace
+UBERON:0006770,apophysis,65000005,Structure of apophysis (body structure),727164007,Entire apophysis (body structure),replace
+UBERON:0006804,reticular tissue,57987007,Structure of reticular tissue (body structure),727118002,Entire reticular tissue (body structure),replace
+UBERON:0006812,mental foramen,244686000,Structure of mental foramen (body structure),728071001,Entire mental foramen (body structure),replace
+UBERON:0006815,areolar connective tissue,68477002,Structure of loose areolar connective tissue (body structure),727182005,Entire loose areolar connective tissue (body structure),replace
+UBERON:0006843,root of cranial nerve,280161004,Structure of cranial nerve root (body structure),729255004,Entire cranial nerve root (body structure),replace
+UBERON:0006855,muscular coat of ureter,3563003,Structure of muscularis of ureter (body structure),726070007,Entire muscularis of ureter (body structure),replace
+UBERON:0006914,squamous epithelium,40118003,Structure of squamous epithelium (body structure),727011005,Entire squamous epithelium (body structure),replace
+UBERON:0006934,sensory epithelium,309045006,Structure of sensory epithelium (body structure),729904003,Entire sensory epithelium (body structure),replace
+UBERON:0006956,buccal mucosa,16811007,Structure of buccal mucosa (body structure),256682009,Entire buccal mucosa (body structure),replace
+UBERON:0007005,cardiogenic splanchnic mesoderm,360387000,Structure of cardiogenic mesoderm (body structure),730161005,Entire cardiogenic mesoderm (body structure),replace
+UBERON:0007145,dome of diaphragm,244940004,Structure of dome of diaphragm (body structure),728084005,Entire dome of diaphragm (body structure),replace
+UBERON:0007177,lamina propria of mucosa of colon,113284008,Structure of colonic lamina propria (body structure),727407005,Entire colonic lamina propria (body structure),replace
+UBERON:0007178,muscularis mucosae of colon,885000,Structure of lamina muscularis of colonic mucous membrane (body structure),726087009,Entire lamina muscularis of colonic mucous membrane (body structure),replace
+UBERON:0007188,mesothelium of serous pericardium,67300002,Structure of pericardial mesothelium (body structure),727175006,Entire pericardial mesothelium (body structure),replace
+UBERON:0007239,tunica media of artery,84300001,Structure of tunica media of artery (body structure),727261005,Entire tunica media of artery (body structure),replace
+UBERON:0007240,tunica adventitia of artery,113261001,Structure of tunica adventitia of artery (body structure),727406001,Entire tunica adventitia of artery (body structure),replace
+UBERON:0007241,tunica adventitia of vein,13202006,Structure of tunica adventitia of vein (body structure),726857002,Entire tunica adventitia of vein (body structure),replace
+UBERON:0007242,tunica intima of vein,2436009,Structure of tunica intima of vein (body structure),726091004,Entire tunica intima of vein (body structure),replace
+UBERON:0007243,tunica media of vein,42049001,Structure of tunica media of vein (body structure),727019007,Entire tunica media of vein (body structure),replace
+UBERON:0007252,intervertebral disk of cervical vertebra,68818006,Structure of cervical intervertebral disc (body structure),244571001,Entire cervical disc (body structure),replace
+UBERON:0007312,pudendal artery,277968003,Structure of pudendal artery (body structure),728807002,Entire pudendal artery (body structure),replace
+UBERON:0007367,surface of tongue,314870004,Structure of tongue surface region (body structure),730149002,Entire tongue surface region (body structure),replace
+UBERON:0007610,tibial artery,181351007,Structure of tibial artery (body structure),727610005,Entire tibial artery (body structure),replace
+UBERON:0007619,limiting membrane of retina,280667001,Structure of limiting membrane of retina (body structure),729480001,Entire limiting membrane of retina (body structure),replace
+UBERON:0007635,nucleus of medulla oblongata,304943004,Structure of nucleus of medulla oblongata (body structure),729762009,Entire nucleus of medulla oblongata (body structure),replace
+UBERON:0007651,anatomical junction,91833003,Structure of anatomical junction (body structure),727326001,Entire anatomical junction (body structure),replace
+UBERON:0007652,esophageal sphincter,277765007,Structure of esophageal sphincter (body structure),726799008,Entire esophageal sphincter (body structure),replace
+UBERON:0007679,intersomitic vein,361448009,Structure of intersegmental vein (body structure),730418004,Entire intersegmental vein (body structure),replace
+UBERON:0007703,spinothalamic tract,280417000,Structure of spinothalamic tract (body structure),729386008,Entire spinothalamic tract (body structure),replace
+UBERON:0007763,cerebellum vermis culmen,89649002,Structure of culmen (body structure),279384001,Entire culmen (body structure),remove: term already xrefs the entire code
+UBERON:0007799,mixed dentition,245545006,Structure of mixed dentition (body structure),728316005,Entire mixed dentition (body structure),replace
+UBERON:0007838,spinal cord white commissure,423957000,Structure of white commissure of spinal cord (body structure),731380007,Entire white commissure of spinal cord (body structure),replace
+UBERON:0007840,spinal cord dorsal white commissure,424400007,Structure of dorsal white commissure of spinal cord (body structure),731391000,Entire dorsal white commissure of spinal cord (body structure),replace
+UBERON:0007846,dense regular connective tissue,22560007,Structure of dense fibrous connective tissue (body structure),726906000,Entire dense fibrous connective tissue (body structure),replace
+UBERON:0008202,bone of hip region,304907005,Bone structure of hip joint region (body structure),731787007,Entire bone of hip joint region (body structure),replace
+UBERON:0008246,pyloric stomach,280119005,Pyloric structure of stomach (body structure),362143006,Entire pylorus (body structure),review: entire code already xrefd by UBERON:0001166
+UBERON:0008266,periodontal ligament,245775004,Structure of periodontal ligament (body structure),728417002,Entire periodontal ligament (body structure),replace
+UBERON:0008267,left supracardinal vein,361449001,Structure of left supracardinal vein (body structure),730419007,Entire left supracardinal vein (body structure),replace
+UBERON:0008281,tooth bud,53301001,Structure of tooth bud (body structure),727087001,Entire tooth bud (body structure),replace
+UBERON:0008320,common penile artery,282044005,Structure of penile artery (body structure),731160001,Entire penile artery (body structure),replace
+UBERON:0008338,plantar part of pes,57999000,Structure of sole of foot (body structure),731075006,Entire sole of foot (body structure),replace
+UBERON:0008345,ileal epithelium,47046000,Structure of ileal epithelium (body structure),727045003,Entire ileal epithelium (body structure),replace
+UBERON:0008346,duodenal epithelium,66036002,Structure of duodenal epithelium (body structure),727171002,Entire duodenal epithelium (body structure),replace
+UBERON:0008427,transverse foramen of axis,281221002,Structure of foramen transversarium of axis (body structure),729550008,Entire foramen transversarium of axis (body structure),replace
+UBERON:0008429,cervical vertebral foramen,280833008,Structure of cervical vertebral foramen (body structure),729500001,Entire cervical vertebral foramen (body structure),replace
+UBERON:0008430,lumbar vertebral foramen,280835001,Structure of lumbar vertebral foramen (body structure),729502009,Entire lumbar vertebral foramen (body structure),replace
+UBERON:0008432,thoracic vertebral foramen,280834002,Structure of thoracic vertebral foramen (body structure),729501002,Entire thoracic vertebral foramen (body structure),replace
+UBERON:0008842,suspensory ligament of testis,279592009,Structure of scrotal ligament (body structure),729048005,Entire scrotal ligament (body structure),replace
+UBERON:0008847,ovarian ligament,279915004,Structure of ligament of ovary (body structure),729183006,Entire ligament of ovary (body structure),replace
+UBERON:0008857,stomach smooth muscle circular layer,2746007,Structure of circular layer of gastric muscularis (body structure),726093001,Entire circular layer of gastric muscularis (body structure),replace
+UBERON:0008877,epidermal-dermal junction,51025007,Structure of dermoepidermal junction (body structure),727074007,Entire dermoepidermal junction (body structure),replace
+UBERON:0008883,osteoid,39365008,Structure of osteoid tissue (body structure),727005007,Entire osteoid tissue (body structure),replace
+UBERON:0008930,somatosensory cortex,279252006,Structure of somesthetic area (body structure),728915000,Entire somesthetic area (body structure),replace
+UBERON:0008969,dental follicle,110975002,Structure of follicle of tooth (body structure),727402004,Entire follicle of tooth (body structure),replace
+UBERON:0008977,pes anserinus of tibia,360767004,Structure of tendons of pes anserinus of lower limb (body structure),730231007,Entire structure of tendons of pes anserinus of lower limb (body structure),replace
+UBERON:0008987,renal parenchyma,29704000,Structure of parenchyma of kidney (body structure),362213001,Entire renal parenchyma (body structure),replace
+UBERON:0008992,chorion frondosum,37333001,Structure of chorion frondosum (body structure),257341007,Entire chorion frondosum (body structure),replace
+UBERON:0008993,habenular nucleus,279303009,Structure of habenular nucleus (body structure),1186706004,Entire habenular nucleus (body structure),replace
+UBERON:0008995,nucleus of cerebellar nuclear complex,279220006,Structure of cerebellar nucleus (body structure),728908008,Entire cerebellar nucleus (body structure),replace
+UBERON:0009000,ischial spine,18074002,Structure of ischial spine (body structure),182042005,Entire ischial spine (body structure),replace
+UBERON:0009006,deep inguinal lymph node,65266007,Structure of deep inguinal lymph node (body structure),731080002,Entire deep inguinal lymph node (body structure),replace
+UBERON:0009007,superficial inguinal lymph node,113340006,Structure of superficial inguinal lymph node (body structure),245370007,Entire superficial inguinal lymph node (body structure),replace
+UBERON:0009009,carotid sinus nerve,50624003,Structure of carotid sinus nerve (body structure),727072006,Entire carotid sinus nerve (body structure),replace
+UBERON:0009013,white fibrocartilage,3008003,Structure of white fibrocartilage (body structure),726063007,Entire white fibrocartilage (body structure),replace
+UBERON:0009016,ciliary stroma,280868008,Structure of ciliary stroma (body structure),729504005,Entire ciliary stroma (body structure),replace
+UBERON:0009024,adrenal gland X zone,24306004,Structure of X-zone of adrenal gland (body structure),730822004,Entire X-zone of adrenal gland (body structure),replace
+UBERON:0009025,gastroepiploic artery,261401008,Structure of gastroepiploic artery (body structure),728517000,Entire gastroepiploic artery (body structure),replace
+UBERON:0009026,iliac circumflex artery,244327004,Structure of circumflex iliac artery (body structure),727933009,Entire circumflex iliac artery (body structure),replace
+UBERON:0009029,pudendal vein,395225000,Structure of pudendal vein (body structure),730603005,Entire pudendal vein (body structure),replace
+UBERON:0009129,right atrium endocardium,3194006,Structure of endocardium of right atrium (body structure),726828001,Entire endocardium of right atrium (body structure),replace
+UBERON:0009130,dorsal meso-duodenum,361433003,Structure of dorsal mesoduodenum (body structure),730404006,Entire dorsal mesoduodenum (body structure),replace
+UBERON:0009133,pleuroperitoneal membrane,361429005,Structure of pleuroperitoneal membrane (body structure),730400002,Entire pleuroperitoneal membrane (body structure),replace
+UBERON:0009138,right common cardinal vein,361507009,Structure of right common cardinal vein (body structure),730467002,Entire right common cardinal vein (body structure),replace
+UBERON:0009139,right posterior cardinal vein,361505001,Structure of right posterior cardinal vein (body structure),730465005,Entire right posterior cardinal vein (body structure),replace
+UBERON:0009140,right subcardinal vein,361452009,Structure of right subcardinal vein (body structure),730421002,Entire right subcardinal vein (body structure),replace
+UBERON:0009471,dorsum of tongue,66938003,Structure of dorsum of tongue (body structure),362093007,Entire dorsum of tongue (body structure),replace
+UBERON:0009552,distal segment of manual digit,312543003,Structure of tip of finger (body structure),1259254002,Entire tip of finger (body structure),replace
+UBERON:0009569,subdivision of trunk,22943007,Trunk structure (body structure),262225004,Entire trunk (body structure),review: entire code already xrefd by UBERON:0002100
+UBERON:0009646,lumbar sympathetic nerve trunk,280534006,Structure of lumbar sympathetic trunk (body structure),729420003,Entire lumbar sympathetic trunk (body structure),replace
+UBERON:0009647,tympanic membrane epithelium,70839004,Structure of epithelial layer of tympanic membrane (body structure),727196004,Entire epithelial layer of tympanic membrane (body structure),replace
+UBERON:0009661,midbrain nucleus,279285003,Structure of midbrain nucleus (body structure),728922008,Entire midbrain nucleus (body structure),replace
+UBERON:0009668,ventral mesentery,361430000,Structure of ventral mesentery (body structure),730401003,Entire ventral mesentery (body structure),replace
+UBERON:0009746,head fold of embryonic disc,361453004,Structure of head fold (body structure),730422009,Entire head fold (body structure),replace
+UBERON:0009747,tail fold of embryonic disc,361439004,Structure of tail fold (body structure),730410006,Entire tail fold (body structure),replace
+UBERON:0009753,adrenal gland cortex zone,68594002,Adrenal cortex structure (body structure),362584002,Entire adrenal cortex (body structure),review: entire code already xrefd by UBERON:0001235
+UBERON:0009758,abdominal ganglion,280508003,Structure of abdominal ganglion (body structure),729404008,Entire abdominal ganglion (body structure),replace
+UBERON:0009769,left common cardinal vein,361506000,Structure of left common cardinal vein (body structure),730466006,Entire left common cardinal vein (body structure),replace
+UBERON:0009772,right anterior cardinal vein,361503008,Structure of right anterior cardinal vein (body structure),730463003,Entire right anterior cardinal vein (body structure),replace
+UBERON:0009859,endosteum,57487002,Structure of endosteum (body structure),727114000,Entire endosteum (body structure),replace
+UBERON:0009916,wall of ureter,279397004,Structure of wall of ureter (body structure),728950008,Entire wall of ureter (body structure),replace
+UBERON:0009973,ureterovesical junction,261187001,Structure of vesicoureteric junction (body structure),728515008,Entire vesicoureteric junction (body structure),replace
+UBERON:0009980,condyle of femur,304912006,Structure of condyle of femur (body structure),729742001,Entire condyle of femur (body structure),replace
+UBERON:0010020,tubotympanic recess epithelium,361516008,Structure of tubotympanic recess (body structure),730476009,Entire tubotympanic recess (body structure),replace
+UBERON:0010034,copula linguae,361424000,Structure of copula (body structure),730395003,Entire copula (body structure),replace
+UBERON:0010052,mucosa of dorsum of tongue,245835003,Structure of mucosa of dorsal surface of tongue (body structure),728453000,Entire mucosa of dorsal surface of tongue (body structure),replace
+UBERON:0010057,hypopharyngeal eminence,361420009,Structure of hypobranchial eminence (body structure),730391007,Entire hypobranchial eminence (body structure),replace
+UBERON:0010069,outer epithelial layer of tympanic membrane,39725007,Structure of outer epithelial layer of tympanic membrane (body structure),727009001,Entire outer epithelial layer of tympanic membrane (body structure),replace
+UBERON:0010070,intermediate layer of tympanic membrane,44692008,Structure of connective tissue layer of tympanic membrane (body structure),727031009,Entire connective tissue layer of tympanic membrane (body structure),replace
+UBERON:0010161,lumen of blood vessel,91747007,Structure of lumen of blood vessel (body structure),727322004,Entire lumen of blood vessel (body structure),replace
+UBERON:0010260,umbilical blood vessel,408728001,Structure of umbilical blood vessel (body structure),731279007,Entire umbilical blood vessel (body structure),replace
+UBERON:0010279,pericardial sinus,314273005,Structure of pericardial sinus (body structure),730058007,Entire pericardial sinus (body structure),replace
+UBERON:0010287,motor root of facial nerve,280191009,Structure of motor root of facial nerve (body structure),729266006,Entire motor root of facial nerve (body structure),replace
+UBERON:0010305,subdivision of conjunctiva,29445007,Conjunctival structure (body structure),181161008,Entire conjunctiva (body structure),review: entire code already xrefd by UBERON:0001811
+UBERON:0010307,conjunctival fornix,276831007,Structure of conjunctival fornix (body structure),731125007,Entire conjunctival fornix (body structure),replace
+UBERON:0010361,synostosis,1216008,Structure of synostosis (body structure),726088004,Entire synostosis (body structure),replace
+UBERON:0010372,uncinate process of ethmoid,306373001,Structure of uncinate process (body structure),729830000,Entire uncinate process (body structure),replace
+UBERON:0010389,pterygoid bone,415639001,Structure of lateral pterygoid plate (body structure),731289006,Entire lateral pterygoid plate (body structure),replace
+UBERON:0010467,teres muscle,277440006,Structure of teres muscle (body structure),728757000,Entire teres (body structure),replace
+UBERON:0010912,subdivision of skeleton,129140006,Structure of bony skeleton subdivision (body structure),24201007,All ribs (body structure),replace
+UBERON:0010926,lateral thyrohyoid ligament,279555009,Structure of lateral thyrohyoid ligament (body structure),729032009,Entire lateral thyrohyoid ligament (body structure),replace
+UBERON:0010938,muscle belly,29823001,Structure of belly of skeletal muscle (body structure),726946006,Entire belly of skeletal muscle (body structure),replace
+UBERON:0010940,muscle of digastric group,360772008,Structure of muscle belly of digastric (body structure),730233005,Entire muscle belly of digastric (body structure),replace
+UBERON:0010947,occipitalis,21405000,Structure of occipital belly of occipitofrontalis muscle (body structure),368681009,Entire occipital belly of occipitofrontalis muscle (body structure),replace
+UBERON:0011078,endolymphatic space,279856000,Structure of endolymphatic space (body structure),729157001,Entire endolymphatic space (body structure),replace
+UBERON:0011124,xiphisternal joint,118923007,Structure of xiphisternal symphysis (body structure),730848007,Entire xiphisternal symphysis (body structure),replace
+UBERON:0011124,xiphisternal joint,118924001,Structure of xiphisternal synostosis (body structure),730849004,Entire Xiphisternal synostosis (body structure),replace
+UBERON:0011131,intermetacarpal joint,303065007,Structure of intermetacarpal joint (body structure),729622003,Entire intermetacarpal joint (body structure),replace
+UBERON:0011289,pharyngobasilar fascia,16675008,Structure of pharyngobasilar fascia (body structure),730818009,Entire pharyngobasilar fascia (body structure),replace
+UBERON:0011298,submucosa of fallopian tube,245489008,Structure of uterine submucosa (body structure),728305003,Entire uterine submucosa (body structure),replace
+UBERON:0011316,nerve to stylohyoid from facial nerve,89590005,Structure of facial nerve stylohyoid branch (body structure),727300006,Entire facial nerve stylohyoid branch (body structure),replace
+UBERON:0011317,nerve to stylopharyngeus from glossopharyngeal nerve,280294008,Structure of nerve to stylopharyngeus (body structure),729320004,Entire nerve to stylopharyngeus (body structure),replace
+UBERON:0011320,ligament of temporomandibular joint,127861009,Structure of ligament of temporomandibular joint (body structure),727459004,Entire ligament of temporomandibular joint (body structure),replace
+UBERON:0011322,mylohyoid nerve,280269007,Structure of mylohyoid nerve (body structure),729304009,Entire mylohyoid nerve (body structure),replace
+UBERON:0011370,transverse process of atlas,181895009,Structure of transverse process of atlas (body structure),727681004,Entire transverse process of atlas (body structure),replace
+UBERON:0011392,blood vessel internal elastic membrane,86405007,Structure of aortic internal elastic membrane (body structure),727275003,Entire aortic internal elastic membrane (body structure),replace
+UBERON:0011532,female pubococcygeus muscle,208282000,Structure of pubovaginalis muscle (body structure),730858006,Entire pubovaginalis muscle (body structure),replace
+UBERON:0011565,lumen of gastrointestinal system,432899004,Structure of lumen of gastrointestinal tract (body structure),731431003,Entire lumen of gastrointestinal tract (body structure),replace
+UBERON:0011624,superior horn of thyroid cartilage,279520007,Structure of superior thyroid cornu (body structure),729014009,Entire superior thyroid cornu (body structure),replace
+UBERON:0011625,inferior horn of thyroid cartilage,279521006,Structure of inferior thyroid cornu (body structure),729015005,Entire inferior thyroid cornu (body structure),replace
+UBERON:0011766,left recurrent laryngeal nerve,280300006,Structure of left recurrent laryngeal nerve (body structure),1268452009,Entire left recurrent laryngeal nerve (body structure),replace
+UBERON:0011767,right recurrent laryngeal nerve,280299003,Structure of right recurrent laryngeal nerve (body structure),1268453004,Entire right recurrent laryngeal nerve (body structure),replace
+UBERON:0011824,fibrous connective tissue,363130003,Structure of fibrous connective tissue (body structure),730570000,Entire fibrous connective tissue (body structure),replace
+UBERON:0011847,acinus of parotid gland,46926004,Structure of acinus of parotid gland (body structure),727043005,Entire acinus of parotid gland (body structure),replace
+UBERON:0011895,endomysium,91739007,Structure of endomysium (body structure),727321006,Entire endomysium (body structure),replace
+UBERON:0011900,perimysium,63406008,Structure of perimysium (body structure),727151006,Entire perimysium (body structure),replace
+UBERON:0011970,talofibular ligament,244649001,Structure of talofibular ligament (body structure),724043003,Entire talofibular ligament (body structure),replace
+UBERON:0011973,epiphysis of phalanx of pes,314621001,Structure of epiphysis of phalanx of toe (body structure),730113003,Entire epiphysis of phalanx of toe (body structure),replace
+UBERON:0011974,epiphysis of proximal phalanx of pes,280047006,Structure of epiphysis of proximal phalanx of toe (body structure),729224005,Entire epiphysis of proximal phalanx of toe (body structure),replace
+UBERON:0011975,epiphysis of middle phalanx of pes,280048001,Structure of epiphysis of middle phalanx of toe (body structure),729225006,Entire epiphysis of middle phalanx of toe (body structure),replace
+UBERON:0011976,epiphysis of distal phalanx of pes,280049009,Structure of epiphysis of distal phalanx of toe (body structure),729226007,Entire epiphysis of distal phalanx of toe (body structure),replace
+UBERON:0011977,epiphysis of proximal phalanx of manus,280044004,Structure of epiphysis of proximal phalanx of finger (body structure),729221002,Entire epiphysis of proximal phalanx of finger (body structure),replace
+UBERON:0011978,epiphysis of middle phalanx of manus,280045003,Structure of epiphysis of middle phalanx of finger (body structure),729222009,Entire epiphysis of middle phalanx of finger (body structure),replace
+UBERON:0011979,epiphysis of distal phalanx of manus,280046002,Structure of epiphysis of distal phalanx of finger (body structure),729223004,Entire epiphysis of distal phalanx of finger (body structure),replace
+UBERON:0012110,frontal process of zygomatic bone,116353002,Structure of frontal process of zygomatic bone (body structure),727413001,Entire frontal process of zygomatic bone (body structure),replace
+UBERON:0012117,lumen of nutrient foramen,29288001,Structure of nutrient foramen (body structure),726941001,Entire nutrient foramen (body structure),replace
+UBERON:0012167,buccal fat pad,25930004,Structure of buccal fat pad (body structure),726921006,Entire buccal fat pad (body structure),replace
+UBERON:0012175,acoustico-facial VII-VIII ganglion complex,361514006,Structure of acousticofacial ganglion (body structure),730474007,Entire acousticofacial ganglion (body structure),replace
+UBERON:0012241,male urethral meatus,279478000,Structure of male external urethral orifice (body structure),728994002,Entire male external urethral orifice (body structure),replace
+UBERON:0012297,male urethral crest,279470007,Structure of male urethral crest (body structure),728989002,Entire male urethral crest (body structure),replace
+UBERON:0012298,female urethral crest,279471006,Structure of female urethral crest (body structure),728990006,Entire female urethral crest (body structure),replace
+UBERON:0012314,embryonic facial prominence,89066004,Facial process structure (body structure),362861000,Entire facial process (body structure),replace
+UBERON:0012374,subserosal plexus,110699000,Structure of subserosal plexus (body structure),727399000,Entire subserosal plexus (body structure),replace
+UBERON:0012375,subserosa,2255006,Structure of subserosa (body structure),726041003,Entire subserosa (body structure),replace
+UBERON:0012376,retromolar triangle,245830008,Structure of mucosa of retromolar pad of mandibular gingiva (body structure),728448005,Entire mucosa of retromolar pad of mandibular gingiva (body structure),replace
+UBERON:0012401,small intestine smooth muscle circular layer,54658003,Structure of circular layer of small intestine muscularis propria (body structure),727095002,Entire circular layer of small intestine muscularis propria (body structure),replace
+UBERON:0012402,small intestine smooth muscle longitudinal layer,59150006,Structure of longitudinal layer of small intestine muscularis propria (body structure),727127001,Entire longitudinal layer of small intestine muscularis propria (body structure),replace
+UBERON:0012450,Meissner's corpuscle,41421000,Structure of Meissner's corpuscle (body structure),730828000,Entire Meissner's corpuscle (body structure),replace
+UBERON:0012451,sensory receptor,70402007,Peripheral sensory structure (body structure),731985009,Entire peripheral sensory structure (body structure),replace
+UBERON:0012456,Merkel nerve ending,9317004,Structure of Merkel's tactile disc (body structure),730813000,Entire Merkel's tactile disc (body structure),replace
+UBERON:0012457,Ruffini nerve ending,53140000,Structure of Ruffini corpuscle (body structure),730830003,Entire Ruffini corpuscle (body structure),replace
+UBERON:0012477,dorsal part of neck,304036007,Structure of posterior region of neck (body structure),362654002,Entire posterior portion of neck (body structure),replace
+UBERON:0012494,muscularis mucosae of duodenum,37457002,Structure of lamina muscularis of duodenal mucous membrane (body structure),726993004,Entire lamina muscularis of duodenal mucous membrane (body structure),replace
+UBERON:0012497,muscularis mucosae of rectum,53420003,Structure of lamina muscularis of rectal mucous membrane (body structure),727088006,Entire lamina muscularis of rectal mucous membrane (body structure),replace
+UBERON:0012498,serosa of appendix,22488003,Structure of appendiceal serosa (body structure),726905001,Entire appendiceal serosa (body structure),replace
+UBERON:0012504,adventitia of esophagus,85950006,Structure of esophageal adventitia (body structure),726784008,Entire esophageal adventitia (body structure),replace
+UBERON:0012650,gastroduodenal junction,264014000,Structure of gastroduodenal junction (body structure),728631005,Entire gastroduodenal junction (body structure),replace
+UBERON:0013118,sulcus of brain,279337001,Structure of cerebral sulcus (body structure),728936003,Entire cerebral sulcus (body structure),replace
+UBERON:0013124,left posterior cardinal vein,361504002,Structure of left posterior cardinal vein (body structure),730464009,Entire left posterior cardinal vein (body structure),replace
+UBERON:0013125,left subcardinal vein,361451002,Structure of left subcardinal vein (body structure),730420001,Entire left subcardinal vein (body structure),replace
+UBERON:0013142,soleal vein,397427005,Structure of soleal vein (body structure),730617001,Entire soleal vein (body structure),replace
+UBERON:0013148,early midbrain vesicle,361481005,Structure of midbrain vesicle (body structure),730444004,Entire midbrain vesicle (body structure),replace
+UBERON:0013149,hindbrain vesicle,361482003,Structure of hindbrain vesicle (body structure),730445003,Entire hindbrain vesicle (body structure),replace
+UBERON:0013150,future brain vesicle,360409004,Structure of primitive brain vesicle (body structure),730166000,Entire primitive brain vesicle (body structure),replace
+UBERON:0013224,Ciaccio's gland,278361003,Structure of gland of Wolfring and Ciaccio (body structure),728817007,Entire gland of Wolfring and Ciaccio (body structure),replace
+UBERON:0013227,crypt of Henle,278362005,Structure of gland of Henle (body structure),728818002,Entire gland of Henle (body structure),replace
+UBERON:0013241,embryonic urethral groove,361531004,Structure of urethral groove (body structure),730489003,Entire urethral groove (body structure),replace
+UBERON:0013485,crypt of Lieberkuhn of colon,19447003,Structure of colonic crypt of Lieberkühn (body structure),726890002,Entire colonic crypt of Lieberkühn (body structure),replace
+UBERON:0013486,crypt of Lieberkuhn of appendix,21512007,Structure of appendiceal crypt of Lieberkühn (body structure),726898009,Entire appendiceal crypt of Lieberkühn (body structure),replace
+UBERON:0013529,Brodmann area,384717008,Structure of Brodmann area (body structure),731034004,Entire Brodmann area (body structure),replace
+UBERON:0013647,lateral pterygoid nerve,48852002,Structure of lateral pterygoid nerve (body structure),727060000,Entire lateral pterygoid nerve (body structure),replace
+UBERON:0013682,peripheral region of retina,264141008,Structure of peripheral retina (body structure),728657008,Entire peripheral retina (body structure),replace
+UBERON:0013685,foramen of skull,276742007,Structure of skull foramen (body structure),728745009,Entire skull foramen (body structure),replace
+UBERON:0013754,integumentary system layer,314820002,Skin structure layer (body structure),730140003,Entire skin layer (body structure),replace
+UBERON:0013766,epicanthal fold,74824007,Skin structure of epicanthal fold (body structure),731703008,Entire skin of epicanthal fold (body structure),replace
+UBERON:0013768,great vessel of heart,304066000,Structure of thoracic great vessel (body structure),729723000,Entire great vessel of thorax (body structure),replace
+UBERON:0014380,flexor digitorum brevis muscle,79490000,Structure of flexor digitorum brevis muscle of foot (body structure),727244007,Entire flexor digitorum brevis muscle of foot (body structure),replace
+UBERON:0014430,sciatic notch,360956007,Structure of sciatic notch (body structure),730326008,Entire sciatic notch (body structure),replace
+UBERON:0014444,pubic ramus,182026003,Structure of ramus of pubis (body structure),727712007,Entire ramus of pubis (body structure),replace
+UBERON:0014450,pretectal nucleus,416164009,Structure of pretectal nucleus (body structure),730655006,Entire pretectal nucleus (body structure),replace
+UBERON:0014473,precentral fissure of cerebellum,18716004,Structure of precentral fissure of cerebellum (body structure),726889006,Entire precentral fissure of cerebellum (body structure),replace
+UBERON:0014541,thoracic division of spinal cord central canal,71118002,Structure of thoracic spinal cord central canal (body structure),727197008,Entire thoracic spinal cord central canal (body structure),replace
+UBERON:0014542,cervical division of cord spinal central canal,280403009,Structure of cervical spinal cord central canal (body structure),729382005,Entire cervical spinal cord central canal (body structure),replace
+UBERON:0014543,lumbar division of spinal cord central canal,280406001,Structure of lumbar spinal cord central canal (body structure),729384006,Entire lumbar spinal cord central canal (body structure),replace
+UBERON:0014615,accessory nerve root,280187004,Structure of root of accessory nerve (body structure),729265005,Entire root of accessory nerve (body structure),replace
+UBERON:0014626,base of cochlear canal,279778001,Structure of base of cochlear canal (body structure),729124003,Entire base of cochlear canal (body structure),replace
+UBERON:0014628,vestibular fissure of the cochlear canal,279772000,Structure of vestibular fissure of cochlear canal (body structure),729121006,Entire vestibular fissure of cochlear canal (body structure),replace
+UBERON:0014630,ventral gray commissure of spinal cord,88806005,Structure of spinal cord anterior gray commissure (body structure),727292007,Entire spinal cord anterior gray commissure (body structure),replace
+UBERON:0014631,dorsal gray commissure of spinal cord,21169000,Structure of spinal cord posterior gray commissure (body structure),726896008,Entire spinal cord posterior gray commissure (body structure),replace
+UBERON:0014731,haversian canal,3336003,Structure of Haversian canal (body structure),730811003,Entire Haversian canal (body structure),replace
+UBERON:0014881,distal epiphysis of distal phalanx of manual digit 1,182011000,Structure of head of distal phalanx of thumb (body structure),727711000,Entire head of distal phalanx of thumb (body structure),replace
+UBERON:0014882,distal epiphysis of distal phalanx of manual digit 2,263457005,Structure of head of distal phalanx of index finger (body structure),728604007,Entire head of distal phalanx of index finger (body structure),replace
+UBERON:0014883,distal epiphysis of distal phalanx of manual digit 3,263458000,Structure of head of distal phalanx of middle finger (body structure),728605008,Entire head of distal phalanx of middle finger (body structure),replace
+UBERON:0014884,distal epiphysis of distal phalanx of manual digit 4,263459008,Structure of head of distal phalanx of ring finger (body structure),728606009,Entire head of distal phalanx of ring finger (body structure),replace
+UBERON:0014885,distal epiphysis of distal phalanx of manual digit 5,263460003,Structure of head of distal phalanx of little finger (body structure),728607000,Entire head of distal phalanx of little finger (body structure),replace
+UBERON:0014886,distal epiphysis of distal phalanx of manual digit,182006002,Structure of head of distal phalanx of finger (body structure),727707006,Entire head of distal phalanx of finger (body structure),replace
+UBERON:0014891,brainstem white matter,360442003,Structure of brainstem tract (body structure),730171007,Entire brainstem tract (body structure),replace
+UBERON:0014931,periungual skin,280418005,Periungual skin structure (body structure),729387004,Entire periungual skin (body structure),replace
+UBERON:0014932,periventricular white matter,37065005,Structure of periventricular white matter (body structure),726992009,Entire periventricular white matter (body structure),replace
+UBERON:0014933,periventricular gray matter,89530008,Structure of periventricular gray matter (body structure),727298006,Entire periventricular gray matter (body structure),replace
+UBERON:0015117,lamina terminalis of cerebral hemisphere,361483008,Structure of lamina terminalis (body structure),730446002,Entire lamina terminalis (body structure),replace
+UBERON:0015155,conjunctival space,280957009,Structure of subconjunctival space (body structure),729538002,Entire subconjunctival space (body structure),replace
+UBERON:0015226,bulbar spiral septum,361469006,Structure of bulbar spiral septum (body structure),730434001,Entire bulbar spiral septum (body structure),replace
+UBERON:0015472,tracheobronchial lymph node,245341003,Structure of tracheobronchial lymph node (body structure),728267006,Entire tracheobronchial lymph node (body structure),replace
+UBERON:0015704,sagittal sinus,244400002,Structure of sagittal sinus (body structure),727959007,Entire sagittal sinus (body structure),replace
+UBERON:0015881,internal iliac lymph node,245357003,Structure of internal iliac node (body structure),728274001,Entire internal iliac node (body structure),replace
+UBERON:0015923,superficial parotid lymph node,279141006,Structure of superficial parotid lymph node (body structure),728899006,Entire superficial parotid lymph node (body structure),replace
+UBERON:0015925,superficial intraparotid lymph node,68339009,Structure of superficial intraparotid lymph node (body structure),727179000,Entire superficial intraparotid lymph node (body structure),replace
+UBERON:0016392,mastoid lymph node,245328002,Structure of postauricular lymph node (body structure),728262000,Entire postauricular lymph node (body structure),replace
+UBERON:0016392,mastoid lymph node,279143009,Structure of mastoid lymph node (body structure),728901002,Entire mastoid lymph node (body structure),replace
+UBERON:0016393,deep parotid lymph node,279142004,Structure of deep parotid lymph node (body structure),728900001,Entire deep parotid lymph node (body structure),replace
+UBERON:0016416,anterior chest,182331006,Structure of surface region of front of chest (body structure),727751002,Entire surface region of front of chest (body structure),replace
+UBERON:0016497,epicondyle of humerus,272693008,Structure of epicondyle of humerus (body structure),728734006,Entire epicondyle of humerus (body structure),replace
+UBERON:0016634,premotor cortex,90928005,Structure of premotor cortex (body structure),730838005,Entire premotor cortex (body structure),replace
+UBERON:0016930,ridge of tooth,245699009,Structure of tooth ridge (body structure),728367008,Entire tooth ridge (body structure),replace
+UBERON:0016933,oblique ridge of tooth,245701009,Structure of oblique ridge of tooth (body structure),728369006,Entire oblique ridge of tooth (body structure),replace
+UBERON:0016934,marginal ridge of tooth,245700005,Structure of marginal ridge of tooth (body structure),728368003,Entire marginal ridge of tooth (body structure),replace
+UBERON:0016937,transverse marginal ridge of tooth,245702002,Structure of transverse marginal ridge of tooth (body structure),728370007,Entire transverse marginal ridge of tooth (body structure),replace
+UBERON:0016938,mesial marginal ridge of tooth,278475009,Structure of mesial marginal ridge of tooth (body structure),728819005,Entire mesial marginal ridge of tooth (body structure),replace
+UBERON:0016939,distal marginal ridge of tooth,278476005,Structure of distal marginal ridge of tooth (body structure),728820004,Entire distal marginal ridge of tooth (body structure),replace
+UBERON:0018103,posterior fascicle of palatopharyngeus,244801005,Structure of posterior fascicle of palatopharyngeus (body structure),728079004,Entire palatopharyngeal sphincter (body structure),replace
+UBERON:0018104,parafoveal part of retina,264120002,Structure of parafoveal retina (body structure),728653007,Entire parafoveal retina (body structure),replace
+UBERON:0018105,perifoveal part of retina,280617008,Structure of perifoveal region of retina (body structure),729463000,Entire perifoveal region of retina (body structure),replace
+UBERON:0018107,foveola of retina,399857002,Structure of foveola (body structure),730624000,Entire foveola (body structure),replace
+UBERON:0018398,superior alveolar nerve,280235006,Structure of superior alveolar nerve (body structure),729280004,Entire superior alveolar nerve (body structure),replace
+UBERON:0018412,vidian nerve,280273005,Structure of nerve of pterygoid canal (body structure),729307002,Entire nerve of the pterygoid canal (body structure),replace
+UBERON:0019190,mucous gland of lung,88410004,Structure of bronchial mucous gland (body structure),727289008,Entire bronchial mucous gland (body structure),replace
+UBERON:0019199,lateral side of chest,182332004,Structure of surface region of lateral chest wall (body structure),727752009,Entire surface region of lateral chest wall (body structure),replace
+UBERON:0019210,pole of lens,280630009,Structure of pole of lens (body structure),729467004,Entire pole of lens (body structure),replace
+UBERON:0019243,skin crease,280385004,Structure of skin crease (body structure),729373004,Entire skin crease (body structure),replace
+UBERON:0019246,palmar skin crease,244159001,Structure of palmar skin crease (body structure),727879003,Entire palmar skin crease (body structure),replace
+UBERON:0019247,plantar skin crease,244192007,Structure of plantar skin crease (body structure),727902007,Entire plantar skin crease (body structure),replace
+UBERON:0019303,occipital sulcus,314148004,Structure of occipital lobe sulcus (body structure),730020008,Entire occipital lobe sulcus (body structure),replace
+UBERON:0022244,anterior orbital gyrus,279196000,Structure of anterior orbital gyrus (body structure),1359916007,Entire anterior orbital gyrus (body structure),replace
+UBERON:0022297,palpebral branch of infra-orbital nerve,280236007,Structure of palpebral branch of maxillary nerve (body structure),729281000,Entire palpebral branch of maxillary nerve (body structure),replace
+UBERON:0022301,long ciliary nerve,280228003,Structure of long ciliary nerve (body structure),729276009,Entire long ciliary nerve (body structure),replace
+UBERON:0022302,short ciliary nerve,417598000,Structure of short posterior ciliary nerve (body structure),730663007,Entire short posterior ciliary nerve (body structure),replace
+UBERON:0022358,placenta blood vessel,280716005,Structure of placental vessel (body structure),729495004,Entire placental vessel (body structure),replace
+UBERON:0022361,lung field,34922002,Structure of lung field (body structure),726980009,Entire lung field (body structure),replace
+UBERON:0022421,pontocerebellar tract,360457005,Structure of pontine tract (body structure),730178001,Entire pontine tract (body structure),replace
+UBERON:0026586,vestibular canal,279736007,Structure of vestibular canaliculus (body structure),729099003,Entire vestibular canaliculus (body structure),replace
+UBERON:0028194,spiral prominence of cochlear duct,279843007,Structure of spiral prominence of cochlear duct (body structure),729149004,Entire spiral prominence of the cochlear duct (body structure),replace
+UBERON:0034688,spermatic fascia,279652001,Structure of spermatic fascia (body structure),729062003,Entire spermatic fascia (body structure),replace
+UBERON:0034712,yellow fibrocartilage,1456008,Structure of yellow fibrocartilage (body structure),726042005,Entire yellow fibrocartilage (body structure),replace
+UBERON:0034725,pterygopalatine nerve,58267004,Structure of pterygopalatine nerve (body structure),727120004,Entire pterygopalatine nerve (body structure),replace
+UBERON:0034765,glabella skin,244083007,Glabella skin structure (body structure),727840009,Entire glabella skin (body structure),replace
+UBERON:0034773,uncus of parahippocampal gyrus,279213004,Structure of uncinate gyrus (body structure),728905006,Entire uncinate gyrus (body structure),replace
+UBERON:0034901,cervical sympathetic nerve trunk,280533000,Structure of cervical sympathetic trunk (body structure),729419009,Entire cervical sympathetic trunk (body structure),replace
+UBERON:0034971,aortic body,75061007,Structure of aortic body (body structure),727219004,Entire aortic body (body structure),replace
+UBERON:0034972,jugular body,181381004,Structure of jugular body (body structure),727613007,Entire jugular body (body structure),replace
+UBERON:0034984,nerve to quadratus femoris,280351000,Structure of nerve to quadratus femoris (body structure),729360003,Entire nerve to quadratus femoris (body structure),replace
+UBERON:0034988,tendon of obturator internus,245172006,Structure of tendon of obturator internus (body structure),728193009,Entire tendon of obturator internus (body structure),replace
+UBERON:0035039,rectal artery,277967008,Structure of rectal artery (body structure),728806006,Entire rectal artery (body structure),replace
+UBERON:0035079,deep intraparotid lymph node,75040000,Structure of deep intraparotid lymph node (body structure),727218007,Entire deep intraparotid lymph node (body structure),replace
+UBERON:0035109,plantar nerve,181074000,Structure of plantar nerve (body structure),727582000,Entire plantar nerve (body structure),replace
+UBERON:0035122,interincisive suture,245781007,Structure of midline of hard palate (body structure),728418007,Entire midline of hard palate (body structure),replace
+UBERON:0035149,gingival epithelial attachment,85036004,Structure of gingival epithelial attachment (body structure),727264002,Entire gingival epithelial attachment (body structure),replace
+UBERON:0035162,infraclavicular lymph node,9659009,Structure of infraclavicular lymph node (body structure),725600002,Entire infraclavicular lymph node (body structure),replace
+UBERON:0035237,branch of internal carotid artery,360629008,Structure of branch of internal carotid artery (body structure),730223002,Entire branch of internal carotid artery (body structure),replace
+UBERON:0035252,left subcostal vein,361639006,Structure of left subcostal vein (body structure),1240434003,Entire left subcostal vein (body structure),replace
+UBERON:0035292,branch of posterior tibial artery,314363005,Structure of branch of posterior tibial artery (body structure),730091003,Entire branch of posterior tibial artery (body structure),replace
+UBERON:0035304,branch of ulnar artery,360551008,Structure of branch of ulnar artery (body structure),730208007,Entire branch of ulnar artery (body structure),replace
+UBERON:0035307,branch of vertebral artery,360535000,Structure of branch of vertebral artery (body structure),730202008,Entire branch of vertebral artery (body structure),replace
+UBERON:0035341,posterior lobe of prostate,66012001,Structure of posterior lobe of prostate (body structure),727169002,Entire posterior lobe of prostate (body structure),replace
+UBERON:0035350,branch of middle cerebral artery,314302003,Structure of branch of middle cerebral artery (body structure),730069005,Entire branch of middle cerebral artery (body structure),replace
+UBERON:0035359,branch of brachial artery,360543005,Structure of branch of brachial artery (body structure),730206006,Entire branch of brachial artery (body structure),replace
+UBERON:0035380,branch of anterior cerebral artery,314304002,Structure of branch of anterior cerebral artery (body structure),730071005,Entire branch of anterior cerebral artery (body structure),replace
+UBERON:0035386,space of Mall,89510009,Structure of space of Mall (body structure),727297001,Entire space of Mall (body structure),replace
+UBERON:0035395,branch of left coronary artery,244248004,Structure of branch of left coronary artery (body structure),727918001,Entire branch of left coronary artery (body structure),replace
+UBERON:0035398,branch of external carotid artery,244216003,Structure of branch of external carotid artery (body structure),727911007,Entire branch of external carotid artery (body structure),replace
+UBERON:0035416,diaphragma sellae,32967008,Structure of diaphragma sellae (body structure),730824003,Entire diaphragma sellae (body structure),replace
+UBERON:0035438,mucoid tissue,61115003,Structure of mucous connective tissue (body structure),727134004,Entire mucous connective tissue (body structure),replace
+UBERON:0035468,costodiaphragmatic recess,46297007,Structure of costophrenic angle (body structure),1297172001,Entire costophrenic angle (body structure),replace
+UBERON:0035474,right subcostal vein,361638003,Structure of right subcostal vein (body structure),730541009,Entire right subcostal vein (body structure),replace
+UBERON:0035480,surface of prostate,279694003,Structure of surface of prostate (body structure),729083009,Entire surface of prostate (body structure),replace
+UBERON:0035489,branch of basilar artery,360537008,Structure of branch of basilar artery (body structure),730203003,Entire branch of basilar artery (body structure),replace
+UBERON:0035501,unencapsulated tactile receptor,38005009,Structure of free nerve ending (body structure),726997003,Entire free nerve ending (body structure),replace
+UBERON:0035508,branch of posterior cerebral artery,314305001,Structure of branch of posterior cerebral artery (body structure),730072003,Entire branch of posterior cerebral artery (body structure),replace
+UBERON:0035642,laryngeal nerve,307013006,Structure of laryngeal nerve (body structure),729850001,Entire laryngeal nerve (body structure),replace
+UBERON:0035769,mesenteric ganglion,314754005,Structure of mesenteric ganglion (body structure),730134005,Entire mesenteric ganglion (body structure),replace
+UBERON:0035771,mesenteric plexus,314752009,Structure of mesenteric plexus (body structure),730132009,Entire mesenteric plexus (body structure),replace
+UBERON:0035814,pericardial fat,42267001,Structure of pericardial fat (body structure),727020001,Entire pericardial fat (body structure),replace
+UBERON:0035845,enthesis,410054009,Structure of enthesis (body structure),725969002,Entire enthesis (body structure),replace
+UBERON:0035924,radiation of corpus callosum,279308000,Structure of radiation of corpus callosum (body structure),728928007,Entire radiation of corpus callosum (body structure),replace
+UBERON:0035925,central sulcus of insula,279348008,Structure of central sulcus of insula (body structure),728938002,Entire central sulcus of insula (body structure),replace
+UBERON:0035927,sulcus of parietal lobe,314145001,Structure of parietal lobe sulcus (body structure),730019002,Entire parietal lobe sulcus (body structure),replace
+UBERON:0036143,meningeal branch of mandibular nerve,280249002,Structure of nervus spinosus (body structure),730976003,Entire Nervus spinosus (body structure),replace
+UBERON:0036264,zygomaticotemporal nerve,280243001,Structure of zygomaticotemporal nerve (body structure),729285009,Entire zygomaticotemporal nerve (body structure),replace
+UBERON:0036265,conjunctival papilla,280681004,Structure of conjunctival papilla (body structure),729486007,Entire conjunctival papilla (body structure),replace
+UBERON:0036266,pars interarticularis of vertebra,705098005,Structure of pars interarticularis of vertebra (body structure),731518006,Entire pars interarticularis of vertebra (body structure),replace
+UBERON:0036267,vulval vein,279975006,Structure of vulval vein (body structure),731142001,Entire vulval vein (body structure),replace
+UBERON:0036268,pelvic vein,13152008,Structure of vein of pelvic region (body structure),281481002,Entire vein of pelvic region (body structure),review: entire code already xrefd by UBERON:0005610
+UBERON:0036269,penis blood vessel,363673006,Vascular structure of penis (body structure),731857006,Entire blood vessel of penis (body structure),replace
+UBERON:0036301,vasculature of spleen,297287005,Vascular structure of spleen (body structure),731758006,Entire blood vessel of spleen (body structure),replace
+UBERON:1000023,spleen pulp,13515001,Structure of splenic pulp (body structure),726860009,Entire splenic pulp (body structure),replace
+UBERON:1200342,bone marrow of skull,712962003,Structure of bone marrow of cranium (body structure),731610008,All bone marrow of cranium (body structure),replace

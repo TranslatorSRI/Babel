@@ -178,6 +178,31 @@ anatomy_outputs:   [AnatomicalEntity.txt, Cell.txt, CellularComponent.txt, Gross
 # lost the resulting contest without having its own ids-file row.  See
 # docs/sources/EMAPA/README.md, which flags this for SME review.
 anatomy_unique_prefixes: [UBERON, GO]
+# Renames applied by norm() to each anatomy OBO source's xref targets, so they use the spelling the
+# other anatomy concords use (see docs/sources/CLAUDE.md, "A missing prefix rename is the same bug,
+# spelled differently"). Every source built by build_anatomy_obo_relationships needs an entry, even
+# an empty one, so a missing source fails loudly instead of silently skipping its renames.
+anatomy_xref_prefixes:
+  UBERON:
+    # UBERON writes SNOMED CT as SCTID (~4,100 xrefs); the UMLS concord writes SNOMEDCT. Without this,
+    # no UBERON SNOMED xref joined anything. Most point at SNOMED "Entire X" concepts, which UBERON
+    # treats as equivalent; "X structure" concepts mean "X or any part of X" and are deliberately NOT
+    # linked to their "Entire X" partner here (obophenotype/uberon#3287, #3786;
+    # docs/sources/UBERON/umls-joins/README.md).
+    SCTID: SNOMEDCT
+  GO: {}
+  EMAPA: {}
+# Prefixes the anatomy pipeline ships even though the Biolink Model does not register them for the
+# clique's class; write_compendium() would otherwise drop them silently after glom() has merged on
+# them. Keyed by Biolink class, like disease_extra_prefixes_by_biolink_class (see its comment for why),
+# and every entry is temporary and links to the issue that removes it.
+anatomy_extra_prefixes_by_biolink_class:
+  biolink:GrossAnatomicalStructure:
+    # Biolink registers FMA for AnatomicalEntity but not GrossAnatomicalStructure, so an FMA CURIE in a
+    # clique that joins an UBERON gross anatomy term was dropped (~3,000 of them once UBERON's SCTID and
+    # FMA xrefs join). Remove once biolink/biolink-model#1827 is in biolink_version:
+    # https://github.com/NCATSTranslator/Babel/issues/1134
+    - FMA
 
 gene_labels:   [HGNC, NCBIGene, UMLS, OMIM]
 gene_ids:      [ENSEMBL, HGNC, NCBIGene, UMLS, OMIM, ZFIN, WormBase, FB, MGI, RGD, SGD]

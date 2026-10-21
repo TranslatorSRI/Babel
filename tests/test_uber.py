@@ -50,6 +50,17 @@ def test_get_subclasses_xref(ubergraph):
     assert len(xrefs) == 5
 
 
+def test_get_subclasses_xref_filtered_to_descendent_prefix(ubergraph):
+    """With descendent_prefix, only terms from that ontology should come back. The six CL terms
+    under neutrophil (CL:0000775) should all be returned for "CL" and none for "UBERON"."""
+    with _server_errors_are_xfail():
+        cl_subs = ubergraph.get_subclasses_and_xrefs("CL:0000775", descendent_prefix="CL")
+        uberon_subs = ubergraph.get_subclasses_and_xrefs("CL:0000775", descendent_prefix="UBERON")
+    assert len(cl_subs) == 6
+    assert all(k.startswith("CL:") for k in cl_subs)
+    assert len(uberon_subs) == 0
+
+
 def test_get_subclasses_no_xref(ubergraph):
     """This HP has no subclasses and it has no xrefs. So it returns nothing"""
     with _server_errors_are_xfail():

@@ -72,6 +72,11 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
   term as `biolink:PhenotypicFeature`, tagging each with the taxon
   [`NCBITaxon:40674`](http://purl.obolibrary.org/obo/NCBITaxon_40674) "Mammalia", exporting xref
   concords, and routing them into the disease compendia.
+- **UBERON** ([UBERON/README.md](./UBERON/README.md)) — how UBERON's cross-references feed the
+  anatomy concords, and ([UBERON/umls-joins/README.md](./UBERON/umls-joins/README.md)) joining
+  UBERON to UMLS through its SNOMED CT (renamed from `SCTID`) and FMA xrefs: the full-build clique
+  diff, a recall census of missed joins, and why SNOMED "structure" and "entire" concepts are not
+  treated as equivalent.
 - **UMLS** ([UMLS/Leftover.md](./UMLS/Leftover.md)) — the "leftover UMLS" compendium: how
   unclaimed UMLS concepts are swept up and typed, the manual STY→Biolink override tables and the
   drift test that keeps them honest, and the coverage report under `reports/umls/`.

@@ -214,6 +214,10 @@ def test_shipped_anatomy_badxrefs_file_parses_and_lists_the_known_pairs():
     assert frozenset(("UBERON:0001236", "MESH:D019439")) in pairs
     assert frozenset(("UMLS:C0008503", "GO:0042600")) in pairs
     assert frozenset(("UBERON:0000125", "NCIT:C13197")) in pairs
+    assert frozenset(("UBERON:0012456", "MESH:D018862")) in pairs
+    assert frozenset(("UBERON:0008883", "FMA:66830")) in pairs
+    assert frozenset(("UBERON:0003691", "FMA:71228")) in pairs
+    assert frozenset(("UBERON:0002464", "SNOMEDCT:281248001")) in pairs
 
 
 # --- Clique typing ---

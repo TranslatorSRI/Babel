@@ -431,6 +431,23 @@ def get_config():
     return config_yaml
 
 
+def validate_xref_prefix_map(mapping, config_path):
+    """Check a source's xref prefix renames (from `config.yaml: <config_path>`) and return them as a dict for `norm()`.
+
+    Every target prefix is checked against src/prefixes.py (via `Text.prefixmap`, which is built
+    from it) so a typo fails the build here, rather than renaming CURIEs into a namespace no ids
+    file carries -- which `norm()` cannot detect and `glom()` happily merges through.
+    """
+    known = set(Text.prefixmap.values())
+    unknown = sorted({v for v in mapping.values() if v not in known})
+    if unknown:
+        raise ValueError(
+            f"config.yaml: {config_path} renames to {unknown}, which src/prefixes.py "
+            f"does not define. Add the constant there first, so the rename lands on a prefix Babel uses."
+        )
+    return dict(mapping)
+
+
 _GIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 
 

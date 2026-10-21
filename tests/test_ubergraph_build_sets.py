@@ -23,8 +23,10 @@ class _StubUberGraph:
 
     def __init__(self, result):
         self._result = result
+        self.descendent_prefixes = []
 
-    def get_subclasses_and_xrefs(self, iri, hierarchy_predicate=None):
+    def get_subclasses_and_xrefs(self, iri, hierarchy_predicate=None, descendent_prefix=None):
+        self.descendent_prefixes.append(descendent_prefix)
         return self._result
 
 
@@ -99,6 +101,32 @@ def test_build_sets_keeps_the_lowest_curie_first_for_competing_xrefs(monkeypatch
     lines = _run_build_sets(monkeypatch, {"UBERON:0005185": {"EMAPA:35459", "EMAPA:28061"}})
 
     assert [line.split("\t")[2] for line in lines] == ["EMAPA:28061", "EMAPA:35459"]
+
+
+# ---
+# DESCENDENT FILTERING
+# ---
+
+
+def test_build_sets_asks_the_query_for_the_root_ontology_only(monkeypatch):
+    """build_sets() should ask UberGraph for descendents in the root's ontology only.
+
+    Other ontologies' descendents are dropped from the output anyway, but leaving them in the query
+    makes UBERON:0001062's xref query time out: UberGraph infers every NCBITaxon class to be an
+    anatomical entity, adding ~860k rows.
+    """
+    stub = _StubUberGraph({})
+    monkeypatch.setattr("src.ubergraph.UberGraph", lambda: stub)
+    build_sets("UBERON:0001062", {"UBERON": io.StringIO()}, set_type="xref")
+    assert stub.descendent_prefixes == ["UBERON"]
+
+
+def test_build_sets_does_not_filter_descendents_when_hopping_ontologies(monkeypatch):
+    """With hop_ontologies=True, build_sets() should ask for descendents from every ontology."""
+    stub = _StubUberGraph({})
+    monkeypatch.setattr("src.ubergraph.UberGraph", lambda: stub)
+    build_sets("UBERON:0001062", {"UBERON": io.StringIO()}, set_type="xref", hop_ontologies=True)
+    assert stub.descendent_prefixes == [None]
 
 
 # ---

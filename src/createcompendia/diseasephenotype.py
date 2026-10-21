@@ -38,7 +38,7 @@ from src.prefixes import (
     UMLS,
 )
 from src.ubergraph import build_sets
-from src.util import Text, get_config, get_logger, get_repo_root
+from src.util import Text, get_config, get_logger, get_repo_root, validate_xref_prefix_map
 
 logger = get_logger(__name__)
 
@@ -64,19 +64,12 @@ LOCAL_ID_DEPENDENT_RENAMES = {
 def get_xref_prefix_map(source):
     """Return `config.yaml: disease_xref_prefixes[source]` as an `other_prefixes` map for `norm()`.
 
-    Every target prefix is checked against src/prefixes.py (via `Text.prefixmap`, which is built
-    from it) so a typo fails the build here, rather than renaming CURIEs into a namespace no ids
-    file carries -- which `norm()` cannot detect and `glom()` happily merges through. A value listed
-    in `LOCAL_ID_DEPENDENT_RENAMES` is swapped for its callable.
+    Target prefixes are validated by `validate_xref_prefix_map()`. A value listed in
+    `LOCAL_ID_DEPENDENT_RENAMES` is swapped for its callable.
     """
-    mapping = get_config()["disease_xref_prefixes"][source]
-    known = set(Text.prefixmap.values())
-    unknown = sorted({v for v in mapping.values() if v not in known})
-    if unknown:
-        raise ValueError(
-            f"config.yaml: disease_xref_prefixes[{source}] renames to {unknown}, which src/prefixes.py "
-            f"does not define. Add the constant there first, so the rename lands on a prefix Babel uses."
-        )
+    mapping = validate_xref_prefix_map(
+        get_config()["disease_xref_prefixes"][source], f"disease_xref_prefixes[{source}]"
+    )
     return {key: LOCAL_ID_DEPENDENT_RENAMES.get(value, value) for key, value in mapping.items()}
 
 

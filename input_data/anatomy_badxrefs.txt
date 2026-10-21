@@ -33,3 +33,26 @@ UMLS:C0008503 GO:0042600
 # FMA:63840, so this one xref merged the neural nucleus with the whole cell-nucleus clique (and,
 # once UMLS-GO mappings are used for anatomy, with GO:0005634 "nucleus").
 UBERON:0000125 NCIT:C13197
+
+# UBERON:0012456 "Merkel nerve ending" hasDbXref MESH:D018862, which is "Merkel Cells" (UMLS:C0205832)
+# -- the epithelial cell, not the nerve ending (the Merkel cell together with its afferent terminal,
+# FMA:83606 "Merkel's disc"). This one xref welded the nerve ending into the CL:0000242 "Merkel cell"
+# clique, so once UBERON's SNOMED xrefs join, UMLS:C0228104 "Merkel's Corpuscle" followed it there too.
+# UBERON's own FMA and SNOMED xrefs (FMA:83606, SNOMEDCT:9317004) already reach the correct concept.
+UBERON:0012456 MESH:D018862
+
+# UBERON:0008883 "osteoid" hasDbXref FMA:66830, which is "Bone matrix" -- osteoid is only the
+# unmineralized organic part of bone matrix. Once UBERON's FMA xrefs are used, this merged osteoid with
+# UMLS:C0005962 "Bone Matrix" and MESH:D001857.
+UBERON:0008883 FMA:66830
+
+# UBERON:0003691 "epidural space" hasDbXref FMA:71228, which is "Cranial epidural space", a narrower
+# term (FMA also has FMA:71230 "Spinal epidural space"). Once UBERON's FMA xrefs are used, this merged
+# the general epidural space with UMLS:C0228133 "Cranial epidural space".
+UBERON:0003691 FMA:71228
+
+# UBERON:0002464 "nerve trunk" hasDbXref SCTID:281248001, which is "Structure of nervous system of trunk"
+# -- the nervous system of the body's trunk, not a nerve trunk. Listed with Babel's SNOMEDCT spelling
+# because config.yaml: anatomy_xref_prefixes renames SCTID before this filter applies. Once UBERON's
+# SNOMED xrefs join, this merged UMLS:C0460042 into the nerve trunk clique.
+UBERON:0002464 SNOMEDCT:281248001

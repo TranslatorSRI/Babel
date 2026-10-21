@@ -1,0 +1,157 @@
+uberon_id,uberon_label,sctid,snomed_fsn,kind
+UBERON:0000064,organ part,113343008,Body organ structure (body structure),structure
+UBERON:0000064,organ part,91717005,Organ part (body structure),no structure/entire pair
+UBERON:0000162,cloaca,362857006,Entire cloaca (body structure),entire
+UBERON:0000162,cloaca,370631000,,not in UMLS SNOMEDCT_US
+UBERON:0000332,yellow bone marrow,328639002,All yellow bone marrow (body structure),entire
+UBERON:0000332,yellow bone marrow,5023006,Structure of yellow bone marrow (body structure),structure
+UBERON:0000361,red bone marrow,328538003,All red bone marrow (body structure),entire
+UBERON:0000361,red bone marrow,75330005,Structure of red bone marrow (body structure),structure
+UBERON:0000365,urothelium,30117005,Structure of transitional epithelium (body structure),structure
+UBERON:0000365,urothelium,57789003,Structure of urothelium (body structure),structure
+UBERON:0000935,anterior commissure,279313001,Structure of anterior cerebral commissure (body structure),structure
+UBERON:0000935,anterior commissure,369119009,Entire anterior commissure (body structure),entire
+UBERON:0000983,metatarsus region,280711000,Structure of region of metatarsal (body structure),no structure/entire pair
+UBERON:0000983,metatarsus region,370639003,,not in UMLS SNOMEDCT_US
+UBERON:0001021,nerve,244457007,Entire peripheral nerve (body structure),entire
+UBERON:0001021,nerve,256864008,Entire nerve (body structure),entire
+UBERON:0001063,flocculus,279368002,Structure of cerebellar flocculus (body structure),structure
+UBERON:0001063,flocculus,30711003,,not in UMLS SNOMEDCT_US
+UBERON:0001075,bony vertebral centrum,361745008,Entire body of vertebra (body structure),entire
+UBERON:0001075,bony vertebral centrum,362867001,Entire centrum of vertebra (body structure),entire
+UBERON:0001252,adventitia of ureter,392273001,Entire adventitia of ureter (body structure),entire
+UBERON:0001252,adventitia of ureter,47879001,Structure of adventitia of ureter (body structure),structure
+UBERON:0001282,intralobular bile duct,227002,Structure of Canal of Hering (body structure),structure
+UBERON:0001282,intralobular bile duct,269922006,Entire intralobular bile duct (body structure),entire
+UBERON:0001414,median basilic vein,181392003,Entire median cubital vein (body structure),entire
+UBERON:0001414,median basilic vein,368496000,Entire median basilic vein (body structure),entire
+UBERON:0001429,pisiform,181966004,Entire pisiform bone of wrist region (body structure),entire
+UBERON:0001429,pisiform,9181003,,not in UMLS SNOMEDCT_US
+UBERON:0001436,phalanx of manus,181976001,Entire phalanx of finger (body structure),entire
+UBERON:0001436,phalanx of manus,361100001,,not in UMLS SNOMEDCT_US
+UBERON:0001463,manual digit 1,302540006,Entire thumb (body structure),entire
+UBERON:0001463,manual digit 1,69603001,,not in UMLS SNOMEDCT_US
+UBERON:0001846,internal ear,181189006,Entire inner ear (body structure),entire
+UBERON:0001846,internal ear,304982002,Entire labyrinth (body structure),entire
+UBERON:0002234,proximal phalanx of manus,181986000,Entire proximal phalanx of finger (body structure),entire
+UBERON:0002234,proximal phalanx of manus,361325003,Entire proximal phalanx of hand (body structure),entire
+UBERON:0002374,metacarpal bone,181977005,Entire metacarpal bone (body structure),entire
+UBERON:0002374,metacarpal bone,425761003,Entire metacarpal of finger (body structure),entire
+UBERON:0002434,pituitary stalk,245529009,,not in UMLS SNOMEDCT_US
+UBERON:0002434,pituitary stalk,425300001,Entire infundibular stem of neurohypophysis (body structure),entire
+UBERON:0002523,tunica intima,8361002,,not in UMLS SNOMEDCT_US
+UBERON:0002523,tunica intima,87483006,Structure of tunica intima of blood vessel (body structure),structure
+UBERON:0002819,apex of cochlea,279776002,Structure of cupula of cochlear canal (body structure),structure
+UBERON:0002819,apex of cochlea,279777006,Structure of apex of cochlear canal (body structure),structure
+UBERON:0003488,abdominal mammary gland,113191002,,not in UMLS SNOMEDCT_US
+UBERON:0003488,abdominal mammary gland,68037003,,not in UMLS SNOMEDCT_US
+UBERON:0003631,pedal digit 1,21699005,,not in UMLS SNOMEDCT_US
+UBERON:0003631,pedal digit 1,302546000,Entire great toe (body structure),entire
+UBERON:0003674,cuspid,420817000,Entire canine tooth (body structure),entire
+UBERON:0003674,cuspid,88719004,,not in UMLS SNOMEDCT_US
+UBERON:0003682,palatal muscle,244794002,Entire muscle of palate (body structure),entire
+UBERON:0003682,palatal muscle,73711005,Entire muscle of palate AND/OR fauces (body structure),entire
+UBERON:0003695,metacarpophalangeal joint,280995004,Entire metacarpophalangeal joint (body structure),entire
+UBERON:0003695,metacarpophalangeal joint,370651001,,not in UMLS SNOMEDCT_US
+UBERON:0003696,metatarsophalangeal joint,239747005,,not in UMLS SNOMEDCT_US
+UBERON:0003696,metatarsophalangeal joint,302535003,Entire metatarsophalangeal joint (body structure),entire
+UBERON:0003696,metatarsophalangeal joint,370752004,,not in UMLS SNOMEDCT_US
+UBERON:0003864,middle phalanx of manus,113223004,Structure of middle phalanx of middle finger (body structure),structure
+UBERON:0003864,middle phalanx of manus,371230003,,not in UMLS SNOMEDCT_US
+UBERON:0003865,distal phalanx of manus,182001007,Entire distal phalanx of finger (body structure),entire
+UBERON:0003865,distal phalanx of manus,361782004,,not in UMLS SNOMEDCT_US
+UBERON:0003888,extraembryonic coelomic cavity,296586008,Entire exocelomic membrane (body structure),entire
+UBERON:0003888,extraembryonic coelomic cavity,362843009,Entire chorionic cavity (body structure),entire
+UBERON:0003954,squamoparietal suture,136248004,Entire squamous suture of skull (body structure),entire
+UBERON:0003954,squamoparietal suture,334174000,,not in UMLS SNOMEDCT_US
+UBERON:0004074,cerebellum vermis lobule I,279380005,Structure of lingula of vermis (body structure),structure
+UBERON:0004074,cerebellum vermis lobule I,77232000,Structure of lingula of cerebellum (body structure),structure
+UBERON:0004312,distal phalanx of manual digit 3,361786001,Entire distal phalanx of middle finger (body structure),entire
+UBERON:0004312,distal phalanx of manual digit 3,370674002,,not in UMLS SNOMEDCT_US
+UBERON:0004317,distal phalanx of pedal digit 3,361803002,Entire distal phalanx of third toe (body structure),entire
+UBERON:0004317,distal phalanx of pedal digit 3,370673008,,not in UMLS SNOMEDCT_US
+UBERON:0004319,distal phalanx of pedal digit 5,10770001,Structure of distal phalanx of little toe (body structure),structure
+UBERON:0004319,distal phalanx of pedal digit 5,244674003,Entire distal phalanx of lesser toe (body structure),entire
+UBERON:0004321,middle phalanx of manual digit 3,263408007,Entire middle phalanx of middle finger (body structure),entire
+UBERON:0004321,middle phalanx of manual digit 3,370729003,,not in UMLS SNOMEDCT_US
+UBERON:0004325,middle phalanx of pedal digit 3,182154007,Entire middle phalanx of third toe (body structure),entire
+UBERON:0004325,middle phalanx of pedal digit 3,370677009,,not in UMLS SNOMEDCT_US
+UBERON:0004327,middle phalanx of pedal digit 5,182158005,Entire middle phalanx of little toe (body structure),entire
+UBERON:0004327,middle phalanx of pedal digit 5,244673009,Entire middle phalanx of lesser toe (body structure),entire
+UBERON:0004329,proximal phalanx of manual digit 3,263404009,Entire proximal phalanx of middle finger (body structure),entire
+UBERON:0004329,proximal phalanx of manual digit 3,370735003,,not in UMLS SNOMEDCT_US
+UBERON:0004334,proximal phalanx of pedal digit 3,182153001,Entire proximal phalanx of third toe (body structure),entire
+UBERON:0004334,proximal phalanx of pedal digit 3,370734004,,not in UMLS SNOMEDCT_US
+UBERON:0004336,proximal phalanx of pedal digit 5,182157000,Entire proximal phalanx of little toe (body structure),entire
+UBERON:0004336,proximal phalanx of pedal digit 5,244672004,Entire proximal phalanx of lesser toe (body structure),entire
+UBERON:0004410,distal epiphysis of fibula,129111008,Structure of distal fibular epiphysis (body structure),structure
+UBERON:0004410,distal epiphysis of fibula,280018004,Entire distal fibular epiphysis (body structure),entire
+UBERON:0004917,urethral sphincter,277855007,Structure of urethral sphincter (body structure),structure
+UBERON:0004917,urethral sphincter,277857004,Entire sphincter urethrae muscle (body structure),entire
+UBERON:0005159,pyramid of medulla oblongata,279289009,,not in UMLS SNOMEDCT_US
+UBERON:0005159,pyramid of medulla oblongata,9535007,Structure of pyramid of medulla oblongata (body structure),structure
+UBERON:0005244,lobar bronchus of right lung cranial lobe,181806003,Entire eparterial bronchus (body structure),entire
+UBERON:0005244,lobar bronchus of right lung cranial lobe,361956001,Entire bronchus of right upper lobe (body structure),entire
+UBERON:0005294,gonadal ridge,308801004,Entire urogenital ridge (body structure),entire
+UBERON:0005294,gonadal ridge,361399001,Entire genital ridge (body structure),entire
+UBERON:0005351,paraflocculus,314174005,Entire cerebellar tonsil (body structure),entire
+UBERON:0005351,paraflocculus,51969002,Structure of paraflocculus (body structure),structure
+UBERON:0005356,Rathke's pouch,362583008,Entire hypophyseal diverticulum (body structure),entire
+UBERON:0005356,Rathke's pouch,61127000,,not in UMLS SNOMEDCT_US
+UBERON:0005396,carotid artery segment,362040006,Entire carotid artery (body structure),entire
+UBERON:0005396,carotid artery segment,69105007,Carotid artery structure (body structure),structure
+UBERON:0005487,vitelline vein,2730004,Entire vitelline vein of placenta (body structure),entire
+UBERON:0005487,vitelline vein,308832003,Entire omphalomesenteric vein (body structure),entire
+UBERON:0005922,inferior nasal concha,361932000,Entire inferior nasal turbinate (body structure),entire
+UBERON:0005922,inferior nasal concha,362882006,Entire inferior nasal turbinate bone (body structure),entire
+UBERON:0006650,tunica vaginalis testis,362281009,Entire tunica vaginalis (body structure),entire
+UBERON:0006650,tunica vaginalis testis,367713008,Entire processus vaginalis testis (body structure),entire
+UBERON:0007763,cerebellum vermis culmen,279384001,Entire culmen (body structure),entire
+UBERON:0007763,cerebellum vermis culmen,89649002,Structure of culmen (body structure),structure
+UBERON:0008447,intertarsal joint,182221001,Entire intertarsal joint (body structure),entire
+UBERON:0008447,intertarsal joint,361283005,,not in UMLS SNOMEDCT_US
+UBERON:0008593,zygomaticus major muscle,244739005,Entire zygomaticus muscle (body structure),entire
+UBERON:0008593,zygomaticus major muscle,244740007,Entire zygomaticus major muscle (body structure),entire
+UBERON:0009879,tarsal skeleton,264228001,,not in UMLS SNOMEDCT_US
+UBERON:0009879,tarsal skeleton,361796005,,not in UMLS SNOMEDCT_US
+UBERON:0011124,xiphisternal joint,118923007,Structure of xiphisternal symphysis (body structure),structure
+UBERON:0011124,xiphisternal joint,118924001,Structure of xiphisternal synostosis (body structure),structure
+UBERON:0011144,adductor muscle of hip,181670005,Entire adductor muscle (body structure),entire
+UBERON:0011144,adductor muscle of hip,368101007,,not in UMLS SNOMEDCT_US
+UBERON:0011186,Krause's gland,23492003,,not in UMLS SNOMEDCT_US
+UBERON:0011186,Krause's gland,278359007,,not in UMLS SNOMEDCT_US
+UBERON:0011877,margin of tongue,368572007,Entire right margin of tongue (body structure),entire
+UBERON:0011877,margin of tongue,368594004,Entire left margin of tongue (body structure),entire
+UBERON:0011958,acetabular labrum,182439007,Entire labrum of acetabulum (body structure),entire
+UBERON:0011958,acetabular labrum,263366005,,not in UMLS SNOMEDCT_US
+UBERON:0012477,dorsal part of neck,182326009,,not in UMLS SNOMEDCT_US
+UBERON:0012477,dorsal part of neck,304036007,Structure of posterior region of neck (body structure),structure
+UBERON:0014380,flexor digitorum brevis muscle,181724007,,not in UMLS SNOMEDCT_US
+UBERON:0014380,flexor digitorum brevis muscle,79490000,Structure of flexor digitorum brevis muscle of foot (body structure),structure
+UBERON:0014485,distal phalanx of digit 3,370666003,,not in UMLS SNOMEDCT_US
+UBERON:0014485,distal phalanx of digit 3,370671005,,not in UMLS SNOMEDCT_US
+UBERON:0014485,distal phalanx of digit 3,410030004,,not in UMLS SNOMEDCT_US
+UBERON:0014486,distal phalanx of digit 4,370667007,,not in UMLS SNOMEDCT_US
+UBERON:0014486,distal phalanx of digit 4,370670006,,not in UMLS SNOMEDCT_US
+UBERON:0014506,distal interphalangeal joint of digit 3,196392002,,not in UMLS SNOMEDCT_US
+UBERON:0014506,distal interphalangeal joint of digit 3,370892008,,not in UMLS SNOMEDCT_US
+UBERON:0014508,distal interphalangeal joint of manual digit 3,361854002,Entire distal interphalangeal joint of middle finger (body structure),entire
+UBERON:0014508,distal interphalangeal joint of manual digit 3,370683007,,not in UMLS SNOMEDCT_US
+UBERON:0016392,mastoid lymph node,245328002,Structure of postauricular lymph node (body structure),structure
+UBERON:0016392,mastoid lymph node,279143009,Structure of mastoid lymph node (body structure),structure
+UBERON:0016925,juxtaductal region of aortic arch,197677000,Entire aortic isthmus (body structure),entire
+UBERON:0016925,juxtaductal region of aortic arch,197932000,Entire juxtaductal region of aortic arch (body structure),entire
+UBERON:0018398,superior alveolar nerve,280235006,Structure of superior alveolar nerve (body structure),structure
+UBERON:0018398,superior alveolar nerve,280239000,Entire posterior superior alveolar nerve (body structure),entire
+UBERON:0022283,pineal recess of third ventricle,280070003,,not in UMLS SNOMEDCT_US
+UBERON:0022283,pineal recess of third ventricle,369281005,Entire pineal recess of third ventricle (body structure),entire
+UBERON:0034972,jugular body,181381004,Structure of jugular body (body structure),structure
+UBERON:0034972,jugular body,80595007,,not in UMLS SNOMEDCT_US
+UBERON:0035547,posterior ciliary vein,361319002,,not in UMLS SNOMEDCT_US
+UBERON:0035547,posterior ciliary vein,368813004,Entire vorticose vein (body structure),entire
+UBERON:0035618,parapharyngeal space,180439004,Entire lateral pharyngeal space (body structure),entire
+UBERON:0035618,parapharyngeal space,280190005,,not in UMLS SNOMEDCT_US
+UBERON:0035803,extrapyramidal tract system,362288003,Entire extrapyramidal system (body structure),entire
+UBERON:0035803,extrapyramidal tract system,362400005,Entire extrapyramidal tract (body structure),entire
+UBERON:0036219,ungulate coronary band,370753009,,not in UMLS SNOMEDCT_US
+UBERON:0036219,ungulate coronary band,5695009,,not in UMLS SNOMEDCT_US
