@@ -151,7 +151,9 @@ the taxon pipeline would decide 25 more records that nobody has looked at. That 
 Everything here regenerates from a published build plus a local `mesh.nt`; nothing depends on a
 local build or on this machine's `data/`. From the repository root, after `uv sync`:
 
-1. `uv run snakemake --cores 1 get_mesh` downloads `babel_downloads/MESH/mesh.nt` (about 2 GB).
+1. `uv run snakemake --cores 1 get_mesh` downloads the MeSH release `config.yaml`'s `mesh_year`
+   names to `babel_downloads/MESH/mesh.nt` (about 2 GB). Add `--forcerun=get_mesh` to replace an
+   older download, which Snakemake otherwise reuses.
 2. `docs/sources/UMLS/cui-follows-mesh/scripts/fetch_build_inputs.py --build-url <build-url>
    --output-dir data/duplicate-curies` exports the build's `ids/MESH` and `ids/UMLS` files and
    downloads its duplicate reports, in under a minute. `<build-url>` is the build's root on
@@ -162,6 +164,11 @@ local build or on this machine's `data/`. From the repository root, after `uv sy
 
 Against the same build the output should not change; against a newer build or MeSH release, compare
 the record list with the tables below before ruling.
+
+The committed tables came from 2026jul22's `ids/MESH`, which were built from the stale MeSH 2024
+`mesh.nt`. Regenerated with MeSH 2026 (#1144) and every pipeline's `ids/MESH` rebuilt from it, the
+output is identical, with the same 46 records, tree numbers and types, so the rulings carry over to
+the first MeSH 2026 build.
 
 ### Recording a ruling
 
