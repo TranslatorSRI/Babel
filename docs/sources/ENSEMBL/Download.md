@@ -113,6 +113,19 @@ output — that would cause Snakemake to wipe the whole directory on failure.
 
 ## Downstream consumers
 
+### Yeast protein IDs are gene IDs
+
+Ensembl's *Saccharomyces cerevisiae* annotation is imported from SGD and reuses the systematic name
+as the gene, transcript and translation ID: gene `YOR125C`, transcript `YOR125C_mRNA`, translation
+`YOR125C`. Every protein-coding row of `scerevisiae_gene_ensembl/BioMart.tsv` therefore has "Protein
+stable ID" equal to "Gene stable ID" (11,117 rows in release 115). The gene pipeline claims the ID
+(`gene.write_ensembl_gene_ids()`), so `protein.write_ensembl_protein_ids()` skips any protein stable
+ID identical to its gene stable ID and logs the per-dataset count. Before that, ~6,600 `ENSEMBL:Y…`
+CURIEs led a singleton clique in both `Gene.txt` and `Protein.txt`
+([#276](https://github.com/NCATSTranslator/Babel/issues/276)). UniProt has no `Ensembl`
+cross-reference for yeast entries (they are under EnsemblFungi), so the UniProtKB→Ensembl concord
+never re-introduces them. A second species with the same convention would show up in that log line.
+
 | Rule | Function | Output |
 |------|----------|--------|
 | `get_ensembl_gene_ids` (gene.snakefile) | `gene.write_ensembl_gene_ids()` | `ids/gene/ENSEMBL` |

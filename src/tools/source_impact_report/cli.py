@@ -140,8 +140,14 @@ def _compute_synthetic_diff(
 
     logger.info("synthetic diff for %s: %d ids files, %d concord files", pipeline, len(identifiers), len(concordances))
 
-    after_dicts, after_types = compute_fn(concordances, identifiers)
-    before_dicts, _ = compute_fn(concordances, identifiers, excluded_sources={source_name})
+    # The build skips concord pairs naming a CUI another pipeline owns (umls.read_cuis_owned_elsewhere); an
+    # intermediate directory from before the umls_mesh_ownership rule has no such file and skips nothing.
+    mesh_ownership = intermediate_root / "umls" / "mesh_ownership.tsv"
+    mesh_ownership = str(mesh_ownership) if mesh_ownership.exists() else None
+    after_dicts, after_types = compute_fn(concordances, identifiers, mesh_ownership=mesh_ownership)
+    before_dicts, _ = compute_fn(
+        concordances, identifiers, excluded_sources={source_name}, mesh_ownership=mesh_ownership
+    )
 
     diff = diff_cliques(before_dicts, after_dicts, source_curies, babel_pipeline=pipeline)
     return diff, after_types

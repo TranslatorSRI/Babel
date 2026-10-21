@@ -125,7 +125,10 @@ way. `releases/scripts/`, the notes and this file are ordinary repository conten
 Everything else in a build directory, on purpose:
 
 - `reports/duckdb/*.tsv{,.gz}` — the duplicate-CURIE and identically-labelled-clique dumps, ~200 MB,
-  regenerable from the compendia.
+  regenerable from the compendia. (`duplicate_clique_leaders.tsv` is also a build control: every row
+  must be in `input_data/known_duplicate_clique_leaders.tsv` or the build fails, so a released build
+  has no unexpected duplicate leaders by construction; the tiny `duplicate_clique_leaders.checked`
+  summary beside it says so.)
 - `benchmarks/` and `reports/slurm/` — per-run resource data. Useful while sizing a run with
   [`babel-slurm-resources`](../docs/tools/Resources.md), not afterwards.
 - `logs/` — the control-node logs.

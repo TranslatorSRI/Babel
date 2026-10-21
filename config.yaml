@@ -114,6 +114,21 @@ umls:
   # Replace with "level-0" to get only the level 0 subset (https://www.nlm.nih.gov/research/umls/licensedcontent/umlsknowledgesources.html).
   # subset: "level-0"
 
+# "A UMLS CUI follows its MeSH descriptor." Each pipeline listed here writes an ids/MESH file (by MeSH tree
+# number) and an ids/UMLS file (by UMLS semantic type), and its UMLS concord links each CUI it claims to that
+# CUI's MeSH descriptor. When the two disagree -- a CUI typed T116 "Amino Acid, Peptide, or Protein" whose
+# descriptor sits in a chemical D-tree, or a T002 "Plant" CUI whose descriptor is anatomy's "Plant Roots" --
+# the concord dragged the other pipeline's descriptor and DrugBank partners into this pipeline's clique, so
+# the same identifiers ended up in two compendia and led cliques in both (#276, #308, #1123). So rule
+# umls_mesh_ownership reads these pipelines' ids/MESH and gives each CUI whose descriptors exactly one of them
+# claims to that pipeline (umls.compute_mesh_owners() has the rules). Each listed pipeline's *_umls_ids rule
+# adds the CUIs it owns and drops the ones another pipeline owns, and its compendium rule skips concord pairs
+# naming a CUI another pipeline owns. Gene and process write an ids/UMLS but no ids/MESH and never concord UMLS
+# to MeSH, so they are not listed: the CUIs they select get no owner and stay with them. Names are the
+# pipelines' directories under intermediate_directory, and each pipeline's write_umls_ids() passes its own name
+# (tests/datahandlers/test_umls.py checks they match).
+umls_mesh_owning_pipelines: [anatomy, chemicals, disease, protein, taxon]
+
 #
 # PROTEINS
 #

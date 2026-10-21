@@ -24,6 +24,11 @@ exists it is reused — `write_umls_ids()` is not called again. This means:
 - **A prior full Snakemake pipeline run can be reused directly** — the test fixtures
   will pick up any files Snakemake already produced.
 
+- **A file older than its inputs is regenerated** where the fixture names those inputs
+  (`_maybe_run(..., inputs=[...])`), as Snakemake would. The UMLS fixture does: an `ids/UMLS`
+  written before the current MeSH ownership file is rewritten. This only sees changed *files*;
+  after changing the code a fixture runs, still pass `--regenerate`.
+
 - **To force re-processing**, pass `--regenerate`:
 
   ```bash
@@ -55,10 +60,14 @@ exists it is reused — `write_umls_ids()` is not called again. This means:
   and D12.776 — but must include D08.211 Coenzymes (NAD, Coenzyme A) and D05.374/D05.750/D05.937
   (Micelles, Polymers, Smart Materials), which are all classified as CHEMICAL_ENTITY.
 
-- **`test_umls.py`** (`pipeline`) — UMLS-specific targeted test. Requires
-  `UMLS_API_KEY` for the initial download (or cached files). One test: chemicals must not
-  contain any UMLS IDs that the protein compendium claimed (semantic type tree
-  A1.4.1.2.1.7, Amino Acid/Peptide/Protein).
+- **`test_umls.py`** (`pipeline`) — UMLS-specific targeted tests. Requires `UMLS_API_KEY` for the
+  initial download (or cached files), and `mesh.nt`, because the five MeSH-owning pipelines'
+  `write_umls_ids()` read the MeSH ownership file, built from the five `ids/MESH` files and gene's
+  and process's `ids/UMLS` (`umls_pipeline_outputs` depends on `mesh_pipeline_outputs`). Two tests:
+  a CUI follows its MeSH descriptor's pipeline (`UMLS:C0242726` → anatomy, `UMLS:C0000608` →
+  chemicals) unless the gene pipeline selects it (`UMLS:C1413234` stays in gene), and chemicals must
+  not contain any UMLS IDs that the protein compendium claimed (semantic type tree A1.4.1.2.1.7,
+  Amino Acid/Peptide/Protein).
 
 - **`test_ec.py`**, **`test_rhea.py`**, **`test_chembl.py`**, **`test_clo.py`**,
   **`test_efo.py`** (`pipeline`) — Output format and content checks for the EC, Rhea,

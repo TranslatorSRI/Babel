@@ -167,6 +167,20 @@ canonical prefix-constant registry; its `id_prefixes` order in the Biolink Model
 - **`SynonymFilter`** (`src/synonyms/filter.py`) checks every label/synonym against
   `input_data/obsolete_synonyms.yaml` before it enters a compendium — see its docstring for the
   `action` field and the `should_suppress()` contract.
+- **A UMLS CUI follows its MeSH descriptor** — `rule umls_mesh_ownership` reads the `ids/MESH` of
+  the five pipelines that write both `ids/MESH` and `ids/UMLS`
+  (`config.yaml: umls_mesh_owning_pipelines`) and gives each CUI whose descriptors exactly one of
+  them claims to that pipeline (`umls.compute_mesh_owners()`); each of those pipelines'
+  `*_umls_ids` rule then adds the CUIs it owns and drops the ones another pipeline owns, and its
+  compendium rule skips concord pairs naming a CUI another pipeline owns. Gene's and process's CUIs
+  have no owner (neither concords UMLS to MeSH). Decide ownership in that one place: a pipeline
+  deciding for itself drops CUIs no other pipeline adds. Changing a MeSH tree assignment therefore
+  moves CUIs. `docs/sources/UMLS/CuiFollowsMesh.md`; measure a change with
+  `docs/sources/UMLS/cui-follows-mesh/scripts/replay_mesh_ownership.py` before a build.
+- **Duplicate clique leaders fail the build** — `rule assert_no_unexpected_duplicate_clique_leaders`
+  raises for any row of `reports/duckdb/duplicate_clique_leaders.tsv` not in
+  `input_data/known_duplicate_clique_leaders.tsv` (each row names its issue). Never add a row
+  without an issue; fix the source instead (`docs/Architecture.md`, "Build controls").
 - **Logging** — always use `get_logger(__name__)` from `src.util`, never `logging.getLogger`
   directly (see its docstring for why and the deferred-import exception).
 - **Leftover UMLS** — `src/createcompendia/leftover_umls.py` (rule `leftover_umls`) runs last and

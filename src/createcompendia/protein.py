@@ -28,7 +28,13 @@ def extract_taxon_ids_from_uniprotkb(idmapping_filename, uniprotkb_taxa_filename
                 outf.write(f"{UNIPROTKB}:{x[0]}\t{NCBITAXON}:{x[2]}\n")
 
 
-def write_umls_ids(mrsty, outfile):
+def write_umls_ids(mrsty, outfile, *, mesh_ownership=None):
+    """Select the UMLS CUIs the protein pipeline claims by semantic type.
+
+    ``mesh_ownership`` (the umls_mesh_ownership rule's output) makes a CUI follow its MeSH descriptor
+    (umls.apply_mesh_ownership): a CUI another pipeline owns is dropped here and a CUI this pipeline owns is added.
+    Re-homing T116 CUIs whose descriptor is in a chemical D-tree is https://github.com/NCATSTranslator/Babel/issues/308.
+    """
     # Compare with src/createcompendia/chemicals.py (see source code at
     # https://github.com/NCATSTranslator/Babel/blob/c91654411923b86300cc2f6b5a21b96ea857817f/src/createcompendia/chemicals.py#L54-L76)
     #
@@ -42,7 +48,13 @@ def write_umls_ids(mrsty, outfile):
         "A1.4.1.1.3.6": PROTEIN,  # Receptor -- https://uts.nlm.nih.gov/uts/umls/semantic-network/T192
         "A1.4.1.1.3.3": PROTEIN,  # Enzyme -- https://uts.nlm.nih.gov/uts/umls/semantic-network/T126
     }
-    umls.write_umls_ids(mrsty, umlsmap, outfile)
+    umls.write_umls_ids(
+        mrsty,
+        umlsmap,
+        outfile,
+        mesh_ownership=mesh_ownership,
+        pipeline="protein",
+    )
 
 
 def write_mesh_ids(outfile):
@@ -100,7 +112,19 @@ def write_pr_ids(outfile):
 
 
 def write_ensembl_protein_ids(ensembl_dir, outfile):
-    """Loop over all the ensembl species.  Find any protein-coding gene"""
+    """Write every Ensembl protein stable ID from the per-species BioMart downloads as an ENSEMBL protein id.
+
+    A row whose protein stable ID is identical to its gene stable ID is skipped. Ensembl's Saccharomyces
+    cerevisiae annotation (imported from SGD) reuses the systematic name as the gene, transcript and
+    translation ID -- gene ``YOR125C``, transcript ``YOR125C_mRNA``, translation ``YOR125C`` -- so every
+    yeast protein ID is also the gene ID that ``gene.write_ensembl_gene_ids`` claims. Writing it here too
+    put ~6,600 ``ENSEMBL:Y...`` CURIEs into both Gene.txt and Protein.txt as singleton cliques that led
+    both (https://github.com/NCATSTranslator/Babel/issues/276). The gene claim wins: the stable ID *is*
+    Ensembl's gene ID, ``ENSEMBL`` is one of the gene pipeline's ``unique_prefixes``, and gene-to-protein
+    equivalence belongs in the GeneProtein conflation, not in a shared identifier. UniProt has no
+    ``Ensembl`` cross-reference for yeast entries (they are under EnsemblFungi), so
+    ``build_protein_uniprotkb_ensemble_relationships`` never re-introduces these IDs either.
+    """
     with open(outfile, "w") as outf:
         # find all the ensembl directories
         dirlisting = os.listdir(ensembl_dir)
@@ -108,17 +132,23 @@ def write_ensembl_protein_ids(ensembl_dir, outfile):
             dlpath = os.path.join(ensembl_dir, dl)
             if os.path.isdir(dlpath):
                 infname = os.path.join(dlpath, "BioMart.tsv")
-                print(f"write_ensembl_ids for input filename {infname}")
+                logger.info(f"write_ensembl_protein_ids for input filename {infname}")
                 if os.path.exists(infname):
                     # open each ensembl file, find the id column, and put it in the output
                     with open(infname) as inf:
                         wrote = set()
+                        skipped_gene_ids = 0
                         h = inf.readline()
                         x = h[:-1].split("\t")
+                        gene_column = x.index("Gene stable ID")
                         protein_column = x.index("Protein stable ID")
                         for line in inf:
                             x = line[:-1].split("\t")
                             if x[protein_column] == "":
+                                continue
+                            if x[protein_column] == x[gene_column]:
+                                # The gene pipeline already claims this ID (see the docstring).
+                                skipped_gene_ids += 1
                                 continue
                             pid = f"{ENSEMBL}:{x[protein_column]}"
                             # The pid is not unique, so don't write the same one over again
@@ -126,6 +156,14 @@ def write_ensembl_protein_ids(ensembl_dir, outfile):
                                 continue
                             wrote.add(pid)
                             outf.write(f"{pid}\n")
+                        if skipped_gene_ids:
+                            # A count, not an alarm: only S. cerevisiae does this today, but the skip is
+                            # right for any species that reuses its gene IDs, since the gene pipeline
+                            # writes every BioMart gene stable ID.
+                            logger.info(
+                                f"{infname}: skipped {skipped_gene_ids} protein stable IDs identical to their "
+                                f"gene stable ID (wrote {len(wrote)} protein IDs)"
+                            )
 
 
 def build_pr_uniprot_relationships(outfile, ignore_list=[], metadata_yaml=None):
@@ -254,9 +292,12 @@ def build_umls_relationships(mrconso, idfile, outfile, metadata_yaml):
     )
 
 
-def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
+def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_filename, mesh_ownership=None):
     """:concordances: a list of files from which to read relationships
-    :identifiers: a list of files from which to read identifiers and optional categories"""
+    :identifiers: a list of files from which to read identifiers and optional categories
+    :mesh_ownership: the umls_mesh_ownership rule's file; concord pairs naming a CUI another pipeline owns are
+        skipped (umls.read_cuis_owned_elsewhere). None skips nothing."""
+    owned_elsewhere = umls.read_cuis_owned_elsewhere(mesh_ownership, "protein")
     dicts = {}
     types = {}
     uniques = [UNIPROTKB, PR]
@@ -278,6 +319,8 @@ def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_fil
                 if line_index % 1000000 == 0:
                     logger.info(f"Loading concordance file {infile}: line {line_index:,}")
                 x = line.strip().split("\t")
+                if x[0] in owned_elsewhere or x[2] in owned_elsewhere:
+                    continue
                 pairs.append(set([x[0], x[2]]))
         # print("glomming", infile) # This takes a while, but doesn't add much to the memory
         glom(dicts, pairs, unique_prefixes=uniques)

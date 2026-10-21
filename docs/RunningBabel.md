@@ -81,9 +81,15 @@ to work on it: `anatomy`, `disease`, `process`, `taxon`, `genefamily`, `publicat
 intermediate directory and Python module are `diseasephenotype`.)
 
 Concretely, `anatomy` builds end-to-end on a Mac in roughly 25 minutes wall time, with the UMLS
-download dominating the runtime; peak memory is in the low GBs. The other local targets are in
-the same range. A first build is usually dominated by downloads rather than computation, so a
-warm `babel_downloads/` makes a rebuild dramatically faster.
+download dominating the runtime; peak memory is in the low GBs. The other local targets are in the
+same range. Every MeSH-owning target (`anatomy`, `chemical`, `disease`, `protein`, `taxon`) also
+builds all five of those pipelines' `ids/MESH`, and gene's and process's `ids/UMLS`, because
+`rule umls_mesh_ownership` needs them to decide which pipeline a CUI belongs to
+([`sources/UMLS/CuiFollowsMesh.md`](sources/UMLS/CuiFollowsMesh.md)); `gene` and `process` do not
+depend on it. That adds the `mesh.nt`
+download and about two minutes and 6 GB per `*_mesh_ids` rule (the 2026jul22 benchmarks), so roughly
+eight more minutes on one core. A first build is usually dominated by downloads rather than
+computation, so a warm `babel_downloads/` makes a rebuild dramatically faster.
 
 If you only need the intermediates for a single semantic type (for example, to generate a
 source-impact report — see [AddingNewSources.md](./AddingNewSources.md)), building just that
@@ -123,6 +129,13 @@ job, which would delete anything preloaded into it.
 
 ### Common build issues
 
+* **`Error in rule assert_no_unexpected_duplicate_clique_leaders`.** A CURIE leads a clique in
+  two compendia and is not on `input_data/known_duplicate_clique_leaders.tsv`; the error names the
+  compendia pairs and the first rows, and `reports/duckdb/duplicate_clique_leaders.tsv` has the full
+  list. This is the control working, not a flake: find the ids file or concord that put the CURIE in
+  the second compendium (`docs/sources/UMLS/CuiFollowsMesh.md` lists the known mechanisms and the
+  replay script), fix it, and rerun from the affected pipeline. Only a duplicate that an open issue
+  accepts goes on the allowlist, with that issue. See "Build controls" in `docs/Architecture.md`.
 * **Stale Snakemake lock.** If a previous run was killed (Ctrl-C, OOM, power loss) Snakemake
   may refuse to start with `LockException: Directory cannot be locked`. Clear it with
   `uv run snakemake --unlock` and retry. **Check first that no Snakemake process is actually

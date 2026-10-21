@@ -123,7 +123,10 @@ def write_umls_ids(mrconso, mrsty, outfile):
     as the MRSTY. In particular, if the term maps to an OMIM that has a period in it, then it's a variant. Good job
     UMLS, it's not like genes are central to biology or anything.
     Also, remove anything that in the label identifies itself as an Allele or Mutation
-    It's possible in the future that we'd like to try to assign better classes to some of these things."""
+    It's possible in the future that we'd like to try to assign better classes to some of these things.
+
+    The umls_mesh_ownership rule reads this file: no MeSH-owning pipeline may take a CUI selected here
+    (umls.compute_mesh_owners()'s ``unownable``)."""
 
     # Do I want this?  There are a bunch of things under here that we probably don't want.
     blacklist = set(

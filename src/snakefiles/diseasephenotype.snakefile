@@ -93,12 +93,15 @@ rule disease_umls_ids:
     input:
         badumls=config["input_directory"] + "/badumls",
         mrsty=config["download_directory"] + "/UMLS/MRSTY.RRF",
+        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         outfile=config["intermediate_directory"] + "/disease/ids/UMLS",
     benchmark:
         config["output_directory"] + "/benchmarks/disease_umls_ids.tsv"
     run:
-        diseasephenotype.write_umls_ids(input.mrsty, output.outfile, input.badumls)
+        diseasephenotype.write_umls_ids(
+            input.mrsty, output.outfile, input.badumls, mesh_ownership=input.mesh_ownership
+        )
 
 
 rule disease_hp_ids:
@@ -335,6 +338,7 @@ rule disease_compendia:
         # identifier's `t` field); declared here so they exist before the compendium is built.
         taxa=expand("{dd}/{ap}/taxa", dd=config["download_directory"], ap=config["disease_phenotype_taxa"]),
         icrdf_filename=config["download_directory"] + "/icRDF.tsv",
+        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         expand("{od}/compendia/{ap}", od=config["output_directory"], ap=config["disease_outputs"]),
         temp(expand("{od}/synonyms/{ap}", od=config["output_directory"], ap=config["disease_outputs"])),
@@ -357,6 +361,7 @@ rule disease_compendia:
                 "UMLS": input.bad_umls_xrefs,
             },
             input.icrdf_filename,
+            mesh_ownership=input.mesh_ownership,
         )
 
 

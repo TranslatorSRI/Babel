@@ -269,6 +269,9 @@ rule check_for_duplicate_curies:
 
 rule check_for_duplicate_clique_leaders:
     input:
+        # Only the compendia's Clique.parquet files are read, but waiting for duckdb/done keeps this 400G DuckDB
+        # aggregation from overlapping the Edge/synonym/conflation exports on a run where mem is not enforced per
+        # job (a local run). Starting it at compendia_done would fail the build a few hours sooner, no more.
         config["output_directory"] + "/duckdb/done",
         config["output_directory"] + "/duckdb/compendia_done",
     output:
@@ -292,6 +295,22 @@ rule check_for_duplicate_clique_leaders:
                 "threads": 4,
                 "preserve_insertion_order": False,
             },
+        )
+
+
+rule assert_no_unexpected_duplicate_clique_leaders:
+    # The control behind the report above: a duplicate clique leader not on the committed allowlist fails
+    # the build (see src.reports.duckdb_reports.assert_no_unexpected_duplicate_clique_leaders). The report is
+    # written first so it can be read when this rule goes red.
+    input:
+        duplicate_clique_leaders_tsv=config["output_directory"] + "/reports/duckdb/duplicate_clique_leaders.tsv",
+        allowlist=config["input_directory"] + "/known_duplicate_clique_leaders.tsv",
+    output:
+        checked=config["output_directory"] + "/reports/duckdb/duplicate_clique_leaders.checked",
+    localrule: True
+    run:
+        src.reports.duckdb_reports.assert_no_unexpected_duplicate_clique_leaders(
+            input.duplicate_clique_leaders_tsv, input.allowlist, output.checked
         )
 
 
@@ -334,7 +353,7 @@ rule all_duckdb_reports:
         identically_labeled_cliques_tsv=config["output_directory"]
         + "/reports/duckdb/identically_labeled_cliques.tsv.gz",
         duplicate_curies=config["output_directory"] + "/reports/duckdb/duplicate_curies.tsv",
-        duplicate_clique_leaders_tsv=config["output_directory"] + "/reports/duckdb/duplicate_clique_leaders.tsv",
+        duplicate_clique_leaders_checked=config["output_directory"] + "/reports/duckdb/duplicate_clique_leaders.checked",
         prefix_report_json=config["output_directory"] + "/reports/duckdb/prefix_report.json",
     output:
         x=config["output_directory"] + "/reports/duckdb/done",

@@ -133,7 +133,15 @@ def get_type_from_smiles(smiles):
         return SMALL_MOLECULE
 
 
-def write_umls_ids(mrsty, outfile):
+def write_umls_ids(mrsty, outfile, *, mesh_ownership=None):
+    """Select the UMLS CUIs the chemical pipeline claims by semantic type.
+
+    ``mesh_ownership`` (the umls_mesh_ownership rule's output) makes a CUI follow its MeSH descriptor
+    (umls.apply_mesh_ownership): a CUI another pipeline owns is dropped here and a CUI this pipeline owns is added.
+    The protein semantic-type blocklist below still applies to typing by semantic type; a T116 CUI whose MeSH
+    descriptor is in a chemical D-tree re-enters through MeSH ownership, which runs after the blocklist
+    (https://github.com/NCATSTranslator/Babel/issues/308).
+    """
     groups = [
         "A1.4.1.1.1.1",  # antibiotic
         "A1.4.1.1.3.2",  # Hormone
@@ -155,7 +163,14 @@ def write_umls_ids(mrsty, outfile):
     }
     umlsmap = {a: CHEMICAL_ENTITY for a in groups}
     umlsmap["A1.3.3"] = DRUG
-    umls.write_umls_ids(mrsty, umlsmap, outfile, blocklist_umls_semantic_type_tree=exclude_umls_sty_trees)
+    umls.write_umls_ids(
+        mrsty,
+        umlsmap,
+        outfile,
+        blocklist_umls_semantic_type_tree=exclude_umls_sty_trees,
+        mesh_ownership=mesh_ownership,
+        pipeline="chemicals",
+    )
 
 
 def write_rxnorm_ids(infile, outfile):
@@ -1065,10 +1080,21 @@ def get_wikipedia_relationships(outfile, config, metadata_yaml):
 
 
 def build_untyped_compendia(
-    concordances, identifiers, unichem_partial, untyped_concord, type_file, metadata_yaml, input_metadata_yamls
+    concordances,
+    identifiers,
+    unichem_partial,
+    untyped_concord,
+    type_file,
+    metadata_yaml,
+    input_metadata_yamls,
+    mesh_ownership=None,
 ):
     """:concordances: a list of files from which to read relationships
-    :identifiers: a list of files from which to read identifiers and optional categories"""
+    :identifiers: a list of files from which to read identifiers and optional categories
+    :mesh_ownership: the umls_mesh_ownership rule's file; concord pairs naming a CUI another pipeline owns are
+        skipped (umls.read_cuis_owned_elsewhere). None skips nothing.
+        The UniChem partial carries no UMLS CUIs, so it needs no such filter."""
+    owned_elsewhere = umls.read_cuis_owned_elsewhere(mesh_ownership, "chemicals")
     dicts = read_partial_unichem(unichem_partial)
     types = {}
     for ifile in identifiers:
@@ -1083,6 +1109,8 @@ def build_untyped_compendia(
         with open(infile) as inf:
             for line in inf:
                 x = line.strip().split("\t")
+                if x[0] in owned_elsewhere or x[2] in owned_elsewhere:
+                    continue
                 pairs.append([x[0], x[2]])
         p = False
         if DRUGCENTRAL in [n.split(":")[0] for n in pairs[0]]:

@@ -59,6 +59,13 @@ two lists are maintained separately (there is a `TODO` in `chemicals.write_mesh_
 unifying them). When changing a D-tree assignment in one, check the other so an identifier does
 not end up in both compendia or in neither.
 
+### UMLS CUIs follow the descriptor's pipeline
+
+Where a pipeline's MeSH ids and its UMLS semantic-type selection disagree about a concept, the MeSH
+placement wins: a CUI is claimed by the pipeline whose `ids/MESH` lists the CUI's descriptor, and
+dropped from any other. So a change to a D-tree assignment here also moves the CUIs of the
+descriptors it moves. See [`UMLS/CuiFollowsMesh.md`](../UMLS/CuiFollowsMesh.md).
+
 ## Supplementary Concept Records (SCRs)
 
 SCRs are the `MESH:C…` records (as opposed to `MESH:D…` main-heading descriptors). They have **no
