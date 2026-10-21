@@ -10,9 +10,10 @@ version skew visible instead of leaving it to be discovered one missing chemical
 import json
 from collections import Counter, defaultdict
 
+from src.datahandlers.mesh import MESH_IRI_PREFIX, get_mesh_id_from_iri
+from src.datahandlers.umls import check_mrconso_line
 from src.prefixes import MESH
 
-MESH_IRI_PREFIX = "<http://id.nlm.nih.gov/mesh/"
 RDFS_LABEL = "<http://www.w3.org/2000/01/rdf-schema#label>"
 
 # The first letter of the "(MeSH Category)" headings UMLS adds to its MSH source (U000002 "Anatomy (MeSH
@@ -32,20 +33,26 @@ def read_labeled_mesh_ids(mesh_nt_path) -> set[str]:
         for line in inf:
             # N-Triples allows tabs or spaces between terms; NLM has used both.
             parts = line.split(maxsplit=2)
-            if len(parts) < 3 or parts[1] != RDFS_LABEL or not parts[0].startswith(MESH_IRI_PREFIX):
+            if len(parts) < 3 or parts[1] != RDFS_LABEL or not parts[0].startswith(f"<{MESH_IRI_PREFIX}"):
                 continue
-            ids.add(parts[0][len(MESH_IRI_PREFIX) : -1])
+            ids.add(get_mesh_id_from_iri(parts[0]))
     return ids
 
 
 def read_umls_mesh_codes(mrconso_path) -> dict[str, set[str]]:
-    """Return {MSH CODE: set of CUIs} for every MSH row in MRCONSO.RRF."""
+    """Return {MSH CODE: set of CUIs} for the MSH rows in MRCONSO.RRF that the build uses.
+
+    Rows that umls.check_mrconso_line() rejects (non-English or SUPPRESS=O/E) are skipped, as they are
+    everywhere else in Babel: an obsolete atom for a descriptor MeSH has deleted is missing from every MeSH
+    dump whatever the versions, so counting it would shift the skew check's limit by a constant.
+    UMLS 2026AA has no such MSH rows (its MSH rows are all SUPPRESS=N or Y), but nothing stops a later release.
+    """
     code_to_cuis = defaultdict(set)
     with open(mrconso_path, encoding="utf-8") as inf:
         for line in inf:
             x = line.split("|")
             # Column 12 (SAB) is the source, column 14 (CODE) is the source's own identifier.
-            if x[11] == "MSH":
+            if x[11] == "MSH" and check_mrconso_line(line):
                 code_to_cuis[x[13]].add(x[0])
     return code_to_cuis
 
@@ -53,8 +60,9 @@ def read_umls_mesh_codes(mrconso_path) -> dict[str, set[str]]:
 def generate_umls_mesh_skew_report(mrconso_path, mesh_nt_path, umls_version, mesh_year, outfile, sample_size=50):
     """Write a JSON report of UMLS MSH codes that are absent from the MeSH dump.
 
-    The report is informational: version skew is expected to some degree (UMLS and MeSH release on
-    different schedules), so a large count is a prompt to check mesh_year, not a build failure.
+    Writing the report never fails. check_umls_mesh_skew() reads it and fails the build if the count
+    is over config.yaml's umls_mesh_skew_max_missing_codes. The check is a separate rule so that the
+    report survives when the check fails.
     """
     mesh_ids = read_labeled_mesh_ids(mesh_nt_path)
     code_to_cuis = read_umls_mesh_codes(mrconso_path)

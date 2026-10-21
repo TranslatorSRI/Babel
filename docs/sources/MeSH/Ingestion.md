@@ -13,7 +13,8 @@ The MeSH release is pinned by `mesh_year` in `config.yaml`, next to `umls_versio
 step: UMLS 20XXAA carries MeSH 20XX codes, so an older MeSH dump leaves UMLS MSH codes (mostly new
 Supplementary Concept Records) with no MeSH record. Each build writes
 `babel_outputs/reports/umls_mesh_skew.json`, which counts the MSH codes in UMLS's `MRCONSO.RRF`
-(column 14 of the `SAB=MSH` rows) that have no `rdfs:label` in `mesh.nt`. With UMLS 2026AA and
+(column 14 of the `SAB=MSH` rows that `check_mrconso_line()` keeps, as the rest of the build does)
+that have no `rdfs:label` in `mesh.nt`. With UMLS 2026AA and
 MeSH 2026 the only missing codes are the 22 `U` "(MeSH Category)" headings that UMLS adds itself;
 MeSH 2025 misses 829 more and MeSH 2024 1,856 ([`umls-mesh-skew/`](umls-mesh-skew/README.md) has
 the table and the script that measures it).

@@ -52,6 +52,21 @@ def test_read_umls_mesh_codes_only_reads_msh_rows():
     }
 
 
+@pytest.mark.unit
+def test_read_umls_mesh_codes_skips_suppressed_rows(tmp_path):
+    """MSH rows check_mrconso_line() rejects (SUPPRESS=O/E) should not be read, as they are not used anywhere
+    else in the build. UMLS 2026AA has no MSH row with SUPPRESS=O or E to copy, so this is foliglurax's NM row
+    from MRCONSO_sample.RRF (its CE row left out) with the SUPPRESS column (17th) changed from N to O; only
+    D002839's rows should remain."""
+    rows = (MESH_TEST_DATA / "MRCONSO_sample.RRF").read_text().splitlines(keepends=True)
+    foliglurax = rows[2].split("|")
+    assert foliglurax[13] == "C000730045" and foliglurax[16] == "N"
+    foliglurax[16] = "O"
+    mrconso = tmp_path / "MRCONSO.RRF"
+    mrconso.write_text(rows[0] + rows[1] + "|".join(foliglurax))
+    assert read_umls_mesh_codes(mrconso) == {"D002839": {"C0008542"}}
+
+
 # REPORT
 
 
