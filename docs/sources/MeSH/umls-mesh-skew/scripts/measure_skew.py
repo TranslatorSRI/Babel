@@ -8,9 +8,9 @@ it and a dump a year behind far above it.
 Each dump is downloaded over HTTPS from NLM (about 120 MB compressed, 2 GB decompressed) into --work-dir, and
 reused if already there. Example (a few minutes, mostly downloads and the MRCONSO pass per year):
 
-    uv run python docs/sources/MESH/umls-mesh-skew/scripts/measure_skew.py \\
+    uv run python docs/sources/MeSH/umls-mesh-skew/scripts/measure_skew.py \\
         --mrconso babel_downloads/UMLS/MRCONSO.RRF --umls-version 2026AA --mesh-years 2024 2025 2026 \\
-        --work-dir data/umls-mesh-skew --output docs/sources/MESH/umls-mesh-skew/README.md
+        --work-dir data/umls-mesh-skew --output docs/sources/MeSH/umls-mesh-skew/README.md
 """
 
 import argparse

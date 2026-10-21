@@ -123,7 +123,7 @@ def check_umls_mesh_skew(report_path, max_missing_codes, checked_file):
         raise RuntimeError(
             f"{summary} mesh_year is probably behind umls_version: set mesh_year in config.yaml to the MeSH year "
             f"UMLS {report['umls_version']} was built from, if NLM has published it. If the skew is deliberate, "
-            f"raise umls_mesh_skew_max_missing_codes instead. See {report_path} and docs/sources/MESH/Ingestion.md."
+            f"raise umls_mesh_skew_max_missing_codes instead. See {report_path} and docs/sources/MeSH/Ingestion.md."
         )
     with open(checked_file, "w", encoding="utf-8") as outf:
         outf.write(summary + "\n")

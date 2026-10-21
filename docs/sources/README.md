@@ -6,9 +6,11 @@ pipeline-wide documentation in the parent `docs/` folder.
 
 ## Layout
 
-One directory per data source, named by the source's CURIE prefix (the same prefix used in
-`src/prefixes.py` and in `babel_downloads/<PREFIX>/`). A source directory may contain multiple
-files when there is enough to say (ingestion, synonyms, known issues, etc.).
+One directory per data source, usually named by the source's CURIE prefix (the same prefix used
+in `src/prefixes.py` and in `babel_downloads/<PREFIX>/`). A source whose own name is spelled
+differently from its prefix can use that name instead: `PubMed` (prefix `PMID`) and `MeSH` (prefix
+`MESH`). A source directory may contain multiple files when there is enough to say (ingestion,
+synonyms, known issues, etc.).
 
 When you learn something non-obvious about how a source is ingested, add it here rather than
 letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not duplicate the detail.
@@ -58,7 +60,7 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
   source: extracting identifiers from the [`HP:0000118`](http://purl.obolibrary.org/obo/HP_0000118)
   "Phenotypic abnormality" subtree, and tagging every ingested term with the taxon
   [`NCBITaxon:9606`](http://purl.obolibrary.org/obo/NCBITaxon_9606) "Homo sapiens".
-- **MESH** ([MESH/Ingestion.md](./MESH/Ingestion.md)) — how MeSH is partitioned across compendia
+- **MeSH** ([MeSH/Ingestion.md](./MeSH/Ingestion.md)) — how MeSH is partitioned across compendia
   by tree letter, how Supplementary Concept Records (SCRs) are typed and routed, the
   chemical/protein D-tree split, and which MeSH branches/SCR classes we deliberately skip.
 - **MONDO** ([MONDO/README.md](./MONDO/README.md)) — which of MONDO's mappings the disease pipeline

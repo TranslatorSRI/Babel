@@ -102,7 +102,7 @@ in UMLS's `MRCONSO.RRF` with no record in the MeSH dump, by record type, with a 
 excluding the `U` category headings exceeds `umls_mesh_skew_max_missing_codes`, so an archived
 build is always within that limit; `draft_release_notes.py` prints the count under the version
 bumps. Archived from 2026jul22's successor on; earlier releases don't have it. See
-[`docs/sources/MESH/Ingestion.md`](../docs/sources/MESH/Ingestion.md#source-data).
+[`docs/sources/MeSH/Ingestion.md`](../docs/sources/MeSH/Ingestion.md#source-data).
 
 ## These files are build output, not repository content
 

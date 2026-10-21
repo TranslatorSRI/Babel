@@ -1,7 +1,7 @@
 """Fetch the inputs the MeSH/UMLS ownership replays need from a published Babel build.
 
 ``replay_mesh_ownership.py`` (beside this script) and
-``docs/sources/MESH/cross-listed/scripts/list_cross_listed_descriptors.py`` read a build's ``ids/MESH`` and
+``docs/sources/MeSH/cross-listed/scripts/list_cross_listed_descriptors.py`` read a build's ``ids/MESH`` and
 ``ids/UMLS`` files and its duplicate reports. A published build has no ``intermediate/`` tree, but its
 ``duckdb/Identifier.parquet`` holds every ids file row with the file's path, so this exports the seven
 pipelines' MESH and UMLS ids files from it (one filtered read over https, under a minute) and downloads

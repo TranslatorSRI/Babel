@@ -203,7 +203,7 @@ a build unusable downstream fail it instead:
   `reports/umls_mesh_skew.json` and raises when more codes are missing than
   `umls_mesh_skew_max_missing_codes`. Unlike the check above, it runs early: `rule
   umls_mesh_ownership` waits for it, so the five MeSH-owning pipelines stop before building their
-  compendia. See [`docs/sources/MESH/Ingestion.md`](sources/MESH/Ingestion.md#source-data).
+  compendia. See [`docs/sources/MeSH/Ingestion.md`](sources/MeSH/Ingestion.md#source-data).
 
 ## Output directories
 
