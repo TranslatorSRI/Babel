@@ -151,6 +151,19 @@ published build without downloading it" in [`docs/DataFormats.md`](../../DataFor
 local UMLS download. The replay itself takes about a minute. Read `VERSION.txt` before assuming
 `var/babel/latest/` is the build you want.
 
+## What it drops
+
+The rule can leave an NCIt ID in no compendium. Only anatomy and disease write an `ids/NCIT`; every
+other NCIt ID reaches Babel as a concord partner of a CUI, through protein's `NCIT_UMLS` concord or
+anatomy's and disease's `UMLS` concords. All three are built from the pipeline's own `ids/UMLS`, so
+a CUI the rule moves takes its NCIt partners with it. The new owner re-creates them only if it also
+concords UMLS to NCIt, and chemicals, which owns most of the moved CUIs, does not. Against 2026jul22
+with MeSH 2026, that drops 406 NCIt IDs, mostly drugs and small molecules that sat in UMLS-led
+Protein cliques, such as [`NCIT:C29600`](http://purl.obolibrary.org/obo/NCIT_C29600) "Methionine".
+`scripts/list_stranded_ncit.py` lists them in
+[`stranded-ncit-2026jul22-mesh2026.md`](cui-follows-mesh/stranded-ncit-2026jul22-mesh2026.md).
+Whether the chemical pipeline should concord them instead is open ([#1158]).
+
 ## What it does not fix
 
 - `protein/concords/UMLS_UniProtKB` is a downloaded mapping, not keyed on `protein/ids/UMLS`. Rule 4
@@ -178,3 +191,4 @@ build when `reports/duckdb/duplicate_clique_leaders.tsv` has a row that is not i
 [#849]: https://github.com/NCATSTranslator/Babel/issues/849
 [#1123]: https://github.com/NCATSTranslator/Babel/issues/1123
 [#1144]: https://github.com/NCATSTranslator/Babel/pull/1144
+[#1158]: https://github.com/NCATSTranslator/Babel/issues/1158
