@@ -9,7 +9,8 @@ space and memory requirements needed to run this pipeline.
 Before running, read through `config.yaml` and make sure that the settings look correct. You will
 need to update the version numbers of some databases that need to be downloaded, or change the
 download and output directories. Keep `mesh_year` in step with `umls_version` (UMLS 2026AA goes with
-MeSH 2026); `babel_outputs/reports/umls_mesh_skew.json` shows how far apart they are (see
+MeSH 2026); the build fails early if they are far apart, and
+`babel_outputs/reports/umls_mesh_skew.json` shows by how much (see
 [`sources/MESH/Ingestion.md`](sources/MESH/Ingestion.md), "Source data"). One download has no
 version number to bump but a link that goes stale instead: `gard_download_url` pins one uploaded
 version of the GARD list, so run

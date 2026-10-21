@@ -24,6 +24,12 @@ umls_version: "2026AA"
 # Keep this in step with umls_version: UMLS 20XXAA carries MeSH 20XX codes, and a MeSH dump older than UMLS
 # leaves UMLS MSH codes (especially new SCRs) with no MeSH record. reports/umls_mesh_skew.json measures this.
 mesh_year: "2026"
+# The build fails (rule check_umls_mesh_skew, before rule umls_mesh_ownership) if more MSH codes in UMLS than this
+# have no record in the mesh_year dump, not counting the U "(MeSH Category)" headings UMLS adds itself. Against
+# UMLS 2026AA, MeSH 2026 misses 0, MeSH 2025 misses 829 and MeSH 2024 misses 1,856
+# (docs/sources/MESH/umls-mesh-skew/README.md), so 100 tolerates a few stray codes but not a dump a year behind.
+# Raise it only for a build that has to run on a skewed MeSH, and say why under build.workarounds.
+umls_mesh_skew_max_missing_codes: 100
 rxnorm_version: "07062026"
 drugbank_version: "5-1-13" # The latest is 5-1-21, but since downloads are currently not allowed, we need to reuse our most recent download.
 # The pubmed2db NDJSON export (https://github.com/TranslatorSRI/pubmed2db) this build reads PubMed from:

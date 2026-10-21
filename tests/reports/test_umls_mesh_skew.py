@@ -11,7 +11,12 @@ import shutil
 import pytest
 
 from src.datahandlers.mesh import normalize_mesh_nt
-from src.reports.umls_mesh_skew import generate_umls_mesh_skew_report, read_labeled_mesh_ids, read_umls_mesh_codes
+from src.reports.umls_mesh_skew import (
+    check_umls_mesh_skew,
+    generate_umls_mesh_skew_report,
+    read_labeled_mesh_ids,
+    read_umls_mesh_codes,
+)
 from src.util import get_repo_root
 
 MESH_TEST_DATA = get_repo_root() / "tests" / "data" / "mesh"
@@ -62,6 +67,7 @@ def test_report_counts_codes_missing_from_mesh(mesh_nt, tmp_path):
         "mesh_records_in_dump": 2,
         "umls_msh_codes": 3,
         "umls_msh_codes_missing_from_mesh": 1,
+        "umls_msh_codes_missing_from_mesh_excluding_categories": 0,
         "missing_by_record_type": {"U": 1},
         "umls_cuis_with_msh_codes": 3,
         "umls_cuis_with_any_missing_msh_code": 1,
@@ -69,3 +75,48 @@ def test_report_counts_codes_missing_from_mesh(mesh_nt, tmp_path):
         "missing_sample": ["MESH:U000002"],
     }
     assert json.loads(outfile.read_text()) == report
+
+
+# CHECK
+
+
+def _write_report(tmp_path, missing_excluding_categories):
+    report = tmp_path / "umls_mesh_skew.json"
+    report.write_text(
+        json.dumps(
+            {
+                "umls_version": "2026AA",
+                "mesh_year": "2025",
+                "umls_msh_codes_missing_from_mesh_excluding_categories": missing_excluding_categories,
+            }
+        )
+    )
+    return report
+
+
+@pytest.mark.unit
+def test_check_passes_at_the_limit(tmp_path):
+    """A count equal to the limit should pass and write the checked file with a summary."""
+    checked = tmp_path / "umls_mesh_skew.checked"
+    check_umls_mesh_skew(_write_report(tmp_path, 100), 100, checked)
+    assert "100 MSH codes in UMLS 2026AA have no record in MeSH 2025" in checked.read_text()
+
+
+@pytest.mark.unit
+def test_check_fails_over_the_limit(tmp_path):
+    """A count over the limit should raise, naming mesh_year as the likely fix, and write no checked file."""
+    checked = tmp_path / "umls_mesh_skew.checked"
+    with pytest.raises(RuntimeError, match="mesh_year is probably behind umls_version"):
+        check_umls_mesh_skew(_write_report(tmp_path, 101), 100, checked)
+    assert not checked.exists()
+
+
+@pytest.mark.unit
+def test_check_ignores_category_headings(mesh_nt, tmp_path):
+    """The U "(MeSH Category)" headings are missing from every MeSH dump, so a report whose only missing code is
+    U000002 should pass even with a limit of zero."""
+    report = tmp_path / "umls_mesh_skew.json"
+    generate_umls_mesh_skew_report(MESH_TEST_DATA / "MRCONSO_sample.RRF", mesh_nt, "2026AA", "2026", report)
+    checked = tmp_path / "umls_mesh_skew.checked"
+    check_umls_mesh_skew(report, 0, checked)
+    assert checked.exists()
