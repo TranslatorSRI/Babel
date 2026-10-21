@@ -8,12 +8,13 @@ import src.snakefiles.util as util
 rule chemical_umls_ids:
     input:
         mrsty=config["download_directory"] + "/UMLS/MRSTY.RRF",
+        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         outfile=config["intermediate_directory"] + "/chemicals/ids/UMLS",
     benchmark:
         config["output_directory"] + "/benchmarks/chemical_umls_ids.tsv"
     run:
-        chemicals.write_umls_ids(input.mrsty, output.outfile)
+        chemicals.write_umls_ids(input.mrsty, output.outfile, mesh_ownership=input.mesh_ownership)
 
 
 rule chemical_rxnorm_ids:
@@ -380,6 +381,7 @@ rule untyped_chemical_compendia:
             cc=config["chemical_concords"],
         ),
         idlists=expand("{dd}/chemicals/ids/{ap}", dd=config["intermediate_directory"], ap=config["chemical_ids"]),
+        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         typesfile=config["intermediate_directory"] + "/chemicals/partials/types",
         untyped_file=config["intermediate_directory"] + "/chemicals/partials/untyped_compendium",
@@ -403,6 +405,7 @@ rule untyped_chemical_compendia:
             output.typesfile,
             output.untyped_meta,
             input.metadata_yamls,
+            mesh_ownership=input.mesh_ownership,
         )
 
 

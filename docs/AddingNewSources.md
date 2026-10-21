@@ -75,6 +75,12 @@ In `src/createcompendia/<pipeline>.py`:
 - Add concord-extraction logic. For OBO sources sharing `build_anatomy_obo_relationships()`,
   this means adding the source to the open-file map and the prefix list. Other sources have
   bespoke extraction functions (`build_anatomy_umls_relationships`, etc.).
+- Write only well-formed CURIEs, into both the ids file and the concords. `write_compendium()` fails
+  the compendium rule if any CURIE it writes has whitespace, `|` or a control character, or lacks a
+  prefix or local ID (`curie_format_problem()` in `src/util.py`). A CURIE can reach a compendium
+  through a concord alone: #1109 shipped `UniProtKB:P0DP24|P0DP23|P0DP25` because NCIt lists
+  several accessions in one field. Parse a multi-valued field, and skip what you can't parse, where
+  the source is read.
 - Include the source's prefix in the `unique_prefixes` argument to `glom()` if its
   identifiers must remain pairwise-unique within a clique.
 

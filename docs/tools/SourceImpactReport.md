@@ -90,7 +90,7 @@ An entry needs **more than just `compute_fn`**:
 
 | Key | What it is |
 |-----|------------|
-| `compute_fn` | The pipeline's `compute_cliques_for_impact_report`, returning `(clique_dict, types_dict)` and accepting `excluded_sources`. |
+| `compute_fn` | The pipeline's `compute_cliques_for_impact_report`, returning `(clique_dict, types_dict)` and accepting `excluded_sources` and `mesh_ownership` (the `umls_mesh_ownership` rule's file, or `None`). |
 | `compendium_files` | The compendium filenames this pipeline writes. |
 | `compendium_prefixes` | The prefixes whose `labels` files are loaded to enrich clique samples. |
 | `clique_classifier` | A `classify_*_clique` callable returning a clique's Biolink type. |

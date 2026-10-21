@@ -15,6 +15,12 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
 
 ## Sources documented so far
 
+- **PubMed** ([PubMed/README.md](./PubMed/README.md)) — the Publication compendium is built from
+  the [pubmed2db](https://github.com/TranslatorSRI/pubmed2db) NDJSON export pinned by
+  `config.yaml: pubmed2db_version` (check for a newer export whenever you touch the PubMed code):
+  the export layout and record contract Babel relies on, the per-shard record-count check, how
+  titles become labels, how a DOI shared by several PMIDs is resolved, and why Babel keeps writing
+  `PMC:` while the `PMC:` vs `PMCID:` question (#1044) is open.
 - **COMPLEXPORTAL** ([COMPLEXPORTAL/Ingestion.md](./COMPLEXPORTAL/Ingestion.md)) — the
   `MacromolecularComplex` source: which ComplexTAB columns Babel reads, downloading all species
   files, the manifest-as-download-sentinel pattern, and the per-output cross-species
@@ -39,8 +45,8 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
   example for an OBO-from-UberGraph source, with an auto-generated source-impact report.
 - **ENSEMBL** ([ENSEMBL/Download.md](./ENSEMBL/Download.md)) — how Ensembl identifiers are
   downloaded via the BioMart API: per-dataset retry logic, permanently broken datasets and how to
-  skip them, the attribute-batching workaround, and how partial progress is preserved across
-  failed runs.
+  skip them, the attribute-batching workaround, how partial progress is preserved across
+  failed runs, and why yeast protein IDs are not protein ids.
 - **GARD** ([GARD/README.md](./GARD/README.md)) — the NCATS Genetic and Rare Diseases registry as
   a `biolink:Disease` source: a flat CSV of rare-disease terms (labels + pipe-separated synonyms,
   no cross-references), typed Disease and kept via `extra_prefixes=[GARD]` because GARD is not yet
@@ -69,6 +75,9 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
 - **UMLS** ([UMLS/Leftover.md](./UMLS/Leftover.md)) — the "leftover UMLS" compendium: how
   unclaimed UMLS concepts are swept up and typed, the manual STY→Biolink override tables and the
   drift test that keeps them honest, and the coverage report under `reports/umls/`.
+  [UMLS/CuiFollowsMesh.md](./UMLS/CuiFollowsMesh.md) — how a CUI is assigned to the pipeline that
+  claims its MeSH descriptor when its semantic type says otherwise, the replay that measures the
+  rule against a published build, and the duplicate-clique-leader control behind it.
 - **NCBIGene** ([NCBIGene/quoting/README.md](./NCBIGene/quoting/README.md)) — an investigation into
   how the two free-text synonym columns (`Synonyms`/`otheraliases`, `Other_designations`/
   `otherdesignations`) in `gene_info.gz` are quoted, prompted by issue #744's `''…''` fragments and

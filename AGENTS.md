@@ -159,9 +159,28 @@ canonical prefix-constant registry; its `id_prefixes` order in the Biolink Model
   `build_sets()` sorts its output so this is reproducible; never reintroduce unordered iteration
   there. Before restricting a prefix, count what it makes compete — see step 3 of
   `docs/AddingNewSources.md`.
+- **Malformed CURIEs fail the build** — `write_compendium()` collects every CURIE it writes that
+  `curie_format_problem()` (`src/util.py`) rejects (whitespace, `|`, control characters, missing
+  prefix or local ID), then raises once, listing them all. Fix the source that produced them; never
+  catch the error. The check runs on the output because a concord alone can put a CURIE into a
+  compendium (#1109).
 - **`SynonymFilter`** (`src/synonyms/filter.py`) checks every label/synonym against
   `input_data/obsolete_synonyms.yaml` before it enters a compendium — see its docstring for the
   `action` field and the `should_suppress()` contract.
+- **A UMLS CUI follows its MeSH descriptor** — `rule umls_mesh_ownership` reads the `ids/MESH` of
+  the five pipelines that write both `ids/MESH` and `ids/UMLS`
+  (`config.yaml: umls_mesh_owning_pipelines`) and gives each CUI whose descriptors exactly one of
+  them claims to that pipeline (`umls.compute_mesh_owners()`); each of those pipelines'
+  `*_umls_ids` rule then adds the CUIs it owns and drops the ones another pipeline owns, and its
+  compendium rule skips concord pairs naming a CUI another pipeline owns. Gene's and process's CUIs
+  have no owner (neither concords UMLS to MeSH). Decide ownership in that one place: a pipeline
+  deciding for itself drops CUIs no other pipeline adds. Changing a MeSH tree assignment therefore
+  moves CUIs. `docs/sources/UMLS/CuiFollowsMesh.md`; measure a change with
+  `docs/sources/UMLS/cui-follows-mesh/scripts/replay_mesh_ownership.py` before a build.
+- **Duplicate clique leaders fail the build** — `rule assert_no_unexpected_duplicate_clique_leaders`
+  raises for any row of `reports/duckdb/duplicate_clique_leaders.tsv` not in
+  `input_data/known_duplicate_clique_leaders.tsv` (each row names its issue). Never add a row
+  without an issue; fix the source instead (`docs/Architecture.md`, "Build controls").
 - **Logging** — always use `get_logger(__name__)` from `src.util`, never `logging.getLogger`
   directly (see its docstring for why and the deferred-import exception).
 - **Leftover UMLS** — `src/createcompendia/leftover_umls.py` (rule `leftover_umls`) runs last and
@@ -178,6 +197,9 @@ canonical prefix-constant registry; its `id_prefixes` order in the Biolink Model
   for chemical compendium types; adding a subtype needs an entry there *and* a matching hardcoded
   `check_*` report rule in `chemical.snakefile` or `rule chemical`'s DAG breaks. Full note in
   [`docs/Architecture.md`](docs/Architecture.md#chemical-compendium-output-types).
+- **`threads:` alone gets one CPU on SLURM** — `slurm/config.yaml` defaults `cpus_per_task` to 1,
+  and the SLURM executor allocates `cpus_per_task` over `threads`, so a multi-process rule must set
+  both, equal (see `generate_pubmed_concords`). A local run never shows the difference.
 - **Snakemake `resources.mem` in a `run:` block** — read `resources.mem_mb`, never `resources.mem`.
   Snakemake normalizes every sized resource to `mem_mb` internally and re-exposes `mem` as a
   *humanfriendly string*, so a rule's `mem="512G"` reaches Python as `"512 GB"` — and `mem_mb` is
@@ -217,7 +239,16 @@ with `uv run snakemake --unlock`.
 
 Most semantic-type targets are much cheaper than the full pipeline (anatomy builds end-to-end on a
 laptop in ~25 minutes; the README's 500 GB figure is for the heaviest targets only). See
-`docs/RunningBabel.md` for a per-target sizing breakdown and common build issues.
+`docs/RunningBabel.md` for a per-target sizing breakdown, and read its "Common build issues" before
+running Snakemake by hand. Two of them catch agents out most:
+
+- **Put targets before `--forcerun`** or any other list-valued option (`--until`, `--omit-from`).
+  After one, a target path is taken as another value of that option, which leaves no target, so
+  Snakemake builds the whole pipeline. `--forcerun=rule` or a `--` before the targets is safe in
+  any order.
+- **On Apple Silicon without Rosetta, add `--scheduler greedy`** (or see the durable fixes in
+  `docs/RunningBabel.md`). Otherwise every run that schedules jobs fails at once with
+  `OSError: [Errno 86] Bad CPU type in executable` from `pulp`'s bundled x86-64 `cbc`.
 
 ## Releasing a build
 

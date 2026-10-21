@@ -1,0 +1,458 @@
+{
+  "shards": [
+    "pubmed_metadata_0.ndjson.gz"
+  ],
+  "records": 5252405,
+  "shared_identifiers": 758,
+  "by_prefix": {
+    "doi": 758
+  },
+  "by_record_count": {
+    "2": 497,
+    "3": 117,
+    "4": 77,
+    "5": 33,
+    "6": 18,
+    "7": 5,
+    "8": 4,
+    "9": 2,
+    "10": 1,
+    "12": 1,
+    "13": 2,
+    "28": 1
+  },
+  "spelled_in_more_than_one_case": 9,
+  "lowest_is_earliest": 755,
+  "highest_is_reply": 141,
+  "cochrane_reviews": 10,
+  "kinds": {
+    "correspondence": {
+      "count": 407,
+      "lowest_is_earliest": 407,
+      "highest_is_reply": 141,
+      "examples": [
+        {
+          "identifier": "doi:10.1002/(sici)1096-9136(199706)14:6<503::aid-dia394>3.0.co;2-1",
+          "carriers": [
+            {
+              "pmid": "PMID:9212319",
+              "spelling": "doi:10.1002/(SICI)1096-9136(199706)14:6<503::AID-DIA394>3.0.CO;2-1",
+              "pub_year": "1997",
+              "publication_types": [
+                "Case Reports",
+                "Letter"
+              ],
+              "title": "Diabetes mellitus associated with mitochondrial myopathy and schizophrenia: a possible link between "
+            },
+            {
+              "pmid": "PMID:9212320",
+              "spelling": "doi:10.1002/(SICI)1096-9136(199706)14:6<503::AID-DIA394>3.0.CO;2-1",
+              "pub_year": "1997",
+              "publication_types": [
+                "Comment",
+                "Letter"
+              ],
+              "title": "Insulin therapy and risk of retinopathy in type 2 diabetes mellitus."
+            }
+          ]
+        },
+        {
+          "identifier": "doi:10.1056/nejmc1505594",
+          "carriers": [
+            {
+              "pmid": "PMID:26132947",
+              "spelling": "doi:10.1056/NEJMc1505594",
+              "pub_year": "2015",
+              "publication_types": [
+                "Comment",
+                "Letter"
+              ],
+              "title": "Anatomical versus Functional Testing for Coronary Artery Disease."
+            },
+            {
+              "pmid": "PMID:26132948",
+              "spelling": "doi:10.1056/NEJMc1505594",
+              "pub_year": "2015",
+              "publication_types": [
+                "Comment",
+                "Letter"
+              ],
+              "title": "Anatomical versus Functional Testing for Coronary Artery Disease."
+            },
+            {
+              "pmid": "PMID:26132949",
+              "spelling": "doi:10.1056/NEJMc1505594",
+              "pub_year": "2015",
+              "publication_types": [
+                "Comment",
+                "Letter"
+              ],
+              "title": "Anatomical versus Functional Testing for Coronary Artery Disease."
+            },
+            {
+              "pmid": "PMID:26132950",
+              "spelling": "doi:10.1056/NEJMc1505594",
+              "pub_year": "2015",
+              "publication_types": [
+                "Comment",
+                "Letter"
+              ],
+              "title": "Anatomical versus Functional Testing for Coronary Artery Disease."
+            },
+            {
+              "pmid": "PMID:26132951",
+              "spelling": "doi:10.1056/NEJMc1505594",
+              "pub_year": "2015",
+              "publication_types": [
+                "Comment",
+                "Letter"
+              ],
+              "title": "Anatomical versus Functional Testing for Coronary Artery Disease."
+            }
+          ]
+        },
+        {
+          "identifier": "doi:10.1056/nejmc2106008",
+          "carriers": [
+            {
+              "pmid": "PMID:34133874",
+              "spelling": "doi:10.1056/NEJMc2106008",
+              "pub_year": "2021",
+              "publication_types": [
+                "Comment",
+                "Letter"
+              ],
+              "title": "The Role of Medical Schools in Propagating Physician Bias."
+            },
+            {
+              "pmid": "PMID:34133875",
+              "spelling": "doi:10.1056/NEJMc2106008",
+              "pub_year": "2021",
+              "publication_types": [
+                "Comment",
+                "Letter"
+              ],
+              "title": "The Role of Medical Schools in Propagating Physician Bias."
+            },
+            {
+              "pmid": "PMID:34133876",
+              "spelling": "doi:10.1056/NEJMc2106008",
+              "pub_year": "2021",
+              "publication_types": [
+                "Comment",
+                "Letter"
+              ],
+              "title": "The Role of Medical Schools in Propagating Physician Bias. Reply."
+            }
+          ]
+        }
+      ]
+    },
+    "same_title": {
+      "count": 112,
+      "lowest_is_earliest": 110,
+      "highest_is_reply": 0,
+      "examples": [
+        {
+          "identifier": "doi:10.1002/14651858.cd000036",
+          "carriers": [
+            {
+              "pmid": "PMID:10796095",
+              "spelling": "doi:10.1002/14651858.CD000036",
+              "pub_year": "2000",
+              "publication_types": [
+                "Journal Article",
+                "Systematic Review"
+              ],
+              "title": "Betamimetics for suspected impaired fetal growth."
+            },
+            {
+              "pmid": "PMID:11687064",
+              "spelling": "doi:10.1002/14651858.CD000036",
+              "pub_year": "2001",
+              "publication_types": [
+                "Journal Article",
+                "Systematic Review"
+              ],
+              "title": "Betamimetics for suspected impaired fetal growth."
+            }
+          ]
+        },
+        {
+          "identifier": "doi:10.1097/aog.0000000000000869",
+          "carriers": [
+            {
+              "pmid": "PMID:26091046",
+              "spelling": "doi:10.1097/AOG.0000000000000869",
+              "pub_year": "2015",
+              "publication_types": [
+                "Consensus Statement",
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "title": "National Partnership for Maternal Safety: consensus bundle on obstetric hemorrhage."
+            },
+            {
+              "pmid": "PMID:26241269",
+              "spelling": "doi:10.1097/AOG.0000000000000869",
+              "pub_year": "2015",
+              "publication_types": [
+                "Consensus Statement",
+                "Journal Article",
+                "Practice Guideline"
+              ],
+              "title": "National Partnership for Maternal Safety: Consensus Bundle on Obstetric Hemorrhage."
+            }
+          ]
+        },
+        {
+          "identifier": "doi:10.1288/00005537-197105000-00022",
+          "carriers": [
+            {
+              "pmid": "PMID:4925522",
+              "spelling": "doi:10.1288/00005537-197105000-00022",
+              "pub_year": "1971",
+              "publication_types": [
+                "Directory"
+              ],
+              "title": "Directory of otolaryngologic societies."
+            },
+            {
+              "pmid": "PMID:4928560",
+              "spelling": "doi:10.1288/00005537-197105000-00022",
+              "pub_year": "1971",
+              "publication_types": [
+                "Directory"
+              ],
+              "title": "Directory of otolaryngologic societies."
+            },
+            {
+              "pmid": "PMID:4933226",
+              "spelling": "doi:10.1288/00005537-197105000-00022",
+              "pub_year": "1971",
+              "publication_types": [
+                "Directory"
+              ],
+              "title": "Directory of Otolaryngologic Societies."
+            },
+            {
+              "pmid": "PMID:4933235",
+              "spelling": "doi:10.1288/00005537-197105000-00022",
+              "pub_year": "1971",
+              "publication_types": [
+                "Directory"
+              ],
+              "title": "Directory of otolaryngologic societies."
+            },
+            {
+              "pmid": "PMID:4936466",
+              "spelling": "doi:10.1288/00005537-197105000-00022",
+              "pub_year": "1971",
+              "publication_types": [
+                "Directory"
+              ],
+              "title": "Directory of otolaryngologic societies."
+            },
+            {
+              "pmid": "PMID:4938467",
+              "spelling": "doi:10.1288/00005537-197105000-00022",
+              "pub_year": "1971",
+              "publication_types": [
+                "Directory"
+              ],
+              "title": "Directory of otolaryngologic societies."
+            },
+            {
+              "pmid": "PMID:4945541",
+              "spelling": "doi:10.1288/00005537-197105000-00022",
+              "pub_year": "1971",
+              "publication_types": [
+                "Directory"
+              ],
+              "title": "Directory of otolaryngologic societies."
+            }
+          ]
+        }
+      ]
+    },
+    "other": {
+      "count": 239,
+      "lowest_is_earliest": 238,
+      "highest_is_reply": 0,
+      "examples": [
+        {
+          "identifier": "doi:10.1002/(sici)1097-0231(20000315)14:5<305::aid-rcm907>3.0.co;2-x",
+          "carriers": [
+            {
+              "pmid": "PMID:10700029",
+              "spelling": "doi:10.1002/(SICI)1097-0231(20000315)14:5<305::AID-RCM907>3.0.CO;2-X",
+              "pub_year": "2000",
+              "publication_types": [
+                "Journal Article"
+              ],
+              "title": "Preface"
+            },
+            {
+              "pmid": "PMID:10744392",
+              "spelling": "doi:10.1002/(SICI)1097-0231(20000315)14:5<305::AID-RCM907>3.0.CO;2-X",
+              "pub_year": "2000",
+              "publication_types": [
+                "Conference Proceedings",
+                "Overall"
+              ],
+              "title": "Papers presented at the 24th annual meeting of the British Mass Spectrometry Society. 12-15 Septembe"
+            }
+          ]
+        },
+        {
+          "identifier": "doi:10.1097/01.lgt.0000236969.27502.71",
+          "carriers": [
+            {
+              "pmid": "PMID:17194948",
+              "spelling": "doi:10.1097/01.lgt.0000236969.27502.71",
+              "pub_year": "2007",
+              "publication_types": [
+                "Journal Article"
+              ],
+              "title": "Patient knowledge about human papillomavirus and relationship to history of abnormal Papanicolaou te"
+            },
+            {
+              "pmid": "PMID:17194951",
+              "spelling": "doi:10.1097/01.lgt.0000236969.27502.71",
+              "pub_year": "2007",
+              "publication_types": [
+                "Journal Article"
+              ],
+              "title": "Report of a new ISSVD classification of VIN."
+            }
+          ]
+        },
+        {
+          "identifier": "doi:10.3143/geriatrics.34.359",
+          "carriers": [
+            {
+              "pmid": "PMID:9267145",
+              "spelling": "doi:10.3143/geriatrics.34.359",
+              "pub_year": "1997",
+              "publication_types": [
+                "Journal Article"
+              ],
+              "title": "[Insulin resistance and cardiovascular disease incidence in a elderly Japanese population: the Hisay"
+            },
+            {
+              "pmid": "PMID:9267146",
+              "spelling": "doi:10.3143/geriatrics.34.359",
+              "pub_year": "1997",
+              "publication_types": [
+                "English Abstract",
+                "Journal Article"
+              ],
+              "title": "[Glucose tolerance and insulin resistance in the elderly]."
+            },
+            {
+              "pmid": "PMID:9267147",
+              "spelling": "doi:10.3143/geriatrics.34.359",
+              "pub_year": "1997",
+              "publication_types": [
+                "English Abstract",
+                "Journal Article"
+              ],
+              "title": "[Insulin resistance in elderly patients with hypertension]."
+            },
+            {
+              "pmid": "PMID:9267149",
+              "spelling": "doi:10.3143/geriatrics.34.359",
+              "pub_year": "1997",
+              "publication_types": [
+                "English Abstract",
+                "Journal Article"
+              ],
+              "title": "[Insulin resistance and hyperlipidemia in the elderly]."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "case_examples": [
+    {
+      "identifier": "doi:10.1039/c4bm00222a",
+      "carriers": [
+        {
+          "pmid": "PMID:26146547",
+          "spelling": "doi:10.1039/C4BM00222A",
+          "pub_year": "2015",
+          "publication_types": [
+            "Journal Article"
+          ],
+          "title": "Elastomeric nanocomposite scaffolds made from poly (glycerol sebacate) chemically crosslinked with c"
+        },
+        {
+          "pmid": "PMID:26214188",
+          "spelling": "doi:10.1039/c4bm00222a",
+          "pub_year": "2015",
+          "publication_types": [
+            "Journal Article",
+            "Research Support, N.I.H., Extramural",
+            "Research Support, Non-U.S. Gov't",
+            "Research Support, U.S. Gov't, Non-P.H.S."
+          ],
+          "title": "Elastomeric nanocomposite scaffolds made from poly(glycerol sebacate) chemically crosslinked with ca"
+        }
+      ]
+    },
+    {
+      "identifier": "doi:10.1089/aid.2010.0206",
+      "carriers": [
+        {
+          "pmid": "PMID:3101085",
+          "spelling": "doi:10.1089/aid.2010.0206",
+          "pub_year": "1986",
+          "publication_types": [
+            "Journal Article",
+            "Research Support, Non-U.S. Gov't"
+          ],
+          "title": "An intrinsic way of multiclassification of endogenous psychoses. A follow-through investigation/Buda"
+        },
+        {
+          "pmid": "PMID:21043994",
+          "spelling": "doi:10.1089/AID.2010.0206",
+          "pub_year": "2011",
+          "publication_types": [
+            "Journal Article",
+            "Research Support, Non-U.S. Gov't",
+            "Research Support, U.S. Gov't, Non-P.H.S.",
+            "Review"
+          ],
+          "title": "AIDS vaccines and preexposure prophylaxis: is synergy possible?"
+        }
+      ]
+    },
+    {
+      "identifier": "doi:10.1097/01.tp.0000441826.70687.f6",
+      "carriers": [
+        {
+          "pmid": "PMID:24445924",
+          "spelling": "doi:10.1097/01.TP.0000441826.70687.f6",
+          "pub_year": "2014",
+          "publication_types": [
+            "Comparative Study",
+            "Journal Article",
+            "Research Support, Non-U.S. Gov't"
+          ],
+          "title": "Comparative analysis of drug action on B-cell proliferation and differentiation for mycophenolic aci"
+        },
+        {
+          "pmid": "PMID:24892964",
+          "spelling": "doi:10.1097/01.tp.0000441826.70687.f6",
+          "pub_year": "2014",
+          "publication_types": [
+            "Journal Article",
+            "Research Support, Non-U.S. Gov't"
+          ],
+          "title": "Herpes zoster-attributable resource utilization and cost burden in patients with solid organ transpl"
+        }
+      ]
+    }
+  ]
+}

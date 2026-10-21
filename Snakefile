@@ -2,6 +2,7 @@ configfile: "config.yaml"
 
 
 include: "src/snakefiles/datacollect.snakefile"
+include: "src/snakefiles/umls.snakefile"
 include: "src/snakefiles/anatomy.snakefile"
 include: "src/snakefiles/cell_line.snakefile"
 include: "src/snakefiles/gene.snakefile"

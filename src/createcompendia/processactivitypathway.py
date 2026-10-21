@@ -35,6 +35,11 @@ def write_ec_ids(infile, outfile):
 
 
 def write_umls_ids(mrsty, outfile):
+    """Select the UMLS CUIs the process pipeline claims by semantic type.
+
+    The umls_mesh_ownership rule reads this file: no MeSH-owning pipeline may take a CUI selected here
+    (umls.compute_mesh_owners()'s ``unownable``).
+    """
     umlsmap = {
         "B2.2.1.1.4": MOLECULAR_ACTIVITY,  # Molecular Function
         "B2.2.1.1": BIOLOGICAL_PROCESS,  # Physiologic Function

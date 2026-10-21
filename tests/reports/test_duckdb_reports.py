@@ -154,6 +154,73 @@ def test_check_for_duplicate_clique_leaders(parquet_root, tmp_path):
     assert "Foo" in row["filenames"] and "Bar" in row["filenames"]
 
 
+# DUPLICATE CLIQUE LEADER CONTROL
+
+
+def _allowlist(tmp_path, rows):
+    path = tmp_path / "known_duplicate_clique_leaders.tsv"
+    path.write_text("# comment\nclique_leader\tfilenames\tissue\tnote\n" + "".join(f"{r}\n" for r in rows))
+    return str(path)
+
+
+@pytest.fixture
+def leaders_tsv(parquet_root, tmp_path):
+    """The duplicate-leader report over the fixture: only "A" leads a clique in both Foo and Bar."""
+    out = str(tmp_path / "duplicate_clique_leaders.tsv")
+    duckdb_reports.check_for_duplicate_clique_leaders(parquet_root, str(tmp_path / "db.duckdb"), out)
+    return out
+
+
+@pytest.mark.unit
+def test_allowlisted_duplicate_leader_passes(leaders_tsv, tmp_path):
+    """A duplicate leader listed in the allowlist (in either compendia order) should pass and write the checked file."""
+    checked = tmp_path / "checked"
+    allowlist = _allowlist(tmp_path, ["A\tBar,Foo\t#0\tfixture"])
+    duckdb_reports.assert_no_unexpected_duplicate_clique_leaders(leaders_tsv, allowlist, str(checked))
+    assert "1 duplicate clique leaders" in checked.read_text()
+
+
+@pytest.mark.unit
+def test_unexpected_duplicate_leader_fails(leaders_tsv, tmp_path):
+    """A duplicate leader not in the allowlist should raise, naming the leader and compendia, and write nothing."""
+    checked = tmp_path / "checked"
+    with pytest.raises(RuntimeError, match=r"A \[Bar, Foo\]"):
+        duckdb_reports.assert_no_unexpected_duplicate_clique_leaders(
+            leaders_tsv, _allowlist(tmp_path, []), str(checked)
+        )
+    assert not checked.exists()
+
+
+@pytest.mark.unit
+def test_same_leader_in_other_compendia_is_not_allowlisted(leaders_tsv, tmp_path):
+    """The allowlist is keyed on the compendia pair too: "A" in Foo+Baz does not cover "A" in Foo+Bar."""
+    with pytest.raises(RuntimeError):
+        duckdb_reports.assert_no_unexpected_duplicate_clique_leaders(
+            leaders_tsv, _allowlist(tmp_path, ["A\tFoo,Baz\t#0\tfixture"]), str(tmp_path / "checked")
+        )
+
+
+@pytest.mark.unit
+def test_stale_allowlist_rows_are_reported_not_fatal(leaders_tsv, tmp_path):
+    """An allowlist row that no longer duplicates should be named in the summary so it gets pruned."""
+    checked = tmp_path / "checked"
+    allowlist = _allowlist(tmp_path, ["A\tFoo,Bar\t#0\tfixture", "Z\tFoo,Bar\t#0\tfixed"])
+    duckdb_reports.assert_no_unexpected_duplicate_clique_leaders(leaders_tsv, allowlist, str(checked))
+    assert "1 allowlist entries no longer duplicated (prune them): Z [Bar, Foo]" in checked.read_text()
+
+
+@pytest.mark.unit
+def test_duplicate_leader_in_fewer_compendia_than_allowlisted_passes(leaders_tsv, tmp_path):
+    """A duplicate leader whose compendia are a subset of its allowlist row's (a source fix took one of three away)
+    should pass, and be named in the summary so the row gets narrowed rather than pruned."""
+    checked = tmp_path / "checked"
+    allowlist = _allowlist(tmp_path, ["A\tFoo,Bar,Baz\t#0\tfixture"])
+    duckdb_reports.assert_no_unexpected_duplicate_clique_leaders(leaders_tsv, allowlist, str(checked))
+    summary = checked.read_text()
+    assert "0 allowlist entries no longer duplicated" in summary
+    assert "1 now in fewer compendia than their allowlist entry (narrow them): A [Bar, Foo]" in summary
+
+
 @pytest.fixture
 def prefix_report(parquet_root, tmp_path):
     """Run generate_prefix_report over the fixture and return the parsed combined report.

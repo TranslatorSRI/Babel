@@ -136,7 +136,8 @@ The rule writes all UMLS reports to `babel_outputs/reports/umls/`. The human-rea
   The clique leaders are the key to tracing the cause: they show which two cliques the CURIE was
   glommed into, so you can work back to the upstream concords that pulled it both ways. The leftover
   `umls.txt` compendium never appears here because it only claims CURIEs that no other compendium
-  took.
+  took. The mechanism behind most rows, and the rule that removes them, is
+  [`CuiFollowsMesh.md`](CuiFollowsMesh.md).
 - `unmapped-types.csv` — per semantic type that was unmapped or rejected: status, exact affected
   CUI count, and sample CURIEs.
 - `multi-type-curies.csv` — CURIEs that resolved to multiple Biolink types even after

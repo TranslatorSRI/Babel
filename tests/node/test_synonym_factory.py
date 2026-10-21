@@ -7,6 +7,8 @@ from src.util import get_config
 
 BIOLINK_VERSION = get_config()["biolink_version"]
 
+# Spelled out rather than imported from src.predicates: these tests assert the predicate load_synonyms() writes,
+# which src/node.py takes from src.predicates, so importing it would compare the constant with itself.
 HAS_EXACT_SYNONYM = "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym"
 
 

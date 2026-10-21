@@ -65,12 +65,13 @@ rule anatomy_mesh_ids:
 rule anatomy_umls_ids:
     input:
         mrsty=config["download_directory"] + "/UMLS/MRSTY.RRF",
+        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         outfile=config["intermediate_directory"] + "/anatomy/ids/UMLS",
     benchmark:
         config["output_directory"] + "/benchmarks/anatomy_umls_ids.tsv"
     run:
-        anatomy.write_umls_ids(input.mrsty, output.outfile)
+        anatomy.write_umls_ids(input.mrsty, output.outfile, mesh_ownership=input.mesh_ownership)
 
 
 rule get_anatomy_obo_relationships:
@@ -141,6 +142,7 @@ rule anatomy_compendia:
         # ANATOMY_BAD_XREFS, and if the two drifted the report would stop matching the build.
         badxrefs=anatomy.ANATOMY_BAD_XREFS,
         icrdf_filename=config["download_directory"] + "/icRDF.tsv",
+        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         expand("{od}/compendia/{ap}", od=config["output_directory"], ap=config["anatomy_outputs"]),
         temp(expand("{od}/synonyms/{ap}", od=config["output_directory"], ap=config["anatomy_outputs"])),
@@ -149,7 +151,12 @@ rule anatomy_compendia:
         config["output_directory"] + "/benchmarks/anatomy_compendia.tsv"
     run:
         anatomy.build_compendia(
-            input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename, badxrefs=input.badxrefs
+            input.concords,
+            input.metadata_yamls,
+            input.idlists,
+            input.icrdf_filename,
+            badxrefs=input.badxrefs,
+            mesh_ownership=input.mesh_ownership,
         )
 
 
