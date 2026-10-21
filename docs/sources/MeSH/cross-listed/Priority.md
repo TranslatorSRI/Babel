@@ -186,7 +186,7 @@ say why in the evidence cell, because that cell becomes the `reason` column of t
   files, so it is the cheap place for the control: raise if a MeSH record is in two of them.
 - Remove the 20 MeSH rows from `input_data/known_duplicate_clique_leaders.tsv` and the 46 MeSH
   entries from `KNOWN_DUPLICATES` in `tests/pipeline/test_vocabulary_partitioning.py`.
-- Update `docs/sources/MESH/Ingestion.md`, and rule 3 in
+- Update `docs/sources/MeSH/Ingestion.md`, and rule 3 in
   [`CuiFollowsMesh.md`](../../UMLS/CuiFollowsMesh.md), which names these descriptors as the case
   it leaves alone.
 - Confirm on a cluster build: `duplicate_clique_leaders.tsv` should have no MeSH rows, and

@@ -28,10 +28,10 @@ Example (about five minutes over https, mostly reading the Edge tables and Conco
 
     uv run python docs/sources/UMLS/cui-follows-mesh/scripts/fetch_build_inputs.py \\
         --build-url <build-url> --output-dir data/duplicate-curies
-    uv run python docs/sources/MESH/cross-listed/scripts/list_cross_listed_descriptors.py \\
+    uv run python docs/sources/MeSH/cross-listed/scripts/list_cross_listed_descriptors.py \\
         --ids-dir data/duplicate-curies/ids --leaders data/duplicate-curies/duplicate_clique_leaders.tsv \\
         --parquet-dir <build-url>/duckdb/parquet --concord-parquet <build-url>/duckdb/Concord.parquet \\
-        --build 2026jul22 --output-dir docs/sources/MESH/cross-listed
+        --build 2026jul22 --output-dir docs/sources/MeSH/cross-listed
 
 ``<build-url>`` is the published build's root (``.../var/babel/<build>``; read its ``VERSION.txt``).
 """
