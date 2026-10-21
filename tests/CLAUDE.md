@@ -36,6 +36,22 @@ see [`README.md`](README.md) — this file only covers how to write one once you
   does, the constant needs tying to something independent (there, a fixture copied verbatim from the
   live page). The probe is three lines of shell and takes seconds.
 
+- **Never put a blanket `xfail` on a `network`-marked test** — the mark already keeps it out of CI,
+  so the only thing a blanket `xfail(strict=False)` adds is that the test stops reporting failures
+  once the service comes back. `test_pull_ensembl` carried one reading "requires network access to
+  the Ensembl BioMart service"; BioMart returned, the test ran again, and a stale assertion of its
+  own (a dataset had outgrown the single-query path) was reported as a routine xfail for months.
+  `--runxfail` is what finally showed it. Guard the unreachable-service case from *inside* the
+  test instead, so every assertion stays live: `pytest.skip`/`pytest.xfail` in an `except` on the
+  connection error, as `tests/datahandlers/test_pantherfamily.py` and the `ubergraph` fixture in
+  `conftest.py` do.
+
+- **Assert upstream-derived counts as bounds, not equalities** — a test that pins how many
+  attributes/files/rows a live source exposes is asserting something the source may change without
+  telling you, and the failure looks like a bug in your code. `test_pull_ensembl` now asserts
+  `len(batches) >= 2` rather than `== 2` for exactly this reason, and derives the "fits in one
+  query" limit from the dataset instead of hard-coding it.
+
 - **Pin known-imperfect behavior, don't leave it unasserted** — when shipping a partial fix, assert
   the wrong-but-harmless behavior that remains, with a comment saying it pins current behavior, a
   link to the tracking issue, and an instruction to **invert** the assertion when the fix lands

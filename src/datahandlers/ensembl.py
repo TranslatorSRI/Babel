@@ -18,13 +18,50 @@ logger = get_logger(__name__)
 # https://github.com/NCATSTranslator/Babel/pull/588).
 _apy_classes._Server._check_connection = staticmethod(lambda: True)
 
-# As per https://support.bioconductor.org/p/39744/#39751, more attributes than this result in an
-# error from BioMart: Too many attributes selected for External References
+# A conservative global stand-in for a limit BioMart actually applies *per attribute page*: it
+# refuses a query selecting more than about three External References attributes (entrezgene_id,
+# zfin_id_id, mgi_id, rgd_id, flybase_gene_id, sgd_gene, wormbase_gene) with "Too many attributes
+# selected for External References" -- see https://support.bioconductor.org/p/39744/#39751 and
+# https://github.com/NCATSTranslator/Babel/issues/193.
+#
+# It is NOT a cap on the total number of attributes, and reading it as one will mislead you: a
+# dataset with few cross-references serves 8 attributes in one query quite happily, while
+# hgfemale_gene_ensembl fails at 13 because five of them are External References. Batching by a
+# flat count is simply the cheapest way to stay under the real limit without modelling which page
+# each attribute belongs to.
+#
 # This is the real MAX minus one: for every batch, we'll query the ensembl_gene_id so that we can
 # put the batches back together again afterward.
 BIOMART_MAX_ATTRIBUTE_COUNT = 6
 BIOMART_MAX_RETRIES = 5
 BIOMART_RETRY_DELAY_SECS = 30
+
+# The BioMart attributes Babel wants from every Ensembl gene dataset: the identifier itself, the
+# label/description fields, and the cross-references to the model-organism databases. A dataset
+# exposes only some of these (a plant dataset has no MGI id), so pull_ensembl() intersects this
+# with the dataset's own attribute list and asks only for what is there.
+#
+# Module-level rather than local to pull_ensembl() because it is the input that decides whether a
+# dataset needs batching, so a test cannot tell a genuinely-unbatched download from a batched one
+# without it.
+BIOMART_ATTRIBUTES = {
+    "ensembl_gene_id",
+    "ensembl_peptide_id",
+    "description",
+    "external_gene_name",
+    "external_gene_source",
+    "external_synonym",
+    "chromosome_name",
+    "source",
+    "gene_biotype",
+    "entrezgene_id",
+    "zfin_id_id",
+    "mgi_id",
+    "rgd_id",
+    "flybase_gene_id",
+    "sgd_gene",
+    "wormbase_gene",
+}
 
 
 # Note that Ensembl doesn't seem to assign its own labels or synonyms to its gene identifiers.  It appears that
@@ -76,24 +113,7 @@ def pull_ensembl(
     failed_datasets = {}
 
     # Columns to choose.
-    cols_to_find = {
-        "ensembl_gene_id",
-        "ensembl_peptide_id",
-        "description",
-        "external_gene_name",
-        "external_gene_source",
-        "external_synonym",
-        "chromosome_name",
-        "source",
-        "gene_biotype",
-        "entrezgene_id",
-        "zfin_id_id",
-        "mgi_id",
-        "rgd_id",
-        "flybase_gene_id",
-        "sgd_gene",
-        "wormbase_gene",
-    }
+    cols_to_find = BIOMART_ATTRIBUTES
     for ds in dataset_ids:
         logger.info(f"Downloading ENSEMBL dataset {ds}")
         if ds in skip_dataset_ids:

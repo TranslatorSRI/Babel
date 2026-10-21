@@ -50,13 +50,18 @@ When a dataset fails repeatedly across multiple pipeline runs, **add it to
 run:
 
 ```yaml
-ensembl_datasets_to_skip: [elucius_gene_ensembl, hgfemale_gene_ensembl, ...]
+ensembl_datasets_to_skip: [elucius_gene_ensembl, ...]
 ```
 
-The currently skipped datasets are listed there. Each entry is a BioMart dataset ID (the
-value in `apybiomart.find_datasets()["Dataset_ID"]`). Add a comment in the config or a note
-in this file if you know *why* a dataset is broken, so future maintainers can decide whether
-to retry it in a later Ensembl release.
+Each entry is a BioMart dataset ID (the value in
+`apybiomart.find_datasets()["Dataset_ID"]`). Add a comment in the config or a note in this file if
+you know *why* a dataset is broken, so future maintainers can decide whether to retry it in a
+later Ensembl release.
+
+Every entry is currently commented out, so nothing is skipped. `hgfemale_gene_ensembl` used to be
+on this list and no longer needs to be: the attribute batching described under [What the attribute
+limit actually is](#what-the-attribute-limit-actually-is) is what fixed it. Do not re-add it
+without first checking that the batching still works.
 
 ## Download structure
 
@@ -66,13 +71,14 @@ in `ensembl_datasets_to_skip`, then for each remaining dataset:
 1. Discovers which of the desired attributes are available for that species via
    `apybiomart.find_attributes()`.
 2. Downloads those attributes. If more than `BIOMART_MAX_ATTRIBUTE_COUNT` (6) attributes
-   are available, they are fetched in batches of 6 (BioMart rejects larger requests;
-   see [bioconductor post](https://support.bioconductor.org/p/39744/#39751)). Each batch
-   always includes `ensembl_gene_id` so batches can be joined on `Gene stable ID`.
+   are available, they are fetched in batches of 6 (see
+   [What the attribute limit actually is](#what-the-attribute-limit-actually-is) below). Each
+   batch always includes `ensembl_gene_id` so batches can be joined on `Gene stable ID`.
 3. Writes the merged DataFrame as a tab-separated file at
    `babel_downloads/ENSEMBL/<dataset_id>/BioMart.tsv`.
 
-The desired attributes (columns) are:
+The desired attributes (columns) are `BIOMART_ATTRIBUTES` in `src/datahandlers/ensembl.py`,
+mirrored here:
 
 | Attribute | Use |
 |-----------|-----|
@@ -99,6 +105,33 @@ intersection of desired and available attributes.
 When all datasets have been processed, `pull_ensembl()` writes a JSON summary to
 `babel_downloads/ENSEMBL/BioMartDownloadComplete`. This sentinel file is the only declared
 Snakemake output; downstream rules depend on it rather than the directory.
+
+### What the attribute limit actually is
+
+`BIOMART_MAX_ATTRIBUTE_COUNT` is **not** a cap on how many attributes BioMart will serve in one
+query, and reading it as one will send you down the wrong path. The limit BioMart enforces is per
+*attribute page*: it refuses a query selecting more than about three **External References**
+attributes with `Query ERROR: caught BioMart::Exception::Usage: Too many attributes selected for
+External References` (see the [bioconductor
+post](https://support.bioconductor.org/p/39744/#39751) and
+[Babel#193](https://github.com/NCATSTranslator/Babel/issues/193)). Of the attributes above, the
+External References ones are `entrezgene_id`, `zfin_id_id`, `mgi_id`, `rgd_id`,
+`flybase_gene_id`, `sgd_gene` and `wormbase_gene`.
+
+The flat count of 6 is a conservative stand-in that keeps every batch under the real limit without
+modelling which page each attribute belongs to. The consequence is that the two numbers do not
+track each other:
+
+- [`choffmanni_gene_ensembl`](https://www.ensembl.org/Choloepus_hoffmanni/Info/Index) exposes 8 of
+  the attributes above and **none** of them are External References, so all 8 download in a single
+  query even though 8 > 6.
+- [`hgfemale_gene_ensembl`](https://www.ensembl.org/Heterocephalus_glaber_female/Info/Index)
+  exposes 13, **five** of them External References, so it fails outright in one query — this is
+  the dataset [Babel#193](https://github.com/NCATSTranslator/Babel/issues/193) was filed about and
+  the reason the batching exists.
+
+`tests/datahandlers/test_ensembl.py::test_pull_ensembl` downloads both: the first unbatched and
+batched, to confirm the two agree row for row, and the second batched, as the #193 regression.
 
 ## Resumability
 
