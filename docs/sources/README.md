@@ -12,6 +12,12 @@ differently from its prefix can use that name instead: `PubMed` (prefix `PMID`) 
 `MESH`). A source directory may contain multiple files when there is enough to say (ingestion,
 synonyms, known issues, etc.).
 
+`MeSH/` was `MESH/` until October 2026. On a case-insensitive filesystem (macOS by default),
+pulling or switching branches does not rename a folder that already exists, so a checkout can keep
+`MESH/` on disk while Git records `MeSH/`; `rumdl` then reports every link into it as missing
+(`MD057`). Rename the folder on disk via a temporary name (`mv MESH tmp && mv tmp MeSH`), which
+changes nothing in Git.
+
 When you learn something non-obvious about how a source is ingested, add it here rather than
 letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not duplicate the detail.
 
