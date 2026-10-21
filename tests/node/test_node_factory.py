@@ -1,5 +1,6 @@
 import pytest
 
+import src.node as node_module
 import src.prefixes as pref
 from src import categories
 from src.LabeledID import LabeledID
@@ -313,3 +314,48 @@ def test_load_extra_labels_tab_in_label(tmp_path):
     fac.common_labels = {}
     fac.load_extra_labels("CHEMBL.COMPOUND")
     assert fac.extra_labels["CHEMBL.COMPOUND"]["CHEMBL.COMPOUND:CHEMBL3"] == "Water\tbottle"
+
+
+@pytest.mark.unit
+def test_load_extra_labels_applies_label_override(tmp_path):
+    """CURIE-specific label overrides are applied when source label files are loaded."""
+    label_dir = tmp_path / "DRUGBANK"
+    label_dir.mkdir()
+    (label_dir / "labels").write_text("DRUGBANK:DB10626\tTrout\n")
+    fac = NodeFactory(str(tmp_path), BIOLINK_VERSION)
+    fac.common_labels = {}
+    fac.load_extra_labels("DRUGBANK")
+    assert fac.extra_labels["DRUGBANK"]["DRUGBANK:DB10626"] == "Trout allergenic extract"
+
+
+@pytest.mark.unit
+def test_common_labels_apply_label_override(tmp_path, monkeypatch):
+    """Common labels use CURIE-specific label overrides before fallback labeling."""
+    common_dir = tmp_path / "common"
+    common_dir.mkdir()
+    (common_dir / "labels").write_text("DRUGBANK:DB10626\tTrout\n")
+    config = dict(get_config())
+    config["download_directory"] = str(tmp_path)
+    config["common"] = {"labels": ["labels"], "synonyms": [], "descriptions": []}
+
+    monkeypatch.setattr(node_module, "get_config", lambda: config)
+    fac = NodeFactory(str(tmp_path / "labels"), BIOLINK_VERSION)
+
+    labels = fac.apply_labels(["DRUGBANK:DB10626"], {})
+
+    assert labels == [LabeledID("DRUGBANK:DB10626", "Trout allergenic extract")]
+
+
+@pytest.mark.unit
+def test_label_override_feeds_preferred_name_selection(tmp_path):
+    """DRUGBANK:DB10626 is corrected before preferred-name selection sees the node."""
+    label_dir = tmp_path / "DRUGBANK"
+    label_dir.mkdir()
+    (label_dir / "labels").write_text("DRUGBANK:DB10626\tTrout\n")
+    fac = NodeFactory(str(tmp_path), BIOLINK_VERSION)
+    fac.common_labels = {}
+
+    node = fac.create_node(["DRUGBANK:DB10626", "UMLS:C2725895"], categories.CHEMICAL_ENTITY)
+
+    assert node["identifiers"][0]["identifier"] == "DRUGBANK:DB10626"
+    assert node["identifiers"][0]["label"] == "Trout allergenic extract"

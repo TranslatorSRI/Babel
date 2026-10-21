@@ -1,0 +1,22 @@
+# Manual CURIE-specific label corrections.
+#
+# Use this file when an upstream source emits a primary label that is too broad,
+# misleading, or otherwise unsuitable for Babel output, and the correction should
+# apply only to that exact CURIE.
+#
+# Required fields:
+#   replacement_label: the label Babel should use for this CURIE.
+#   reason: why the manual correction exists.
+#
+# Optional fields:
+#   expected_source_label: the exact upstream label expected before replacement.
+#                          If the source label changes, Babel raises an error so
+#                          the override can be re-reviewed. If the source label
+#                          already equals replacement_label, Babel keeps it and
+#                          logs that the override is redundant.
+
+label_overrides:
+  "DRUGBANK:DB10626":
+    replacement_label: "Trout allergenic extract"
+    expected_source_label: "Trout"
+    reason: "DrugBank's generic name is too broad for this allergenic extract; RxNorm/UMLS use the specific extract label."
