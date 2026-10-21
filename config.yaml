@@ -14,13 +14,9 @@ build:
 # Versions that need to be updated on every release.
 biolink_version: "4.4.3"
 umls_version: "2026AA"
-# MeSH release year, downloaded from ftp://ftp.nlm.nih.gov/online/mesh/rdf/{mesh_year}/mesh{mesh_year}.nt.gz.
+# MeSH release year, downloaded from https://nlmpubs.nlm.nih.gov/projects/mesh/rdf/{mesh_year}/mesh{mesh_year}.nt.gz.
 # To check for a newer release, open https://nlmpubs.nlm.nih.gov/projects/mesh/rdf/ in a browser: each MeSH year
 # gets its own directory there (ignore the top-level mesh.nt.gz, which stopped being updated after MeSH 2024).
-# That HTTPS site is the one NLM's download page links to, and it serves the same files under the same paths as
-# ftp://ftp.nlm.nih.gov/online/mesh/. We intend to download from it instead of FTP, which has been less reliable:
-# https://github.com/NCATSTranslator/Babel/pull/1161 makes that switch. If the FTP downloads fail before it lands,
-# that PR is the fix to reach for.
 # Keep this in step with umls_version: UMLS 20XXAA carries MeSH 20XX codes, and a MeSH dump older than UMLS
 # leaves UMLS MSH codes (especially new SCRs) with no MeSH record. reports/umls_mesh_skew.json measures this.
 mesh_year: "2026"
