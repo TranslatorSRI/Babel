@@ -56,6 +56,16 @@ per-rule `*.log`, and produces two outputs on two streams:
 
 A few behaviors exist because of the specific failure shapes this pipeline produces:
 
+- **A failed job is timed from when it died, not from when the run gave up.** Snakemake logs
+  `Error in rule X, jobid: N` twice: once as the job fails, and again in the summary it prints when
+  the workflow finally aborts — which on a long build is many hours later. The parser keeps the
+  **first**, because the second is a property of the run, not of the job. Across the 2026jul22 and
+  babel-1.17 builds this affected 63 of 103 failed attempts, overstating them by a median of ~3.9
+  hours: `get_ensembl` read as `85,777s` where the job actually died after `20s`. Those figures come
+  from [`failed-job-durations/`](failed-job-durations/check_failed_durations.py), which runs both
+  parses over the archived logs and diffs them — rerun that rather than re-deriving by hand. A
+  duration here spans submit → finish, so unlike the durations
+  [`babel-slurm-resources`](Resources.md) reports, it *does* include time spent queueing.
 - **The whole rule log is shown, not a tail or a Python traceback.** Snakemake's `RuleException` and
   `OutOfMemoryException` blocks are neither Python `Traceback`s nor reliably near the end of the
   log, so a tail/traceback heuristic would routinely hide the real error. A pathologically long log

@@ -1,0 +1,7 @@
+30 sbatch .err logs across data/2026jul22, data/babel-1.17
+
+failed attempts carrying a duration: 103
+  overstated by the pre-fix parse:   63
+  median overstatement:              3.9h
+  smallest / largest:                50s / 85,757s
+  worst attempt:                     get_HMDB in sbatch-1.17-try-2.err: 85,792s -> 35s

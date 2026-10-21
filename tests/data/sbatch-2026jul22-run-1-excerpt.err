@@ -1,0 +1,39 @@
+Job 97 has been submitted with SLURM jobid 52503 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_disease_ncit_ids/52503.log).
+INFO snakemake.logging [2026-07-13T04:56:58+0000]: Job 97 has been submitted with SLURM jobid 52503 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_disease_ncit_ids/52503.log).
+Job 189 has been submitted with SLURM jobid 52504 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_process_ec_ids/52504.log).
+INFO snakemake.logging [2026-07-13T04:56:58+0000]: Job 189 has been submitted with SLURM jobid 52504 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_process_ec_ids/52504.log).
+Job 11 has been submitted with SLURM jobid 52505 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_get_wikidata_cell_relationships/52505.log).
+INFO snakemake.logging [2026-07-13T04:56:58+0000]: Job 11 has been submitted with SLURM jobid 52505 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_get_wikidata_cell_relationships/52505.log).
+Job 101 has been submitted with SLURM jobid 52506 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_disease_manual_concord/52506.log).
+INFO snakemake.logging [2026-07-13T04:56:58+0000]: Job 101 has been submitted with SLURM jobid 52506 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_disease_manual_concord/52506.log).
+... 212 lines elided ...
+Select jobs to execute...
+INFO snakemake.logging [2026-07-13T04:57:37+0000]: Select jobs to execute...
+Job 211 has been submitted with SLURM jobid 52544 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_get_CLO_labels/52544.log).
+INFO snakemake.logging [2026-07-13T04:57:37+0000]: Job 211 has been submitted with SLURM jobid 52544 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_get_CLO_labels/52544.log).
+Job 229 has been submitted with SLURM jobid 52545 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_pubchem_rxnorm_relationships/52545.log).
+INFO snakemake.logging [2026-07-13T04:57:37+0000]: Job 229 has been submitted with SLURM jobid 52545 (log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_pubchem_rxnorm_relationships/52545.log).
+[Mon Jul 13 00:57:37 2026]
+Error in rule process_ec_ids:
+    message: SLURM-job '52504' failed, SLURM status is: 'FAILED'. Reason: Unknown.For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 189
+    output: babel_outputs/intermediate/process/ids/EC
+    log: /projects/babel/runs/gaurav/babel-1.18/babel_outputs/logs/rule_process_ec_ids/52504.log (check log file(s) for error details)
+    external_jobid: 52504
+ERROR snakemake.logging [2026-07-13T04:57:37+0000]: Error in rule process_ec_ids, jobid: 189
+[Mon Jul 13 00:57:37 2026]
+Finished jobid: 11 (Rule: get_wikidata_cell_relationships)
+INFO snakemake.logging [2026-07-13T04:57:37+0000]: Finished jobid: 11 (Rule: get_wikidata_cell_relationships)
+24 of 368 steps (7%) done
+... 2,287 lines elided ...
+ERROR snakemake.logging [2026-07-14T04:21:18+0000]: Error in rule export_synonyms_to_duckdb, jobid: 302
+[Tue Jul 14 00:21:18 2026]
+Error in rule process_ec_ids:
+    message: None
+    jobid: 189
+    output: babel_outputs/intermediate/process/ids/EC
+ERROR snakemake.logging [2026-07-14T04:21:18+0000]: Error in rule process_ec_ids, jobid: 189
+Complete log(s): /projects/babel/runs/gaurav/babel-1.18/.snakemake/log/2026-07-13T005655.482924.snakemake.log
+INFO snakemake.logging [2026-07-14T04:21:19+0000]: Complete log(s): /projects/babel/runs/gaurav/babel-1.18/.snakemake/log/2026-07-13T005655.482924.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

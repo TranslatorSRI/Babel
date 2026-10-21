@@ -472,13 +472,19 @@ def parse_job_events(err_file: Path) -> list[JobEvent]:
             )
         elif m := _FINISH_RE.search(line):
             snakemake_id = int(m.group(2))
-            if snakemake_id in current:
+            if snakemake_id in current and current[snakemake_id].finished_at is None:
                 current[snakemake_id].finished_at = _parse_ts(m.group(1))
         elif m := _ERROR_RE.search(line):
             snakemake_id = int(m.group(3))
             if snakemake_id in current:
                 current[snakemake_id].failed = True
-                current[snakemake_id].finished_at = _parse_ts(m.group(1))
+                # First one wins. Snakemake reports a failure twice: once when the job dies, and
+                # again in the summary it prints when the workflow gives up, which can be many
+                # hours later -- `process_ec_ids` died 39s into the 2026jul22 build and was
+                # re-reported 23.4h later, at the end of the run. Overwriting turned that into a
+                # 23.4h "failed after", i.e. the length of the run rather than of the job.
+                if current[snakemake_id].finished_at is None:
+                    current[snakemake_id].finished_at = _parse_ts(m.group(1))
     all_jobs.extend(current.values())
     return all_jobs
 

@@ -73,7 +73,7 @@ A run records a job's duration three times, over three different spans:
 |--------|--------|-------|
 | benchmark `s` | Snakemake, from inside the job | the rule's execution |
 | `Elapsed_sec` | sacct, via the efficiency report | job start → end |
-| `babel-slurm-errors`' duration | the aggregate sbatch `.err` log | submit → finish (but see below) |
+| `babel-slurm-errors`' duration | the aggregate sbatch `.err` log | submit → finish |
 
 They are not interchangeable. [`babel-slurm-errors`](Errors.md) subtracts the Snakemake *submit*
 timestamp, so its figure includes time the job spent **pending in the queue**; sacct's `Elapsed`
@@ -82,14 +82,10 @@ submit→finish exceeded `Elapsed_sec` by a median of 35s and a maximum of 306s 
 57 rules) — small only because that cluster was mostly free. Do not read a long duration in the
 errors report as a slow rule without checking whether the job was waiting.
 
-**For a *failed* attempt, submit → finish is what that row should say and not yet what the tool
-prints.** `parse_job_events()` moves an attempt's finish timestamp on every `Error in rule` line it
-matches, and Snakemake emits that line twice: once when the job dies, and again in the end-of-run
-summary. So a failed job is timed to when the *run* gave up, not when it died. In the babel-1.18
-run, `process_ec_ids` was submitted at 04:56:58 and failed 39s later at 04:57:37; the summary
-repeated the line 23 hours on, and the tool reports "failed after 23h24m". Until
-[#1020](https://github.com/NCATSTranslator/Babel/issues/1020) lands, treat a failed attempt's
-duration as an upper bound on the whole run, not a measurement of the job.
+That holds for a *failed* attempt too — it is timed from the moment it died, not from when the run
+gave up hours later. Getting that right needed a fix, because Snakemake reports each failure twice;
+see "A failed job is timed from when it died" under
+[`Errors.md`'s design notes](Errors.md#design-notes).
 
 `--time` polices `Elapsed`, which was ≥ the benchmark's `s` for **57 of 57** rules on that run, by
 a median of 5s: the gap is job startup and teardown around the benchmarked body. So sizing from
