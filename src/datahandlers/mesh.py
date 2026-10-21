@@ -1,15 +1,15 @@
-import ftplib
 import gzip
 import hashlib
 import os
+import urllib.error
+import urllib.request
 import warnings
 from collections import defaultdict
-from io import BytesIO
 from xml.etree import ElementTree
 
 import pyoxigraph
 
-from src.babel_utils import make_local_name, pull_via_ftp
+from src.babel_utils import get_user_agent, make_local_name, pull_via_urllib
 from src.categories import ANATOMICAL_ENTITY, CELL, CELLULAR_COMPONENT
 from src.prefixes import MESH
 from src.util import ensure_parent_dir, get_logger
@@ -33,24 +33,31 @@ def get_mesh_id_from_iri(iri) -> str:
     return s[len(MESH_IRI_PREFIX) :]
 
 
-MESH_FTP_SITE = "ftp.nlm.nih.gov"
-MESH_RDF_DIR = "/online/mesh/rdf"
+# NLM's HTTPS download site for MeSH, the one https://www.nlm.nih.gov/databases/download/mesh.html links to.
+# It serves the same files as ftp://ftp.nlm.nih.gov/online/mesh/ (same layout, same SHA-1s), which we used
+# until 2026; HTTPS is the route NLM documents, and HTTP downloads have been more reliable for Babel than FTP.
+#
+# NLM sends its .gz files with "Content-Encoding: x-gzip", so a client that honours Content-Encoding (requests'
+# iter_content(), wget --compression=auto) saves them decompressed and the SHA-1 check below fails. urllib
+# leaves the body alone, which is why these downloads use it (pull_via_urllib(), or _open_mesh_url() in
+# fetch_mesh_nt()).
+MESH_BASE_URL = "https://nlmpubs.nlm.nih.gov/projects/mesh/"
 
 
 def mesh_rdf_location(mesh_year) -> tuple[str, str]:
-    """Return the (FTP directory, filename) of the MeSH RDF N-Triples dump for ``mesh_year``.
+    """Return the (directory URL, filename) of the MeSH RDF N-Triples dump for ``mesh_year``.
 
-    NLM publishes each MeSH release in its own year directory (e.g. /online/mesh/rdf/2026/mesh2026.nt.gz).
-    The top-level /online/mesh/rdf/mesh.nt.gz stopped being updated after MeSH 2024, so we never use it.
-    The per-year directory also has a mesh{year}-dups.nt, which is the same data before deduplication;
-    mesh{year}.nt is the "combined, sorted, unique" file and is all we need.
+    NLM publishes each MeSH release in its own year directory (e.g. rdf/2026/mesh2026.nt.gz). The top-level
+    rdf/mesh.nt.gz stopped being updated after MeSH 2024, so we never use it. The per-year directory also has
+    a mesh{year}-dups.nt, which is the same data before deduplication; mesh{year}.nt is the "combined, sorted,
+    unique" file and is all we need.
     """
-    return f"{MESH_RDF_DIR}/{mesh_year}", f"mesh{mesh_year}.nt.gz"
+    return f"{MESH_BASE_URL}rdf/{mesh_year}/", f"mesh{mesh_year}.nt.gz"
 
 
 # The current MeSH year's XML lives in MESH_XML_CURRENT_DIR (updated daily); once a year is superseded, its
-# final XML is archived under /online/mesh/{year}/xmlmesh. Filenames carry the year in both places.
-MESH_XML_CURRENT_DIR = "/online/mesh/MESH_FILES/xmlmesh"
+# final XML is archived under {year}/xmlmesh/. Filenames carry the year in both places.
+MESH_XML_CURRENT_DIR = f"{MESH_BASE_URL}MESH_FILES/xmlmesh/"
 
 # (file prefix, XML record element, record UI element). Each is published as {prefix}{year}.gz and saved
 # as babel_downloads/MESH/{prefix}.xml.gz.
@@ -60,21 +67,31 @@ MESH_XML_FILES = [
 ]
 
 
-def fetch_mesh_xml_dir(mesh_year) -> str:
-    """Return the FTP directory holding desc{year}.gz and supp{year}.gz for ``mesh_year``.
+def _open_mesh_url(url, method="GET"):
+    """Open ``url`` with Babel's User-Agent. Raises urllib.error.HTTPError (e.g. a 404) like urlopen()."""
+    return urllib.request.urlopen(urllib.request.Request(url, method=method, headers={"User-Agent": get_user_agent()}))
 
-    Lists MESH_XML_CURRENT_DIR on the NLM FTP site to see whether ``mesh_year`` is still the current year.
+
+def _mesh_url_exists(url) -> bool:
+    """Return whether NLM serves ``url``, raising on any HTTP error other than a 404.
+
+    NLM does not answer a missing file with a 404: it redirects it (302) to an HTML error page that returns
+    200, which urllib follows. So a file exists only if it is served from ``url`` itself, without a redirect.
     """
-    ftp = ftplib.FTP(MESH_FTP_SITE)
     try:
-        ftp.login()
-        current_files = ftp.nlst(MESH_XML_CURRENT_DIR)
-        ftp.quit()
-    finally:
-        ftp.close()
-    if any(os.path.basename(f) == f"desc{mesh_year}.gz" for f in current_files):
+        with _open_mesh_url(url, method="HEAD") as response:
+            return response.geturl() == url
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return False
+        raise
+
+
+def fetch_mesh_xml_dir(mesh_year) -> str:
+    """Return the directory URL holding desc{year}.gz and supp{year}.gz for ``mesh_year``."""
+    if _mesh_url_exists(f"{MESH_XML_CURRENT_DIR}desc{mesh_year}.gz"):
         return MESH_XML_CURRENT_DIR
-    return f"/online/mesh/{mesh_year}/xmlmesh"
+    return f"{MESH_BASE_URL}{mesh_year}/xmlmesh/"
 
 
 def normalize_mesh_nt(gz_path, out_path, mesh_year):
@@ -106,43 +123,34 @@ def fetch_mesh_nt(mesh_year, out_path):
     """Download the MeSH RDF dump for ``mesh_year``, check it against NLM's SHA-1 and normalize it into out_path.
 
     The SHA-1 is computed while the dump downloads, so the ~120 MB file is read only once more, to decompress
-    it (see normalize_mesh_nt()). Fails if NLM has no dump for that year; there is deliberately no fallback to
+    it (see normalize_mesh_nt()). A missing dump and a missing .sha1 beside it are reported differently: only
+    the first means mesh_year names a year NLM has not published. Fails if NLM has no dump for that year; there is deliberately no fallback to
     the stale top-level file. The compressed download is kept beside out_path only until it is normalized.
     """
-    ftpdir, ftpfile = mesh_rdf_location(mesh_year)
-    url = f"ftp://{MESH_FTP_SITE}{ftpdir}/{ftpfile}"
+    rdf_dir, rdf_file = mesh_rdf_location(mesh_year)
+    url = f"{rdf_dir}{rdf_file}"
+    if not _mesh_url_exists(url):
+        raise RuntimeError(
+            f"Could not download MeSH {mesh_year}: {url} does not exist. "
+            "Check that mesh_year in config.yaml names a year NLM has published."
+        )
+    if not _mesh_url_exists(f"{url}.sha1"):
+        # The dump itself is there, so the year is published: NLM has moved or renamed its checksum file.
+        raise RuntimeError(f"{url} exists, but its checksum file {url}.sha1 does not.")
+    with _open_mesh_url(f"{url}.sha1") as response:
+        # NLM's .sha1 files read "<hash>  <filename>".
+        expected_sha1 = response.read().decode("utf-8").split()[0]
+
+    # Streamed here rather than through pull_via_urllib(), so the SHA-1 is computed as the bytes arrive instead
+    # of by reading the file again (pull_via_urllib's verify_gzip would add a third read). A truncated or
+    # corrupt download fails the SHA-1 check, and get_mesh's retries cover a transient failure.
     gz_path = f"{out_path}.gz"
     ensure_parent_dir(gz_path)
     sha1 = hashlib.sha1()
-    sha1_file = BytesIO()
-    ftp = ftplib.FTP(MESH_FTP_SITE)
-    try:
-        ftp.login()
-        try:
-            ftp.cwd(ftpdir)
-            with open(gz_path, "wb") as outf:
-
-                def write_chunk(chunk):
-                    sha1.update(chunk)
-                    outf.write(chunk)
-
-                ftp.retrbinary(f"RETR {ftpfile}", write_chunk)
-        except ftplib.error_perm as e:
-            raise RuntimeError(
-                f"Could not download MeSH {mesh_year} from {url} ({e}). "
-                "Check that mesh_year in config.yaml names a year NLM has published."
-            ) from e
-        try:
-            ftp.retrbinary(f"RETR {ftpfile}.sha1", sha1_file.write)
-        except ftplib.error_perm as e:
-            # The dump itself downloaded, so the year is published: NLM has moved or renamed its checksum file.
-            raise RuntimeError(f"Downloaded {url}, but could not download its checksum file {url}.sha1 ({e}).") from e
-        ftp.quit()
-    finally:
-        ftp.close()
-
-    # NLM's .sha1 files read "<hash>  <filename>".
-    expected_sha1 = sha1_file.getvalue().decode().split()[0]
+    with _open_mesh_url(url) as response, open(gz_path, "wb") as outf:
+        for chunk in iter(lambda: response.read(1 << 20), b""):
+            sha1.update(chunk)
+            outf.write(chunk)
     if sha1.hexdigest() != expected_sha1:
         os.remove(gz_path)
         raise RuntimeError(f"{url} downloaded with SHA-1 {sha1.hexdigest()}, but NLM publishes {expected_sha1}.")
@@ -166,15 +174,15 @@ def pull_mesh_xml(mesh_year, xml_sources_file):
     xml_dir = fetch_mesh_xml_dir(mesh_year)
     urls = []
     for prefix, _, _ in MESH_XML_FILES:
-        ftpfile = f"{prefix}{mesh_year}.gz"
-        url = f"ftp://{MESH_FTP_SITE}{xml_dir}/{ftpfile}"
-        try:
-            pull_via_ftp(MESH_FTP_SITE, xml_dir, ftpfile, outfilename=f"MESH/{prefix}.xml.gz")
-        except ftplib.error_perm as e:
+        xml_file = f"{prefix}{mesh_year}.gz"
+        url = f"{xml_dir}{xml_file}"
+        if not _mesh_url_exists(url):
             raise RuntimeError(
-                f"Could not download MeSH {mesh_year} XML from {url} ({e}). "
+                f"Could not download MeSH {mesh_year} XML: {url} does not exist. "
                 "Check that mesh_year in config.yaml names a year NLM has published."
-            ) from e
+            )
+        downloaded = pull_via_urllib(xml_dir, xml_file, decompress=False, subpath="MESH", verify_gzip=True)
+        os.replace(downloaded, make_local_name(f"{prefix}.xml.gz", subpath="MESH"))
         urls.append(url)
     with open(xml_sources_file, "w", encoding="utf-8") as outf:
         outf.writelines(f"{url}\n" for url in urls)
@@ -448,7 +456,7 @@ def mesh_registry_sources(mesh_year, xml_sources_file) -> list[dict]:
         {
             "type": "MeSH",
             "name": f"MeSH {mesh_year} RDF (records kept)",
-            "url": f"ftp://{MESH_FTP_SITE}{rdf_dir}/{rdf_file}",
+            "url": f"{rdf_dir}{rdf_file}",
         }
     ]
 

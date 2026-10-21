@@ -29,26 +29,27 @@ that has to run on a skewed MeSH, and record why under `build.workarounds`. The 
 archived with each release, and `releases/scripts/draft_release_notes.py` prints its count beside
 the version bumps.
 
-Two downloads come from `ftp.nlm.nih.gov`, both for the configured year. The same files are served
-under the same paths over HTTPS from <https://nlmpubs.nlm.nih.gov/projects/mesh/>, the site NLM's
-[MeSH download page](https://www.nlm.nih.gov/databases/download/mesh.html) links to; open
-<https://nlmpubs.nlm.nih.gov/projects/mesh/rdf/> in a browser to see whether a newer year is out. We
-intend to download from it instead of FTP, which has been the less reliable of the two:
-[#1161](https://github.com/NCATSTranslator/Babel/pull/1161) makes that switch, so if the FTP
-downloads fail before it lands, that PR is the fix to reach for.
+Two downloads come from <https://nlmpubs.nlm.nih.gov/projects/mesh/>, the HTTPS site NLM's
+[MeSH download page](https://www.nlm.nih.gov/databases/download/mesh.html) links to, both for the
+configured year. To see whether NLM has published a newer year, open
+<https://nlmpubs.nlm.nih.gov/projects/mesh/rdf/> in a browser. Babel used
+`ftp://ftp.nlm.nih.gov/online/mesh/` until 2026; it serves the same files under the same paths (the
+SHA-1s match), but HTTPS is the route NLM documents and has been the more reliable of the two.
 
-- **RDF**: `/online/mesh/rdf/{mesh_year}/mesh{mesh_year}.nt.gz`, checked against NLM's `.sha1` and
+- **RDF**: `rdf/{mesh_year}/mesh{mesh_year}.nt.gz`, checked against NLM's `.sha1` and
   decompressed to `babel_downloads/MESH/mesh.nt` (a few GB) by `fetch_mesh_nt()`, which hashes the
   file as it downloads. `umls-mesh-skew/scripts/measure_skew.py` downloads through it too. The
   per-year directory also has `mesh{mesh_year}-dups.nt`, which is the same data before
-  deduplication, so we don't download it. Do not use the top-level `/online/mesh/rdf/mesh.nt.gz`:
-  NLM stopped updating it after MeSH 2024.
+  deduplication, so we don't download it. Do not use the top-level `rdf/mesh.nt.gz`: NLM stopped
+  updating it after MeSH 2024. NLM sends the `.gz` with `Content-Encoding: x-gzip`, so a client
+  that honours that header saves it decompressed and the SHA-1 check fails; urllib leaves the body
+  alone.
 - **XML**: `desc{mesh_year}.gz` and `supp{mesh_year}.gz`, saved as
   `babel_downloads/MESH/desc.xml.gz` and `supp.xml.gz`. These are used only for registry numbers
-  (see below). The current year is in `/online/mesh/MESH_FILES/xmlmesh/`; once a year is superseded
-  its final files are archived in `/online/mesh/{mesh_year}/xmlmesh/`. `fetch_mesh_xml_dir()` picks
-  whichever has the year's files, and `babel_downloads/MESH/xml_sources.txt` records which one was
-  used, for the registry concords' metadata.
+  (see below). The current year is in `MESH_FILES/xmlmesh/`; once a year is superseded its final
+  files are archived in `{mesh_year}/xmlmesh/`. `fetch_mesh_xml_dir()` picks whichever has the
+  year's files, and `babel_downloads/MESH/xml_sources.txt` records which one was used, for the
+  registry concords' metadata.
 
 If NLM has not published the configured year, both downloads fail. Neither falls back to another
 year. `tests/datahandlers/test_mesh.py::test_configured_mesh_year_is_published` (a `network`

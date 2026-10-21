@@ -6,11 +6,10 @@ Tests cover:
   - Mesh.get_scr_terms_mapped_to_trees() (inline pyoxigraph store)
   - normalize_mesh_nt() on per-year MeSH RDF (fixture copied from mesh2026.nt)
   - read_mesh_xml_registry() and pull_mesh_registry() on MeSH XML (fixtures copied from desc2026.gz / supp2026.gz)
-  - fetch_mesh_nt()'s checksum handling (mocked FTP)
-  - that the configured mesh_year is published on the NLM FTP site (network)
+  - fetch_mesh_nt()'s checksum handling (mocked HTTPS)
+  - that the configured mesh_year is published on NLM's download site (network)
 """
 
-import ftplib
 import gzip
 import hashlib
 import shutil
@@ -21,9 +20,9 @@ import pytest
 
 from src.categories import CHEMICAL_ENTITY, PROTEIN
 from src.datahandlers.mesh import (
-    MESH_FTP_SITE,
     MESH_XML_FILES,
     Mesh,
+    _mesh_url_exists,
     fetch_mesh_nt,
     fetch_mesh_xml_dir,
     mesh_rdf_location,
@@ -402,13 +401,13 @@ def test_mesh_registry_sources_names_xml_and_rdf(tmp_path):
     filtered to."""
     xml_sources = tmp_path / "xml_sources.txt"
     xml_sources.write_text(
-        "ftp://ftp.nlm.nih.gov/online/mesh/MESH_FILES/xmlmesh/desc2026.gz\n"
-        "ftp://ftp.nlm.nih.gov/online/mesh/MESH_FILES/xmlmesh/supp2026.gz\n"
+        "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2026.gz\n"
+        "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/supp2026.gz\n"
     )
     assert [source["url"] for source in mesh_registry_sources("2026", xml_sources)] == [
-        "ftp://ftp.nlm.nih.gov/online/mesh/MESH_FILES/xmlmesh/desc2026.gz",
-        "ftp://ftp.nlm.nih.gov/online/mesh/MESH_FILES/xmlmesh/supp2026.gz",
-        "ftp://ftp.nlm.nih.gov/online/mesh/rdf/2026/mesh2026.nt.gz",
+        "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2026.gz",
+        "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/supp2026.gz",
+        "https://nlmpubs.nlm.nih.gov/projects/mesh/rdf/2026/mesh2026.nt.gz",
     ]
 
 
@@ -417,52 +416,64 @@ def test_mesh_registry_sources_names_xml_and_rdf(tmp_path):
 # ---------------------------------------------------------------------------
 
 
-class _FakeMeshFTP:
-    """Stands in for ftplib.FTP, serving ``files`` (name -> bytes) from /online/mesh/rdf/2026."""
+RDF_2026_DIR = "https://nlmpubs.nlm.nih.gov/projects/mesh/rdf/2026/"
+
+
+class _FakeMeshResponse:
+    """A urllib response for _FakeMeshSite: a context manager with read() and geturl()."""
+
+    def __init__(self, url, data):
+        self.url = url
+        self.data = data
+        self.pos = 0
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def geturl(self):
+        return self.url
+
+    def read(self, size=-1):
+        if size < 0:
+            size = len(self.data) - self.pos
+        chunk = self.data[self.pos : self.pos + size]
+        self.pos += len(chunk)
+        return chunk
+
+
+class _FakeMeshSite:
+    """Stands in for _open_mesh_url(), serving ``files`` (URL -> bytes). Like NLM, it answers any other URL by
+    redirecting to an HTML error page that returns 200, so the response's URL is not the one requested."""
 
     def __init__(self, files):
         self.files = files
 
-    def __call__(self, site):
-        return self
-
-    def login(self):
-        pass
-
-    def cwd(self, ftpdir):
-        if ftpdir != "/online/mesh/rdf/2026":
-            raise ftplib.error_perm(f"550 {ftpdir}: No such file or directory")
-
-    def retrbinary(self, cmd, callback):
-        name = cmd.removeprefix("RETR ")
-        if name not in self.files:
-            raise ftplib.error_perm(f"550 {name}: No such file or directory")
-        data = self.files[name]
-        for i in range(0, len(data), 7):  # several chunks, as a real transfer would deliver
-            callback(data[i : i + 7])
-
-    def quit(self):
-        pass
-
-    def close(self):
-        pass
+    def __call__(self, url, method="GET"):
+        if url in self.files:
+            return _FakeMeshResponse(url, self.files[url] if method == "GET" else b"")
+        return _FakeMeshResponse("https://nlmpubs.nlm.nih.gov/error-page", b"<html>Not found</html>")
 
 
-def _fake_mesh_ftp(sha1=None, with_sha1_file=True):
-    """A _FakeMeshFTP serving the gzipped mesh2026_sample.nt and (unless with_sha1_file is False) a .sha1 file
+def _fake_mesh_site(sha1=None, with_sha1_file=True):
+    """A _FakeMeshSite serving the gzipped mesh2026_sample.nt and (unless with_sha1_file is False) a .sha1 file
     in NLM's "<hash>  <filename>" format, holding ``sha1`` or the dump's real SHA-1."""
     gz = gzip.compress((MESH_TEST_DATA / "mesh2026_sample.nt").read_bytes())
-    files = {"mesh2026.nt.gz": gz}
+    files = {f"{RDF_2026_DIR}mesh2026.nt.gz": gz}
     if with_sha1_file:
-        files["mesh2026.nt.gz.sha1"] = f"{sha1 or hashlib.sha1(gz).hexdigest()}  mesh2026.nt.gz\n".encode()
-    return _FakeMeshFTP(files)
+        files[f"{RDF_2026_DIR}mesh2026.nt.gz.sha1"] = (
+            f"{sha1 or hashlib.sha1(gz).hexdigest()}  mesh2026.nt.gz\n".encode()
+        )
+    return _FakeMeshSite(files)
 
 
 @pytest.mark.unit
 def test_fetch_mesh_nt_verifies_and_normalizes(tmp_path):
     """A dump matching its .sha1 should be normalized into out_path, and the compressed download removed."""
     out = tmp_path / "mesh.nt"
-    with patch("src.datahandlers.mesh.ftplib.FTP", _fake_mesh_ftp()):
+    with patch("src.datahandlers.mesh._open_mesh_url", _fake_mesh_site()):
         fetch_mesh_nt("2026", out)
     assert "<http://id.nlm.nih.gov/mesh/D002839>" in out.read_text()
     assert list(tmp_path.iterdir()) == [out]
@@ -471,7 +482,7 @@ def test_fetch_mesh_nt_verifies_and_normalizes(tmp_path):
 @pytest.mark.unit
 def test_fetch_mesh_nt_rejects_checksum_mismatch(tmp_path):
     """A dump whose SHA-1 differs from NLM's should raise, leaving neither the download nor a mesh.nt behind."""
-    with patch("src.datahandlers.mesh.ftplib.FTP", _fake_mesh_ftp(sha1="0" * 40)):
+    with patch("src.datahandlers.mesh._open_mesh_url", _fake_mesh_site(sha1="0" * 40)):
         with pytest.raises(RuntimeError, match="but NLM publishes 0000"):
             fetch_mesh_nt("2026", tmp_path / "mesh.nt")
     assert list(tmp_path.iterdir()) == []
@@ -480,7 +491,7 @@ def test_fetch_mesh_nt_rejects_checksum_mismatch(tmp_path):
 @pytest.mark.unit
 def test_fetch_mesh_nt_unpublished_year_names_mesh_year(tmp_path):
     """A year NLM has not published should raise pointing at mesh_year in config.yaml."""
-    with patch("src.datahandlers.mesh.ftplib.FTP", _fake_mesh_ftp()):
+    with patch("src.datahandlers.mesh._open_mesh_url", _fake_mesh_site()):
         with pytest.raises(RuntimeError, match="mesh_year in config.yaml"):
             fetch_mesh_nt("2027", tmp_path / "mesh.nt")
 
@@ -488,7 +499,7 @@ def test_fetch_mesh_nt_unpublished_year_names_mesh_year(tmp_path):
 @pytest.mark.unit
 def test_fetch_mesh_nt_missing_checksum_is_not_blamed_on_mesh_year(tmp_path):
     """A published dump without its .sha1 should raise about the checksum file, not about mesh_year."""
-    with patch("src.datahandlers.mesh.ftplib.FTP", _fake_mesh_ftp(with_sha1_file=False)):
+    with patch("src.datahandlers.mesh._open_mesh_url", _fake_mesh_site(with_sha1_file=False)):
         with pytest.raises(RuntimeError, match="checksum file") as excinfo:
             fetch_mesh_nt("2026", tmp_path / "mesh.nt")
     assert "mesh_year" not in str(excinfo.value)
@@ -501,17 +512,22 @@ def test_fetch_mesh_nt_missing_checksum_is_not_blamed_on_mesh_year(tmp_path):
 
 @pytest.mark.network
 def test_configured_mesh_year_is_published():
-    """config.yaml's mesh_year should name a year with both an RDF dump and XML files on the NLM FTP site,
+    """config.yaml's mesh_year should name a year with both an RDF dump and XML files on NLM's download site,
     so get_mesh and get_mesh_xml will not fail partway through a build."""
     mesh_year = get_config()["mesh_year"]
     rdf_dir, rdf_file = mesh_rdf_location(mesh_year)
+    assert _mesh_url_exists(f"{rdf_dir}{rdf_file}")
+    assert _mesh_url_exists(f"{rdf_dir}{rdf_file}.sha1")
     xml_dir = fetch_mesh_xml_dir(mesh_year)
-    ftp = ftplib.FTP(MESH_FTP_SITE)
-    ftp.login()
-    ftp.voidcmd("TYPE I")  # NLM refuses SIZE in ASCII mode.
-    try:
-        assert ftp.size(f"{rdf_dir}/{rdf_file}") > 0
-        for prefix, _, _ in MESH_XML_FILES:
-            assert ftp.size(f"{xml_dir}/{prefix}{mesh_year}.gz") > 0
-    finally:
-        ftp.quit()
+    for prefix, _, _ in MESH_XML_FILES:
+        assert _mesh_url_exists(f"{xml_dir}{prefix}{mesh_year}.gz")
+
+
+@pytest.mark.network
+def test_unpublished_mesh_year_is_reported_missing():
+    """NLM redirects a missing file to an HTML error page that returns 200, so a check on the status code alone
+    would call any year published. _mesh_url_exists() must still say no, and the archive directory must be
+    picked for a year that isn't current."""
+    rdf_dir, rdf_file = mesh_rdf_location("2099")
+    assert not _mesh_url_exists(f"{rdf_dir}{rdf_file}.sha1")
+    assert fetch_mesh_xml_dir("2099").endswith("/2099/xmlmesh/")
