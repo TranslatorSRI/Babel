@@ -89,6 +89,19 @@ def test_a_repository_with_no_baseline_version_gets_a_visible_todo():
 
 
 @pytest.mark.unit
+def test_version_bumps_flag_a_key_the_baseline_config_lacks():
+    """A version key added since the baseline (mesh_year, #1144) must not silently drop out of the note."""
+    bullets = drn.version_bump_bullets(
+        {"umls_version": "2025AB", "rxnorm_version": "01062025"},
+        {"umls_version": "2026AA", "rxnorm_version": "01062025", "mesh_year": "2026"},
+        "babel-1.18",
+    )
+    assert bullets[0] == "- Updated UMLS from 2025AB to 2026AA."
+    assert len(bullets) == 2
+    assert "MeSH 2026" in bullets[1] and "`babel-1.18` has no `mesh_year`" in bullets[1]
+
+
+@pytest.mark.unit
 def test_pull_request_markdown_is_an_unchecked_checklist_item():
     line = _pr("Add MP, kept disjoint from HP", number=886).as_markdown()
     assert line == (
