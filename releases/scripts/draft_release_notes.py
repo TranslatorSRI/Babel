@@ -56,6 +56,7 @@ VERSION_KEYS = {
     "biolink_version": "the Biolink Model",
     "umls_version": "UMLS",
     "rxnorm_version": "RxNorm",
+    "mesh_year": "MeSH",
     "drugbank_version": "DrugBank",
 }
 
@@ -239,11 +240,26 @@ def version_bumps(repo_root: Path, baseline_tag: str) -> list[str]:
 
     previous = read_config_versions(previous_text)
     current = read_config_versions((repo_root / "config.yaml").read_text())
+    return version_bump_bullets(previous, current, baseline_tag)
+
+
+def version_bump_bullets(previous: dict[str, str], current: dict[str, str], baseline_tag: str) -> list[str]:
+    """Prose bullets for the VERSION_KEYS that differ between two read_config_versions() results.
+
+    A key that only the current config has -- one added to config.yaml since the baseline, as
+    ``mesh_year`` was -- gets a visible to-do rather than nothing: the source was still updated (MeSH
+    went from the stale 2024 dump to 2026), but the baseline cannot say from what.
+    """
     bullets = []
     for key, label in VERSION_KEYS.items():
         was, now = previous.get(key), current.get(key)
         if was and now and was != now:
             bullets.append(f"- Updated {label} from {was} to {now}.")
+        elif now and not was:
+            bullets.append(
+                f"- _Now on {label} {now}, but `config.yaml` at `{baseline_tag}` has no `{key}`;"
+                f" say by hand which {label} version it was updated from._"
+            )
     return bullets
 
 
@@ -260,6 +276,24 @@ def notable_changes(build_dir: Path) -> str | None:
         return None
     match = _NOTABLE_RE.search(path.read_text())
     return match.group(1).strip() if match else None
+
+
+def umls_mesh_skew_bullet(build_dir: Path) -> str | None:
+    """A bullet saying how many UMLS MSH codes this build's MeSH dump has no record for, from its report.
+
+    The build fails when the count is over ``umls_mesh_skew_max_missing_codes``, so a build that got this far
+    is within the limit; the bullet is here so whoever writes the note sees how close it came, alongside the
+    UMLS and MeSH version bumps it depends on. None for a build older than the report.
+    """
+    path = build_dir / "reports" / "umls_mesh_skew.json"
+    if not path.exists():
+        return None
+    report = json.loads(path.read_text())
+    return (
+        f"- {report['umls_msh_codes_missing_from_mesh_excluding_categories']:,} MeSH codes in UMLS "
+        f"{report['umls_version']} have no record in MeSH {report['mesh_year']} (`reports/umls_mesh_skew.json`, "
+        f"leaving out the `U` category headings UMLS adds itself). _Delete this line unless the count is large._"
+    )
 
 
 def fetch_status(url: str) -> dict | None:
@@ -643,6 +677,9 @@ def draft(
             prs_by_repo[repo_key] = reason
 
     bumps = version_bumps(repo_root, previous["build"]) if previous else []
+    skew = umls_mesh_skew_bullet(build_dir) if build_dir else None
+    if skew:
+        bumps.append(skew)
     workarounds = build_workarounds(repo_root)
     notable = notable_changes(build_dir) if build_dir else None
     table = summary_of_changes(build_dir, previous["id"], release_id) if build_dir and previous else None

@@ -274,9 +274,11 @@ def chemicals_concords_dir(pipeline_output):
 @pytest.fixture(scope="session")
 def mesh_nt():
     """Download babel_downloads/MESH/mesh.nt, or skip if unavailable."""
+    from src.util import get_config  # deferred: same rationale as _snakemake_dir
+
     return _download_or_fail(
         "MESH mesh.nt",
-        pull_mesh,
+        lambda: pull_mesh(get_config()["mesh_year"]),
         make_local_name("mesh.nt", subpath="MESH"),
     )
 

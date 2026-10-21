@@ -3,7 +3,7 @@
 Babel types UMLS CUIs and MeSH descriptors independently: each pipeline's `write_umls_ids()`
 selects CUIs by UMLS semantic type (`umls.write_umls_ids()`, `src/datahandlers/umls.py`), and each
 pipeline's `write_mesh_ids()` selects descriptors by MeSH tree number (`mesh.write_ids()`, see
-[`MESH/Ingestion.md`](../MESH/Ingestion.md)). Each pipeline's UMLS concord (`umls.build_sets()`)
+[`MeSH/Ingestion.md`](../MeSH/Ingestion.md)). Each pipeline's UMLS concord (`umls.build_sets()`)
 then links every CUI it claims to that CUI's MeSH descriptor and DrugBank ingredient. When the two
 selections disagree about a CUI, the concord dragged another pipeline's descriptor into this
 pipeline's clique, and the same identifiers ended up in two compendia, often leading a clique in
@@ -133,6 +133,17 @@ rows of `input_data/known_duplicate_clique_leaders.tsv`, awaiting a stated prior
 pipelines ([#730], [#1123]). glom() is transitive, so the prediction is confirmed with
 `babel-clique-diff` after the first build.
 
+2026jul22's `ids/MESH` came from the top-level `mesh.nt`, which NLM stopped updating after MeSH
+2024. The next build reads the MeSH year `config.yaml` names ([#1144]), so
+[`cui-follows-mesh/2026jul22-mesh2026.md`](cui-follows-mesh/2026jul22-mesh2026.md) repeats the
+replay with every MeSH-owning pipeline's `ids/MESH` rebuilt from MeSH 2026
+(`snakemake babel_outputs/intermediate/<pipeline>/ids/MESH --forcerun=get_mesh`) and 2026jul22's
+`ids/UMLS`. MeSH 2026 adds about 1,700 records to those files and removes about 4,000 that NLM has
+deleted. Six records move between chemicals and protein. The rule moves 46 more CUIs than above,
+33 of them from protein to chemicals. The records two pipelines' `ids/MESH` share are unchanged, so
+the allowlist still covers the cross-listed leaders, and the rule still resolves all 949 of the
+others.
+
 The replay needs the build's `ids/MESH` and `ids/UMLS` files and its duplicate reports, which
 `scripts/fetch_build_inputs.py` exports from a published build's `Identifier.parquet` and
 `reports/duckdb/` in under a minute; its `Concord.parquet`, read over https (see "Querying a
@@ -166,3 +177,4 @@ build when `reports/duckdb/duplicate_clique_leaders.tsv` has a row that is not i
 [#730]: https://github.com/NCATSTranslator/Babel/issues/730
 [#849]: https://github.com/NCATSTranslator/Babel/issues/849
 [#1123]: https://github.com/NCATSTranslator/Babel/issues/1123
+[#1144]: https://github.com/NCATSTranslator/Babel/pull/1144

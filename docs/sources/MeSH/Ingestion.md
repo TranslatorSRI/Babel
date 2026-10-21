@@ -9,9 +9,96 @@ compendium's `write_mesh_ids()` function (in `src/createcompendia/`).
 
 ## Source data
 
-MeSH is downloaded as an RDF N-Triples dump to `babel_downloads/MESH/mesh.nt` (a few GB). It
-uses the MeSH RDF vocabulary (`meshv:`, `<http://id.nlm.nih.gov/mesh/vocab#>`) and these
-predicates matter most for ingestion:
+The MeSH release is pinned by `mesh_year` in `config.yaml`, next to `umls_version`. Keep the two in
+step: UMLS 20XXAA carries MeSH 20XX codes, so an older MeSH dump leaves UMLS MSH codes (mostly new
+Supplementary Concept Records) with no MeSH record. Each build writes
+`babel_outputs/reports/umls_mesh_skew.json`, which counts the MSH codes in UMLS's `MRCONSO.RRF`
+(column 14 of the `SAB=MSH` rows that `check_mrconso_line()` keeps, as the rest of the build does)
+that have no `rdfs:label` in `mesh.nt`. With UMLS 2026AA and
+MeSH 2026 the only missing codes are the 22 `U` "(MeSH Category)" headings that UMLS adds itself;
+MeSH 2025 misses 829 more and MeSH 2024 1,856 ([`umls-mesh-skew/`](umls-mesh-skew/README.md) has
+the table and the script that measures it).
+
+That count, leaving out the `U` headings, **fails the build** when it exceeds
+`umls_mesh_skew_max_missing_codes` in `config.yaml` (100). `rule check_umls_mesh_skew` does it,
+and `rule umls_mesh_ownership` waits for it, so the five MeSH-owning pipelines stop before they
+build compendia on a MeSH dump that is behind UMLS; only their cheap `ids/MESH` rules run first.
+The JSON report survives the failure, to say what is missing. The fix is almost always to move
+`mesh_year` to the MeSH year the UMLS release was built from. Raise the limit only for a build
+that has to run on a skewed MeSH, and record why under `build.workarounds`. The report is also
+archived with each release, and `releases/scripts/draft_release_notes.py` prints its count beside
+the version bumps.
+
+Two downloads come from `ftp.nlm.nih.gov`, both for the configured year. The same files are served
+under the same paths over HTTPS from <https://nlmpubs.nlm.nih.gov/projects/mesh/>, the site NLM's
+[MeSH download page](https://www.nlm.nih.gov/databases/download/mesh.html) links to; open
+<https://nlmpubs.nlm.nih.gov/projects/mesh/rdf/> in a browser to see whether a newer year is out. We
+intend to download from it instead of FTP, which has been the less reliable of the two:
+[#1161](https://github.com/NCATSTranslator/Babel/pull/1161) makes that switch, so if the FTP
+downloads fail before it lands, that PR is the fix to reach for.
+
+- **RDF**: `/online/mesh/rdf/{mesh_year}/mesh{mesh_year}.nt.gz`, checked against NLM's `.sha1` and
+  decompressed to `babel_downloads/MESH/mesh.nt` (a few GB) by `fetch_mesh_nt()`, which hashes the
+  file as it downloads. `umls-mesh-skew/scripts/measure_skew.py` downloads through it too. The
+  per-year directory also has `mesh{mesh_year}-dups.nt`, which is the same data before
+  deduplication, so we don't download it. Do not use the top-level `/online/mesh/rdf/mesh.nt.gz`:
+  NLM stopped updating it after MeSH 2024.
+- **XML**: `desc{mesh_year}.gz` and `supp{mesh_year}.gz`, saved as
+  `babel_downloads/MESH/desc.xml.gz` and `supp.xml.gz`. These are used only for registry numbers
+  (see below). The current year is in `/online/mesh/MESH_FILES/xmlmesh/`; once a year is superseded
+  its final files are archived in `/online/mesh/{mesh_year}/xmlmesh/`. `fetch_mesh_xml_dir()` picks
+  whichever has the year's files, and `babel_downloads/MESH/xml_sources.txt` records which one was
+  used, for the registry concords' metadata.
+
+If NLM has not published the configured year, both downloads fail. Neither falls back to another
+year. `tests/datahandlers/test_mesh.py::test_configured_mesh_year_is_published` (a `network`
+test) checks this ahead of a build.
+
+`get_mesh` takes `mesh_year` as a param, so changing the year reruns it, but only for a `mesh.nt`
+Snakemake recorded with that param. A `babel_downloads/MESH/mesh.nt` downloaded before `mesh_year`
+existed (the stale top-level dump) has no such record and is silently reused: replace it with
+`--forcerun=get_mesh`, which also rebuilds every pipeline's `ids/MESH`.
+
+### Per-year RDF IRIs are normalized
+
+The per-year dumps name records with the year in the IRI
+(`<http://id.nlm.nih.gov/mesh/2026/D002839>`), while the old top-level dump and everything in
+`src/datahandlers/mesh.py` use the unversioned form (`<http://id.nlm.nih.gov/mesh/D002839>`).
+`normalize_mesh_nt()` rewrites `<http://id.nlm.nih.gov/mesh/{mesh_year}/` to
+`<http://id.nlm.nih.gov/mesh/` during decompression (the `vocab#` namespace is unversioned and left
+alone). It raises if the dump has no IRIs with that prefix, which would mean the dump is for some
+other year or NLM changed its IRI scheme.
+
+### Registry numbers come from the XML
+
+Registry numbers (CAS numbers, UNIIs, EC numbers and NCBI Taxon IDs written as `txid...`) feed
+the chemical `mesh_cas` / `mesh_unii` concords and the taxon `NCBI_MESH` concord. NLM's per-year
+RDF dumps dropped `meshv:registryNumber` starting with MeSH 2025: `mesh2024.nt` has about 384,000
+of these triples, while `mesh2025.nt` and `mesh2026.nt` have none. So `pull_mesh_registry()` reads
+the `RegistryNumber`s of each record's preferred concept (`PreferredConceptYN="Y"`) from the XML,
+skipping MeSH's `0` placeholder and ignoring `RelatedRegistryNumber`. This gives the same pairs the
+old RDF query gave. Against MeSH 2024 RDF, MeSH 2026 XML shares 158,927 pairs. Of the 2,327
+pairs that only the 2024 RDF has, all but 11 are on records NLM has since deleted.
+`pull_mesh_registry()` raises if it finds no registry numbers at all.
+
+The current year's XML is updated daily, but the RDF dump is a snapshot, so the XML can carry
+records the dump does not: on 2026-10-21, 100 new SCRs (`C000731751` onward) had registry numbers
+but no record in `mesh2026.nt`. `pull_mesh_registry()` keeps registry numbers only for records with
+a label in `babel_downloads/MESH/labels`, and logs how many it skipped. Otherwise the `NCBI_MESH`
+concord, which is not filtered by `taxon/ids/MESH`, could put a MeSH ID with no label or type into a
+taxon clique. Registry numbers of records already in the dump can still change from one day's XML to
+the next, so two downloads of the same `mesh_year` are not guaranteed to give identical concords
+until the year is archived.
+
+Compared with the 2024 dump, `mesh2026.nt` also lacks `meshv:active`, `dateEstablished`,
+`dateRevised`, `lastActiveYear` and `sortVersion`, and adds `dateIntroduced` and `lastUpdated`
+(MeSH 2026 changed its record-level dates; see `readme.txt` in the year directory). Babel uses
+none of these.
+
+### RDF vocabulary
+
+`mesh.nt` uses the MeSH RDF vocabulary (`meshv:`, `<http://id.nlm.nih.gov/mesh/vocab#>`), and
+these predicates matter most for ingestion:
 
 - `meshv:treeNumber` — a descriptor's position(s) in the MeSH tree (e.g. `D02.455...`). A
   descriptor can sit in multiple trees.
@@ -119,8 +206,12 @@ removing a MeSH branch.
 
 Code:
 
-- `src/datahandlers/mesh.py` — handler: `Mesh` class, `write_ids()`,
-  `get_scr_terms_mapped_to_trees()`, `get_mesh_id_from_iri()`, `_mesh_id()`.
+- `src/datahandlers/mesh.py` — handler: `pull_mesh()` / `fetch_mesh_nt()`, `normalize_mesh_nt()`,
+  `pull_mesh_xml()` / `fetch_mesh_xml_dir()`, `pull_mesh_registry()`, `mesh_registry_sources()`,
+  `Mesh` class, `write_ids()`, `get_scr_terms_mapped_to_trees()`,
+  `get_mesh_id_from_iri()`, `_mesh_id()`.
+- `src/reports/umls_mesh_skew.py` — the UMLS/MeSH version skew report and the check that fails the
+  build on it.
 - `src/createcompendia/{anatomy,taxon,diseasephenotype,chemicals,protein}.py` — `write_mesh_ids()`.
 
 Issues:

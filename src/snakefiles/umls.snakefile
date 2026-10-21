@@ -20,6 +20,9 @@ rule umls_mesh_ownership:
             config["intermediate_directory"] + "/gene/ids/UMLS",
             config["intermediate_directory"] + "/process/ids/UMLS",
         ],
+        # Not read: a gate. Every MeSH-owning pipeline waits for this rule, so requiring the UMLS/MeSH skew check
+        # here stops all five before they build compendia on a MeSH dump that is behind UMLS.
+        mesh_skew_checked=config["output_directory"] + "/reports/umls_mesh_skew.checked",
     output:
         outfile=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     benchmark:

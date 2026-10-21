@@ -6,7 +6,7 @@ from src.babel_utils import glom, read_identifier_file, write_compendium
 from src.categories import ORGANISM_TAXON
 from src.metadata.provenance import write_concord_metadata
 from src.prefixes import MESH, NCBITAXON, UMLS
-from src.util import LoggingUtil
+from src.util import LoggingUtil, get_config
 
 logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
@@ -85,8 +85,14 @@ def build_taxon_umls_relationships(mrconso, idfile, outfile, metadata_yaml):
     )
 
 
-def build_relationships(outfile, mesh_ids, metadata_yaml):
-    regis = mesh.pull_mesh_registry()
+def build_relationships(
+    outfile, mesh_ids, metadata_yaml, *, mesh_desc_xml, mesh_supp_xml, mesh_labels, mesh_xml_sources
+):
+    """Write MeSH-NCBITaxon xrefs from the MeSH registry numbers that are NCBI Taxon IDs ("txid...").
+
+    The mesh_* arguments are the files pull_mesh_registry() and mesh_registry_sources() read.
+    """
+    regis = mesh.pull_mesh_registry(mesh_desc_xml, mesh_supp_xml, mesh_labels)
     # with open(mesh_ids) as inf:
     # lines = inf.read().strip().split("\n")
     # all_mesh_taxa = set([x.split("\t")[0] for x in lines])
@@ -105,13 +111,7 @@ def build_relationships(outfile, mesh_ids, metadata_yaml):
         metadata_yaml,
         name="build_relationships()",
         description="Builds relationships between MeSH and NCBI Taxon from the MeSH registry.",
-        sources=[
-            {
-                "type": "MeSH",
-                "name": "MeSH Registry",
-                "url": "ftp://ftp.nlm.nih.gov/online/mesh/rdf/mesh.nt.gz",
-            }
-        ],
+        sources=mesh.mesh_registry_sources(get_config()["mesh_year"], mesh_xml_sources),
         concord_filename=outfile,
     )
 

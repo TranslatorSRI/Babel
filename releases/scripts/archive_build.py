@@ -47,6 +47,8 @@ REQUIRED_FILES = [
     "reports/tables/prefix_comparison_by_clique_prefix.csv",
     "reports/content/compendia_report.json",
     "reports/duckdb/prefix_report.json",
+    # Builds before 2026jul22 lack it, but those are archived already; every build since has it.
+    "reports/umls_mesh_skew.json",
 ]
 
 # Per-compendium files, globbed rather than listed: the set follows config.yaml's compendium list,

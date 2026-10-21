@@ -176,7 +176,9 @@ canonical prefix-constant registry; its `id_prefixes` order in the Biolink Model
   have no owner (neither concords UMLS to MeSH). Decide ownership in that one place: a pipeline
   deciding for itself drops CUIs no other pipeline adds. Changing a MeSH tree assignment therefore
   moves CUIs. `docs/sources/UMLS/CuiFollowsMesh.md`; measure a change with
-  `docs/sources/UMLS/cui-follows-mesh/scripts/replay_mesh_ownership.py` before a build.
+  `docs/sources/UMLS/cui-follows-mesh/scripts/replay_mesh_ownership.py` before a build. That rule
+  also waits for `rule check_umls_mesh_skew`, which fails the build when `mesh_year` lags
+  `umls_version` (`docs/sources/MeSH/Ingestion.md`, "Source data").
 - **Duplicate clique leaders fail the build** — `rule assert_no_unexpected_duplicate_clique_leaders`
   raises for any row of `reports/duckdb/duplicate_clique_leaders.tsv` not in
   `input_data/known_duplicate_clique_leaders.tsv` (each row names its issue). Never add a row
