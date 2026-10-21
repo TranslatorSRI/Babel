@@ -1,0 +1,407 @@
+ncit,label,pipeline,cuis,cui_owners
+NCIT:C201,Muramyl Dipeptide,protein,UMLS:C0001060,chemicals
+NCIT:C226,Eflornithine,protein,UMLS:C0002260,chemicals
+NCIT:C231,Amino Acid,protein,UMLS:C0002520,chemicals
+NCIT:C234,Aminolevulinic Acid,protein,UMLS:C0002563,chemicals
+NCIT:C295,Bacitracin,protein,UMLS:C0004599,chemicals
+NCIT:C296,Bacterial Toxin,protein,UMLS:C0004630,chemicals
+NCIT:C298,BCG Vaccine,protein,UMLS:C0004886,chemicals
+NCIT:C313,Bleomycin,protein,UMLS:C0005740,chemicals
+NCIT:C400,Crotoxin,protein,UMLS:C0010377,chemicals
+NCIT:C427,Diazooxonorleucine,protein,UMLS:C0012020,chemicals
+NCIT:C446,Distamycin Antineoplastic Antibiotic,protein,UMLS:C0012750,chemicals
+NCIT:C470,Enterotoxin,protein,UMLS:C0014372,chemicals
+NCIT:C524,Glycine,protein,UMLS:C0017890,chemicals
+NCIT:C595,3-Iodotyrosine,protein,"UMLS:C0021996,UMLS:C2003124","chemicals,chemicals"
+NCIT:C734,Peptichemio,protein,UMLS:C0030927,chemicals
+NCIT:C752,Pituitary Hormone,protein,UMLS:C0032015,chemicals
+NCIT:C826,DL-Selenomethionine,protein,UMLS:C0036584,chemicals
+NCIT:C882,TMPO Gene Product,protein,UMLS:C0040105,chemicals
+NCIT:C907,Liothyronine,protein,UMLS:C0041014,chemicals
+NCIT:C915,L-Tyrosine,protein,UMLS:C0041485,chemicals
+NCIT:C925,Vancomycin,protein,UMLS:C0042313,chemicals
+NCIT:C986,Acivicin,protein,UMLS:C0050560,chemicals
+NCIT:C994,Alanosine,protein,UMLS:C0051066,chemicals
+NCIT:C1011,Beauvericin,protein,UMLS:C0053065,chemicals
+NCIT:C1029,Buthionine Sulfoximine,protein,UMLS:C0054252,chemicals
+NCIT:C1032,Cactinomycin,protein,UMLS:C0054404,chemicals
+NCIT:C1083,Staphylococcal Enterotoxin A,protein,UMLS:C0059385,chemicals
+NCIT:C1084,Staphylococcal Enterotoxin B,protein,UMLS:C0059386,chemicals
+NCIT:C1085,Staphylococcal Enterotoxin C,protein,UMLS:C0059387,chemicals
+NCIT:C1121,HC-Toxin,protein,UMLS:C0062143,chemicals
+NCIT:C1178,Tilarginine,protein,UMLS:C0069477,chemicals
+NCIT:C1223,Selenocysteine,protein,UMLS:C0074289,chemicals
+NCIT:C1269,TAG-72 Antigen,protein,UMLS:C0077505,chemicals
+NCIT:C1295,Streptogramin A,protein,UMLS:C0080320,chemicals
+NCIT:C1296,Virginiamycin S1,protein,UMLS:C0080321,chemicals
+NCIT:C1304,PEG-interleukin-2,protein,UMLS:C0083036,chemicals
+NCIT:C1308,Poly (RGD),protein,UMLS:C0084089,chemicals
+NCIT:C1341,Tyrphostin A51,protein,UMLS:C0101807,chemicals
+NCIT:C1398,Sparfosic Acid,protein,UMLS:C0069076,chemicals
+NCIT:C1399,Peplomycin,protein,UMLS:C0135981,chemicals
+NCIT:C1439,Dolastatin 15,protein,UMLS:C0170214,chemicals
+NCIT:C1456,Superantigen,protein,UMLS:C0206527,chemicals
+NCIT:C1475,Ziconotide,protein,UMLS:C0211011,chemicals
+NCIT:C1517,Stallimycin,protein,UMLS:C0244119,chemicals
+NCIT:C1534,Methionine C 11,protein,UMLS:C0252667,chemicals
+NCIT:C1543,Peptide 946,protein,UMLS:C0254201,chemicals
+NCIT:C1546,Cryptophycin,protein,"UMLS:C0257217,UMLS:C0380236","chemicals,chemicals"
+NCIT:C1613,Antineoplaston AS2-1,protein,UMLS:C0294295,chemicals
+NCIT:C1618,BAGE Tumor Antigen,protein,UMLS:C1447354,chemicals
+NCIT:C1633,Polyvalent Melanoma Vaccine,protein,UMLS:C0299555,chemicals
+NCIT:C1663,Antineoplastic Vaccine,protein,UMLS:C0376659,chemicals
+NCIT:C1665,Trapoxin,protein,UMLS:C0084839,chemicals
+NCIT:C1666,Tyrphostin A30,protein,UMLS:C0378866,chemicals
+NCIT:C1682,"L-744,832",protein,UMLS:C0384181,chemicals
+NCIT:C1688,Tyrphostin AG 825,protein,UMLS:C0386977,chemicals
+NCIT:C1746,Peptide Hormone,protein,UMLS:C0597192,chemicals
+NCIT:C1758,Tritylcysteine,protein,UMLS:C0601886,chemicals
+NCIT:C1801,Urinary Bladder Tumor Antigen,protein,UMLS:C0676494,chemicals
+NCIT:C1824,Suradista,protein,UMLS:C0251622,chemicals
+NCIT:C1830,Melanoma Theraccine,protein,UMLS:C0761616,chemicals
+NCIT:C2027,Tyrphostin A48,protein,UMLS:C1519728,chemicals
+NCIT:C2273,Gonadotropin,protein,UMLS:C0018061,chemicals
+NCIT:C2274,Human Menopausal Gonadotropin,protein,UMLS:C0025326,chemicals
+NCIT:C2280,Thyroid-Stimulating Hormone,protein,UMLS:C0040160,chemicals
+NCIT:C2302,Thyroxine,protein,UMLS:C0040165,chemicals
+NCIT:C2303,Triiodothyronine,protein,UMLS:C0041014,chemicals
+NCIT:C2311,Bleomycin Antibiotic,protein,UMLS:C0005740,chemicals
+NCIT:C2403,Human Papillomavirus Tumor Antigen Vaccine,protein,UMLS:C0390856,chemicals
+NCIT:C2437,IL-2 Plasmid DNA/Lipid Complex,protein,UMLS:C0677671,chemicals
+NCIT:C2481,Cetrorelix,protein,UMLS:C0209366,chemicals
+NCIT:C2551,"CP-609,754",protein,UMLS:C0879599,chemicals
+NCIT:C2660,Tetanus Toxoid Vaccine,protein,UMLS:C0305062,chemicals
+NCIT:C17909,Tissue Polypeptide Specific Antigen,protein,UMLS:C0289863,chemicals
+NCIT:C28833,Argatroban,protein,UMLS:C0048470,chemicals
+NCIT:C28910,Caspofungin,protein,UMLS:C0537894,chemicals
+NCIT:C29171,Lysine,protein,UMLS:C0024337,chemicals
+NCIT:C29595,Essential Amino Acid,protein,UMLS:C0002525,chemicals
+NCIT:C29597,Histidine,protein,UMLS:C0019602,chemicals
+NCIT:C29598,Isoleucine,protein,UMLS:C0022192,chemicals
+NCIT:C29599,Leucine,protein,UMLS:C0023401,chemicals
+NCIT:C29600,Methionine,protein,UMLS:C0025646,chemicals
+NCIT:C29601,Phenylalanine,protein,UMLS:C0031453,chemicals
+NCIT:C29602,Threonine,protein,UMLS:C0040005,chemicals
+NCIT:C29603,Tryptophan,protein,UMLS:C0041249,chemicals
+NCIT:C29604,Valine,protein,UMLS:C0042285,chemicals
+NCIT:C29605,Alanine,protein,UMLS:C0001898,chemicals
+NCIT:C29608,Aspartic Acid,protein,UMLS:C0004015,chemicals
+NCIT:C29609,Cysteine,protein,UMLS:C0010654,chemicals
+NCIT:C29610,Cystine,protein,UMLS:C0010682,chemicals
+NCIT:C29611,Ornithine,protein,UMLS:C0029277,chemicals
+NCIT:C29612,Proline,protein,UMLS:C0033382,chemicals
+NCIT:C29613,Serine,protein,UMLS:C0036720,chemicals
+NCIT:C33953,Virosome,protein,UMLS:C0887910,chemicals
+NCIT:C37937,Creatine,protein,UMLS:C0010286,chemicals
+NCIT:C38129,Methionine Aminopeptidase 2 Inhibitor PPI-2458,protein,UMLS:C1505437,chemicals
+NCIT:C38897,CD3 Complex,protein,UMLS:C0108779,chemicals
+NCIT:C47510,Enalaprilat,protein,UMLS:C0014027,chemicals
+NCIT:C47701,Quinupristin,protein,UMLS:C0756081,chemicals
+NCIT:C48264,Talabostat,protein,UMLS:C2002307,chemicals
+NCIT:C48375,Nilotinib,protein,UMLS:C1721377,chemicals
+NCIT:C49146,Adenovirus Vaccine,protein,UMLS:C1552907,chemicals
+NCIT:C52197,Anamorelin,protein,"UMLS:C2001495,UMLS:C2698934","chemicals,chemicals"
+NCIT:C53406,Citrulline,protein,UMLS:C0008864,chemicals
+NCIT:C60818,F-18 Fluoroethyltyrosine,protein,UMLS:C1831729,chemicals
+NCIT:C61690,Corticorelin Ovine,protein,UMLS:C0251516,chemicals
+NCIT:C61719,Dextrothyroxine,protein,UMLS:C0011824,chemicals
+NCIT:C61817,3-Tyrosine,protein,UMLS:C0047729,chemicals
+NCIT:C61853,N-Acetyltyrosine,protein,UMLS:C0067794,chemicals
+NCIT:C61858,Nateglinide,protein,UMLS:C0903898,chemicals
+NCIT:C61962,Taurine,protein,UMLS:C0039350,chemicals
+NCIT:C62008,Arginine,protein,UMLS:C0003765,chemicals
+NCIT:C62027,Enalapril,protein,UMLS:C0014025,chemicals
+NCIT:C62537,Glutathione Disulfide NOV-002,protein,"UMLS:C1138321,UMLS:C1831919","chemicals,chemicals"
+NCIT:C62624,Oxiglutatione,protein,UMLS:C0061516,chemicals
+NCIT:C64625,Pregabalin,protein,UMLS:C0657912,chemicals
+NCIT:C65309,Ceruletide,protein,UMLS:C0006639,chemicals
+NCIT:C65310,Ceruletide Diethylamine,protein,UMLS:C0054425,chemicals
+NCIT:C65453,Docarpamine,protein,UMLS:C0075755,chemicals
+NCIT:C65505,Ecallantide,protein,UMLS:C1722685,chemicals
+NCIT:C65580,Etiroxate,protein,UMLS:C0059861,chemicals
+NCIT:C65759,Fosfocreatinine,protein,UMLS:C0070826,chemicals
+NCIT:C65762,Fosinoprilat,protein,UMLS:C0075061,chemicals
+NCIT:C65777,Fudosteine,protein,UMLS:C0756016,chemicals
+NCIT:C65921,Insulin Glulisine,protein,UMLS:C1313386,chemicals
+NCIT:C66067,Mecysteine,protein,UMLS:C0065850,chemicals
+NCIT:C66319,Pareptide,protein,UMLS:C0070110,chemicals
+NCIT:C66340,Pentagastrin,protein,UMLS:C0030859,chemicals
+NCIT:C66342,Pentetreotide,protein,UMLS:C0141819,chemicals
+NCIT:C66440,Pivagabine,protein,UMLS:C0619323,chemicals
+NCIT:C66503,Racecadotril,protein,UMLS:C0050461,chemicals
+NCIT:C66527,Saralasin,protein,UMLS:C0036193,chemicals
+NCIT:C66582,Teduglutide,protein,"UMLS:C1098514,UMLS:C1530889","chemicals,chemicals"
+NCIT:C68528,S-Allylmercaptocysteine,protein,UMLS:C0252799,chemicals
+NCIT:C69076,Rindopepimut,protein,UMLS:C3181262,chemicals
+NCIT:C69131,Pasireotide,protein,UMLS:C1872203,chemicals
+NCIT:C71634,Eltrombopag,protein,UMLS:C1831905,chemicals
+NCIT:C71759,Linifanib,protein,UMLS:C1737951,chemicals
+NCIT:C71762,Follitropin,protein,UMLS:C0733758,chemicals
+NCIT:C72144,Resorantel,protein,UMLS:C0073084,chemicals
+NCIT:C72607,Capreomycin,protein,UMLS:C0262964,chemicals
+NCIT:C72679,Acetylleucine,protein,UMLS:C0256552,chemicals
+NCIT:C72708,Avizafone,protein,UMLS:C0246215,chemicals
+NCIT:C72729,Colistimethate,protein,UMLS:C0009315,chemicals
+NCIT:C72749,Efegatran,protein,UMLS:C0286590,chemicals
+NCIT:C73037,Ticalopride,protein,UMLS:C0648910,chemicals
+NCIT:C74153,Dapabutan,protein,UMLS:C0606864,chemicals
+NCIT:C74194,Alitame,protein,UMLS:C0217842,chemicals
+NCIT:C74270,Histrelin,protein,UMLS:C0121902,chemicals
+NCIT:C74407,Posatirelin,protein,UMLS:C0285748,chemicals
+NCIT:C74408,Azetirelin,protein,UMLS:C0285719,chemicals
+NCIT:C75145,Tioxamast,protein,UMLS:C0059976,chemicals
+NCIT:C75190,Muraglitazar,protein,UMLS:C1568490,chemicals
+NCIT:C76144,Hydroxyproline,protein,UMLS:C0020388,chemicals
+NCIT:C76238,Bacitracin A,protein,UMLS:C0052882,chemicals
+NCIT:C76250,Rh Blood Group,anatomy,UMLS:C0035406,chemicals
+NCIT:C76274,Oglufanide,protein,"UMLS:C0076603,UMLS:C0526304","chemicals,chemicals"
+NCIT:C76305,Methyl Aminolevulinate,protein,UMLS:C0758115,chemicals
+NCIT:C76513,Aspartame,protein,UMLS:C0003999,chemicals
+NCIT:C76786,Tramiprosate,protein,UMLS:C0062961,chemicals
+NCIT:C76828,Arginine Glutamate,protein,UMLS:C0377223,chemicals
+NCIT:C76884,Carglumic Acid,protein,"UMLS:C0067889,UMLS:C1318649","chemicals,chemicals"
+NCIT:C76886,Pidobenzone,protein,UMLS:C2604951,chemicals
+NCIT:C76907,Aloxistatin,protein,UMLS:C0902566,chemicals
+NCIT:C77008,Angiotensin Amide,protein,UMLS:C0003001,chemicals
+NCIT:C77221,Anaritide,protein,UMLS:C0103200,chemicals
+NCIT:C77290,Frakefamide,protein,UMLS:C1566777,chemicals
+NCIT:C77305,Acetyltryptophan,protein,UMLS:C0067790,chemicals
+NCIT:C77384,Ebiratide,protein,UMLS:C0058901,chemicals
+NCIT:C77423,Ganirelix,protein,UMLS:C0073629,chemicals
+NCIT:C77481,Lauroyl Sarcosine,protein,UMLS:C0074071,chemicals
+NCIT:C77552,Amogastrin,protein,UMLS:C0051732,chemicals
+NCIT:C77694,Bacillus Calmette-Guerin Substrain Connaught Live Antigen,protein,UMLS:C0255289,chemicals
+NCIT:C77704,Clostridium tetani Toxoid Antigen (Formaldehyde Inactivated),protein,UMLS:C0305062,chemicals
+NCIT:C77707,Corynebacterium diphtheriae Toxoid Antigen (Formaldehyde Inactivated),protein,UMLS:C0012551,chemicals
+NCIT:C77765,Salmonella typhi Ty2 Vi Polysaccharide Antigen,protein,UMLS:C0078221,chemicals
+NCIT:C77843,Aceglutamide,protein,UMLS:C0050407,chemicals
+NCIT:C77856,Tyroserleutide,protein,"UMLS:C1451018,UMLS:C1530073","chemicals,chemicals"
+NCIT:C78087,Sapropterin,protein,UMLS:C0048897,chemicals
+NCIT:C80523,Gamma-Aminobutyric Acid,protein,UMLS:C0016904,chemicals
+NCIT:C80682,Talabostat Mesylate,protein,UMLS:C1311786,chemicals
+NCIT:C81116,Alpha-Aminobutyric Acid,protein,UMLS:C0054314,chemicals
+NCIT:C81120,Ipamorelin,protein,UMLS:C0757797,chemicals
+NCIT:C81374,Diglycine,protein,UMLS:C0017984,chemicals
+NCIT:C81441,Amphomycin,protein,UMLS:C0051758,chemicals
+NCIT:C81564,Nupafant,protein,UMLS:C1741717,chemicals
+NCIT:C81601,Lorglumide,protein,UMLS:C0065184,chemicals
+NCIT:C81693,Farglitazar,protein,UMLS:C1447907,chemicals
+NCIT:C82255,Rupintrivir,protein,UMLS:C2350739,chemicals
+NCIT:C82288,Monosodium Glutamate,protein,UMLS:C0037511,chemicals
+NCIT:C82370,Bone Metastasis Targeting Peptide-11,protein,UMLS:C2830059,chemicals
+NCIT:C82415,HuaChanSu,protein,UMLS:C2745673,chemicals
+NCIT:C82599,Carnitine,protein,UMLS:C0007258,chemicals
+NCIT:C82933,Pidolic Acid,protein,UMLS:C0034330,chemicals
+NCIT:C83543,Bacitracin Methylene Disalicylate,protein,UMLS:C0052884,chemicals
+NCIT:C83591,Carbocysteine,protein,UMLS:C0006992,chemicals
+NCIT:C83847,Isospaglumic Acid,protein,UMLS:C0771562,chemicals
+NCIT:C83927,Melevodopa,protein,UMLS:C0064871,chemicals
+NCIT:C84025,Ociltide,protein,UMLS:C0062909,chemicals
+NCIT:C84131,Racemethionine,protein,UMLS:C0034504,chemicals
+NCIT:C84662,Dessicated Thyroid Extract,protein,UMLS:C0040134,chemicals
+NCIT:C85465,Eprenetapopt,protein,UMLS:C5447987,chemicals
+NCIT:C85469,pan-PI3K/mTOR Inhibitor SF1126,protein,UMLS:C2351370,chemicals
+NCIT:C87348,Theanine,protein,UMLS:C0076380,chemicals
+NCIT:C87430,Arfalasin,protein,UMLS:C0624820,chemicals
+NCIT:C87475,Coenzyme Q7,protein,UMLS:C0377397,chemicals
+NCIT:C87563,Lachesis Venom,protein,UMLS:C0125173,chemicals
+NCIT:C87587,Norleucine,protein,UMLS:C0028375,chemicals
+NCIT:C87603,Telavancin,protein,UMLS:C1453642,chemicals
+NCIT:C87651,N-Acetylcysteine Amide,protein,UMLS:C1452654,chemicals
+NCIT:C87739,Lutrelin Acetate,protein,UMLS:C0065269,chemicals
+NCIT:C88277,Lutetium Lu 177-Edotreotide,protein,UMLS:C2981799,chemicals
+NCIT:C90905,Oxaceprol,protein,UMLS:C0064164,chemicals
+NCIT:C90933,Bicozamycin,protein,UMLS:C0053557,chemicals
+NCIT:C90959,Thymocartin,protein,UMLS:C0624592,chemicals
+NCIT:C91094,Balixafortide,protein,UMLS:C4550002,chemicals
+NCIT:C91388,Oprozomib,protein,UMLS:C2976183,chemicals
+NCIT:C92559,Prostate Cancer Antigen 3,protein,UMLS:C1313606,chemicals
+NCIT:C93167,ACAPHA,protein,UMLS:C2716992,chemicals
+NCIT:C94211,Glioblastoma Multiforme Multipeptide Vaccine IMA950,protein,UMLS:C2986396,chemicals
+NCIT:C94722,Glycopeptide,protein,UMLS:C0017953,chemicals
+NCIT:C95020,Lutetium Lu 177 Dotatate,protein,UMLS:C3272344,chemicals
+NCIT:C95163,Valyltryptophan,protein,UMLS:C0633017,chemicals
+NCIT:C95198,Actinomycin C2,protein,UMLS:C0762401,chemicals
+NCIT:C95293,Zofenoprilat,protein,UMLS:C0085065,chemicals
+NCIT:C96223,Integrin Receptor Antagonist GLPG0187,protein,UMLS:C3272654,chemicals
+NCIT:C96234,Fluorine F 18 DCFBC,protein,UMLS:C2604127,chemicals
+NCIT:C96295,Pepstatin,protein,UMLS:C0070329,chemicals
+NCIT:C96394,Rotavirus Vaccine,protein,UMLS:C0597418,chemicals
+NCIT:C96401,Oral Polio Vaccine,protein,UMLS:C0032375,chemicals
+NCIT:C96403,Measles/Mumps/Rubella Vaccine,protein,UMLS:C0065828,chemicals
+NCIT:C96859,Cargutocin,protein,UMLS:C0604369,chemicals
+NCIT:C97121,Pneumococcal 13-valent Conjugate Vaccine,protein,UMLS:C3152625,chemicals
+NCIT:C97490,Salmon Gonadotropin Releasing Hormone D-Arg6 Analog Ethyl Amide,protein,UMLS:C0064909,chemicals
+NCIT:C98883,Icatibant,protein,UMLS:C0246269,chemicals
+NCIT:C99904,Gallium Ga 68-labeled BNOTA-PRGD2,protein,UMLS:C3275040,chemicals
+NCIT:C100098,Ademetionine,protein,UMLS:C0036002,chemicals
+NCIT:C101147,CD57 Antigen,protein,UMLS:C0054965,chemicals
+NCIT:C101257,IGF-1R Antisense Oligodeoxynucleotide-treated Autologous Glioma Cells IGV-001,anatomy,UMLS:C5557440,chemicals
+NCIT:C101384,Delcasertib,protein,UMLS:C2351986,chemicals
+NCIT:C101791,Olmutinib,protein,UMLS:C4301624,chemicals
+NCIT:C103149,S-Adenosylhomocysteine,protein,UMLS:C0036001,chemicals
+NCIT:C103150,3-Chlorotyrosine,protein,UMLS:C0254781,chemicals
+NCIT:C104983,Pyridinoline,protein,UMLS:C0072690,chemicals
+NCIT:C105949,Homocysteine,protein,UMLS:C0019878,chemicals
+NCIT:C106124,Poly-gamma Glutamic Acid,protein,UMLS:C1723263,chemicals
+NCIT:C106253,CXCR4 Peptide Antagonist LY2510924,protein,UMLS:C3827103,chemicals
+NCIT:C107144,3-Hydroxypropylmercapturic Acid,protein,UMLS:C0073815,chemicals
+NCIT:C107245,Agerafenib,protein,UMLS:C3502779,chemicals
+NCIT:C107439,Tetrahydrobiopterin,protein,UMLS:C0048897,chemicals
+NCIT:C113501,Sarcosine,protein,UMLS:C0036228,chemicals
+NCIT:C115980,Gallium Ga 68-DOTA-exendin-4,protein,UMLS:C3899045,chemicals
+NCIT:C116377,Osimertinib,protein,UMLS:C4058811,chemicals
+NCIT:C118474,Damage-Associated Molecular Pattern Molecule,protein,UMLS:C3891560,chemicals
+NCIT:C118875,Cystathionine,protein,UMLS:C0010640,chemicals
+NCIT:C118876,3-Aminoisobutyric Acid,protein,UMLS:C0047226,chemicals
+NCIT:C118877,Anserine,protein,UMLS:C0003134,chemicals
+NCIT:C118878,5-Hydroxylysine,protein,UMLS:C4048291,chemicals
+NCIT:C118879,Argininosuccinic Acid,protein,UMLS:C0003777,chemicals
+NCIT:C118883,Phosphoserine,protein,UMLS:C0031721,chemicals
+NCIT:C118885,3-Methylhistidine,protein,UMLS:C0047600,chemicals
+NCIT:C118886,1-Methylhistidine,protein,UMLS:C0044470,chemicals
+NCIT:C118887,N-Acetylaspartate,protein,UMLS:C0067684,chemicals
+NCIT:C120011,N(6)-(1-Carboxyethyl)Lysine,protein,UMLS:C0208736,chemicals
+NCIT:C120013,N(6)-Carboxymethyllysine,protein,UMLS:C0083528,chemicals
+NCIT:C120014,Malondialdehyde-Lysine,protein,UMLS:C1142892,chemicals
+NCIT:C122036,Gallium Ga 68-HA-DOTA-TATE,protein,UMLS:C4042682,chemicals
+NCIT:C122637,Monomethyl Auristatin E,protein,UMLS:C1565020,chemicals
+NCIT:C123284,Anti-DLL3 Antibody-drug Conjugate SC-002,protein,UMLS:C0967624,chemicals
+NCIT:C123795,Antimicrobial Peptide,protein,UMLS:C4084937,chemicals
+NCIT:C124071,Desmosine,protein,UMLS:C0011702,chemicals
+NCIT:C124264,Asymmetric Dimethylarginine,protein,UMLS:C0067385,chemicals
+NCIT:C125659,Ciforadenant,protein,UMLS:C4724815,chemicals
+NCIT:C126897,Deoxypyridinoline,protein,UMLS:C0057455,chemicals
+NCIT:C126911,3-Nitrotyrosine,protein,UMLS:C0047645,chemicals
+NCIT:C129408,CA27-29,protein,UMLS:C0291672,chemicals
+NCIT:C129555,Kynurenine,protein,UMLS:C0022818,chemicals
+NCIT:C131905,BF-200 Gel Formulation,protein,UMLS:C3490787,chemicals
+NCIT:C133230,Avexitide,protein,UMLS:C0247947,chemicals
+NCIT:C135091,TLR 2/6/9 Agonist PUL-042,protein,UMLS:C4722724,chemicals
+NCIT:C136416,Vecabrutinib,protein,UMLS:C4682414,chemicals
+NCIT:C136418,NEDD8 Activating Enzyme E1 Inhibitor TAS4464,protein,UMLS:C4526664,chemicals
+NCIT:C136807,Anti-CLDN6/9 Antibody-drug Conjugate SC-004,protein,UMLS:C0967625,chemicals
+NCIT:C142866,Numidargistat,protein,UMLS:C4684876,chemicals
+NCIT:C142910,Alexomycin,protein,UMLS:C0754442,chemicals
+NCIT:C152152,Ramoplanin,protein,UMLS:C0072972,chemicals
+NCIT:C152153,Ramorelix,protein,UMLS:C0659405,chemicals
+NCIT:C152156,Rapastinel,protein,UMLS:C1666271,chemicals
+NCIT:C152158,Ravidasvir,protein,UMLS:C4508633,chemicals
+NCIT:C152170,Recoflavone,protein,UMLS:C0909620,chemicals
+NCIT:C152174,Relamorelin,protein,UMLS:C4045486,chemicals
+NCIT:C152216,Rigosertib,protein,UMLS:C1674040,chemicals
+NCIT:C152234,Ristocetin,protein,UMLS:C0035654,chemicals
+NCIT:C152247,Romurtide,protein,UMLS:C0067246,chemicals
+NCIT:C152260,Rotigaptide,protein,UMLS:C1311916,chemicals
+NCIT:C152281,Sacubitril,protein,UMLS:C4033447,chemicals
+NCIT:C152333,Semparatide Acetate,protein,UMLS:C0910280,chemicals
+NCIT:C152349,Setmelanotide,protein,UMLS:C4279595,chemicals
+NCIT:C152365,Sinapultide,protein,UMLS:C0754923,chemicals
+NCIT:C152394,Somapacitan,protein,UMLS:C4726770,chemicals
+NCIT:C152402,Somfasepor,protein,UMLS:C0650352,chemicals
+NCIT:C152403,Somidobove,protein,UMLS:C0520986,chemicals
+NCIT:C152419,Spiraprilat,protein,UMLS:C0172689,chemicals
+NCIT:C152518,Taspoglutide,protein,UMLS:C2716826,chemicals
+NCIT:C152549,Telotristat,protein,UMLS:C3884837,chemicals
+NCIT:C152557,Tendamistat,protein,UMLS:C0076090,chemicals
+NCIT:C152566,Teprotide,protein,UMLS:C0039534,chemicals
+NCIT:C152660,Tiropramide,protein,UMLS:C0076723,chemicals
+NCIT:C152744,Triletide,protein,UMLS:C0130777,chemicals
+NCIT:C152757,Trofinetide,protein,UMLS:C4726916,chemicals
+NCIT:C152789,Tyrothricin,protein,UMLS:C0041499,chemicals
+NCIT:C152899,Vixotrigine,protein,UMLS:C4505506,chemicals
+NCIT:C152902,Voclosporin,protein,UMLS:C2607219,chemicals
+NCIT:C152918,Vosoritide,protein,UMLS:C4519745,chemicals
+NCIT:C153374,Helicobacter pylori Therapeutic Vaccine IMX101,protein,UMLS:C4546560,chemicals
+NCIT:C161834,CRTH2 Antagonist ACT-774312,protein,UMLS:C5206133,chemicals
+NCIT:C163580,Alpha-Conotoxin CnIA,protein,UMLS:C0767482,chemicals
+NCIT:C163581,Alpha-Conotoxin CnIB,protein,UMLS:C0767484,chemicals
+NCIT:C163584,Alpha-Conotoxin MI,protein,UMLS:C0056255,chemicals
+NCIT:C163653,Clostridium perfringens Epsilon Toxin,protein,UMLS:C0055954,chemicals
+NCIT:C163701,Staphylococcal Enterotoxin D,protein,UMLS:C0059388,chemicals
+NCIT:C163702,Staphylococcal Enterotoxin E,protein,UMLS:C0059389,chemicals
+NCIT:C165437,Rilematovir,protein,UMLS:C4549198,chemicals
+NCIT:C166502,Ibodutant,protein,UMLS:C3180273,chemicals
+NCIT:C166528,Alipogene Tiparvovec,anatomy,UMLS:C3653189,chemicals
+NCIT:C166549,Nemifitide Ditriflutate,protein,UMLS:C1571509,chemicals
+NCIT:C166554,Narlaprevir,protein,UMLS:C2974454,chemicals
+NCIT:C166654,Progabide,protein,UMLS:C0072076,chemicals
+NCIT:C166694,Perfluamine,protein,UMLS:C0070409,chemicals
+NCIT:C166705,Managlinat Dialanetil,protein,UMLS:C1619899,chemicals
+NCIT:C166725,Eluxadoline,protein,UMLS:C3712232,chemicals
+NCIT:C166769,Pristinamycin,protein,UMLS:C0205996,chemicals
+NCIT:C166834,Nangibotide,protein,UMLS:C5238140,chemicals
+NCIT:C166994,Metkephamid Acetate,protein,UMLS:C0066457,chemicals
+NCIT:C167036,Oxamarin,protein,UMLS:C0604487,chemicals
+NCIT:C169789,Astodrimer,protein,UMLS:C4490518,chemicals
+NCIT:C169798,Avoparcin,protein,UMLS:C0052713,chemicals
+NCIT:C169820,Cabotegravir,protein,UMLS:C4310385,chemicals
+NCIT:C169833,Cefilavancin,protein,UMLS:C4550768,chemicals
+NCIT:C169841,Ceronapril,protein,UMLS:C0075073,chemicals
+NCIT:C169849,Cindunistat,protein,UMLS:C3660271,chemicals
+NCIT:C169878,Davunetide,protein,UMLS:C0966140,chemicals
+NCIT:C169887,Desidustat,protein,UMLS:C5198569,chemicals
+NCIT:C169894,Dexfosfoserine,protein,UMLS:C0031721,chemicals
+NCIT:C169954,Enviomycin,protein,UMLS:C0014405,chemicals
+NCIT:C170033,Goralatide,protein,UMLS:C0378293,chemicals
+NCIT:C170124,Lodoxamide Ethyl,protein,UMLS:C0065147,chemicals
+NCIT:C170194,Nacartocin,protein,UMLS:C0068335,chemicals
+NCIT:C170254,Omidenepag Isopropyl,protein,UMLS:C5139819,chemicals
+NCIT:C170364,Ravoxertinib,protein,UMLS:C5139665,chemicals
+NCIT:C170541,Pomaglumetad Methionil,protein,UMLS:C4705040,chemicals
+NCIT:C170746,SDF-1 Receptor Antagonist PTX-9908,protein,UMLS:C2715513,chemicals
+NCIT:C171663,Cenderitide,protein,UMLS:C3502292,chemicals
+NCIT:C171683,Cibinetide,protein,UMLS:C4519283,chemicals
+NCIT:C171746,Faldaprevir,protein,UMLS:C3661290,chemicals
+NCIT:C171755,Belnacasan,protein,UMLS:C5419285,chemicals
+NCIT:C171820,Elobixibat,protein,UMLS:C3659266,chemicals
+NCIT:C171859,Cligosiban,protein,UMLS:C5196986,chemicals
+NCIT:C171918,Dasiglucagon,protein,UMLS:C5139868,chemicals
+NCIT:C172385,Ectoine Mouthwash EML03,protein,UMLS:C0164311,chemicals
+NCIT:C173012,Covid-19 aAPC Vaccine,protein,UMLS:C5419986,chemicals
+NCIT:C173017,Ad5-nCoV COVID-19 Vaccine,protein,UMLS:C5419987,chemicals
+NCIT:C173535,Heat-treated bacterium Mycobacterium obuense IMM-101,protein,UMLS:C3501154,chemicals
+NCIT:C173538,Gallium Ga 68-DOTA-FAPI-04,protein,UMLS:C5392518,chemicals
+NCIT:C173728,Recombinant 2019-nCoV S Protein Subunit-trimer Vaccine SCB-2019,protein,UMLS:C5416818,chemicals
+NCIT:C173801,C3 Complement Inhibitor AMY-101,protein,UMLS:C5139735,chemicals
+NCIT:C174469,Copper Cu 64 Ucasareotide Dasaroxetan,protein,UMLS:C5391556,chemicals
+NCIT:C174629,Laninamivir,protein,UMLS:C2931958,chemicals
+NCIT:C174655,Polygeline,protein,UMLS:C0032493,chemicals
+NCIT:C174752,Difelikefalin,protein,UMLS:C4519744,chemicals
+NCIT:C174805,Lonapegsomatropin,protein,UMLS:C5421356,chemicals
+NCIT:C174833,Pegbelfermin,protein,UMLS:C5139693,chemicals
+NCIT:C174855,Oritavancin,protein,UMLS:C1144403,chemicals
+NCIT:C175063,Fexapotide Triflutate,protein,UMLS:C4742473,chemicals
+NCIT:C175077,Golodirsen,protein,UMLS:C5222004,chemicals
+NCIT:C175100,Iturelix,protein,UMLS:C0069606,chemicals
+NCIT:C175149,Murabutide,protein,UMLS:C0067757,chemicals
+NCIT:C175150,Murepavadin,protein,UMLS:C5139728,chemicals
+NCIT:C175153,Nacubactam,protein,UMLS:C5139691,chemicals
+NCIT:C175179,Ornithine Phenylacetate,protein,UMLS:C3492240,chemicals
+NCIT:C175204,Taurursodiol,protein,UMLS:C0075857,chemicals
+NCIT:C175726,Lifitegrast,protein,UMLS:C3713860,chemicals
+NCIT:C175821,Mikamycin,protein,UMLS:C0949718,chemicals
+NCIT:C176570,Synthetic MVA-based SARS-CoV-2 Vaccine GEO-CM04S1,protein,UMLS:C5447311,chemicals
+NCIT:C179112,Palopegteriparatide,protein,UMLS:C5557539,chemicals
+NCIT:C180638,Atidarsagene Autotemcel,anatomy,UMLS:C5556517,chemicals
+NCIT:C181076,Follicle-Stimulating Hormone,protein,UMLS:C0016774,chemicals
+NCIT:C184308,Lutetium Lu 177 AB-3PRGD2,protein,UMLS:C3883932,chemicals
+NCIT:C184733,Gallium Ga 68-NOTA-exendin-4,protein,UMLS:C4310225,chemicals
+NCIT:C184937,Pegloxenatide,protein,UMLS:C4077947,chemicals
+NCIT:C185139,Mikamycin B,protein,UMLS:C0949698,chemicals
+NCIT:C185154,Ectoine,protein,UMLS:C0164311,chemicals
+NCIT:C185228,SARS-CoV-2 Protein Subunit Vaccine AKS-452,protein,UMLS:C5666960,chemicals
+NCIT:C185348,Symmetric Dimethylarginine,protein,UMLS:C0067305,chemicals
+NCIT:C190789,Luteinizing Hormone,protein,UMLS:C0023607,chemicals
+NCIT:C198264,Cyclic Citrullinated Peptide,protein,UMLS:C1453915,chemicals
+NCIT:C203531,Anti-DLL3 ADC ZL-1310,protein,UMLS:C0967624,chemicals
+NCIT:C211767,Levacetylleucine,protein,UMLS:C4547971,chemicals
+NCIT:C216300,Cyclosporin C,protein,UMLS:C0056818,chemicals
+NCIT:C216320,Cyclosporin D,protein,UMLS:C0056819,chemicals
+NCIT:C216339,Cyclosporin H,protein,UMLS:C0056823,chemicals
+NCIT:C216396,Bleomycin A6,protein,UMLS:C0053848,chemicals
+NCIT:C218359,Threonine Phosphate,protein,UMLS:C0031724,chemicals
+NCIT:C219226,Naproxen Lysine,protein,UMLS:C0667850,chemicals
+NCIT:C219351,Teixobactin,protein,UMLS:C4045460,chemicals
+NCIT:C219355,Telomycin,protein,UMLS:C0243328,chemicals
+NCIT:C220829,Siomycin A,protein,UMLS:C0074575,chemicals
