@@ -272,6 +272,11 @@ def test_disease_node_factory_keeps_gard_only_with_extra_prefixes():
     extra_prefixes=[GARD] escape hatch is passed; without it the identifier is dropped and the
     clique disappears entirely. This is the behavior the disease build depends on."""
     factory = NodeFactory(label_dir=None, biolink_version=get_config()["biolink_version"])
+    # apply_labels() loads config["common"]["labels"] from babel_downloads/ on first use and raises
+    # FileNotFoundError when that pipeline output is absent, which is every machine without a build.
+    # Pre-seeding the cache is the same thing the shared `node_factory` fixture does (tests/conftest.py);
+    # it costs nothing here because the label below is passed explicitly rather than looked up.
+    factory.common_labels = {}
     # GARD:6038 "Chikungunya fever" -- the registry term DOID:0050012 "chikungunya" xrefs. The
     # label is passed explicitly, as the build does; NodeFactory(label_dir=None) cannot read one.
     curie = "GARD:6038"
