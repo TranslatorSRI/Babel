@@ -63,6 +63,8 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
 - **MeSH** ([MeSH/Ingestion.md](./MeSH/Ingestion.md)) — how MeSH is partitioned across compendia
   by tree letter, how Supplementary Concept Records (SCRs) are typed and routed, the
   chemical/protein D-tree split, and which MeSH branches/SCR classes we deliberately skip.
+  [MeSH/cross-listed/Priority.md](./MeSH/cross-listed/Priority.md) — which pipeline owns a MeSH
+  record that two pipelines' trees both claim (a proposal, with the evidence per record).
 - **MONDO** ([MONDO/README.md](./MONDO/README.md)) — which of MONDO's mappings the disease pipeline
   reads: `skos:exactMatch`/`closeMatch` only, plus the one deliberate `oboInOwl:hasDbXref`
   exception (`MONDO_GARD`) and why it is scoped to a single prefix. Includes an evidence table of
