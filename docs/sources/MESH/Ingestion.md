@@ -35,6 +35,11 @@ If NLM has not published the configured year, both downloads fail. Neither falls
 year. `tests/datahandlers/test_mesh.py::test_configured_mesh_year_is_published` (a `network`
 test) checks this ahead of a build.
 
+`get_mesh` takes `mesh_year` as a param, so changing the year reruns it, but only for a `mesh.nt`
+Snakemake recorded with that param. A `babel_downloads/MESH/mesh.nt` downloaded before `mesh_year`
+existed (the stale top-level dump) has no such record and is silently reused: replace it with
+`--forcerun=get_mesh`, which also rebuilds every pipeline's `ids/MESH`.
+
 ### Per-year RDF IRIs are normalized
 
 The per-year dumps name records with the year in the IRI
