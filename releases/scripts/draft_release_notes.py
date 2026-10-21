@@ -56,6 +56,7 @@ VERSION_KEYS = {
     "biolink_version": "the Biolink Model",
     "umls_version": "UMLS",
     "rxnorm_version": "RxNorm",
+    "mesh_year": "MeSH",
     "drugbank_version": "DrugBank",
 }
 
@@ -239,11 +240,26 @@ def version_bumps(repo_root: Path, baseline_tag: str) -> list[str]:
 
     previous = read_config_versions(previous_text)
     current = read_config_versions((repo_root / "config.yaml").read_text())
+    return version_bump_bullets(previous, current, baseline_tag)
+
+
+def version_bump_bullets(previous: dict[str, str], current: dict[str, str], baseline_tag: str) -> list[str]:
+    """Prose bullets for the VERSION_KEYS that differ between two read_config_versions() results.
+
+    A key that only the current config has -- one added to config.yaml since the baseline, as
+    ``mesh_year`` was -- gets a visible to-do rather than nothing: the source was still updated (MeSH
+    went from the stale 2024 dump to 2026), but the baseline cannot say from what.
+    """
     bullets = []
     for key, label in VERSION_KEYS.items():
         was, now = previous.get(key), current.get(key)
         if was and now and was != now:
             bullets.append(f"- Updated {label} from {was} to {now}.")
+        elif now and not was:
+            bullets.append(
+                f"- _Now on {label} {now}, but `config.yaml` at `{baseline_tag}` has no `{key}`;"
+                f" say by hand which {label} version it was updated from._"
+            )
     return bullets
 
 

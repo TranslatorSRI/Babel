@@ -157,8 +157,9 @@ def write_ensembl_protein_ids(ensembl_dir, outfile):
                             wrote.add(pid)
                             outf.write(f"{pid}\n")
                         if skipped_gene_ids:
-                            # Only S. cerevisiae is expected here; a new species in this line means the
-                            # same convention has appeared elsewhere.
+                            # A count, not an alarm: only S. cerevisiae does this today, but the skip is
+                            # right for any species that reuses its gene IDs, since the gene pipeline
+                            # writes every BioMart gene stable ID.
                             logger.info(
                                 f"{infname}: skipped {skipped_gene_ids} protein stable IDs identical to their "
                                 f"gene stable ID (wrote {len(wrote)} protein IDs)"
@@ -291,9 +292,12 @@ def build_umls_relationships(mrconso, idfile, outfile, metadata_yaml):
     )
 
 
-def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
+def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_filename, mesh_ownership=None):
     """:concordances: a list of files from which to read relationships
-    :identifiers: a list of files from which to read identifiers and optional categories"""
+    :identifiers: a list of files from which to read identifiers and optional categories
+    :mesh_ownership: the umls_mesh_ownership rule's file; concord pairs naming a CUI another pipeline owns are
+        skipped (umls.read_cuis_owned_elsewhere). None skips nothing."""
+    owned_elsewhere = umls.read_cuis_owned_elsewhere(mesh_ownership, "protein")
     dicts = {}
     types = {}
     uniques = [UNIPROTKB, PR]
@@ -315,6 +319,8 @@ def build_protein_compendia(concordances, metadata_yamls, identifiers, icrdf_fil
                 if line_index % 1000000 == 0:
                     logger.info(f"Loading concordance file {infile}: line {line_index:,}")
                 x = line.strip().split("\t")
+                if x[0] in owned_elsewhere or x[2] in owned_elsewhere:
+                    continue
                 pairs.append(set([x[0], x[2]]))
         # print("glomming", infile) # This takes a while, but doesn't add much to the memory
         glom(dicts, pairs, unique_prefixes=uniques)

@@ -1,12 +1,14 @@
 """Replay "a CUI follows its MeSH descriptor" (umls.compute_mesh_owners) over a published build's ids files.
 
-It writes the umls_mesh_ownership rule's file from the build's ``ids/MESH`` files and a local UMLS download,
-then runs every pipeline's production ``write_umls_ids`` twice -- by semantic type alone, and with MeSH
-ownership -- and reports what the rule drops and adds, and that every dropped CUI lands in exactly one other
-pipeline. It then predicts which of the
-build's duplicate clique leaders the rule resolves: a MESH leader is resolved when no CUI that a
-``<pipeline>/concords/UMLS`` concord links to it is still claimed by a pipeline other than the descriptor's
-owner. glom() is transitive, so this is a prediction; confirm it with babel-clique-diff after a build.
+It runs gene's and process's production ``write_umls_ids`` (which MeSH ownership never changes), writes the
+umls_mesh_ownership rule's file from those and the build's ``ids/MESH`` files and a local UMLS download, then
+runs every MeSH-owning pipeline's ``write_umls_ids`` twice -- by semantic type alone, and with MeSH ownership --
+and reports what the rule drops and adds, and that every dropped CUI lands in exactly one other pipeline. It
+counts the CUIs another pipeline owns that a pipeline's other concords still name, which its compendium build
+now skips (umls.read_cuis_owned_elsewhere). It then predicts which of the build's duplicate clique leaders the
+rule resolves: a MESH leader is resolved when no CUI that a ``<pipeline>/concords/UMLS`` concord links to it
+is still claimed by a pipeline other than the descriptor's owner. glom() is transitive, so this is a
+prediction; confirm it with babel-clique-diff after a build.
 
 Inputs: the build's ids files (``<ids-dir>/<pipeline>/{MESH,UMLS}``) and its ``duplicate_clique_leaders.tsv``
 and ``duplicate_curies.tsv``, all of which ``fetch_build_inputs.py`` (beside this script) exports from a
@@ -50,10 +52,14 @@ WRITERS = {
     "disease": diseasephenotype.write_umls_ids,
     "protein": protein.write_umls_ids,
     "taxon": taxon.write_umls_ids,
-    # Gene and process write no ids/MESH, so the rule can only drop CUIs from them.
+    # Gene and process write no ids/MESH and take no MeSH ownership: their CUIs have no owner.
     "gene": gene.write_umls_ids,
     "process": processactivitypathway.write_umls_ids,
 }
+
+# A pipeline's concords built from its own ids/UMLS, which apply_mesh_ownership() already rewrites. Every other
+# concord is built from something else, so a CUI another pipeline owns can still appear in it.
+CONCORDS_FROM_IDS_UMLS = {"UMLS", "NCIT_UMLS"}
 
 
 def read_ids(path):
@@ -81,8 +87,9 @@ def run_writer(pipeline, umls_dir, tmpdir, mesh_ownership):
         args.append(os.path.join(get_config()["input_directory"], "badumls"))
     if pipeline == "gene":
         args.insert(0, mrconso)
-    WRITERS[pipeline](*args, mesh_ownership=mesh_ownership)
-    return read_ids(out)
+    kwargs = {"mesh_ownership": mesh_ownership} if pipeline in get_config()["umls_mesh_owning_pipelines"] else {}
+    WRITERS[pipeline](*args, **kwargs)
+    return out
 
 
 def load_concord_edges(concord_parquet, targets):
@@ -102,6 +109,38 @@ def load_concord_edges(concord_parquet, targets):
         """
     ).fetchall()
     return {(p, s, o) for p, s, o in rows if p}
+
+
+def load_concords_naming_owned_cuis(concord_parquet, owners):
+    """{(pipeline, concord, owner): set of CUIs} for every concord of a MeSH-owning pipeline, other than those built
+    from its own ids/UMLS, that names a CUI another pipeline owns: the CUIs its compendium build now skips."""
+    import duckdb
+
+    con = duckdb.connect()
+    if concord_parquet.startswith("http"):
+        con.execute("INSTALL httpfs; LOAD httpfs;")
+    con.execute("CREATE TEMP TABLE owned(curie VARCHAR, owner VARCHAR)")
+    con.executemany("INSERT INTO owned VALUES (?, ?)", [(cui, o[0]) for cui, o in owners.items()])
+    rows = con.execute(
+        f"""
+        WITH c AS (
+            SELECT regexp_extract(filename, 'intermediate/([^/]+)/concords/(.+)$', 1) AS pipeline,
+                   regexp_extract(filename, 'intermediate/([^/]+)/concords/(.+)$', 2) AS concord, subj, obj
+            FROM read_parquet('{concord_parquet}')
+        )
+        -- Two equi-joins rather than one ON ... OR ..., which DuckDB can only run as a nested loop.
+        SELECT DISTINCT c.pipeline, c.concord, o.owner, o.curie FROM c JOIN owned o ON o.curie = c.subj
+        WHERE c.pipeline <> o.owner
+        UNION
+        SELECT DISTINCT c.pipeline, c.concord, o.owner, o.curie FROM c JOIN owned o ON o.curie = c.obj
+        WHERE c.pipeline <> o.owner
+        """
+    ).fetchall()
+    found = defaultdict(set)
+    for pipeline, concord, owner, cui in rows:
+        if pipeline in get_config()["umls_mesh_owning_pipelines"] and concord not in CONCORDS_FROM_IDS_UMLS:
+            found[(pipeline, concord, owner)].add(cui)
+    return found
 
 
 def main():
@@ -136,19 +175,24 @@ def main():
     dropped_all = {}
     added_all = {}
     with tempfile.TemporaryDirectory() as tmpdir:
+        non_mesh = {p: run_writer(p, args.umls_dir, tmpdir, None) for p in ["gene", "process"]}
         # The same call rule umls_mesh_ownership makes.
         ownership = os.path.join(tmpdir, "mesh_ownership.tsv")
-        badumls = diseasephenotype.read_badumls(os.path.join(get_config()["input_directory"], "badumls"))
         umls.write_mesh_ownership(
             os.path.join(args.umls_dir, "MRCONSO.RRF"),
             {p: os.path.join(args.ids_dir, p, "MESH") for p in owners},
             ownership,
-            never_add={"disease": {f"UMLS:{cui}" for cui in badumls}},
+            blocklist_files_by_pipeline={"disease": os.path.join(get_config()["input_directory"], "badumls")},
+            non_mesh_umls_ids_files=list(non_mesh.values()),
         )
+        mesh_owners = umls.read_mesh_ownership(ownership)
         for p in pipelines:
             build_ids = read_ids(os.path.join(args.ids_dir, p, "UMLS"))
-            sty = run_writer(p, args.umls_dir, tmpdir, None)
-            mesh = run_writer(p, args.umls_dir, tmpdir, ownership)
+            if p in non_mesh:
+                sty = mesh = read_ids(non_mesh[p])
+            else:
+                sty = read_ids(run_writer(p, args.umls_dir, tmpdir, None))
+                mesh = read_ids(run_writer(p, args.umls_dir, tmpdir, ownership))
             after[p] = mesh
             dropped_all[p] = {c: sty[c] for c in sty if c not in mesh}
             added_all[p] = {c: mesh[c] for c in mesh if c not in sty}
@@ -183,6 +227,26 @@ def main():
             lines.append(
                 f"| {p} | {t} | {len(cuis):,} | {'; '.join(f'{s} ({n:,})' for s, n in types)} | {', '.join(sorted(cuis)[:3])} |"
             )
+
+    lines += [
+        "",
+        "## CUIs another pipeline owns that a pipeline's other concords still name",
+        "",
+        "Concords built from a pipeline's own `ids/UMLS` (`"
+        + "`, `".join(sorted(CONCORDS_FROM_IDS_UMLS))
+        + "`) lose a dropped CUI with it, but a concord built from anything else still names it, and glom() "
+        "would put it into that pipeline's compendium as well as its owner's. Each MeSH-owning pipeline's "
+        "compendium build skips these pairs (`umls.read_cuis_owned_elsewhere()`). Counted over the build's "
+        "Concord.parquet:",
+        "",
+    ]
+    lines.append("| pipeline | concord | owner | CUIs | examples |")
+    lines.append("|---|---|---|---:|---|")
+    leaks = load_concords_naming_owned_cuis(args.concord_parquet, mesh_owners)
+    for (p, concord, owner), cuis in sorted(leaks.items(), key=lambda kv: (kv[0][0], -len(kv[1]), kv[0])):
+        lines.append(f"| {p} | {concord} | {owner} | {len(cuis):,} | {', '.join(sorted(cuis)[:3])} |")
+    if not leaks:
+        lines.append("| (none) | | | 0 | |")
 
     # Predict the leader outcome.
     leaders_path = os.path.join(args.reports_dir, "duplicate_clique_leaders.tsv")

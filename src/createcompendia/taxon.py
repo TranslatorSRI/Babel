@@ -6,7 +6,7 @@ from src.babel_utils import glom, read_identifier_file, write_compendium
 from src.categories import ORGANISM_TAXON
 from src.metadata.provenance import write_concord_metadata
 from src.prefixes import MESH, NCBITAXON, UMLS
-from src.util import LoggingUtil
+from src.util import LoggingUtil, get_config
 
 logger = LoggingUtil.init_logging(__name__, level=logging.ERROR)
 
@@ -101,6 +101,8 @@ def build_relationships(outfile, mesh_ids, metadata_yaml):
         # left = list(all_mesh_taxa.difference( set([x[0] for x in regis]) ))
         # eutil.lookup(left)
 
+    mesh_year = get_config()["mesh_year"]
+    mesh_ftpdir, mesh_ftpfile = mesh.mesh_rdf_location(mesh_year)
     write_concord_metadata(
         metadata_yaml,
         name="build_relationships()",
@@ -108,17 +110,20 @@ def build_relationships(outfile, mesh_ids, metadata_yaml):
         sources=[
             {
                 "type": "MeSH",
-                "name": "MeSH Registry",
-                "url": "ftp://ftp.nlm.nih.gov/online/mesh/rdf/mesh.nt.gz",
+                "name": f"MeSH {mesh_year} Registry",
+                "url": f"ftp://{mesh.MESH_FTP_SITE}{mesh_ftpdir}/{mesh_ftpfile}",
             }
         ],
         concord_filename=outfile,
     )
 
 
-def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
+def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename, mesh_ownership=None):
     """:concordances: a list of files from which to read relationships
-    :identifiers: a list of files from which to read identifiers and optional categories"""
+    :identifiers: a list of files from which to read identifiers and optional categories
+    :mesh_ownership: the umls_mesh_ownership rule's file; concord pairs naming a CUI another pipeline owns are
+        skipped (umls.read_cuis_owned_elsewhere). None skips nothing."""
+    owned_elsewhere = umls.read_cuis_owned_elsewhere(mesh_ownership, "taxon")
     dicts = {}
     types = {}
     uniques = [NCBITAXON, MESH, UMLS]
@@ -134,6 +139,8 @@ def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename):
         with open(infile) as inf:
             for line in inf:
                 x = line.strip().split("\t")
+                if x[0] in owned_elsewhere or x[2] in owned_elsewhere:
+                    continue
                 pairs.append(set([x[0], x[2]]))
         glom(dicts, pairs, unique_prefixes=uniques)
     gene_sets = set([frozenset(x) for x in dicts.values()])

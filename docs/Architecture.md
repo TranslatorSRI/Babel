@@ -190,8 +190,10 @@ a build unusable downstream fail it instead:
   `rule assert_no_unexpected_duplicate_clique_leaders` (`src/snakefiles/duckdb.snakefile`) reads
   `reports/duckdb/duplicate_clique_leaders.tsv` after it is written and raises for any row not in
   `input_data/known_duplicate_clique_leaders.tsv`, which names the issue accepting each remaining
-  duplicate. The failure stops `reports/duckdb/done` and therefore `rule all`, but every other
-  output still completes, so the TSV is there to read. Fix the source (the known mechanisms are in
+  duplicate. A row covers its leader in any subset of the compendia it lists, so a duplicate that
+  shrinks still passes and is logged for the row to be narrowed. The failure stops
+  `reports/duckdb/done` and therefore `rule all`, but every other output still completes, so the
+  TSV is there to read. Fix the source (the known mechanisms are in
   [`docs/sources/UMLS/CuiFollowsMesh.md`](sources/UMLS/CuiFollowsMesh.md)) or, for a duplicate an
   issue accepts for now, add the row with that issue. Member-level duplicates
   (`duplicate_curies.tsv`) stay report-only.

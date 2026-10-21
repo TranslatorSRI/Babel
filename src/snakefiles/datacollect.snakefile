@@ -238,8 +238,26 @@ rule get_mesh:
     resources:
         mem="8G",
         cpus_per_task=1,
+    params:
+        # A param, so that changing mesh_year reruns the download.
+        mesh_year=config["mesh_year"],
     run:
-        mesh.pull_mesh()
+        mesh.pull_mesh(params.mesh_year)
+
+
+# The MeSH XML is only used for registry numbers (CAS, UNII, NCBITaxon), which the RDF dump no longer carries.
+rule get_mesh_xml:
+    output:
+        config["download_directory"] + "/MESH/desc.xml.gz",
+        config["download_directory"] + "/MESH/supp.xml.gz",
+    benchmark:
+        config["output_directory"] + "/benchmarks/get_mesh_xml.tsv"
+    retries: 3  # MeSH FTP download occasionally fails transiently.
+    params:
+        # A param, so that changing mesh_year reruns the download.
+        mesh_year=config["mesh_year"],
+    run:
+        mesh.pull_mesh_xml(params.mesh_year)
 
 
 rule get_mesh_labels:

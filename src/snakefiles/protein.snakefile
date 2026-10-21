@@ -149,6 +149,7 @@ rule protein_compendia:
         icrdf_filename=config["download_directory"] + "/icRDF.tsv",
         # Include the taxon information from UniProtKB
         uniprotkb_taxa_file=config["download_directory"] + "/UniProtKB/taxa",
+        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         expand("{od}/compendia/{ap}", od=config["output_directory"], ap=config["protein_outputs"]),
         temp(expand("{od}/synonyms/{ap}", od=config["output_directory"], ap=config["protein_outputs"])),
@@ -163,7 +164,13 @@ rule protein_compendia:
         runtime="12h",
         mem="512G",
     run:
-        protein.build_protein_compendia(input.concords, input.metadata_yamls, input.idlists, input.icrdf_filename)
+        protein.build_protein_compendia(
+            input.concords,
+            input.metadata_yamls,
+            input.idlists,
+            input.icrdf_filename,
+            mesh_ownership=input.mesh_ownership,
+        )
 
 
 rule check_protein_completeness:

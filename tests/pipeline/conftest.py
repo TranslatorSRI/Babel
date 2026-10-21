@@ -274,9 +274,11 @@ def chemicals_concords_dir(pipeline_output):
 @pytest.fixture(scope="session")
 def mesh_nt():
     """Download babel_downloads/MESH/mesh.nt, or skip if unavailable."""
+    from src.util import get_config  # deferred: same rationale as _snakemake_dir
+
     return _download_or_fail(
         "MESH mesh.nt",
-        pull_mesh,
+        lambda: pull_mesh(get_config()["mesh_year"]),
         make_local_name("mesh.nt", subpath="MESH"),
     )
 
@@ -362,10 +364,11 @@ def umls_rrf_files():
 def umls_pipeline_outputs(umls_rrf_files, mesh_pipeline_outputs, regenerate):
     """Run write_umls_ids for all seven compendia; returns dict of output paths.
 
-    Every pipeline applies MeSH ownership (config.yaml: umls_mesh_owning_pipelines), so this first writes the
-    umls_mesh_ownership rule's file from the five MeSH ids files (mesh_pipeline_outputs, i.e. mesh.nt). Output
-    files are written to the Snakemake paths and reused on subsequent runs unless --regenerate is passed or an
-    input is newer: in particular an ids/UMLS written before the ownership file existed is regenerated.
+    The five MeSH-owning pipelines (config.yaml: umls_mesh_owning_pipelines) apply MeSH ownership, so this
+    writes gene's and process's ids/UMLS first, then the umls_mesh_ownership rule's file from those and the
+    five MeSH ids files (mesh_pipeline_outputs, i.e. mesh.nt), then the other five. Output files are written to
+    the Snakemake paths and reused on subsequent runs unless --regenerate is passed or an input is newer: in
+    particular an ids/UMLS written before the ownership file existed is regenerated.
     """
     from src.createcompendia import (  # deferred: gene and processactivitypathway are not in the module-level imports to avoid loading every compendium at collection time; they are only needed for UMLS
         gene,
@@ -380,23 +383,33 @@ def umls_pipeline_outputs(umls_rrf_files, mesh_pipeline_outputs, regenerate):
     badumlsfile = os.path.join(cfg["input_directory"], "badumls")
     ownership = os.path.join(cfg["intermediate_directory"], "umls", "mesh_ownership.tsv")
 
+    def p(compendium):
+        return _intermediate_id_path(compendium, "UMLS")
+
+    _maybe_run(p("gene"), lambda: gene.write_umls_ids(mrconso, mrsty, p("gene")), regenerate, inputs=[mrconso, mrsty])
+    _maybe_run(
+        p("processactivitypathway"),
+        lambda: processactivitypathway.write_umls_ids(mrsty, p("processactivitypathway")),
+        regenerate,
+        inputs=[mrsty],
+    )
+
     # The same arguments rule umls_mesh_ownership passes, keyed by the config's pipeline (directory) names.
     mesh_ids_by_dir = {_snakemake_dir(name): path for name, path in mesh_pipeline_outputs.items()}
     mesh_ids_by_pipeline = {pipeline: mesh_ids_by_dir[pipeline] for pipeline in cfg["umls_mesh_owning_pipelines"]}
+    non_mesh_umls_ids = [p("gene"), p("processactivitypathway")]
     _maybe_run(
         ownership,
         lambda: umls.write_mesh_ownership(
             mrconso,
             mesh_ids_by_pipeline,
             ownership,
-            never_add={"disease": {f"UMLS:{cui}" for cui in diseasephenotype.read_badumls(badumlsfile)}},
+            blocklist_files_by_pipeline={"disease": badumlsfile},
+            non_mesh_umls_ids_files=non_mesh_umls_ids,
         ),
         regenerate,
-        inputs=[mrconso, badumlsfile, *mesh_ids_by_pipeline.values()],
+        inputs=[mrconso, badumlsfile, *mesh_ids_by_pipeline.values(), *non_mesh_umls_ids],
     )
-
-    def p(compendium):
-        return _intermediate_id_path(compendium, "UMLS")
 
     writers = {
         "chemicals": lambda: chemicals.write_umls_ids(mrsty, p("chemicals"), mesh_ownership=ownership),
@@ -405,16 +418,12 @@ def umls_pipeline_outputs(umls_rrf_files, mesh_pipeline_outputs, regenerate):
         "diseasephenotype": lambda: diseasephenotype.write_umls_ids(
             mrsty, p("diseasephenotype"), badumlsfile, mesh_ownership=ownership
         ),
-        "processactivitypathway": lambda: processactivitypathway.write_umls_ids(
-            mrsty, p("processactivitypathway"), mesh_ownership=ownership
-        ),
         "taxon": lambda: taxon.write_umls_ids(mrsty, p("taxon"), mesh_ownership=ownership),
-        "gene": lambda: gene.write_umls_ids(mrconso, mrsty, p("gene"), mesh_ownership=ownership),
     }
     for name, write in writers.items():
         _maybe_run(p(name), write, regenerate, inputs=[mrsty, ownership])
 
-    return {name: p(name) for name in writers}
+    return {name: p(name) for name in [*writers, "gene", "processactivitypathway"]}
 
 
 # ---------------------------------------------------------------------------

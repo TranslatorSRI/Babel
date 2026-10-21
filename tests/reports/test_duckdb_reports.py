@@ -209,6 +209,18 @@ def test_stale_allowlist_rows_are_reported_not_fatal(leaders_tsv, tmp_path):
     assert "1 allowlist entries no longer duplicated (prune them): Z [Bar, Foo]" in checked.read_text()
 
 
+@pytest.mark.unit
+def test_duplicate_leader_in_fewer_compendia_than_allowlisted_passes(leaders_tsv, tmp_path):
+    """A duplicate leader whose compendia are a subset of its allowlist row's (a source fix took one of three away)
+    should pass, and be named in the summary so the row gets narrowed rather than pruned."""
+    checked = tmp_path / "checked"
+    allowlist = _allowlist(tmp_path, ["A\tFoo,Bar,Baz\t#0\tfixture"])
+    duckdb_reports.assert_no_unexpected_duplicate_clique_leaders(leaders_tsv, allowlist, str(checked))
+    summary = checked.read_text()
+    assert "0 allowlist entries no longer duplicated" in summary
+    assert "1 now in fewer compendia than their allowlist entry (narrow them): A [Bar, Foo]" in summary
+
+
 @pytest.fixture
 def prefix_report(parquet_root, tmp_path):
     """Run generate_prefix_report over the fixture and return the parsed combined report.

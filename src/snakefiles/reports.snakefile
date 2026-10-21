@@ -1,5 +1,6 @@
 from src.reports import report_tables
 from src.reports import prefix_comparison
+from src.reports.umls_mesh_skew import generate_umls_mesh_skew_report
 from src.reports.source_impact_details import NEW_CLIQUES_CSV, NEW_XREFS_SUMMARY_CSV
 from src.snakefiles.util import get_all_compendia, get_all_synonyms, get_all_gzipped
 import os
@@ -190,6 +191,24 @@ rule generate_mapping_sources_table:
         report_tables.generate_mapping_sources_table(input.metadata_yaml_files, output.mapping_sources_table)
 
 
+# Count UMLS MSH codes that have no record in the MeSH dump, so UMLS/MeSH version skew is visible.
+rule generate_umls_mesh_skew_report:
+    input:
+        mrconso=config["download_directory"] + "/UMLS/MRCONSO.RRF",
+        mesh_nt=config["download_directory"] + "/MESH/mesh.nt",
+    output:
+        report=config["output_directory"] + "/reports/umls_mesh_skew.json",
+    benchmark:
+        config["output_directory"] + "/benchmarks/generate_umls_mesh_skew_report.tsv"
+    params:
+        umls_version=config["umls_version"],
+        mesh_year=config["mesh_year"],
+    run:
+        generate_umls_mesh_skew_report(
+            input.mrconso, input.mesh_nt, params.umls_version, params.mesh_year, output.report
+        )
+
+
 # Optional per-source impact report. Not part of all_reports.
 # Invoke with e.g.:
 #   snakemake babel_outputs/reports/source_impact/EMAPA.md
@@ -233,6 +252,7 @@ rule all_reports:
         config["output_directory"] + "/reports/tables/cliques_table.csv",
         config["output_directory"] + "/reports/tables/mapping_sources_table.csv",
         config["output_directory"] + "/reports/tables/prefix_comparison.md",
+        config["output_directory"] + "/reports/umls_mesh_skew.json",
     output:
         x=config["output_directory"] + "/reports/reports_done",
     shell:

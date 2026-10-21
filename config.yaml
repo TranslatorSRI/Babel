@@ -14,6 +14,10 @@ build:
 # Versions that need to be updated on every release.
 biolink_version: "4.4.3"
 umls_version: "2026AA"
+# MeSH release year, downloaded from ftp://ftp.nlm.nih.gov/online/mesh/rdf/{mesh_year}/mesh{mesh_year}.nt.gz.
+# Keep this in step with umls_version: UMLS 20XXAA carries MeSH 20XX codes, and a MeSH dump older than UMLS
+# leaves UMLS MSH codes (especially new SCRs) with no MeSH record. reports/umls_mesh_skew.json measures this.
+mesh_year: "2026"
 rxnorm_version: "07062026"
 drugbank_version: "5-1-13" # The latest is 5-1-21, but since downloads are currently not allowed, we need to reuse our most recent download.
 # The pubmed2db NDJSON export (https://github.com/TranslatorSRI/pubmed2db) this build reads PubMed from:
@@ -121,10 +125,12 @@ umls:
 # the concord dragged the other pipeline's descriptor and DrugBank partners into this pipeline's clique, so
 # the same identifiers ended up in two compendia and led cliques in both (#276, #308, #1123). So rule
 # umls_mesh_ownership reads these pipelines' ids/MESH and gives each CUI whose descriptors exactly one of them
-# claims to that pipeline (umls.compute_mesh_owners() has the rules), and every *_umls_ids rule adds the CUIs
-# it owns and drops the ones another pipeline owns. Gene and process write an ids/UMLS but no ids/MESH, so they
-# are not listed and only ever drop. Names are the pipelines' directories under intermediate_directory, and
-# each pipeline's write_umls_ids() passes its own name (tests/datahandlers/test_umls.py checks they match).
+# claims to that pipeline (umls.compute_mesh_owners() has the rules). Each listed pipeline's *_umls_ids rule
+# adds the CUIs it owns and drops the ones another pipeline owns, and its compendium rule skips concord pairs
+# naming a CUI another pipeline owns. Gene and process write an ids/UMLS but no ids/MESH and never concord UMLS
+# to MeSH, so they are not listed: the CUIs they select get no owner and stay with them. Names are the
+# pipelines' directories under intermediate_directory, and each pipeline's write_umls_ids() passes its own name
+# (tests/datahandlers/test_umls.py checks they match).
 umls_mesh_owning_pipelines: [anatomy, chemicals, disease, protein, taxon]
 
 #

@@ -75,13 +75,12 @@ rule process_panther_ids:
 rule process_umls_ids:
     input:
         mrsty=config["download_directory"] + "/UMLS/MRSTY.RRF",
-        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         outfile=config["intermediate_directory"] + "/process/ids/UMLS",
     benchmark:
         config["output_directory"] + "/benchmarks/process_umls_ids.tsv"
     run:
-        pap.write_umls_ids(input.mrsty, output.outfile, mesh_ownership=input.mesh_ownership)
+        pap.write_umls_ids(input.mrsty, output.outfile)
 
 
 ### Concords

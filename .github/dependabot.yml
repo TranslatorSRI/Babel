@@ -1,6 +1,11 @@
 # Note: I'm going with a versioning-strategy of "increase" so that Dependabot will update pyproject.toml when
 # an older version is known to have an issue. If this has any bad side effects, please switch it back to "auto".
 # Documentation at https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#versioning-strategy--
+#
+# Version updates are grouped into one PR per ecosystem per week. These PRs are usually not merged as-is:
+# the maintainer upgrades everything with `uv lock --upgrade` on a branch, and Dependabot closes its own PRs
+# once main is up to date. Grouping means one notification to clear instead of one per package.
+# `applies-to: version-updates` keeps security updates out of the groups, so each one still gets its own PR.
 
 version: 2
 updates:
@@ -8,10 +13,17 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      github-actions:
+        applies-to: version-updates
+        patterns: ["*"]
 
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "weekly"
     versioning-strategy: "increase"
-
+    groups:
+      python-dependencies:
+        applies-to: version-updates
+        patterns: ["*"]

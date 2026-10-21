@@ -369,15 +369,18 @@ def build_anatomy_umls_relationships(mrconso, idfile, outfile, umls_metadata):
     )
 
 
-def _make_anatomy_concord_pair_filter(bad_pairs):
+def _make_anatomy_concord_pair_filter(bad_pairs, owned_elsewhere=frozenset()):
     """Build the ``(parts, infile, dicts) -> bool`` hook glom_from_files applies to every pair.
 
     ``bad_pairs`` is a set of frozensets, so a listed pair is dropped whichever way round the
     concord happens to write it. It is captured in a closure because the hook runs once per
-    concord row and the file must not be re-read that many times.
+    concord row and the file must not be re-read that many times. ``owned_elsewhere`` is
+    umls.read_cuis_owned_elsewhere(): a pair naming one of those CUIs is dropped too.
     """
 
     def _filter(parts, infile, dicts):
+        if parts[0] in owned_elsewhere or parts[2] in owned_elsewhere:
+            return False
         if frozenset((parts[0], parts[2])) in bad_pairs:
             logger.debug("Skipping bad xref pair %s from %s (see %s)", parts, infile, ANATOMY_BAD_XREFS)
             return False
@@ -409,7 +412,9 @@ def _anatomy_concord_pair_filter(parts, infile, dicts):
     return True
 
 
-def compute_cliques_for_impact_report(concordances, identifiers, excluded_sources=(), badxrefs=None):
+def compute_cliques_for_impact_report(
+    concordances, identifiers, excluded_sources=(), badxrefs=None, *, mesh_ownership=None
+):
     """Load anatomy identifier and concord files and return the union-find clique state
     without writing compendia.
 
@@ -427,6 +432,8 @@ def compute_cliques_for_impact_report(concordances, identifiers, excluded_source
         the "before-new-source" state for the impact report
     :param badxrefs: path to a bad-xrefs file; defaults to ``ANATOMY_BAD_XREFS``. Pass an
         empty string to disable the filter (used by tests).
+    :param mesh_ownership: the umls_mesh_ownership rule's file; concord pairs naming a CUI another
+        pipeline owns are skipped (umls.read_cuis_owned_elsewhere). None skips nothing.
     :returns: (dicts, types) where dicts is the glom dict-of-sets and types maps CURIE
         to its declared biolink type
     """
@@ -438,17 +445,22 @@ def compute_cliques_for_impact_report(concordances, identifiers, excluded_source
         concordances,
         identifiers,
         unique_prefixes=get_config()["anatomy_unique_prefixes"],
-        concord_pair_filter=_make_anatomy_concord_pair_filter(bad_pairs),
+        concord_pair_filter=_make_anatomy_concord_pair_filter(
+            bad_pairs, umls.read_cuis_owned_elsewhere(mesh_ownership, "anatomy")
+        ),
         overused_xref_remover=lambda pairs, infile: remove_overused_xrefs(pairs),
         excluded_sources=excluded_sources,
     )
 
 
-def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename, badxrefs=None):
+def build_compendia(concordances, metadata_yamls, identifiers, icrdf_filename, badxrefs=None, mesh_ownership=None):
     """:concordances: a list of files from which to read relationships
     :identifiers: a list of files from which to read identifiers and optional categories
-    :badxrefs: path to a bad-xrefs file; defaults to ``ANATOMY_BAD_XREFS``"""
-    dicts, types = compute_cliques_for_impact_report(concordances, identifiers, badxrefs=badxrefs)
+    :badxrefs: path to a bad-xrefs file; defaults to ``ANATOMY_BAD_XREFS``
+    :mesh_ownership: the umls_mesh_ownership rule's file (see compute_cliques_for_impact_report)"""
+    dicts, types = compute_cliques_for_impact_report(
+        concordances, identifiers, badxrefs=badxrefs, mesh_ownership=mesh_ownership
+    )
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]), types)
     for biotype, sets in typed_sets.items():
         baretype = biotype.split(":")[-1]

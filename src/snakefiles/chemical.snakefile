@@ -249,6 +249,8 @@ rule get_chemical_wikipedia_relationships:
 rule get_chemical_mesh_relationships:
     input:
         infile=config["intermediate_directory"] + "/chemicals/ids/MESH",
+        mesh_desc_xml=config["download_directory"] + "/MESH/desc.xml.gz",
+        mesh_supp_xml=config["download_directory"] + "/MESH/supp.xml.gz",
     output:
         casout=config["intermediate_directory"] + "/chemicals/concords/mesh_cas",
         uniout=config["intermediate_directory"] + "/chemicals/concords/mesh_unii",
@@ -379,6 +381,7 @@ rule untyped_chemical_compendia:
             cc=config["chemical_concords"],
         ),
         idlists=expand("{dd}/chemicals/ids/{ap}", dd=config["intermediate_directory"], ap=config["chemical_ids"]),
+        mesh_ownership=config["intermediate_directory"] + "/umls/mesh_ownership.tsv",
     output:
         typesfile=config["intermediate_directory"] + "/chemicals/partials/types",
         untyped_file=config["intermediate_directory"] + "/chemicals/partials/untyped_compendium",
@@ -402,6 +405,7 @@ rule untyped_chemical_compendia:
             output.typesfile,
             output.untyped_meta,
             input.metadata_yamls,
+            mesh_ownership=input.mesh_ownership,
         )
 
 

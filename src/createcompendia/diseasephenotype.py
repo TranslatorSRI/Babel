@@ -313,28 +313,13 @@ def write_mesh_ids(outfile):
     mesh.write_ids(meshmap, outfile, order=[DISEASE, PHENOTYPIC_FEATURE])
 
 
-def read_badumls(badumlsfile):
-    """Read input_data/badumls -- the CUIs the disease pipeline must never claim -- into a set of bare CUIs.
-
-    The umls_mesh_ownership rule reads it too, so that MeSH ownership never hands disease a CUI it refuses.
-    """
-    badumls = set()
-    with open(badumlsfile) as inf:
-        for line in inf:
-            if line.startswith("#"):
-                continue
-            umlscui = line.split()[0]
-            badumls.add(umlscui)
-    return badumls
-
-
 def write_umls_ids(mrsty, outfile, badumlsfile, *, mesh_ownership=None):
     """Select the UMLS CUIs the disease/phenotype pipeline claims by semantic type, minus ``badumls``.
 
     ``mesh_ownership`` (the umls_mesh_ownership rule's output) makes a CUI follow its MeSH descriptor
     (umls.apply_mesh_ownership): a CUI another pipeline owns is dropped here and a CUI this pipeline owns is added.
     """
-    badumls = read_badumls(badumlsfile)
+    badumls = umls.read_cui_blocklist(badumlsfile)
     # Disease
     # B2.2.1.2.1 Disease or Syndrome
     # A1.2.2.1 Congenital Abnormality
@@ -700,6 +685,7 @@ def compute_cliques_for_impact_report(
     *,
     mondoclose=None,
     badxrefs=None,
+    mesh_ownership=None,
 ):
     """Load disease/phenotype identifier and concord files and return the union-find
     clique state without writing compendia.
@@ -726,6 +712,8 @@ def compute_cliques_for_impact_report(
     :param excluded_sources: set of source basenames (e.g. ``{"MP"}``) to skip
     :param mondoclose: explicit MONDO_close path; otherwise discovered by basename
     :param badxrefs: explicit basename->path dict; otherwise DEFAULT_BAD_XREFS
+    :param mesh_ownership: the umls_mesh_ownership rule's file; concord pairs naming a CUI another
+        pipeline owns are skipped (umls.read_cuis_owned_elsewhere). None skips nothing.
     :returns: ``(dicts, types)`` — glom dict-of-sets and the CURIE->biolink-type map
     """
     excluded = set(excluded_sources)
@@ -770,6 +758,7 @@ def compute_cliques_for_impact_report(
     elif MONDO in excluded:
         mondoclose = None
 
+    owned_elsewhere = umls.read_cuis_owned_elsewhere(mesh_ownership, "disease")
     dicts = {}
     types = {}
     for ifile in identifiers:
@@ -821,7 +810,7 @@ def compute_cliques_for_impact_report(
                 if len(stuff) != 3:
                     raise RuntimeError('Line "', line.strip(), '" is not a valid concord: ', stuff)
                 x = tuple([stuff[0].strip(), stuff[2].strip()])
-                if x not in bad_pairs:
+                if x not in bad_pairs and x[0] not in owned_elsewhere and x[1] not in owned_elsewhere:
                     pairs.append(x)
         if pref in OVERUSE_FILTERED_CONCORDS:
             newpairs = remove_overused_xrefs(pairs, target_prefixes=OVERUSE_FILTERED_CONCORDS[pref])
@@ -904,14 +893,18 @@ def split_mutually_exclusive_cliques(dicts, exclusive_prefix_groups=None):
     return dicts
 
 
-def build_compendium(concordances, metadata_yamls, identifiers, mondoclose, badxrefs, icrdf_filename):
+def build_compendium(
+    concordances, metadata_yamls, identifiers, mondoclose, badxrefs, icrdf_filename, mesh_ownership=None
+):
     """:concordances: a list of files from which to read relationships
-    :identifiers: a list of files from which to read identifiers and optional categories"""
+    :identifiers: a list of files from which to read identifiers and optional categories
+    :mesh_ownership: the umls_mesh_ownership rule's file (see compute_cliques_for_impact_report)"""
     dicts, types = compute_cliques_for_impact_report(
         concordances,
         identifiers,
         mondoclose=mondoclose,
         badxrefs=badxrefs,
+        mesh_ownership=mesh_ownership,
     )
     typed_sets = create_typed_sets(set([frozenset(x) for x in dicts.values()]), types)
     # Prefixes Biolink does not register for a clique's class but that we ship anyway; without this

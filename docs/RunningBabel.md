@@ -6,13 +6,16 @@ The [`../kubernetes`](../kubernetes) directory contains Kubernetes manifest file
 that can be used to set up a Pod to run Babel in. They'll give you an idea of the disk
 space and memory requirements needed to run this pipeline.
 
-Before running, read through `config.yaml` and make sure that the settings look correct.
-You will need to update the version numbers of some databases that need to be downloaded,
-or change the download and output directories. One download has no version number to bump but a
-link that goes stale instead: `gard_download_url` pins one uploaded version of the GARD list, so
-run `uv run pytest tests/datahandlers/test_gard.py::test_gard_download_url_is_current --network`,
-which fails if the link has gone from <https://rarediseases.info.nih.gov/about> and warns if a newer
-one is there (see [`sources/GARD/README.md`](sources/GARD/README.md), "Download").
+Before running, read through `config.yaml` and make sure that the settings look correct. You will
+need to update the version numbers of some databases that need to be downloaded, or change the
+download and output directories. Keep `mesh_year` in step with `umls_version` (UMLS 2026AA goes with
+MeSH 2026); `babel_outputs/reports/umls_mesh_skew.json` shows how far apart they are (see
+[`sources/MESH/Ingestion.md`](sources/MESH/Ingestion.md), "Source data"). One download has no
+version number to bump but a link that goes stale instead: `gard_download_url` pins one uploaded
+version of the GARD list, so run
+`uv run pytest tests/datahandlers/test_gard.py::test_gard_download_url_is_current --network`, which
+fails if the link has gone from <https://rarediseases.info.nih.gov/about> and warns if a newer one
+is there (see [`sources/GARD/README.md`](sources/GARD/README.md), "Download").
 
 A UMLS API key is required in order to download UMLS and RxNorm databases. You will need
 to set the `UMLS_API_KEY` environmental variable to a UMLS API key, which you can obtain
@@ -82,10 +85,11 @@ intermediate directory and Python module are `diseasephenotype`.)
 
 Concretely, `anatomy` builds end-to-end on a Mac in roughly 25 minutes wall time, with the UMLS
 download dominating the runtime; peak memory is in the low GBs. The other local targets are in the
-same range. Every target that writes an `ids/UMLS` (`anatomy`, `chemical`, `disease`, `gene`,
-`process`, `protein`, `taxon`) also builds all five MeSH-owning pipelines' `ids/MESH`, because
+same range. Every MeSH-owning target (`anatomy`, `chemical`, `disease`, `protein`, `taxon`) also
+builds all five of those pipelines' `ids/MESH`, and gene's and process's `ids/UMLS`, because
 `rule umls_mesh_ownership` needs them to decide which pipeline a CUI belongs to
-([`sources/UMLS/CuiFollowsMesh.md`](sources/UMLS/CuiFollowsMesh.md)). That adds the `mesh.nt`
+([`sources/UMLS/CuiFollowsMesh.md`](sources/UMLS/CuiFollowsMesh.md)); `gene` and `process` do not
+depend on it. That adds the `mesh.nt`
 download and about two minutes and 6 GB per `*_mesh_ids` rule (the 2026jul22 benchmarks), so roughly
 eight more minutes on one core. A first build is usually dominated by downloads rather than
 computation, so a warm `babel_downloads/` makes a rebuild dramatically faster.
