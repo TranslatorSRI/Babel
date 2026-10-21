@@ -1,3 +1,4 @@
+import gzip
 import json
 import os
 
@@ -11,6 +12,8 @@ from src.exporters.duckdb_exporters import (
     export_intermediates_to_parquet,
     log_duckdb_settings_on_error,
 )
+from src.predicates import CHEMROF_FORMULA, CHEMROF_INCHI
+from src.properties import Property
 from tests.conftest import CONFLATION_FIXTURE_ROWS
 
 # A minimal two-clique compendium in the same format write_compendium() produces.
@@ -195,6 +198,21 @@ def _build_intermediate_tree(intermediate_dir):
     (ids_dir / "CHEBI").write_text("CHEBI:1\tbiolink:SmallMolecule\nCHEBI:2\tbiolink:SmallMolecule\n")
     (ids_dir / "PLAIN").write_text("PLAIN:1\nPLAIN:2\n")
 
+    # A gzipped JSONL property file. The InChI value carries the semicolons a multi-component InChI
+    # really uses, so a future change that starts splitting property values on ";" fails here.
+    properties_dir = intermediate_dir / "datacollect" / "properties"
+    properties_dir.mkdir(parents=True)
+    with gzip.open(properties_dir / "structure.jsonl.gz", "wt") as f:
+        f.write(
+            Property(
+                curie="CHEBI:3312",
+                predicate=CHEMROF_INCHI,
+                value="InChI=1S/2ClH.Ca/h2*1H;/q;;+2/p-2",
+                source="test",
+            ).to_json_line()
+        )
+        f.write(Property(curie="CHEBI:3312", predicate=CHEMROF_FORMULA, value="CaCl2", source="test").to_json_line())
+
     return intermediate_dir
 
 
@@ -205,8 +223,11 @@ def test_export_intermediates_to_parquet(tmp_path):
     ids_parquet = str(tmp_path / "Identifier.parquet")
     concords_parquet = str(tmp_path / "Concord.parquet")
     metadata_parquet = str(tmp_path / "Metadata.parquet")
+    properties_parquet = str(tmp_path / "Property.parquet")
 
-    export_intermediates_to_parquet(str(intermediate_dir), duckdb_file, ids_parquet, concords_parquet, metadata_parquet)
+    export_intermediates_to_parquet(
+        str(intermediate_dir), duckdb_file, ids_parquet, concords_parquet, metadata_parquet, properties_parquet
+    )
 
     # Concords: both rows loaded, and the embedded double quote is preserved literally
     # (quote='' on read_csv).
@@ -227,6 +248,15 @@ def test_export_intermediates_to_parquet(tmp_path):
         ("CHEBI:2", "biolink:SmallMolecule"),
         ("PLAIN:1", None),
         ("PLAIN:2", None),
+    ]
+
+    # Property: both rows loaded, and the InChI's semicolons survive intact.
+    properties = duckdb.execute(
+        f"SELECT curie, predicate, value FROM read_parquet('{properties_parquet}') ORDER BY predicate"
+    ).fetchall()
+    assert properties == [
+        ("CHEBI:3312", CHEMROF_FORMULA, "CaCl2"),
+        ("CHEBI:3312", CHEMROF_INCHI, "InChI=1S/2ClH.Ca/h2*1H;/q;;+2/p-2"),
     ]
 
     # Metadata: the sidecar describing Anatomy.txt resolves its subject filename, and the bare
@@ -257,12 +287,14 @@ def test_export_intermediates_to_parquet_filename_is_absolute(tmp_path, monkeypa
     concords_parquet = str(tmp_path / "Concord.parquet")
     ids_parquet = str(tmp_path / "Identifier.parquet")
     metadata_parquet = str(tmp_path / "Metadata.parquet")
+    properties_parquet = str(tmp_path / "Property.parquet")
     export_intermediates_to_parquet(
         "intermediate",  # deliberately relative
         str(tmp_path / "concords.duckdb"),
         ids_parquet,
         concords_parquet,
         metadata_parquet,
+        properties_parquet,
     )
 
     for parquet_file, columns in (
@@ -295,12 +327,14 @@ def test_export_intermediates_to_parquet_extensionless_concords_with_sidecar(tmp
 
     concords_parquet = str(tmp_path / "Concord.parquet")
     metadata_parquet = str(tmp_path / "Metadata.parquet")
+    properties_parquet = str(tmp_path / "Property.parquet")
     export_intermediates_to_parquet(
         str(intermediate_dir),
         str(tmp_path / "concords.duckdb"),
         str(tmp_path / "Identifier.parquet"),
         concords_parquet,
         metadata_parquet,
+        properties_parquet,
     )
 
     # Both extension-less data files are loaded; the sidecar's contents are not among them.
@@ -331,8 +365,11 @@ def test_export_intermediates_to_parquet_empty_tree(tmp_path):
     ids_parquet = str(tmp_path / "Identifier.parquet")
     concords_parquet = str(tmp_path / "Concord.parquet")
     metadata_parquet = str(tmp_path / "Metadata.parquet")
+    properties_parquet = str(tmp_path / "Property.parquet")
 
-    export_intermediates_to_parquet(str(intermediate_dir), duckdb_file, ids_parquet, concords_parquet, metadata_parquet)
+    export_intermediates_to_parquet(
+        str(intermediate_dir), duckdb_file, ids_parquet, concords_parquet, metadata_parquet, properties_parquet
+    )
 
     for parquet_file in (ids_parquet, concords_parquet, metadata_parquet):
         count = duckdb.execute(f"SELECT COUNT(*) FROM read_parquet('{parquet_file}')").fetchone()[0]
@@ -352,6 +389,7 @@ def test_export_intermediates_to_parquet_raises_on_existing_duckdb(tmp_path):
             str(tmp_path / "Identifier.parquet"),
             str(tmp_path / "Concord.parquet"),
             str(tmp_path / "Metadata.parquet"),
+            str(tmp_path / "Property.parquet"),
         )
 
 
@@ -370,6 +408,7 @@ def test_export_intermediates_to_parquet_inconsistent_columns(tmp_path):
             str(tmp_path / "Identifier.parquet"),
             str(tmp_path / "Concord.parquet"),
             str(tmp_path / "Metadata.parquet"),
+            str(tmp_path / "Property.parquet"),
         )
 
 
@@ -397,6 +436,7 @@ def test_export_intermediates_to_parquet_skips_malformed_concord_line(tmp_path, 
             str(tmp_path / "Identifier.parquet"),
             concords_parquet,
             str(tmp_path / "Metadata.parquet"),
+            str(tmp_path / "Property.parquet"),
         )
 
     concords = duckdb.execute(
@@ -431,6 +471,7 @@ def test_export_intermediates_to_parquet_malformed_concord_attributed_to_right_f
             str(tmp_path / "Identifier.parquet"),
             concords_parquet,
             str(tmp_path / "Metadata.parquet"),
+            str(tmp_path / "Property.parquet"),
         )
 
     # All three well-formed rows load; only C:2's malformed line is dropped.
@@ -457,9 +498,15 @@ def test_export_intermediates_to_parquet_creates_missing_output_dirs(tmp_path):
     ids_parquet = str(out / "Identifier.parquet")
     concords_parquet = str(out / "Concord.parquet")
     metadata_parquet = str(out / "Metadata.parquet")
+    properties_parquet = str(out / "Property.parquet")
 
     export_intermediates_to_parquet(
-        str(intermediate_dir), str(tmp_path / "concords.duckdb"), ids_parquet, concords_parquet, metadata_parquet
+        str(intermediate_dir),
+        str(tmp_path / "concords.duckdb"),
+        ids_parquet,
+        concords_parquet,
+        metadata_parquet,
+        properties_parquet,
     )
 
     for parquet_file in (ids_parquet, concords_parquet, metadata_parquet):

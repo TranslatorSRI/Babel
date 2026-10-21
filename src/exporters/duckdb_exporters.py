@@ -489,6 +489,7 @@ def export_intermediates_to_parquet(
     ids_parquet_filename,
     concords_parquet_filename,
     metadata_parquet_filename,
+    properties_parquet_filename,
     memory_limit_mb=None,
 ):
     """
@@ -504,6 +505,7 @@ def export_intermediates_to_parquet(
     :param ids_parquet_filename: The Parquet file to store the IDs.
     :param concords_parquet_filename: The Parquet file to store the concords.
     :param metadata_parquet_filename: The Parquet file to store the ID and concord metadata in.
+    :param properties_parquet_filename: The Parquet file to store the properties in.
     :param memory_limit_mb: DuckDB memory limit in MB. When set, overrides DuckDB's default
         (75% of system RAM), which can exceed the SLURM allocation on shared HPC nodes.
     """
@@ -511,7 +513,12 @@ def export_intermediates_to_parquet(
     _prepare_duckdb_output(duckdb_filename)
     # DuckDB's write_parquet won't create missing parent directories, so ensure each output's
     # directory exists -- this exporter is public and its Parquet paths need not share a directory.
-    for parquet_filename in (ids_parquet_filename, concords_parquet_filename, metadata_parquet_filename):
+    for parquet_filename in (
+        ids_parquet_filename,
+        concords_parquet_filename,
+        metadata_parquet_filename,
+        properties_parquet_filename,
+    ):
         ensure_parent_dir(parquet_filename)
 
     duckdb_config = {}
@@ -525,6 +532,9 @@ def export_intermediates_to_parquet(
         db.sql("""CREATE TABLE Identifier (filename STRING, curie STRING, biolink_type STRING)""")
         db.sql(
             """CREATE TABLE Metadata (filename STRING, subject_filename STRING, subject_file_path STRING, metadata_json STRING)"""
+        )
+        db.sql(
+            """CREATE TABLE Property (filename STRING, curie STRING, predicate STRING, value STRING, source STRING)"""
         )
 
         # Resolve to an absolute path so every `filename` value (and the metadata subject paths
@@ -605,6 +615,23 @@ def export_intermediates_to_parquet(
                 [str(ids_path)],
             )
 
+        # Load property files. These are gzipped JSONL of src.properties.Property, so unlike the
+        # concord and ids files they need no column guessing -- the four keys are fixed by
+        # Property.valid_keys(), and read_json's explicit `columns` makes a renamed or missing key
+        # fail loudly here rather than arriving as a column of NULLs.
+        for property_path, subject_filename in _iter_loadable_files(intermediate_path, "properties"):
+            if subject_filename is not None:
+                _insert_metadata(db, property_path, subject_filename)
+                continue
+            logger.info(f"Loading properties from {property_path}")
+            db.execute(
+                "INSERT INTO Property SELECT $1 AS filename, curie, predicate, value, source "
+                "FROM read_json($1, format='newline_delimited', "
+                "columns={'curie': 'VARCHAR', 'predicate': 'VARCHAR', 'value': 'VARCHAR', 'source': 'VARCHAR'})",
+                [str(property_path)],
+            )
+
         db.table("Concord").write_parquet(concords_parquet_filename)
         db.table("Identifier").write_parquet(ids_parquet_filename)
         db.table("Metadata").write_parquet(metadata_parquet_filename)
+        db.table("Property").write_parquet(properties_parquet_filename)

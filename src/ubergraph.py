@@ -424,6 +424,49 @@ class UberGraph:
             results.append(y)
         return results
 
+    def get_roles(self, iri):
+        """Return the ChEBI roles asserted for every descendant of `iri` that has one.
+
+        Queries the *non-redundant* graph, so each term carries only its directly asserted roles:
+        aspirin returns 13 there against 45 in the redundant graph, which is the same information
+        plus every ancestor of each role. Storing the redundant closure would multiply the row count
+        several-fold to say nothing new -- a consumer that wants ancestors can walk the role
+        hierarchy itself.
+
+        Terms with no role are not returned.
+
+        :param iri: The root whose descendants to collect roles for, as a CURIE (e.g. "CHEBI:24431").
+        :return: A list of (term CURIE, role CURIE) pairs.
+        """
+        text = """
+        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        prefix RO: <http://purl.obolibrary.org/obo/RO_>
+        prefix CHEBI: <http://purl.obolibrary.org/obo/CHEBI_>
+        select distinct ?term ?role
+        from <http://reasoner.renci.org/ontology>
+        where {
+            graph <http://reasoner.renci.org/redundant> {
+                ?term rdfs:subClassOf $sourcedefclass .
+            }
+            graph <http://reasoner.renci.org/nonredundant> {
+                ?term RO:0000087 ?role .
+            }
+        }
+        """
+        rr = self.triplestore.query_template(
+            inputs={"sourcedefclass": iri}, outputs=["term", "role"], template_text=text
+        )
+        results = []
+        for x in rr:
+            try:
+                term = Text.opt_to_curie(x["term"])
+                role = Text.opt_to_curie(x["role"])
+            except ValueError as verr:
+                self.logger.warning(f"Skipping role assertion {x} that could not be converted to CURIEs: {verr}")
+                continue
+            results.append((term, role))
+        return results
+
     def get_subclasses_and_xrefs(self, iri, hierarchy_predicate=HIERARCHY_SUBCLASS_OF):
         """Return every term below `iri` in a hierarchy that has an xref, with its xrefs.
         Terms with no xref are not returned.

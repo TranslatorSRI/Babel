@@ -1,0 +1,55 @@
+
+  Marvin  12070522092D          
+
+  3  2  0  0  0  0            999 V2000
+    0.0000    0.8250    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    0.0000   -0.8250    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    0.0000    0.0000    0.0000 U   0  3  0  0  0  0  0  0  0  0  0  0
+  3  1  2  0  0  0  0
+  3  2  2  0  0  0  0
+M  CHG  1   3   1
+M  END
+
+> <ChEBI ID>
+CHEBI:29124
+
+> <ChEBI NAME>
+dioxouranium(1+)
+
+> <STAR>
+3
+
+> <MASS>
+270.027
+
+> <FORMULA>
+O2U
+
+> <MONOISOTOPIC_MASS>
+270.04007
+
+> <CHARGE>
+1
+
+> <SMILES>
+[O]=[U+]=[O]
+
+> <INCHI>
+InChI=1S/2O.U/q;;+1
+
+> <INCHIKEY>
+AXQFOSFQUUEWOE-UHFFFAOYSA-N
+
+> <IUPAC_NAME>
+dioxidouranium(1+);dioxidouranium(V);dioxidouranium(V);dioxidouranium(1+)
+
+> <SYNONYM>
+UO2(+);[UO2](+);dioxouranium(1+);dioxouranium(V);uranyl(1+) ion;uranyl(1+);uranyl(V) cation
+
+> <Gmelin Registry Numbers>
+1892
+
+> <PubChem Substance Database Links>
+8146717
+
+$$$$

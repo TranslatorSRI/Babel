@@ -32,6 +32,28 @@ RDFS_SUBCLASSOF = RDFS + "subClassOf"
 # OWL predicates
 OWL_EQUIVALENT_CLASS = OWL + "equivalentClass"
 
+# RO (Relations Ontology) predicates
+RO = "http://purl.obolibrary.org/obo/RO_"
+HAS_ROLE = RO + "0000087"
+
+# ChemROF predicates, for a chemical's structure and physical properties.
+#
+# These are the names UberGraph publishes ChEBI's structural annotations under. ChEBI used to
+# publish them under http://purl.obolibrary.org/obo/chebi/ (smiles, inchi, inchikey, formula,
+# monoisotopicmass); that namespace now has zero triples in UberGraph, which is issue #1086.
+#
+# We name our properties after the ChemROF URIs rather than the dead ChEBI ones, and rather than
+# minting Babel-local URIs, so that a producer can be switched from the ChEBI SDF to UberGraph (or
+# to another source that speaks ChemROF) without changing anything downstream of the property file.
+CHEMROF = "https://w3id.org/chemrof/"
+CHEMROF_SMILES = CHEMROF + "smiles_string"
+CHEMROF_INCHI = CHEMROF + "inchi_string"
+CHEMROF_INCHI_KEY = CHEMROF + "inchi_key_string"
+CHEMROF_FORMULA = CHEMROF + "generalized_empirical_formula"
+CHEMROF_MASS = CHEMROF + "mass"
+CHEMROF_MONOISOTOPIC_MASS = CHEMROF + "monoisotopic_mass"
+CHEMROF_CHARGE = CHEMROF + "charge"
+
 # Biolink predicates
 BIOLINK = "biolink:"
 BIOLINK_SAME_AS = BIOLINK + "same_as"

@@ -1,0 +1,1378 @@
+role_curie,role_label,chemical_count
+CHEBI:25212,metabolite,4546
+CHEBI:76924,plant metabolite,3127
+CHEBI:35610,antineoplastic agent,1976
+CHEBI:77746,human metabolite,1955
+CHEBI:75771,mouse metabolite,1550
+CHEBI:76969,bacterial metabolite,989
+CHEBI:75772,Saccharomyces cerevisiae metabolite,760
+CHEBI:53000,epitope,686
+CHEBI:76971,Escherichia coli metabolite,675
+CHEBI:51217,fluorochrome,536
+CHEBI:76946,fungal metabolite,471
+CHEBI:33282,antibacterial agent,468
+CHEBI:76967,human xenobiotic metabolite,468
+CHEBI:68495,apoptosis inducer,455
+CHEBI:67079,anti-inflammatory agent,449
+CHEBI:22586,antioxidant,354
+CHEBI:35718,antifungal agent,349
+CHEBI:35703,xenobiotic,334
+CHEBI:76507,marine metabolite,328
+CHEBI:149553,anticoronaviral agent,325
+CHEBI:78298,environmental contaminant,324
+CHEBI:33286,agrochemical,316
+CHEBI:76956,Aspergillus metabolite,275
+CHEBI:24527,herbicide,260
+CHEBI:84087,human urinary metabolite,254
+CHEBI:36047,antibacterial drug,241
+CHEBI:86328,antifungal agrochemical,238
+CHEBI:33281,antimicrobial agent,237
+CHEBI:78804,Caenorhabditis elegans metabolite,236
+CHEBI:176497,geroprotector,219
+CHEBI:50113,androgen,215
+CHEBI:75767,animal metabolite,214
+CHEBI:63726,neuroprotective agent,207
+CHEBI:50266,prodrug,196
+CHEBI:86264,rat metabolite,187
+CHEBI:49103,drug metabolite,182
+CHEBI:50904,allergen,182
+CHEBI:35674,antihypertensive agent,181
+CHEBI:77178,histological dye,179
+CHEBI:35617,flavouring agent,178
+CHEBI:50903,carcinogenic agent,175
+CHEBI:59174,hapten,169
+CHEBI:59132,antigen,164
+CHEBI:35475,non-steroidal anti-inflammatory drug,159
+CHEBI:137684,Papio hamadryas metabolite,158
+CHEBI:38068,antimalarial,158
+CHEBI:27311,volatile oil component,157
+CHEBI:35620,vasodilator agent,156
+CHEBI:48578,radical scavenger,151
+CHEBI:78675,fundamental metabolite,149
+CHEBI:38462,EC 3.1.1.7 (acetylcholinesterase) inhibitor,141
+CHEBI:84735,algal metabolite,141
+CHEBI:76964,Penicillium metabolite,137
+CHEBI:76976,bacterial xenobiotic metabolite,137
+CHEBI:131604,Mycoplasma genitalium metabolite,129
+CHEBI:22587,antiviral agent,127
+CHEBI:85234,human blood serum metabolite,125
+CHEBI:35469,antidepressant,121
+CHEBI:35481,non-narcotic analgesic,119
+CHEBI:35526,hypoglycemic agent,117
+CHEBI:35623,anticonvulsant,114
+CHEBI:24852,insecticide,113
+CHEBI:23357,cofactor,111
+CHEBI:50427,platelet aggregation inhibitor,107
+CHEBI:75050,chromogenic compound,106
+CHEBI:48279,serotonergic antagonist,105
+CHEBI:83399,marine xenobiotic metabolite,105
+CHEBI:25435,mutagen,101
+CHEBI:48318,fragrance,101
+CHEBI:48422,angiogenesis inhibitor,100
+CHEBI:48876,muscarinic antagonist,96
+CHEBI:76206,xenobiotic metabolite,96
+CHEBI:76960,Chaetomium metabolite,92
+CHEBI:35482,opioid analgesic,91
+CHEBI:36044,antiviral drug,90
+CHEBI:22153,acaricide,89
+CHEBI:50910,neurotoxin,86
+CHEBI:88188,drug allergen,86
+CHEBI:35705,immunosuppressive agent,83
+CHEBI:50629,cyclooxygenase 2 inhibitor,83
+CHEBI:37733,EC 3.1.1.8 (cholinesterase) inhibitor,77
+CHEBI:35717,sedative,76
+CHEBI:37955,H1-receptor antagonist,75
+CHEBI:38070,anti-arrhythmia drug,75
+CHEBI:75768,mammalian metabolite,75
+CHEBI:50857,anti-allergic agent,74
+CHEBI:26013,pheromone,71
+CHEBI:35474,anxiolytic drug,71
+CHEBI:35472,anti-inflammatory drug,70
+CHEBI:35941,serotonergic agonist,70
+CHEBI:50733,nutraceutical,70
+CHEBI:62868,hepatoprotective agent,68
+CHEBI:61908,EC 1.14.13.39 (nitric oxide synthase) inhibitor,67
+CHEBI:228364,NMR chemical shift reference compound,66
+CHEBI:35221,antimetabolite,64
+CHEBI:55322,mu-opioid receptor agonist,64
+CHEBI:76498,coral metabolite,64
+CHEBI:25442,mycotoxin,63
+CHEBI:35523,bronchodilator agent,63
+CHEBI:48561,dopaminergic antagonist,63
+CHEBI:50919,antiemetic,63
+CHEBI:77307,cardioprotective agent,63
+CHEBI:50249,anticoagulant,62
+CHEBI:50925,EC 2.7.11.1 (non-specific serine/threonine protein kinase) inhibitor,62
+CHEBI:22333,alkylating agent,61
+CHEBI:62434,EC 2.7.10.1 (receptor protein-tyrosine kinase) inhibitor,61
+CHEBI:35493,antipyretic,60
+CHEBI:83056,Daphnia magna metabolite,60
+CHEBI:37958,dye,59
+CHEBI:51371,muscle relaxant,59
+CHEBI:59163,biomarker,59
+CHEBI:38215,calcium channel blocker,58
+CHEBI:64946,anti-HIV agent,58
+CHEBI:35480,analgesic,57
+CHEBI:48001,protein synthesis inhibitor,54
+CHEBI:50646,bone density conservation agent,53
+CHEBI:50908,hepatotoxic agent,53
+CHEBI:61115,EC 3.5.1.98 (histone deacetylase) inhibitor,53
+CHEBI:38161,chelator,52
+CHEBI:140602,Arabidopsis thaliana metabolite,51
+CHEBI:24127,fungicide,51
+CHEBI:68494,apoptosis inhibitor,51
+CHEBI:38637,tyrosine kinase inhibitor,50
+CHEBI:48407,antiparkinson drug,50
+CHEBI:73240,NF-kappaB inhibitor,50
+CHEBI:36333,local anaesthetic,49
+CHEBI:77884,EC 1.14.13.70 (sterol 14alpha-demethylase) inhibitor,49
+CHEBI:35544,EC 1.14.99.1 (prostaglandin-endoperoxide synthase) inhibitor,48
+CHEBI:83075,Daphnia pulex metabolite,48
+CHEBI:33231,antitubercular agent,47
+CHEBI:35530,beta-adrenergic antagonist,47
+CHEBI:48218,antiseptic drug,47
+CHEBI:50630,cyclooxygenase 1 inhibitor,47
+CHEBI:50846,immunomodulator,47
+CHEBI:50905,teratogenic agent,47
+CHEBI:60643,NMDA receptor antagonist,47
+CHEBI:27026,toxin,46
+CHEBI:138880,autophagy inducer,45
+CHEBI:37890,alpha-adrenergic antagonist,45
+CHEBI:49167,anti-asthmatic drug,45
+CHEBI:50514,vasoconstrictor agent,45
+CHEBI:53756,HIV-1 reverse transcriptase inhibitor,45
+CHEBI:26130,biological pigment,44
+CHEBI:26672,siderophore,44
+CHEBI:36335,trypanocidal drug,44
+CHEBI:50949,serotonin uptake inhibitor,44
+CHEBI:67239,EC 3.2.1.20 (alpha-glucosidase) inhibitor,44
+CHEBI:83074,kairomone,44
+CHEBI:35522,beta-adrenergic agonist,43
+CHEBI:35524,sympathomimetic agent,43
+CHEBI:64915,antiplasmodial drug,43
+CHEBI:70868,antileishmanial agent,43
+CHEBI:79091,EC 2.7.11.24 (mitogen-activated protein kinase) inhibitor,43
+CHEBI:25491,nematicide,42
+CHEBI:49201,anti-ulcer drug,42
+CHEBI:59517,DNA synthesis inhibitor,42
+CHEBI:27027,micronutrient,41
+CHEBI:50750,EC 5.99.1.3 [DNA topoisomerase (ATP-hydrolysing)] inhibitor,41
+CHEBI:82665,EC 2.7.11.22 (cyclin-dependent kinase) inhibitor,41
+CHEBI:35457,EC 3.4.15.1 (peptidyl-dipeptidase A) inhibitor,40
+CHEBI:53784,antispasmodic drug,40
+CHEBI:64947,anti-HIV-1 agent,40
+CHEBI:35441,antiinfective agent,39
+CHEBI:33287,fertilizer,38
+CHEBI:76617,EC 2.7.10.2 (non-specific protein-tyrosine kinase) inhibitor,38
+CHEBI:140165,Brassica napus metabolite,37
+CHEBI:33295,diagnostic agent,37
+CHEBI:35820,antiprotozoal drug,37
+CHEBI:38231,phytotoxin,37
+CHEBI:39116,pyrethroid ester insecticide,37
+CHEBI:51065,dopamine agonist,37
+CHEBI:50114,estrogen,36
+CHEBI:50183,P450 inhibitor,36
+CHEBI:51177,antitussive,36
+CHEBI:173084,ferroptosis inhibitor,35
+CHEBI:22583,antifeedant,35
+CHEBI:35222,inhibitor,35
+CHEBI:35679,antilipemic drug,35
+CHEBI:50902,genotoxin,35
+CHEBI:26841,synthetic auxin,34
+CHEBI:173085,ferroptosis inducer,33
+CHEBI:47868,photosensitizing agent,33
+CHEBI:33893,reagent,32
+CHEBI:35195,surfactant,32
+CHEBI:39442,fluorescent probe,32
+CHEBI:73192,EC 1.3.3.4 (protoporphyrinogen oxidase) inhibitor,32
+CHEBI:86327,antifungal drug,32
+CHEBI:136646,proherbicide,31
+CHEBI:22180,EC 2.2.1.6 (acetolactate synthase) inhibitor,31
+CHEBI:50276,EC 5.99.1.2 (DNA topoisomerase) inhibitor,31
+CHEBI:50509,potassium channel blocker,31
+CHEBI:50914,EC 2.7.1.137 (phosphatidylinositol 3-kinase) inhibitor,31
+CHEBI:51039,dopamine uptake inhibitor,31
+CHEBI:60575,phenoxy herbicide,31
+CHEBI:63248,oxidising agent,31
+CHEBI:74518,anti-obesity agent,31
+CHEBI:77182,food colouring,31
+CHEBI:23354,coenzyme,30
+CHEBI:35498,diuretic,30
+CHEBI:35640,adrenergic uptake inhibitor,30
+CHEBI:59683,antipruritic drug,30
+CHEBI:59997,EC 1.14.18.1 (tyrosinase) inhibitor,30
+CHEBI:76779,EC 3.4.21.26 (prolyl oligopeptidase) inhibitor,30
+CHEBI:143231,carbohydrate allergen,29
+CHEBI:35569,alpha-adrenergic agonist,29
+CHEBI:38147,cardiotonic drug,29
+CHEBI:38623,EC 1.4.3.4 (monoamine oxidase) inhibitor,29
+CHEBI:39456,antiglaucoma drug,29
+CHEBI:70722,EC 6.4.1.2 (acetyl-CoA carboxylase) inhibitor,29
+CHEBI:35842,antirheumatic drug,28
+CHEBI:48219,disinfectant,28
+CHEBI:52726,proteasome inhibitor,28
+CHEBI:64912,antimycobacterial drug,28
+CHEBI:64933,melanin synthesis inhibitor,28
+CHEBI:77523,Maillard reaction product,28
+CHEBI:77853,persistent organic pollutant,28
+CHEBI:197449,NMR solvent,27
+CHEBI:35337,central nervous system stimulant,27
+CHEBI:35660,HIV protease inhibitor,27
+CHEBI:48873,cholinergic antagonist,27
+CHEBI:50177,dermatologic drug,27
+CHEBI:63490,explosive,27
+CHEBI:63962,Hsp90 inhibitor,27
+CHEBI:67268,HIV-1 integrase inhibitor,27
+CHEBI:132992,radiosensitizing agent,26
+CHEBI:139566,Jacobaea metabolite,26
+CHEBI:24850,insect attractant,26
+CHEBI:35443,anthelminthic drug,26
+CHEBI:35444,antinematodal drug,26
+CHEBI:37956,histamine antagonist,26
+CHEBI:48878,nicotinic antagonist,26
+CHEBI:55324,gastrointestinal drug,26
+CHEBI:61951,microtubule-destabilising agent,26
+CHEBI:64909,poison,26
+CHEBI:78433,refrigerant,26
+CHEBI:138208,carotenoid biosynthesis inhibitor,25
+CHEBI:147285,EC 3.4.22.69 (SARS coronavirus main proteinase) inhibitor,25
+CHEBI:35856,lipoxygenase inhibitor,25
+CHEBI:37338,radioopaque medium,25
+CHEBI:38157,iron chelator,25
+CHEBI:50505,sweetening agent,25
+CHEBI:65207,vascular endothelial growth factor receptor antagonist,25
+CHEBI:83072,EC 1.3.5.1 [succinate dehydrogenase (quinone)] inhibitor,25
+CHEBI:25512,neurotransmitter,24
+CHEBI:35476,antipsychotic agent,24
+CHEBI:35497,androgen antagonist,24
+CHEBI:38461,carbamate insecticide,24
+CHEBI:38499,mitochondrial cytochrome-bc1 complex inhibitor,24
+CHEBI:49110,peripheral nervous system drug,24
+CHEBI:52425,EC 3.2.1.18 (exo-alpha-sialidase) inhibitor,24
+CHEBI:65191,second generation antipsychotic,24
+CHEBI:35219,plant growth retardant,23
+CHEBI:35225,buffer,23
+CHEBI:37887,adrenergic antagonist,23
+CHEBI:38633,sodium channel blocker,23
+CHEBI:50909,nephrotoxic agent,23
+CHEBI:63247,reducing agent,23
+CHEBI:64911,antimitotic,23
+CHEBI:35223,catalyst,22
+CHEBI:35821,anticholesteremic drug,22
+CHEBI:37670,protease inhibitor,22
+CHEBI:37700,EC 2.7.11.13 (protein kinase C) inhibitor,22
+CHEBI:46787,solvent,22
+CHEBI:47958,nicotinic acetylcholine receptor agonist,22
+CHEBI:48355,non-polar solvent,22
+CHEBI:48550,EC 1.1.1.21 (aldehyde reductase) inhibitor,22
+CHEBI:50370,parasympatholytic,22
+CHEBI:50926,angiogenesis modulating agent,22
+CHEBI:59826,progestin,22
+CHEBI:62488,signalling molecule,22
+CHEBI:76968,fungal xenobiotic metabolite,22
+CHEBI:24853,intercalator,21
+CHEBI:26115,phytoalexin,21
+CHEBI:38828,nonionic surfactant,21
+CHEBI:48358,polar aprotic solvent,21
+CHEBI:48887,bile acid metabolite,21
+CHEBI:60218,mimotope,21
+CHEBI:74440,epidermal growth factor receptor antagonist,21
+CHEBI:74783,astringent,21
+CHEBI:76595,nephroprotective agent,21
+CHEBI:76989,phytoestrogen,21
+CHEBI:140399,specialised pro-resolving mediator,20
+CHEBI:26155,plant growth regulator,20
+CHEBI:35608,EC 3.1.3.48 (protein-tyrosine-phosphatase) inhibitor,20
+CHEBI:37930,phenothiazine antipsychotic drug,20
+CHEBI:64049,food acidity regulator,20
+CHEBI:66980,nootropic agent,20
+CHEBI:91092,EC 2.7.11.26 (tau-protein kinase) inhibitor,20
+CHEBI:35488,central nervous system depressant,19
+CHEBI:48356,protic solvent,19
+CHEBI:50267,protective agent,19
+CHEBI:50503,laxative,19
+CHEBI:64133,EC 2.5.1.58 (protein farnesyltransferase) inhibitor,19
+CHEBI:64964,EC 1.13.11.34 (arachidonate 5-lipoxygenase) inhibitor,19
+CHEBI:139492,sensitiser,18
+CHEBI:37699,protein kinase inhibitor,18
+CHEBI:38317,EC 1.13.11.27 (4-hydroxyphenylpyruvate dioxygenase) inhibitor,18
+CHEBI:66987,radiation protective agent,18
+CHEBI:68481,mTOR inhibitor,18
+CHEBI:24621,hormone,17
+CHEBI:27780,detergent,17
+CHEBI:35499,hallucinogen,17
+CHEBI:50683,EC 1.5.1.3 (dihydrofolate reductase) inhibitor,17
+CHEBI:50751,anti-estrogen,17
+CHEBI:53559,topoisomerase IV inhibitor,17
+CHEBI:63510,EC 3.6.3.9 (Na(+)/K(+)-transporting ATPase) inhibitor,17
+CHEBI:64951,anti-HBV agent,17
+CHEBI:64953,anti-HSV-1 agent,17
+CHEBI:65190,first generation antipsychotic,17
+CHEBI:71031,orphan drug,17
+CHEBI:71692,insect repellent,17
+CHEBI:78031,Wnt signalling inhibitor,17
+CHEBI:33289,avicide,16
+CHEBI:35554,cardiovascular drug,16
+CHEBI:38877,intravenous anaesthetic,16
+CHEBI:50218,EC 3.1.4.* (phosphoric diester hydrolase) inhibitor,16
+CHEBI:50566,nitric oxide donor,16
+CHEBI:50748,antipsoriatic,16
+CHEBI:51121,fluorescent dye,16
+CHEBI:62913,EC 2.4.2.30 (NAD(+) ADP-ribosyltransferase) inhibitor,16
+CHEBI:63175,peptidomimetic,16
+CHEBI:73336,vulnerary,16
+CHEBI:83317,sterol biosynthesis inhibitor,16
+CHEBI:24869,ionophore,15
+CHEBI:26348,prosthetic group,15
+CHEBI:33288,rodenticide,15
+CHEBI:35625,EC 3.5.2.6 (beta-lactamase) inhibitor,15
+CHEBI:37153,EC 3.1.3.16 (phosphoprotein phosphatase) inhibitor,15
+CHEBI:49326,synthetic oral contraceptive,15
+CHEBI:50176,keratolytic drug,15
+CHEBI:51087,protecting group,15
+CHEBI:59282,kappa-opioid receptor agonist,15
+CHEBI:59745,chromatographic reagent,15
+CHEBI:61016,angiotensin receptor antagonist,15
+CHEBI:64696,EC 2.3.1.26 (sterol O-acyltransferase) inhibitor,15
+CHEBI:64924,hepatitis C protease inhibitor,15
+CHEBI:78295,food component,15
+CHEBI:88230,autophagy inhibitor,15
+CHEBI:23530,cytokinin,14
+CHEBI:37336,radioactive imaging agent,14
+CHEBI:37416,EC 2.7.7.6 (RNA polymerase) inhibitor,14
+CHEBI:48560,dopaminergic agent,14
+CHEBI:50247,antidote,14
+CHEBI:50469,EC 3.1.1.4 (phospholipase A2) inhibitor,14
+CHEBI:50502,EC 2.5.1.15 (dihydropteroate synthase) inhibitor,14
+CHEBI:50507,appetite depressant,14
+CHEBI:50684,cross-linking reagent,14
+CHEBI:50847,immunological adjuvant,14
+CHEBI:63457,fibroblast growth factor receptor antagonist,14
+CHEBI:65256,antimicrobial food preservative,14
+CHEBI:66991,sympatholytic agent,14
+CHEBI:70782,PPARalpha agonist,14
+CHEBI:79056,plasticiser,14
+CHEBI:79314,flame retardant,14
+CHEBI:15022,electron donor,13
+CHEBI:166831,copper chelator,13
+CHEBI:23018,EC 4.2.1.1 (carbonic anhydrase) inhibitor,13
+CHEBI:24937,jasmonates,13
+CHEBI:35442,antiparasitic agent,13
+CHEBI:35471,psychotropic drug,13
+CHEBI:37335,MRI contrast agent,13
+CHEBI:38325,muscarinic agonist,13
+CHEBI:38999,GABA-gated chloride channel antagonist,13
+CHEBI:50268,GABA modulator,13
+CHEBI:59544,phosphoantigen,13
+CHEBI:62215,allelochemical,13
+CHEBI:63047,food emulsifier,13
+CHEBI:64054,delta-opioid receptor agonist,13
+CHEBI:64943,EC 3.4.21.1 (chymotrypsin) inhibitor,13
+CHEBI:65259,GABA antagonist,13
+CHEBI:70728,actin polymerisation inhibitor,13
+CHEBI:71476,EC 2.3.1.85 (fatty acid synthase) inhibitor,13
+CHEBI:76988,xenoestrogen,13
+CHEBI:77962,food antioxidant,13
+CHEBI:145947,antiatherosclerotic agent,12
+CHEBI:36063,oxytocic,12
+CHEBI:37848,plant hormone,12
+CHEBI:38867,anaesthetic,12
+CHEBI:39259,pyrethroid ester acaricide,12
+CHEBI:50790,EC 1.14.14.14 (aromatase) inhibitor,12
+CHEBI:50912,cardiotoxic agent,12
+CHEBI:51076,antifouling biocide,12
+CHEBI:55323,antidiarrhoeal drug,12
+CHEBI:59897,EC 2.7.7.49 (RNA-directed DNA polymerase) inhibitor,12
+CHEBI:63054,osteogenesis regulator,12
+CHEBI:64926,serine protease inhibitor,12
+CHEBI:65001,EC 3.1.1.3 (triacylglycerol lipase) inhibitor,12
+CHEBI:65232,EC 3.4.21.5 (thrombin) inhibitor,12
+CHEBI:75047,B-Raf inhibitor,12
+CHEBI:136644,proinsecticide,11
+CHEBI:22917,phytogenic insecticide,11
+CHEBI:25355,mitochondrial respiratory-chain inhibitor,11
+CHEBI:25540,neonicotinoid insectide,11
+CHEBI:25605,nucleoside antibiotic,11
+CHEBI:33904,molluscicide,11
+CHEBI:38323,cholinergic drug,11
+CHEBI:38498,mitochondrial NADH:ubiquinone reductase inhibitor,11
+CHEBI:38870,inhalation anaesthetic,11
+CHEBI:39011,Good's buffer substance,11
+CHEBI:49159,leukotriene antagonist,11
+CHEBI:49200,EC 3.6.3.10 (H(+)/K(+)-exchanging ATPase) inhibitor,11
+CHEBI:50407,acid-base indicator,11
+CHEBI:50792,estrogen receptor antagonist,11
+CHEBI:52290,mitogen,11
+CHEBI:60807,anaesthesia adjuvant,11
+CHEBI:63951,estrogen receptor agonist,11
+CHEBI:64152,cysteine protease inhibitor,11
+CHEBI:64345,MALDI matrix material,11
+CHEBI:64996,EC 1.13.11.33 (arachidonate 15-lipoxygenase) inhibitor,11
+CHEBI:71554,PPARgamma agonist,11
+CHEBI:72768,aryl hydrocarbon receptor agonist,11
+CHEBI:76395,EC 2.3.1.48 (histone acetyltransferase) inhibitor,11
+CHEBI:132272,herbicide safener,10
+CHEBI:132717,bleaching agent,10
+CHEBI:140160,Camellia sinensis metabolite,10
+CHEBI:146270,oneirogen,10
+CHEBI:171664,antiamoebic agent,10
+CHEBI:233423,antifibrotic agent,10
+CHEBI:25078,luciferin,10
+CHEBI:25747,oxidized luciferins,10
+CHEBI:25944,pesticide,10
+CHEBI:33937,macronutrient,10
+CHEBI:38849,blood substitute,10
+CHEBI:38941,schistosomicide drug,10
+CHEBI:50185,fatty acid synthesis inhibitor,10
+CHEBI:50241,cholinesterase reactivator,10
+CHEBI:61966,metabotropic glutamate receptor agonist,10
+CHEBI:64018,protein kinase C agonist,10
+CHEBI:64106,protein kinase agonist,10
+CHEBI:64584,uremic toxin,10
+CHEBI:64932,cathepsin B inhibitor,10
+CHEBI:70770,Aurora kinase inhibitor,10
+CHEBI:76797,EC 2.5.1.18 (glutathione transferase) inhibitor,10
+CHEBI:77715,nasal decongestant,10
+OBI:0002743,,10
+CHEBI:131699,EC 2.7.7.7 (DNA-directed DNA polymerase) inhibitor,9
+CHEBI:138015,endocrine disruptor,9
+CHEBI:138103,inorganic acid,9
+CHEBI:140921,Hedgehog signaling pathway inhibitor,9
+CHEBI:144829,tumour antigen,9
+CHEBI:148436,nitrification inhibitor,9
+CHEBI:149552,emetic,9
+CHEBI:23240,chromophore,9
+CHEBI:35470,central nervous system drug,9
+CHEBI:35634,EC 1.17.3.2 (xanthine oxidase) inhibitor,9
+CHEBI:35664,EC 1.1.1.34/EC 1.1.1.88 (hydroxymethylglutaryl-CoA reductase) inhibitor,9
+CHEBI:37961,H2-receptor antagonist,9
+CHEBI:37962,adrenergic agent,9
+CHEBI:50248,hematologic agent,9
+CHEBI:50390,EC 1.6.5.2 [NAD(P)H dehydrogenase (quinone)] inhibitor,9
+CHEBI:50412,two-colour indicator,9
+CHEBI:50664,matrix metalloproteinase inhibitor,9
+CHEBI:50739,estrogen receptor modulator,9
+CHEBI:51373,GABA agonist,9
+CHEBI:60809,adjuvant,9
+CHEBI:63533,gonadotropin releasing hormone agonist,9
+CHEBI:65023,anti-asthmatic agent,9
+CHEBI:67114,ryanodine receptor agonist,9
+CHEBI:70821,cathepsin L (EC 3.4.22.15) inhibitor,9
+CHEBI:72316,virulence factor,9
+CHEBI:73190,antimutagen,9
+CHEBI:73273,sodium-glucose transport protein subtype 2 inhibitor,9
+CHEBI:74925,EC 3.4.23.46 (memapsin 2) inhibitor,9
+CHEBI:76022,soluble guanylate cyclase activator,9
+CHEBI:77034,mucolytic,9
+CHEBI:77194,EC 2.7.1.33 (pantothenate kinase) inhibitor,9
+CHEBI:83038,Daphnia galeata metabolite,9
+CHEBI:88048,cyanotoxin,9
+CHEBI:138977,quorum sensing inhibitor,8
+CHEBI:139361,TRP channel blocker,8
+CHEBI:145047,antispermatogenic agent,8
+CHEBI:145425,EC 2.7.11.21 (polo kinase) inhibitor,8
+CHEBI:156203,topoisomerase II inhibitor,8
+CHEBI:194338,T-type calcium channel blocker,8
+CHEBI:194423,aquaretic,8
+CHEBI:26645,semiochemical,8
+CHEBI:35678,histamine agonist,8
+CHEBI:35816,leprostatic drug,8
+CHEBI:35818,coccidiostat,8
+CHEBI:38503,EC 1.6.5.3 [NADH:ubiquinone reductase (H(+)-translocating)] inhibitor,8
+CHEBI:38634,voltage-gated sodium channel blocker,8
+CHEBI:39276,fumigant,8
+CHEBI:50137,mu-opioid receptor antagonist,8
+CHEBI:50513,mydriatic agent,8
+CHEBI:50627,EC 3.2.1.1 (alpha-amylase) inhibitor,8
+CHEBI:50671,antithyroid drug,8
+CHEBI:50691,abortifacient,8
+CHEBI:55350,neurokinin-1 receptor antagonist,8
+CHEBI:60186,EC 3.6.3.8 (Ca(2+)-transporting ATPase) inhibitor,8
+CHEBI:61950,microtubule-stabilising agent,8
+CHEBI:62803,fuel additive,8
+CHEBI:63562,glucocorticoid receptor agonist,8
+CHEBI:63673,chemokine receptor 5 antagonist,8
+CHEBI:64577,flour treatment agent,8
+CHEBI:64857,cosmetic,8
+CHEBI:65239,"EC 3.2.1.114 (mannosyl-oligosaccharide 1,3-1,6-alpha-mannosidase) inhibitor",8
+CHEBI:66900,prostaglandin receptor agonist,8
+CHEBI:66981,ophthalmology drug,8
+CHEBI:67267,EC 2.5.1.59 (protein geranylgeranyltransferase type I) inhibitor,8
+CHEBI:68563,P2Y12 receptor antagonist,8
+CHEBI:68581,EC 3.4.21.6 (coagulation factor Xa) inhibitor,8
+CHEBI:68612,EC 3.4.14.5 (dipeptidyl-peptidase IV) inhibitor,8
+CHEBI:70774,capsaicin receptor antagonist,8
+CHEBI:72571,pro-angiogenic agent,8
+CHEBI:72575,alarm pheromone,8
+CHEBI:73296,cholecystokinin antagonist,8
+CHEBI:75325,cathartic,8
+CHEBI:75763,eukaryotic metabolite,8
+CHEBI:75835,anti-anaemic agent,8
+CHEBI:76413,greenhouse gas,8
+CHEBI:77974,food packaging gas,8
+CHEBI:78361,lichen metabolite,8
+CHEBI:78444,EC 3.1.1.1 (carboxylesterase) inhibitor,8
+CHEBI:82655,animal growth promotant,8
+CHEBI:86385,EC 5.3.3.5 (cholestenol Delta-isomerase) inhibitor,8
+CHEBI:90199,c-Met tyrosine kinase inhibitor,8
+CHEBI:91016,GABAA receptor agonist,8
+CHEBI:137114,bromodomain-containing protein 4 inhibitor,7
+CHEBI:144981,EC 3.6.5.2 (small monomeric GTPase) inhibitor,7
+CHEBI:170010,EC 2.7.7.48 (RNA-directed RNA polymerase) inhibitor,7
+CHEBI:22676,auxin,7
+CHEBI:24319,EC 6.3.1.2 (glutamate--ammonia ligase) inhibitor,7
+CHEBI:33292,fuel,7
+CHEBI:35210,spin label,7
+CHEBI:35477,antimanic drug,7
+CHEBI:35487,EC 1.2.1.3 [aldehyde dehydrogenase (NAD(+))] inhibitor,7
+CHEBI:35845,gout suppressant,7
+CHEBI:38807,calcium channel agonist,7
+CHEBI:38869,general anaesthetic,7
+CHEBI:39143,Lewis acid,7
+CHEBI:39277,fumigant insecticide,7
+CHEBI:48354,polar solvent,7
+CHEBI:50141,bronchoconstrictor agent,7
+CHEBI:50781,EC 1.3.1.22 [3-oxo-5alpha-steroid 4-dehydrogenase (NADP(+))] inhibitor,7
+CHEBI:50837,estrogen antagonist,7
+CHEBI:50855,antiatherogenic agent,7
+CHEBI:59010,antiseborrheic,7
+CHEBI:59285,EC 1.14.13.132 (squalene monooxygenase) inhibitor,7
+CHEBI:59941,amphiphile,7
+CHEBI:63332,EC 3.1.3.1 (alkaline phosphatase) inhibitor,7
+CHEBI:63958,cellulose synthesis inhibitor,7
+CHEBI:64047,food additive,7
+CHEBI:64697,acyl-CoA:cholesterol acyltransferase 2 inhibitor,7
+CHEBI:65265,antacid,7
+CHEBI:66993,tocolytic agent,7
+CHEBI:70998,G-protein-coupled receptor agonist,7
+CHEBI:71196,glucagon-like peptide-1 receptor agonist,7
+CHEBI:73182,plant activator,7
+CHEBI:73193,gibberellin biosynthesis inhibitor,7
+CHEBI:75252,insulin-like growth factor receptor 1 antagonist,7
+CHEBI:76720,antisense oligonucleotide,7
+CHEBI:77035,expectorant,7
+CHEBI:78017,food propellant,7
+CHEBI:87183,STAT3 inhibitor,7
+CHEBI:90172,c-Jun N-terminal kinase inhibitor,7
+CHEBI:90415,insulin secretagogue,7
+CHEBI:139503,vitamin D receptor agonist,6
+CHEBI:141153,quinone outside inhibitor,6
+CHEBI:156211,MAIT cell agonist,6
+CHEBI:20854,ATP synthase inhibitor,6
+CHEBI:228138,antinociceptive agent,6
+CHEBI:23924,enzyme inhibitor,6
+CHEBI:25728,osmolyte,6
+CHEBI:35232,radiopharmaceutical,6
+CHEBI:35841,uricosuric drug,6
+CHEBI:36413,anabolic agent,6
+CHEBI:38706,pediculicide,6
+CHEBI:38808,calcium channel modulator,6
+CHEBI:48425,topical anaesthetic,6
+CHEBI:48675,antifibrinolytic drug,6
+CHEBI:49023,prostaglandin antagonist,6
+CHEBI:49323,contraceptive drug,6
+CHEBI:50103,excitatory amino acid agonist,6
+CHEBI:50382,EC 2.4.1.80 (ceramide glucosyltransferase) inhibitor,6
+CHEBI:50406,probe,6
+CHEBI:50445,EC 3.5.4.4 (adenosine deaminase) inhibitor,6
+CHEBI:50913,fixative,6
+CHEBI:51451,endothelin receptor antagonist,6
+CHEBI:53746,EC 1.1.1.205 (IMP dehydrogenase) inhibitor,6
+CHEBI:55347,vitamin K antagonist,6
+CHEBI:62872,EC 1.2.3.1 (aldehyde oxidase) inhibitor,6
+CHEBI:63674,EC 2.6.1.19 (4-aminobutyrate--2-oxoglutarate transaminase) inhibitor,6
+CHEBI:63963,metabotropic glutamate receptor antagonist,6
+CHEBI:64571,NMDA receptor agonist,6
+CHEBI:64949,anti-HIV-2 agent,6
+CHEBI:67199,AP-1 antagonist,6
+CHEBI:68844,phosphodiesterase IV inhibitor,6
+CHEBI:73214,EC 3.6.3.14 (H(+)-transporting two-sector ATPase) inhibitor,6
+CHEBI:73333,scabicide,6
+CHEBI:73335,ultraviolet filter,6
+CHEBI:74152,mordant,6
+CHEBI:75324,excipient,6
+CHEBI:77103,EC 1.3.5.2 [dihydroorotate dehydrogenase (quinone)] inhibitor,6
+CHEBI:77255,EC 3.4.24.83 (anthrax lethal factor endopeptidase) inhibitor,6
+CHEBI:77402,EC 1.8.1.12 (trypanothione-disulfide reductase) inhibitor,6
+CHEBI:77748,EC 3.6.3.44 (xenobiotic-transporting ATPase) inhibitor,6
+CHEBI:77941,EC 3.5.1.4 (amidase) inhibitor,6
+CHEBI:77965,food anticaking agent,6
+CHEBI:77971,raising agent,6
+CHEBI:85046,skin lightening agent,6
+CHEBI:90710,receptor modulator,6
+CHEBI:90749,antidote to cyanide poisoning,6
+CHEBI:131492,Wnt signalling activator,5
+CHEBI:131787,dopamine receptor D2 antagonist,5
+CHEBI:133106,chemical hybridisation agent,5
+CHEBI:136645,profungicide,5
+CHEBI:143130,impurity,5
+CHEBI:143252,ceramide allergen,5
+CHEBI:146246,CB2 receptor agonist,5
+CHEBI:229763,exportin 1 inhibitor,5
+CHEBI:24851,insect growth regulator,5
+CHEBI:24942,juvenile hormone mimic,5
+CHEBI:26089,photosystem-II inhibitor,5
+CHEBI:26220,precocenes,5
+CHEBI:27314,water-soluble vitamin (role),5
+CHEBI:33284,nutrient,5
+CHEBI:38809,ryanodine receptor modulator,5
+CHEBI:39316,mite growth regulator,5
+CHEBI:47867,indicator,5
+CHEBI:48278,serotonergic drug,5
+CHEBI:48668,gamma-secretase modulator,5
+CHEBI:50184,ion transport inhibitor,5
+CHEBI:50433,platelet glycoprotein-IIb/IIIa receptor antagonist,5
+CHEBI:50685,antitrichomonal drug,5
+CHEBI:50864,insulin-sensitizing drug,5
+CHEBI:51068,miotic,5
+CHEBI:51372,neuromuscular agent,5
+CHEBI:52214,ligand,5
+CHEBI:59107,EC 3.4.24.* (metalloendopeptidase) inhibitor,5
+CHEBI:60311,thyroid hormone,5
+CHEBI:60816,immunogen,5
+CHEBI:63060,phase-transfer catalyst,5
+CHEBI:64033,EC 3.5.1.99 (fatty acid amide hydrolase) inhibitor,5
+CHEBI:64922,EC 3.4.21.37 (leukocyte elastase) inhibitor,5
+CHEBI:65255,food preservative,5
+CHEBI:67105,insect sterilant,5
+CHEBI:70982,reactive oxygen species generator,5
+CHEBI:71942,"EC 3.1.4.35 (3',5'-cyclic-GMP phosphodiesterase) inhibitor",5
+CHEBI:72294,nerve growth factor stimulator,5
+CHEBI:72771,breast cancer resistance protein inhibitor,5
+CHEBI:73263,cyclooxygenase 3 inhibitor,5
+CHEBI:74136,lachrymator,5
+CHEBI:74213,EC 1.17.4.1 (ribonucleoside-diphosphate reductase) inhibitor,5
+CHEBI:74236,polymerisation monomer,5
+CHEBI:75282,ergosterol biosynthesis inhibitor,5
+CHEBI:75298,histamine releasing agent,5
+CHEBI:77113,EC 2.7.11.10 (IkappaB kinase) inhibitor,5
+CHEBI:77608,loop diuretic,5
+CHEBI:78152,enzyme mimic,5
+CHEBI:78366,EC 2.7.1.1 (hexokinase) inhibitor,5
+CHEBI:78760,EC 2.7.1.91 (sphingosine kinase) inhibitor,5
+CHEBI:79085,potassium channel opener,5
+CHEBI:79088,EC 3.4.24.35 (gelatinase B) inhibitor,5
+CHEBI:83157,EC 6.2.1.3 (long-chain-fatty-acid--CoA ligase) inhibitor,5
+CHEBI:83319,EC 1.3.1.70 (Delta(14)-sterol reductase) inhibitor,5
+CHEBI:83741,phospholipid biosynthesis inhibitor,5
+CHEBI:84036,EC 3.4.24.24 (gelatinase A) inhibitor,5
+CHEBI:85094,EC 2.7.11.11 (cAMP-dependent protein kinase) inhibitor,5
+CHEBI:88227,potassium ionophore,5
+CHEBI:91202,TGFbeta receptor antagonist,5
+CHEBI:130181,calmodulin antagonist,4
+CHEBI:131611,teichoic acid biosynthesis inhibitor,4
+CHEBI:131809,SMO receptor agonist,4
+CHEBI:133022,B-cell lymphoma 2 inhibitor,4
+CHEBI:134182,platelet-activating factor receptor antagonist,4
+CHEBI:136647,proacaricide,4
+CHEBI:137431,antihypotensive agent,4
+CHEBI:139246,peptide probe,4
+CHEBI:139556,EC 4.1.1.17 (ornithine decarboxylase) inhibitor,4
+CHEBI:140190,calcium-dependent antibiotics,4
+CHEBI:140489,tropomyosin-related kinase B receptor agonist,4
+CHEBI:140535,TRPV1 agonist,4
+CHEBI:140922,glioma-associated oncogene inhibitor,4
+CHEBI:142782,TRPV channel modulator,4
+CHEBI:142783,TRP channel modulator,4
+CHEBI:145410,EC 1.1.1.42 (isocitrate dehydrogenase) inhibitor,4
+CHEBI:167704,necroptosis inhibitor,4
+CHEBI:176342,EC 1.11.1.9 (glutathione peroxidase) inhibitor,4
+CHEBI:177023,somatostatin receptor agonist,4
+CHEBI:195525,EC 2.7.12.1 (dual-specificity kinase) inhibitor,4
+CHEBI:22986,calcium ionophore,4
+CHEBI:231761,convulsant,4
+CHEBI:233442,chemosensitiser,4
+CHEBI:23366,compatible osmolytes,4
+CHEBI:23582,defoliant,4
+CHEBI:24020,fat-soluble vitamin (role),4
+CHEBI:26157,plant growth stimulator,4
+CHEBI:35846,renal agent,4
+CHEBI:35942,neurotransmitter agent,4
+CHEBI:38500,EC 1.9.3.1 (cytochrome c oxidase) inhibitor,4
+CHEBI:38956,ectoparasiticide,4
+CHEBI:39208,antibiotic insecticide,4
+CHEBI:39351,pyrethroid ether insecticide,4
+CHEBI:48353,serine proteinase inhibitor,4
+CHEBI:48705,agonist,4
+CHEBI:48706,antagonist,4
+CHEBI:50568,"EC 3.1.4.17 (3',5'-cyclic-nucleotide phosphodiesterase) inhibitor",4
+CHEBI:50635,EC 3.5.1.5 (urease) inhibitor,4
+CHEBI:50779,appetite enhancer,4
+CHEBI:52629,EC 3.1.26.13 (retroviral ribonuclease H) inhibitor,4
+CHEBI:53121,adenosine A2A receptor antagonist,4
+CHEBI:59283,delta-opioid receptor antagonist,4
+CHEBI:59321,EC 4.1.1.28 (aromatic-L-amino-acid decarboxylase) inhibitor,4
+CHEBI:59647,EC 2.3.1.50 (serine C-palmitoyltransferase) inhibitor,4
+CHEBI:59680,vasopressin receptor antagonist,4
+CHEBI:59727,vasopressin receptor agonist,4
+CHEBI:59740,nucleophilic reagent,4
+CHEBI:60280,EC 3.5.1.2 (glutaminase) inhibitor,4
+CHEBI:63064,crystallisation adjutant,4
+CHEBI:63090,EC 2.4.2.1 (purine-nucleoside phosphorylase) inhibitor,4
+CHEBI:63114,sphingosine-1-phosphate receptor agonist,4
+CHEBI:63720,EC 2.1.1.45 (thymidylate synthase) inhibitor,4
+CHEBI:63932,EC 1.14.16.2 (tyrosine 3-monooxygenase) inhibitor,4
+CHEBI:63957,adenosine A1 receptor antagonist,4
+CHEBI:64154,H3-receptor agonist,4
+CHEBI:64155,H4-receptor agonist,4
+CHEBI:64176,H3-receptor antagonist,4
+CHEBI:64995,EC 1.13.11.31 (arachidonate 12-lipoxygenase) inhibitor,4
+CHEBI:66902,CFTR potentiator,4
+CHEBI:66908,SMO receptor antagonist,4
+CHEBI:67126,colorimetric reagent,4
+CHEBI:68543,pyrimidine synthesis inhibitor,4
+CHEBI:68557,bradykinin receptor antagonist,4
+CHEBI:68640,EC 1.14.99.9 (steroid 17alpha-monooxygenase) inhibitor,4
+CHEBI:70709,progesterone receptor agonist,4
+CHEBI:70822,EC 3.4.22.2 (papain) inhibitor,4
+CHEBI:71181,Sir2 inhibitor,4
+CHEBI:71212,prohormone,4
+CHEBI:72716,EC 2.3.2.13 (protein-glutamine gamma-glutamyltransferase) inhibitor,4
+CHEBI:73196,EC 4.4.1.11 (methionine gamma-lyase) inhibitor,4
+CHEBI:73267,oxidative phosphorylation inhibitor,4
+CHEBI:73416,CB1 receptor antagonist,4
+CHEBI:74529,antidote to paracetamol poisoning,4
+CHEBI:74530,antidote to curare poisoning,4
+CHEBI:76878,EC 2.3.1.* (acyltransferase transferring other than amino-acyl group) inhibitor,4
+CHEBI:77484,EC 1.1.1.25 (shikimate dehydrogenase) inhibitor,4
+CHEBI:77496,bradykinin receptor B2 agonist,4
+CHEBI:77703,EC 4.3.1.3 (histidine ammonia-lyase) inhibitor,4
+CHEBI:77969,food humectant,4
+CHEBI:77970,food thickening agent,4
+CHEBI:78505,venom,4
+CHEBI:78728,EC 1.3.1.72 (Delta(24)-sterol reductase) inhibitor,4
+CHEBI:78763,EC 2.7.11.18 (myosin-light-chain kinase) inhibitor,4
+CHEBI:82824,calpain inhibitor,4
+CHEBI:82933,gut flora metabolite,4
+CHEBI:83146,Daphnia tenebrosa metabolite,4
+CHEBI:85384,GABA reuptake inhibitor,4
+CHEBI:85540,thromboxane A2 antagonist,4
+CHEBI:88285,EC 2.7.12.* [dual-specificity kinases (those acting on Ser/Thr and Tyr residues)] inhibitor,4
+CHEBI:88286,EC 2.7.12.2 (mitogen-activated protein kinase kinase) inhibitor,4
+CHEBI:88295,G-protein-coupled receptor antagonist,4
+CHEBI:90374,histone acetyltransferase activator,4
+CHEBI:90713,retinoic acid receptor alpha antagonist,4
+CHEBI:90755,antidote to opioid poisoning,4
+CHEBI:102248,EC 1.14.11.29 (hypoxia-inducible factor-proline dioxygenase) inhibitor,3
+CHEBI:131509,EC 1.14.99.66 (lysine-specific histone demethylase 1A) inhibitor,3
+CHEBI:131770,EC 3.6.3.49 (channel-conductance-controlling ATPase) inhibitor,3
+CHEBI:132365,EC 1.14.11.2 (procollagen-proline dioxygenase) inhibitor,3
+CHEBI:132772,EC 3.6.5.5 (dynamin GTPase) inhibitor,3
+CHEBI:136860,antidote to sarin poisoning,3
+CHEBI:137514,TRPA1 channel agonist,3
+CHEBI:137626,EC 1.1.1.146 (11beta-hydroxysteroid dehydrogenase) inhibitor,3
+CHEBI:138931,glutamine antagonist,3
+CHEBI:141301,pronematicide,3
+CHEBI:142581,EC 4.1.1.15 (glutamate decarboxylase) inhibitor,3
+CHEBI:142790,EC 3.3.2.10 (soluble epoxide hydrolase) inhibitor,3
+CHEBI:144998,sphingosine-1-phosphate receptor 1 antagonist,3
+CHEBI:145437,uncoupling protein inhibitor,3
+CHEBI:145438,C-X-C chemokine receptor type 4 antagonist,3
+CHEBI:145982,5-hydroxytryptamine 2A receptor agonist,3
+CHEBI:167183,piscicide,3
+CHEBI:167694,EC 2.1.1.43 (enhancer of zeste homolog 2) inhibitor,3
+CHEBI:172949,antimicrobial cosmetic preservative,3
+CHEBI:196956,calcitonin gene-related peptide receptor antagonist,3
+CHEBI:229655,complement factor B inhibitor,3
+CHEBI:23888,drug,3
+CHEBI:36710,interferon inducer,3
+CHEBI:37337,ultrasound contrast agent,3
+CHEBI:38456,ecdysone agonist,3
+CHEBI:48360,amphiprotic solvent,3
+CHEBI:48676,fibrin modulating drug,3
+CHEBI:49020,hormone antagonist,3
+CHEBI:49205,CETP inhibitor,3
+CHEBI:50423,EC 1.6.3.1. [NAD(P)H oxidase (H2O2-forming)] inhibitor,3
+CHEBI:50510,potassium channel modulator,3
+CHEBI:50741,retinoic acid receptor alpha/beta agonist,3
+CHEBI:50844,aldosterone antagonist,3
+CHEBI:51060,hormone agonist,3
+CHEBI:51374,GABA agent,3
+CHEBI:51452,endothelin A receptor antagonist,3
+CHEBI:59672,EC 2.4.1.16 (chitin synthase) inhibitor,3
+CHEBI:59739,electrophilic reagent,3
+CHEBI:59844,antihyperplasia drug,3
+CHEBI:60606,opioid receptor agonist,3
+CHEBI:60798,excitatory amino acid antagonist,3
+CHEBI:60901,EC 2.5.1.9 (riboflavin synthase) inhibitor,3
+CHEBI:62754,glycine receptor antagonist,3
+CHEBI:63721,EC 2.1.2.2 (phosphoribosylglycinamide formyltransferase) inhibitor,3
+CHEBI:63794,retinoid X receptor agonist,3
+CHEBI:64370,glutamate transporter activator,3
+CHEBI:64477,monolignol,3
+CHEBI:64670,EC 1.8.1.9 (thioredoxin reductase) inhibitor,3
+CHEBI:64763,EC 3.1.4.11 (phosphoinositide phospholipase C) inhibitor,3
+CHEBI:64919,EC 2.3.1.20 (diacylglycerol O-acyltransferase) inhibitor,3
+CHEBI:65057,adenosine A1 receptor agonist,3
+CHEBI:66956,antidyskinesia agent,3
+CHEBI:67072,cannabinoid receptor agonist,3
+CHEBI:67200,provitamin A,3
+CHEBI:67231,EC 3.2.1.48 (sucrose alpha-glucosidase) inhibitor,3
+CHEBI:67232,"EC 3.2.1.10 (oligo-1,6-glucosidase) inhibitor",3
+CHEBI:70727,topoisomerase inhibitor,3
+CHEBI:71014,AMPA receptor antagonist,3
+CHEBI:71232,adenosine receptor antagonist,3
+CHEBI:71338,autoinducer,3
+CHEBI:747329,lubricant,3
+CHEBI:74886,neoglycolipid probe,3
+CHEBI:75174,EC 2.5.1.21 (squalene synthase) inhibitor,3
+CHEBI:75358,curing agent,3
+CHEBI:75380,EC 1.11.1.6 (catalase) inhibitor,3
+CHEBI:76787,EC 3.4.11.* (aminopeptidase) inhibitor,3
+CHEBI:76795,EC 3.4.22.36 (caspase-1) inhibitor,3
+CHEBI:76812,EC 2.7.11.* (protein-serine/threonine kinase) inhibitor,3
+CHEBI:76877,EC 2.3.2.* (aminoacyltransferase) inhibitor,3
+CHEBI:76940,EC 3.4.21.4 (trypsin) inhibitor,3
+CHEBI:76977,corticotropin-releasing factor receptor antagonist,3
+CHEBI:77090,EC 4.3.1.10 (serine-sulfate ammonia-lyase) inhibitor,3
+CHEBI:77111,EC 2.1.1.116 [3'-hydroxy-N-methyl-(S)-coclaurine 4'-O-methyltransferase] inhibitor,3
+CHEBI:77318,pregnane X receptor agonist,3
+CHEBI:77567,eugeroic,3
+CHEBI:77705,EC 3.4.19.* (omega-peptidase) inhibitor,3
+CHEBI:77706,EC 3.4.19.3 (pyroglutamyl-peptidase I) inhibitor,3
+CHEBI:77881,EC 4.3.1.15 (diaminopropionate ammonia-lyase) inhibitor,3
+CHEBI:77953,EC 6.1.1.4 (leucine--tRNA ligase) inhibitor,3
+CHEBI:77966,food stabiliser,3
+CHEBI:78006,food colour retention agent,3
+CHEBI:78016,food gelling agent,3
+CHEBI:78024,EC 4.1.1.50 (adenosylmethionine decarboxylase) inhibitor,3
+CHEBI:78248,vitamin B1 antagonist,3
+CHEBI:78379,EC 2.5.1.7 (UDP-N-acetylglucosamine 1-carboxyvinyltransferase) inhibitor,3
+CHEBI:78548,adenylate cyclase agonist,3
+CHEBI:78623,bone morphogenetic protein receptor antagonist,3
+CHEBI:78678,EC 4.6.1.2 (guanylate cyclase) inhibitor,3
+CHEBI:78947,archaeal metabolite,3
+CHEBI:79050,EC 3.4.22.52 (calpain-1) inhibitor,3
+CHEBI:79093,EC 1.11.2.2 (myeloperoxidase) inhibitor,3
+CHEBI:83313,protease-activated receptor-1 antagonist,3
+CHEBI:83762,"EC 3.2.1.28 (alpha,alpha-trehalase) inhibitor",3
+CHEBI:85180,nonnucleoside hepatitis C virus polymerase inhibitor,3
+CHEBI:85185,hepatitis C virus nonstructural protein 5A inhibitor,3
+CHEBI:86029,liver X receptor agonist,3
+CHEBI:86430,EC 1.14.13.78 (ent-kaurene oxidase) inhibitor,3
+CHEBI:90190,EC 2.1.1.37 [DNA (cytosine-5-)-methyltransferase] inhibitor,3
+CHEBI:90285,EC 4.1.1.23 (orotidine-5'-phosphate decarboxylase) inhibitor,3
+CHEBI:90753,antidote to organophosphate poisoning,3
+CHEBI:101086,EC 5.4.99.7 (lanosterol synthase) inhibitor,2
+CHEBI:131186,IP3 receptor antagonist,2
+CHEBI:131794,EC 2.7.11.17 (Ca(2+)/calmodulin-dependent protein kinase) inhibitor,2
+CHEBI:131795,dopamine receptor D1 agonist,2
+CHEBI:132972,farnesoid X receptor agonist,2
+CHEBI:133016,5-hydroxytryptamine 2A receptor inverse agonist,2
+CHEBI:133878,neuropeptide Y receptor antagonist,2
+CHEBI:134084,EC 1.15.1.1 (superoxide dismutase) inhibitor,2
+CHEBI:137079,eukaryotic initiation factor 4F inhibitor,2
+CHEBI:137123,EC 2.7.11.30 (receptor protein serine/threonine kinase) inhibitor,2
+CHEBI:137566,EC 2.5.1.48 (cystathionine gamma-synthase) inhibitor,2
+CHEBI:138416,angiotensin receptor agonist,2
+CHEBI:138956,EC 6.3.5.4 [asparagine synthase (glutamine-hydrolysing)] inhibitor,2
+CHEBI:139084,cis-Golgi ArfGEF GBF inhibitor,2
+CHEBI:139155,melanin-concentrating hormone receptor antagonist,2
+CHEBI:139339,EC 1.14.17.1 (dopamine beta-monooxygenase) inhibitor,2
+CHEBI:139512,EC 1.3.1.9 [enoyl-[acyl-carrier-protein] reductase (NADH)] inhibitor,2
+CHEBI:140061,TRPV4 agonist,2
+CHEBI:140482,neurokinin-3 receptor antagonist,2
+CHEBI:140982,neuropeptide FF receptor antagonist,2
+CHEBI:142184,5-hydroxytryptamine 2B receptor agonist,2
+CHEBI:142185,5-hydroxytryptamine 2C receptor agonist,2
+CHEBI:142738,tau aggregation inhibitor,2
+CHEBI:142781,EC 2.5.1.117 (homogentisate solanesyltransferase) inhibitor,2
+CHEBI:143909,EC 2.7.1.40 (pyruvate kinase) inhibitor,2
+CHEBI:144895,C5a receptor antagonist,2
+CHEBI:144997,sphingosine-1-phosphate receptor 3 antagonist,2
+CHEBI:145253,hyaluronan synthesis inhibitor,2
+CHEBI:145515,GABAA receptor antagonist,2
+CHEBI:145814,EC 1.2.1.11 (aspartate-semialdehyde dehydrogenase) inhibitor,2
+CHEBI:147289,EC 3.4.17.23 (angiotensin-converting enzyme 2) inhibitor,2
+CHEBI:149497,spin trapping reagent,2
+CHEBI:149598,EC 2.3.3.8 (ATP citrate synthase) inhibitor,2
+CHEBI:156297,EC 3.4.21.75 (furin) inhibitor,2
+CHEBI:167633,CPSF3 inhibitor,2
+CHEBI:173100,voltage-dependent anion channel inhibitor,2
+CHEBI:17654,electron acceptor,2
+CHEBI:176961,EC 2.7.11.2 - [pyruvate dehydrogenase (acetyl-transferring)] kinase inhibitor,2
+CHEBI:184301,EC 3.2.1.52 (beta-N-acetylhexosaminidase) inhibitor,2
+CHEBI:188147,urea herbicide,2
+CHEBI:190286,ceramide mimetic,2
+CHEBI:191196,EC 3.2.1.24 (alpha-mannosidase) inhibitor,2
+CHEBI:192269,CB1 receptor agonist,2
+CHEBI:194181,mitochondrial calcium uniporter inhibitor,2
+CHEBI:194467,NOD1 agonist,2
+CHEBI:197347,Rac1 inhibitor,2
+CHEBI:228263,EC 2.1.1.354 ([histone H3]-lysine(4) N-trimethyltransferase) inhibitor,2
+CHEBI:228347,trace amine-associated receptor 1 agonist,2
+CHEBI:229651,"EC 2.7.1.153 (phosphatidylinositol-4,5-bisphosphate 3-kinase) inhibitor",2
+CHEBI:229668,complement component 5 inhibitor,2
+CHEBI:231729,BET bromodomain inhibitor,2
+CHEBI:231911,renoprotective agent,2
+CHEBI:232436,calcium chelator,2
+CHEBI:233404,EC 1.14.11.68 ([histone H3]-trimethyl-L-lysine(27) demethylase) inhibitor,2
+CHEBI:26087,photosynthetic electron-transport chain inhibitor,2
+CHEBI:26088,photosystem-I inhibitor,2
+CHEBI:35204,tracer,2
+CHEBI:35206,isotopic tracer,2
+CHEBI:35207,radioactive tracer,2
+CHEBI:35224,effector,2
+CHEBI:35473,tranquilizing drug,2
+CHEBI:36043,antimicrobial drug,2
+CHEBI:36051,antisyphilitic drug,2
+CHEBI:37886,adrenergic agonist,2
+CHEBI:38155,phytosiderophore,2
+CHEBI:39000,sodium channel modulator,2
+CHEBI:39141,Bronsted acid,2
+CHEBI:39144,Lewis base,2
+CHEBI:39412,bridged diphenyl acaricide,2
+CHEBI:48406,EC 2.1.1.6 (catechol O-methyltransferase) inhibitor,2
+CHEBI:48525,calcimimetic,2
+CHEBI:48539,alpha-adrenergic drug,2
+CHEBI:49324,female contraceptive drug,2
+CHEBI:50188,provitamin,2
+CHEBI:50269,EC 1.1.1.1 (alcohol dehydrogenase) inhibitor,2
+CHEBI:50533,protein denaturant,2
+CHEBI:50643,EC 2.5.1.1 (dimethylallyltranstransferase) inhibitor,2
+CHEBI:50696,EC 2.4.1.129 (peptidoglycan glycosyltransferase) inhibitor,2
+CHEBI:51237,Grignard reagent,2
+CHEBI:52303,sterol methyltransferase inhibitor,2
+CHEBI:52943,carboxylic acid protecting group,2
+CHEBI:53337,tissue adhesive,2
+CHEBI:59229,GnRH antagonist,2
+CHEBI:59886,HIV fusion inhibitor,2
+CHEBI:60258,EC 3.4.* (hydrolases acting on peptide bond) inhibitor,2
+CHEBI:60688,EC 4.2.1.20 (tryptophan synthase) inhibitor,2
+CHEBI:60788,affinity label,2
+CHEBI:60832,tubulin modulator,2
+CHEBI:61015,nephrotoxin,2
+CHEBI:61026,bile therapy drug,2
+CHEBI:62873,odorant receptor agonist,2
+CHEBI:62914,axin stabilizer,2
+CHEBI:63157,EC 4.2.1.22 (cystathionine beta-synthase) inhibitor,2
+CHEBI:63158,EC 2.3.1.21 (carnitine O-palmitoyltransferase) inhibitor,2
+CHEBI:63173,T-cell proliferation inhibitor,2
+CHEBI:63923,sclerotherapy agent,2
+CHEBI:64088,incretin mimetic,2
+CHEBI:64105,protein kinase G agonist,2
+CHEBI:64338,K-ATP channel agonist,2
+CHEBI:64406,EC 3.4.22.38 (cathepsin K) inhibitor,2
+CHEBI:64570,EC 2.1.2.1 (glycine hydroxymethyltransferase) inhibitor,2
+CHEBI:64589,glycine receptor agonist,2
+CHEBI:64952,anti-HSV agent,2
+CHEBI:64957,EC 3.4.21.39 (chymase) inhibitor,2
+CHEBI:65053,EC 4.1.1.19 (arginine decarboxylase) inhibitor,2
+CHEBI:66894,erythropeotin receptor agonist,2
+CHEBI:67189,EC 3.4.24.3 (microbial collagenase) inhibitor,2
+CHEBI:67195,gap junctional intercellular communication inhibitor,2
+CHEBI:67198,retinoic acid receptor agonist,2
+CHEBI:67230,EC 3.2.1.45 (glucosylceramidase) inhibitor,2
+CHEBI:68542,EC 1.3.98.1 [dihydroorotate oxidase (fumarate)] inhibitor,2
+CHEBI:70817,EC 1.2.1.12 [glyceraldehyde-3-phosphate dehydrogenase (phosphorylating)] inhibitor,2
+CHEBI:72298,MTP inhibitor,2
+CHEBI:72483,vesicular glutamate transport inhibitor,2
+CHEBI:72854,"EC 1.13.11.52 (indoleamine 2,3-dioxygenase) inhibitor",2
+CHEBI:73136,EC 1.1.1.184 [carbonyl reductase (NADPH)] inhibitor,2
+CHEBI:73181,EC 1.11.1.11 (L-ascorbate peroxidase) inhibitor,2
+CHEBI:73191,abscisic acid receptor agonist,2
+CHEBI:73310,adenosine A2A receptor agonist,2
+CHEBI:73361,methionine aminopeptidase 2 inhibitor,2
+CHEBI:73668,peptide coupling reagent,2
+CHEBI:73730,PPARbeta/delta agonist,2
+CHEBI:73913,antifolate,2
+CHEBI:73966,nitric oxide synthase activator,2
+CHEBI:74234,"EC 1.1.1.153 [sepiapterin reductase (L-erythro-7,8-dihydrobiopterin forming)] inhibitor",2
+CHEBI:74352,quinol oxidation site inhibitor,2
+CHEBI:74914,microarray analysis reagent,2
+CHEBI:75414,platelet-activating factor receptor agonist,2
+CHEBI:75599,EC 6.3.2.2 (glutamate--cysteine ligase) inhibitor,2
+CHEBI:75968,EC 6.3.2.19 (ubiquitin--protein ligase) inhibitor,2
+CHEBI:76811,EC 3.1.4.12 (sphingomyelin phosphodiesterase) inhibitor,2
+CHEBI:76822,EC 3.2.1.31 (beta-glucuronidase) inhibitor,2
+CHEBI:76871,EC 2.1.1.* (methyltransferases) inhibitor,2
+CHEBI:76902,"EC 1.14.11.* (oxidoreductase acting on paired donors, 2-oxoglutarate as one donor, incorporating 1 atom each of oxygen into both donors) inhibitor",2
+CHEBI:76926,EC 3.4.13.19 (membrane dipeptidase) inhibitor,2
+CHEBI:76998,aryl hydrocarbon receptor antagonist,2
+CHEBI:77020,EC 1.10.99.2 [ribosyldihydronicotinamide dehydrogenase (quinone)] inhibitor,2
+CHEBI:77023,EC 2.3.3.1 [citrate (Si)-synthase] inhibitor,2
+CHEBI:77024,EC 3.1.3.41 (4-nitrophenylphosphatase) inhibitor,2
+CHEBI:77108,EC 1.1.1.141 [15-hydroxyprostaglandin dehydrogenase (NAD(+))] inhibitor,2
+CHEBI:77115,EC 2.1.1.122 [(S)-tetrahydroprotoberberine N-methyltransferase] inhibitor,2
+CHEBI:77118,EC 3.5.5.1 (nitrilase) inhibitor,2
+CHEBI:77161,Toll-like receptor 2 agonist,2
+CHEBI:77495,bradykinin receptor agonist,2
+CHEBI:77731,p53 activator,2
+CHEBI:77745,EC 3.4.24.18 (meprin A) inhibitor,2
+CHEBI:77747,EC 3.6.3.1 (phospholipid-translocating ATPase) inhibitor,2
+CHEBI:77781,EC 1.14.13.181 (13-deoxydaunorubicin hydroxylase) inhibitor,2
+CHEBI:78299,environmental food contaminant,2
+CHEBI:78377,EC 1.3.1.8 [acyl-CoA dehydrogenase (NADP(+))] inhibitor,2
+CHEBI:78547,protein kinase A agonist,2
+CHEBI:78592,vesicant,2
+CHEBI:78606,Hsp70 inducer,2
+CHEBI:78681,tropomyosin-related kinase B receptor antagonist,2
+CHEBI:78928,EC 3.6.1.3 (adenosinetriphosphatase) inhibitor,2
+CHEBI:79386,glycerophosphoinositol synthesis inhibitor,2
+CHEBI:79392,EC 6.1.1.2 (tryptophan--tRNA ligase) inhibitor,2
+CHEBI:82632,phytochrome chromophore,2
+CHEBI:82821,EC 3.4.22.53 (calpain-2) inhibitor,2
+CHEBI:82891,glucocorticoid receptor antagonist,2
+CHEBI:83034,EC 4.1.2.27 (sphinganine-1-phosphate aldolase) inhibitor,2
+CHEBI:83039,crustacean metabolite,2
+CHEBI:83612,hepatic steatosis inducing agent,2
+CHEBI:83757,"EC 2.4.1.231 [alpha,alpha-trehalose phosphorylase (configuration-retaining)] inhibitor",2
+CHEBI:83760,"EC 2.4.1.64 (alpha,alpha-trehalose phosphorylase) inhibitor",2
+CHEBI:83799,nonstructural protein 5A inhibitor,2
+CHEBI:85011,EC 2.6.1.16 (glutamine--fructose-6-phosphate transaminase (isomerizing)) inhibitor,2
+CHEBI:85053,EC 2.7.11.31 {[hydroxymethylglutaryl-CoA reductase (NADPH)] kinase} activator,2
+CHEBI:85424,glycine transporter 2 inhibitor,2
+CHEBI:86966,EC 3.4.21.92 (endopeptidase Clp) inhibitor,2
+CHEBI:87588,Smad3 inhibitor,2
+CHEBI:88336,retinoic acid receptor gamma agonist,2
+CHEBI:88355,alpha-secretase activator,2
+CHEBI:90318,EC 6.4.1.1 (pyruvate carboxylase) inhibitor,2
+CHEBI:90365,EC 4.6.1.1 (adenylate cyclase) inhibitor,2
+CHEBI:90375,Sir1 inhibitor,2
+CHEBI:90845,prostacyclin receptor agonist,2
+CHEBI:90878,EC 2.4.2.4 (thymidine phosphorylase) inhibitor,2
+CHEBI:91079,purinergic receptor P2 antagonist,2
+CHEBI:91081,purinergic receptor P2X antagonist,2
+CHEBI:91085,collagen cross-linking inhibitor,2
+CHEBI:91189,VEGF activator,2
+CHEBI:102368,EC 2.6.1.40 [(R)-3-amino-2-methylpropionate--pyruvate transaminase] inhibitor,1
+CHEBI:110725,EC 2.1.1.8 (histamine N-methyltransferase) inhibitor,1
+CHEBI:131359,adenosine A2B receptor agonist,1
+CHEBI:131495,formyl peptide receptor agonist,1
+CHEBI:131561,hyaluronic acid synthesis inhibitor,1
+CHEBI:131734,EC 2.7.11.20 (elongation factor 2 kinase) inhibitor,1
+CHEBI:131789,RUNX1 inhibitor,1
+CHEBI:131790,melatonin receptor antagonist,1
+CHEBI:131791,HIV-1 Tat inhibitor,1
+CHEBI:131844,EC 1.14.11.1 (gamma-butyrobetaine dioxygenase) inhibitor,1
+CHEBI:131961,"EC 1.13.11.11 (tryptophan 2,3-dioxygenase) inhibitor",1
+CHEBI:132518,EC 3.2.1.23 (beta-galactosidase) inhibitor,1
+CHEBI:132608,TRPM4 channel inhibitor,1
+CHEBI:132710,xenoantigen,1
+CHEBI:132771,EC 3.6.5.* (hydrolases acting on GTP; involved in cellular and subcellular movement) inhibitor,1
+CHEBI:133024,lymphocyte function-associated antigen-1 antagonist,1
+CHEBI:133190,fatty acid oxidation inhibitor,1
+CHEBI:133811,EC 2.4.1.17 (glucuronosyltransferase) inhibitor,1
+CHEBI:133891,salt-inducible kinase 2 inhibitor,1
+CHEBI:133895,EC 2.5.1.46 (deoxyhypusine synthase) inhibitor,1
+CHEBI:134083,hypoxia-inducible factor pathway activator,1
+CHEBI:134108,lipopolysaccharide biosynthesis inhibitor,1
+CHEBI:134109,EC 3.5.1.108 (UDP-3-O-acyl-N-acetylglucosamine deacetylase) inhibitor,1
+CHEBI:134173,antidote to barbiturate poisoning,1
+CHEBI:134545,EC 1.8.1.4 (dihydrolipoyl dehydrogenase) inhibitor,1
+CHEBI:136537,EC 2.4.2.8 (hypoxanthine phosphoribosyltransferase) inhibitor,1
+CHEBI:136580,LRH-1 antagonist,1
+CHEBI:136648,prosafener,1
+CHEBI:136651,S100 calcium-binding protein B inhibitor,1
+CHEBI:136859,pro-agent,1
+CHEBI:136984,EC 4.4.1.14 (1-aminocyclopropane-1-carboxylate synthase) inhibitor,1
+CHEBI:137401,capsaicin receptor agonist,1
+CHEBI:137736,anxiogenic,1
+CHEBI:138014,EC 3.4.22.56 (caspase-3) inhibitor,1
+CHEBI:138090,ATPase motor cytoplasmic dynein inhibitor,1
+CHEBI:138168,neuropeptide Y2 receptor agonist,1
+CHEBI:138380,RhoA inhibitor,1
+CHEBI:138381,RhoC inhibitor,1
+CHEBI:138390,EC 1.1.1.159 (7alpha-hydroxysteroid dehydrogenase) inhibitor,1
+CHEBI:138887,prostaglandin receptor antagonist,1
+CHEBI:138921,EC 6.3.5.5 [carbamoyl-phosphate synthase (glutamine-hydrolysing)] inhibitor,1
+CHEBI:138925,EC 6.3.4.2 [CTP synthase (glutamine hydrolyzing)] inhibitor,1
+CHEBI:138927,EC 6.3.5.3 (phosphoribosylformylglycinamidine synthase) inhibitor,1
+CHEBI:138928,EC 6.3.5.2 [GMP synthase (glutamine-hydrolysing)] inhibitor,1
+CHEBI:138938,EC 4.1.1.39 (ribulose-bisphosphate carboxylase) inhibitor,1
+CHEBI:138952,EC 2.4.2.14 (amidophosphoribosyltransferase) inhibitor,1
+CHEBI:138953,EC 6.3.5.1 [NAD(+) synthase (glutamine-hydrolysing)] inhibitor,1
+CHEBI:139044,thromboxane A2 agonist,1
+CHEBI:139055,PERK inhibitor,1
+CHEBI:139074,LIM kinase inhibitor,1
+CHEBI:139109,IP3 receptor agonist,1
+CHEBI:139153,EC 2.4.1.255 (protein O-GlcNAc transferase) inhibitor,1
+CHEBI:139180,nicotinic acid adenine dinucleotide phosphate receptor antagonist,1
+CHEBI:139584,lysophosphatidic acid receptor 3 agonist,1
+CHEBI:139609,survivin suppressant,1
+CHEBI:140378,EC 1.1.1.37 (malate dehydrogenase) inhibitor,1
+CHEBI:140701,secreted frizzled-related protein 1 inhibitor,1
+CHEBI:141000,neuropeptide FF receptor agonist,1
+CHEBI:141001,kisspeptin receptor agonist,1
+CHEBI:142480,EC 1.14.14.94 (leukotriene-B4 20-monooxygenase) inhibitor,1
+CHEBI:142481,EC 1.14.15.3 (alkane 1-monooxygenase) inhibitor,1
+CHEBI:143001,GABAB receptor agonist,1
+CHEBI:143003,EC 2.1.3.3 (ornithine carbamoyltransferase) inhibitor,1
+CHEBI:143204,peptide allergen,1
+CHEBI:143828,EC 1.14.14.154 (sterol 14alpha-demethylase) inhibitor,1
+CHEBI:144064,EC 1.14.15.6 cholesterol monooxygenase (side-chain-cleaving) inhibitor,1
+CHEBI:144097,EC 1.4.3.2 (L-amino-acid oxidase) inhibitor,1
+CHEBI:144099,EC 2.6.1.2 (alanine transaminase) inhibitor,1
+CHEBI:144387,EC 2.7.1.105 (6-phosphofructo-2-kinase) inhibitor,1
+CHEBI:144455,EC 3.1.1.64 (retinoid isomerohydrolase) inhibitor,1
+CHEBI:145807,forkhead box protein O1 inhibitor,1
+CHEBI:146223,ryanodine receptor antagonist,1
+CHEBI:149639,EC 3.4.21.36 (pancreatic elastase) inhibitor,1
+CHEBI:149711,chemokine receptor 2 antagonist,1
+CHEBI:150006,SERCA activator,1
+CHEBI:156527,EC 2.4.1.109 (dolichyl-phosphate-mannose-protein mannosyltransferase) inhibitor,1
+CHEBI:166822,EC 3.4.23.15 (renin) inhibitor,1
+CHEBI:166909,neuropilin receptor antagonist,1
+CHEBI:167165,kappa-opioid receptor antagonist,1
+CHEBI:167523,ovicide,1
+CHEBI:167677,EC 6.1.1.6 (lysine--tRNA ligase) inhibitor,1
+CHEBI:172326,EC 2.1.1.348 (mRNA m6A methyltransferase) inhibitor,1
+CHEBI:172919,EC 2.6.1.11 (acetylornithine transaminase) inhibitor,1
+CHEBI:173094,EC 3.1.3.25 (inositol-phosphate phosphatase) inhibitor,1
+CHEBI:173108,thioredoxin inhibitor,1
+CHEBI:176495,actin polymerisation inducer,1
+CHEBI:176508,ferroptosis suppressor protein 1 inhibitor,1
+CHEBI:183050,neoantigen,1
+CHEBI:184380,EC 1.14.14.91 ( trans-cinnamate 4-monooxygenase) inhibitor,1
+CHEBI:189665,EC 3.4.21.61 (kexin) inhibitor,1
+CHEBI:189675,PAR2 negative allosteric modulator,1
+CHEBI:189684,sigma-2 receptor agonist,1
+CHEBI:192504,elicitor,1
+CHEBI:192999,EC 6.2.1.45 (E1 ubiquitin-activating enzyme) inhibitor,1
+CHEBI:194137,neurokinin-1 receptor agonist,1
+CHEBI:194154,piezo1 agonist,1
+CHEBI:194187,gastric inhibitory polypeptide receptor agonist,1
+CHEBI:194430,antimyopathic agent,1
+CHEBI:195251,activator,1
+CHEBI:195252,enzyme activator,1
+CHEBI:195331,EC 2.6.1.13 (ornithine aminotransferase) inhibitor,1
+CHEBI:195444,insulin-like growth factor-binding protein inhibitor,1
+CHEBI:195530,PCNA inhibitor,1
+CHEBI:195542,sphingosine-1-phosphate receptor 2 antagonist,1
+CHEBI:195561,EC 3.5.3.1 (arginase) inhibitor,1
+CHEBI:20569,EC 2.5.1.19 (3-phosphoshikimate 1-carboxyvinyltransferase) inhibitor,1
+CHEBI:22309,alicyclic antibiotics,1
+CHEBI:22581,antiauxins,1
+CHEBI:228237,sigma-1 receptor agonist,1
+CHEBI:228284,WNK signaling inhibitor,1
+CHEBI:228801,heat shock factor 1 inhibitor,1
+CHEBI:229227,sodium-glucose transport protein subtype 1 inhibitor,1
+CHEBI:229692,IAP antagonist,1
+CHEBI:229783,glucose transporter 1 inhibitor,1
+CHEBI:230471,"EC 2.4.1.34 (1,3-beta-glucan synthase) inhibitor",1
+CHEBI:231708,EC 2.4.2.12 (nicotinamide phosphoribosyltransferase) inhibitor,1
+CHEBI:231732,CXCR2 antagonist,1
+CHEBI:231760,EC 1.3.1.6 (fumarate reductase (NADH)) inhibitor,1
+CHEBI:231916,NLRP3 inhibitor,1
+CHEBI:232442,p53 inhibitor,1
+CHEBI:232530,mass spectrometer degradation product,1
+CHEBI:233336,P2Y14 receptor antagonist,1
+CHEBI:234036,EC 3.2.1.169 (protein O-GlcNAcase) inhibitor,1
+CHEBI:234089,OLIG2 inhibitor,1
+CHEBI:234474,Toll-like receptor 7 agonist,1
+CHEBI:234476,centromere protein E inhibitor,1
+CHEBI:234483,monocarboxylate transporter 1 inhibitor,1
+CHEBI:234572,protein aggregation inhibitor,1
+CHEBI:23529,cytochrome-b6f complex inhibitor,1
+CHEBI:235466,EC 2.4.2.28 (S-methyl-5'-thioadenosine phosphorylase) inhibitor,1
+CHEBI:235515,EC 3.2.1.21 (beta-glucosidase) inhibitor,1
+CHEBI:235516,EC 3.2.1.25 (beta-mannosidase) inhibitor,1
+CHEBI:24002,ethylene releasers,1
+CHEBI:24028,iron(3+) chelator,1
+CHEBI:25573,nodulation factor,1
+CHEBI:25943,pesticide synergist,1
+CHEBI:26413,pyrethroid insecticide,1
+CHEBI:33280,molecular messenger,1
+CHEBI:35208,physical tracer,1
+CHEBI:35211,radioactive label,1
+CHEBI:35226,spin probe,1
+CHEBI:35230,fossil fuel,1
+CHEBI:35684,antiplatyhelmintic drug,1
+CHEBI:36053,acaricide drug,1
+CHEBI:38060,triazine insecticide,1
+CHEBI:38234,DNA polymerase inhibitor,1
+CHEBI:38324,cholinergic agonist,1
+CHEBI:38632,membrane transport modulator,1
+CHEBI:39142,Bronsted base,1
+CHEBI:39216,antibiotic acaricide,1
+CHEBI:39217,antibiotic nematicide,1
+CHEBI:39301,sulfite ester acaricide,1
+CHEBI:39318,tetrazine acaricide,1
+CHEBI:39369,pyrethroid ether acaricide,1
+CHEBI:39378,homopteran inhibitor of chitin biosynthesis,1
+CHEBI:39379,lepidopteran inhibitor of chitin biosynthesis,1
+CHEBI:39415,dinitrophenol insecticide,1
+CHEBI:48357,aprotic solvent,1
+CHEBI:49325,oral contraceptive,1
+CHEBI:50408,visual indicator,1
+CHEBI:50410,colour indicator,1
+CHEBI:50444,adenosine phosphodiesterase inhibitor,1
+CHEBI:50504,osmotic diuretic,1
+CHEBI:50745,progestogen,1
+CHEBI:50788,EC 1.1.1.210 [3beta(or 20alpha)-hydroxysteroid dehydrogenase] inhibitor,1
+CHEBI:50827,antiparathyroid drug,1
+CHEBI:51061,hormone receptor modulator,1
+CHEBI:51577,partial prostacyclin agonist,1
+CHEBI:52206,biochemical role,1
+CHEBI:52217,pharmaceutical,1
+CHEBI:52271,squaraine dye,1
+CHEBI:52424,EC 3.2.1.* (glycosidase) inhibitor,1
+CHEBI:52941,phosphate protecting group,1
+CHEBI:53142,P2Y2 receptor agonist,1
+CHEBI:53353,GHB receptor agonist,1
+CHEBI:53431,chain carrier,1
+CHEBI:53659,EC 1.4.3.22 (diamine oxidase) inhibitor,1
+CHEBI:55351,substance P receptor antagonist,1
+CHEBI:59752,bolaamphiphile,1
+CHEBI:60605,opioid receptor antagonist,1
+CHEBI:60646,chiral reagent,1
+CHEBI:60649,glucagon receptor antagonist,1
+CHEBI:61774,inositol phosphorylceramide synthase inhibitor,1
+CHEBI:62049,acyl donor,1
+CHEBI:62089,EC 1.4.7.1 [glutamate synthase (ferredoxin)] inhibitor,1
+CHEBI:62530,EC 2.3.1.24 (sphingosine N-acyltransferase) inhibitor,1
+CHEBI:62608,EC 4.2.1.3 (aconitate hydratase) inhibitor,1
+CHEBI:62609,EC 3.11.1.3 (phosphonopyruvate hydrolase) inhibitor,1
+CHEBI:62871,EC 4.3.1.24 (phenylalanine ammonia-lyase) inhibitor,1
+CHEBI:62887,tankyrase inhibitor,1
+CHEBI:62915,sialyltransferase inhibitor,1
+CHEBI:63146,insulin release inhibitor,1
+CHEBI:63156,EC 1.1.3.13 (alcohol oxidase) inhibitor,1
+CHEBI:63330,sodium-dependent Pi-transporter inhibitor,1
+CHEBI:63908,film-forming compound,1
+CHEBI:63936,alpha1B-adrenoceptor antagonist,1
+CHEBI:64102,AMPA receptor agonist,1
+CHEBI:64237,EC 2.7.8.15 (UDP-N-acetylglucosamine--dolichyl-phosphate N-acetylglucosaminephosphotransferase) inhibitor,1
+CHEBI:64297,reaction intermediate,1
+CHEBI:64411,EC 2.5.1.29 (geranylgeranyl diphosphate synthase) inhibitor,1
+CHEBI:64416,EC 1.3.1.43 (arogenate dehydrogenase) inhibitor,1
+CHEBI:64588,glycine transporter 1 inhibitor,1
+CHEBI:64920,EC 6.5.1.1 [DNA ligase (ATP)] inhibitor,1
+CHEBI:64954,anti-HSV-2 agent,1
+CHEBI:64955,EC 3.2.1.166 (heparanase) inhibitor,1
+CHEBI:65056,EC 3.1.3.11 (fructose-bisphosphatase) inhibitor,1
+CHEBI:65064,EC 2.1.1.79 (cyclopropane-fatty-acyl-phospholipid synthase) inhibitor,1
+CHEBI:65065,EC 2.1.1.72 [site-specific DNA-methyltransferase (adenine-specific)] inhibitor,1
+CHEBI:65254,LRH-1 agonist,1
+CHEBI:67137,NMR shift reagent,1
+CHEBI:68509,glutathione depleting agent,1
+CHEBI:68553,guanylate cyclase 2C agonist,1
+CHEBI:70724,cell dedifferentiation agent,1
+CHEBI:70725,adenosine A3 receptor antagonist,1
+CHEBI:70781,PPAR modulator,1
+CHEBI:71027,progesterone receptor modulator,1
+CHEBI:71033,carbamylphosphate synthetase I activator,1
+CHEBI:71168,HIV-1 maturation inhibitor,1
+CHEBI:71173,H1-receptor agonist,1
+CHEBI:71178,EC 2.1.1.4 (acetylserotonin O-methyltransferase) inhibitor,1
+CHEBI:71551,EC 3.5.1.23 (ceramidase) inhibitor,1
+CHEBI:71951,EC 3.5.1.88 (peptide deformylase) inhibitor,1
+CHEBI:72311,glucagon-like peptide-2 receptor agonist,1
+CHEBI:72470,provitamin B1,1
+CHEBI:72773,carotogenesis inhibitor,1
+CHEBI:72774,EC 1.3.99.29 [phytoene desaturase (zeta-carotene-forming)] inhibitor,1
+CHEBI:73189,brassinosteroid biosynthesis inhibitor,1
+CHEBI:73311,adenosine receptor agonist,1
+CHEBI:73319,adenosine A3 receptor agonist,1
+CHEBI:73352,protein-sequencing agent,1
+CHEBI:73354,EC 2.7.3.2 (creatine kinase) inhibitor,1
+CHEBI:73417,CB2 receptor antagonist,1
+CHEBI:73618,spectrophotometric reagent,1
+CHEBI:73623,tolerogen,1
+CHEBI:73911,vibriostatic agent,1
+CHEBI:74520,EC 1.1.1.44 (NADP(+)-dependent decarboxylating phosphogluconate dehydrogenase) inhibitor,1
+CHEBI:74570,EC 2.3.2.2 (gamma-glutamyltransferase) inhibitor,1
+CHEBI:747331,plastic stabilizer,1
+CHEBI:747333,plastic filler,1
+CHEBI:747337,plastic adhesive,1
+CHEBI:747338,plastic heat stabilizer,1
+CHEBI:747339,plastic light stabilizer,1
+CHEBI:747341,impact modifier,1
+CHEBI:747342,polymerization initiator,1
+CHEBI:747343,plastic odor agent,1
+CHEBI:74949,EC 3.1.27.3 (ribonuclease T1) inhibitor,1
+CHEBI:75190,"EC 5.4.3.2 (lysine 2,3-aminomutase) inhibitor",1
+CHEBI:75416,EC 6.1.1.* (ligases forming aminoacyl tRNA and related compounds) inhibitor,1
+CHEBI:75429,EC 1.4.4.2 [glycine dehydrogenase (aminomethyl-transferring)] inhibitor,1
+CHEBI:75495,EC 6.1.1.11 (serine--tRNA ligase) inhibitor,1
+CHEBI:76219,fluorogen,1
+CHEBI:76531,odorant receptor antagonist,1
+CHEBI:76648,fluorescence quencher,1
+CHEBI:76693,EC 5.2.* (cis-trans-isomerase) inhibitor,1
+CHEBI:76733,EC 1.6.* (oxidoreductase acting on NADH or NADPH) inhibitor,1
+CHEBI:76773,EC 3.1.1.* (carboxylic ester hydrolase) inhibitor,1
+CHEBI:76798,EC 1.14.15.4 (steroid 11beta-monooxygenase) inhibitor,1
+CHEBI:76828,EC 5.1.1.* (racemases acting on amino acids and derivatives) inhibitor,1
+CHEBI:76841,"EC 1.14.13.* (oxidoreductase acting on paired donors, incorporating 1 atom of oxygen, with NADH or NADPH as one donor) inhibitor",1
+CHEBI:76869,"EC 1.8.1.* (oxidoreductase acting on sulfur group of donors, NAD(+) or NADP(+) as acceptor) inhibitor",1
+CHEBI:76879,EC 2.6.1.* (transaminase) inhibitor,1
+CHEBI:76881,EC 2.7.1.* (phosphotransferases with an alcohol group as acceptor) inhibitor,1
+CHEBI:76885,EC 3.4.23.* (aspartic endopeptidase) inhibitor,1
+CHEBI:76891,EC 3.4.11.14 (cytosol alanyl aminopeptidase) inhibitor,1
+CHEBI:76893,EC 3.4.14.2 (dipeptidyl-peptidase II) inhibitor,1
+CHEBI:76907,EC 4.2.1.* (hydro-lyases) inhibitor,1
+CHEBI:76916,hyperglycemic agent,1
+CHEBI:76938,EC 3.6.4.* (hydrolases acting on ATP; involved in cellular and subcellular movement) inhibitor,1
+CHEBI:76939,EC 3.6.4.10 (non-chaperonin molecular chaperone ATPase) inhibitor,1
+CHEBI:76973,Streptococcus pneumoniae metabolite,1
+CHEBI:76990,mycoestrogen,1
+CHEBI:77089,EC 2.5.1.49 (O-acetylhomoserine aminocarboxypropyltransferase) inhibitor,1
+CHEBI:77106,EC 1.10.2.2 (quinol--cytochrome-c reductase) inhibitor,1
+CHEBI:77110,EC 1.21.3.3 (reticuline oxidase) inhibitor,1
+CHEBI:77119,EC 1.1.1.189 (prostaglandin-E2 9-reductase) inhibitor,1
+CHEBI:77324,UDP-glucuronosyltransferase activator,1
+CHEBI:77326,androstane receptor agonist,1
+CHEBI:77425,EC 1.1.1.188 (prostaglandin-F synthase) inhibitor,1
+CHEBI:77654,EC 1.1.1.267 (1-deoxy-D-xylulose-5-phosphate reductoisomerase) inhibitor,1
+CHEBI:77750,ATP/ADP translocase inhibitor,1
+CHEBI:77758,"EC 3.1.4.53 (3',5'-cyclic-AMP phosphodiesterase) inhibitor",1
+CHEBI:77763,EC 1.2.1.88 (L-glutamate gamma-semialdehyde dehydrogenase) inhibitor,1
+CHEBI:77783,EC 1.14.13.67 (quinine 3-monooxygenase) inhibitor,1
+CHEBI:77960,food firming agent,1
+CHEBI:77963,sequestrant,1
+CHEBI:78003,food bleaching agent,1
+CHEBI:78004,food bulking agent,1
+CHEBI:78009,Wiskott-Aldrich syndrome protein inhibitor,1
+CHEBI:78058,food antifoaming agent,1
+CHEBI:78059,food additive carrier,1
+CHEBI:78372,EC 3.1.1.5 (lysophospholipase) inhibitor,1
+CHEBI:78380,EC 3.5.4.1 (cytosine deaminase) inhibitor,1
+CHEBI:78384,EC 5.1.3.2 (UDP-glucose 4-epimerase) inhibitor,1
+CHEBI:78622,EC 2.7.11.31 {[hydroxymethylglutaryl-CoA reductase (NADPH)] kinase} inhibitor,1
+CHEBI:78691,EC 2.3.1.97 (glycylpeptide N-tetradecanoyltransferase) inhibitor,1
+CHEBI:78756,EC 2.5.1.6 (methionine adenosyltransferase) inhibitor,1
+CHEBI:78803,nematode metabolite,1
+CHEBI:78926,survivin dimerisation modulator,1
+CHEBI:79046,melatonin receptor agonist,1
+CHEBI:82756,EC 6.1.1.12 (aspartate--tRNA ligase) inhibitor,1
+CHEBI:82973,EC 3.4.24.11 (neprilysin) inhibitor,1
+CHEBI:82974,EC 3.4.24.71 (endothelin-converting enzyme 1) inhibitor,1
+CHEBI:83296,orexin receptor antagonist,1
+CHEBI:83316,EC 1.14.13.72 (methylsterol monooxygenase) inhibitor,1
+CHEBI:84012,EC 4.2.1.94 (scytalone dehydratase) inhibitor,1
+CHEBI:84264,EC 3.5.1.19 (nicotinamidase) inhibitor,1
+CHEBI:84297,EC 3.4.21.64 (peptidase K) inhibitor,1
+CHEBI:84799,EC 2.3.1.5 (arylamine N-acetyltransferase) inhibitor,1
+CHEBI:84800,EC 2.4.1.1 (glycogen phosphorylase) inhibitor,1
+CHEBI:84801,EC 2.7.1.127 (inositol-trisphosphate 3-kinase) inhibitor,1
+CHEBI:84802,EC 2.7.1.151 (inositol-polyphosphate multikinase) inhibitor,1
+CHEBI:84804,EC 2.7.4.6 (nucleoside-diphosphate kinase) inhibitor,1
+CHEBI:85012,thrombopoietin receptor agonist,1
+CHEBI:85049,EC 1.10.3.1 (catechol oxidase) inhibitor,1
+CHEBI:85050,EC 1.10.3.2 (laccase) inhibitor,1
+CHEBI:85051,"EC 1.13.11.24 (quercetin 2,3-dioxygenase) inhibitor",1
+CHEBI:85052,EC 1.4.3.3 (D-amino-acid oxidase) inhibitor,1
+CHEBI:85113,EC 2.7.11.12 (cGMP-dependent protein kinase) inhibitor,1
+CHEBI:85618,"EC 2.5.1.31 {ditrans,polycis-undecaprenyl-diphosphate synthase [(2E,6E)-farnesyl-diphosphate specific]} inhibitor",1
+CHEBI:86010,EC 1.4.1.3 {glutamate dehydrogenase [NAD(P)(+)]} inhibitor,1
+CHEBI:86501,EC 1.14.13.97 (taurochenodeoxycholate 6alpha-hydroxylase) inhibitor,1
+CHEBI:87786,signal transducer and activator of transcription 5 protein inhibitor,1
+CHEBI:90113,EC 1.1.1.170 [3beta-hydroxysteroid-4alpha-carboxylate 3-dehydrogenase (decarboxylating)] inhibitor,1
+CHEBI:90691,EC 5.3.1.1 (triose-phosphate isomerase) inhibitor,1
+CHEBI:90709,nuclear receptor modulator,1
+CHEBI:90714,retinoic acid receptor antagonist,1
+CHEBI:90742,retinoic acid receptor beta agonist,1
+CHEBI:90744,retinoic acid receptor gamma antagonist,1
+CHEBI:90757,antidote to benzodiazepine poisoning,1
+CHEBI:90767,eukaryotic translation elongation factor 1alpha 1 inhibitor,1
+CHEBI:90780,AKT1 kinase inhibitor,1
+CHEBI:90846,liver X receptor inverse agonist,1
+CHEBI:90921,EC 1.8.5.4 (sulfide:quinone reductase) inhibitor,1
+CHEBI:90961,ERK dimerisation inhibitor,1
+CHEBI:90991,steroid receptor coactivator stimulator,1
+CHEBI:91015,corrosion inhibitor,1
+CHEBI:91025,erythropoietin inhibitor,1
+CHEBI:91139,elastin-laminin receptor agonist,1
+CHEBI:91141,EC 1.1.5.3 (glycerol-3-phosphate dehydrogenase) inhibitor,1
+CHEBI:91193,lysophosphatidic acid receptor antagonist,1
+CHEBI:91214,macrophage migration inhibitory factor inhibitor,1

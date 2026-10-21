@@ -150,6 +150,7 @@ rule export_intermediate_files_to_duckdb:
         ids_parquet_filename=config["output_directory"] + "/duckdb/Identifier.parquet",
         concord_parquet_filename=config["output_directory"] + "/duckdb/Concord.parquet",
         metadata_parquet_filename=config["output_directory"] + "/duckdb/Metadata.parquet",
+        properties_parquet_filename=config["output_directory"] + "/duckdb/Property.parquet",
     benchmark:
         config["output_directory"] + "/benchmarks/export_intermediate_files_to_duckdb.tsv"
     resources:
@@ -173,6 +174,7 @@ rule export_intermediate_files_to_duckdb:
             output.ids_parquet_filename,
             output.concord_parquet_filename,
             output.metadata_parquet_filename,
+            output.properties_parquet_filename,
             memory_limit_mb=duckdb_memory_limit_mb(resources.mem_mb),
         )
 
