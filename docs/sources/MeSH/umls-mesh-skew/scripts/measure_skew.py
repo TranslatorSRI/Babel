@@ -5,8 +5,8 @@ numbers are exactly what rule generate_umls_mesh_skew_report would report had me
 is the evidence behind config.yaml's umls_mesh_skew_max_missing_codes: matched versions should sit far below
 it and a dump a year behind far above it.
 
-Each dump is downloaded over HTTPS from NLM (about 120 MB compressed, 2 GB decompressed) into --work-dir, and
-reused if already there. Example (a few minutes, mostly downloads and the MRCONSO pass per year):
+Each dump is downloaded into --work-dir by the build's own fetch_mesh_nt() (from NLM's FTP site, checked against
+its SHA-1 and normalized, about 120 MB compressed and 2 GB decompressed), and reused if already there. Example (a few minutes, mostly downloads and the MRCONSO pass per year):
 
     uv run python docs/sources/MeSH/umls-mesh-skew/scripts/measure_skew.py \\
         --mrconso babel_downloads/UMLS/MRCONSO.RRF --umls-version 2026AA --mesh-years 2024 2025 2026 \\
@@ -16,24 +16,18 @@ reused if already there. Example (a few minutes, mostly downloads and the MRCONS
 import argparse
 import os
 import sys
-import urllib.request
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..")))
 
-from src.datahandlers.mesh import normalize_mesh_nt  # noqa: E402
+from src.datahandlers.mesh import fetch_mesh_nt  # noqa: E402
 from src.reports.umls_mesh_skew import generate_umls_mesh_skew_report  # noqa: E402
 
-RDF_URL = "https://nlmpubs.nlm.nih.gov/projects/mesh/rdf/{year}/mesh{year}.nt.gz"
 
-
-def fetch_mesh_nt(year, work_dir) -> str:
-    """Download and normalize mesh{year}.nt into work_dir, reusing an earlier download."""
+def fetch_mesh_nt_into(year, work_dir) -> str:
+    """Download mesh{year}.nt into work_dir the way rule get_mesh does, reusing an earlier download."""
     nt_path = os.path.join(work_dir, f"mesh{year}.nt")
     if not os.path.exists(nt_path):
-        gz_path = nt_path + ".gz"
-        urllib.request.urlretrieve(RDF_URL.format(year=year), gz_path)
-        normalize_mesh_nt(gz_path, nt_path, year)
-        os.remove(gz_path)
+        fetch_mesh_nt(year, nt_path)
     return nt_path
 
 
@@ -49,7 +43,7 @@ def main():
 
     rows = []
     for year in args.mesh_years:
-        nt_path = fetch_mesh_nt(year, args.work_dir)
+        nt_path = fetch_mesh_nt_into(year, args.work_dir)
         report_path = os.path.join(args.work_dir, f"umls_mesh_skew-{args.umls_version}-mesh{year}.json")
         report = generate_umls_mesh_skew_report(args.mrconso, nt_path, args.umls_version, year, report_path)
         by_type = report["missing_by_record_type"]

@@ -4,6 +4,7 @@ import hashlib
 import os
 import warnings
 from collections import defaultdict
+from io import BytesIO
 from xml.etree import ElementTree
 
 import pyoxigraph
@@ -11,6 +12,9 @@ import pyoxigraph
 from src.babel_utils import make_local_name, pull_via_ftp
 from src.categories import ANATOMICAL_ENTITY, CELL, CELLULAR_COMPONENT
 from src.prefixes import MESH
+from src.util import ensure_parent_dir, get_logger
+
+logger = get_logger(__name__)
 
 MESH_IRI_PREFIX = "http://id.nlm.nih.gov/mesh/"
 
@@ -56,12 +60,18 @@ MESH_XML_FILES = [
 ]
 
 
-def mesh_xml_dir(mesh_year) -> str:
-    """Return the FTP directory holding desc{year}.gz and supp{year}.gz for ``mesh_year``."""
+def fetch_mesh_xml_dir(mesh_year) -> str:
+    """Return the FTP directory holding desc{year}.gz and supp{year}.gz for ``mesh_year``.
+
+    Lists MESH_XML_CURRENT_DIR on the NLM FTP site to see whether ``mesh_year`` is still the current year.
+    """
     ftp = ftplib.FTP(MESH_FTP_SITE)
-    ftp.login()
-    current_files = ftp.nlst(MESH_XML_CURRENT_DIR)
-    ftp.quit()
+    try:
+        ftp.login()
+        current_files = ftp.nlst(MESH_XML_CURRENT_DIR)
+        ftp.quit()
+    finally:
+        ftp.close()
     if any(os.path.basename(f) == f"desc{mesh_year}.gz" for f in current_files):
         return MESH_XML_CURRENT_DIR
     return f"/online/mesh/{mesh_year}/xmlmesh"
@@ -92,50 +102,82 @@ def normalize_mesh_nt(gz_path, out_path, mesh_year):
     return rewritten_lines
 
 
-def pull_mesh(mesh_year):
-    """Download the MeSH RDF dump for ``mesh_year`` to babel_downloads/MESH/mesh.nt.
+def fetch_mesh_nt(mesh_year, out_path):
+    """Download the MeSH RDF dump for ``mesh_year``, check it against NLM's SHA-1 and normalize it into out_path.
 
-    Fails if NLM has no dump for that year; there is deliberately no fallback to the stale top-level file.
-    The download is checked against NLM's published SHA-1 before its IRIs are normalized (see
-    normalize_mesh_nt()).
+    The SHA-1 is computed while the dump downloads, so the ~120 MB file is read only once more, to decompress
+    it (see normalize_mesh_nt()). Fails if NLM has no dump for that year; there is deliberately no fallback to
+    the stale top-level file. The compressed download is kept beside out_path only until it is normalized.
     """
     ftpdir, ftpfile = mesh_rdf_location(mesh_year)
-    gz_name = f"MESH/{ftpfile}"
-    try:
-        expected_sha1 = pull_via_ftp(MESH_FTP_SITE, ftpdir, f"{ftpfile}.sha1").split()[0]
-        gz_path = pull_via_ftp(MESH_FTP_SITE, ftpdir, ftpfile, outfilename=gz_name)
-    except ftplib.error_perm as e:
-        raise RuntimeError(
-            f"Could not download MeSH {mesh_year} from ftp://{MESH_FTP_SITE}{ftpdir}/{ftpfile} ({e}). "
-            "Check that mesh_year in config.yaml names a year NLM has published."
-        ) from e
-
+    url = f"ftp://{MESH_FTP_SITE}{ftpdir}/{ftpfile}"
+    gz_path = f"{out_path}.gz"
+    ensure_parent_dir(gz_path)
     sha1 = hashlib.sha1()
-    with open(gz_path, "rb") as inf:
-        for chunk in iter(lambda: inf.read(1 << 20), b""):
-            sha1.update(chunk)
-    if sha1.hexdigest() != expected_sha1:
-        raise RuntimeError(f"{gz_path} has SHA-1 {sha1.hexdigest()}, but NLM publishes {expected_sha1} for {ftpfile}.")
+    sha1_file = BytesIO()
+    ftp = ftplib.FTP(MESH_FTP_SITE)
+    try:
+        ftp.login()
+        try:
+            ftp.cwd(ftpdir)
+            with open(gz_path, "wb") as outf:
 
-    normalize_mesh_nt(gz_path, make_local_name("mesh.nt", subpath="MESH"), mesh_year)
+                def write_chunk(chunk):
+                    sha1.update(chunk)
+                    outf.write(chunk)
+
+                ftp.retrbinary(f"RETR {ftpfile}", write_chunk)
+        except ftplib.error_perm as e:
+            raise RuntimeError(
+                f"Could not download MeSH {mesh_year} from {url} ({e}). "
+                "Check that mesh_year in config.yaml names a year NLM has published."
+            ) from e
+        try:
+            ftp.retrbinary(f"RETR {ftpfile}.sha1", sha1_file.write)
+        except ftplib.error_perm as e:
+            # The dump itself downloaded, so the year is published: NLM has moved or renamed its checksum file.
+            raise RuntimeError(f"Downloaded {url}, but could not download its checksum file {url}.sha1 ({e}).") from e
+        ftp.quit()
+    finally:
+        ftp.close()
+
+    # NLM's .sha1 files read "<hash>  <filename>".
+    expected_sha1 = sha1_file.getvalue().decode().split()[0]
+    if sha1.hexdigest() != expected_sha1:
+        os.remove(gz_path)
+        raise RuntimeError(f"{url} downloaded with SHA-1 {sha1.hexdigest()}, but NLM publishes {expected_sha1}.")
+
+    normalize_mesh_nt(gz_path, out_path, mesh_year)
     os.remove(gz_path)
 
 
-def pull_mesh_xml(mesh_year):
+def pull_mesh(mesh_year):
+    """Download the MeSH RDF dump for ``mesh_year`` to babel_downloads/MESH/mesh.nt (see fetch_mesh_nt())."""
+    fetch_mesh_nt(mesh_year, make_local_name("mesh.nt", subpath="MESH"))
+
+
+def pull_mesh_xml(mesh_year, xml_sources_file):
     """Download the MeSH XML descriptor and SCR files for ``mesh_year`` to babel_downloads/MESH.
 
     Only needed for registry numbers (see pull_mesh_registry()). Fails if NLM has no XML for that year.
+    Writes the URL of each file to xml_sources_file, one per line, for mesh_registry_sources(): whether
+    they came from the daily-updated current directory or a year's archive is only known at download time.
     """
-    xml_dir = mesh_xml_dir(mesh_year)
+    xml_dir = fetch_mesh_xml_dir(mesh_year)
+    urls = []
     for prefix, _, _ in MESH_XML_FILES:
         ftpfile = f"{prefix}{mesh_year}.gz"
+        url = f"ftp://{MESH_FTP_SITE}{xml_dir}/{ftpfile}"
         try:
             pull_via_ftp(MESH_FTP_SITE, xml_dir, ftpfile, outfilename=f"MESH/{prefix}.xml.gz")
         except ftplib.error_perm as e:
             raise RuntimeError(
-                f"Could not download MeSH {mesh_year} XML from ftp://{MESH_FTP_SITE}{xml_dir}/{ftpfile} ({e}). "
+                f"Could not download MeSH {mesh_year} XML from {url} ({e}). "
                 "Check that mesh_year in config.yaml names a year NLM has published."
             ) from e
+        urls.append(url)
+    with open(xml_sources_file, "w", encoding="utf-8") as outf:
+        outf.writelines(f"{url}\n" for url in urls)
 
 
 class Mesh:
@@ -358,20 +400,57 @@ def read_mesh_xml_registry(xml_gz_path, record_tag, ui_tag):
             elem.clear()
 
 
-def pull_mesh_registry():
-    """Return sorted, unique (MESH:ID, registry number) pairs for all MeSH descriptors and SCRs.
+def pull_mesh_registry(desc_xml, supp_xml, mesh_labels):
+    """Return sorted, unique (MESH:ID, registry number) pairs for the MeSH descriptors and SCRs in the RDF dump.
 
     Registry numbers are CAS numbers, UNIIs, EC numbers and NCBI Taxon IDs ("txid..."). They come from the
-    MeSH XML rather than the RDF dump because NLM's per-year RDF dumps stopped including
-    meshv:registryNumber from MeSH 2025 onward. Raises ValueError if none are found, since every caller
-    (the chemical CAS/UNII concords and the MeSH-NCBITaxon concord) would otherwise silently come out empty.
+    MeSH XML (desc_xml and supp_xml, i.e. desc{year}.gz and supp{year}.gz) rather than the RDF dump because
+    NLM's per-year RDF dumps stopped including meshv:registryNumber from MeSH 2025 onward.
+
+    The current year's XML is updated daily while the RDF dump is a snapshot, so the XML can name records the
+    dump does not have (100 SCRs on 2026-10-21). Pairs are kept only for records with a label in mesh_labels
+    (babel_downloads/MESH/labels, read from the dump), so that a registry number never brings in a MeSH ID
+    that has no label or type anywhere else in the build: a concord alone can put a CURIE into a compendium.
+
+    Raises ValueError if none are found, since every caller (the chemical CAS/UNII concords and the
+    MeSH-NCBITaxon concord) would otherwise silently come out empty.
     """
+    with open(mesh_labels, encoding="utf-8") as inf:
+        labeled_ids = {line.split("\t", 1)[0] for line in inf}
     registry = set()
-    for prefix, record_tag, ui_tag in MESH_XML_FILES:
-        registry.update(read_mesh_xml_registry(make_local_name(f"{prefix}.xml.gz", subpath="MESH"), record_tag, ui_tag))
+    not_in_dump = set()
+    for (_, record_tag, ui_tag), xml_gz_path in zip(MESH_XML_FILES, (desc_xml, supp_xml), strict=True):
+        for meshid, regnum in read_mesh_xml_registry(xml_gz_path, record_tag, ui_tag):
+            if meshid in labeled_ids:
+                registry.add((meshid, regnum))
+            else:
+                not_in_dump.add(meshid)
+    if not_in_dump:
+        logger.info(
+            f"Skipped registry numbers for {len(not_in_dump):,} MeSH records in the XML but not in {mesh_labels}, "
+            f"e.g. {', '.join(sorted(not_in_dump)[:5])}."
+        )
     if not registry:
         raise ValueError("No registry numbers found in the MeSH XML files; has the MeSH XML format changed?")
     return sorted(registry)
+
+
+def mesh_registry_sources(mesh_year, xml_sources_file) -> list[dict]:
+    """Return write_concord_metadata() sources for a concord built from pull_mesh_registry().
+
+    The registry numbers come from the XML files named in xml_sources_file (written by pull_mesh_xml()), and
+    are filtered to the records in the RDF dump for ``mesh_year``.
+    """
+    with open(xml_sources_file, encoding="utf-8") as inf:
+        xml_urls = [line.strip() for line in inf if line.strip()]
+    rdf_dir, rdf_file = mesh_rdf_location(mesh_year)
+    return [{"type": "MeSH", "name": f"MeSH {mesh_year} XML (registry numbers)", "url": url} for url in xml_urls] + [
+        {
+            "type": "MeSH",
+            "name": f"MeSH {mesh_year} RDF (records kept)",
+            "url": f"ftp://{MESH_FTP_SITE}{rdf_dir}/{rdf_file}",
+        }
+    ]
 
 
 def write_ids(

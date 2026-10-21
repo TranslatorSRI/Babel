@@ -995,13 +995,28 @@ def make_chebi_relations(sdf, dbx, dbx_source, dbx_status, outfile, propfile_gz,
     )
 
 
-def get_mesh_relationships(mesh_id_file, cas_out, unii_out, cas_metadata, unii_metadata):
+def get_mesh_relationships(
+    mesh_id_file,
+    cas_out,
+    unii_out,
+    cas_metadata,
+    unii_metadata,
+    *,
+    mesh_desc_xml,
+    mesh_supp_xml,
+    mesh_labels,
+    mesh_xml_sources,
+):
+    """Write MeSH-CAS and MeSH-UNII xrefs from the registry numbers of the chemical MeSH IDs in mesh_id_file.
+
+    The mesh_* arguments are the files pull_mesh_registry() and mesh_registry_sources() read.
+    """
     meshes = set()
     with open(mesh_id_file) as inf:
         for line in inf:
             x = line.split("\t")
             meshes.add(x[0])
-    regis = mesh.pull_mesh_registry()
+    regis = mesh.pull_mesh_registry(mesh_desc_xml, mesh_supp_xml, mesh_labels)
     with open(cas_out, "w") as casout, open(unii_out, "w") as uniiout:
         for meshid, reg in regis:
             if meshid not in meshes:
@@ -1017,15 +1032,11 @@ def get_mesh_relationships(mesh_id_file, cas_out, unii_out, cas_metadata, unii_m
                 # is a unii?
                 uniiout.write(f"{meshid}\txref\tUNII:{reg}\n")
 
+    sources = mesh.mesh_registry_sources(get_config()["mesh_year"], mesh_xml_sources)
     write_concord_metadata(
         cas_metadata,
         name="get_mesh_relationships()",
-        sources=[
-            {
-                "type": "MeSH Registry",
-                "name": "MeSH Registry",
-            }
-        ],
+        sources=sources,
         description=f"get_mesh_relationships() iterates through the MeSH registry, filters it to the MeSH IDs "
         f"in {mesh_id_file}, then writes out CAS mappings to {cas_out}",
         concord_filename=cas_out,
@@ -1034,12 +1045,7 @@ def get_mesh_relationships(mesh_id_file, cas_out, unii_out, cas_metadata, unii_m
     write_concord_metadata(
         unii_metadata,
         name="get_mesh_relationships()",
-        sources=[
-            {
-                "type": "MeSH Registry",
-                "name": "MeSH Registry",
-            }
-        ],
+        sources=sources,
         description=f"get_mesh_relationships() iterates through the MeSH registry, filters it to the MeSH IDs "
         f"in {mesh_id_file}, then writes out non-CAS mappings (i.e. UNII mappings) to {unii_out}",
         concord_filename=unii_out,

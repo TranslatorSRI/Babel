@@ -5,12 +5,14 @@ Tests cover:
   - write_ids() SCR filtering logic (mock-based)
   - Mesh.get_scr_terms_mapped_to_trees() (inline pyoxigraph store)
   - normalize_mesh_nt() on per-year MeSH RDF (fixture copied from mesh2026.nt)
-  - read_mesh_xml_registry() on MeSH XML (fixtures copied from desc2026.gz / supp2026.gz)
+  - read_mesh_xml_registry() and pull_mesh_registry() on MeSH XML (fixtures copied from desc2026.gz / supp2026.gz)
+  - fetch_mesh_nt()'s checksum handling (mocked FTP)
   - that the configured mesh_year is published on the NLM FTP site (network)
 """
 
 import ftplib
 import gzip
+import hashlib
 import shutil
 from unittest.mock import MagicMock, patch
 
@@ -22,9 +24,12 @@ from src.datahandlers.mesh import (
     MESH_FTP_SITE,
     MESH_XML_FILES,
     Mesh,
+    fetch_mesh_nt,
+    fetch_mesh_xml_dir,
     mesh_rdf_location,
-    mesh_xml_dir,
+    mesh_registry_sources,
     normalize_mesh_nt,
+    pull_mesh_registry,
     read_mesh_xml_registry,
     write_ids,
 )
@@ -353,8 +358,144 @@ def test_read_mesh_xml_registry_scrs(tmp_path):
     ]
 
 
+# Labels of the two fixture records with registry numbers, in the format of babel_downloads/MESH/labels, copied
+# from the rdfs:label triples of D000068877 and C000612320 in mesh2026.nt.
+IMATINIB_MESYLATE_LABEL = "MESH:D000068877\tImatinib Mesylate\n"
+UR2_SARCOMA_VIRUS_LABEL = "MESH:C000612320\tUR2 sarcoma virus\n"
+
+
+def _registry(tmp_path, labels):
+    """Run pull_mesh_registry() on the desc/supp fixtures with a labels file holding ``labels``."""
+    labels_file = tmp_path / "labels"
+    labels_file.write_text("".join(labels))
+    desc = _gzip_fixture(MESH_TEST_DATA / "desc2026_sample.xml", tmp_path)
+    supp = _gzip_fixture(MESH_TEST_DATA / "supp2026_sample.xml", tmp_path)
+    return pull_mesh_registry(desc, supp, labels_file)
+
+
+@pytest.mark.unit
+def test_pull_mesh_registry_merges_desc_and_supp(tmp_path):
+    """Registry numbers from both XML files should be merged and sorted when every record is in the dump."""
+    assert _registry(tmp_path, [IMATINIB_MESYLATE_LABEL, UR2_SARCOMA_VIRUS_LABEL]) == [
+        ("MESH:C000612320", "txid354090"),
+        ("MESH:D000068877", "8A1O1M485B"),
+    ]
+
+
+@pytest.mark.unit
+def test_pull_mesh_registry_skips_records_missing_from_dump(tmp_path):
+    """A record in the (daily-updated) XML but not in the RDF dump's labels should get no registry number, so the
+    NCBITaxon concord cannot bring in a MeSH ID the rest of the build knows nothing about."""
+    assert _registry(tmp_path, [IMATINIB_MESYLATE_LABEL]) == [("MESH:D000068877", "8A1O1M485B")]
+
+
+@pytest.mark.unit
+def test_pull_mesh_registry_raises_when_empty(tmp_path):
+    """No registry numbers at all should raise rather than let the CAS/UNII/NCBITaxon concords come out empty."""
+    with pytest.raises(ValueError, match="No registry numbers"):
+        _registry(tmp_path, [])
+
+
+@pytest.mark.unit
+def test_mesh_registry_sources_names_xml_and_rdf(tmp_path):
+    """The metadata sources should list the XML URLs pull_mesh_xml() recorded, then the RDF dump the registry is
+    filtered to."""
+    xml_sources = tmp_path / "xml_sources.txt"
+    xml_sources.write_text(
+        "ftp://ftp.nlm.nih.gov/online/mesh/MESH_FILES/xmlmesh/desc2026.gz\n"
+        "ftp://ftp.nlm.nih.gov/online/mesh/MESH_FILES/xmlmesh/supp2026.gz\n"
+    )
+    assert [source["url"] for source in mesh_registry_sources("2026", xml_sources)] == [
+        "ftp://ftp.nlm.nih.gov/online/mesh/MESH_FILES/xmlmesh/desc2026.gz",
+        "ftp://ftp.nlm.nih.gov/online/mesh/MESH_FILES/xmlmesh/supp2026.gz",
+        "ftp://ftp.nlm.nih.gov/online/mesh/rdf/2026/mesh2026.nt.gz",
+    ]
+
+
 # ---------------------------------------------------------------------------
-# Group 6: the configured mesh_year is published
+# Group 6: fetch_mesh_nt() checksum handling
+# ---------------------------------------------------------------------------
+
+
+class _FakeMeshFTP:
+    """Stands in for ftplib.FTP, serving ``files`` (name -> bytes) from /online/mesh/rdf/2026."""
+
+    def __init__(self, files):
+        self.files = files
+
+    def __call__(self, site):
+        return self
+
+    def login(self):
+        pass
+
+    def cwd(self, ftpdir):
+        if ftpdir != "/online/mesh/rdf/2026":
+            raise ftplib.error_perm(f"550 {ftpdir}: No such file or directory")
+
+    def retrbinary(self, cmd, callback):
+        name = cmd.removeprefix("RETR ")
+        if name not in self.files:
+            raise ftplib.error_perm(f"550 {name}: No such file or directory")
+        data = self.files[name]
+        for i in range(0, len(data), 7):  # several chunks, as a real transfer would deliver
+            callback(data[i : i + 7])
+
+    def quit(self):
+        pass
+
+    def close(self):
+        pass
+
+
+def _fake_mesh_ftp(sha1=None, with_sha1_file=True):
+    """A _FakeMeshFTP serving the gzipped mesh2026_sample.nt and (unless with_sha1_file is False) a .sha1 file
+    in NLM's "<hash>  <filename>" format, holding ``sha1`` or the dump's real SHA-1."""
+    gz = gzip.compress((MESH_TEST_DATA / "mesh2026_sample.nt").read_bytes())
+    files = {"mesh2026.nt.gz": gz}
+    if with_sha1_file:
+        files["mesh2026.nt.gz.sha1"] = f"{sha1 or hashlib.sha1(gz).hexdigest()}  mesh2026.nt.gz\n".encode()
+    return _FakeMeshFTP(files)
+
+
+@pytest.mark.unit
+def test_fetch_mesh_nt_verifies_and_normalizes(tmp_path):
+    """A dump matching its .sha1 should be normalized into out_path, and the compressed download removed."""
+    out = tmp_path / "mesh.nt"
+    with patch("src.datahandlers.mesh.ftplib.FTP", _fake_mesh_ftp()):
+        fetch_mesh_nt("2026", out)
+    assert "<http://id.nlm.nih.gov/mesh/D002839>" in out.read_text()
+    assert list(tmp_path.iterdir()) == [out]
+
+
+@pytest.mark.unit
+def test_fetch_mesh_nt_rejects_checksum_mismatch(tmp_path):
+    """A dump whose SHA-1 differs from NLM's should raise, leaving neither the download nor a mesh.nt behind."""
+    with patch("src.datahandlers.mesh.ftplib.FTP", _fake_mesh_ftp(sha1="0" * 40)):
+        with pytest.raises(RuntimeError, match="but NLM publishes 0000"):
+            fetch_mesh_nt("2026", tmp_path / "mesh.nt")
+    assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.unit
+def test_fetch_mesh_nt_unpublished_year_names_mesh_year(tmp_path):
+    """A year NLM has not published should raise pointing at mesh_year in config.yaml."""
+    with patch("src.datahandlers.mesh.ftplib.FTP", _fake_mesh_ftp()):
+        with pytest.raises(RuntimeError, match="mesh_year in config.yaml"):
+            fetch_mesh_nt("2027", tmp_path / "mesh.nt")
+
+
+@pytest.mark.unit
+def test_fetch_mesh_nt_missing_checksum_is_not_blamed_on_mesh_year(tmp_path):
+    """A published dump without its .sha1 should raise about the checksum file, not about mesh_year."""
+    with patch("src.datahandlers.mesh.ftplib.FTP", _fake_mesh_ftp(with_sha1_file=False)):
+        with pytest.raises(RuntimeError, match="checksum file") as excinfo:
+            fetch_mesh_nt("2026", tmp_path / "mesh.nt")
+    assert "mesh_year" not in str(excinfo.value)
+
+
+# ---------------------------------------------------------------------------
+# Group 7: the configured mesh_year is published
 # ---------------------------------------------------------------------------
 
 
@@ -364,7 +505,7 @@ def test_configured_mesh_year_is_published():
     so get_mesh and get_mesh_xml will not fail partway through a build."""
     mesh_year = get_config()["mesh_year"]
     rdf_dir, rdf_file = mesh_rdf_location(mesh_year)
-    xml_dir = mesh_xml_dir(mesh_year)
+    xml_dir = fetch_mesh_xml_dir(mesh_year)
     ftp = ftplib.FTP(MESH_FTP_SITE)
     ftp.login()
     ftp.voidcmd("TYPE I")  # NLM refuses SIZE in ASCII mode.

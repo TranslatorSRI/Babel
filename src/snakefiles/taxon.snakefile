@@ -55,6 +55,8 @@ rule get_taxon_relationships:
     input:
         mesh_desc_xml=config["download_directory"] + "/MESH/desc.xml.gz",
         mesh_supp_xml=config["download_directory"] + "/MESH/supp.xml.gz",
+        mesh_labels=config["download_directory"] + "/MESH/labels",
+        mesh_xml_sources=config["download_directory"] + "/MESH/xml_sources.txt",
         meshids=config["intermediate_directory"] + "/taxon/ids/MESH",
     output:
         outfile=config["intermediate_directory"] + "/taxon/concords/NCBI_MESH",
@@ -62,7 +64,15 @@ rule get_taxon_relationships:
     benchmark:
         config["output_directory"] + "/benchmarks/get_taxon_relationships.tsv"
     run:
-        taxon.build_relationships(output.outfile, input.meshids, output.metadata_yaml)
+        taxon.build_relationships(
+            output.outfile,
+            input.meshids,
+            output.metadata_yaml,
+            mesh_desc_xml=input.mesh_desc_xml,
+            mesh_supp_xml=input.mesh_supp_xml,
+            mesh_labels=input.mesh_labels,
+            mesh_xml_sources=input.mesh_xml_sources,
+        )
 
 
 rule taxon_compendia:

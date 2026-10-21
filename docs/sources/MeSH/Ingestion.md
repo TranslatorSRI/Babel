@@ -37,16 +37,18 @@ intend to download from it instead of FTP, which has been the less reliable of t
 [#1161](https://github.com/NCATSTranslator/Babel/pull/1161) makes that switch, so if the FTP
 downloads fail before it lands, that PR is the fix to reach for.
 
-- **RDF**: `/online/mesh/rdf/{mesh_year}/mesh{mesh_year}.nt.gz`, checked against NLM's `.sha1`
-  and decompressed to `babel_downloads/MESH/mesh.nt` (a few GB). The per-year directory also has
-  `mesh{mesh_year}-dups.nt`, which is the same data before deduplication, so we don't download
-  it. Do not use the top-level `/online/mesh/rdf/mesh.nt.gz`: NLM stopped updating it after
-  MeSH 2024.
+- **RDF**: `/online/mesh/rdf/{mesh_year}/mesh{mesh_year}.nt.gz`, checked against NLM's `.sha1` and
+  decompressed to `babel_downloads/MESH/mesh.nt` (a few GB) by `fetch_mesh_nt()`, which hashes the
+  file as it downloads. `umls-mesh-skew/scripts/measure_skew.py` downloads through it too. The
+  per-year directory also has `mesh{mesh_year}-dups.nt`, which is the same data before
+  deduplication, so we don't download it. Do not use the top-level `/online/mesh/rdf/mesh.nt.gz`:
+  NLM stopped updating it after MeSH 2024.
 - **XML**: `desc{mesh_year}.gz` and `supp{mesh_year}.gz`, saved as
   `babel_downloads/MESH/desc.xml.gz` and `supp.xml.gz`. These are used only for registry numbers
   (see below). The current year is in `/online/mesh/MESH_FILES/xmlmesh/`; once a year is superseded
-  its final files are archived in `/online/mesh/{mesh_year}/xmlmesh/`. `mesh_xml_dir()` picks
-  whichever has the year's files.
+  its final files are archived in `/online/mesh/{mesh_year}/xmlmesh/`. `fetch_mesh_xml_dir()` picks
+  whichever has the year's files, and `babel_downloads/MESH/xml_sources.txt` records which one was
+  used, for the registry concords' metadata.
 
 If NLM has not published the configured year, both downloads fail. Neither falls back to another
 year. `tests/datahandlers/test_mesh.py::test_configured_mesh_year_is_published` (a `network`
@@ -78,6 +80,15 @@ skipping MeSH's `0` placeholder and ignoring `RelatedRegistryNumber`. This gives
 old RDF query gave. Against MeSH 2024 RDF, MeSH 2026 XML shares 158,927 pairs. Of the 2,327
 pairs that only the 2024 RDF has, all but 11 are on records NLM has since deleted.
 `pull_mesh_registry()` raises if it finds no registry numbers at all.
+
+The current year's XML is updated daily, but the RDF dump is a snapshot, so the XML can carry
+records the dump does not: on 2026-10-21, 100 new SCRs (`C000731751` onward) had registry numbers
+but no record in `mesh2026.nt`. `pull_mesh_registry()` keeps registry numbers only for records with
+a label in `babel_downloads/MESH/labels`, and logs how many it skipped. Otherwise the `NCBI_MESH`
+concord, which is not filtered by `taxon/ids/MESH`, could put a MeSH ID with no label or type into a
+taxon clique. Registry numbers of records already in the dump can still change from one day's XML to
+the next, so two downloads of the same `mesh_year` are not guaranteed to give identical concords
+until the year is archived.
 
 Compared with the 2024 dump, `mesh2026.nt` also lacks `meshv:active`, `dateEstablished`,
 `dateRevised`, `lastActiveYear` and `sortVersion`, and adds `dateIntroduced` and `lastUpdated`
@@ -195,8 +206,9 @@ removing a MeSH branch.
 
 Code:
 
-- `src/datahandlers/mesh.py` — handler: `pull_mesh()`, `normalize_mesh_nt()`, `pull_mesh_xml()`,
-  `pull_mesh_registry()`, `Mesh` class, `write_ids()`, `get_scr_terms_mapped_to_trees()`,
+- `src/datahandlers/mesh.py` — handler: `pull_mesh()` / `fetch_mesh_nt()`, `normalize_mesh_nt()`,
+  `pull_mesh_xml()` / `fetch_mesh_xml_dir()`, `pull_mesh_registry()`, `mesh_registry_sources()`,
+  `Mesh` class, `write_ids()`, `get_scr_terms_mapped_to_trees()`,
   `get_mesh_id_from_iri()`, `_mesh_id()`.
 - `src/reports/umls_mesh_skew.py` — the UMLS/MeSH version skew report and the check that fails the
   build on it.

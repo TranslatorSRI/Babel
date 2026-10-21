@@ -250,6 +250,8 @@ rule get_mesh_xml:
     output:
         config["download_directory"] + "/MESH/desc.xml.gz",
         config["download_directory"] + "/MESH/supp.xml.gz",
+        # Which directory (current or archived) each file came from, for the registry concords' metadata.
+        xml_sources=config["download_directory"] + "/MESH/xml_sources.txt",
     benchmark:
         config["output_directory"] + "/benchmarks/get_mesh_xml.tsv"
     retries: 3  # MeSH FTP download occasionally fails transiently.
@@ -257,7 +259,7 @@ rule get_mesh_xml:
         # A param, so that changing mesh_year reruns the download.
         mesh_year=config["mesh_year"],
     run:
-        mesh.pull_mesh_xml(params.mesh_year)
+        mesh.pull_mesh_xml(params.mesh_year, output.xml_sources)
 
 
 rule get_mesh_labels:
