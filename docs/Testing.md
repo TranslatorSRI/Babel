@@ -126,6 +126,13 @@ The scheduled run is gated to the main repo (`NCATSTranslator/Babel`) via a job-
 in `test.yml`, so it does not run on forks. Fork owners can still trigger it manually with
 `workflow_dispatch`.
 
+The scheduled run is also the place where endpoints that are firewalled elsewhere get exercised:
+outbound FTP (port 21) is blocked on HPC nodes, so the PANTHER FTP network test can only pass on a
+host with a clean network identity. On firewalled hosts that test xfails a refused/timed-out
+connection by design, and fails outright on a session that breaks *after* connecting, so an
+upstream change at `ftp.pantherdb.org` surfaces as a failure rather than hiding behind the xfail
+(issue #1102).
+
 Consider adding during active sprints:
 
 - A weekly job on the self-hosted HPC runner that runs `pytest --pipeline --regenerate` once a
