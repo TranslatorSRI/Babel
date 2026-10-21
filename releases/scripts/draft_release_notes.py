@@ -278,6 +278,24 @@ def notable_changes(build_dir: Path) -> str | None:
     return match.group(1).strip() if match else None
 
 
+def umls_mesh_skew_bullet(build_dir: Path) -> str | None:
+    """A bullet saying how many UMLS MSH codes this build's MeSH dump has no record for, from its report.
+
+    The build fails when the count is over ``umls_mesh_skew_max_missing_codes``, so a build that got this far
+    is within the limit; the bullet is here so whoever writes the note sees how close it came, alongside the
+    UMLS and MeSH version bumps it depends on. None for a build older than the report.
+    """
+    path = build_dir / "reports" / "umls_mesh_skew.json"
+    if not path.exists():
+        return None
+    report = json.loads(path.read_text())
+    return (
+        f"- {report['umls_msh_codes_missing_from_mesh_excluding_categories']:,} MeSH codes in UMLS "
+        f"{report['umls_version']} have no record in MeSH {report['mesh_year']} (`reports/umls_mesh_skew.json`, "
+        f"leaving out the `U` category headings UMLS adds itself). _Delete this line unless the count is large._"
+    )
+
+
 def fetch_status(url: str) -> dict | None:
     """GET a NodeNorm or NameRes ``/status`` document, or None if it can't be reached.
 
@@ -659,6 +677,9 @@ def draft(
             prs_by_repo[repo_key] = reason
 
     bumps = version_bumps(repo_root, previous["build"]) if previous else []
+    skew = umls_mesh_skew_bullet(build_dir) if build_dir else None
+    if skew:
+        bumps.append(skew)
     workarounds = build_workarounds(repo_root)
     notable = notable_changes(build_dir) if build_dir else None
     table = summary_of_changes(build_dir, previous["id"], release_id) if build_dir and previous else None

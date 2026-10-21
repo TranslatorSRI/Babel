@@ -7,6 +7,7 @@ from-zero row is invisible until the published note renders).
 
 import http.client
 import importlib.util
+import json
 import sys
 
 import pytest
@@ -629,3 +630,27 @@ def test_unexplained_movers_flags_every_large_compendium_move(tmp_path):
 def test_unexplained_movers_is_silent_without_a_build(tmp_path):
     """No CSV means no claim either way, rather than an empty checklist that reads as 'all clear'."""
     assert drn.unexplained_movers(tmp_path) == []
+
+
+@pytest.mark.unit
+def test_umls_mesh_skew_bullet_reports_the_build_count(tmp_path):
+    """The build's UMLS/MeSH skew count should be drafted as a bullet naming both versions."""
+    reports = tmp_path / "reports"
+    reports.mkdir()
+    (reports / "umls_mesh_skew.json").write_text(
+        json.dumps(
+            {
+                "umls_version": "2026AA",
+                "mesh_year": "2026",
+                "umls_msh_codes_missing_from_mesh_excluding_categories": 1234,
+            }
+        )
+    )
+    bullet = drn.umls_mesh_skew_bullet(tmp_path)
+    assert bullet.startswith("- 1,234 MeSH codes in UMLS 2026AA have no record in MeSH 2026")
+
+
+@pytest.mark.unit
+def test_umls_mesh_skew_bullet_is_silent_for_an_older_build(tmp_path):
+    """A build from before the report existed should get no bullet rather than a broken one."""
+    assert drn.umls_mesh_skew_bullet(tmp_path) is None
