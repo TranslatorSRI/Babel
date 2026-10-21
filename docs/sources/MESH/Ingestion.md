@@ -18,7 +18,13 @@ MeSH 2026 the only missing codes are the 22 `U` "(MeSH Category)" headings that 
 with the stale MeSH 2024 dump there were 1,878, on 2,162 CUIs with no other MSH code. The report
 is informational and does not fail the build.
 
-Two downloads come from `ftp.nlm.nih.gov`, both for the configured year:
+Two downloads come from `ftp.nlm.nih.gov`, both for the configured year. The same files are served
+under the same paths over HTTPS from <https://nlmpubs.nlm.nih.gov/projects/mesh/>, the site NLM's
+[MeSH download page](https://www.nlm.nih.gov/databases/download/mesh.html) links to; open
+<https://nlmpubs.nlm.nih.gov/projects/mesh/rdf/> in a browser to see whether a newer year is out. We
+intend to download from it instead of FTP, which has been the less reliable of the two:
+[#1161](https://github.com/NCATSTranslator/Babel/pull/1161) makes that switch, so if the FTP
+downloads fail before it lands, that PR is the fix to reach for.
 
 - **RDF**: `/online/mesh/rdf/{mesh_year}/mesh{mesh_year}.nt.gz`, checked against NLM's `.sha1`
   and decompressed to `babel_downloads/MESH/mesh.nt` (a few GB). The per-year directory also has
