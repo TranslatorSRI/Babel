@@ -119,11 +119,10 @@ def conflate_synonyms(synonym_files_gz, compendia_files, conflation_file, output
 
                     # Do we need to conflate this synonym at all?
                     curie = synonym["curie"]
-                    bl_type = "biolink:" + synonym.get("types", ["Entity"])[0]
                     if curie not in conflation_index:
                         # No known conflation. We can just write it out.
                         print(json.dumps(synonym), file=outputf)
-                        logger.debug(f"Ignoring synonym {curie}, no known conflation.")
+                        logger.debug("Ignoring synonym %s, no known conflation.", curie)
                     else:
                         # We need to conflate this. Add this to the synonyms_to_conflate list.
                         preferred_id = conflation_index[curie]
@@ -132,15 +131,8 @@ def conflate_synonyms(synonym_files_gz, compendia_files, conflation_file, output
                                 f"Duplicate CURIE in conflation: {preferred_id} appears multiple times in {curie}"
                             )
                         synonyms_to_conflate[preferred_id][curie].append(synonym)
-                        synonyms = synonyms_to_conflate[preferred_id].values()
-                        bl_types = set()
-                        for synonym_list in synonyms:
-                            for synonym in synonym_list:
-                                bl_types.add("biolink:" + synonym.get("types", ["Entity"])[0])
-                        logger.debug(f"Conflating synonym {curie} ({bl_type}) to {preferred_id} ({bl_types}).")
 
         logger.info(f"Identified {len(synonyms_to_conflate)} conflated cliques that need to be synonymized.")
-        logger.debug(f"Conflated cliques: {json.dumps(synonyms_to_conflate, sort_keys=True)}")
 
         # Step 3. Conflate any synonyms that need conflating.
         for curie in synonyms_to_conflate:
@@ -165,13 +157,10 @@ def conflate_synonyms(synonym_files_gz, compendia_files, conflation_file, output
                             conflation_ids.append(ident["i"])
                 else:
                     conflation_ids = [conflation_id_not_normalized]
-                logger.info(f"Expanded {conflation_id_not_normalized} into {conflation_ids}.")
+                logger.debug("Expanded %s into %s.", conflation_id_not_normalized, conflation_ids)
                 for conflation_id in conflation_ids:
-                    logger.info(f"Looking into conflation ID {conflation_id} for {conflation_id_not_normalized}.")
+                    logger.debug("Looking into conflation ID %s for %s.", conflation_id, conflation_id_not_normalized)
                     for synonym in synonyms_by_curie[conflation_id]:
-                        logger.info(
-                            f"conflation_order = {conflation_order}, synonyms_by_curie[{conflation_id}] = {synonyms_by_curie[conflation_id]}"
-                        )
                         if "curie" not in final_conflation:
                             final_conflation["curie"] = synonym["curie"]
 
@@ -257,8 +246,6 @@ def conflate_synonyms(synonym_files_gz, compendia_files, conflation_file, output
                 final_conflation["curie_suffix"] = curie_suffix
 
             # Write it out.
-            logger.debug(f"Conflated entries:\n{json.dumps(synonyms_by_curie, indent=2, sort_keys=True)}")
-            logger.debug(f"Into entry: {json.dumps(final_conflation)}")
             print(json.dumps(final_conflation), file=outputf)
 
 
