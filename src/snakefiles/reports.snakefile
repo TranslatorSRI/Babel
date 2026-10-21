@@ -1,6 +1,6 @@
 from src.reports import report_tables
 from src.reports import prefix_comparison
-from src.reports.umls_mesh_skew import generate_umls_mesh_skew_report
+from src.reports.umls_mesh_skew import check_umls_mesh_skew, generate_umls_mesh_skew_report
 from src.reports.source_impact_details import NEW_CLIQUES_CSV, NEW_XREFS_SUMMARY_CSV
 from src.snakefiles.util import get_all_compendia, get_all_synonyms, get_all_gzipped
 import os
@@ -209,6 +209,21 @@ rule generate_umls_mesh_skew_report:
         )
 
 
+# The control behind the report above: fails the build when mesh_year has fallen behind umls_version (see
+# src.reports.umls_mesh_skew.check_umls_mesh_skew). rule umls_mesh_ownership waits for it, so a skewed MeSH dump
+# stops the MeSH-owning pipelines before they build their compendia on it.
+rule check_umls_mesh_skew:
+    input:
+        report=config["output_directory"] + "/reports/umls_mesh_skew.json",
+    output:
+        checked=config["output_directory"] + "/reports/umls_mesh_skew.checked",
+    localrule: True
+    params:
+        max_missing_codes=config["umls_mesh_skew_max_missing_codes"],
+    run:
+        check_umls_mesh_skew(input.report, params.max_missing_codes, output.checked)
+
+
 # Optional per-source impact report. Not part of all_reports.
 # Invoke with e.g.:
 #   snakemake babel_outputs/reports/source_impact/EMAPA.md
@@ -252,7 +267,7 @@ rule all_reports:
         config["output_directory"] + "/reports/tables/cliques_table.csv",
         config["output_directory"] + "/reports/tables/mapping_sources_table.csv",
         config["output_directory"] + "/reports/tables/prefix_comparison.md",
-        config["output_directory"] + "/reports/umls_mesh_skew.json",
+        config["output_directory"] + "/reports/umls_mesh_skew.checked",
     output:
         x=config["output_directory"] + "/reports/reports_done",
     shell:

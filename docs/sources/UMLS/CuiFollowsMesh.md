@@ -3,7 +3,7 @@
 Babel types UMLS CUIs and MeSH descriptors independently: each pipeline's `write_umls_ids()`
 selects CUIs by UMLS semantic type (`umls.write_umls_ids()`, `src/datahandlers/umls.py`), and each
 pipeline's `write_mesh_ids()` selects descriptors by MeSH tree number (`mesh.write_ids()`, see
-[`MESH/Ingestion.md`](../MESH/Ingestion.md)). Each pipeline's UMLS concord (`umls.build_sets()`)
+[`MeSH/Ingestion.md`](../MeSH/Ingestion.md)). Each pipeline's UMLS concord (`umls.build_sets()`)
 then links every CUI it claims to that CUI's MeSH descriptor and DrugBank ingredient. When the two
 selections disagree about a CUI, the concord dragged another pipeline's descriptor into this
 pipeline's clique, and the same identifiers ended up in two compendia, often leading a clique in

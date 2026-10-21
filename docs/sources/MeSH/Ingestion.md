@@ -15,10 +15,26 @@ Supplementary Concept Records) with no MeSH record. Each build writes
 `babel_outputs/reports/umls_mesh_skew.json`, which counts the MSH codes in UMLS's `MRCONSO.RRF`
 (column 14 of the `SAB=MSH` rows) that have no `rdfs:label` in `mesh.nt`. With UMLS 2026AA and
 MeSH 2026 the only missing codes are the 22 `U` "(MeSH Category)" headings that UMLS adds itself;
-with the stale MeSH 2024 dump there were 1,878, on 2,162 CUIs with no other MSH code. The report
-is informational and does not fail the build.
+MeSH 2025 misses 829 more and MeSH 2024 1,856 ([`umls-mesh-skew/`](umls-mesh-skew/README.md) has
+the table and the script that measures it).
 
-Two downloads come from `ftp.nlm.nih.gov`, both for the configured year:
+That count, leaving out the `U` headings, **fails the build** when it exceeds
+`umls_mesh_skew_max_missing_codes` in `config.yaml` (100). `rule check_umls_mesh_skew` does it,
+and `rule umls_mesh_ownership` waits for it, so the five MeSH-owning pipelines stop before they
+build compendia on a MeSH dump that is behind UMLS; only their cheap `ids/MESH` rules run first.
+The JSON report survives the failure, to say what is missing. The fix is almost always to move
+`mesh_year` to the MeSH year the UMLS release was built from. Raise the limit only for a build
+that has to run on a skewed MeSH, and record why under `build.workarounds`. The report is also
+archived with each release, and `releases/scripts/draft_release_notes.py` prints its count beside
+the version bumps.
+
+Two downloads come from `ftp.nlm.nih.gov`, both for the configured year. The same files are served
+under the same paths over HTTPS from <https://nlmpubs.nlm.nih.gov/projects/mesh/>, the site NLM's
+[MeSH download page](https://www.nlm.nih.gov/databases/download/mesh.html) links to; open
+<https://nlmpubs.nlm.nih.gov/projects/mesh/rdf/> in a browser to see whether a newer year is out. We
+intend to download from it instead of FTP, which has been the less reliable of the two:
+[#1161](https://github.com/NCATSTranslator/Babel/pull/1161) makes that switch, so if the FTP
+downloads fail before it lands, that PR is the fix to reach for.
 
 - **RDF**: `/online/mesh/rdf/{mesh_year}/mesh{mesh_year}.nt.gz`, checked against NLM's `.sha1`
   and decompressed to `babel_downloads/MESH/mesh.nt` (a few GB). The per-year directory also has
@@ -181,7 +197,8 @@ Code:
 - `src/datahandlers/mesh.py` — handler: `pull_mesh()`, `normalize_mesh_nt()`, `pull_mesh_xml()`,
   `pull_mesh_registry()`, `Mesh` class, `write_ids()`, `get_scr_terms_mapped_to_trees()`,
   `get_mesh_id_from_iri()`, `_mesh_id()`.
-- `src/reports/umls_mesh_skew.py` — the UMLS/MeSH version skew report.
+- `src/reports/umls_mesh_skew.py` — the UMLS/MeSH version skew report and the check that fails the
+  build on it.
 - `src/createcompendia/{anatomy,taxon,diseasephenotype,chemicals,protein}.py` — `write_mesh_ids()`.
 
 Issues:
