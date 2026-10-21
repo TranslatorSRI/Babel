@@ -16,6 +16,40 @@ def pull_ncbitaxon():
     )
 
 
+def read_obsolete_taxa(infile):
+    """
+    Read the merged and deleted NCBI Taxonomy IDs from taxdump.tar.
+
+    Other sources (MeSH, UMLS) often cross-reference NCBI Taxonomy IDs that have since been merged into
+    another taxon or deleted. These IDs aren't in our NCBITaxon labels or IDs, so they need to be updated
+    or dropped before they are used in a concord.
+
+    :param infile: taxdump.tar, the file containing the individual data dumps for NCBI Taxonomy.
+    :return: A tuple of (merged, deleted): `merged` is a dict mapping each merged NCBITaxon CURIE to the
+        NCBITaxon CURIE it was merged into, and `deleted` is a set of deleted NCBITaxon CURIEs.
+    """
+    with tarfile.open(infile, "r") as taxtar:
+        merged = {}
+        # Each line of merged.dmp is "old_tax_id\t|\tnew_tax_id\t|".
+        for line in taxtar.extractfile("merged.dmp"):
+            parts = [x.strip() for x in line.decode("utf-8").split("|")]
+            merged[f"{NCBITAXON}:{parts[0]}"] = f"{NCBITAXON}:{parts[1]}"
+        # Each line of delnodes.dmp is "tax_id\t|".
+        deleted = {
+            f"{NCBITAXON}:{line.decode('utf-8').split('|')[0].strip()}" for line in taxtar.extractfile("delnodes.dmp")
+        }
+
+    # NCBI flattens merge chains, so a merge target should never itself be merged or deleted. Check this,
+    # since following a single step would otherwise silently leave us with an obsolete ID.
+    stale_targets = {target for target in merged.values() if target in merged or target in deleted}
+    if stale_targets:
+        raise ValueError(
+            f"{len(stale_targets)} NCBITaxon merge targets are themselves obsolete, e.g. {sorted(stale_targets)[:5]}"
+        )
+
+    return merged, deleted
+
+
 def make_labels_and_synonyms(infile, labelfile, synfile, propfilegz):
     """
     Generate labels and synonyms for NCBITaxon IDs.

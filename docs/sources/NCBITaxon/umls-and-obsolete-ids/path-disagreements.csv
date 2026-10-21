@@ -1,0 +1,49 @@
+cui,cui_label,direct_ncbitaxon,mesh,ncbitaxon_via_mesh
+UMLS:C0001180,Acremonium,NCBITaxon:81097 Cephalosporium,MESH:D000164 Acremonium,NCBITaxon:159075 Acremonium
+UMLS:C0006024,Borna disease virus,NCBITaxon:1714619 Orthobornavirus bornaense,MESH:D001891 Borna disease virus,NCBITaxon:12455 Borna disease virus
+UMLS:C0009169,Coca,NCBITaxon:289672 Erythroxylum coca (coca),MESH:D003041 Coca,NCBITaxon:13511 Erythroxylum
+UMLS:C0013268,Ducks,NCBITaxon:8835 Anas (ducks),MESH:D004372 Ducks,NCBITaxon:2068716 Anatinae
+UMLS:C0023325,Lentinus,NCBITaxon:5357 Lentinus,MESH:D020074 Lentinula,NCBITaxon:5352 Lentinula
+UMLS:C0026914,Mycobacterium avium Complex,NCBITaxon:120793 Mycobacterium avium complex (MAC),MESH:D015269 Mycobacterium avium Complex,NCBITaxon:37162 Mycobacterium avium complex sp.
+UMLS:C0029200,Orf virus,NCBITaxon:3431389 Parapoxvirus orf,MESH:D009923 Orf virus,NCBITaxon:10258 Orf virus
+UMLS:C0031299,Bacteriophage mu,NCBITaxon:10677 Muvirus mu,MESH:D010583 Bacteriophage mu,NCBITaxon:2681603 Escherichia phage Mu
+UMLS:C0031944,Pinnipedia,NCBITaxon:3072905 Pinnipedia (pinnipeds),MESH:D010872 Caniformia,NCBITaxon:379584 Caniformia
+UMLS:C0037144,"Sarcoma Virus, Woolly Monkey",NCBITaxon:3428962 Gammaretrovirus woomonsar,"MESH:D012842 Sarcoma Virus, Woolly Monkey",NCBITaxon:11970 Woolly monkey sarcoma virus
+UMLS:C0040943,Trichosporon,NCBITaxon:1809731 Trichosporum,MESH:D014250 Trichosporon,NCBITaxon:5552 Trichosporon
+UMLS:C0041401,Meleagridinae,NCBITaxon:466552 Meleagridinae,MESH:D014422 Turkeys,NCBITaxon:9005 Phasianidae (turkeys)
+UMLS:C0042338,"herpesvirus 3, human",NCBITaxon:3050294 Varicellovirus humanalpha3,"MESH:D014645 Herpesvirus 3, Human",NCBITaxon:10335 Human alphaherpesvirus 3 (Varicella-zoster virus)
+UMLS:C0043041,Wasps,NCBITaxon:7443 Vespa,MESH:D014863 Wasps,NCBITaxon:7438 Vespidae (wasps)
+UMLS:C0085274,human parvovirus B19 virus,NCBITaxon:3052189 Erythroparvovirus primate1,"MESH:D016732 Parvovirus B19, Human",NCBITaxon:10798 Human parvovirus B19
+UMLS:C0206509,Uukuniemi virus,NCBITaxon:2734594 Uukuvirus,MESH:D018066 Uukuniemi virus,NCBITaxon:11591 Uukuniemi virus
+UMLS:C0314845,Achromobacter xylosoxidans,NCBITaxon:85698 Achromobacter xylosoxidans,MESH:D042441 Achromobacter denitrificans,NCBITaxon:32002 Achromobacter denitrificans
+UMLS:C0319623,Geotrichum galactomycetum,NCBITaxon:27317 Geotrichum galactomycetum,MESH:C000682231 Geotrichum candidum,NCBITaxon:1173061 Geotrichum candidum
+UMLS:C0320169,Fusarium chlamydosporum var. chlamydosporum,NCBITaxon:2081998 Fusarium chlamydosporum var. chlamydosporum,MESH:C000678086 Fusarium chlamydosporum,NCBITaxon:86545 Fusarium chlamydosporum
+UMLS:C0325152,Orycteropodidae,NCBITaxon:9816 Orycteropodidae (aardvark),MESH:D000091123 Orycteropodidae,NCBITaxon:9815 Tubulidentata (aardvarks)
+UMLS:C0330209,Magnoliopsida,NCBITaxon:2986937 Oncothecales,MESH:D019684 Magnoliopsida,NCBITaxon:3398 Magnoliopsida (flowering plants)
+UMLS:C0330254,Anemone,NCBITaxon:3137121 Anemone,MESH:D031883 Anemone,NCBITaxon:22868 Anemonastrum
+UMLS:C0331277,Aloysia,NCBITaxon:105887 Aloysia,MESH:C000655467 Aloysia,NCBITaxon:925377 Aloysia citrodora (lemon verbena)
+UMLS:C0376574,GB virus C,NCBITaxon:3052608 Pegivirus hominis,MESH:D029407 GB virus C,NCBITaxon:54290 GB virus C
+UMLS:C0600450,Blattellidae,NCBITaxon:3046527 Blattellidae,MESH:D020048 Blattellidae,NCBITaxon:1049651 Ectobiidae (German cockroach family)
+UMLS:C0751990,Epsilonproteobacteria,NCBITaxon:3031852 Epsilonproteobacteria,MESH:D020565 Epsilonproteobacteria,NCBITaxon:29547 Campylobacterota (e-proteobacteria)
+UMLS:C0993566,Daboia,NCBITaxon:42188 Daboia,MESH:D017840 Daboia,NCBITaxon:8707 Daboia russelii (Russell's viper)
+UMLS:C0997376,Williopsis,NCBITaxon:3713381 Petasospora,MESH:D055320 Williopsis,NCBITaxon:4962 Williopsis
+UMLS:C1008110,Dracocephalum ruyschiana,NCBITaxon:39297 Dracocephalum ruyschiana,MESH:C000718258 Dracocephalum argunense,NCBITaxon:672817 Dracocephalum argunense
+UMLS:C1013981,Sphingomonas agrestis,NCBITaxon:3080540 Sphingomonas agrestis,MESH:C000640204 Sphingomonas agrestis,NCBITaxon:48503 Sphingomonas sp. HV3
+UMLS:C1016673,Bupleurum chinense,NCBITaxon:52451 Bupleurum chinense,MESH:C000712280 Bupleurum falcatum,NCBITaxon:46367 Bupleurum falcatum
+UMLS:C1031468,Wasabia,NCBITaxon:75806 Eutrema japonicum (wasabe),MESH:D031228 Wasabia,NCBITaxon:98005 Eutrema
+UMLS:C1060600,Russula cremoricolor,NCBITaxon:2860945 Russula cremoricolor,MESH:C000701688 Russula cremoricolor,NCBITaxon:125791 Russula cremicolor
+UMLS:C1070335,Goose circovirus,NCBITaxon:3047842 Circovirus goose,MESH:C000623807 Goose circovirus,NCBITaxon:146032 Goose circovirus
+UMLS:C1084975,Geastrum hansagiensis,NCBITaxon:68764 Geastrum,MESH:C000671173 Geastrum hansagiensis,NCBITaxon:2654643 Geastrum hansagiense
+UMLS:C1086110,Hymenogaster sublilacinus,NCBITaxon:3362127 Phlegmacium sublilacinum,MESH:C000677014 Hymenogaster sublilacinus,NCBITaxon:80651 Phlegmacium lilacinoides
+UMLS:C1094241,Polygonum cuspidatum,NCBITaxon:83819 Polygonum cuspidatum,MESH:D045468 Fallopia japonica,NCBITaxon:488216 Reynoutria japonica (Japanese knotweed)
+UMLS:C1625799,Duck circovirus,NCBITaxon:3047813 Circovirus duck,MESH:C000623753 Duck circovirus,NCBITaxon:324685 Duck circovirus
+UMLS:C2309130,Polyporus leptocephalus,NCBITaxon:3420665 Cerioporus leptocephalus,MESH:C000682721 Polyporus leptocephalus,NCBITaxon:2922229 Boletus leptocephalus (nom. illeg.)
+UMLS:C2780136,Paecilomyces formosus,NCBITaxon:3232301 Paecilomyces formosus,MESH:C000697940 Paecilomyces formosus,NCBITaxon:644133 Paecilomyces maximus
+UMLS:C3961463,Micromonospora endophytica,NCBITaxon:515350 Micromonospora endophytica,MESH:C000643551 Micromonospora endophytica,NCBITaxon:1530043 Micromonospora thawaii
+UMLS:C3994902,Inocybe mallocyboides,NCBITaxon:3412563 Inocybe mallocyboides,MESH:C000694226 Inocybe mallocyboides,NCBITaxon:1589203 Inocybe fulvotomentosa
+UMLS:C4424855,Haplosporangium gracile,NCBITaxon:2779863 Haplosporangium gracile,MESH:C000692967 Haplosporangium gracile,NCBITaxon:1897643 Linnemannia camargensis
+UMLS:C4445584,SFTS phlebovirus,NCBITaxon:2748958 Bandavirus dabieense,MESH:C000623795 SFTS phlebovirus,NCBITaxon:1933190 SFTS phlebovirus
+UMLS:C4619746,Altererythrobacter flavus,NCBITaxon:2781856 Altererythrobacter flavalbus,MESH:C000648366 Altererythrobacter flavus,NCBITaxon:2055955 Tsuneonella flava
+UMLS:C5250460,Micarea azorica,NCBITaxon:3394523 Micarea azorica,MESH:C000696308 Micarea azorica,NCBITaxon:2528846 Micarea pseudotsugae
+UMLS:C5256625,Desmidiospora myrmecophila,NCBITaxon:2753540 Ophiocordyceps desmidiospora,MESH:C000690573 Desmidiospora myrmecophila,NCBITaxon:2698353 Sclerophomella vincetoxici
+UMLS:C5958580,Rhodofomitopsis monomitica,NCBITaxon:1932320 Fomitopsis monomitica,MESH:C000701407 Rhodofomitopsis monomitica,NCBITaxon:2358161 Pseudoantrodia monomitica

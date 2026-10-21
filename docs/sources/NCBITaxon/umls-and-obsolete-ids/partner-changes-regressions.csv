@@ -1,0 +1,82 @@
+curie,label,before_partner,before_partner_label,after_partner,after_partner_label,before_partner_now_with
+UMLS:C0012563,Diphyllobothrium <Diphyllobothriidae>,NCBITaxon:28844,Diphyllobothrium (broad tapeworms),NCBITaxon:2267273,Dibothriocephalus,NCBITaxon:28844; MESH:D004170
+UMLS:C0023325,Lentinus,NCBITaxon:5352,Lentinula,NCBITaxon:5357,Lentinus,NCBITaxon:5352; MESH:D020074; UMLS:C0600461
+UMLS:C0031944,Pinnipedia,NCBITaxon:379584,Caniformia,NCBITaxon:3072905,Pinnipedia (pinnipeds),NCBITaxon:379584; MESH:D010872; UMLS:C1270262
+UMLS:C0041401,Meleagridinae,NCBITaxon:9005,Phasianidae (turkeys),NCBITaxon:466552,Meleagridinae,NCBITaxon:9005; MESH:D014422; UMLS:C0325635
+UMLS:C0314845,Achromobacter xylosoxidans,NCBITaxon:32002,Achromobacter denitrificans,NCBITaxon:85698,Achromobacter xylosoxidans,NCBITaxon:32002; MESH:D042441; UMLS:C0445806
+UMLS:C0319623,Geotrichum galactomycetum,NCBITaxon:1173061,Geotrichum candidum,NCBITaxon:27317,Geotrichum galactomycetum,NCBITaxon:1173061; MESH:C000682231; UMLS:C4049071
+UMLS:C0320169,Fusarium chlamydosporum var. chlamydosporum,NCBITaxon:86545,Fusarium chlamydosporum,NCBITaxon:2081998,Fusarium chlamydosporum var. chlamydosporum,NCBITaxon:86545; MESH:C000678086; UMLS:C5886747
+UMLS:C0325152,Orycteropodidae,NCBITaxon:9815,Tubulidentata (aardvarks),NCBITaxon:9816,Orycteropodidae (aardvark),NCBITaxon:9815; MESH:D000091123; UMLS:C0325150
+UMLS:C0326915,Finches,NCBITaxon:9133,Fringillidae,,,NCBITaxon:9133; MESH:D046369; UMLS:C0326914
+UMLS:C0330209,Magnoliopsida,NCBITaxon:3398,Magnoliopsida (flowering plants),NCBITaxon:2986937,Oncothecales,NCBITaxon:3398; MESH:D019684; UMLS:C0330208
+UMLS:C0330254,Anemone,NCBITaxon:22868,Anemonastrum,NCBITaxon:3137121,Anemone,NCBITaxon:22868; MESH:D031883; UMLS:C6025504
+UMLS:C0331277,Aloysia,NCBITaxon:925377,Aloysia citrodora (lemon verbena),NCBITaxon:105887,Aloysia,NCBITaxon:925377; MESH:C000655467; UMLS:C3097146
+UMLS:C0993566,Daboia,NCBITaxon:8707,Daboia russelii (Russell's viper),NCBITaxon:42188,Daboia,NCBITaxon:8707; MESH:D017840; UMLS:C0206318
+UMLS:C0997376,Williopsis,NCBITaxon:4962,Williopsis,NCBITaxon:3713381,Petasospora,NCBITaxon:4962; MESH:D055320
+UMLS:C0999736,Ctenophora <Eumetazoa>,NCBITaxon:10197,Ctenophora (comb jellies),NCBITaxon:1003038,Ctenophora,NCBITaxon:10197; MESH:D037302
+UMLS:C1008031,Monarda,NCBITaxon:39171,Monarda (wild bergamots),NCBITaxon:523210,Monarda,NCBITaxon:39171; MESH:D031338
+UMLS:C1008110,Dracocephalum ruyschiana,NCBITaxon:672817,Dracocephalum argunense,NCBITaxon:39297,Dracocephalum ruyschiana,NCBITaxon:672817; MESH:C000718258; UMLS:C2795361
+UMLS:C1009413,Family Bradyrhizobiaceae (organism),NCBITaxon:41294,Nitrobacteraceae,,,NCBITaxon:41294; MESH:D041841; UMLS:C0028143
+UMLS:C1013174,Genus Duddingtonia,NCBITaxon:13348,Arthrobotrys,,,NCBITaxon:13348; MESH:D059586; UMLS:C1000642
+UMLS:C1013981,Sphingomonas agrestis,NCBITaxon:48503,Sphingomonas sp. HV3,NCBITaxon:3080540,Sphingomonas agrestis,NCBITaxon:48503; MESH:C000640204
+UMLS:C1016673,Bupleurum chinense,NCBITaxon:46367,Bupleurum falcatum,NCBITaxon:52451,Bupleurum chinense,NCBITaxon:46367; MESH:C000712280; UMLS:C1012569
+UMLS:C1060600,Russula cremoricolor,NCBITaxon:125791,Russula cremicolor,NCBITaxon:2860945,Russula cremoricolor,NCBITaxon:125791; MESH:C000701688; UMLS:C5574833
+UMLS:C1086110,Hymenogaster sublilacinus,NCBITaxon:80651,Phlegmacium lilacinoides,NCBITaxon:3362127,Phlegmacium sublilacinum,NCBITaxon:80651; MESH:C000677014; UMLS:C5980045
+UMLS:C1094241,Polygonum cuspidatum,NCBITaxon:488216,Reynoutria japonica (Japanese knotweed),NCBITaxon:83819,Polygonum cuspidatum,NCBITaxon:488216; MESH:D045468; UMLS:C2314887
+UMLS:C1449811,Lens Plant,NCBITaxon:3863,Lens,,,NCBITaxon:3863; MESH:D027806; UMLS:C0996842
+UMLS:C1510458,Goat,NCBITaxon:9925,Capra hircus (goat),,,NCBITaxon:9925; MESH:D006041; UMLS:C0018019
+UMLS:C1955847,Cyclopia Plant,NCBITaxon:70072,Cyclopia,,,NCBITaxon:70072; MESH:D053998; UMLS:C1085086
+UMLS:C2587210,Rhodotorula,NCBITaxon:5533,Rhodotorula,,,NCBITaxon:5533; MESH:D012248; UMLS:C1095859
+UMLS:C2780136,Paecilomyces formosus,NCBITaxon:644133,Paecilomyces maximus,NCBITaxon:3232301,Paecilomyces formosus,NCBITaxon:644133; MESH:C000697940; UMLS:C5958589
+UMLS:C3053958,Xanthoparmelia hottentota,NCBITaxon:859859,Xanthoparmelia hottentotta,,,NCBITaxon:859859; MESH:C000704777; UMLS:C1467519
+UMLS:C3203009,Planctomycetales - Phylum,NCBITaxon:112,Planctomycetales,,,NCBITaxon:112; MESH:D061328; UMLS:C0995257
+UMLS:C4424855,Haplosporangium gracile,NCBITaxon:1897643,Linnemannia camargensis,NCBITaxon:2779863,Haplosporangium gracile,NCBITaxon:1897643; MESH:C000692967; UMLS:C3334077
+UMLS:C4760234,Sapajus apella,NCBITaxon:9515,Sapajus apella (tufted capuchin),,,NCBITaxon:9515; MESH:D000080522; UMLS:C0999514
+UMLS:C5227205,Staphylococcus saprophyticus subsp. bovis,NCBITaxon:29385,Staphylococcus saprophyticus,,,NCBITaxon:29385; MESH:C000638665; UMLS:C0318112
+UMLS:C5250459,Micarea aeruginoprasina,NCBITaxon:2528845,Micarea minuta,NCBITaxon:3394524,Micarea aeruginoprasina,NCBITaxon:2528845; MESH:C000696307
+UMLS:C5250460,Micarea azorica,NCBITaxon:2528846,Micarea pseudotsugae,NCBITaxon:3394523,Micarea azorica,NCBITaxon:2528846; MESH:C000696308; UMLS:C5980291
+UMLS:C5256625,Desmidiospora myrmecophila,NCBITaxon:2698353,Sclerophomella vincetoxici,NCBITaxon:2753540,Ophiocordyceps desmidiospora,NCBITaxon:2698353; MESH:C000690573; UMLS:C4779521
+UMLS:C5400644,Circinella tenella,NCBITaxon:201730,Mucor janssenii,,,NCBITaxon:201730; MESH:C000666935; UMLS:C5123943
+UMLS:C5401014,Rhizophagus prolifer,NCBITaxon:2650738,Rhizophagus prolifer,,,NCBITaxon:2650738; MESH:C000701329; UMLS:C5259456
+UMLS:C5401027,Morchella tridentina,NCBITaxon:1582345,Morchella tridentina,,,NCBITaxon:1582345; MESH:C000689199; UMLS:C3990266
+UMLS:C5433606,"Cercaria, flatworms",NCBITaxon:280692,Cercaria,,,NCBITaxon:280692; MESH:C000709674; UMLS:C1947992
+UMLS:C5433901,Colletotrichum bletillum,NCBITaxon:1349654,Colletotrichum bletillae,,,NCBITaxon:1349654; MESH:C000668106; UMLS:C3747939
+UMLS:C5434069,Auratiopycnidiella tristaniopsis,NCBITaxon:1198982,Auratiopycnidiella tristaniopsidis,,,NCBITaxon:1198982; MESH:C000662978; UMLS:C3574799
+UMLS:C5434085,Xenoacremonium falcatus,NCBITaxon:1634948,Xenoacremonium falcatum,,,NCBITaxon:1634948; MESH:C000658810; UMLS:C4105315
+UMLS:C5434099,Bambusicola irregulispora,NCBITaxon:1238263,Bambusicola irregularispora,,,NCBITaxon:1238263; MESH:C000663319; UMLS:C3595841
+UMLS:C5434110,Acanthostigma patagonica,NCBITaxon:2719178,Camporesiomyces patagonicus,,,NCBITaxon:2719178; MESH:C000659300; UMLS:C3392649
+UMLS:C5434142,Ceramothyrium ficus,NCBITaxon:1743213,Ceramothyrium fici,,,NCBITaxon:1743213; MESH:C000665876; UMLS:C4092737
+UMLS:C5434146,Calogaya altynis,NCBITaxon:2183531,Calogaya altynenis,,,NCBITaxon:2183531; MESH:C000664659; UMLS:C4813665
+UMLS:C5434150,Calonectria hevicola,NCBITaxon:2182562,Calonectria heveicola,,,NCBITaxon:2182562; MESH:C000664735; UMLS:C5246841
+UMLS:C5434195,Ceratocystis pycnanthiformis,NCBITaxon:1580865,Huntiella pycnanthi,,,NCBITaxon:1580865; MESH:C000665962; UMLS:C3989250
+UMLS:C5434225,Cantharellus hygrophorus,NCBITaxon:1473539,Cantharellus hygrophoroides,,,NCBITaxon:1473539; MESH:C000665596; UMLS:C4008764
+UMLS:C5434345,Colletotrichum caudasporum,NCBITaxon:1349655,Colletotrichum caudisporum,,,NCBITaxon:1349655; MESH:C000668125; UMLS:C3747940
+UMLS:C5434450,Hermatomyces subiculosa,NCBITaxon:1910974,Hermatomyces subiculosus,,,NCBITaxon:1910974; MESH:C000693252; UMLS:C4433133
+UMLS:C5434451,Hermatomyces thailandica,NCBITaxon:1837981,Hermatomyces thailandicus,,,NCBITaxon:1837981; MESH:C000693254; UMLS:C4381940
+UMLS:C5434464,Cyptotrama songolarum,NCBITaxon:1586184,Cyptotrama songolara,,,NCBITaxon:1586184; MESH:C000690158; UMLS:C3993146
+UMLS:C5434510,Derxomyces pseudocylindrica,NCBITaxon:511228,Derxomyces pseudocylindricus,,,NCBITaxon:511228; MESH:C000690559; UMLS:C2761597
+UMLS:C5434535,Diaporthe podocarpi-macrophyll,NCBITaxon:1968850,Diaporthe podocarpi-macrophylli,,,NCBITaxon:1968850; MESH:C000690687; UMLS:C4570684
+UMLS:C5434549,Seimatosporium cornii,NCBITaxon:1699687,Seimatosporium corni,,,NCBITaxon:1699687; MESH:C000688479; UMLS:C4096966
+UMLS:C5434553,Diversimorbus metrosiderotis,NCBITaxon:1955149,Diversimorbus metrosideri,,,NCBITaxon:1955149; MESH:C000691065; UMLS:C4457971
+UMLS:C5434558,Dothiorella neclivorem,NCBITaxon:1740602,Dothiorella neclivora,,,NCBITaxon:1740602; MESH:C000691123; UMLS:C4093007
+UMLS:C5434571,Inocybe dulcamaroides,NCBITaxon:707238,Pseudosperma dulcamaroides,,,NCBITaxon:707238; MESH:C000683025; UMLS:C2812180
+UMLS:C5434573,Diaporthe thunbergii,NCBITaxon:1214579,Diaporthe thunbergiae,,,NCBITaxon:1214579; MESH:C000683071; UMLS:C3721495
+UMLS:C5434584,Teratosphaeria tinara,NCBITaxon:665071,Teratosphaeria tinarooa,,,NCBITaxon:665071; MESH:C000683320; UMLS:C2994020
+UMLS:C5434601,Penicillium shennangjianum,NCBITaxon:1131480,Penicillium shennongjianum,,,NCBITaxon:1131480; MESH:C000684124; UMLS:C3424524
+UMLS:C5434636,Puccinia chunjii,NCBITaxon:881116,Puccinia chunjiei,,,NCBITaxon:881116; MESH:C000681763; UMLS:C3557678
+UMLS:C5434710,Sporothrix guttiliformis,NCBITaxon:1892480,Sporothrix guttuliformis,,,NCBITaxon:1892480; MESH:C000702560; UMLS:C4420948
+UMLS:C5434804,Inaequalispora cylindrispora,NCBITaxon:2027413,Inaequalispora cylindrospora,,,NCBITaxon:2027413; MESH:C000694032; UMLS:C4606052
+UMLS:C5434843,Inocybe fulvipes,NCBITaxon:467869,Mallocybe fulvipes,,,NCBITaxon:467869; MESH:C000694164; UMLS:C2292701
+UMLS:C5434853,Phoma matteuciicola,NCBITaxon:749848,Neoscirrhia matteucciicola,,,NCBITaxon:749848; MESH:C000699215; UMLS:C2823870
+UMLS:C5434872,Marsupiomyces quercina,NCBITaxon:2041245,Marsupiomyces quercinus,,,NCBITaxon:2041245; MESH:C000696027; UMLS:C4613252
+UMLS:C5434925,Mucor amethysteus,NCBITaxon:2021223,Mucor amethystinus,,,NCBITaxon:2021223; MESH:C000696624; UMLS:C5268966
+UMLS:C5434973,Peziza erini,NCBITaxon:405869,Peziza eriniae,,,NCBITaxon:405869; MESH:C000698781; UMLS:C3900596
+UMLS:C5435113,Yarrowia parophonii,NCBITaxon:1934389,Yarrowia parophoni,,,NCBITaxon:1934389; MESH:C000705010; UMLS:C4566842
+UMLS:C5435127,Nectria desmazierii,NCBITaxon:57154,Fusarium buxicola,,,NCBITaxon:57154; MESH:C000678261; UMLS:C1019962
+UMLS:C5435164,Diaporthe litchicola,NCBITaxon:1344528,Diaporthe litchiicola,,,NCBITaxon:1344528; MESH:C000690651; UMLS:C3906947
+UMLS:C5435170,"Ctenophora, diatoms",NCBITaxon:1003038,Ctenophora,,,NCBITaxon:1003038; MESH:C000709457; UMLS:C0999736
+UMLS:C5435209,Johansonia chapadiensis,NCBITaxon:928726,Johansonia chapadensis,,,NCBITaxon:928726; MESH:C000683798; UMLS:C3098494
+UMLS:C5435210,Anungitea nullica,NCBITaxon:2093379,Anungitea nullicana,,,NCBITaxon:2093379; MESH:C000661567; UMLS:C4641610
+UMLS:C5435217,Callistosporium olivascens,NCBITaxon:2585282,Xerophorus olivascens,,,NCBITaxon:2585282; MESH:C000664608; UMLS:C5063456
+UMLS:C5779523,Killifishes,NCBITaxon:8076,Cyprinodontidae (killifishes),,,NCBITaxon:8076; MESH:D007695; UMLS:C0022690
+UMLS:C5958580,Rhodofomitopsis monomitica,NCBITaxon:2358161,Pseudoantrodia monomitica,NCBITaxon:1932320,Fomitopsis monomitica,NCBITaxon:2358161; MESH:C000701407; UMLS:C4943969

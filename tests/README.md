@@ -222,6 +222,11 @@ and how to add new checks or vocabularies.
 - **`pipeline/test_umls.py`** (`pipeline`) — UMLS-specific targeted assertions:
   chemicals must not contain UMLS IDs claimed by the protein compendium.
 
+- **`pipeline/test_taxon.py`** (`pipeline`) — Checks over the built taxon concords: the UMLS concord
+  must link CUIs to NCBITaxon (not just MeSH), and every NCBITaxon CURIE in the MeSH and UMLS
+  concords must be a current NCBI Taxonomy ID. See
+  [`docs/sources/NCBITaxon/README.md`](../docs/sources/NCBITaxon/README.md).
+
 - **`pipeline/test_ec.py`**, **`pipeline/test_rhea.py`**, **`pipeline/test_chembl.py`**,
   **`pipeline/test_clo.py`**, **`pipeline/test_efo.py`** (`pipeline`) — Output format and
   content checks for the EC, Rhea, ChEMBL, CLO, and EFO data handlers.

@@ -72,6 +72,11 @@ letting it accumulate in `AGENTS.md` — `AGENTS.md` should point here, not dupl
   term as `biolink:PhenotypicFeature`, tagging each with the taxon
   [`NCBITaxon:40674`](http://purl.obolibrary.org/obo/NCBITaxon_40674) "Mammalia", exporting xref
   concords, and routing them into the disease compendia.
+- **NCBITaxon** ([NCBITaxon/README.md](./NCBITaxon/README.md)) — how MeSH and UMLS link to NCBI
+  Taxonomy in the `OrganismTaxon` compendium: UMLS's `NCBI` source abbreviation, replacing merged
+  and dropping deleted taxon IDs (and why a replaced ID loses to a direct link), with a
+  build-vs-build clique diff and the scripts that measure partner changes and remaining
+  disagreements.
 - **UMLS** ([UMLS/Leftover.md](./UMLS/Leftover.md)) — the "leftover UMLS" compendium: how
   unclaimed UMLS concepts are swept up and typed, the manual STY→Biolink override tables and the
   drift test that keeps them honest, and the coverage report under `reports/umls/`.

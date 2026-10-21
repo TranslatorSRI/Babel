@@ -1,0 +1,26 @@
+{
+  "about": {
+    "after": "ncbitaxon-umls-cliques",
+    "before": "main (f6fbc10b)",
+    "files": [
+      "OrganismTaxon.txt"
+    ],
+    "note": "UMLS NCBI SAB fix plus merged/deleted NCBITaxon remap"
+  },
+  "compendia": {
+    "OrganismTaxon.txt": {
+      "changed_before_cliques": 1427642,
+      "clique_count": {
+        "after": 3055807,
+        "before": 3768902,
+        "diff": -713095,
+        "diff_percent": -18.92
+      },
+      "cliques_with_dropped_members": 1911,
+      "dropped_member_count": 1911,
+      "leader_changed_count": 0,
+      "moved_member_count": 0,
+      "regrouped_member_count": 715790
+    }
+  }
+}
