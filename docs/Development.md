@@ -146,6 +146,24 @@ that is slow by necessity.
    find out whether your change worked. If it did not, the turnaround for a fix is another full
    run.
 
+### Updating the Biolink Model fixture
+
+The `tests/compendium/` test package patches `bmt.Toolkit` to read pinned local
+copies of `biolink-model.yaml`, `attributes.yaml`, `predicate_mapping.yaml`,
+and `biolink_model_prefix_map.json` from `tests/fixtures/biolink-model/`. This
+keeps those tests offline, but it means the fixture must stay in sync with the
+`biolink_version` declared in `config.yaml`.
+
+When you bump `biolink_version`, refresh the fixture in the same change:
+
+```bash
+uv run python tests/fixtures/biolink-model/refresh.py
+```
+
+Commit the updated fixture files together with the `config.yaml` change. The
+network test `tests/test_biolink_model_freshness.py` (run with `--network`)
+fails loudly when the fixture and config diverge.
+
 ### Why this is hard
 
 - **Download cost.** Many data sources (UMLS, UniChem, PubChem, UniProt TrEMBL) are multi-gigabyte
