@@ -78,6 +78,16 @@ different.
   ingested ([Babel #831](https://github.com/NCATSTranslator/Babel/pull/831)).
 - **A new `Food` compendium** (932 CURIEs) from the DrugBank retype
   ([Babel #918](https://github.com/NCATSTranslator/Babel/pull/918)); see the known issue above.
+- **4,269 `Drug` cliques are now `ChemicalEntity`.** Moving the chemical type precedence into
+  `config.yaml: chemical_type_order`
+  ([Babel #948](https://github.com/NCATSTranslator/Babel/pull/948)) ranked `biolink:Drug` below
+  `biolink:ChemicalEntity`, which flips every clique whose type vote was tied between the two. All
+  4,269 are two- or three-member RxNorm formulation stubs (`RXCUI`+`UMLS`, occasionally `MESH`) with
+  no structural identifier, so a consumer normalizing one of those RXCUIs now gets
+  `biolink:ChemicalEntity` where 2025sep1 returned `biolink:Drug`. The net `Drug` row in the table
+  below is only -0.7% because other changes added cliques over the same period; the retype itself
+  was measured directly by
+  [the clique diff](../../docs/sources/DRUGBANK/food-and-extracts/clique-diff.md).
 - **ComplexMolecularMixture is up 432.6%** (276 -> 1,470) -- the same DrugBank retype
   ([Babel #828](https://github.com/NCATSTranslator/Babel/pull/828)) moved plant, fruit and animal
   extracts here rather than into `Food`.
@@ -237,11 +247,16 @@ different.
   `docs/sources/DownloadPatterns.md`). Unlike DrugBank, this is not a reused old download -- I
   downloaded it fresh in a browser on my laptop and copied it to the HPC.
 - The `biolink:Food` retype in [Babel #918](https://github.com/NCATSTranslator/Babel/pull/918)
-  applied at the clique level, so seven cliques that reach DrugBank food evidence through RXCUI/UMLS
+  applied at the clique level, so cliques that reach DrugBank food evidence through RXCUI/UMLS
   -- including D-glucose and tocopherol -- shipped as `biolink:Food` in babel-1.18
   ([Babel issue #935](https://github.com/NCATSTranslator/Babel/issues/935)). The fix
   ([Babel #948](https://github.com/NCATSTranslator/Babel/pull/948), commit `43157fa7`) is in the
-  2026jul22 tag, and `Food.txt` is down to 285 cliques. Confirmed fixed in the deployed build:
+  2026jul22 tag, and `Food.txt` is down to 285 cliques: a build-vs-build
+  [clique diff](../../docs/sources/DRUGBANK/food-and-extracts/clique-diff.md) puts **eight** cliques
+  leaving `Food` (293 -> 285) holding 102 identifiers -- the seven the babel-1.18 warning caught,
+  five of which return to `biolink:SmallMolecule` and two to `biolink:MolecularMixture`, plus
+  "Cantaloupe", which goes to `biolink:ComplexMolecularMixture` by the extract rule. No identifier
+  was dropped. Confirmed fixed in the deployed build:
   [`CHEBI:4167`](http://purl.obolibrary.org/obo/CHEBI_4167) "D-glucose" and
   `DRUGBANK:DB09341` now normalize to a single `biolink:SmallMolecule` clique, so the DrugBank food
   identifier takes its clique's type rather than imposing `biolink:Food` on it.
