@@ -1,6 +1,5 @@
 configfile: "config.yaml"
 
-
 include: "src/snakefiles/datacollect.snakefile"
 include: "src/snakefiles/umls.snakefile"
 include: "src/snakefiles/anatomy.snakefile"
@@ -20,7 +19,7 @@ include: "src/snakefiles/publications.snakefile"
 include: "src/snakefiles/duckdb.snakefile"
 include: "src/snakefiles/reports.snakefile"
 include: "src/snakefiles/exports.snakefile"
-
+include: "src/snakefiles/bulk_normalizer.snakefile"
 
 # Some general imports.
 import shutil
