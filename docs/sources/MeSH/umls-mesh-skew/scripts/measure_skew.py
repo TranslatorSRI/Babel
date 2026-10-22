@@ -5,8 +5,9 @@ numbers are exactly what rule generate_umls_mesh_skew_report would report had me
 is the evidence behind config.yaml's umls_mesh_skew_max_missing_codes: matched versions should sit far below
 it and a dump a year behind far above it.
 
-Each dump is downloaded into --work-dir by the build's own fetch_mesh_nt() (from NLM's FTP site, checked against
-its SHA-1 and normalized, about 120 MB compressed and 2 GB decompressed), and reused if already there. Example (a few minutes, mostly downloads and the MRCONSO pass per year):
+Each dump is downloaded into --work-dir by the build's own fetch_mesh_nt() (from NLM's HTTPS site, checked
+against its SHA-1 and normalized, about 120 MB compressed and 2 GB decompressed), and reused if already there.
+Example (a few minutes, mostly downloads and the MRCONSO pass per year):
 
     uv run python docs/sources/MeSH/umls-mesh-skew/scripts/measure_skew.py \\
         --mrconso babel_downloads/UMLS/MRCONSO.RRF --umls-version 2026AA --mesh-years 2024 2025 2026 \\
